@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Tasa de Justicia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #124559;
+            text-align: center;
+        }
+        a {
+            color: #598392;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #598392;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+        .table-container {
+            margin-top: 20px;
+        }
+        .total-section {
+            margin-top: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 10px 0;
+            border-top: 2px solid #ccc;
+        }
+        .total-section label {
+            margin-right: 10px;
+        }
+        .total-section input {
+            width: 150px;
+            text-align: right;
+            font-weight: bold;
+        }
+        .add-row, .add-section {
+            text-align: right;
+            margin-top: 10px;
+        }
+        .add-row button, .add-section button {
+            background-color: #598392;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+        }
+        .add-row button:hover, .add-section button:hover {
+            background-color: #124559;
+        }
+        .info-text {
+            margin-top: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #e9f7ef;
+            border-left: 4px solid #598392;
+            white-space: pre-line;
+        }
+        .sucesion-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            background-color: #fafafa;
+        }
+        .sucesion-section h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #124559;
+        }
+        .sucesion-section h3 button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .porcentaje-nota {
+            font-size: 0.8em;
+            color: #666;
+            display: block;
+            margin-top: 5px;
+        }
+        /* Mobile-friendly table styles */
+        @media screen and (max-width: 600px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                border: 1px solid #ccc;
+                margin-bottom: 15px;
+                border-radius: 4px;
+            }
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            td:before {
+                position: absolute;
+                top: 0;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+            }
+            td:nth-of-type(1):before { content: "Descripción del bien"; }
+            td:nth-of-type(2):before { content: "Valuación fiscal"; }
+            td:nth-of-type(3):before { content: "Titularidad"; }
+            td:nth-of-type(4):before { content: "Sobretasa"; }
+            td:nth-of-type(5):before { content: "Subtotal"; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1><a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/0-4999/298/texact.htm">Calculadora de Tasa de Justicia (Ley Nº 23.898)</a></h1>
+
+    <div class="form-group">
+        <label for="objetoJuicio">Objeto del juicio:</label>
+        <select id="objetoJuicio">
+            <option value="">Seleccione una opción</option>
+            <option value="sumasDinero">Sumas de dinero</option>
+            <option value="desalojo">Desalojo</option>
+            <option value="inmuebles">Inmuebles (escrituración, prescripción adquisitiva, reivindicación etc.)</option>
+            <option value="otros">Otros</option>
+            <option value="sucesion">Sucesión</option>
+        </select>
+    </div>
+
+    <div id="calculadoraContainer" class="table-container">
+        </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const objetoJuicioSelect = document.getElementById('objetoJuicio');
+    const calculadoraContainer = document.getElementById('calculadoraContainer');
+
+    function normalizeNumberInput(value) {
+        if (!value) return '';
+        if (value.indexOf(',') > -1 && value.indexOf('.') > -1) {
+            if (value.indexOf(',') > value.indexOf('.')) {
+                value = value.replace(/\./g, '');
+                value = value.replace(',', '.');
+            } else {
+                value = value.replace(/,/g, '');
+            }
+        } else if (value.indexOf(',') > -1) {
+            value = value.replace(',', '.');
+        }
+        return value.replace(/[^\d.-]/g, '');
+    }
+    
+    function parseFractionAndPercentage(value) {
+        let cleanedValue = value.trim();
+        if (cleanedValue.endsWith('%')) {
+            const numericValue = parseFloat(normalizeNumberInput(cleanedValue.slice(0, -1)));
+            return numericValue / 100;
+        }
+        if (cleanedValue.includes('/')) {
+            const parts = cleanedValue.split('/');
+            if (parts.length === 2) {
+                const numerator = parseFloat(normalizeNumberInput(parts[0]));
+                const denominator = parseFloat(normalizeNumberInput(parts[1]));
+                if (denominator !== 0) {
+                    return numerator / denominator;
+                }
+            }
+        }
+        return parseFloat(normalizeNumberInput(cleanedValue)) / 100;
+    }
+
+    objetoJuicioSelect.addEventListener('change', function() {
+        const selectedValue = this.value;
+        calculadoraContainer.innerHTML = '';
+        if (selectedValue === 'sucesion') {
+            createSucesionUI();
+        } else if (selectedValue !== '') {
+            createSimpleTable(selectedValue);
+        }
+    });
+
+    function createSimpleTable(type) {
+        let labelText = '';
+        let calculationFunction = null;
+        let infoText = '';
+
+        switch(type) {
+            case 'sumasDinero':
+                labelText = 'Ingresar monto reclamado con intereses (art. 4 inc. a). Si es en dólares convertir al valor oficial tipo vendedor del BNA al día del pago';
+                calculationFunction = (monto) => monto * 0.03;
+                break;
+            case 'desalojo':
+                labelText = 'Ingresar el valor actualizado del alquiler (art. 4 inc. b). El sistema calcula el 3% sobre seis cánones.';
+                calculationFunction = (monto) => monto * 6 * 0.03;
+                break;
+            case 'inmuebles':
+                labelText = 'Ingresar Valuación fiscal actualizada o mayor valor del negocio jurídico sobre el cual versa el litigio (art. 4 inc. c)';
+                calculationFunction = (monto) => monto * 0.03;
+                break;
+            case 'otros':
+                labelText = 'Importe';
+                calculationFunction = (monto) => monto * 0.03;
+                infoText = `Reinscripciones de hipotecas y de prendas (art. 4 inc. f): ingresar importe de la suma garantizada;
+Tercerías de dominio o mejor derecho (art. 4 inc. h): ingresar valor del crédito o del bien;
+Bienes muebles o derechos susceptibles de apreciación pecuniaria (art. 4 inc. d) : ingresar valuación fiscal o estimación`;
+                break;
+        }
+        
+        let total = 0;
+        let html = '';
+
+        if (infoText) {
+            html += `<div class="info-text">${infoText}</div>`;
+        }
+
+        html += `
+            <table id="simpleTable">
+                <tbody>
+                    <tr>
+                        <td>${labelText}</td>
+                        <td><input type="text" class="montoInput" step="0.01"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="total-section">
+                <label>Tasa de justicia a integrar:</label>
+                <input type="text" id="totalTasa" readonly>
+            </div>
+            <div class="add-row">
+                <button id="addSimpleRowBtn">+</button>
+            </div>
+        `;
+        calculadoraContainer.innerHTML = html;
+        
+        const table = document.getElementById('simpleTable');
+        const totalTasaInput = document.getElementById('totalTasa');
+
+        function updateSimpleTable() {
+            total = 0;
+            const montoInputs = table.querySelectorAll('.montoInput');
+            montoInputs.forEach(input => {
+                const monto = parseFloat(input.value) || 0;
+                total += calculationFunction(monto);
+            });
+            totalTasaInput.value = total.toFixed(2);
+        }
+
+        table.addEventListener('input', updateSimpleTable);
+        table.addEventListener('paste', function(e) {
+            const input = e.target;
+            if (input.classList.contains('montoInput')) {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text');
+                input.value = normalizeNumberInput(pastedData);
+                updateSimpleTable();
+            }
+        });
+
+        document.getElementById('addSimpleRowBtn').addEventListener('click', function() {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${labelText}</td>
+                <td><input type="text" class="montoInput" step="0.01"></td>
+            `;
+            table.querySelector('tbody').appendChild(newRow);
+            newRow.querySelector('.montoInput').addEventListener('input', updateSimpleTable);
+        });
+    }
+
+    function createSucesionUI() {
+        const sucesionContainer = document.createElement('div');
+        sucesionContainer.id = 'sucesionTotalContainer';
+        calculadoraContainer.appendChild(sucesionContainer);
+
+        const addSectionDiv = document.createElement('div');
+        addSectionDiv.className = 'add-section';
+        addSectionDiv.innerHTML = '<button id="addSucesionSectionBtn">Agregar otro tipo de bien (+)</button>';
+        calculadoraContainer.appendChild(addSectionDiv);
+
+        const totalSection = document.createElement('div');
+        totalSection.className = 'total-section';
+        totalSection.innerHTML = `
+            <label for="totalTasaSucesion">Total de tasa de justicia a integrar:</label>
+            <input type="text" id="totalTasaSucesion" readonly>
+        `;
+        calculadoraContainer.appendChild(totalSection);
+        
+        document.getElementById('addSucesionSectionBtn').addEventListener('click', function() {
+            addSucesionSection();
+        });
+
+        addSucesionSection();
+    }
+
+    function addSucesionSection() {
+        const id = 'sucesion-' + Date.now();
+        const sucesionTotalContainer = document.getElementById('sucesionTotalContainer');
+        const section = document.createElement('div');
+        section.className = 'sucesion-section';
+        section.id = id;
+
+        section.innerHTML = `
+            <h3>
+                <span class="section-title"></span>
+                <button class="remove-section-btn">Eliminar</button>
+            </h3>
+            <div class="form-group">
+                <label>Contenido de la herencia:</label>
+                <select class="subTipoSucesion">
+                    <option value="">Seleccione una opción</option>
+                    <option value="sumasDineroSucesion">Sumas de dinero</option>
+                    <option value="inmueblesCABA">Inmuebles CABA</option>
+                    <option value="inmueblesProvincia">Inmuebles en otras jurisdicciones</option>
+                    <option value="otrosBienes">Automóvil, participación societaria u otros bienes</option>
+                </select>
+            </div>
+            <div class="sucesion-content" data-subtotal="0"></div>
+        `;
+        sucesionTotalContainer.appendChild(section);
+
+        const select = section.querySelector('.subTipoSucesion');
+        select.addEventListener('change', function() {
+            const selectedValue = this.value;
+            const contentDiv = section.querySelector('.sucesion-content');
+            const titleSpan = section.querySelector('.section-title');
+            contentDiv.innerHTML = '';
+            titleSpan.textContent = select.options[select.selectedIndex].textContent;
+            
+            if (selectedValue === 'sumasDineroSucesion') {
+                createSimpleTableSucesion(contentDiv);
+            } else if (selectedValue !== '') {
+                createSucesionComplexTable(contentDiv, selectedValue);
+            }
+        });
+
+        section.querySelector('.remove-section-btn').addEventListener('click', function() {
+            section.remove();
+            updateSucesionTotal();
+        });
+    }
+
+    function createSimpleTableSucesion(parentDiv) {
+        const infoText = `
+            <div class="info-text">
+                El sistema calcula sobre la tasa reducida del art. 3 inc. c del 1.5 %.
+            </div>
+        `;
+        const html = infoText + `
+            <table class="simpleTableSucesion">
+                <thead>
+                    <tr>
+                        <th>Ingresar monto. Si es en dólares convertir al valor oficial tipo vendedor del BNA al día del pago</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" class="montoInputSucesion" step="0.01"></td>
+                        <td><input type="text" class="resultadoSucesion" readonly></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="add-row">
+                <button class="addSucesionSumasDineroRowBtn">+</button>
+            </div>
+        `;
+        parentDiv.innerHTML = html;
+
+        const table = parentDiv.querySelector('.simpleTableSucesion');
+
+        function updateTable() {
+            let subtotal = 0;
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const montoInput = row.querySelector('.montoInputSucesion');
+                const resultadoInput = row.querySelector('.resultadoSucesion');
+                const monto = parseFloat(normalizeNumberInput(montoInput.value)) || 0;
+                const rowTotal = monto * 0.015;
+                resultadoInput.value = rowTotal.toFixed(2);
+                subtotal += rowTotal;
+            });
+            parentDiv.setAttribute('data-subtotal', subtotal.toFixed(2));
+            updateSucesionTotal();
+        }
+
+        table.addEventListener('input', updateTable);
+        table.addEventListener('paste', function(e) {
+            const input = e.target;
+            if (input.classList.contains('montoInputSucesion')) {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text');
+                input.value = normalizeNumberInput(pastedData);
+                updateTable();
+            }
+        });
+
+        parentDiv.querySelector('.addSucesionSumasDineroRowBtn').addEventListener('click', function() {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" class="montoInputSucesion" step="0.01"></td>
+                <td><input type="text" class="resultadoSucesion" readonly></td>
+            `;
+            table.querySelector('tbody').appendChild(newRow);
+            updateTable();
+        });
+        updateTable();
+    }
+
+    function createSucesionComplexTable(parentDiv, type) {
+        let headerLabel = 'Valuación fiscal';
+        let tasa = 0;
+        let infoText = '';
+        
+        switch(type) {
+            case 'inmueblesCABA':
+                headerLabel = 'Valuación fiscal';
+                tasa = 0.015;
+                infoText = 'El sistema calcula sobre la tasa reducida del art. 3 inc. c del 1.5 %. Puedes incluir una sobretasa de manera opcional.';
+                break;
+            case 'inmueblesProvincia':
+                headerLabel = 'Valuación fiscal';
+                tasa = 0.0075;
+                infoText = 'El sistema calcula sobre la tasa reducida del art. 4 inc. g, segunda parte, del 0.75 %. Puedes incluir una sobretasa de manera opcional.';
+                break;
+            case 'otrosBienes':
+                headerLabel = 'Valuación fiscal actualizada (Automóviles)\nValor que surge de la certificación contable (participación en sociedades)\nOtros bienes: valor que surge de valuación agregada al expediente';
+                tasa = 0.015;
+                infoText = 'El sistema calcula sobre la tasa reducida del art. 3 inc. c del 1.5 %.';
+                break;
+        }
+
+        parentDiv.innerHTML = `<div class="info-text">${infoText}</div>`;
+
+        const table = document.createElement('table');
+        table.className = 'sucesionTable';
+        let tableHTML = `
+            <thead>
+                <tr>
+                    <th>Descripción del bien</th>
+                    <th>${headerLabel}</th>
+                    <th>
+                        Titularidad
+                        <span class="porcentaje-nota">
+                            NOTA: indicar como número entero (50, 100, 20), porcentaje (50 %, 20 %) o bien expresarlo como fracción: 1/2, 2/5, 25/100)
+                        </span>
+                    </th>
+                    ${(type === 'inmueblesCABA' || type === 'inmueblesProvincia') ? '<th>Sobretasa</th>' : ''}
+                    <th>Subtotales</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        `;
+
+        if (window.innerWidth <= 600) {
+            tableHTML = `
+                <thead>
+                    <tr>
+                        <th>Descripción del bien</th>
+                        <th>${headerLabel}</th>
+                        <th>Titularidad</th>
+                        ${(type === 'inmueblesCABA' || type === 'inmueblesProvincia') ? '<th>Sobretasa</th>' : ''}
+                        <th>Subtotales</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            parentDiv.innerHTML += `<div class="porcentaje-nota">NOTA: indicar la titularidad como número entero (50, 100, 20), porcentaje (50 %, 20 %) o bien expresarlo como fracción: 1/2, 2/5, 25/100)</div>`;
+        }
+
+        table.innerHTML = tableHTML;
+
+        const tbody = table.querySelector('tbody');
+        for (let i = 0; i < 1; i++) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" class="descripcion"></td>
+                <td><input type="text" class="valuacion" step="0.01"></td>
+                <td><input type="text" class="porcentaje" step="0.01"></td>
+                ${(type === 'inmueblesCABA' || type === 'inmueblesProvincia') ? 
+                    `<td><input type="text" class="sobretasa" value="5"> %<input type="checkbox" class="incluirSobretasa" checked></td>` 
+                    : ''
+                }
+                <td><input type="text" class="subtotal" readonly></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        parentDiv.appendChild(table);
+        
+        const addRowBtn = document.createElement('div');
+        addRowBtn.className = 'add-row';
+        addRowBtn.innerHTML = '<button class="addSucesionRowBtn">+</button>';
+        parentDiv.appendChild(addRowBtn);
+
+        function updateTable() {
+            let subtotal = 0;
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const valuacionInput = row.querySelector('.valuacion');
+                const porcentajeInput = row.querySelector('.porcentaje');
+                const subtotalInput = row.querySelector('.subtotal');
+
+                const b = parseFloat(normalizeNumberInput(valuacionInput.value)) || 0;
+                const c = parseFractionAndPercentage(porcentajeInput.value) || 0;
+
+                let rowTotal = b * c * tasa;
+
+                if (type === 'inmueblesCABA' || type === 'inmueblesProvincia') {
+                    const incluirSobretasa = row.querySelector('.incluirSobretasa').checked;
+                    if (incluirSobretasa) {
+                        const sobretasaInput = row.querySelector('.sobretasa');
+                        const sobretasa = parseFloat(normalizeNumberInput(sobretasaInput.value)) || 0;
+                        rowTotal = rowTotal * (1 + sobretasa / 100);
+                    }
+                }
+                
+                subtotalInput.value = rowTotal.toFixed(2);
+                subtotal += rowTotal;
+            });
+            parentDiv.setAttribute('data-subtotal', subtotal.toFixed(2));
+            updateSucesionTotal();
+        }
+
+        parentDiv.addEventListener('input', updateTable);
+        parentDiv.addEventListener('paste', function(e) {
+            const input = e.target;
+            if (input.classList.contains('valuacion') || input.classList.contains('porcentaje') || input.classList.contains('sobretasa')) {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text');
+                input.value = pastedData;
+                updateTable();
+            }
+        });
+
+        parentDiv.querySelector('.addSucesionRowBtn').addEventListener('click', function() {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" class="descripcion"></td>
+                <td><input type="text" class="valuacion" step="0.01"></td>
+                <td><input type="text" class="porcentaje" step="0.01"></td>
+                ${(type === 'inmueblesCABA' || type === 'inmueblesProvincia') ? 
+                    `<td><input type="text" class="sobretasa" value="5"> %<input type="checkbox" class="incluirSobretasa" checked></td>` 
+                    : ''
+                }
+                <td><input type="text" class="subtotal" readonly></td>
+            `;
+            tbody.appendChild(newRow);
+            updateTable();
+        });
+        
+        updateTable();
+    }
+
+    function updateSucesionTotal() {
+        let total = 0;
+        const sections = document.querySelectorAll('.sucesion-section');
+        sections.forEach(section => {
+            const subtotal = parseFloat(section.querySelector('.sucesion-content').getAttribute('data-subtotal')) || 0;
+            total += subtotal;
+        });
+        document.getElementById('totalTasaSucesion').value = total.toFixed(2);
+    }
+});
+</script>
+</body>
+</html>
