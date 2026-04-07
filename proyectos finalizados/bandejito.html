@@ -1,2 +1,402 @@
-<html>
-  </html>
+Aquí tienes el HTML para la galería de imágenes de Bandejito, con un carrusel funcional, descripción completa y el estilo profesional de la landing page. Incluye las 6 imágenes en formato BMP (asegúrate de que estén alojadas correctamente en las rutas indicadas).
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bandejito · Automatización de flujo de trabajo</title>
+  <!-- Google Fonts: Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #f4f6f9;
+      color: #1e2b3c;
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    /* Header */
+    .project-header {
+      margin-bottom: 32px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #2b6f9c;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .back-link:hover {
+      color: #0b1a2a;
+      text-decoration: underline;
+    }
+    h1 {
+      font-weight: 700;
+      font-size: 2.4rem;
+      color: #0b1a2a;
+      border-left: 6px solid #2b6f9c;
+      padding-left: 24px;
+      margin-bottom: 16px;
+    }
+    .subtitle {
+      font-size: 1.2rem;
+      color: #2c3e50;
+      max-width: 900px;
+      margin-bottom: 24px;
+    }
+    /* Descripción del proyecto */
+    .description-card {
+      background: white;
+      border-radius: 24px;
+      padding: 28px 32px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+      border: 1px solid #eaedf0;
+      margin-bottom: 40px;
+    }
+    .description-card p {
+      margin-bottom: 16px;
+      font-size: 1.05rem;
+    }
+    .description-card strong {
+      color: #0b1a2a;
+    }
+    .tech-badge {
+      display: inline-block;
+      background: #eef2ff;
+      color: #1e3a5f;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-right: 12px;
+      margin-bottom: 8px;
+    }
+    /* Carrusel */
+    .carousel-section {
+      margin-bottom: 48px;
+    }
+    .carousel-container {
+      position: relative;
+      background: white;
+      border-radius: 24px;
+      padding: 24px 16px 16px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0;
+    }
+    .carousel-slides {
+      display: flex;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #f1f5f9;
+    }
+    .slide {
+      flex: 0 0 100%;
+      transition: transform 0.4s ease;
+      text-align: center;
+    }
+    .slide img {
+      width: 100%;
+      height: auto;
+      max-height: 540px;
+      object-fit: contain;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      background: #ffffff;
+    }
+    .slide-caption {
+      margin-top: 16px;
+      font-weight: 500;
+      color: #1e3a5f;
+      padding: 0 8px;
+    }
+    .carousel-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 24px;
+      gap: 28px;
+    }
+    .carousel-btn {
+      background: white;
+      border: 1px solid #cbd5e1;
+      color: #0b1a2a;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      font-size: 24px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .carousel-btn:hover {
+      background: #0b1a2a;
+      color: white;
+      border-color: #0b1a2a;
+    }
+    .carousel-dots {
+      display: flex;
+      gap: 12px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 20px;
+      background: #cbd5e1;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0;
+    }
+    .dot.active {
+      background: #0b1a2a;
+      width: 28px;
+    }
+    .slide-counter {
+      font-weight: 500;
+      color: #475569;
+      min-width: 70px;
+      text-align: center;
+    }
+    /* Nota sobre formato BMP */
+    .format-note {
+      background: #fef9e7;
+      border-left: 6px solid #e6b800;
+      padding: 12px 20px;
+      border-radius: 16px;
+      margin-top: 24px;
+      font-size: 0.95rem;
+    }
+    /* Footer */
+    .footer-note {
+      text-align: center;
+      margin-top: 40px;
+      color: #546a7a;
+      font-size: 0.9rem;
+      border-top: 1px solid #d0d9e2;
+      padding-top: 28px;
+    }
+    .footer-note a {
+      color: #2b6f9c;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- Volver al landing -->
+  <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" class="back-link" style="font-size: 1rem;">← Volver a Herramientas Judiciales con IA</a>
+  
+  <div class="project-header">
+    <h1>Bandejito</h1>
+    <div class="subtitle">Automatización inteligente de flujo de trabajo para juzgados</div>
+  </div>
+
+  <!-- Descripción detallada -->
+  <div class="description-card">
+    <p><strong>🔹 Aplicación web desarrollada en Google Apps Script</strong> que automatiza la distribución de los escritos ingresados a un juzgado.</p>
+    <p><strong>📋 Funcionalidades clave:</strong></p>
+    <ul style="margin-left: 24px; margin-bottom: 20px; color: #334155;">
+      <li>Analiza un archivo PDF que contiene el listado diario de escritos.</li>
+      <li>Extrae cada registro y aplica reglas de negocio dinámicas (clasificación de beneficios, confrontes, y distribución según los últimos números del expediente).</li>
+      <li>Envía correos electrónicos personalizados a cada responsable con las tareas asignadas, separadas por fecha e incluyendo alertas de vencimiento.</li>
+      <li>Sistema de feedback integrado para confirmar recepción y seguimiento.</li>
+    </ul>
+    <p><span class="tech-badge">Google Apps Script</span><span class="tech-badge">Automatización</span><span class="tech-badge">PDF parsing</span><span class="tech-badge">Email service</span></p>
+    <p style="margin-top: 16px; background: #f8fafc; padding: 12px 18px; border-radius: 16px;">
+      ⚠️ <strong>Nota:</strong> Este proyecto fue desarrollado como solución interna y posteriormente reemplazado por un desarrollo institucional. Se conserva aquí como muestra de automatización aplicada al ámbito judicial.
+    </p>
+  </div>
+
+  <!-- Carrusel de imágenes -->
+  <div class="carousel-section">
+    <h2 style="font-weight: 600; margin-bottom: 20px; font-size: 1.8rem;">📸 Recorrido visual de la herramienta</h2>
+    <div class="carousel-container">
+      <div class="carousel-slides" id="carouselSlides">
+        <!-- Diapositivas insertadas vía JS -->
+      </div>
+      
+      <!-- Controles -->
+      <div class="carousel-controls">
+        <button class="carousel-btn" id="prevBtn" aria-label="Anterior">‹</button>
+        <span class="slide-counter" id="slideCounter">1 / 6</span>
+        <div class="carousel-dots" id="carouselDots"></div>
+        <button class="carousel-btn" id="nextBtn" aria-label="Siguiente">›</button>
+      </div>
+    </div>
+    <div class="format-note">
+      💡 <strong>Imágenes en formato BMP:</strong> es posible que algunos navegadores las muestren correctamente. Si no se visualizan, se recomienda convertirlas a PNG para una experiencia óptima.
+    </div>
+  </div>
+
+  <div class="footer-note">
+    © 2025 · Judicial AI Tools · <a href="https://github.com/javiercuneo" target="_blank">GitHub</a> · 
+    <a href="mailto:javiercuneol@gmail.com">javiercuneol@gmail.com</a>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // Datos de las imágenes y descripciones
+    const slidesData = [
+      {
+        src: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/1.bmp',
+        caption: '① Interfaz de configuración: selección de archivo PDF y reglas de distribución.'
+      },
+      {
+        src: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/2.bmp',
+        caption: '② Pantalla de carga: procesamiento del listado de escritos.'
+      },
+      {
+        src: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/3.bmp',
+        caption: '③ Revisión de la distribución ejecutada: división por responsables, mails y posibilidad de copiar el listado.'
+      },
+      {
+        src: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/4.bmp',
+        caption: '④ Pantalla de confirmación previa al envío de correos.'
+      },
+      {
+        src: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/5.bmp',
+        caption: '⑤ Mails enviados correctamente con resumen de destinatarios.'
+      },
+      {
+        src: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/6.bmp',
+        caption: '⑥ Vista del mail recibido por el responsable, con sistema de feedback integrado.'
+      }
+    ];
+
+    const slidesContainer = document.getElementById('carouselSlides');
+    const dotsContainer = document.getElementById('carouselDots');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const counterSpan = document.getElementById('slideCounter');
+
+    let currentIndex = 0;
+    const totalSlides = slidesData.length;
+
+    // Construir slides
+    function buildCarousel() {
+      slidesContainer.innerHTML = '';
+      slidesData.forEach((item, idx) => {
+        const slideDiv = document.createElement('div');
+        slideDiv.className = 'slide';
+        slideDiv.innerHTML = `
+          <img src="${item.src}" alt="Captura Bandejito ${idx+1}" loading="lazy">
+          <div class="slide-caption">${item.caption}</div>
+        `;
+        slidesContainer.appendChild(slideDiv);
+      });
+      // Crear dots
+      dotsContainer.innerHTML = '';
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', `Ir a imagen ${i+1}`);
+        dot.addEventListener('click', () => goToSlide(i));
+        dotsContainer.appendChild(dot);
+      }
+      updateCounterAndDots();
+    }
+
+    // Actualizar posición del carrusel
+    function updateCarouselPosition() {
+      const slideWidth = slidesContainer.clientWidth;
+      slidesContainer.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+      updateCounterAndDots();
+    }
+
+    function updateCounterAndDots() {
+      counterSpan.textContent = `${currentIndex + 1} / ${totalSlides}`;
+      const dots = dotsContainer.querySelectorAll('.dot');
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentIndex);
+      });
+    }
+
+    function goToSlide(index) {
+      if (index < 0) index = 0;
+      if (index >= totalSlides) index = totalSlides - 1;
+      currentIndex = index;
+      updateCarouselPosition();
+    }
+
+    function nextSlide() {
+      goToSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentIndex - 1);
+    }
+
+    // Ajustar al redimensionar
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        updateCarouselPosition();
+      }, 100);
+    });
+
+    // Event listeners
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+
+    // Inicializar
+    buildCarousel();
+    
+    // Pequeña corrección: forzar actualización de posición después de carga completa
+    window.addEventListener('load', () => {
+      updateCarouselPosition();
+    });
+
+    // Si alguna imagen falla (BMP puede no mostrarse), mostrar mensaje alternativo
+    const images = document.querySelectorAll('.slide img');
+    images.forEach(img => {
+      img.addEventListener('error', function() {
+        // Opcional: mostrar un placeholder o texto
+        this.style.backgroundColor = '#e2e8f0';
+        this.style.padding = '40px';
+        this.alt = 'Imagen BMP no soportada en este navegador. Se recomienda convertir a PNG.';
+        // No reemplazamos src para no perder la referencia, pero podríamos poner un data:image
+        console.warn('Imagen BMP no pudo cargarse:', this.src);
+      });
+    });
+  })();
+</script>
+<!-- Pequeño estilo adicional para transición suave -->
+<style>
+  .carousel-slides {
+    display: flex;
+    transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+    will-change: transform;
+  }
+  .slide {
+    flex: 0 0 100%;
+    padding: 8px;
+  }
+  .slide img {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+  }
+</style>
+</body>
+</html>
+```
