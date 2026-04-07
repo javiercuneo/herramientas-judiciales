@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Honorarios Profesionales</title>
+  <style>
+      body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+      .container { background-color: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd; }
+      .warning { background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ffeeba; }
+      .input-group { margin-bottom: 15px; }
+      .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+      .input-group input, .input-group select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+      .info-box { font-size: 0.9em; margin-top: 5px; color: #666; padding-left: 10px; border-left: 2px solid #ccc; }
+      .btn-calculate { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; }
+      .btn-calculate:hover { background-color: #0056b3; }
+      .results-container { margin-top: 20px; border-top: 2px solid #ccc; padding-top: 20px; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+      th { background-color: #f2f2f2; }
+      h3 { margin-top: 20px; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+      .note { font-size: 0.9em; font-style: italic; color: #555; margin-top: -10px; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="warning">
+        <p>Esta es una calculadora generada por IA que puede contener errores. Está específicamente orientada a juicios civiles y no abarca todos los casos, situaciones ni cuestiones que pueden darse en los expedientes. Tampoco pretende sustituir los criterios del juez natural de la causa. Es una herramienta de referencia y no debe considerarse como un dictamen profesional o un resultado definitivo. Ante la duda consulte con un profesional para el caso concreto.</p>
+        <p><strong>Observaciones de uso:</strong></p>
+        <ul>
+          <li>Mínimos arancelarios: si se consideran aplicables (arts. 58, 61, etc.), desestimar este cálculo.</li>
+          <li>Reducciones: no se contemplan limitaciones como las que puedan corresponder a los arts. 730 (prorrateo), 1255 (reajuste de precio) del Cód. Civ. y Com.; art. 60 ley 24.441 (ejecución hipotecaria especial) o art. 48 ley Ley 14.394 / art. 254 Cód. Civ. y Com. (régimen de vivienda, ex bien de familia)</li>
+          <li>Caducidad: puede calcularse como demanda rechazada (art. 22) o modo anormal de terminación del proceso (art. 25). Sujeto a interpretación</li>
+          <li>Reconvención: se deben regular honorarios por separado (art. 28).</li>
+          <li>Incidentes: el art. 47 fue observado por art. 5 Dec. N° 1077/17 (BO 21/12/17). Se calcula según el art. 33 ley 21839. No olvidar pautas del art. 16</li>
+          <li>Regulación provisoria (art. 12): aplicar los cálculos normalmente</li>
+          <li>Auxiliares de justicia: esta herramienta tampoco tiene en cuenta lo dispuesto en las leyes especiales de reglamentación específica de cada actividad o profesión (art. 1, párrafo segundo, ley 27423)</li>
+        </ul>
+        <p>La calculadora necesita de tres parámetros iniciales. Le permitirá ingresar el valor actualizado de la UMA, la base regulatoria y luego se debe elegir uno de los grupos para realizar los cálculos. Los resultados se muestran en tablas</p>
+    </div>
+
+    <div class="input-group">
+        <label for="baseRegulatoria">Ingrese la base regulatoria:</label>
+        <input type="text" id="baseRegulatoria" placeholder="Ej: 1234.56">
+      <div class="info-box">
+        <p><strong>*Según el objeto del juicio, ingrese:</strong></p>
+        <ul>
+          <li><strong>Sumas de dinero:</strong> monto de la liquidación aprobada o practicada al efecto regulatorio (capital más intereses, arts. 22, 24, 52; a salvo que fueran renunciados) o monto de la transacción</li>
+          <li><strong>Sucesiones:</strong> valor del patrimonio que se transmite (art. 35)</li>
+          <li><strong>Desalojos:</strong> valor de la totalidad del contrato (art. 40) o sumatoria de alquileres estimados por el profesional. Nota: si es alquiler para vivienda usar el 80 % de ese valor</li>
+          <li><strong>Medidas cautelares:</strong> monto asegurado (art. 37)</li>
+          <li><strong>Incidentes:</strong> valor de la incidencia o monto regulado en el principal (art. 33 ley 21839)</li>
+          <li><strong>Asuntos no susceptibles de apreciación pecuniaria:</strong> recurrir a las pautas del art. 16 (a salvo mínimos arancelarios si aplican)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="input-group">
+        <label for="valorUMA">Indique el valor actualizado de la UMA:</label>
+        <input type="text" id="valorUMA" placeholder="Cargando valor automáticamente...">
+    </div>
+
+    <div class="info-box">
+      <p><strong>A continuación se agrupan distintos casos cuyos cálculos obedecen a la misma lógica</strong></p>
+      <p><strong>Grupo 1:</strong> elegir este grupo en los casos de:
+      <br>1.1. Juicios ordinario / sumarísimo / o ejecutivo con excepciones (expensas, alquileres, etc.) que finalizaron con sentencia, desistimiento, caducidad o transacción **luego** de la apertura a prueba
+      <br>1.2. Sucesiones con más de un letrado (art. 35)</p>
+      <p><strong>Grupo 2:</strong> elegir el grupo 2 en casos de:
+      <br>2.1. Juicios ordinario / sumarísimo / ejecutivo con excepciones terminados por medios anormales **antes** de la apertura a prueba (arts. 22 y 25)
+      <br>2.2. Sucesión con un solo letrado (art. 35)
+      <br>2.3. Ejecución de honorarios / de sentencia / de acuerdo homologado o de mediación (art. 41) con excepciones
+      <br>2.4. Medida cautelar con oposición (art. 37)
+      <br>2.5. Homologación de convenio de desocupación y su ejecución (art. 40)</p>
+      <p><strong>Grupo 3:</strong> elegir este grupo solo en casos de medida cautelar sin oposición (art. 37)</p>
+      <p><strong>Grupo 4:</strong> elegir para los supuestos de demanda rechazada o (en su caso) caducidad (art. 22)</p>
+      <p><strong>Grupo 5:</strong> elegir este grupo exclusivamente en casos de juicio ejecutivo en el que **no** se opusieron excepciones.</p>
+      <p><strong>Grupo 6:</strong> elegir este grupo si se trata de una ejecución art. 41, de honorarios / de sentencia / de acuerdo (homologado o de mediación) en el que **no** se opusieron excepciones</p>
+      <p><strong>Grupo 7:</strong> elegir este grupo si se trata de:
+      <br>7.1. Exhorto (art. 50)
+      <br>7.2. Incidentes (incluye BLSG; art.33 ley 21839)</p>
+    </div>
+
+    <div class="input-group">
+        <label for="grupoProceso">Tipo de proceso y finalización:</label>
+        <select id="grupoProceso">
+            <option value="">Seleccione un grupo</option>
+            <option value="grupo1">Grupo 1 - sin reducciones (100 % escala art. 21)</option>
+            <option value="grupo2">Grupo 2 - reducción del 50 %</option>
+            <option value="grupo3">Grupo 3 - reducción del 25 %</option>
+            <option value="grupo4">Grupo 4 - reducción del 30 %</option>
+            <option value="grupo5">Grupo 5 - reducción del 10 %</option>
+            <option value="grupo6">Grupo 6 - reducción del 50 % y 10 %</option>
+            <option value="grupo7">Grupo 7 (escalas diferenciadas)</option>
+        </select>
+    </div>
+
+    <button class="btn-calculate" onclick="calcular()">Calcular</button>
+
+    <div id="resultados" class="results-container" style="display:none;"></div>
+</div>
+
+<script>
+  async function cargarUMA() {
+    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8tumvxptTGBCfScMwWxK7r6ATnGfMw061GKGdzfIVyThcSGzUqjI-vcpME1AtykPmjqTq0xdjgc7D/pub?output=csv';
+    try {
+      const response = await fetch(url);
+      const data = await response.text();
+      const filas = data.split('\n');
+      const columnas = filas[0].split(',');
+      let valorB1 = columnas[1].replace(/"/g, '').trim();
+      if (valorB1) {
+        document.getElementById('valorUMA').value = valorB1;
+      }
+    } catch (error) {
+      console.error("Error al cargar UMA:", error);
+      document.getElementById('valorUMA').placeholder = "Error de conexión. Ingrese manual.";
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', cargarUMA);
+
+  function parseNumber(str) {
+      return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+  }
+
+  function formatNumber(num) {
+      if (isNaN(num)) return 'N/A';
+      return num.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function getCalculationData(baseRegulatoria, valorUMA) {
+      let baseEnUMA = baseRegulatoria / valorUMA;
+      if ((baseEnUMA > 15 && baseEnUMA < 16) ||
+          (baseEnUMA > 45 && baseEnUMA < 46) ||
+          (baseEnUMA > 90 && baseEnUMA < 91) ||
+          (baseEnUMA > 150 && baseEnUMA < 151) ||
+          (baseEnUMA > 450 && baseEnUMA < 451) ||
+          (baseEnUMA > 750 && baseEnUMA < 751)) {
+          baseEnUMA = Math.round(baseEnUMA);
+      }
+      return { baseRegulatoria, valorUMA, baseEnUMA };
+  }
+
+  function calcular() {
+      const baseRegulatoriaInput = document.getElementById('baseRegulatoria').value;
+      const valorUMAInput = document.getElementById('valorUMA').value;
+      const grupo = document.getElementById('grupoProceso').value;
+
+      if (!baseRegulatoriaInput || !valorUMAInput || !grupo) {
+          alert('Por favor, complete todos los campos.');
+          return;
+      }
+
+      const baseRegulatoria = parseNumber(baseRegulatoriaInput);
+      const valorUMA = parseNumber(valorUMAInput);
+
+      if (isNaN(baseRegulatoria) || isNaN(valorUMA) || valorUMA <= 0) {
+          alert('Por favor, ingrese valores numéricos válidos.');
+          return;
+      }
+
+      const data = getCalculationData(baseRegulatoria, valorUMA);
+      let html = '';
+      let tituloEscala = '';
+
+      if (grupo !== 'grupo7') {
+          const baseEnUMA = data.baseEnUMA;
+          let calcMinComp, calcMaxComp;
+
+          if (baseEnUMA <= 15) {
+              tituloEscala = "Primera escala (hasta 15 UMA); 22% a 33%";
+              calcMinComp = baseEnUMA * 0.22;
+              calcMaxComp = baseEnUMA * 0.33;
+          } else if (baseEnUMA > 15 && baseEnUMA <= 45) {
+              tituloEscala = "Segunda escala (16 a 45 UMA); 20% a 26%";
+              calcMinComp = (baseEnUMA - 15) * 0.20 + 4.95;
+              calcMaxComp = (baseEnUMA - 15) * 0.26 + 4.95;
+          } else if (baseEnUMA > 45 && baseEnUMA <= 90) {
+              tituloEscala = "Tercera escala (46 a 90 UMA); 18% a 24%";
+              calcMinComp = (baseEnUMA - 45) * 0.18 + 11.7;
+              calcMaxComp = (baseEnUMA - 45) * 0.24 + 11.7;
+          } else if (baseEnUMA > 90 && baseEnUMA <= 150) {
+              tituloEscala = "Cuarta escala (91 a 150 UMA); 17% a 22%";
+              calcMinComp = (baseEnUMA - 90) * 0.17 + 21.6;
+              calcMaxComp = (baseEnUMA - 90) * 0.22 + 21.6;
+          } else if (baseEnUMA > 150 && baseEnUMA <= 450) {
+              tituloEscala = "Quinta escala (151 a 450 UMA); 15% a 20%";
+              calcMinComp = (baseEnUMA - 150) * 0.15 + 33;
+              calcMaxComp = (baseEnUMA - 150) * 0.20 + 33;
+          } else if (baseEnUMA > 450 && baseEnUMA <= 750) {
+              tituloEscala = "Sexta escala (451 a 750 UMA); 13% a 17%";
+              calcMinComp = (baseEnUMA - 450) * 0.13 + 90;
+              calcMaxComp = (baseEnUMA - 450) * 0.17 + 90;
+          } else if (baseEnUMA > 750) {
+              tituloEscala = "Séptima escala (más de 750 UMA); 12% a 15%";
+              calcMinComp = (baseEnUMA - 750) * 0.12 + 127.5;
+              calcMaxComp = (baseEnUMA - 750) * 0.15 + 127.5;
+          }
+
+          // Tabla Datos del Juicio (Ahora incluye la Escala)
+          html += '<h3>Datos del juicio ingresados</h3>';
+          html += '<table>';
+          html += `<tr><td>Base</td><td>${formatNumber(data.baseRegulatoria)}</td></tr>`;
+          html += `<tr><td>Valor UMA</td><td>${formatNumber(data.valorUMA)}</td></tr>`;
+          html += `<tr><td>Base en UMA</td><td>${formatNumber(data.baseEnUMA)}</td></tr>`;
+          html += `<tr><td>Escala Aplicada</td><td>${tituloEscala}</td></tr>`;
+          html += '</table>';
+          
+          if (grupo === 'grupo2') { calcMinComp /= 2; calcMaxComp /= 2; }
+          else if (grupo === 'grupo3') { calcMinComp /= 4; calcMaxComp /= 4; }
+          else if (grupo === 'grupo4') { calcMinComp *= 0.7; calcMaxComp *= 0.7; }
+          else if (grupo === 'grupo5') { calcMinComp *= 0.9; calcMaxComp *= 0.9; }
+          else if (grupo === 'grupo6') { calcMinComp *= 0.45; calcMaxComp *= 0.45; }
+
+          html += '<h3>Auxiliares (art. 21, 4° párrafo)</h3>';
+          html += '<table>';
+          html += `<tr><td>Mínimo</td><td>${formatNumber(baseEnUMA * 0.05)}</td></tr>`;
+          html += `<tr><td>Máximo</td><td>${formatNumber(baseEnUMA * 0.10)}</td></tr>`;
+          html += '</table><p class="note">Nota: ver si aplica art. 61 = 6 UMA</p>';
+
+          // TABLA PATROCINANTE
+          html += `<h3>Abogado PATROCINANTE</h3>`;
+          html += '<table>';
+          html += `<tr><th>Etapas</th><th>Mínimo (en UMA)</th><th>Máximo (en UMA)</th></tr>`;
+          html += `<tr><td>Juicio Completo</td><td><strong>${formatNumber(calcMinComp)}</strong></td><td><strong>${formatNumber(calcMaxComp)}</strong></td></tr>`;
+          html += `<tr><td>Una Etapa</td><td>${formatNumber(calcMinComp / 3)}</td><td>${formatNumber(calcMaxComp / 3)}</td></tr>`;
+          html += `<tr><td>Dos Etapas</td><td>${formatNumber((calcMinComp / 3) * 2)}</td><td>${formatNumber((calcMaxComp / 3) * 2)}</td></tr>`;
+          html += '</table>';
+
+          // TABLA APODERADO
+          html += `<h3>Abogado APODERADO (+40%)</h3>`;
+          html += '<table>';
+          html += `<tr><th>Etapas</th><th>Mínimo (en UMA)</th><th>Máximo (en UMA)</th></tr>`;
+          html += `<tr><td>Juicio Completo</td><td><strong>${formatNumber(calcMinComp * 1.4)}</strong></td><td><strong>${formatNumber(calcMaxComp * 1.4)}</strong></td></tr>`;
+          html += `<tr><td>Una Etapa</td><td>${formatNumber((calcMinComp / 3) * 1.4)}</td><td>${formatNumber((calcMaxComp / 3) * 1.4)}</td></tr>`;
+          html += `<tr><td>Dos Etapas</td><td>${formatNumber(((calcMinComp / 3) * 2) * 1.4)}</td><td>${formatNumber(((calcMaxComp / 3) * 2) * 1.4)}</td></tr>`;
+          html += '</table>';
+          
+          html += '<p class="note">Nota: para las actuaciones posteriores a la ejecución de sentencia propiamente dicha se debe regular en un 40% de la escala.</p>';
+
+      } else {
+          // Caso Grupo 7 (Escalas diferenciadas)
+          html += '<h3>Datos del juicio ingresados</h3>';
+          html += '<table>';
+          html += `<tr><td>Base</td><td>${formatNumber(data.baseRegulatoria)}</td></tr>`;
+          html += `<tr><td>Valor UMA</td><td>${formatNumber(data.valorUMA)}</td></tr>`;
+          html += `<tr><td>Base en UMA</td><td>${formatNumber(data.baseEnUMA)}</td></tr>`;
+          html += '</table>';
+
+          const baseEnUMA = data.baseRegulatoria / data.valorUMA;
+          html += '<h3>Exhorto (escalas art. 50)</h3><table>';
+          html += `<tr><th colspan="2">Inc. a) - notificaciones</th></tr><tr><td>Mínimo (3 UMA)</td><td>${formatNumber(valorUMA * 3)}</td></tr>`;
+          html += `<tr><th colspan="2">Inc. b) - inscripciones y actos registrales</th></tr><tr><td>Mínimo (10 UMA)</td><td>${formatNumber(valorUMA * 10)}</td></tr><tr><td>Máximo (20 UMA)</td><td>${formatNumber(valorUMA * 20)}</td></tr>`;
+          html += `<tr><th colspan="2">Inc. c) - diligencias de prueba</th></tr><tr><td>Mínimo (7 UMA)</td><td>${formatNumber(valorUMA * 7)}</td></tr><tr><td>Máximo (30 UMA)</td><td>${formatNumber(valorUMA * 30)}</td></tr></table>`;
+
+          html += '<h3>Beneficio para litigar sin gastos / incidente (art.33 ley 21839)</h3><table>';
+          html += `<tr><th>Concepto</th><th>Patrocinante (UMA)</th><th>Apoderado (UMA)</th></tr>`;
+          html += `<tr><td>Mínimo (2%)</td><td>${formatNumber(baseEnUMA * 0.02)}</td><td>${formatNumber(baseEnUMA * 0.02 * 1.4)}</td></tr>`;
+          html += `<tr><td>Máximo (20%)</td><td>${formatNumber(baseEnUMA * 0.20)}</td><td>${formatNumber(baseEnUMA * 0.20 * 1.4)}</td></tr></table>`;
+      }
+
+      const resDiv = document.getElementById('resultados');
+      resDiv.innerHTML = html;
+      resDiv.style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
