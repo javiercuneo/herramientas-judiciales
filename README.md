@@ -1,8 +1,8 @@
 ⚖️ Herramientas Judiciales con IA
 
-Este repositorio reúne un conjunto de herramientas jurídicas desarrolladas con asistencia de Inteligencia Artificial, orientadas a automatizar tareas frecuentes y facilitar cálculos en la práctica judicial diaria.
+Este repositorio reúne un conjunto de herramientas jurídicas desarrolladas con asistencia de Inteligencia Artificial, orientadas a automatizar tareas frecuentes y facilitar cálculos en la práctica judicial diaria
 
-⚠️ Importante: Estas herramientas tienen carácter meramente orientativo.
+⚠️ Importante: Estas herramientas tienen carácter meramente orientativo
 
 🧰 Herramientas disponibles
 📅 Calculadora de vencimiento de plazos
