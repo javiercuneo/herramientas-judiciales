@@ -99,11 +99,13 @@
       overflow: hidden;
       border-radius: 16px;
       background: #f1f5f9;
+      transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+      will-change: transform;
     }
     .slide {
       flex: 0 0 100%;
-      transition: transform 0.4s ease;
       text-align: center;
+      padding: 8px;
     }
     .slide img {
       width: 100%;
@@ -114,6 +116,7 @@
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       background: #ffffff;
+      border: 1px solid #e2e8f0;
     }
     .slide-caption {
       margin-top: 16px;
@@ -173,15 +176,6 @@
       min-width: 70px;
       text-align: center;
     }
-    /* Nota sobre formato BMP */
-    .format-note {
-      background: #fef9e7;
-      border-left: 6px solid #e6b800;
-      padding: 12px 20px;
-      border-radius: 16px;
-      margin-top: 24px;
-      font-size: 0.95rem;
-    }
     /* Footer */
     .footer-note {
       text-align: center;
@@ -200,7 +194,7 @@
 <body>
 <div class="container">
   <!-- Volver al landing -->
-  <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" class="back-link" style="font-size: 1rem;">← Volver a Herramientas Judiciales con IA</a>
+  <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" class="back-link" style="font-size: 1rem;">← Volver a ⚖️ Herramientas Judiciales con IA</a>
   
   <div class="project-header">
     <h1>Bandejito</h1>
@@ -239,20 +233,18 @@
         <button class="carousel-btn" id="nextBtn" aria-label="Siguiente">›</button>
       </div>
     </div>
-    <div class="format-note">
-      💡 <strong>Imágenes en formato BMP:</strong> es posible que algunos navegadores las muestren correctamente. Si no se visualizan, se recomienda convertirlas a PNG para una experiencia óptima.
-    </div>
   </div>
 
   <div class="footer-note">
-    © 2025 · Judicial AI Tools · <a href="https://github.com/javiercuneo" target="_blank">GitHub</a> · 
+    © 2026 · ⚖️ Herramientas Judiciales con IA · 
+    <a href="https://github.com/javiercuneo" target="_blank">GitHub</a> · 
     <a href="mailto:javiercuneol@gmail.com">javiercuneol@gmail.com</a>
   </div>
 </div>
 
 <script>
   (function() {
-    // Datos de las imágenes y descripciones
+    // Datos de las imágenes (ahora en PNG) y descripciones
     const slidesData = [
       {
         src: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/1.png',
@@ -359,41 +351,11 @@
     // Inicializar
     buildCarousel();
     
-    // Pequeña corrección: forzar actualización de posición después de carga completa
+    // Forzar actualización de posición después de carga completa
     window.addEventListener('load', () => {
       updateCarouselPosition();
     });
-
-    // Si alguna imagen falla (BMP puede no mostrarse), mostrar mensaje alternativo
-    const images = document.querySelectorAll('.slide img');
-    images.forEach(img => {
-      img.addEventListener('error', function() {
-        // Opcional: mostrar un placeholder o texto
-        this.style.backgroundColor = '#e2e8f0';
-        this.style.padding = '40px';
-        this.alt = 'Imagen BMP no soportada en este navegador. Se recomienda convertir a PNG.';
-        // No reemplazamos src para no perder la referencia, pero podríamos poner un data:image
-        console.warn('Imagen BMP no pudo cargarse:', this.src);
-      });
-    });
   })();
 </script>
-<!-- Pequeño estilo adicional para transición suave -->
-<style>
-  .carousel-slides {
-    display: flex;
-    transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
-    will-change: transform;
-  }
-  .slide {
-    flex: 0 0 100%;
-    padding: 8px;
-  }
-  .slide img {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-  }
-</style>
 </body>
 </html>
-```
