@@ -3,24 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Judicial AI Tools · Herramientas judiciales con IA</title>
+  <title>⚖️ Herramientas Judiciales con IA</title>
   <!-- Google Fonts: Montserrat -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Montserrat', sans-serif;
       background: #f4f6f9;
       color: #1e2b3c;
       line-height: 1.5;
     }
-    /* Header profesional */
     .top-bar {
       background: #0b1a2a;
       color: white;
@@ -41,13 +36,11 @@
       opacity: 0.9;
       font-weight: 400;
     }
-    /* Contenedor principal */
     .wrapper {
       max-width: 1280px;
       margin: 0 auto;
       padding: 32px 24px 48px;
     }
-    /* Toggle de idioma */
     .lang-switch {
       display: flex;
       justify-content: flex-end;
@@ -78,10 +71,7 @@
       color: white;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    /* Secciones */
-    section {
-      margin-bottom: 48px;
-    }
+    section { margin-bottom: 48px; }
     h2 {
       font-weight: 600;
       font-size: 1.8rem;
@@ -101,7 +91,6 @@
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 24px;
     }
-    /* Tarjeta profesional */
     .tool-card {
       background: white;
       border-radius: 20px;
@@ -143,10 +132,7 @@
       border: none;
       align-self: flex-start;
     }
-    .btn:hover {
-      background: #1f3a57;
-    }
-    /* Sección advertencias + info */
+    .btn:hover { background: #1f3a57; }
     .notice-box {
       background: #fef9e7;
       border-left: 6px solid #e6b800;
@@ -155,13 +141,8 @@
       margin: 32px 0 40px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.02);
     }
-    .notice-box p {
-      margin-bottom: 12px;
-      font-size: 1rem;
-    }
-    .notice-box strong {
-      color: #7a5c00;
-    }
+    .notice-box p { margin-bottom: 12px; font-size: 1rem; }
+    .notice-box strong { color: #7a5c00; }
     .author-card {
       background: white;
       border-radius: 24px;
@@ -175,17 +156,14 @@
       display: flex;
       gap: 28px;
       flex-wrap: wrap;
+      align-items: center;
     }
-    .author-links a {
+    .author-links a, .author-links span {
       color: #0b1a2a;
       text-decoration: none;
       font-weight: 500;
-      border-bottom: 2px solid transparent;
-      transition: border-color 0.15s;
     }
-    .author-links a:hover {
-      border-bottom: 2px solid #2b6f9c;
-    }
+    .author-links a:hover { border-bottom: 2px solid #2b6f9c; }
     .footer-note {
       text-align: center;
       margin-top: 48px;
@@ -204,7 +182,6 @@
       display: inline-block;
       margin-right: 12px;
     }
-    /* Responsive */
     @media (max-width: 600px) {
       .top-bar h1 { font-size: 2rem; }
       .wrapper { padding: 20px 16px; }
@@ -215,7 +192,7 @@
 <body>
 
 <div class="top-bar">
-  <h1 id="main-title">Judicial AI Tools</h1>
+  <h1 id="main-title">⚖️ Herramientas Judiciales con IA</h1>
   <div class="subhead" id="main-subtitle">
     Herramientas con inteligencia artificial para automatizar flujos de trabajo jurídico y apoyar la labor diaria en el ámbito judicial.
   </div>
@@ -254,6 +231,12 @@
     <div class="grid-cards" id="dev-group"></div>
   </section>
 
+  <!-- NUEVA SECCIÓN: Proyectos completados -->
+  <section>
+    <h2 id="group-completed-title">✅ Proyectos completados</h2>
+    <div class="grid-cards" id="completed-group"></div>
+  </section>
+
   <!-- Advertencias IA y limitación -->
   <div class="notice-box" id="disclaimer-box">
     <p><strong>🤖 Estas herramientas fueron generadas utilizando IA, por lo que:</strong><br>
@@ -279,6 +262,7 @@
     <div class="author-links">
       <a href="https://github.com/javiercuneo" target="_blank" rel="noopener">🔗 GitHub</a>
       <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener">🔗 LinkedIn</a>
+      <span>📧 <a href="mailto:javiercuneol@gmail.com">javiercuneol@gmail.com</a></span>
     </div>
     <div style="margin-top: 28px; background: #f8fafc; padding: 16px 20px; border-radius: 16px;">
       <p style="margin:0"><strong>📝 Licencia MIT</strong> · Este proyecto se distribuye bajo la licencia MIT.</p>
@@ -295,104 +279,48 @@
   (function() {
     'use strict';
 
-    // ---------- DATOS DE HERRAMIENTAS (español / inglés) ----------
+    // ---------- DATOS DE HERRAMIENTAS ----------
     const toolsData = {
       deadlines: [
-        { 
-          nameEs: 'Calculadora de vencimiento de plazos', 
-          nameEn: 'Deadline Expiration Calculator',
-          descEs: 'Calcula el vencimiento de un plazo judicial a partir de una fecha de inicio.',
-          descEn: 'Calculates judicial deadline expiration based on a start date.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/vencimientos.html'
-        },
-        { 
-          nameEs: 'Calculadora de ampliación de plazos por distancia', 
-          nameEn: 'Distance Extension Calculator (Art. 158 CPCCN)',
-          descEs: 'Ampliación de plazos conforme al art. 158 CPCCN dentro de Argentina o internacionalmente.',
-          descEn: 'Deadline extension according to Art. 158 CPCCN, within Argentina or internationally.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/distancia.html'
-        },
-        { 
-          nameEs: 'Contador de días', 
-          nameEn: 'Days Counter',
-          descEs: 'Computa días hábiles o corridos entre dos fechas, con opción de feriados.',
-          descEn: 'Counts business or calendar days between two dates, with holiday options.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/entre-fechas.html'
-        },
-        { 
-          nameEs: 'Calculadora de fecha límite (regresiva)', 
-          nameEn: 'Backwards Deadline Calculator',
-          descEs: 'Resta días hábiles a una fecha objetivo para obtener la fecha de inicio (fecha límite hacia atrás).',
-          descEn: 'Subtracts business days from a target date to find the start date (backwards deadline).',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/regresiva.html'
-        },
-        { 
-          nameEs: 'Calculadora de mora', 
-          nameEn: 'Default Date Calculator',
-          descEs: 'Determina la fecha de inicio de la mora según el plazo fijado en resolución y la fecha en que quedó firme.',
-          descEn: 'Determines default start date based on compliance deadline set in a ruling and its final date.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/mora.html'
-        },
-        { 
-          nameEs: 'Calculadora de caducidad de la instancia', 
-          nameEn: 'Instance Expiration (Caducity) Calculator',
-          descEs: 'Ejecuta el cálculo de los arts. 310 y ss. del CPCCN.',
-          descEn: 'Calculates expiration of instance as per articles 310 et seq. of the CPCCN.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/caducidad.html'
-        }
+        { nameEs: 'Calculadora de vencimiento de plazos', nameEn: 'Deadline Expiration Calculator', descEs: 'Calcula el vencimiento de un plazo judicial a partir de una fecha de inicio.', descEn: 'Calculates judicial deadline expiration based on a start date.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/vencimientos.html' },
+        { nameEs: 'Calculadora de ampliación de plazos por distancia', nameEn: 'Distance Extension Calculator (Art. 158 CPCCN)', descEs: 'Ampliación de plazos conforme al art. 158 CPCCN dentro de Argentina o internacionalmente.', descEn: 'Deadline extension according to Art. 158 CPCCN, within Argentina or internationally.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/distancia.html' },
+        { nameEs: 'Contador de días', nameEn: 'Days Counter', descEs: 'Computa días hábiles o corridos entre dos fechas, con opción de feriados.', descEn: 'Counts business or calendar days between two dates, with holiday options.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/entre-fechas.html' },
+        { nameEs: 'Calculadora de fecha límite (regresiva)', nameEn: 'Backwards Deadline Calculator', descEs: 'Resta días hábiles a una fecha objetivo para obtener la fecha de inicio (fecha límite hacia atrás).', descEn: 'Subtracts business days from a target date to find the start date (backwards deadline).', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/regresiva.html' },
+        { nameEs: 'Calculadora de mora', nameEn: 'Default Date Calculator', descEs: 'Determina la fecha de inicio de la mora según el plazo fijado en resolución y la fecha en que quedó firme.', descEn: 'Determines default start date based on compliance deadline set in a ruling and its final date.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/mora.html' },
+        { nameEs: 'Calculadora de caducidad de la instancia', nameEn: 'Instance Expiration (Caducity) Calculator', descEs: 'Ejecuta el cálculo de los arts. 310 y ss. del CPCCN.', descEn: 'Calculates expiration of instance as per articles 310 et seq. of the CPCCN.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/caducidad.html' }
       ],
       fees: [
-        { 
-          nameEs: 'Calculadora de honorarios (Ley 27.423)', 
-          nameEn: 'Legal Fees Calculator (Law 27.423)',
-          descEs: 'Calcula honorarios profesionales de abogados y auxiliares según la Ley 27.423.',
-          descEn: 'Calculates professional fees for lawyers and court auxiliaries under Law 27.423.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios.html'
-        },
-        { 
-          nameEs: 'Calculadora de honorarios del mediador', 
-          nameEn: 'Mediator Fees Calculator (Law 26.589)',
-          descEs: 'Calcula los honorarios del mediador conforme a la Ley 26.589.',
-          descEn: 'Calculates mediator fees according to Law 26.589.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html'
-        },
-        { 
-          nameEs: 'Calculadora de prorrateo (art. 730 CCCN)', 
-          nameEn: 'Prorate Calculator (Art. 730 Civil and Commercial Code)',
-          descEs: 'Realiza el cálculo del prorrateo del art. 730 del Código Civil y Comercial.',
-          descEn: 'Performs prorate calculation according to Art. 730 of the Civil and Commercial Code.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/prorrateo.html'
-        }
+        { nameEs: 'Calculadora de honorarios (Ley 27.423)', nameEn: 'Legal Fees Calculator (Law 27.423)', descEs: 'Calcula honorarios profesionales de abogados y auxiliares según la Ley 27.423.', descEn: 'Calculates professional fees for lawyers and court auxiliaries under Law 27.423.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios.html' },
+        { nameEs: 'Calculadora de honorarios del mediador', nameEn: 'Mediator Fees Calculator (Law 26.589)', descEs: 'Calcula los honorarios del mediador conforme a la Ley 26.589.', descEn: 'Calculates mediator fees according to Law 26.589.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html' },
+        { nameEs: 'Calculadora de prorrateo (art. 730 CCCN)', nameEn: 'Prorate Calculator (Art. 730 Civil and Commercial Code)', descEs: 'Realiza el cálculo del prorrateo del art. 730 del Código Civil y Comercial.', descEn: 'Performs prorate calculation according to Art. 730 of the Civil and Commercial Code.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/prorrateo.html' }
       ],
       tax: [
-        { 
-          nameEs: 'Calculadora de tasa de justicia', 
-          nameEn: 'Court Tax Calculator (Law 23.898)',
-          descEs: 'Estima el tributo según parámetros de la Ley Nº 23.898, orientada a procesos civiles.',
-          descEn: 'Estimates court tax under Law 23.898, focused on civil proceedings.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/tasa.html'
-        }
+        { nameEs: 'Calculadora de tasa de justicia', nameEn: 'Court Tax Calculator (Law 23.898)', descEs: 'Estima el tributo según parámetros de la Ley Nº 23.898, orientada a procesos civiles.', descEn: 'Estimates court tax under Law 23.898, focused on civil proceedings.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/tasa.html' }
       ],
       dev: [
+        { nameEs: 'Asistente para la regulación de honorarios', nameEn: 'Fee Regulation Assistant (in development)', descEs: 'Herramienta interactiva para guiar el proceso de regulación de honorarios, explicando etapas y criterios.', descEn: 'Interactive tool guiding the fee regulation process, explaining stages and criteria.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/AH/asistente.html' }
+      ],
+      completed: [
         { 
-          nameEs: 'Asistente para la regulación de honorarios', 
-          nameEn: 'Fee Regulation Assistant (in development)',
-          descEs: 'Herramienta interactiva para guiar el proceso de regulación de honorarios, explicando etapas y criterios.',
-          descEn: 'Interactive tool guiding the fee regulation process, explaining stages and criteria.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/AH/asistente.html'
+          nameEs: 'Bandejito: Automatización de flujo de trabajo', 
+          nameEn: 'Bandejito: Workflow Automation',
+          descEs: 'Aplicación web en Google Apps Script que automatiza la distribución de escritos en un juzgado. Analiza PDF con listado, extrae registros, aplica reglas de negocio dinámicas (clasifica beneficios, confrontes y distribuye según últimos números del expediente) y envía correos personalizados con tareas y alertas de vencimiento. Reemplazado por desarrollo institucional.',
+          descEn: 'Google Apps Script web app that automates the distribution of filings in a court. Parses PDF listing, extracts entries, applies dynamic business rules (classifies benefits, confrontations, and distributes based on case file number suffixes) and sends personalized emails with assigned tasks and deadline alerts. Replaced by institutional development.',
+          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/bandejito.html'
         }
       ]
     };
 
-    // ---------- TEXTOS INTERNACIONALIZABLES ----------
+    // ---------- TEXTOS i18n ----------
     const i18n = {
       es: {
-        mainTitle: 'Judicial AI Tools',
+        mainTitle: '⚖️ Herramientas Judiciales con IA',
         mainSub: 'Herramientas con inteligencia artificial para automatizar flujos de trabajo jurídico y apoyar la labor diaria en el ámbito judicial.',
         deadlinesTitle: '📅 Calculadoras de plazos',
         feesTitle: '⚖️ Honorarios',
         taxTitle: '🏛️ Tasa de justicia',
         devTitle: '🚧 En desarrollo',
+        completedTitle: '✅ Proyectos completados',
         disclaimer1: '🤖 Estas herramientas fueron generadas utilizando IA, por lo que:',
         disclaimerItems: ['El código puede contener errores.', 'No sigue necesariamente estándares profesionales de desarrollo.', 'Está pensado como prototipo o apoyo práctico.'],
         disclaimer2: '⚠️ Limitación de responsabilidad: las herramientas incluidas en este repositorio:',
@@ -403,12 +331,13 @@
         openBtn: 'Abrir herramienta'
       },
       en: {
-        mainTitle: 'Judicial AI Tools',
+        mainTitle: '⚖️ Judicial AI Tools',
         mainSub: 'AI-powered tools to automate legal workflows and support daily judicial operations.',
         deadlinesTitle: '📅 Deadline Calculators',
         feesTitle: '⚖️ Legal Fees',
         taxTitle: '🏛️ Court Tax',
         devTitle: '🚧 In Development',
+        completedTitle: '✅ Completed Projects',
         disclaimer1: '🤖 These tools were generated using AI, therefore:',
         disclaimerItems: ['The code may contain errors.', 'It does not necessarily follow professional development standards.', 'Intended as a prototype or practical aid.'],
         disclaimer2: '⚠️ Limitation of liability: the tools in this repository:',
@@ -420,7 +349,7 @@
       }
     };
 
-    // Referencias DOM
+    // DOM elements
     const btnEs = document.getElementById('btnEs');
     const btnEn = document.getElementById('btnEn');
     const mainTitle = document.getElementById('main-title');
@@ -429,6 +358,7 @@
     const groupFeesTitle = document.getElementById('group-fees-title');
     const groupTaxTitle = document.getElementById('group-tax-title');
     const groupDevTitle = document.getElementById('group-dev-title');
+    const groupCompletedTitle = document.getElementById('group-completed-title');
     const disclaimerBox = document.getElementById('disclaimer-box');
     const authorNameSpan = document.getElementById('author-name');
     const authorBio = document.getElementById('author-bio');
@@ -438,13 +368,12 @@
     const feesContainer = document.getElementById('fees-group');
     const taxContainer = document.getElementById('tax-group');
     const devContainer = document.getElementById('dev-group');
+    const completedContainer = document.getElementById('completed-group');
 
     let currentLang = 'es';
 
-    // Renderizar tarjetas según idioma
     function renderCards(lang) {
       const btnText = lang === 'es' ? i18n.es.openBtn : i18n.en.openBtn;
-      
       function renderGroup(container, items) {
         container.innerHTML = '';
         items.forEach(item => {
@@ -452,22 +381,17 @@
           card.className = 'tool-card';
           const name = lang === 'es' ? item.nameEs : item.nameEn;
           const desc = lang === 'es' ? item.descEs : item.descEn;
-          card.innerHTML = `
-            <h4>${name}</h4>
-            <p>${desc}</p>
-            <a href="${item.url}" class="btn" target="_blank" rel="noopener">${btnText}</a>
-          `;
+          card.innerHTML = `<h4>${name}</h4><p>${desc}</p><a href="${item.url}" class="btn" target="_blank" rel="noopener">${btnText}</a>`;
           container.appendChild(card);
         });
       }
-
       renderGroup(deadlinesContainer, toolsData.deadlines);
       renderGroup(feesContainer, toolsData.fees);
       renderGroup(taxContainer, toolsData.tax);
       renderGroup(devContainer, toolsData.dev);
+      renderGroup(completedContainer, toolsData.completed);
     }
 
-    // Actualizar textos estáticos
     function updateStaticTexts(lang) {
       const t = i18n[lang];
       mainTitle.textContent = t.mainTitle;
@@ -476,21 +400,17 @@
       groupFeesTitle.textContent = t.feesTitle;
       groupTaxTitle.textContent = t.taxTitle;
       groupDevTitle.textContent = t.devTitle;
+      groupCompletedTitle.textContent = t.completedTitle;
       
-      // Disclaimer box
       const items1 = t.disclaimerItems.map(it => `• ${it}`).join('<br>');
       const items2 = t.limitItems.map(it => `• ${it}`).join('<br>');
-      disclaimerBox.innerHTML = `
-        <p><strong>${t.disclaimer1}</strong><br>${items1}</p>
-        <p><strong>${t.disclaimer2}</strong><br>${items2}</p>
-      `;
+      disclaimerBox.innerHTML = `<p><strong>${t.disclaimer1}</strong><br>${items1}</p><p><strong>${t.disclaimer2}</strong><br>${items2}</p>`;
       
       authorNameSpan.textContent = t.authorName;
-      authorBio.innerHTML = t.authorBio;  // incluye íconos
+      authorBio.innerHTML = t.authorBio;
       projectGoal.textContent = t.goal;
     }
 
-    // Cambiar idioma
     function setLanguage(lang) {
       currentLang = lang;
       if (lang === 'es') {
@@ -504,15 +424,10 @@
       renderCards(lang);
     }
 
-    // Listeners
     btnEs.addEventListener('click', () => setLanguage('es'));
     btnEn.addEventListener('click', () => setLanguage('en'));
 
-    // Inicializar con español
     setLanguage('es');
-
-    // Ajuste adicional: el título de la pestaña se puede cambiar, pero lo dejamos fijo.
-    // Para darle más acabado, los enlaces se abren en nueva pestaña.
   })();
 </script>
 </body>
