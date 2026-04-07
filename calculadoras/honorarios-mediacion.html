@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora para fijar honorarios de mediación</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-weak: #dbeafe;
+      --ring: #93c5fd;
+      --error: #b91c1c;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg); color: var(--text);
+      display: grid; place-items: start center;
+    }
+    .wrap {
+      width: min(760px, 92vw);
+      margin: 24px auto; padding: 20px;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.08);
+      box-sizing: border-box;
+    }
+    h1 { font-size: clamp(1.1rem, 2.2vw + 0.6rem, 1.6rem); margin: 0 0 14px; }
+    p.sub { margin: 0 0 18px; color: var(--muted); font-size: .95rem; }
+
+    .grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
+
+    .field { display: grid; gap: 8px; }
+    label { font-weight: 600; }
+    input[type="text"] {
+      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #e5e7eb;
+      font-size: 1rem; background: #fff; color: inherit;
+      outline: none; transition: box-shadow .15s ease, border-color .15s ease;
+      box-sizing: border-box;
+    }
+    input[type="text"]:focus { border-color: var(--ring); box-shadow: 0 0 0 4px var(--accent-weak); }
+    .hint { color: var(--muted); font-size: .85rem; }
+
+    .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+    button {
+      appearance: none; border: none; cursor: pointer; border-radius: 999px; padding: 10px 20px;
+      font-weight: 600; font-size: .95rem;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-secondary { background: #eef2ff; color: #3730a3; }
+
+    .result {
+      margin-top: 18px; padding: 14px; border: 1px dashed #e5e7eb; border-radius: 12px; background: #fafafa;
+      display: grid; gap: 10px;
+    }
+    .row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+    .key { color: var(--muted); }
+    .val { font-weight: 800; font-size: 1.15rem; }
+
+    .note { margin-top: 10px; color: var(--muted); font-size: .85rem; border-top: 1px solid #eee; padding-top: 8px; }
+    .error { color: var(--error); font-weight: 600; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="wrap" role="application" aria-label="Calculadora para fijar honorarios de mediación">
+    <h1>Calculadora para fijar honorarios de mediación</h1>
+    <p class="sub">Complete los valores y presione <strong>Calcular</strong>. El valor del UHOM se actualiza automáticamente.</p>
+
+    <div class="grid">
+      <div class="field">
+        <label for="uhom">Valor actualizado del UHOM</label>
+        <input id="uhom" type="text" inputmode="decimal" placeholder="Cargando..." autocomplete="off" />
+        <div id="statusUhom" class="hint">Obteniendo valor...</div>
+      </div>
+      <div class="field">
+        <label for="monto">Monto del asunto</label>
+        <input id="monto" type="text" inputmode="decimal" placeholder="Ej.: 1.000.000" autocomplete="off" />
+        <div class="hint">Importe total del asunto.</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="btnCalc" type="button">Calcular</button>
+      <button class="btn-secondary" id="btnClear" type="button">Limpiar</button>
+    </div>
+
+    <div class="result" id="result" hidden>
+      <div class="row"><span class="key">Honorario del mediador ($):</span> <span class="val" id="honorarioPesos">—</span></div>
+      <div class="row"><span class="key">Honorario en UHOM:</span> <span class="val" id="honorarioUhom">—</span></div>
+      <div class="note" id="notaRegla"></div>
+    </div>
+
+    <p id="msg" class="error" role="alert"></p>
+  </div>
+
+  <script>
+    const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8tumvxptTGBCfScMwWxK7r6ATnGfMw061GKGdzfIVyThcSGzUqjI-vcpME1AtykPmjqTq0xdjgc7D/pub?output=csv';
+    const nf = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function parseFlexibleNumber(raw) {
+      if (!raw) return NaN;
+      let s = String(raw).trim();
+      
+      // Si hay coma, el punto es de miles y la coma decimal
+      if (s.includes(',')) {
+        s = s.replace(/\./g, '').replace(',', '.');
+      } else {
+        // Si no hay coma, verificamos si hay puntos de miles (ej: 10.800)
+        const parts = s.split('.');
+        if (parts.length > 1 && parts[parts.length - 1].length === 3) {
+          s = s.replace(/\./g, '');
+        }
+      }
+      return parseFloat(s.replace(/[^0-9.-]/g, ''));
+    }
+
+    async function fetchUhom() {
+      const inputUhom = document.getElementById('uhom');
+      const status = document.getElementById('statusUhom');
+      try {
+        const response = await fetch(URL_SHEET + '&cache=' + new Date().getTime());
+        const data = await response.text();
+        const filas = data.split('\n');
+        
+        // Celda B2 (Segunda fila, segunda columna)
+        if (filas.length >= 2) {
+          const columnas = filas[1].split(',');
+          if (columnas.length >= 2) {
+            const valorB2 = columnas[1].replace(/"/g, '').trim();
+            if (!isNaN(parseFlexibleNumber(valorB2))) {
+              inputUhom.value = valorB2;
+              status.textContent = '✅ Valor actualizado.';
+              if (document.getElementById('monto').value) calcular();
+              return;
+            }
+          }
+        }
+        throw new Error();
+      } catch (e) {
+        status.textContent = 'Ingrese el valor manualmente.';
+      }
+    }
+
+    function calcular() {
+      const msg = document.getElementById('msg');
+      const resBox = document.getElementById('result');
+      const nota = document.getElementById('notaRegla');
+      msg.textContent = '';
+
+      const uhom = parseFlexibleNumber(document.getElementById('uhom').value);
+      const monto = parseFlexibleNumber(document.getElementById('monto').value);
+
+      if (isNaN(uhom) || uhom <= 0) {
+        msg.textContent = 'Ingrese un UHOM válido.';
+        resBox.hidden = true;
+        return;
+      }
+      if (isNaN(monto) || monto < 0) {
+        resBox.hidden = true;
+        return;
+      }
+
+      let honorario = 0;
+      let regla = '';
+      const tope = 120 * uhom;
+
+      if (monto <= 30 * uhom) { honorario = 3 * uhom; regla = '≤ 30 × UHOM ⇒ 3 × UHOM'; }
+      else if (monto <= 60 * uhom) { honorario = 6 * uhom; regla = '≤ 60 × UHOM ⇒ 6 × UHOM'; }
+      else if (monto <= 150 * uhom) { honorario = 9 * uhom; regla = '≤ 150 × UHOM ⇒ 9 × UHOM'; }
+      else if (monto <= 300 * uhom) { honorario = 12 * uhom; regla = '≤ 300 × UHOM ⇒ 12 × UHOM'; }
+      else if (monto <= 600 * uhom) { honorario = 16 * uhom; regla = '≤ 600 × UHOM ⇒ 16 × UHOM'; }
+      else if (monto <= 1000 * uhom) { honorario = 20 * uhom; regla = '≤ 1000 × UHOM ⇒ 20 × UHOM'; }
+      else { honorario = 0.02 * monto; regla = '> 1000 × UHOM ⇒ 2% del monto'; }
+
+      const fueTopeado = honorario > tope;
+      if (fueTopeado) honorario = tope;
+
+      document.getElementById('honorarioPesos').textContent = '$ ' + nf.format(honorario);
+      document.getElementById('honorarioUhom').textContent = nf.format(honorario / uhom);
+      
+      let txtNota = 'Regla aplicada: ' + regla + '.';
+      if (fueTopeado) txtNota += ' Aplicado tope máximo de 120 UHOM.';
+      nota.textContent = txtNota;
+      resBox.hidden = false;
+    }
+
+    document.getElementById('btnCalc').addEventListener('click', calcular);
+    document.getElementById('btnClear').addEventListener('click', () => {
+      document.getElementById('monto').value = '';
+      document.getElementById('result').hidden = true;
+      document.getElementById('msg').textContent = '';
+      fetchUhom();
+    });
+
+    window.addEventListener('DOMContentLoaded', fetchUhom);
+    ['uhom', 'monto'].forEach(id => {
+      document.getElementById(id).addEventListener('input', calcular);
+      document.getElementById(id).addEventListener('keydown', (e) => { if(e.key === 'Enter') calcular(); });
+    });
+  </script>
+</body>
+</html>
