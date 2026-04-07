@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Art. 730 - Prorrateo de Honorarios</title>
+    <style>
+        /* Estilos CSS (se mantienen igual) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        .header {
+            background-color: #004085;
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.05);
+            transform: rotate(20deg);
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 0;
+            font-size: 15px;
+            color: #d1e7ff;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .table-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        .table-container h3 {
+            margin: 0 0 20px 0;
+            color: #004085;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #e9ecef;
+            padding: 12px;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+        th {
+            background-color: #e9f2ff;
+            color: #004085;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        tr:nth-child(even) td {
+            background-color: #f8f9fa;
+        }
+        th:first-child { border-top-left-radius: 8px; }
+        th:last-child { border-top-right-radius: 8px; }
+        tr:last-child td:first-child { border-bottom-left-radius: 8px; }
+        tr:last-child td:last-child { border-bottom-right-radius: 8px; }
+
+        .label-cell {
+            background-color: #e3f2fd;
+            font-weight: bold;
+            width: 180px;
+            color: #004085;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+        }
+        input[type="checkbox"] {
+            transform: scale(1.2);
+            margin: 0;
+            cursor: pointer;
+        }
+        .calculated {
+            background-color: #e8f5e8;
+            font-weight: bold;
+            text-align: right;
+            color: #1a5319;
+        }
+        .total-row {
+            background-color: #ffc107;
+            color: #333;
+            font-weight: bold;
+        }
+        .percentage {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .description-input {
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            font-weight: bold;
+            color: #004085;
+        }
+        .description-input:focus {
+            box-shadow: none;
+        }
+        .small-checkbox {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 25px;
+        }
+        .action-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            margin: 0 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s;
+        }
+        .add-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .add-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
+        }
+        .remove-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 6px 10px;
+            font-size: 13px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .remove-button:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+        .reset-button {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .reset-button:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(23, 162, 184, 0.4);
+        }
+        #errorMessage {
+            display: none;
+            background-color: #dc3545;
+            color: white;
+            padding: 18px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        #instructions {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .tooltip {
+            border-bottom: 1px dotted #004085;
+            cursor: help;
+        }
+        @media print {
+            body { background-color: white; padding: 0; }
+            .header, .button-container, .reset-button, #errorMessage, #instructions { display: none; }
+            .table-container { box-shadow: none; border: 1px solid #ccc; padding: 10px; }
+            input[type="text"] { border: none; background: transparent; font-weight: bold; padding: 0; }
+            .calculated { background-color: white !important; color: black; }
+            .total-row { background-color: #f0f0f0 !important; color: black !important; }
+            th, td { border: 1px solid #ccc; padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Calculadora de Prorrateo (Art. 730 CCCN)</h1>
+        <p>Esta planilla permite realizar el cálculo del prorrateo del art. 730 Cód. Civ. y Com.</p>
+        <p><strong>NOTA:</strong> el cálculo no disminuye el monto de la tasa de justicia.</p>
+    </div>
+
+    <div class="container">
+        <!-- Panel izquierdo: Datos del Proceso -->
+        <div class="table-container" style="flex: 0 0 400px;">
+            <h3>Datos del Proceso</h3>
+            <table>
+                <tr>
+                    <td class="label-cell">MONTO DEL PROCESO</td>
+                    <td><input type="text" id="montoProcess" placeholder="Ingrese el monto" oninput="calculate()"></td>
+                </tr>
+                <tr>
+                    <td class="label-cell">TASA DE JUSTICIA</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span><input type="checkbox" id="incluirTasaCheckbox" checked onchange="calculate()"> Incluir en la base</span>
+                            <span><input type="checkbox" id="tasaManualCheckbox" onchange="toggleTasaManual()"> Manual</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell">TASA (3% o manual)</td>
+                    <td>
+                        <input type="text" id="tasaManualInput" placeholder="Monto manual" style="display: none; margin-bottom: 5px;" oninput="calculate()">
+                        <span class="calculated" id="tasa">0.00</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label-cell">25% del proceso</td>
+                    <td class="calculated" id="percent25">0.00</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">TOPE 730 (22%)</td>
+                    <td class="calculated" id="tope730">0.00</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">VALOR UMA (pesos)</td>
+                    <td>
+                        <input type="text" id="umaInput" placeholder="Ingrese valor UMA" value="" oninput="calculate()">
+                        <div style="font-size: 12px; color: #666;">Si la carga automática falla, ingréselo manualmente (sin puntos, solo números)</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Panel derecho: Honorarios y Prorrateo -->
+        <div class="table-container" style="flex: 1;">
+            <h3>Honorarios y Prorrateo</h3>
+            <div id="instructions">
+                <strong>Modo de ingreso:</strong> Los montos pueden ser ingresados con coma o punto decimal. Ejemplo: `1000.50` o `1000,50`. 
+                Marcar UMA para interpretar el valor como cantidad de UMAs (se multiplica por el valor UMA ingresado). Marcar IVA para agregar 21%.
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>DESCRIPCIÓN</th>
+                        <th>MONTO (en $ o UMAs)</th>
+                        <th>UMA</th>
+                        <th>IVA</th>
+                        <th>% PARTICIPACIÓN</th>
+                        <th>HONORARIO PRORRATEADO</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="honorario-body">
+                    <!-- Las filas se generan dinámicamente con JS -->
+                </tbody>
+                <tbody id="honorario-totals">
+                    <tr class="total-row">
+                        <td>Total Honorarios</td>
+                        <td class="calculated" id="totalHonorarios">0.00</td>
+                        <td></td>
+                        <td></td>
+                        <td class="calculated" id="totalPercent">0.00%</td>
+                        <td class="calculated" id="totalProrrateo">0.00</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>% s/ Monto Proceso (con/sin tasa)</td>
+                        <td class="calculated percentage" id="percentTotal">0.00%</td>
+                        <td colspan="5"></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="button-container">
+                <button class="action-button add-button" onclick="addHonorario()">Añadir Honorario</button>
+            </div>
+
+            <div id="errorMessage">
+                ⚠️ <strong>ADVERTENCIA:</strong> La sumatoria de honorarios (incluyendo tasa si corresponde) es $<span id="errorTotalBase">0.00</span> 
+                y no supera el 25% del monto del proceso ($<span id="errorPercent25">0.00</span>). Por lo tanto, el prorrateo no aplica.
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <button class="action-button reset-button" onclick="resetCalculator()">Reiniciar Calculadora</button>
+    </div>
+
+    <script>
+        // --- Elementos del DOM ---
+        const honorarioBody = document.getElementById('honorario-body');
+
+        // --- Funciones auxiliares de números ---
+        // Convierte un string a número, aceptando coma o punto decimal, y eliminando puntos de miles si se indica.
+        function parseNumber(value, removeThousandsSeparator = false) {
+            if (typeof value !== 'string') value = String(value);
+            if (removeThousandsSeparator) {
+                // Eliminar todos los puntos (separadores de miles)
+                value = value.replace(/\./g, '');
+            }
+            // Reemplazar coma por punto para decimal
+            value = value.replace(',', '.');
+            const num = parseFloat(value);
+            return isNaN(num) ? 0 : num;
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('es-AR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(num);
+        }
+
+        // --- Obtener valor UMA actual desde el input (ya limpio de puntos) ---
+        function getValorUMA() {
+            const umaInput = document.getElementById('umaInput');
+            // Al obtener el valor, quitamos puntos (por si el usuario escribió con ellos)
+            return parseNumber(umaInput.value, true);
+        }
+
+        // --- Función para obtener el monto efectivo de una fila (considera UMA e IVA) ---
+        function getMontoEfectivoFila(row) {
+            const montoInput = row.querySelector('.honorario-input');
+            const umaCheck = row.querySelector('.uma-checkbox');
+            const ivaCheck = row.querySelector('.iva-checkbox');
+            let monto = parseNumber(montoInput ? montoInput.value : ''); // sin eliminar puntos (puede tener decimales)
+            
+            // Si UMA está marcado, multiplicar por valor UMA
+            if (umaCheck && umaCheck.checked) {
+                const umaValor = getValorUMA();
+                monto = monto * umaValor;
+            }
+            
+            // Si IVA está marcado, agregar 21%
+            if (ivaCheck && ivaCheck.checked) {
+                monto = monto * 1.21;
+            }
+            
+            return monto;
+        }
+
+        // --- Toggle de campo manual para tasa ---
+        function toggleTasaManual() {
+            const manualCheck = document.getElementById('tasaManualCheckbox');
+            const manualInput = document.getElementById('tasaManualInput');
+            if (manualCheck.checked) {
+                manualInput.style.display = 'block';
+            } else {
+                manualInput.style.display = 'none';
+            }
+            calculate();
+        }
+
+        // --- Añadir nueva fila de honorario ---
+        function addHonorario() {
+            const rowCount = honorarioBody.rows.length + 1;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" class="description-input" placeholder="Descripción - Honorario ${rowCount}"></td>
+                <td><input type="text" class="honorario-input" placeholder="0.00" oninput="calculate()"></td>
+                <td class="small-checkbox"><input type="checkbox" class="uma-checkbox" onchange="calculate()"></td>
+                <td class="small-checkbox"><input type="checkbox" class="iva-checkbox" onchange="calculate()"></td>
+                <td class="calculated percentage">0.00%</td>
+                <td class="calculated">0.00</td>
+                <td><button class="action-button remove-button" onclick="removeHonorario(this)">-</button></td>
+            `;
+            honorarioBody.appendChild(newRow);
+            updateHonorarioPlaceholders();
+            calculate();
+        }
+
+        // --- Eliminar fila de honorario ---
+        function removeHonorario(button) {
+            const row = button.closest('tr');
+            if (honorarioBody.rows.length > 1) {
+                row.remove();
+                updateHonorarioPlaceholders();
+                calculate();
+            }
+        }
+
+        // --- Actualizar placeholders de descripción ---
+        function updateHonorarioPlaceholders() {
+            const descriptionInputs = document.querySelectorAll('.description-input');
+            descriptionInputs.forEach((input, index) => {
+                input.placeholder = `Descripción - Honorario ${index + 1}`;
+            });
+        }
+
+        // --- Reiniciar calculadora ---
+        function resetCalculator() {
+            document.getElementById('montoProcess').value = '';
+            document.getElementById('incluirTasaCheckbox').checked = true;
+            document.getElementById('tasaManualCheckbox').checked = false;
+            document.getElementById('tasaManualInput').value = '';
+            document.getElementById('tasaManualInput').style.display = 'none';
+            // No reiniciamos el campo UMA para mantener el valor cargado o manual
+            
+            // Limpiar todas las filas y crear 5 por defecto
+            while (honorarioBody.firstChild) {
+                honorarioBody.removeChild(honorarioBody.firstChild);
+            }
+            for (let i = 0; i < 5; i++) {
+                addHonorario(); // crea filas con checkboxes
+            }
+            calculate();
+        }
+
+        // --- Cargar UMA desde Google Sheets (celda B1) ---
+        async function cargarUMA() {
+            const umaInput = document.getElementById('umaInput');
+            try {
+                const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8tumvxptTGBCfScMwWxK7r6ATnGfMw061GKGdzfIVyThcSGzUqjI-vcpME1AtykPmjqTq0xdjgc7D/pub?output=csv');
+                const csvText = await response.text();
+                const lines = csvText.split('\n');
+                // La primera línea (fila 1 del sheet) contiene "UMA,89.875"
+                if (lines.length >= 1) {
+                    const firstLine = lines[0];
+                    const columns = firstLine.split(',');
+                    if (columns.length >= 2) {
+                        let rawValue = columns[1].trim().replace(/"/g, '');
+                        // Eliminar puntos (separador de miles) para obtener el número entero
+                        rawValue = rawValue.replace(/\./g, '');
+                        const umaValor = parseFloat(rawValue);
+                        if (!isNaN(umaValor) && umaValor > 0) {
+                            umaInput.value = umaValor; // asignar como número sin formato
+                        } else {
+                            umaInput.value = ''; // No válido, dejar vacío
+                        }
+                    } else {
+                        umaInput.value = '';
+                    }
+                } else {
+                    umaInput.value = '';
+                }
+            } catch (e) {
+                console.warn("Error al cargar UMA:", e);
+                umaInput.value = ''; // dejar vacío para ingreso manual
+            }
+            calculate(); // recalcular con el nuevo valor
+        }
+
+        // --- Cálculo principal ---
+        function calculate() {
+            // 1. Monto del proceso
+            const montoProcess = parseNumber(document.getElementById('montoProcess').value);
+            
+            // 2. Tasa de justicia
+            let tasa = 0;
+            const tasaManualCheck = document.getElementById('tasaManualCheckbox').checked;
+            const tasaManualInput = document.getElementById('tasaManualInput');
+            if (tasaManualCheck) {
+                tasa = parseNumber(tasaManualInput.value);
+            } else {
+                tasa = montoProcess * 0.03;
+            }
+            document.getElementById('tasa').textContent = formatNumber(tasa);
+            
+            // 3. 25% y tope
+            const percent25 = montoProcess * 0.25;
+            const tope730 = montoProcess * 0.22;
+            document.getElementById('percent25').textContent = formatNumber(percent25);
+            document.getElementById('tope730').textContent = formatNumber(tope730);
+            
+            // 4. Obtener todas las filas de honorarios
+            const filas = honorarioBody.querySelectorAll('tr');
+            const montosEfectivos = [];
+            let totalHonorariosEfectivos = 0;
+            
+            filas.forEach(row => {
+                const montoEf = getMontoEfectivoFila(row);
+                montosEfectivos.push(montoEf);
+                totalHonorariosEfectivos += montoEf;
+            });
+            
+            // 5. Incluir tasa en la base de comparación si el checkbox está marcado
+            const incluirTasa = document.getElementById('incluirTasaCheckbox').checked;
+            let baseComparacion = totalHonorariosEfectivos;
+            if (incluirTasa) {
+                baseComparacion += tasa;
+            }
+            
+            document.getElementById('totalHonorarios').textContent = formatNumber(totalHonorariosEfectivos);
+            
+            // Porcentaje sobre monto del proceso (con tasa si corresponde)
+            let percentOfProcess = 0;
+            if (montoProcess > 0) {
+                percentOfProcess = (baseComparacion * 100) / montoProcess;
+            }
+            document.getElementById('percentTotal').textContent = formatNumber(percentOfProcess) + '%';
+            
+            // 6. Lógica de prorrateo
+            const errorMessage = document.getElementById('errorMessage');
+            const errorTotalBaseSpan = document.getElementById('errorTotalBase');
+            const errorPercent25Span = document.getElementById('errorPercent25');
+            
+            function clearProrrateoResults() {
+                document.getElementById('totalPercent').textContent = '0.00%';
+                document.getElementById('totalProrrateo').textContent = '0.00';
+                
+                filas.forEach(row => {
+                    const percentageCell = row.querySelector('td:nth-child(5)');
+                    const prorrateoCell = row.querySelector('td:nth-child(6)');
+                    if (percentageCell) percentageCell.textContent = '0.00%';
+                    if (prorrateoCell) prorrateoCell.textContent = '0.00';
+                });
+            }
+            
+            // Si la base de comparación es <= 25%, no aplica prorrateo
+            if (baseComparacion <= percent25) {
+                errorMessage.style.display = 'block';
+                errorTotalBaseSpan.textContent = formatNumber(baseComparacion);
+                errorPercent25Span.textContent = formatNumber(percent25);
+                clearProrrateoResults();
+                return;
+            }
+            
+            // Aplica prorrateo
+            errorMessage.style.display = 'none';
+            
+            let totalPercent = 0;
+            let totalProrrateo = 0;
+            
+            filas.forEach((row, index) => {
+                const monto = montosEfectivos[index];
+                let percentage = 0;
+                let prorrateo = 0;
+                
+                const percentageCell = row.querySelector('td:nth-child(5)');
+                const prorrateoCell = row.querySelector('td:nth-child(6)');
+                
+                if (totalHonorariosEfectivos > 0) {
+                    percentage = (monto * 100) / totalHonorariosEfectivos;
+                    prorrateo = (monto / totalHonorariosEfectivos) * tope730;
+                }
+                
+                totalPercent += percentage;
+                totalProrrateo += prorrateo;
+                
+                if (percentageCell) percentageCell.textContent = formatNumber(percentage) + '%';
+                if (prorrateoCell) prorrateoCell.textContent = formatNumber(prorrateo);
+            });
+            
+            document.getElementById('totalPercent').textContent = formatNumber(totalPercent) + '%';
+            document.getElementById('totalProrrateo').textContent = formatNumber(totalProrrateo);
+        }
+
+        // --- Inicialización ---
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarUMA(); // Intenta cargar UMA desde B1 y lo deja en el input
+            // Crear 5 filas iniciales
+            resetCalculator(); // esto llama a addHonorario 5 veces y calculate()
+        });
+    </script>
+</body>
+</html>
