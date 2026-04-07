@@ -2,6 +2,8 @@
 
 Este repositorio reúne un conjunto de herramientas jurídicas desarrolladas con asistencia de Inteligencia Artificial, orientadas a automatizar tareas frecuentes y facilitar cálculos en la práctica judicial diaria
 
+Actualmente se utilizan activamente en el entorno de una oficina judicial para apoyar operaciones repetitivas y para mejorar la eficiencia del flujo de trabajo
+
 ⚠️ Importante: Estas herramientas tienen carácter meramente orientativo
 
 🧰 Herramientas disponibles
@@ -35,7 +37,7 @@ Herramienta interactiva orientada a guiar el proceso de regulación de honorario
 
 🤖 Sobre el desarrollo
 
-Estas herramientas fueron generadas utilizando IA (en un enfoque tipo vibe coding), por lo que:
+Estas herramientas fueron generadas utilizando IA, por lo que:
 
 El código puede contener errores
 No sigue necesariamente estándares profesionales de desarrollo
@@ -52,14 +54,10 @@ No constituyen asesoramiento legal ni dictamen profesional
 El usuario es el único responsable del uso que haga de los resultados obtenidos.
 
 👤 Autor
-
 Desarrollado por L. Javier Cúneo Libarona
-
 💼 Abogado (Judicial)
-🤖 Interesado en la aplicación de IA al Derecho
-
+🤖Centrado en IA aplicada a los procesos legales y la automatización de flujos de trabajo
 🔗 GitHub: https://github.com/javiercuneo
-
 🔗 [LinkedIn](url): https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934
 
 📝 Licencia
