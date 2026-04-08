@@ -3,84 +3,592 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    
-    <title>Calculadora de Plazos (Argentina e Internacional)</title>
-    
-    <link rel="stylesheet" href="style.css">
+    <title>Calculadora de Plazos (Argentina e Internacional) - Art. 158 CPCCN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #e9f0f5;
+            padding: 2rem 1rem;
+            color: #1a2c3e;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 1.8rem 2rem 2rem 2rem;
+            transition: all 0.2s;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #0b3b5f;
+            border-left: 5px solid #1e88e5;
+            padding-left: 1rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #2c6e9e;
+            margin-bottom: 1.8rem;
+            font-weight: 500;
+            border-bottom: 1px solid #dce7ef;
+            padding-bottom: 0.6rem;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #cfdfed;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4a627a;
+        }
+
+        .tab-btn.active {
+            background: #1e88e5;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn:not(.active):hover {
+            background: #e2edf7;
+            color: #0b5b9e;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fade 0.25s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(6px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        .info-api {
+            font-size: 0.75rem;
+            background: #f0f6fe;
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            color: #0f5b92;
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.6rem;
+            position: relative;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #0a3146;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid #bdd4e4;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            background: white;
+        }
+
+        input:focus {
+            border-color: #1e88e5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30,136,229,0.2);
+        }
+
+        .input-group button {
+            background: #eef3fc;
+            border: 1px solid #cbdde9;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .input-group button:hover {
+            background: #d9e6f5;
+            border-color: #9bb7cc;
+        }
+
+        .sugerencias {
+            background: white;
+            border: 1px solid #cfe1ef;
+            border-radius: 20px;
+            margin-top: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+            z-index: 100;
+            position: relative;
+        }
+
+        .sugerencia-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ecf3f9;
+            transition: 0.1s;
+        }
+
+        .sugerencia-item:hover {
+            background: #e9f2fa;
+            color: #0a5a8c;
+        }
+
+        .btn-calcular {
+            background: #0f5b92;
+            color: white;
+            border: none;
+            padding: 0.9rem 1.8rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn-calcular:hover {
+            background: #0a4170;
+            transform: scale(1.01);
+        }
+
+        .resultado-container, .trazabilidad-container {
+            background: #f8fafd;
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            margin-top: 1rem;
+            border-left: 5px solid #1e88e5;
+        }
+
+        .trazabilidad-container {
+            border-left-color: #6c8eae;
+            background: #fefef9;
+            font-size: 0.9rem;
+        }
+
+        .resultado-container h3 {
+            color: #0f5b92;
+            font-size: 1.3rem;
+        }
+
+        .legal-warning {
+            margin-top: 2rem;
+            background: #fef5e8;
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            font-size: 0.8rem;
+            border: 1px solid #ffe0b5;
+            color: #4a3b1c;
+        }
+
+        .legal-warning h3 {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            color: #b45f06;
+        }
+
+        .legal-warning p {
+            margin: 0.6rem 0;
+            line-height: 1.4;
+        }
+
+        .legal-warning a {
+            color: #1e6faf;
+            text-decoration: none;
+            border-bottom: 1px dotted;
+        }
+
+        .legal-warning a:hover {
+            color: #0a3b5c;
+        }
+
+        @media (max-width: 640px) {
+            .main-container {
+                padding: 1.2rem;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            .tab-btn {
+                padding: 0.4rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <h1>Calculadora de ampliación de plazo por distancia</h1>
-        <p class="subtitle">Según Art. 158 CPCCN</p>
+<div class="main-container">
+    <h1>Calculadora de ampliación de plazo por distancia</h1>
+    <p class="subtitle">Según Art. 158 CPCCN</p>
 
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="argentina">🇦🇷 Argentina</button>
-            <button class="tab-btn" data-tab="internacional">🌍 Internacional</button>
-        </div>
-
-        <div id="argentina" class="tab-content active">
-            <p class="info-api">Fuente: API GEOREF (Datos Argentina)</p>
-            
-            <div class="form-group">
-                <label>📍 Asiento del juzgado (Arg):</label>
-                <div class="input-group">
-                    <input type="text" id="argJuzgado" placeholder="Buscar localidad argentina...">
-                    <button id="btnLimpiarArg" title="Limpiar">Limpiar</button>
-                </div>
-                <div id="sugArgJuzgado" class="sugerencias"></div>
-            </div>
-
-            <div class="form-group">
-                <label>📍 Lugar de la diligencia (Arg):</label>
-                <input type="text" id="argDiligencia" placeholder="Buscar localidad argentina...">
-                <div id="sugArgDiligencia" class="sugerencias"></div>
-            </div>
-
-            <button id="btnCalcularArg" class="btn-calcular">Calcular (Argentina)</button>
-            
-            <div id="resArg" class="resultado-container"></div>
-            <div id="trazArg" class="trazabilidad-container"></div>
-        </div>
-
-        <div id="internacional" class="tab-content">
-            <p class="info-api">Fuente: Open-Meteo Geocoding (Datos Mundiales)</p>
-
-            <div class="form-group">
-                <label>📍 Asiento del juzgado / Origen:</label>
-                <div class="input-group">
-                    <input type="text" id="intlJuzgado" placeholder="Ej: Buenos Aires, Madrid, Roma...">
-                    <button id="btnLimpiarIntl" title="Limpiar">Limpiar</button>
-                </div>
-                <div id="sugIntlJuzgado" class="sugerencias"></div>
-            </div>
-
-            <div class="form-group">
-                <label>📍 Lugar de la diligencia / Destino:</label>
-                <input type="text" id="intlDiligencia" placeholder="Ej: París, Montevideo, New York...">
-                <div id="sugIntlDiligencia" class="sugerencias"></div>
-            </div>
-
-            <button id="btnCalcularIntl" class="btn-calcular">Calcular (Internacional)</button>
-            
-            <div id="resIntl" class="resultado-container"></div>
-            <div id="trazIntl" class="trazabilidad-container"></div>
-        </div>
-
-        <div class="legal-warning">
-            <h3>⚠️ Advertencia Legal</h3>
-            <p>Esta calculadora de ampliación de plazo por distancia (art. 158 CPCCN) fue generada mediante Inteligencia Artificial. Es una herramienta complementaria y no sustituye el criterio profesional.</p>
-            <p><strong>Datos:</strong> Para Argentina se usa GEOREF. Para el exterior se usa Open-Meteo.</p>
-            <p><strong>Cálculo:</strong> Distancia lineal (Haversine). 1 día cada 200km o fracción >100km.</p>
-            <p>Utilice bajo su propia responsabilidad contrastando el resultado.</p>
-        </div>
-
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="argentina">🇦🇷 Argentina</button>
+        <button class="tab-btn" data-tab="internacional">🌍 Internacional</button>
     </div>
 
-    <script src="script.js?v=2.0"></script>
+    <div id="argentina" class="tab-content active">
+        <p class="info-api">Fuente: API GEOREF (Datos Argentina)</p>
+        
+        <div class="form-group">
+            <label>📍 Asiento del juzgado (Arg):</label>
+            <div class="input-group">
+                <input type="text" id="argJuzgado" placeholder="Buscar localidad argentina...">
+                <button id="btnLimpiarArg" title="Limpiar">Limpiar</button>
+            </div>
+            <div id="sugArgJuzgado" class="sugerencias"></div>
+        </div>
+
+        <div class="form-group">
+            <label>📍 Lugar de la diligencia (Arg):</label>
+            <input type="text" id="argDiligencia" placeholder="Buscar localidad argentina...">
+            <div id="sugArgDiligencia" class="sugerencias"></div>
+        </div>
+
+        <button id="btnCalcularArg" class="btn-calcular">Calcular (Argentina)</button>
+        
+        <div id="resArg" class="resultado-container"></div>
+        <div id="trazArg" class="trazabilidad-container"></div>
+    </div>
+
+    <div id="internacional" class="tab-content">
+        <p class="info-api">Fuente: Open-Meteo Geocoding (Datos Mundiales)</p>
+
+        <div class="form-group">
+            <label>📍 Asiento del juzgado / Origen:</label>
+            <div class="input-group">
+                <input type="text" id="intlJuzgado" placeholder="Ej: Buenos Aires, Madrid, Roma...">
+                <button id="btnLimpiarIntl" title="Limpiar">Limpiar</button>
+            </div>
+            <div id="sugIntlJuzgado" class="sugerencias"></div>
+        </div>
+
+        <div class="form-group">
+            <label>📍 Lugar de la diligencia / Destino:</label>
+            <input type="text" id="intlDiligencia" placeholder="Ej: París, Montevideo, New York...">
+            <div id="sugIntlDiligencia" class="sugerencias"></div>
+        </div>
+
+        <button id="btnCalcularIntl" class="btn-calcular">Calcular (Internacional)</button>
+        
+        <div id="resIntl" class="resultado-container"></div>
+        <div id="trazIntl" class="trazabilidad-container"></div>
+    </div>
+
+    <div class="legal-warning">
+        <h3>⚠️ Advertencia Legal & Método de Cálculo</h3>
+        <p>Esta calculadora de ampliación de plazo por distancia (art. 158 CPCCN) fue generada mediante Inteligencia Artificial. Es una herramienta complementaria y no sustituye el criterio profesional.</p>
+        <p><strong>Método de Cálculo:</strong> el sistema obtiene la geolocalización (latitud y longitud) de los puntos geográficos indicados mediante la API GEOREF (<a href="https://apis.datos.gob.ar/georef/api/" target="_blank">https://apis.datos.gob.ar/georef/api/</a>). Con esos datos, y mediante la fórmula de Haversine o del semiverseno procura obtener la distancia lineal en kilómetros, a la que aplica la lógica de 1 día por cada 200 km o fracción que no baje de 100 km. Para datos internacionales utiliza como fuente Open-Meteo Geocoding.</p>
+        <p><strong>NOTA:</strong> la CSJN se atiene a las distancias por ferrocarril (Fallos, 304:1345) y ruta terrestre. Ver al respecto la <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/165000-169999/165599/norma.htm" target="_blank">Acordada 5/2010</a> que con fundamento en lo dispuesto por la Acordada Nº 50/86 establece las distancias a los asientos federales para considerar la ampliación de los plazos del art. 158 para interponer las quejas (art. 282 del CPCCN).</p>
+        <p><strong>Utilice la herramienta bajo su propia responsabilidad contrastando el resultado.</strong></p>
+    </div>
+
+</div>
+
+<script>
+    (function() {
+        // ============================================
+        // 1. GESTIÓN DE PESTAÑAS (TABS)
+        // ============================================
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        const switchTab = (tabId) => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+            const targetContent = document.getElementById(tabId);
+            
+            if (targetBtn && targetContent) {
+                targetBtn.classList.add('active');
+                targetContent.classList.add('active');
+            }
+        };
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchTab(btn.dataset.tab);
+            });
+        });
+        switchTab('argentina');
+
+        // ============================================
+        // 2. CONFIGURACIÓN COMPARTIDA
+        // ============================================
+        const defaultCongreso = { 
+            lat: -34.609867, 
+            lon: -58.39254, 
+            nombre: "Congreso de la Nación (CABA, Argentina)" 
+        };
+
+        let debounceTimer;
+
+        const calcularDistancia = (lat1, lon1, lat2, lon2) => {
+            const R = 6371; 
+            const toRad = v => v * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(toRad(lat1)) * Math.cos(toRad(lat2));
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        };
+
+        const calcularDias = (distancia) => {
+            if (distancia < 200) return 0;
+            const diasBase = Math.floor(distancia / 200);
+            const fraccion = distancia % 200;
+            return diasBase + (fraccion >= 100 ? 1 : 0);
+        };
+
+        const mostrarResultado = (divRes, divTraz, d, dias, c1, c2, nombre1, nombre2) => {
+            let msj = '', logica = '';
+            if (dias === 0) {
+                msj = `<h3>✅ No corresponde ampliación.</h3>`;
+                logica = `Distancia (${d.toFixed(2)} km) < 200 km.`;
+            } else {
+                const s = dias > 1 ? 's' : '';
+                msj = `<h3>📆 Corresponde ampliación por ${dias} día${s}.</h3>`;
+                const baseDias = Math.floor(d / 200);
+                const resto = d % 200;
+                logica = `1 día/200km (${baseDias} día${baseDias !== 1 ? 's' : ''}) + fracción ${resto >= 100 ? '≥' : '<'} 100km (${resto >= 100 ? '1 día adicional' : '0 días'}).`;
+            }
+
+            divRes.innerHTML = msj;
+            divTraz.innerHTML = `
+                <h4>📌 Trazabilidad del cálculo:</h4>
+                <p><strong>Origen:</strong> ${nombre1} (${c1.lat.toFixed(4)}, ${c1.lon.toFixed(4)})</p>
+                <p><strong>Destino:</strong> ${nombre2} (${c2.lat.toFixed(4)}, ${c2.lon.toFixed(4)})</p>
+                <p><strong>Distancia lineal (Haversine):</strong> ${d.toFixed(2)} km</p>
+                <p><strong>Lógica aplicada (Art. 158 CPCCN):</strong> ${logica}</p>
+            `;
+        };
+
+        // ============================================
+        // 3. CALCULADORA ARGENTINA (GEOREF)
+        // ============================================
+        let argJuzgado = { ...defaultCongreso };
+        let argDiligencia = { lat: null, lon: null, nombre: '' };
+
+        const inpArgJuz = document.getElementById('argJuzgado');
+        const inpArgDil = document.getElementById('argDiligencia');
+        const sugArgJuz = document.getElementById('sugArgJuzgado');
+        const sugArgDil = document.getElementById('sugArgDiligencia');
+
+        inpArgJuz.value = defaultCongreso.nombre;
+
+        const buscarGeoref = (query, contenedor, storage, input) => {
+            contenedor.innerHTML = '';
+            if (query.length < 3) return;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                fetch(`https://apis.datos.gob.ar/georef/api/localidades?nombre=${encodeURIComponent(query)}&max=5`, {cache: 'no-store'})
+                    .then(r => r.json())
+                    .then(d => {
+                        contenedor.innerHTML = '';
+                        if (!d.localidades || d.localidades.length === 0) {
+                            const noItem = document.createElement('div');
+                            noItem.className = 'sugerencia-item';
+                            noItem.textContent = '⚠️ Sin resultados';
+                            contenedor.appendChild(noItem);
+                            return;
+                        }
+                        d.localidades.forEach(loc => {
+                            const item = document.createElement('div');
+                            item.className = 'sugerencia-item';
+                            const txt = `${loc.nombre}, ${loc.provincia.nombre}`;
+                            item.textContent = txt;
+                            item.onclick = () => {
+                                input.value = txt;
+                                storage.lat = loc.centroide.lat;
+                                storage.lon = loc.centroide.lon;
+                                storage.nombre = txt;
+                                contenedor.innerHTML = '';
+                            };
+                            contenedor.appendChild(item);
+                        });
+                    })
+                    .catch(() => {
+                        contenedor.innerHTML = '<div class="sugerencia-item">Error de conexión</div>';
+                    });
+            }, 300);
+        };
+
+        inpArgJuz.addEventListener('input', () => {
+            argJuzgado = { lat: null, lon: null, nombre: '' };
+            buscarGeoref(inpArgJuz.value, sugArgJuz, argJuzgado, inpArgJuz);
+        });
+        inpArgDil.addEventListener('input', () => {
+            argDiligencia = { lat: null, lon: null, nombre: '' };
+            buscarGeoref(inpArgDil.value, sugArgDil, argDiligencia, inpArgDil);
+        });
+
+        document.getElementById('btnLimpiarArg').addEventListener('click', () => {
+            inpArgJuz.value = '';
+            argJuzgado = { lat: null, lon: null, nombre: '' };
+            sugArgJuz.innerHTML = '';
+        });
+
+        document.getElementById('btnCalcularArg').addEventListener('click', () => {
+            const resDiv = document.getElementById('resArg');
+            const trazDiv = document.getElementById('trazArg');
+            resDiv.innerHTML = '';
+            trazDiv.innerHTML = '';
+
+            if(!argJuzgado.lat || !argDiligencia.lat) {
+                resDiv.innerHTML = `<h3>⚠️ Error: Debe seleccionar ambas localidades de la lista desplegable.</h3>`;
+                return;
+            }
+
+            const dist = calcularDistancia(argJuzgado.lat, argJuzgado.lon, argDiligencia.lat, argDiligencia.lon);
+            mostrarResultado(
+                resDiv,
+                trazDiv,
+                dist, calcularDias(dist), argJuzgado, argDiligencia, argJuzgado.nombre, argDiligencia.nombre
+            );
+        });
+
+        // ============================================
+        // 4. CALCULADORA INTERNACIONAL (OPEN-METEO)
+        // ============================================
+        let intlJuzgado = { ...defaultCongreso };
+        let intlDiligencia = { lat: null, lon: null, nombre: '' };
+
+        const inpIntlJuz = document.getElementById('intlJuzgado');
+        const inpIntlDil = document.getElementById('intlDiligencia');
+        const sugIntlJuz = document.getElementById('sugIntlJuzgado');
+        const sugIntlDil = document.getElementById('sugIntlDiligencia');
+
+        inpIntlJuz.value = defaultCongreso.nombre;
+
+        const buscarMundo = (query, contenedor, storage, input) => {
+            contenedor.innerHTML = '';
+            if (query.length < 3) return;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=es&format=json`)
+                    .then(r => r.json())
+                    .then(d => {
+                        contenedor.innerHTML = '';
+                        if(!d.results || d.results.length === 0) {
+                            const item = document.createElement('div');
+                            item.className = 'sugerencia-item';
+                            item.textContent = '🌐 No se encontraron resultados';
+                            contenedor.appendChild(item);
+                            return;
+                        }
+                        
+                        d.results.forEach(loc => {
+                            const item = document.createElement('div');
+                            item.className = 'sugerencia-item';
+                            const partes = [loc.name, loc.admin1, loc.country].filter(Boolean);
+                            const txt = partes.join(', ');
+                            item.textContent = `🌍 ${txt}`;
+                            item.onclick = () => {
+                                input.value = txt;
+                                storage.lat = loc.latitude;
+                                storage.lon = loc.longitude;
+                                storage.nombre = txt;
+                                contenedor.innerHTML = '';
+                            };
+                            contenedor.appendChild(item);
+                        });
+                    })
+                    .catch(() => {
+                        contenedor.innerHTML = '<div class="sugerencia-item">Error al buscar ciudades</div>';
+                    });
+            }, 300);
+        };
+
+        inpIntlJuz.addEventListener('input', () => {
+            intlJuzgado = { lat: null, lon: null, nombre: '' };
+            buscarMundo(inpIntlJuz.value, sugIntlJuz, intlJuzgado, inpIntlJuz);
+        });
+        inpIntlDil.addEventListener('input', () => {
+            intlDiligencia = { lat: null, lon: null, nombre: '' };
+            buscarMundo(inpIntlDil.value, sugIntlDil, intlDiligencia, inpIntlDil);
+        });
+
+        document.getElementById('btnLimpiarIntl').addEventListener('click', () => {
+            inpIntlJuz.value = '';
+            intlJuzgado = { lat: null, lon: null, nombre: '' };
+            sugIntlJuz.innerHTML = '';
+        });
+
+        document.getElementById('btnCalcularIntl').addEventListener('click', () => {
+            const resDiv = document.getElementById('resIntl');
+            const trazDiv = document.getElementById('trazIntl');
+            resDiv.innerHTML = '';
+            trazDiv.innerHTML = '';
+
+            if(!intlJuzgado.lat || !intlDiligencia.lat) {
+                resDiv.innerHTML = `<h3>⚠️ Error: Debe seleccionar ambas ciudades de la lista de sugerencias.</h3>`;
+                return;
+            }
+
+            const dist = calcularDistancia(intlJuzgado.lat, intlJuzgado.lon, intlDiligencia.lat, intlDiligencia.lon);
+            mostrarResultado(
+                resDiv,
+                trazDiv,
+                dist, calcularDias(dist), intlJuzgado, intlDiligencia, intlJuzgado.nombre, intlDiligencia.nombre
+            );
+        });
+
+        // Cerrar sugerencias al hacer click fuera
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.form-group')) {
+                document.querySelectorAll('.sugerencias').forEach(s => s.innerHTML = '');
+            }
+        });
+    })();
+</script>
 </body>
 </html>
