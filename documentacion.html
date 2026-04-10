@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚖️ Herramientas Judiciales con IA · Documentación y uso</title>
+  <!-- Google Fonts: Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #f4f6f9;
+      color: #1e2b3c;
+      line-height: 1.6;
+    }
+    .top-bar {
+      background: #0b1a2a;
+      color: white;
+      padding: 40px 24px 32px;
+      text-align: center;
+      border-bottom: 4px solid #2b6f9c;
+    }
+    .top-bar h1 {
+      font-weight: 600;
+      font-size: 2.3rem;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .top-bar p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 24px;
+      color: #2b6f9c;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .back-link:hover {
+      color: #0b1a2a;
+      text-decoration: underline;
+    }
+    /* Menú de anclas */
+    .nav-menu {
+      background: white;
+      border-radius: 60px;
+      padding: 12px 24px;
+      margin-bottom: 40px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.03);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 28px;
+      justify-content: center;
+    }
+    .nav-menu a {
+      color: #1e3a5f;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 6px 0;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.15s;
+    }
+    .nav-menu a:hover {
+      border-bottom-color: #2b6f9c;
+    }
+    /* Secciones */
+    section {
+      margin-bottom: 48px;
+    }
+    .section-title {
+      font-weight: 600;
+      font-size: 1.9rem;
+      margin-bottom: 24px;
+      border-left: 6px solid #2b6f9c;
+      padding-left: 20px;
+      color: #0b1a2a;
+      scroll-margin-top: 20px;
+    }
+    .tool-card {
+      background: white;
+      border-radius: 24px;
+      padding: 28px 32px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+      border: 1px solid #eaedf0;
+      margin-bottom: 32px;
+    }
+    .tool-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .tool-header h3 {
+      font-weight: 700;
+      font-size: 1.7rem;
+      color: #0b1a2a;
+    }
+    .badge {
+      background: #eef2ff;
+      color: #1e3a5f;
+      padding: 4px 14px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .tool-content p {
+      margin-bottom: 16px;
+    }
+    .tool-content ul, .tool-content ol {
+      margin-left: 24px;
+      margin-bottom: 20px;
+    }
+    .tool-content li {
+      margin-bottom: 8px;
+    }
+    .use-case {
+      background: #f8fafc;
+      border-left: 4px solid #2b6f9c;
+      padding: 18px 24px;
+      border-radius: 16px;
+      margin: 24px 0;
+    }
+    .use-case strong {
+      color: #0b1a2a;
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+    .warning-note {
+      background: #fef9e7;
+      border-left: 6px solid #e6b800;
+      padding: 18px 24px;
+      border-radius: 16px;
+      margin: 24px 0;
+    }
+    .api-reference {
+      font-size: 0.9rem;
+      color: #475569;
+      margin-top: 16px;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 16px;
+    }
+    .api-reference a {
+      color: #2b6f9c;
+      text-decoration: none;
+    }
+    .btn {
+      display: inline-block;
+      background: #0b1a2a;
+      color: white;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 40px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: #1f3a57;
+    }
+    .footer-note {
+      text-align: center;
+      margin-top: 48px;
+      color: #546a7a;
+      font-size: 0.9rem;
+      border-top: 1px solid #d0d9e2;
+      padding-top: 28px;
+    }
+    @media (max-width: 600px) {
+      .top-bar h1 { font-size: 1.9rem; }
+      .tool-card { padding: 20px 18px; }
+      .nav-menu { border-radius: 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="top-bar">
+  <h1>📘 Guía detallada de herramientas</h1>
+  <p>Cómo funciona cada calculadora, casos de uso, limitaciones y fundamentos normativos.</p>
+</div>
+
+<div class="wrapper">
+  <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" class="back-link">← Volver al panel de herramientas</a>
+
+  <!-- Menú rápido -->
+  <div class="nav-menu">
+    <a href="#vencimiento">Vencimiento de plazos</a>
+    <a href="#caducidad">Caducidad de instancia</a>
+    <a href="#distancia">Ampliación por distancia</a>
+    <a href="#contador">Contador de días</a>
+    <a href="#mora">Calculadora de mora</a>
+    <a href="#regresiva">Fecha límite (regresiva)</a>
+    <a href="#honorarios">Honorarios (Ley 27.423)</a>
+    <a href="#mediador">Honorarios del mediador</a>
+    <a href="#prorrateo">Prorrateo (art. 730)</a>
+    <a href="#tasa">Tasa de Justicia</a>
+    <a href="#asistente">Asistente de honorarios (en desarrollo)</a>
+  </div>
+
+  <!-- 1. Vencimiento de plazos -->
+  <section id="vencimiento">
+    <h2 class="section-title">📅 Calculadora de vencimiento de plazos</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Vencimiento de plazos procesales</h3>
+        <span class="badge">Fuero Nacional Civil</span>
+      </div>
+      <div class="tool-content">
+        <p>Calcula el vencimiento de un plazo judicial a partir de una fecha de notificación. Orientada al CPCCN (arts. 124, 133, 152 y ss.).</p>
+        <div class="use-case">
+          <strong>🧩 Caso de uso típico</strong>
+          <p>Determinar la fecha límite para contestar demanda, oponer excepciones o presentar un recurso, considerando días inhábiles, ferias y recesos.</p>
+        </div>
+        <p><strong>⚙️ Funcionamiento:</strong> El usuario elige modalidad de notificación (cédula, ministerio ley, etc.), fecha de notificación y duración del plazo en días. La herramienta:</p>
+        <ul>
+          <li>Consulta una API pública de feriados (<a href="https://argentinadatos.com/docs/operations/get-feriados.html" target="_blank">argentinadatos.com</a>) para obtener días inhábiles nacionales.</li>
+          <li>Aplica reglas fijas: feria judicial de verano (todo enero), receso invernal (12 días corridos desde el tercer lunes de julio, variable según CSJN), y días inhábiles por ley/acordadas (ej. 16/11, 24 y 31/12 según año).</li>
+          <li>Excluye del cómputo los días informados, mostrando un listado de días excluidos para transparencia.</li>
+        </ul>
+        <p><strong>📌 Limitaciones y advertencias:</strong></p>
+        <ul>
+          <li>Funciona para períodos desde 2021 en adelante.</li>
+          <li>Depende de la actualización de la API de feriados; si un feriado no está cargado, no será considerado.</li>
+          <li>El receso de invierno se estima con la regla general (12 días desde el 3er lunes de julio), pero puede variar por acordadas anuales. Se recomienda verificar.</li>
+        </ul>
+        <div class="api-reference">
+          🔗 Base de datos propia de días inhábiles: <a href="https://jnc-34.github.io/jnc34/dias-inhabiles.json" target="_blank">jnc-34.github.io/jnc34/dias-inhabiles.json</a><br>
+          Acordadas CSJN consideradas: 30/21, 33/22, 26/22, 27/24, 47/24, 38/25.
+        </div>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/vencimientos.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Caducidad de instancia -->
+  <section id="caducidad">
+    <h2 class="section-title">⏳ Calculadora de caducidad de la instancia</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Caducidad (arts. 310 y ss. CPCCN)</h3>
+      </div>
+      <div class="tool-content">
+        <p>Determina la fecha en que opera la caducidad de instancia a partir del último acto interruptivo.</p>
+        <div class="use-case">
+          <strong>🧩 Caso de uso</strong>
+          <p>Controlar si un expediente se encuentra en riesgo de caducidad y planificar la actividad procesal necesaria.</p>
+        </div>
+        <p><strong>⚙️ Lógica de cómputo:</strong> El usuario selecciona el plazo en meses (3 o 6 según tipo de proceso) y la fecha del último acto interruptivo. Según art. 311 CPCCN, el plazo corre durante días inhábiles, <strong>excepto las ferias judiciales</strong> (enero y receso invernal). Por ello, la calculadora saltea la feria de enero y el receso de julio (estimado con la misma regla de 12 días desde el 3er lunes de julio).</p>
+        <p><strong>⚠️ Precaución:</strong> El receso de invierno es fijado anualmente por la CSJN; la estimación puede no coincidir exactamente. Verifique las fechas oficiales.</p>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/caducidad.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ampliación por distancia -->
+  <section id="distancia">
+    <h2 class="section-title">🗺️ Ampliación de plazos por distancia (art. 158 CPCCN)</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Ampliación por distancia</h3>
+      </div>
+      <div class="tool-content">
+        <p>Calcula los días de ampliación que corresponden según la distancia entre el tribunal y el lugar de la diligencia.</p>
+        <div class="use-case">
+          <strong>🧩 Ejemplo</strong>
+          <p>Un juzgado de CABA ordena una medida en la provincia de Mendoza. La herramienta estima la distancia lineal y aplica 1 día por cada 200 km o fracción no inferior a 100 km.</p>
+        </div>
+        <p><strong>🌐 Método:</strong> Obtiene coordenadas mediante la API GEOREF de Argentina (<a href="https://apis.datos.gob.ar/georef/api/" target="_blank">datos.gob.ar</a>) para localidades nacionales. Para ubicaciones internacionales usa Open-Meteo Geocoding. Calcula la distancia en línea recta con la fórmula del semiverseno (Haversine).</p>
+        <div class="warning-note">
+          <strong>❗ Importante:</strong> La CSJN ha establecido que la distancia debe medirse por ferrocarril o ruta terrestre (Fallos 304:1345; Acordada 5/2010). Esta herramienta utiliza distancia lineal como aproximación referencial. No sustituye el cómputo oficial.
+        </div>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/distancia.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contador de días -->
+  <section id="contador">
+    <h2 class="section-title">📆 Contador de días (hábiles / corridos)</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Contador entre dos fechas</h3>
+      </div>
+      <div class="tool-content">
+        <p>Computa la cantidad de días hábiles o corridos entre dos fechas seleccionadas por el usuario.</p>
+        <div class="use-case">
+          <strong>🧩 Aplicación práctica</strong>
+          <p>Calcular el monto de una multa diaria (astreintes) o verificar plazos transcurridos en un expediente.</p>
+        </div>
+        <p>Utiliza la misma lógica de días inhábiles que la calculadora de vencimiento (API de feriados + reglas fijas).</p>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/entre-fechas.html" class="btn" target="_blank">🔧 Abrir contador</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calculadora de mora -->
+  <section id="mora">
+    <h2 class="section-title">⚠️ Calculadora de mora</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Inicio de la mora según resolución judicial</h3>
+      </div>
+      <div class="tool-content">
+        <p>Determina la fecha a partir de la cual se configura la mora, combinando plazos hábiles y corridos.</p>
+        <div class="use-case">
+          <strong>🧩 Ejemplo</strong>
+          <p>Una sentencia intima a pagar en 15 días corridos desde que quede firme. Se notifica por cédula: primero transcurren 10 días hábiles (art. 257 CPCCN) y luego el plazo corrido fijado.</p>
+        </div>
+        <p><strong>Fases del cómputo:</strong></p>
+        <ol>
+          <li>10 días hábiles desde el día siguiente a la notificación (considera cédula electrónica, art. 156 2° párr. CPCCN).</li>
+          <li>Plazo en días corridos indicado por el usuario (arts. 6 y 871 inc. b CCCN).</li>
+        </ol>
+        <p>Utiliza el mismo motor de días inhábiles que las herramientas anteriores.</p>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/mora.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calculadora regresiva -->
+  <section id="regresiva">
+    <h2 class="section-title">⏪ Calculadora de fecha límite (regresiva)</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Fecha de inicio hacia atrás</h3>
+      </div>
+      <div class="tool-content">
+        <p>Resta días hábiles a una fecha objetivo para obtener la fecha límite de inicio de un plazo.</p>
+        <div class="use-case">
+          <strong>🧩 Caso concreto</strong>
+          <p>Acordada 15/25 CSJN: los edictos de subasta deben publicarse con al menos 10 días hábiles de antelación. Con esta herramienta, a partir de la fecha de remate se obtiene la fecha tope para ingresar los edictos.</p>
+        </div>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/regresiva.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Honorarios Ley 27.423 -->
+  <section id="honorarios">
+    <h2 class="section-title">💰 Calculadora de honorarios (Ley 27.423)</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Honorarios profesionales</h3>
+        <span class="badge">Ley 27.423</span>
+      </div>
+      <div class="tool-content">
+        <p>Automatiza el cálculo matemático de la escala del art. 21 y sus reducciones.</p>
+        <div class="use-case">
+          <strong>🧩 Uso simplificado</strong>
+          <p>Ingresar el monto base y el valor UMA. Seleccionar un grupo de reducción (ejecución de sentencia, allanamiento temprano, etc.) que aplica un 50% sobre la escala.</p>
+        </div>
+        <div class="warning-note">
+          <strong>⚠️ Sobresimplificación:</strong> La ley prevé reducciones sobre la base, la escala o el resultado final según el caso. Esta herramienta agrupa supuestos con mismo porcentaje para una estimación rápida, pero <strong>no reemplaza el análisis detallado</strong>. Para una guía más precisa, recomendamos el <em>Asistente para la regulación de honorarios</em> (en desarrollo).
+        </div>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Honorarios mediador -->
+  <section id="mediador">
+    <h2 class="section-title">🤝 Honorarios del mediador (Ley 26.589)</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Honorarios de mediación</h3>
+      </div>
+      <div class="tool-content">
+        <p>Calcula los honorarios según tabla del decreto 1467/11 (modif. por 696/2025).</p>
+        <p><strong>📥 Datos necesarios:</strong> valor UHOM y monto base del acuerdo.</p>
+        <div class="warning-note">
+          <strong>🚫 Limitaciones:</strong> No contempla supuestos como actuación de más de un mediador, monto indeterminado, honorarios del profesional asistente, etc. Es una referencia básica.
+        </div>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Prorrateo art. 730 -->
+  <section id="prorrateo">
+    <h2 class="section-title">📊 Prorrateo (art. 730 CCCN)</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Límite de responsabilidad del deudor</h3>
+      </div>
+      <div class="tool-content">
+        <p>Distribuye el monto disponible entre los honorarios regulados cuando se supera el tope del art. 730.</p>
+        <div class="use-case">
+          <strong>🧩 Escenario</strong>
+          <p>El deudor abona una suma; los honorarios superan el 25% del monto del juicio. Esta herramienta prorratea proporcionalmente entre los profesionales.</p>
+        </div>
+        <p><strong>📌 A criterio del usuario:</strong> La inclusión de honorarios de mediador, tasa de justicia, IVA, etc., depende de la postura jurisprudencial que se adopte. La calculadora permite ingresar los montos que se consideren pertinentes.</p>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/prorrateo.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tasa de Justicia -->
+  <section id="tasa">
+    <h2 class="section-title">🏛️ Tasa de Justicia (Ley 23.898)</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Tributo para procesos civiles</h3>
+      </div>
+      <div class="tool-content">
+        <p>Estima la tasa de justicia según el objeto del juicio y la base imponible.</p>
+        <div class="use-case">
+          <strong>🧩 Ejemplo</strong>
+          <p>En sucesiones permite acumular bienes del acervo y obtener subtotales y total a ingresar.</p>
+        </div>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/tasa.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Asistente para regulación de honorarios -->
+  <section id="asistente">
+    <h2 class="section-title">🤖 Asistente para la regulación de honorarios (en desarrollo)</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Guía interactiva paso a paso</h3>
+        <span class="badge">Prototipo</span>
+      </div>
+      <div class="tool-content">
+        <p>Herramienta en construcción que orienta en el proceso de regulación de honorarios de la ley 27.423, explicando cada etapa y su fundamento legal.</p>
+        <p><strong>📋 Flujo previsto:</strong></p>
+        <ol>
+          <li><strong>Tipo de proceso:</strong> conocimiento, ejecución de sentencia (reducción del art. 41), etc.</li>
+          <li><strong>Contingencias procesales:</strong> transacción, allanamiento, etc. y su impacto en la escala.</li>
+          <li><strong>Objeto del reclamo:</strong> determina la base regulatoria (desalojo, escrituración, etc.).</li>
+          <li><strong>Ingreso de base numérica.</strong></li>
+          <li><strong>Resultado final</strong> con tablas para abogados (patrocinantes, apoderados, procuradores) y auxiliares, más mínimos arancelarios.</li>
+        </ol>
+        <div class="warning-note">
+          <strong>🚧 Estado actual:</strong> El proyecto es extenso y se encuentra en fase de ajuste de criterios y depuración. Algunas funcionalidades pueden estar incompletas o presentar errores.
+        </div>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/AH/asistente.html" class="btn" target="_blank">🔧 Probar versión beta</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Nota general de limitación -->
+  <div class="warning-note" style="margin-top: 40px;">
+    <strong>⚠️ Recordatorio general:</strong> Todas las herramientas son de carácter referencial y orientativo. No sustituyen el criterio del juez ni el análisis profesional. Verifique siempre la normativa aplicable y las particularidades del caso.
+  </div>
+
+  <div class="footer-note">
+    © 2026 · ⚖️ Herramientas Judiciales con IA · 
+    <a href="https://github.com/javiercuneo" target="_blank">GitHub</a> · 
+    <a href="mailto:javiercuneol@gmail.com">javiercuneol@gmail.com</a>
+  </div>
+</div>
+</body>
+</html>
