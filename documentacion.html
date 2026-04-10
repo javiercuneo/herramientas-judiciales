@@ -223,10 +223,10 @@
     <div class="tool-card">
       <div class="tool-header">
         <h3>Vencimiento de plazos procesales</h3>
-        <span class="badge">Fuero Nacional Civil</span>
+        <span class="badge">Orientada al Fuero Nacional Civil</span>
       </div>
       <div class="tool-content">
-        <p>Calcula el vencimiento de un plazo judicial a partir de una fecha de notificación. Orientada al CPCCN (arts. 124, 133, 152 y ss.).</p>
+        <p>Calcula el vencimiento de un plazo judicial a partir de una fecha de notificación. Se rige según los arts. 124 , 133, 152 y consecuentes CPCCN. No sirve para otras jurisdicciones</p>
         <div class="use-case">
           <strong>🧩 Caso de uso típico</strong>
           <p>Determinar la fecha límite para contestar demanda, oponer excepciones o presentar un recurso, considerando días inhábiles, ferias y recesos.</p>
@@ -234,14 +234,14 @@
         <p><strong>⚙️ Funcionamiento:</strong> El usuario elige modalidad de notificación (cédula, ministerio ley, etc.), fecha de notificación y duración del plazo en días. La herramienta:</p>
         <ul>
           <li>Consulta una API pública de feriados (<a href="https://argentinadatos.com/docs/operations/get-feriados.html" target="_blank">argentinadatos.com</a>) para obtener días inhábiles nacionales.</li>
-          <li>Aplica reglas fijas: feria judicial de verano (todo enero), receso invernal (12 días corridos desde el tercer lunes de julio, variable según CSJN), y días inhábiles por ley/acordadas (ej. 16/11, 24 y 31/12 según año).</li>
+          <li>Aplica reglas fijas: feria judicial de verano (todo enero de todos los años), de julio y días inhábiles por ley/acordadas (ej. 16/11, día del judicial  Ley 26.674; 24 y 31/12 navidad y año nuevo, etc.).</li>
           <li>Excluye del cómputo los días informados, mostrando un listado de días excluidos para transparencia.</li>
         </ul>
         <p><strong>📌 Limitaciones y advertencias:</strong></p>
         <ul>
-          <li>Funciona para períodos desde 2021 en adelante.</li>
-          <li>Depende de la actualización de la API de feriados; si un feriado no está cargado, no será considerado.</li>
-          <li>El receso de invierno se estima con la regla general (12 días desde el 3er lunes de julio), pero puede variar por acordadas anuales. Se recomienda verificar.</li>
+          <li>Funciona para períodos desde 2021 en adelante</li>
+          <li>Depende de la API de feriados; si un feriado no está cargado o falla la API, no excluirá esas fechas.</li>
+          <li>El receso de invierno es estimativo (las fechas las define anualmente  la CSJN. A modo de automatización, considera inhábiles 12 días corridos contados a partir del tercer lunes de julio). Se recomienda verificar.</li>
         </ul>
         <div class="api-reference">
           🔗 Base de datos propia de días inhábiles: <a href="https://jnc-34.github.io/jnc34/dias-inhabiles.json" target="_blank">jnc-34.github.io/jnc34/dias-inhabiles.json</a><br>
@@ -263,9 +263,9 @@
         <p>Determina la fecha en que opera la caducidad de instancia a partir del último acto interruptivo.</p>
         <div class="use-case">
           <strong>🧩 Caso de uso</strong>
-          <p>Controlar si un expediente se encuentra en riesgo de caducidad y planificar la actividad procesal necesaria.</p>
+          <p>Controlar si un expediente se encuentra en riesgo de caducidad</p>
         </div>
-        <p><strong>⚙️ Lógica de cómputo:</strong> El usuario selecciona el plazo en meses (3 o 6 según tipo de proceso) y la fecha del último acto interruptivo. Según art. 311 CPCCN, el plazo corre durante días inhábiles, <strong>excepto las ferias judiciales</strong> (enero y receso invernal). Por ello, la calculadora saltea la feria de enero y el receso de julio (estimado con la misma regla de 12 días desde el 3er lunes de julio).</p>
+        <p><strong>⚙️ Lógica de cómputo:</strong> El usuario selecciona el plazo en meses (1, 3 o 6 o de prescripción si es menor) y la fecha del último acto interruptivo. Según art. 311 CPCCN, el plazo corre durante días inhábiles, <strong>excepto las ferias judiciales</strong>. Por ello, la calculadora saltea las ferias (estimado con la misma regla que en el caso anterior).</p>
         <p><strong>⚠️ Precaución:</strong> El receso de invierno es fijado anualmente por la CSJN; la estimación puede no coincidir exactamente. Verifique las fechas oficiales.</p>
         <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/caducidad.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
       </div>
@@ -283,11 +283,11 @@
         <p>Calcula los días de ampliación que corresponden según la distancia entre el tribunal y el lugar de la diligencia.</p>
         <div class="use-case">
           <strong>🧩 Ejemplo</strong>
-          <p>Un juzgado de CABA ordena una medida en la provincia de Mendoza. La herramienta estima la distancia lineal y aplica 1 día por cada 200 km o fracción no inferior a 100 km.</p>
+          <p>Un juzgado de CABA ordena notificar a una persona con domicilio en la provincia de Mendoza. La herramienta estima la distancia lineal y aplica 1 día por cada 200 km o fracción no inferior a 100 km. para determinar cuántos días adicionales tiene ese demandado para contestar la demanda</p>
         </div>
         <p><strong>🌐 Método:</strong> Obtiene coordenadas mediante la API GEOREF de Argentina (<a href="https://apis.datos.gob.ar/georef/api/" target="_blank">datos.gob.ar</a>) para localidades nacionales. Para ubicaciones internacionales usa Open-Meteo Geocoding. Calcula la distancia en línea recta con la fórmula del semiverseno (Haversine).</p>
         <div class="warning-note">
-          <strong>❗ Importante:</strong> La CSJN ha establecido que la distancia debe medirse por ferrocarril o ruta terrestre (Fallos 304:1345; Acordada 5/2010). Esta herramienta utiliza distancia lineal como aproximación referencial. No sustituye el cómputo oficial.
+          <strong>❗ Importante:</strong> La CSJN ha establecido que la distancia debe medirse por ferrocarril o ruta terrestre (Fallos 304:1345; ver Acordada 5/2010 Ver al respecto la Acordada 5/10 que establece las distancias a los asientos federales para considerar la ampliación de los plazos del art. 158 para interponer las quejas (art. 282 del CPCCN).). Esta herramienta utiliza como referencia distancia lineal
         </div>
         <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/distancia.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
       </div>
@@ -305,7 +305,7 @@
         <p>Computa la cantidad de días hábiles o corridos entre dos fechas seleccionadas por el usuario.</p>
         <div class="use-case">
           <strong>🧩 Aplicación práctica</strong>
-          <p>Calcular el monto de una multa diaria (astreintes) o verificar plazos transcurridos en un expediente.</p>
+          <p>Calcular el monto de una multa diaria (o astreintes) o verificar plazos transcurridos en un expediente.</p>
         </div>
         <p>Utiliza la misma lógica de días inhábiles que la calculadora de vencimiento (API de feriados + reglas fijas).</p>
         <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/entre-fechas.html" class="btn" target="_blank">🔧 Abrir contador</a>
@@ -324,12 +324,12 @@
         <p>Determina la fecha a partir de la cual se configura la mora, combinando plazos hábiles y corridos.</p>
         <div class="use-case">
           <strong>🧩 Ejemplo</strong>
-          <p>Una sentencia intima a pagar en 15 días corridos desde que quede firme. Se notifica por cédula: primero transcurren 10 días hábiles (art. 257 CPCCN) y luego el plazo corrido fijado.</p>
+          <p>La sentencia de cámara confirma la de primera instancia que condena a pagar en 10 días. Se notifica por cédula: la calcualdora indica en qué fecha inició la mora</p>
         </div>
         <p><strong>Fases del cómputo:</strong></p>
         <ol>
-          <li>10 días hábiles desde el día siguiente a la notificación (considera cédula electrónica, art. 156 2° párr. CPCCN).</li>
-          <li>Plazo en días corridos indicado por el usuario (arts. 6 y 871 inc. b CCCN).</li>
+          <li>10 días hábiles desde el día siguiente a la notificación (considera cédula, art. 156 2° párr. CPCCN) por art. 257 CPCCN (plazo para interponer el extraordinario)</li>
+          <li>Plazo en días corridos indicado por el usuario: considera plazo civil (arts. 6 y 871 inc. b CCCN)</li>
         </ol>
         <p>Utiliza el mismo motor de días inhábiles que las herramientas anteriores.</p>
         <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/mora.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
@@ -348,7 +348,7 @@
         <p>Resta días hábiles a una fecha objetivo para obtener la fecha límite de inicio de un plazo.</p>
         <div class="use-case">
           <strong>🧩 Caso concreto</strong>
-          <p>Acordada 15/25 CSJN: los edictos de subasta deben publicarse con al menos 10 días hábiles de antelación. Con esta herramienta, a partir de la fecha de remate se obtiene la fecha tope para ingresar los edictos.</p>
+          <p>Acordada 15/25 CSJN: los edictos de las subastas electrónicas deben publicarse con al menos 10 días hábiles de antelación al remate. Con esta herramienta, a partir de la fecha de remate se obtiene la fecha tope para ingresar los edictos.</p>
         </div>
         <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/regresiva.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
       </div>
@@ -364,10 +364,11 @@
         <span class="badge">Ley 27.423</span>
       </div>
       <div class="tool-content">
-        <p>Automatiza el cálculo matemático de la escala del art. 21 y sus reducciones.</p>
+        <p>Automatiza el cálculo matemático de lal ey 27.423.</p>
         <div class="use-case">
           <strong>🧩 Uso simplificado</strong>
-          <p>Ingresar el monto base y el valor UMA. Seleccionar un grupo de reducción (ejecución de sentencia, allanamiento temprano, etc.) que aplica un 50% sobre la escala.</p>
+          <p>Ingresar el monto base y el valor UMA. Además elegir un grupo de reducción: para simplificar los cálculos se agrupan casos que la ley prevé la misma disminución, por ejemplo ejecución de sentencias (art. 41: aplica “la mitad de la escala del art. 21”) y allanamiento antes de la apertura a prueba (art. 25: “los honorarios serán del 50% de la escala del art. 21”).
+</p>
         </div>
         <div class="warning-note">
           <strong>⚠️ Sobresimplificación:</strong> La ley prevé reducciones sobre la base, la escala o el resultado final según el caso. Esta herramienta agrupa supuestos con mismo porcentaje para una estimación rápida, pero <strong>no reemplaza el análisis detallado</strong>. Para una guía más precisa, recomendamos el <em>Asistente para la regulación de honorarios</em> (en desarrollo).
@@ -385,10 +386,10 @@
         <h3>Honorarios de mediación</h3>
       </div>
       <div class="tool-content">
-        <p>Calcula los honorarios según tabla del decreto 1467/11 (modif. por 696/2025).</p>
-        <p><strong>📥 Datos necesarios:</strong> valor UHOM y monto base del acuerdo.</p>
+        <p>Calcula los honorarios según tabla del decreto 1467/11</p>
+        <p><strong>📥 Datos necesarios:</strong> valor UHOM y monto base</p>
         <div class="warning-note">
-          <strong>🚫 Limitaciones:</strong> No contempla supuestos como actuación de más de un mediador, monto indeterminado, honorarios del profesional asistente, etc. Es una referencia básica.
+          <strong>🚫 Limitaciones:</strong> No contempla supuestos como actuación de más de un mediador, monto indeterminado, honorarios del profesional asistente, etc. y demás  reglas del decreto 1467/11
         </div>
         <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
       </div>
@@ -406,9 +407,9 @@
         <p>Distribuye el monto disponible entre los honorarios regulados cuando se supera el tope del art. 730.</p>
         <div class="use-case">
           <strong>🧩 Escenario</strong>
-          <p>El deudor abona una suma; los honorarios superan el 25% del monto del juicio. Esta herramienta prorratea proporcionalmente entre los profesionales.</p>
+          <p>Si los honorarios superan el 25% del monto del juicio, la herramienta prorratea hasta ese límite proporcionalmente los honorarios de los profesionales</p>
         </div>
-        <p><strong>📌 A criterio del usuario:</strong> La inclusión de honorarios de mediador, tasa de justicia, IVA, etc., depende de la postura jurisprudencial que se adopte. La calculadora permite ingresar los montos que se consideren pertinentes.</p>
+        <p><strong>📌 A criterio del usuario:</strong> La inclusión de honorarios de mediador, tasa de justicia, IVA, etc., depende de la postura jurisprudencial que se adopte</p>
         <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/prorrateo.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
       </div>
     </div>
@@ -419,13 +420,13 @@
     <h2 class="section-title">🏛️ Tasa de Justicia (Ley 23.898)</h2>
     <div class="tool-card">
       <div class="tool-header">
-        <h3>Tributo para procesos civiles</h3>
+        <h3>Orientada a procesos civiles</h3>
       </div>
       <div class="tool-content">
         <p>Estima la tasa de justicia según el objeto del juicio y la base imponible.</p>
         <div class="use-case">
           <strong>🧩 Ejemplo</strong>
-          <p>En sucesiones permite acumular bienes del acervo y obtener subtotales y total a ingresar.</p>
+          <p>En sucesiones calcula el 1.5 % o 0.75 % del bien según donde está ubicado</p>
         </div>
         <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/tasa.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
       </div>
@@ -441,14 +442,15 @@
         <span class="badge">Prototipo</span>
       </div>
       <div class="tool-content">
-        <p>Herramienta en construcción que orienta en el proceso de regulación de honorarios de la ley 27.423, explicando cada etapa y su fundamento legal.</p>
-        <p><strong>📋 Flujo previsto:</strong></p>
+        <p>Herramienta en construcción que orienta en el proceso de regulación de honorarios de la ley 27.423, explicando en cada caso su fundamento legal, porqué se requiere la información a ingresar y cómo impacta el cálculo final.
+.</p>
+        <p><strong>📋 Si bien no todos los pasos son obligtorios el flujo previsto es:</strong></p>
         <ol>
-          <li><strong>Tipo de proceso:</strong> conocimiento, ejecución de sentencia (reducción del art. 41), etc.</li>
-          <li><strong>Contingencias procesales:</strong> transacción, allanamiento, etc. y su impacto en la escala.</li>
-          <li><strong>Objeto del reclamo:</strong> determina la base regulatoria (desalojo, escrituración, etc.).</li>
+          <li><strong>Tipo de proceso:</strong> se selecciona por ejemplo juicio de conocimiento o ejecución de sentencia (que tiene una reducción de la escala del art. 21 según el art. 41).</li>
+          <li><strong>Contingencias procesales:</strong> por ejemplo si el juicio terminó por transacción (en cuyo caso si ocurrió antes de la apertura a prueba también la ley prevé una disminución (art. 25). </li>
+          <li><strong>Objeto del reclamo:</strong> permite elegir la base regulatoria adecuada (por ejemplo en el desalojo el total de los alquileres del contrato -art.40- en escrituración el valor del bien o monto del boleto -art. 46-).</li>
           <li><strong>Ingreso de base numérica.</strong></li>
-          <li><strong>Resultado final</strong> con tablas para abogados (patrocinantes, apoderados, procuradores) y auxiliares, más mínimos arancelarios.</li>
+          <li><strong>Resultado final</strong> muestra tablas para abogados (patrocinantes, apoderados, procuradores), auxiliares de husticia, y los mínimos arancelarios.</li>
         </ol>
         <div class="warning-note">
           <strong>🚧 Estado actual:</strong> El proyecto es extenso y se encuentra en fase de ajuste de criterios y depuración. Algunas funcionalidades pueden estar incompletas o presentar errores.
