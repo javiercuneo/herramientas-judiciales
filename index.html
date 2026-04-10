@@ -132,6 +132,15 @@
       border: none;
       align-self: flex-start;
     }
+    .btn-outline {
+      background: transparent;
+      color: #0b1a2a;
+      border: 1.5px solid #0b1a2a;
+    }
+    .btn-outline:hover {
+      background: #0b1a2a;
+      color: white;
+    }
     .btn:hover { background: #1f3a57; }
     .notice-box {
       background: #fef9e7;
@@ -182,10 +191,33 @@
       display: inline-block;
       margin-right: 12px;
     }
+    .doc-promo {
+      background: linear-gradient(145deg, #ffffff 0%, #f9fcff 100%);
+      border: 1px solid #cbdde9;
+      border-radius: 28px;
+      padding: 28px 32px;
+      margin-bottom: 40px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 14px rgba(0,20,40,0.04);
+    }
+    .doc-promo-content h3 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    .doc-promo-content p {
+      font-size: 1.1rem;
+      color: #2c3e50;
+      max-width: 700px;
+    }
     @media (max-width: 600px) {
       .top-bar h1 { font-size: 2rem; }
       .wrapper { padding: 20px 16px; }
       .lang-switch { justify-content: center; }
+      .doc-promo { flex-direction: column; align-items: flex-start; gap: 20px; }
     }
   </style>
 </head>
@@ -205,6 +237,15 @@
       <button id="btnEs" class="active">🇪🇸 Español</button>
       <button id="btnEn">🇬🇧 English</button>
     </div>
+  </div>
+
+  <!-- Bloque de documentación -->
+  <div class="doc-promo">
+    <div class="doc-promo-content">
+      <h3 id="doc-title">📘 Documentación detallada</h3>
+      <p id="doc-desc">Accedé a una guía completa de las herramientas: cómo funciona cada calculadora, casos de uso, limitaciones y fundamentos normativos.</p>
+    </div>
+    <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/documentacion.html" class="btn" style="padding: 14px 28px; font-size: 1rem;" id="doc-link">Ver documentación →</a>
   </div>
 
   <!-- Grupo: Calculadoras de plazos -->
@@ -231,7 +272,7 @@
     <div class="grid-cards" id="dev-group"></div>
   </section>
 
-  <!-- NUEVA SECCIÓN: Proyectos completados -->
+  <!-- Grupo: Proyectos completados -->
   <section>
     <h2 id="group-completed-title">✅ Proyectos completados</h2>
     <div class="grid-cards" id="completed-group"></div>
@@ -270,8 +311,11 @@
     </div>
   </div>
 
+  <!-- Footer simple sin versión -->
   <div class="footer-note">
-    © 2025 · Judicial AI Tools · Versión 1.0
+    ⚖️ Herramientas Judiciales con IA · 
+    <a href="https://github.com/javiercuneo" target="_blank">GitHub</a> · 
+    <a href="mailto:javiercuneol@gmail.com">javiercuneol@gmail.com</a>
   </div>
 </div>
 
@@ -304,8 +348,8 @@
         { 
           nameEs: 'Bandejito: Automatización de flujo de trabajo', 
           nameEn: 'Bandejito: Workflow Automation',
-          descEs: 'Aplicación web en Google Apps Script que automatiza la distribución de escritos en un juzgado. Analiza PDF con listado, extrae registros, aplica reglas de negocio dinámicas (clasifica beneficios, confrontes y distribuye según últimos números del expediente) y envía correos personalizados con tareas y alertas de vencimiento. Reemplazado por desarrollo institucional.',
-          descEn: 'Google Apps Script web app that automates the distribution of filings in a court. Parses PDF listing, extracts entries, applies dynamic business rules (classifies benefits, confrontations, and distributes based on case file number suffixes) and sends personalized emails with assigned tasks and deadline alerts. Replaced by institutional development.',
+          descEs: 'App en Google Apps Script que distribuye escritos judiciales automáticamente. Analiza PDF, aplica reglas y envía correos con tareas.',
+          descEn: 'Google Apps Script web app that automates distribution of court filings. Parses PDF, applies rules and sends emails.',
           url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/bandejito.html'
         }
       ]
@@ -321,6 +365,9 @@
         taxTitle: '🏛️ Tasa de justicia',
         devTitle: '🚧 En desarrollo',
         completedTitle: '✅ Proyectos completados',
+        docTitle: '📘 Documentación detallada',
+        docDesc: 'Accedé a una guía completa de las herramientas: cómo funciona cada calculadora, casos de uso, limitaciones y fundamentos normativos.',
+        docBtn: 'Ver documentación →',
         disclaimer1: '🤖 Estas herramientas fueron generadas utilizando IA, por lo que:',
         disclaimerItems: ['El código puede contener errores.', 'No sigue necesariamente estándares profesionales de desarrollo.', 'Está pensado como prototipo o apoyo práctico.'],
         disclaimer2: '⚠️ Limitación de responsabilidad: las herramientas incluidas en este repositorio:',
@@ -328,7 +375,7 @@
         authorName: 'L. Javier Cúneo Libarona',
         authorBio: '💼 Abogado (Judicial) · 🤖 Centrado en IA aplicada a procesos legales y automatización de flujos de trabajo.',
         goal: 'Explorar el uso de IA aplicada al ámbito jurídico, facilitando tareas repetitivas y promoviendo el uso de herramientas tecnológicas en la práctica profesional.',
-        openBtn: 'Abrir'
+        openBtn: 'Abrir herramienta'
       },
       en: {
         mainTitle: '⚖️ Judicial AI Tools',
@@ -338,6 +385,9 @@
         taxTitle: '🏛️ Court Tax',
         devTitle: '🚧 In Development',
         completedTitle: '✅ Completed Projects',
+        docTitle: '📘 Detailed Documentation',
+        docDesc: 'Access a complete guide to the tools: how each calculator works, use cases, limitations and regulatory basis.',
+        docBtn: 'View documentation →',
         disclaimer1: '🤖 These tools were generated using AI, therefore:',
         disclaimerItems: ['The code may contain errors.', 'It does not necessarily follow professional development standards.', 'Intended as a prototype or practical aid.'],
         disclaimer2: '⚠️ Limitation of liability: the tools in this repository:',
@@ -359,6 +409,9 @@
     const groupTaxTitle = document.getElementById('group-tax-title');
     const groupDevTitle = document.getElementById('group-dev-title');
     const groupCompletedTitle = document.getElementById('group-completed-title');
+    const docTitle = document.getElementById('doc-title');
+    const docDesc = document.getElementById('doc-desc');
+    const docLink = document.getElementById('doc-link');
     const disclaimerBox = document.getElementById('disclaimer-box');
     const authorNameSpan = document.getElementById('author-name');
     const authorBio = document.getElementById('author-bio');
@@ -401,6 +454,9 @@
       groupTaxTitle.textContent = t.taxTitle;
       groupDevTitle.textContent = t.devTitle;
       groupCompletedTitle.textContent = t.completedTitle;
+      docTitle.textContent = t.docTitle;
+      docDesc.textContent = t.docDesc;
+      docLink.textContent = t.docBtn;
       
       const items1 = t.disclaimerItems.map(it => `• ${it}`).join('<br>');
       const items2 = t.limitItems.map(it => `• ${it}`).join('<br>');
