@@ -20,7 +20,7 @@
       background: #0b1a2a;
       color: white;
       padding: 48px 24px 40px;
-      text-align: center;a
+      text-align: center;
       border-bottom: 4px solid #2b6f9c;
     }
     .top-bar h1 {
@@ -297,8 +297,7 @@
       <span class="badge-dev">👤 AUTOR</span>
       <h3 style="margin:0; font-size: 1.6rem; font-weight: 600;" id="author-name">L. Javier Cúneo Libarona</h3>
     </div>
-    <p style="margin-top: 12px; font-size: 1.1rem;" id="author-bio">
-💼 Abogado (PJN). Actualmente Prosecretario Administrativo en un juzgado civil. Interesado en la aplicación práctica de herramientas digitales e inteligencia artificial para mejorar la eficiencia, estandarización y funcionamiento de la gestión judicial. Este repositorio refleja una línea de trabajo orientada a la aplicación práctica de inteligencia artificial en el ámbito jurídico</p>
+    <p style="margin-top: 12px; font-size: 1.05rem; line-height: 1.6;" id="author-bio"></p>
     <div class="author-links">
       <a href="https://github.com/javiercuneo" target="_blank" rel="noopener">🔗 GitHub</a>
       <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener">🔗 LinkedIn</a>
@@ -306,7 +305,7 @@
     </div>
     <div style="margin-top: 28px; background: #f8fafc; padding: 16px 20px; border-radius: 16px;">
       <p style="margin:0"><strong>📝 Licencia MIT</strong> · Este proyecto se distribuye bajo la licencia MIT.</p>
-      <p style="margin-top: 10px;"><strong>📌 Objetivo:</strong> <span id="project-goal">Explorar el uso de IA aplicada al ámbito jurídico, facilitando tareas repetitivas y promoviendo el uso de herramientas tecnológicas en la práctica profesional.</span></p>
+      <p style="margin-top: 10px;"><strong>📌 Objetivo:</strong> <span id="project-goal"></span></p>
     </div>
   </div>
 
@@ -372,7 +371,7 @@
         disclaimer2: '⚠️ Limitación de responsabilidad: las herramientas incluidas en este repositorio:',
         limitItems: ['Son de carácter referencial y orientativo.', 'No sustituyen el criterio del juez natural de la causa.', 'No constituyen asesoramiento legal ni dictamen profesional.', 'El usuario es el único responsable del uso que haga de los resultados obtenidos.'],
         authorName: 'L. Javier Cúneo Libarona',
-        authorBio: '💼 Abogado (PJN). Actualmente Prosecretario Administrativo en un juzgado civil. Interesado en la aplicación práctica de herramientas digitales e inteligencia artificial para mejorar la eficiencia, estandarización y funcionamiento de la gestión judicial. Este repositorio refleja una línea de trabajo orientada a la aplicación práctica de inteligencia artificial en el ámbito jurídico
+        authorBio: '💼 Abogado (PJN). Actualmente Prosecretario Administrativo en un juzgado civil. Interesado en la aplicación práctica de herramientas digitales e inteligencia artificial para mejorar la eficiencia, estandarización y funcionamiento de la gestión judicial. Este repositorio refleja una línea de trabajo orientada a la aplicación práctica de inteligencia artificial en el ámbito jurídico.',
         goal: 'Explorar el uso de IA aplicada al ámbito jurídico, facilitando tareas repetitivas y promoviendo el uso de herramientas tecnológicas en la práctica profesional.',
         openBtn: 'Abrir'
       },
@@ -392,9 +391,9 @@
         disclaimer2: '⚠️ Limitation of liability: the tools in this repository:',
         limitItems: ['Are for reference and guidance only.', 'Do not replace the judgment of the presiding judge.', 'Do not constitute legal advice or professional opinion.', 'The user is solely responsible for the use made of the results.'],
         authorName: 'L. Javier Cúneo Libarona',
-        authorBio: '💼 Lawyer (Judicial) · 🤖 Focused on AI applied to legal processes and workflow automation.',
+        authorBio: '💼 Lawyer (PJN). Currently Administrative Pro-Secretary in a civil court. Interested in the practical application of digital tools and artificial intelligence to improve efficiency, standardization and functioning of judicial management. This repository reflects a line of work oriented to the practical application of artificial intelligence in the legal field.',
         goal: 'Explore the use of AI in the legal field, streamlining repetitive tasks and promoting the use of technological tools in professional practice.',
-        openBtn: 'Open tool'
+        openBtn: 'Open'
       }
     };
 
@@ -425,7 +424,7 @@
     let currentLang = 'es';
 
     function renderCards(lang) {
-      const btnText = lang === 'es' ? i18n.es.openBtn : i18n.en.openBtn;
+      const btnText = i18n[lang].openBtn;
       function renderGroup(container, items) {
         container.innerHTML = '';
         items.forEach(item => {
