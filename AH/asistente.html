@@ -902,7 +902,7 @@
             document.getElementById('resultadosDinamicos').innerHTML = `<div class="dashboard-card"><h3>Exhorto (art. 50)</h3>
                 <table>
                     <tr><th colspan="2">Inc. a) - notificaciones</th></tr>
-                    <td><td colspan="2">Mínimo 3 UMA: $${formatNumber(valA)}</td></tr>
+                    <tr><td colspan="2">Mínimo 3 UMA: $${formatNumber(valA)}</td></tr>
                     <tr><th colspan="2">Inc. b) - inscripciones y actos registrales</th></tr>
                     <tr><td>Mínimo: 10 UMA</td><td>$${formatNumber(valBmin)}</td></tr>
                     <tr><td>Máximo: 20 UMA</td><td>$${formatNumber(valBmax)}</td></tr>
@@ -929,7 +929,7 @@
             document.getElementById('resultadosDinamicos').innerHTML = `<div class="dashboard-card">
                 <div class="summary-box">📋 Resumen del juicio<br>Tipo de proceso: Incidente<br>Base: $${formatNumber(base)}<br>Valor UMA: $${formatNumber(uma)}<br>Base en UMA: ${baseUMA.toFixed(2)}</div>
                 <h3>Incidente (art.33 ley 21839)</h3>
-                表
+                <table>
                     <tr><th>Concepto</th><th>UMA</th><th>Pesos ($)</th></tr>
                     <tr><td>Mínimo (2%)</td><td>${minUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td></tr>
                     <tr><td>Máximo (20%)</td><td>${maxUMA.toFixed(2)}</td><td>$${formatNumber(maxPesos)}</td></tr>
@@ -953,11 +953,11 @@
             const maxProc = maxComp * 0.4;
             const esProvisorio = wizardState.esProvisorio;
 
-            function mostrarFilaMC(titulo, minVal, maxVal, minPesos, maxPesos) {
+            function mostrarFilaMC(etiqueta, minUMA, maxUMA, minPesos, maxPesos) {
                 if (esProvisorio) {
-                    return `<tr><td colspan="2">${titulo}</td><td>${minVal.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td></tr>`;
+                    return `<tr><td>${etiqueta}</td><td>${minUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td></tr>`;
                 } else {
-                    return `<tr><td colspan="2">${titulo}</td><td>${minVal.toFixed(2)}</td><td>${maxVal.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td><td>$${formatNumber(maxPesos)}</td></tr>`;
+                    return `<tr><td>${etiqueta}</td><td>${minUMA.toFixed(2)}</td><td>${maxUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td><td>$${formatNumber(maxPesos)}</td></tr>`;
                 }
             }
 
@@ -979,8 +979,8 @@
                 </table></div>
                 <div class="legal-box" style="margin-bottom:0;">ARTÍCULO 20.- Los honorarios de los procuradores se fijarán en un 40% de los que por esta ley corresponda fijar a los abogados patrocinantes. Si el abogado actuare en carácter de apoderado sin patrocinio, percibirá la asignación total que hubiere correspondido a ambos.</div>
                 <div class="dashboard-card"><h4>📋 Procurador (40% del patrocinante)</h4>
-                <table>
-                    <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
+                </table>
+                    <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</td></thead>
                     <tbody>
                         ${mostrarFilaMC("Juicio completo", minProc, maxProc, minProc * uma, maxProc * uma)}
                     </tbody>
@@ -989,7 +989,7 @@
             // Auxiliares siempre
             html += `<div class="dashboard-card"><h4>🛠️ Auxiliares de justicia (5% y 10% de la base)</h4>
             <table>
-                <thead><tr><th>Mínimo UMA</th>${esProvisorio ? '<th>Mínimo $</th>' : '<th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
+                <thead><tr><th>Mínimo UMA</th>${esProvisorio ? '<th>Mínimo $</th>' : '<th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</td></thead>
                 <tbody>
                     ${esProvisorio ? `<tr><td>${calcBase.auxMin.toFixed(2)}</td><td>$${formatNumber(calcBase.auxMin * uma)}</td></tr>` : `<tr><td>${calcBase.auxMin.toFixed(2)}</td><td>${calcBase.auxMax.toFixed(2)}</td><td>$${formatNumber(calcBase.auxMin * uma)}</td><td>$${formatNumber(calcBase.auxMax * uma)}</td></tr>`}
                 </tbody>
@@ -998,7 +998,7 @@
 
             // Mínimos art.58
             html += `<div class="dashboard-card"><h4>📌 Mínimos del art. 58 (juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos)</h4>
-            <table>
+            表
                 <thead><tr><th>Inciso</th><th>Mínimo (UMA)</th><th>Mínimo $</th></tr></thead>
                 <tbody>
                     <tr><td>a) procesos de conocimiento</td><td>10 UMA</td><td>$${formatNumber(10 * uma)}</td></tr>
@@ -1109,15 +1109,15 @@
         // Función para mostrar filas de tabla
         function mostrarFila(etiqueta, minUMA, maxUMA, minPesos, maxPesos) {
             if (esProvisorio) {
-                return `<tr><td colspan="2">${etiqueta}</td><td>${minUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td></tr>`;
+                return `<tr><td>${etiqueta}</td><td>${minUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td></tr>`;
             } else {
-                return `<tr><td colspan="2">${etiqueta}</td><td>${minUMA.toFixed(2)}</td><td>${maxUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td><td>$${formatNumber(maxPesos)}</td></tr>`;
+                return `<tr><td>${etiqueta}</td><td>${minUMA.toFixed(2)}</td><td>${maxUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td><td>$${formatNumber(maxPesos)}</td></tr>`;
             }
         }
 
         // Patrocinante
         html += `<div class="dashboard-card"><h4>👨‍⚖️ Patrocinante</h4>
-        <table>
+        <tr>
             <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
             <tbody>
                 ${mostrarFila("Juicio completo", minFinal, maxFinal, minFinal * uma, maxFinal * uma)}
@@ -1135,7 +1135,7 @@
 
         // Apoderado
         html += `<div class="dashboard-card"><h4>📑 Apoderado (+40%)</h4>
-        <table>
+        <tr>
             <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
             <tbody>
                 ${mostrarFila("Juicio completo", minApoFinal, maxApoFinal, minApoFinal * uma, maxApoFinal * uma)}
