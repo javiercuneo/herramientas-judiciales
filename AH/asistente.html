@@ -299,6 +299,12 @@
             margin-top: 15px;
             font-weight: 500;
         }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 0.8rem;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
         @media (max-width: 700px) {
             .pantalla { padding: 20px; }
             .progress-bar { padding: 12px 20px; }
@@ -549,7 +555,8 @@
                 break;
             case 1:
                 html += `<h3>Seleccione el tipo de proceso</h3><div class="legal-box">En la Ley 27.423, el tipo de proceso define coeficientes específicos que pueden reducir o incrementar el resultado final del cálculo. Por eso, es fundamental que elijas una de las siguientes opciones:</div>
-                        <select id="tipoProcesoSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="conocimiento">De conocimiento (ordinario / sumarísimo)</option><option value="ejecucion_sentencia">Ejecución de sentencia (o de honorarios o acuerdos)</option><option value="ejecutivo">Ejecutivo (expensas, alquileres, etc.)</option><option value="sucesion">Sucesión</option><option value="exhorto">Exhorto</option><option value="incidente">Incidente (incluye BLSG)</option><option value="medida_cautelar">Medida cautelar</option><option value="homologacion_desocupacion">Homologación de convenio de desocupación (y su ejecución)</option></select>`;
+                        <select id="tipoProcesoSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="conocimiento">De conocimiento (ordinario / sumarísimo)</option><option value="ejecucion_sentencia">Ejecución de sentencia (o de honorarios o acuerdos)</option><option value="ejecutivo">Ejecutivo (expensas, alquileres, etc.)</option><option value="sucesion">Sucesión</option><option value="exhorto">Exhorto</option><option value="incidente">Incidente (incluye BLSG)</option><option value="medida_cautelar">Medida cautelar</option><option value="homologacion_desocupacion">Homologación de convenio de desocupación (y su ejecución)</option></select>
+                        <div id="errorTipoProceso" class="error-msg"></div>`;
                 break;
             case 2:
                 html += `<div id="contingenciasContainer"></div>`;
@@ -558,7 +565,8 @@
                 if (wizardState.tipoProceso === 'conocimiento') {
                     html += `<h3>Objeto del juicio</h3><div class="legal-box">El objeto reclamado en el juicio es un factor determinante para establecer la base regulatoria (o cuantía del asunto) sobre la cual se aplicará la escala de porcentajes para calcular los honorarios. Varía sustancialmente dependiendo del reclamo, si se requieren sumas de dinero u otros bienes (y su naturaleza). Por eso es necesario que elijas una de las siguientes opciones:</div>
                             <select id="objetoBaseSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="desalojo">Desalojo</option><option value="sumas_dinero">Juicios en los que se reclaman sumas de dinero</option><option value="inmuebles">Juicios en los que se discuten cuestiones atinentes a inmuebles o muebles</option><option value="derechos_crediticios">Juicio sobre derechos crediticios</option><option value="titulos_acciones">Juicio sobre títulos de renta o acciones</option><option value="establecimientos">Juicio sobre establecimientos comerciales, industriales o mineros</option><option value="uso_habitacion">Juicio sobre derecho de uso o habitación</option><option value="escrituracion">Juicio de escrituración</option></select>
-                            <div id="subObjetoBase"></div>`;
+                            <div id="subObjetoBase"></div>
+                            <div id="errorObjeto" class="error-msg"></div>`;
                 } else { wizardState.step = 4; renderScreen(); return; }
                 break;
             case 4:
@@ -580,7 +588,7 @@
         } else if (step === 1) {
             const sel = document.getElementById('tipoProcesoSelect');
             sel.value = wizardState.tipoProceso;
-            sel.addEventListener('change', (e) => { wizardState.tipoProceso = e.target.value; });
+            sel.addEventListener('change', (e) => { wizardState.tipoProceso = e.target.value; document.getElementById('errorTipoProceso').innerHTML = ''; });
         } else if (step === 2) {
             renderContingencias();
         } else if (step === 3 && wizardState.tipoProceso === 'conocimiento') {
@@ -600,6 +608,7 @@
                     });
                     if (selLoc.value === 'vivienda') document.getElementById('locacionMensaje').innerHTML = `<div class="legal-box">En el caso de que el destino del contrato sea para vivienda, el monto de la base se reduce en un 20 %.Cuando llegues al cálculo final, la base que ingreses se encontrará reducida en ese porcentaje<br>Art. 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato. En el caso de que la locación sea para vivienda y/o habitación, tal monto se reducirá en un 20 %</div>`;
                 } else div.innerHTML = '';
+                document.getElementById('errorObjeto').innerHTML = '';
             });
             selObj.dispatchEvent(new Event('change'));
         } else if (step === 4) {
@@ -801,7 +810,82 @@
         }
     }
 
+    function validarPasoActual() {
+        const step = wizardState.step;
+        if (step === 1) {
+            if (!wizardState.tipoProceso) {
+                document.getElementById('errorTipoProceso').innerHTML = 'Debe seleccionar un tipo de proceso.';
+                return false;
+            }
+            return true;
+        }
+        if (step === 2) {
+            if (wizardState.tipoProceso === 'conocimiento' || wizardState.tipoProceso === 'ejecucion_sentencia' || wizardState.tipoProceso === 'ejecutivo') {
+                if (!wizardState.modoTerminacion) {
+                    alert('Debe seleccionar una forma de terminación.');
+                    return false;
+                }
+                if (wizardState.modoTerminacion === 'sentencia' && !wizardState.sentenciaResultado) {
+                    alert('Debe seleccionar si la demanda fue admitida o rechazada.');
+                    return false;
+                }
+                if (wizardState.modoTerminacion === 'modos_anormales' && wizardState.aperturaPrueba === null) {
+                    alert('Debe indicar si se produjo antes o después de la apertura a prueba.');
+                    return false;
+                }
+                if (wizardState.modoTerminacion === 'caducidad' && !wizardState.caducidadCriterio) {
+                    alert('Debe seleccionar un criterio para la caducidad.');
+                    return false;
+                }
+                if (wizardState.modoTerminacion === 'caducidad' && wizardState.caducidadCriterio === 'art25' && wizardState.aperturaPrueba === null) {
+                    alert('Debe indicar si la caducidad se declaró antes o después de la apertura a prueba.');
+                    return false;
+                }
+                if ((wizardState.tipoProceso === 'ejecucion_sentencia' || wizardState.tipoProceso === 'ejecutivo') && wizardState.tuvoExcepciones === null) {
+                    alert('Debe indicar si se dedujeron excepciones.');
+                    return false;
+                }
+            } else if (wizardState.tipoProceso === 'sucesion') {
+                if (wizardState.sucesionUnicoLetrado === null) {
+                    alert('Debe indicar si intervino un solo abogado o varios.');
+                    return false;
+                }
+            } else if (wizardState.tipoProceso === 'medida_cautelar') {
+                if (wizardState.medidaOposicion === null) {
+                    alert('Debe indicar si hubo oposición en la medida cautelar.');
+                    return false;
+                }
+            } else if (wizardState.tipoProceso === 'homologacion_desocupacion') {
+                if (wizardState.homologacionVivienda === null) {
+                    alert('Debe indicar si la locación era para vivienda.');
+                    return false;
+                }
+            }
+            return true;
+        }
+        if (step === 3 && wizardState.tipoProceso === 'conocimiento') {
+            if (!wizardState.objetoBase) {
+                document.getElementById('errorObjeto').innerHTML = 'Debe seleccionar el objeto del juicio.';
+                return false;
+            }
+            if (wizardState.objetoBase === 'desalojo' && wizardState.desalojoVivienda === null) {
+                alert('Debe indicar si el alquiler es para vivienda o demás casos.');
+                return false;
+            }
+            return true;
+        }
+        if (step === 4) {
+            if (!wizardState.baseValor || wizardState.baseValor <= 0) {
+                alert('Debe ingresar un monto válido para la base regulatoria.');
+                return false;
+            }
+            return true;
+        }
+        return true;
+    }
+
     function calcularFinal() {
+        if (!validarPasoActual()) return;
         recolectarDatos();
         const tipo = wizardState.tipoProceso;
         const uma = wizardState.valorUMA;
@@ -814,7 +898,7 @@
             document.getElementById('resultadosDinamicos').innerHTML = `<div class="dashboard-card"><h3>Exhorto (art. 50)</h3>
                 <table>
                     <tr><th colspan="2">Inc. a) - notificaciones</th></tr>
-                    <tr><td colspan="2">Mínimo 3 UMA: $${formatNumber(valA)}</td></tr>
+                    <td><td colspan="2">Mínimo 3 UMA: $${formatNumber(valA)}</td></tr>
                     <tr><th colspan="2">Inc. b) - inscripciones y actos registrales</th></tr>
                     <tr><td>Mínimo: 10 UMA</td><td>$${formatNumber(valBmin)}</td></tr>
                     <tr><td>Máximo: 20 UMA</td><td>$${formatNumber(valBmax)}</td></tr>
@@ -872,31 +956,49 @@
                 }
             }
             
-            html += `<div class="dashboard-card"><h4>👨‍⚖️ Patrocinante</h4><table><thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead><tbody>
-                        ${mostrarFilaMC("Honorarios", minComp, maxComp, minComp * uma, maxComp * uma)}
-                    </tbody></table></div>
-                    <div class="dashboard-card"><h4>📑 Apoderado (+40%)</h4><table><thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead><tbody>
-                        ${mostrarFilaMC("Honorarios", minApo, maxApo, minApo * uma, maxApo * uma)}
-                    </tbody></table></div>
-                    <div class="legal-box">ARTÍCULO 20.- Los honorarios de los procuradores se fijarán en un 40% de los que por esta ley corresponda fijar a los abogados patrocinantes. Si el abogado actuare en carácter de apoderado sin patrocinio, percibirá la asignación total que hubiere correspondido a ambos.</div>
-                    <div class="dashboard-card"><h4>📋 Procurador (40% del patrocinante)</h4><table><thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead><tbody>
-                        ${mostrarFilaMC("Honorarios", minProc, maxProc, minProc * uma, maxProc * uma)}
-                    </tbody></table></div>
-                    <div class="dashboard-card"><h4>🛠️ Auxiliares de justicia (5% y 10% de la base)</h4></table><thead><tr><th>Mínimo UMA</th>${esProvisorio ? '<th>Mínimo $</th>' : '<th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead><tbody>
-                        ${esProvisorio ? `<tr><td colspan="2">${calcBase.auxMin.toFixed(2)}</td><td>$${formatNumber(calcBase.auxMin * uma)}</td></tr>` : `<tr><td colspan="2">${calcBase.auxMin.toFixed(2)}</td><td>${calcBase.auxMax.toFixed(2)}</td><td>$${formatNumber(calcBase.auxMin * uma)}</td><td>$${formatNumber(calcBase.auxMax * uma)}</td></tr>`}
-                    </tbody></table>
-                    <div class="legal-box">La tabla muestra la regla general del art. 21 antepenúltimo párrafo según el cual el monto no puede ser inferior al 5% ni superior al 10% del monto del proceso.<br>Tené en cuenta que:<br>i) Ante labores altamente complejas o extensas el juez puede aplicar un porcentaje mayor (art. 21)<br>ii) Según el art. 21 es aplicable el art. 478 del CPCCN (principio de proporcionalidad con los demás profesionales y posibilidad de perforar los mínimos arancelarios)<br>iii) Según el art. 61 bis (incorporado por ley 27.802), los honorarios de los peritos no están vinculados a la cuantía del juicio ni al porcentaje de incapacidad y la regulación responde exclusivamente a la apreciación judicial. El monto mínimo es 2 UMA. Si el proceso finaliza por transacción, avenimiento y conciliación, sin que se haya presentado la pericia se regula 1/4 de UMA si aceptó el cargo.<br>iv) También sigue vigente el inc. b) del art. 25 según el cual si no se presentó la pericia se efectúa una regulación compensatoria adecuada en base al art. 16, pudiendo el perito detallar las tareas realizadas desde la aceptación del cargo.</div></div>
-                    <div class="dashboard-card"><h4>📌 Mínimos del art. 58 (juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos)</h4>
-                    </table>
-                        <thead><tr><th>Inciso</th><th>Mínimo (UMA)</th><th>Mínimo $</th></tr></thead>
-                        <tbody>
-                            <tr><td>a) procesos de conocimiento</td><td>10 UMA</td><td>$${formatNumber(10 * uma)}</td></tr>
-                            <tr><td>b) ejecutivos</td><td>6 UMA</td><td>$${formatNumber(6 * uma)}</td></tr>
-                            <tr><td>c) mediación</td><td>2 UMA</td><td>$${formatNumber(2 * uma)}</td></tr>
-                            <tr><td>d) Auxiliares de la Justicia</td><td>4 UMA</td><td>$${formatNumber(4 * uma)}</td></tr>
-                        </tbody>
-                    </table>
-                    <div class="legal-box">Art. 58: Mínimo establecido para regular honorarios de juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos.</div></div>`;
+            html += `<div class="dashboard-card"><h4>👨‍⚖️ Patrocinante</h4>
+            <table>
+                <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
+                <tbody>
+                    ${mostrarFilaMC("Honorarios", minComp, maxComp, minComp * uma, maxComp * uma)}
+                </tbody>
+            </table></div>
+            <div class="dashboard-card"><h4>📑 Apoderado (+40%)</h4>
+            <table>
+                <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
+                <tbody>
+                    ${mostrarFilaMC("Honorarios", minApo, maxApo, minApo * uma, maxApo * uma)}
+                </tbody>
+            </table></div>
+            <div class="legal-box" style="margin-bottom:0;">ARTÍCULO 20.- Los honorarios de los procuradores se fijarán en un 40% de los que por esta ley corresponda fijar a los abogados patrocinantes. Si el abogado actuare en carácter de apoderado sin patrocinio, percibirá la asignación total que hubiere correspondido a ambos.</div>
+            <div class="dashboard-card"><h4>📋 Procurador (40% del patrocinante)</h4>
+            <table>
+                <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
+                <tbody>
+                    ${mostrarFilaMC("Honorarios", minProc, maxProc, minProc * uma, maxProc * uma)}
+                </tbody>
+            </table></div>`;
+            
+            html += `<div class="dashboard-card"><h4>🛠️ Auxiliares de justicia (5% y 10% de la base)</h4>
+            <table>
+                <thead><tr><th>Mínimo UMA</th>${esProvisorio ? '<th>Mínimo $</th>' : '<th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
+                <tbody>
+                    ${esProvisorio ? `<tr><td>${calcBase.auxMin.toFixed(2)}</td><td>$${formatNumber(calcBase.auxMin * uma)}</td></tr>` : `<tr><td>${calcBase.auxMin.toFixed(2)}</td><td>${calcBase.auxMax.toFixed(2)}</td><td>$${formatNumber(calcBase.auxMin * uma)}</td><td>$${formatNumber(calcBase.auxMax * uma)}</td></tr>`}
+                </tbody>
+            </table>
+            <div class="legal-box">La tabla muestra la regla general del art. 21 antepenúltimo párrafo según el cual el monto no puede ser inferior al 5% ni superior al 10% del monto del proceso.<br>Tené en cuenta que:<br>i) Ante labores altamente complejas o extensas el juez puede aplicar un porcentaje mayor (art. 21)<br>ii) Según el art. 21 es aplicable el art. 478 del CPCCN (principio de proporcionalidad con los demás profesionales y posibilidad de perforar los mínimos arancelarios)<br>iii) Según el art. 61 bis (incorporado por ley 27.802), los honorarios de los peritos no están vinculados a la cuantía del juicio ni al porcentaje de incapacidad y la regulación responde exclusivamente a la apreciación judicial. El monto mínimo es 2 UMA. Si el proceso finaliza por transacción, avenimiento y conciliación, sin que se haya presentado la pericia se regula 1/4 de UMA si aceptó el cargo.<br>iv) También sigue vigente el inc. b) del art. 25 según el cual si no se presentó la pericia se efectúa una regulación compensatoria adecuada en base al art. 16, pudiendo el perito detallar las tareas realizadas desde la aceptación del cargo.</div></div>`;
+            
+            html += `<div class="dashboard-card"><h4>📌 Mínimos del art. 58 (juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos)</h4>
+            <table>
+                <thead><tr><th>Inciso</th><th>Mínimo (UMA)</th><th>Mínimo $</th></tr></thead>
+                <tbody>
+                    <tr><td>a) procesos de conocimiento</td><td>10 UMA</td><td>$${formatNumber(10 * uma)}</td></tr>
+                    <tr><td>b) ejecutivos</td><td>6 UMA</td><td>$${formatNumber(6 * uma)}</td></tr>
+                    <tr><td>c) mediación</td><td>2 UMA</td><td>$${formatNumber(2 * uma)}</td></tr>
+                    <tr><td>d) Auxiliares de la Justicia</td><td>4 UMA</td><td>$${formatNumber(4 * uma)}</td></tr>
+                </tbody>
+            </table>
+            <div class="legal-box">Art. 58: Mínimo establecido para regular honorarios de juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos.</div></div>`;
             document.getElementById('resultadosDinamicos').innerHTML = html;
             return;
         }
@@ -1002,7 +1104,7 @@
         // Patrocinante
         html += `<div class="dashboard-card"><h4>👨‍⚖️ Patrocinante</h4>
         <table>
-            <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead>
+            <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
             <tbody>
                 ${mostrarFila("Juicio completo", minFinal, maxFinal, minFinal * uma, maxFinal * uma)}
                 ${mostrarFila("Una etapa (1/3)", minFinal/3, maxFinal/3, (minFinal/3) * uma, (maxFinal/3) * uma)}
@@ -1019,8 +1121,8 @@
 
         // Apoderado
         html += `<div class="dashboard-card"><h4>📑 Apoderado (+40%)</h4>
-        </table>
-            <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead>
+        <table>
+            <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
             <tbody>
                 ${mostrarFila("Juicio completo", minApoFinal, maxApoFinal, minApoFinal * uma, maxApoFinal * uma)}
                 ${mostrarFila("Una etapa (1/3)", minApoFinal/3, maxApoFinal/3, (minApoFinal/3) * uma, (maxApoFinal/3) * uma)}
@@ -1039,7 +1141,7 @@
         html += `<div class="legal-box" style="margin-bottom:0;">ARTÍCULO 20.- Los honorarios de los procuradores se fijarán en un 40% de los que por esta ley corresponda fijar a los abogados patrocinantes. Si el abogado actuare en carácter de apoderado sin patrocinio, percibirá la asignación total que hubiere correspondido a ambos.</div>
         <div class="dashboard-card"><h4>📋 Procurador (40% del patrocinante)</h4>
         <table>
-            <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead>
+            <thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
             <tbody>
                 ${mostrarFila("Juicio completo", minFinal * 0.4, maxFinal * 0.4, (minFinal * 0.4) * uma, (maxFinal * 0.4) * uma)}
                 ${mostrarFila("Una etapa (1/3)", (minFinal/3) * 0.4, (maxFinal/3) * 0.4, (minFinal/3 * 0.4) * uma, (maxFinal/3 * 0.4) * uma)}
@@ -1057,9 +1159,9 @@
         // Auxiliares
         html += `<div class="dashboard-card"><h4>🛠️ Auxiliares de justicia (5% y 10% de la base)</h4>
         <table>
-            <thead><tr><th>Mínimo UMA</th>${esProvisorio ? '<th>Mínimo $</th>' : '<th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead>
+            <thead><tr><th>Mínimo UMA</th>${esProvisorio ? '<th>Mínimo $</th>' : '<th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead>
             <tbody>
-                ${esProvisorio ? `<tr><td colspan="2">${auxMin.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}</td></tr>` : `<tr><td colspan="2">${auxMin.toFixed(2)}</td><td>${auxMax.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}</td><td>$${formatNumber(auxMax * uma)}</td></tr>`}
+                ${esProvisorio ? `<tr><td>${auxMin.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}</td></tr>` : `<tr><td>${auxMin.toFixed(2)}</td><td>${auxMax.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}</td><td>$${formatNumber(auxMax * uma)}</td></tr>`}
             </tbody>
         </table>
         <div class="legal-box">La tabla muestra la regla general del art. 21 antepenúltimo párrafo según el cual el monto no puede ser inferior al 5% ni superior al 10% del monto del proceso.<br>Tené en cuenta que:<br>i) Ante labores altamente complejas o extensas el juez puede aplicar un porcentaje mayor (art. 21)<br>ii) Según el art. 21 es aplicable el art. 478 del CPCCN (principio de proporcionalidad con los demás profesionales y posibilidad de perforar los mínimos arancelarios)<br>iii) Según el art. 61 bis (incorporado por ley 27.802), los honorarios de los peritos no están vinculados a la cuantía del juicio ni al porcentaje de incapacidad y la regulación responde exclusivamente a la apreciación judicial. El monto mínimo es 2 UMA. Si el proceso finaliza por transacción, avenimiento y conciliación, sin que se haya presentado la pericia se regula 1/4 de UMA si aceptó el cargo.<br>iv) También sigue vigente el inc. b) del art. 25 según el cual si no se presentó la pericia se efectúa una regulación compensatoria adecuada en base al art. 16, pudiendo el perito detallar las tareas realizadas desde la aceptación del cargo.</div></div>`;
@@ -1122,7 +1224,9 @@
     function attachStepEvents() {
         document.getElementById('btnNext')?.addEventListener('click', () => {
             if (wizardState.step === 5) return;
+            if (!validarPasoActual()) return;
             recolectarDatos();
+            // Saltos especiales
             if (wizardState.step === 1) {
                 if (wizardState.tipoProceso === 'exhorto') { wizardState.step = 5; renderScreen(); return; }
                 if (wizardState.tipoProceso === 'incidente') { wizardState.step = 4; renderScreen(); return; }
