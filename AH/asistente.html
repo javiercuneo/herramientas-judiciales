@@ -6,7 +6,6 @@
     <title>Asistente de Honorarios · Ley 27.423</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ... (estilos sin cambios) ... */
         * {
             box-sizing: border-box;
         }
@@ -368,7 +367,6 @@
         cleaned = cleaned.replace(',', '.');
         return parseFloat(cleaned);
     }
-
     function formatNumber(num) {
         if (isNaN(num)) return 'N/A';
         return num.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -561,7 +559,9 @@
         container.innerHTML = html;
     }
 
-    // --- Renderizado de pantallas (completo) ---
+    // --------------------------------------------------------------
+    // RENDERIZADO DE PANTALLAS (completo)
+    // --------------------------------------------------------------
     function renderScreen() {
         const container = document.getElementById('pantallas');
         if (!container) return;
@@ -912,21 +912,126 @@
         return true;
     }
 
-    // *************************************************************
-    // FUNCIÓN CALCULAR FINAL CON TABLAS CORREGIDAS (SIN "61", SIN colspan)
-    // *************************************************************
+    // --------------------------------------------------------------
+    // CÁLCULO FINAL (completo y corregido)
+    // --------------------------------------------------------------
     function calcularFinal() {
         if (!validarPasoActual()) return;
         recolectarDatos();
         const tipo = wizardState.tipoProceso;
         const uma = wizardState.valorUMA;
-        const baseOriginal = wizardState.baseValor;
 
-        // Casos especiales (exhorto, incidente, medida cautelar) - se mantienen igual que antes
-        // Por brevedad, se asume que están implementados correctamente.
-        // En esta versión final se incluyen completos.
+        // EXHORTO
+        if (tipo === 'exhorto') {
+            const minA=3, minB=10, maxB=20, minC=7, maxC=30;
+            const valA=minA*uma, valBmin=minB*uma, valBmax=maxB*uma, valCmin=minC*uma, valCmax=maxC*uma;
+            const html = `<div class="dashboard-card"><h3>Exhorto (art. 50)</h3>
+                <table>
+                    <tr><th colspan="2">Inc. a) - notificaciones</th></tr>
+                    <tr><td colspan="2">Mínimo 3 UMA: $${formatNumber(valA)}</td></tr>
+                    <tr><th colspan="2">Inc. b) - inscripciones y actos registrales</th></tr>
+                    <tr><td colspan="2">Mínimo: 10 UMA ($${formatNumber(valBmin)})<br>Máximo: 20 UMA ($${formatNumber(valBmax)})</td></tr>
+                    <tr><th colspan="2">Inc. c) - diligencias de prueba</th></tr>
+                    <tr><td colspan="2">Mínimo: 7 UMA ($${formatNumber(valCmin)})<br>Máximo: 30 UMA ($${formatNumber(valCmax)})</td></tr>
+                </table>
+                <div class="legal-box">ARTÍCULO 50.- Los honorarios por diligenciamiento de exhortos u oficios contemplados en la ley 22.172 serán regulados de conformidad a las siguientes pautas:<br>
+                a) Si se tratare de notificaciones o actos semejantes, los honorarios no podrán ser inferiores a 3 UMA;<br>
+                b) Si se solicitaren inscripciones de dominios, hijuelas, testamentos, gravámenes, secuestros, embargos, inhibiciones, inventarios, remates, desalojos, o cualquier otro acto registral, los honorarios se regularán en una escala entre 10 y 20 UMA. (...)<br>
+                c) Si se tratare de diligencias de prueba y se hubiera intervenido en su producción o contralor, el juez exhortado regulará los honorarios proporcionalmente a la labor desarrollada, en una escala entre 7 y 30 UMA.</div></div>`;
+            document.getElementById('resultadosDinamicos').innerHTML = html;
+            return;
+        }
 
-        // --- Caso GENERAL ---
+        // INCIDENTE
+        if (tipo === 'incidente') {
+            const base = wizardState.baseValor;
+            if (base <= 0) { alert("Por favor ingrese la base del incidente"); return; }
+            const baseUMA = base / uma;
+            const minUMA = baseUMA * 0.02;
+            const maxUMA = baseUMA * 0.20;
+            const minPesos = minUMA * uma;
+            const maxPesos = maxUMA * uma;
+            const html = `<div class="dashboard-card">
+                <div class="summary-box">📋 Resumen del juicio<br>Tipo de proceso: Incidente<br>Base: $${formatNumber(base)}<br>Valor UMA: $${formatNumber(uma)}<br>Base en UMA: ${baseUMA.toFixed(2)}</div>
+                <h3>Incidente (art.33 ley 21839)</h3>
+                <table>
+                    <tr><th>Concepto</th><th>UMA</th><th>Pesos ($)</th></tr>
+                    <tr><td colspan="2">Mínimo (2%)</td><td>${minUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td></tr>
+                    <tr><td colspan="2">Máximo (20%)</td><td>${maxUMA.toFixed(2)}</td><td>$${formatNumber(maxPesos)}</td></tr>
+                </table>
+                <div class="legal-box">Tener en cuenta que según el inc. g) del art. 29, “los incidentes se dividirán en 2 etapas; la primera se compone del planteo que lo origine, sea verbal o escrito, y la segunda, del desarrollo hasta su conclusión”.</div></div>`;
+            document.getElementById('resultadosDinamicos').innerHTML = html;
+            return;
+        }
+
+        // MEDIDA CAUTELAR
+        if (tipo === 'medida_cautelar') {
+            let baseFinal = wizardState.baseValor;
+            if (baseFinal <= 0) { alert("Base inválida"); return; }
+            let factorEscala = wizardState.medidaOposicion ? 0.5 : 0.25;
+            const calcBase = calcularEscalaBase(baseFinal, uma);
+            if (!calcBase) return;
+            const minComp = calcBase.patrocinante.full.min * factorEscala;
+            const maxComp = calcBase.patrocinante.full.max * factorEscala;
+            const minApo = calcBase.apoderado.full.min * factorEscala;
+            const maxApo = calcBase.apoderado.full.max * factorEscala;
+            const minProc = minComp * 0.4;
+            const maxProc = maxComp * 0.4;
+            const esProvisorio = wizardState.esProvisorio;
+            const oposicionTexto = wizardState.medidaOposicion ? "Con oposición → 50% de la escala" : "Sin oposición → 25% de la escala";
+            const html = `<div class="dashboard-card">
+                <div class="summary-box">📋 Resumen del juicio<br>Tipo de proceso: Medida cautelar<br>Base: $${formatNumber(baseFinal)}<br>Valor UMA: $${formatNumber(uma)}<br>Base en UMA: ${calcBase.baseEnUMA.toFixed(2)}<br>Escala: ${calcBase.tituloEscala}<br>Reducción: ${oposicionTexto}<br>Porcentajes reducidos: ${(calcBase.minPorc * factorEscala).toFixed(1)}% a ${(calcBase.maxPorc * factorEscala).toFixed(1)}%</div>
+                <div class="dashboard-card"><h4>👨‍⚖️ Patrocinante</h4>
+                <table><thead><tr><th>Concepto</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead>
+                <tbody><td>${esProvisorio ? `Honorarios</td><td>${minComp.toFixed(2)}</td><td>$${formatNumber(minComp * uma)}` : `Honorarios</td><td>${minComp.toFixed(2)}</td><td>${maxComp.toFixed(2)}</td><td>$${formatNumber(minComp * uma)}</td><td>$${formatNumber(maxComp * uma)}`} </tr></tbody>
+                </table></div>
+                <div class="dashboard-card"><h4>📑 Apoderado (+40%)</h4>
+                </td><thead><tr><th>Concepto</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead>
+                <tbody><td>${esProvisorio ? `Honorarios</td><td>${minApo.toFixed(2)}</td><td>$${formatNumber(minApo * uma)}` : `Honorarios</td><td>${minApo.toFixed(2)}</td><td>${maxApo.toFixed(2)}</td><td>$${formatNumber(minApo * uma)}</td><td>$${formatNumber(maxApo * uma)}`} </tr></tbody>
+                </table></div>
+                <div class="legal-box">ARTÍCULO 20.- Los honorarios de los procuradores se fijarán en un 40% de los que por esta ley corresponda fijar a los abogados patrocinantes. Si el abogado actuare en carácter de apoderado sin patrocinio, percibirá la asignación total que hubiere correspondido a ambos.</div>
+                <div class="dashboard-card"><h4>📋 Procurador (40% del patrocinante)</h4>
+                </table><thead><tr><th>Concepto</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead>
+                <tbody><td>${esProvisorio ? `Honorarios</td><td>${minProc.toFixed(2)}</td><td>$${formatNumber(minProc * uma)}` : `Honorarios</td><td>${minProc.toFixed(2)}</td><td>${maxProc.toFixed(2)}</td><td>$${formatNumber(minProc * uma)}</td><td>$${formatNumber(maxProc * uma)}`} </tr></tbody>
+                </table></div>
+                <div class="dashboard-card"><h4>🛠️ Auxiliares de justicia (5% y 10% de la base)</h4>
+                <tr><thead><tr><th>Mínimo UMA</th>${esProvisorio ? '<th>Mínimo $</th>' : '<th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}61</thead>
+                <tbody><tr>${esProvisorio ? `<td>${calcBase.auxMin.toFixed(2)}</td><td>$${formatNumber(calcBase.auxMin * uma)}` : `<td>${calcBase.auxMin.toFixed(2)}</td><td>${calcBase.auxMax.toFixed(2)}</td><td>$${formatNumber(calcBase.auxMin * uma)}</td><td>$${formatNumber(calcBase.auxMax * uma)}`} </tr></tbody>
+                </table></div>`;
+            document.getElementById('resultadosDinamicos').innerHTML = html;
+            return;
+        }
+
+        // HOMOLOGACIÓN DESOCUPACIÓN
+        if (tipo === 'homologacion_desocupacion') {
+            let baseFinal = wizardState.baseValor;
+            if (wizardState.homologacionVivienda) baseFinal *= 0.8;
+            const calcBase = calcularEscalaBase(baseFinal, uma);
+            if (!calcBase) return;
+            const minFinal = calcBase.patrocinante.full.min * 0.5;
+            const maxFinal = calcBase.patrocinante.full.max * 0.5;
+            const minApoFinal = calcBase.apoderado.full.min * 0.5;
+            const maxApoFinal = calcBase.apoderado.full.max * 0.5;
+            const minProc = minFinal * 0.4;
+            const maxProc = maxFinal * 0.4;
+            const esProvisorio = wizardState.esProvisorio;
+            const motivoBase = wizardState.homologacionVivienda ? "Homologación con vivienda: -20% sobre base (art.40) luego -50% por homologación" : "Homologación de desocupación: -50% (art.40)";
+            function genFila(e, minU, maxU, minP, maxP) {
+                if (esProvisorio) return `<tr><td>${e}</td><td>${minU.toFixed(2)}</td><td>$${formatNumber(minP)}</td></tr>`;
+                else return `<tr><td>${e}</td><td>${minU.toFixed(2)}</td><td>${maxU.toFixed(2)}</td><td>$${formatNumber(minP)}</td><td>$${formatNumber(maxP)}</td></tr>`;
+            }
+            let html = `<div class="dashboard-card"><h3>📊 Resumen del juicio</h3><div class="grid-2col"><div class="stat-card"><div class="badge">Tipo de proceso</div><div class="stat-number">Homologación de convenio de desocupación</div></div><div class="stat-card"><div class="badge">Base regulatoria</div><div class="stat-number">$${formatNumber(baseFinal)}</div>${wizardState.baseValor !== baseFinal ? `<small>Original: $${formatNumber(wizardState.baseValor)}<br>${motivoBase}</small>` : ''}</div><div class="stat-card"><div class="badge">Valor UMA</div><div class="stat-number">$${formatNumber(uma)}</div></div><div class="stat-card"><div class="badge">Base en UMA</div><div class="stat-number">${calcBase.baseEnUMA.toFixed(2)}</div></div></div><div><strong>Escala aplicada:</strong> ${calcBase.tituloEscala} (${calcBase.minPorc}% a ${calcBase.maxPorc}%)<br><strong>Reducción sobre honorarios (50% por homologación de desocupación):</strong> 50% del resultado anterior</div></div>`;
+            html += `<div class="dashboard-card"><h4>👨‍⚖️ Patrocinante</h4><table><thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead><tbody>${genFila("Juicio completo", minFinal, maxFinal, minFinal*uma, maxFinal*uma)}${genFila("Una etapa (1/3)", minFinal/3, maxFinal/3, (minFinal/3)*uma, (maxFinal/3)*uma)}${genFila("Dos etapas (2/3)", minFinal*2/3, maxFinal*2/3, (minFinal*2/3)*uma, (maxFinal*2/3)*uma)}</tbody></table></div>`;
+            html += `<div class="dashboard-card"><h4>📑 Apoderado (+40%)</h4><table><thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead><tbody>${genFila("Juicio completo", minApoFinal, maxApoFinal, minApoFinal*uma, maxApoFinal*uma)}${genFila("Una etapa (1/3)", minApoFinal/3, maxApoFinal/3, (minApoFinal/3)*uma, (maxApoFinal/3)*uma)}${genFila("Dos etapas (2/3)", minApoFinal*2/3, maxApoFinal*2/3, (minApoFinal*2/3)*uma, (maxApoFinal*2/3)*uma)}</tbody></table></div>`;
+            html += `<div class="legal-box">ARTÍCULO 20.- Los honorarios de los procuradores se fijarán en un 40% de los que por esta ley corresponda fijar a los abogados patrocinantes...</div>`;
+            html += `<div class="dashboard-card"><h4>📋 Procurador (40% del patrocinante)</h4><table><thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead><tbody>${genFila("Juicio completo", minProc, maxProc, minProc*uma, maxProc*uma)}${genFila("Una etapa (1/3)", minProc/3, maxProc/3, (minProc/3)*uma, (maxProc/3)*uma)}${genFila("Dos etapas (2/3)", minProc*2/3, maxProc*2/3, (minProc*2/3)*uma, (maxProc*2/3)*uma)}</tbody></table></div>`;
+            html += `<div class="dashboard-card"><h4>🛠️ Auxiliares de justicia (5% y 10% de la base)</h4><table><thead><tr><th>Mínimo UMA</th>${esProvisorio ? '<th>Mínimo $</th>' : '<th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead><tbody><tr>${esProvisorio ? `<td>${calcBase.auxMin.toFixed(2)}</td><td>$${formatNumber(calcBase.auxMin * uma)}` : `<td>${calcBase.auxMin.toFixed(2)}</td><td>${calcBase.auxMax.toFixed(2)}</td><td>$${formatNumber(calcBase.auxMin * uma)}</td><td>$${formatNumber(calcBase.auxMax * uma)}`}</tr></tbody></table></div>`;
+            document.getElementById('resultadosDinamicos').innerHTML = html;
+            return;
+        }
+
+        // CASO GENERAL (conocimiento, ejecución sentencia, ejecutivo, sucesión)
+        // Primero, reducciones de base
         let baseReducida = wizardState.baseValor;
         let motivoBase = [];
         if (tipo === 'conocimiento' && wizardState.objetoBase === 'desalojo' && wizardState.desalojoVivienda) {
@@ -941,15 +1046,12 @@
             baseReducida *= 0.7;
             motivoBase.push("Caducidad tratada como demanda desestimada: -30% (art.22)");
         }
-        if (tipo === 'homologacion_desocupacion' && wizardState.homologacionVivienda) {
-            baseReducida *= 0.8;
-            motivoBase.push("Homologación con vivienda: -20% sobre base (art.40)");
-        }
         const baseFinal = baseReducida;
         const hayReduccionBase = (wizardState.baseValor !== baseFinal);
         const calcBase = calcularEscalaBase(baseFinal, uma);
         if (!calcBase) return;
 
+        // Reducciones de escala
         let factorEscala = 1;
         let motivosEscala = [];
         if (tipo === 'sucesion' && wizardState.sucesionUnicoLetrado) {
@@ -972,6 +1074,8 @@
         const maxEscala = calcBase.patrocinante.full.max * factorEscala;
         const minApoEscala = calcBase.apoderado.full.min * factorEscala;
         const maxApoEscala = calcBase.apoderado.full.max * factorEscala;
+
+        // Reducciones sobre honorarios finales
         let factorFinal = 1;
         let motivoFinal = "";
         if (tipo === 'ejecutivo' && wizardState.tuvoExcepciones === false) {
@@ -980,10 +1084,6 @@
         } else if (tipo === 'ejecucion_sentencia' && wizardState.tuvoExcepciones === false) {
             factorFinal = 0.9;
             motivoFinal = "10% adicional por ejecución de sentencia sin excepciones (art.41 + art.34)";
-        }
-        if (tipo === 'homologacion_desocupacion') {
-            factorFinal = 0.5;
-            motivoFinal = "50% por homologación de desocupación (art.40)";
         }
         const minFinal = minEscala * factorFinal;
         const maxFinal = maxEscala * factorFinal;
@@ -995,90 +1095,29 @@
         const auxMax = calcBase.auxMax;
         const esProvisorio = wizardState.esProvisorio;
 
+        // Transparencia de escala anterior
         let transparenciaHtml = "";
         if (calcBase.maximoEscalaAnterior > 0) {
             const excedente = calcBase.baseEnUMA - calcBase.limiteAnterior;
-            transparenciaHtml = `<div class="legal-box" style="margin-top:10px;">
-                <strong>Máximo de la escala anterior:</strong> ${calcBase.maximoEscalaAnterior.toFixed(2)} UMA<br>
-                <strong>Excedente de ${calcBase.limiteAnterior} UMA sobre el que aplican los porcentajes de la escala:</strong> ${excedente.toFixed(2)} UMA
-            </div>`;
+            transparenciaHtml = `<div class="legal-box" style="margin-top:10px;"><strong>Máximo de la escala anterior:</strong> ${calcBase.maximoEscalaAnterior.toFixed(2)} UMA<br><strong>Excedente de ${calcBase.limiteAnterior} UMA sobre el que aplican los porcentajes de la escala:</strong> ${excedente.toFixed(2)} UMA</div>`;
         }
 
-        let html = `<div class="dashboard-card"><h3>📊 Resumen del juicio</h3><div class="grid-2col">
-            <div class="stat-card"><div class="badge">Tipo de proceso</div><div class="stat-number" style="font-size:1.2rem;">${tipo === 'conocimiento' ? 'De conocimiento' : tipo === 'ejecucion_sentencia' ? 'Ejecución de sentencia' : tipo === 'ejecutivo' ? 'Ejecutivo' : tipo === 'sucesion' ? 'Sucesión' : tipo === 'homologacion_desocupacion' ? 'Homologación de convenio de desocupación (y su ejecución)' : tipo}</div></div>
-            <div class="stat-card"><div class="badge">Base regulatoria</div><div class="stat-number">$${formatNumber(baseFinal)}</div>${hayReduccionBase ? `<small class="badge" style="background:#f0e6d2;">Original: $${formatNumber(wizardState.baseValor)}</small><br><small>${motivoBase.join("; ")}</small>` : ''}</div>
-            <div class="stat-card"><div class="badge">Valor UMA</div><div class="stat-number">$${formatNumber(uma)}</div></div>
-            <div class="stat-card"><div class="badge">Base en UMA</div><div class="stat-number">${calcBase.baseEnUMA.toFixed(2)}</div></div>
-        </div><div><strong>Escala aplicada:</strong> ${calcBase.tituloEscala} (${calcBase.minPorc}% a ${calcBase.maxPorc}%)${motivosEscala.length ? `<br><strong>Reducción de escala (${motivosEscala.join("; ")}):</strong> ${(calcBase.minPorc * factorEscala).toFixed(1)}% a ${(calcBase.maxPorc * factorEscala).toFixed(1)}%` : ''}${factorFinal !== 1 ? `<br><strong>Reducción sobre honorarios (${motivoFinal}):</strong> ${factorFinal*100}% del resultado anterior` : ''}</div>${transparenciaHtml}</div>`;
+        let html = `<div class="dashboard-card"><h3>📊 Resumen del juicio</h3><div class="grid-2col"><div class="stat-card"><div class="badge">Tipo de proceso</div><div class="stat-number" style="font-size:1.2rem;">${tipo === 'conocimiento' ? 'De conocimiento' : tipo === 'ejecucion_sentencia' ? 'Ejecución de sentencia' : tipo === 'ejecutivo' ? 'Ejecutivo' : tipo === 'sucesion' ? 'Sucesión' : tipo}</div></div><div class="stat-card"><div class="badge">Base regulatoria</div><div class="stat-number">$${formatNumber(baseFinal)}</div>${hayReduccionBase ? `<small class="badge" style="background:#f0e6d2;">Original: $${formatNumber(wizardState.baseValor)}</small><br><small>${motivoBase.join("; ")}</small>` : ''}</div><div class="stat-card"><div class="badge">Valor UMA</div><div class="stat-number">$${formatNumber(uma)}</div></div><div class="stat-card"><div class="badge">Base en UMA</div><div class="stat-number">${calcBase.baseEnUMA.toFixed(2)}</div></div></div><div><strong>Escala aplicada:</strong> ${calcBase.tituloEscala} (${calcBase.minPorc}% a ${calcBase.maxPorc}%)${motivosEscala.length ? `<br><strong>Reducción de escala (${motivosEscala.join("; ")}):</strong> ${(calcBase.minPorc * factorEscala).toFixed(1)}% a ${(calcBase.maxPorc * factorEscala).toFixed(1)}%` : ''}${factorFinal !== 1 ? `<br><strong>Reducción sobre honorarios (${motivoFinal}):</strong> ${factorFinal*100}% del resultado anterior` : ''}</div>${transparenciaHtml}</div>`;
 
-        // Función para generar filas de tabla CORRECTA (sin colspan, sin "61")
-        function generarFila(etiqueta, minUMA, maxUMA, minPesos, maxPesos) {
-            if (esProvisorio) {
-                return `<tr><td style="font-weight:500;">${etiqueta}</td><td>${minUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td></tr>`;
-            } else {
-                return `<tr><td style="font-weight:500;">${etiqueta}</td><td>${minUMA.toFixed(2)}</td><td>${maxUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td><td>$${formatNumber(maxPesos)}</td></tr>`;
-            }
+        function generarFila(e, minU, maxU, minP, maxP) {
+            if (esProvisorio) return `<tr><td>${e}</td><td>${minU.toFixed(2)}</td><td>$${formatNumber(minP)}</td></tr>`;
+            else return `<tr><td>${e}</td><td>${minU.toFixed(2)}</td><td>${maxU.toFixed(2)}</td><td>$${formatNumber(minP)}</td><td>$${formatNumber(maxP)}</td></tr>`;
         }
 
-        // Patrocinante
-        html += `<div class="dashboard-card"><h4>👨‍⚖️ Patrocinante</h4>
-        <table>
-            <thead><tr><th>Etapas</th><th>Mínimo UMA</th>${esProvisorio ? '' : '<th>Máximo UMA</th>'}<th>Mínimo $</th>${esProvisorio ? '' : '<th>Máximo $</th>'}</tr></thead>
-            <tbody>
-                ${generarFila("Juicio completo", minFinal, maxFinal, minFinal * uma, maxFinal * uma)}
-                ${generarFila("Una etapa (1/3)", minFinal/3, maxFinal/3, (minFinal/3) * uma, (maxFinal/3) * uma)}
-                ${generarFila("Dos etapas (2/3)", minFinal*2/3, maxFinal*2/3, (minFinal*2/3) * uma, (maxFinal*2/3) * uma)}
-            </tbody>
-        </table>
-        <div class="check-group"><label><input type="checkbox" id="calcPorcPatro"> Calcular el porcentaje de una etapa (patrocinante)</label></div>
-        <div id="porcPatroInput" style="display:none;" class="percentage-input">
-            <span>Ingresá el porcentaje que querés calcular respecto de una sola etapa:</span>
-            <input type="number" id="porcPatroVal" min="1" max="100" step="1" value="100">%
-            <button id="aplicarPorcPatro" class="btn-outline">Calcular</button>
-        </div>
-        <div id="resultadoPorcPatro" class="resultado-porcentaje" style="display:none;"></div>`;
+        html += `<div class="dashboard-card"><h4>👨‍⚖️ Patrocinante</h4><table><thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead><tbody>${generarFila("Juicio completo", minFinal, maxFinal, minFinal*uma, maxFinal*uma)}${generarFila("Una etapa (1/3)", minFinal/3, maxFinal/3, (minFinal/3)*uma, (maxFinal/3)*uma)}${generarFila("Dos etapas (2/3)", minFinal*2/3, maxFinal*2/3, (minFinal*2/3)*uma, (maxFinal*2/3)*uma)}</tbody></table></div>`;
+        html += `<div class="dashboard-card"><h4>📑 Apoderado (+40%)</h4><table><thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead><tbody>${generarFila("Juicio completo", minApoFinal, maxApoFinal, minApoFinal*uma, maxApoFinal*uma)}${generarFila("Una etapa (1/3)", minApoFinal/3, maxApoFinal/3, (minApoFinal/3)*uma, (maxApoFinal/3)*uma)}${generarFila("Dos etapas (2/3)", minApoFinal*2/3, maxApoFinal*2/3, (minApoFinal*2/3)*uma, (maxApoFinal*2/3)*uma)}</tbody></table></div>`;
+        html += `<div class="legal-box">ARTÍCULO 20.- Los honorarios de los procuradores se fijarán en un 40% de los que por esta ley corresponda fijar a los abogados patrocinantes. Si el abogado actuare en carácter de apoderado sin patrocinio, percibirá la asignación total que hubiere correspondido a ambos.</div>`;
+        html += `<div class="dashboard-card"><h4>📋 Procurador (40% del patrocinante)</h4><table><thead><tr><th>Etapas</th>${esProvisorio ? '<th>Mínimo UMA</th><th>Mínimo $</th>' : '<th>Mínimo UMA</th><th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead><tbody>${generarFila("Juicio completo", minProc, maxProc, minProc*uma, maxProc*uma)}${generarFila("Una etapa (1/3)", minProc/3, maxProc/3, (minProc/3)*uma, (maxProc/3)*uma)}${generarFila("Dos etapas (2/3)", minProc*2/3, maxProc*2/3, (minProc*2/3)*uma, (maxProc*2/3)*uma)}</tbody></table></div>`;
 
-        // Apoderado
-        html += `<div class="dashboard-card"><h4>📑 Apoderado (+40%)</h4>
-        <table>
-            <thead><tr><th>Etapas</th><th>Mínimo UMA</th>${esProvisorio ? '' : '<th>Máximo UMA</th>'}<th>Mínimo $</th>${esProvisorio ? '' : '<th>Máximo $</th>'}</tr></thead>
-            <tbody>
-                ${generarFila("Juicio completo", minApoFinal, maxApoFinal, minApoFinal * uma, maxApoFinal * uma)}
-                ${generarFila("Una etapa (1/3)", minApoFinal/3, maxApoFinal/3, (minApoFinal/3) * uma, (maxApoFinal/3) * uma)}
-                ${generarFila("Dos etapas (2/3)", minApoFinal*2/3, maxApoFinal*2/3, (minApoFinal*2/3) * uma, (maxApoFinal*2/3) * uma)}
-            </tbody>
-        </table>
-        <div class="check-group"><label><input type="checkbox" id="calcPorcApo"> Calcular el porcentaje de una etapa (apoderado)</label></div>
-        <div id="porcApoInput" style="display:none;" class="percentage-input">
-            <span>Ingresá el porcentaje que querés calcular respecto de una sola etapa:</span>
-            <input type="number" id="porcApoVal" min="1" max="100" step="1" value="100">%
-            <button id="aplicarPorcApo" class="btn-outline">Calcular</button>
-        </div>
-        <div id="resultadoPorcApo" class="resultado-porcentaje" style="display:none;"></div>`;
-
-        // Procurador
-        html += `<div class="legal-box" style="margin-bottom:0;">ARTÍCULO 20.- Los honorarios de los procuradores se fijarán en un 40% de los que por esta ley corresponda fijar a los abogados patrocinantes. Si el abogado actuare en carácter de apoderado sin patrocinio, percibirá la asignación total que hubiere correspondido a ambos.</div>
-        <div class="dashboard-card"><h4>📋 Procurador (40% del patrocinante)</h4>
-        <table>
-            <thead><tr><th>Etapas</th><th>Mínimo UMA</th>${esProvisorio ? '' : '<th>Máximo UMA</th>'}<th>Mínimo $</th>${esProvisorio ? '' : '<th>Máximo $</th>'}</tr></thead>
-            <tbody>
-                ${generarFila("Juicio completo", minProc, maxProc, minProc * uma, maxProc * uma)}
-                ${generarFila("Una etapa (1/3)", minProc/3, maxProc/3, (minProc/3) * uma, (maxProc/3) * uma)}
-                ${generarFila("Dos etapas (2/3)", minProc*2/3, maxProc*2/3, (minProc*2/3) * uma, (maxProc*2/3) * uma)}
-            </tbody>
-        </table>
-        <div class="check-group"><label><input type="checkbox" id="calcPorcProc"> Calcular el porcentaje de una etapa (procurador)</label></div>
-        <div id="porcProcInput" style="display:none;" class="percentage-input">
-            <span>Ingresá el porcentaje que querés calcular respecto de una sola etapa:</span>
-            <input type="number" id="porcProcVal" min="1" max="100" step="1" value="100">%
-            <button id="aplicarPorcProc" class="btn-outline">Calcular</button>
-        </div>
-        <div id="resultadoPorcProc" class="resultado-porcentaje" style="display:none;"></div>`;
-
-        // Tabla única de segunda instancia
-        const patroMinSeg = minFinal * 0.30;
-        const patroMaxSeg = maxFinal * 0.35;
-        const patroMaxRev = maxFinal * 0.40;
+        // Tabla de segunda instancia (solo para los valores de "juicio completo")
+        const patMinSeg = minFinal * 0.30;
+        const patMaxSeg = maxFinal * 0.35;
+        const patMaxRev = maxFinal * 0.40;
         const apoMinSeg = minApoFinal * 0.30;
         const apoMaxSeg = maxApoFinal * 0.35;
         const apoMaxRev = maxApoFinal * 0.40;
@@ -1087,72 +1126,42 @@
         const procMaxRev = maxProc * 0.40;
 
         html += `<div class="dashboard-card"><h4>📌 Honorarios de segunda instancia (art. 30)</h4>
-        <table>
-            <thead>
-                <tr><th>Carácter</th><th>Mínimo (30%) UMA</th><th>Máximo (35%) UMA</th><th>Máximo (sentencia revocada, 40%) UMA</th>
-                <th>Mínimo $</th><th>Máximo $</th><th>Máximo (sentencia revocada) $</th></tr>
-            </thead>
-            <tbody>
-                <tr><td style="font-weight:500;">Patrocinante</td><td>${patroMinSeg.toFixed(2)}</td><td>${patroMaxSeg.toFixed(2)}</td><td>${patroMaxRev.toFixed(2)}</td>
-                    <td>$${formatNumber(patroMinSeg * uma)}</td><td>$${formatNumber(patroMaxSeg * uma)}</td><td>$${formatNumber(patroMaxRev * uma)}</td></tr>
-                <tr><td style="font-weight:500;">Apoderado</td><td>${apoMinSeg.toFixed(2)}</td><td>${apoMaxSeg.toFixed(2)}</td><td>${apoMaxRev.toFixed(2)}</td>
-                    <td>$${formatNumber(apoMinSeg * uma)}</td><td>$${formatNumber(apoMaxSeg * uma)}</td><td>$${formatNumber(apoMaxRev * uma)}</td></tr>
-                <tr><td style="font-weight:500;">Procurador</td><td>${procMinSeg.toFixed(2)}</td><td>${procMaxSeg.toFixed(2)}</td><td>${procMaxRev.toFixed(2)}</td>
-                    <td>$${formatNumber(procMinSeg * uma)}</td><td>$${formatNumber(procMaxSeg * uma)}</td><td>$${formatNumber(procMaxRev * uma)}</td></tr>
-            </tbody>
-        </table>
-        <div class="legal-box">Art. 30: "Por las actuaciones correspondientes a la segunda o ulterior instancia, se regularán en cada una de ellas del 30% al 35% de la cantidad que se fije para honorarios en primera instancia...Si la sentencia recurrida fuera revocada en todas sus partes en favor del apelante, los honorarios profesionales por los trabajos en esa instancia de apelación se fijarán entre el 30% y 40% de los correspondientes a la primera instancia".</div>`;
+        <table><thead><tr><th>Carácter</th><th>Mínimo (30%) UMA</th><th>Máximo (35%) UMA</th><th>Máximo (sentencia revocada, 40%) UMA</th><th>Mínimo $</th><th>Máximo $</th><th>Máximo (revocada) $</th></tr></thead>
+        <tbody>
+        <tr><td>Patrocinante</td><td>${patMinSeg.toFixed(2)}</td><td>${patMaxSeg.toFixed(2)}</td><td>${patMaxRev.toFixed(2)}</td><td>$${formatNumber(patMinSeg * uma)}</td><td>$${formatNumber(patMaxSeg * uma)}</td><td>$${formatNumber(patMaxRev * uma)}</td></tr>
+        <tr><td>Apoderado</td><td>${apoMinSeg.toFixed(2)}</td><td>${apoMaxSeg.toFixed(2)}</td><td>${apoMaxRev.toFixed(2)}</td><td>$${formatNumber(apoMinSeg * uma)}</td><td>$${formatNumber(apoMaxSeg * uma)}</td><td>$${formatNumber(apoMaxRev * uma)}</td></tr>
+        <tr><td>Procurador</td><td>${procMinSeg.toFixed(2)}</td><td>${procMaxSeg.toFixed(2)}</td><td>${procMaxRev.toFixed(2)}</td><td>$${formatNumber(procMinSeg * uma)}</td><td>$${formatNumber(procMaxSeg * uma)}</td><td>$${formatNumber(procMaxRev * uma)}</td></tr>
+        </tbody></table>
+        <div class="legal-box">Art. 30: "Por las actuaciones correspondientes a la segunda o ulterior instancia, se regularán en cada una de ellas del 30% al 35% de la cantidad que se fije para honorarios en primera instancia...Si la sentencia recurrida fuera revocada en todas sus partes en favor del apelante, los honorarios profesionales por los trabajos en esa instancia de apelación se fijarán entre el 30% y 40% de los correspondientes a la primera instancia".</div></div>`;
 
-        // Art. 31
-        html += `<div class="dashboard-card"><h4>📌 Recursos ante la CSJN (art. 31)</h4>
-        <table>
-            <thead><tr><th>Concepto</th><th>Mínimo (UMA)</th><th>Mínimo ($)</th></tr></thead>
-            <tbody>
-                <tr><td style="font-weight:500;">Queja por denegación de recurso</td><td>15 UMA</td><td>$${formatNumber(15 * uma)}</td></tr>
-                <tr><td style="font-weight:500;">Interposición de recurso extraordinario, etc.</td><td>20 UMA</td><td>$${formatNumber(20 * uma)}</td></tr>
-            </tbody>
-        </table>
-        <div class="legal-box">Art. 31: La interposición ante la CSJN de los recursos extraordinarios, de inconstitucionalidad, de revisión, de casación, ordinarios, directos y otros similares o que no sean los normales de acceso, no podrá remunerarse en una cantidad inferior a 20 UMA. Las quejas por denegación de estos recursos no podrán remunerarse en una cantidad inferior a 15 UMA. Si dichos recursos fueren concedidos y se tramitaren, se estará a lo dispuesto en el artículo 21.</div>`;
+        // Art. 31 y auxiliares
+        html += `<div class="dashboard-card"><h4>📌 Recursos ante la CSJN (art. 31)</h4><table><thead><tr><th>Concepto</th><th>Mínimo (UMA)</th><th>Mínimo ($)</th></tr></thead><tbody><tr><td>Queja por denegación de recurso</td><td>15 UMA</td><td>$${formatNumber(15 * uma)}</td></tr><tr><td>Interposición de recurso extraordinario, etc.</td><td>20 UMA</td><td>$${formatNumber(20 * uma)}</td></tr></tbody></table><div class="legal-box">Art. 31: La interposición ante la CSJN de los recursos extraordinarios, de inconstitucionalidad, de revisión, de casación, ordinarios, directos y otros similares o que no sean los normales de acceso, no podrá remunerarse en una cantidad inferior a 20 UMA. Las quejas por denegación de estos recursos no podrán remunerarse en una cantidad inferior a 15 UMA. Si dichos recursos fueren concedidos y se tramitaren, se estará a lo dispuesto en el artículo 21.</div></div>`;
+        html += `<div class="dashboard-card"><h4>🛠️ Auxiliares de justicia (5% y 10% de la base)</h4><table><thead><tr><th>Mínimo UMA</th>${esProvisorio ? '<th>Mínimo $</th>' : '<th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead><tbody><tr>${esProvisorio ? `<td>${auxMin.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}` : `<td>${auxMin.toFixed(2)}</td><td>${auxMax.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}</td><td>$${formatNumber(auxMax * uma)}`}</tr></tbody></table><div class="legal-box">La tabla muestra la regla general del art. 21 antepenúltimo párrafo según el cual el monto no puede ser inferior al 5% ni superior al 10% del monto del proceso.<br>Tené en cuenta que:<br>i) Ante labores altamente complejas o extensas el juez puede aplicar un porcentaje mayor (art. 21)<br>ii) Según el art. 21 es aplicable el art. 478 del CPCCN (principio de proporcionalidad con los demás profesionales y posibilidad de perforar los mínimos arancelarios)<br>iii) Según el art. 61 bis (incorporado por ley 27.802), los honorarios de los peritos no están vinculados a la cuantía del juicio ni al porcentaje de incapacidad y la regulación responde exclusivamente a la apreciación judicial. El monto mínimo es 2 UMA. Si el proceso finaliza por transacción, avenimiento y conciliación, sin que se haya presentado la pericia se regula 1/4 de UMA si aceptó el cargo.<br>iv) También sigue vigente el inc. b) del art. 25 según el cual si no se presentó la pericia se efectúa una regulación compensatoria adecuada en base al art. 16, pudiendo el perito detallar las tareas realizadas desde la aceptación del cargo.</div></div>`;
+        html += `<div class="dashboard-card"><h4>📌 Mínimos del art. 58 (juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos)</h4><table><thead><tr><th>Inciso</th><th>Mínimo (UMA)</th><th>Mínimo $</th></tr></thead><tbody><tr><td>a) procesos de conocimiento</td><td>10 UMA</td><td>$${formatNumber(10 * uma)}</td></tr><tr><td>b) ejecutivos</td><td>6 UMA</td><td>$${formatNumber(6 * uma)}</td></tr><tr><td>c) mediación</td><td>2 UMA</td><td>$${formatNumber(2 * uma)}</td></tr><tr><td>d) Auxiliares de la Justicia</td><td>4 UMA</td><td>$${formatNumber(4 * uma)}</td></tr></tbody></table><div class="legal-box">Art. 58: Mínimo establecido para regular honorarios de juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos.</div></div>`;
 
-        // Auxiliares
-        html += `<div class="dashboard-card"><h4>🛠️ Auxiliares de justicia (5% y 10% de la base)</h4>
-        <table>
-            <thead><tr><th>Mínimo UMA</th>${esProvisorio ? '' : '<th>Máximo UMA</th>'}<th>Mínimo $</th>${esProvisorio ? '' : '<th>Máximo $</th>'}</tr></thead>
-            <tbody>
-                ${esProvisorio ? `<tr><td>${auxMin.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}</td></tr>` : `<tr><td>${auxMin.toFixed(2)}</td><td>${auxMax.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}</td><td>$${formatNumber(auxMax * uma)}</td></tr>`}
-            </tbody>
-        </table>
-        <div class="legal-box">La tabla muestra la regla general del art. 21 antepenúltimo párrafo según el cual el monto no puede ser inferior al 5% ni superior al 10% del monto del proceso.<br>Tené en cuenta que:<br>i) Ante labores altamente complejas o extensas el juez puede aplicar un porcentaje mayor (art. 21)<br>ii) Según el art. 21 es aplicable el art. 478 del CPCCN (principio de proporcionalidad con los demás profesionales y posibilidad de perforar los mínimos arancelarios)<br>iii) Según el art. 61 bis (incorporado por ley 27.802), los honorarios de los peritos no están vinculados a la cuantía del juicio ni al porcentaje de incapacidad y la regulación responde exclusivamente a la apreciación judicial. El monto mínimo es 2 UMA. Si el proceso finaliza por transacción, avenimiento y conciliación, sin que se haya presentado la pericia se regula 1/4 de UMA si aceptó el cargo.<br>iv) También sigue vigente el inc. b) del art. 25 según el cual si no se presentó la pericia se efectúa una regulación compensatoria adecuada en base al art. 16, pudiendo el perito detallar las tareas realizadas desde la aceptación del cargo.</div></div>`;
-
-        // Mínimos art.58
-        html += `<div class="dashboard-card"><h4>📌 Mínimos del art. 58 (juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos)</h4>
-        <table>
-            <thead><tr><th>Inciso</th><th>Mínimo (UMA)</th><th>Mínimo $</th></tr></thead>
-            <tbody>
-                <tr><td style="font-weight:500;">a) procesos de conocimiento</td><td>10 UMA</td><td>$${formatNumber(10 * uma)}</td></tr>
-                <tr><td style="font-weight:500;">b) ejecutivos</td><td>6 UMA</td><td>$${formatNumber(6 * uma)}</td></tr>
-                <tr><td style="font-weight:500;">c) mediación</td><td>2 UMA</td><td>$${formatNumber(2 * uma)}</td></tr>
-                <tr><td style="font-weight:500;">d) Auxiliares de la Justicia</td><td>4 UMA</td><td>$${formatNumber(4 * uma)}</td></tr>
-            </tbody>
-        </table>
-        <div class="legal-box">Art. 58: Mínimo establecido para regular honorarios de juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos.</div></div>`;
+        // TABLA DEL PARTIDOR (solo para sucesión)
+        if (tipo === 'sucesion') {
+            const partidorMin = baseFinal * 0.02;
+            const partidorMax = baseFinal * 0.03;
+            html += `<div class="dashboard-card"><h4>💰 Honorarios del partidor</h4><table><thead><tr><th>Concepto</th><th>Porcentaje</th><th>Monto (UMA)</th><th>Monto ($)</th></tr></thead><tbody><tr><td>Mínimo</td><td>2%</td><td>${(partidorMin/uma).toFixed(2)}</td><td>$${formatNumber(partidorMin)}</td></tr><tr><td>Máximo</td><td>3%</td><td>${(partidorMax/uma).toFixed(2)}</td><td>$${formatNumber(partidorMax)}</td></tr></tbody></table><div class="legal-box">Art. 35 última parte: …Los honorarios del abogado o abogados partidores en conjunto, se fijarán sobre el valor del haber a dividirse, aplicando una escala del 2 % al 3% del total. Si se trata del auxiliar de Justicia, los honorarios derivados de la actuación como perito partidor para realizar y suscribir las cuentas particionarias juntamente con el letrado, será regulada en una escala del 2 % al 3% del valor de los bienes objeto de la partición.</div></div>`;
+        }
 
         document.getElementById('resultadosDinamicos').innerHTML = html;
 
-        // Configurar eventos de porcentaje
-        function setupPorc(checkboxId, inputId, applyId, resultId, baseMinUMA, baseMaxUMA, uma) {
-            const chk = document.getElementById(checkboxId);
+        // Eventos de porcentaje de etapa
+        function setupPorc(cbId, inputId, btnId, resId, baseMinUMA, baseMaxUMA, uma) {
+            const chk = document.getElementById(cbId);
             const div = document.getElementById(inputId);
-            const input = document.getElementById(inputId === 'porcPatroInput' ? 'porcPatroVal' : (inputId === 'porcApoInput' ? 'porcApoVal' : 'porcProcVal'));
-            const apply = document.getElementById(applyId);
-            const resultDiv = document.getElementById(resultId);
-            if (!chk || !div || !input || !apply || !resultDiv) return;
+            const inp = document.getElementById(inputId === 'porcPatroInput' ? 'porcPatroVal' : (inputId === 'porcApoInput' ? 'porcApoVal' : 'porcProcVal'));
+            const btn = document.getElementById(btnId);
+            const res = document.getElementById(resId);
+            if (!chk || !div || !inp || !btn || !res) return;
             chk.addEventListener('change', () => {
                 div.style.display = chk.checked ? 'flex' : 'none';
-                if (!chk.checked) resultDiv.style.display = 'none';
+                if (!chk.checked) res.style.display = 'none';
             });
-            apply.addEventListener('click', () => {
-                let val = parseInt(input.value);
+            btn.addEventListener('click', () => {
+                let val = parseInt(inp.value);
                 if (isNaN(val)) val = 100;
                 if (val < 1) val = 1;
                 if (val > 100) val = 100;
@@ -1160,20 +1169,16 @@
                 const maxVal = baseMaxUMA * (val / 100);
                 const minPesos = minVal * uma;
                 const maxPesos = maxVal * uma;
-                resultDiv.innerHTML = `<strong>Resultado del ${val}% de una etapa:</strong><br>
-                                       Mínimo: ${minVal.toFixed(2)} UMA ($${formatNumber(minPesos)})<br>
-                                       Máximo: ${maxVal.toFixed(2)} UMA ($${formatNumber(maxPesos)})`;
-                resultDiv.style.display = 'block';
+                res.innerHTML = `<strong>Resultado del ${val}% de una etapa:</strong><br>Mínimo: ${minVal.toFixed(2)} UMA ($${formatNumber(minPesos)})<br>Máximo: ${maxVal.toFixed(2)} UMA ($${formatNumber(maxPesos)})`;
+                res.style.display = 'block';
             });
         }
-
         const etapaMinUno = minFinal/3;
         const etapaMaxUno = maxFinal/3;
         const etapaMinApoUno = minApoFinal/3;
         const etapaMaxApoUno = maxApoFinal/3;
         const etapaMinProcUno = (minFinal/3) * 0.4;
         const etapaMaxProcUno = (maxFinal/3) * 0.4;
-
         setupPorc('calcPorcPatro', 'porcPatroInput', 'aplicarPorcPatro', 'resultadoPorcPatro', etapaMinUno, etapaMaxUno, uma);
         setupPorc('calcPorcApo', 'porcApoInput', 'aplicarPorcApo', 'resultadoPorcApo', etapaMinApoUno, etapaMaxApoUno, uma);
         setupPorc('calcPorcProc', 'porcProcInput', 'aplicarPorcProc', 'resultadoPorcProc', etapaMinProcUno, etapaMaxProcUno, uma);
@@ -1191,6 +1196,7 @@
                 if (wizardState.tipoProceso === 'exhorto') { wizardState.step = 5; renderScreen(); return; }
                 if (wizardState.tipoProceso === 'incidente') { wizardState.step = 4; renderScreen(); return; }
                 if (wizardState.tipoProceso === 'medida_cautelar') { wizardState.step = 2; renderScreen(); return; }
+                if (wizardState.tipoProceso === 'homologacion_desocupacion') { wizardState.step = 2; renderScreen(); return; }
             }
             if (wizardState.step === 2 && (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'incidente')) { wizardState.step = 4; renderScreen(); return; }
             if (wizardState.step === 2 && wizardState.tipoProceso !== 'conocimiento') { wizardState.step = 4; renderScreen(); return; }
