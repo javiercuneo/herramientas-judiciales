@@ -6,6 +6,7 @@
     <title>Asistente de Honorarios · Ley 27.423</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ... (estilos sin cambios) ... */
         * {
             box-sizing: border-box;
         }
@@ -1013,16 +1014,16 @@
         // Función para generar filas de tabla CORRECTA (sin colspan, sin "61")
         function generarFila(etiqueta, minUMA, maxUMA, minPesos, maxPesos) {
             if (esProvisorio) {
-                return `<tr><td style="font-weight:500;">${etiqueta}</td><td colspan="2">${minUMA.toFixed(2)}</td><td colspan="2">$${formatNumber(minPesos)}</td></tr>`;
+                return `<tr><td style="font-weight:500;">${etiqueta}</td><td>${minUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td></tr>`;
             } else {
-                return `<tr><td style="font-weight:500;">${etiqueta}</td><td colspan="2">${minUMA.toFixed(2)}</td><td colspan="2">${maxUMA.toFixed(2)}</td><td colspan="2">$${formatNumber(minPesos)}</td><td colspan="2">$${formatNumber(maxPesos)}</td></tr>`;
+                return `<tr><td style="font-weight:500;">${etiqueta}</td><td>${minUMA.toFixed(2)}</td><td>${maxUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td><td>$${formatNumber(maxPesos)}</td></tr>`;
             }
         }
 
         // Patrocinante
         html += `<div class="dashboard-card"><h4>👨‍⚖️ Patrocinante</h4>
         <table>
-            <thead><tr><th>Etapas</th><th colspan="2">Mínimo UMA</th>${esProvisorio ? '' : '<th colspan="2">Máximo UMA</th>'}<th colspan="2">Mínimo $</th>${esProvisorio ? '' : '<th colspan="2">Máximo $</th>'}61</thead>
+            <thead><tr><th>Etapas</th><th>Mínimo UMA</th>${esProvisorio ? '' : '<th>Máximo UMA</th>'}<th>Mínimo $</th>${esProvisorio ? '' : '<th>Máximo $</th>'}</tr></thead>
             <tbody>
                 ${generarFila("Juicio completo", minFinal, maxFinal, minFinal * uma, maxFinal * uma)}
                 ${generarFila("Una etapa (1/3)", minFinal/3, maxFinal/3, (minFinal/3) * uma, (maxFinal/3) * uma)}
@@ -1039,8 +1040,8 @@
 
         // Apoderado
         html += `<div class="dashboard-card"><h4>📑 Apoderado (+40%)</h4>
-        <tr>
-            <thead><tr><th>Etapas</th><th colspan="2">Mínimo UMA</th>${esProvisorio ? '' : '<th colspan="2">Máximo UMA</th>'}<th colspan="2">Mínimo $</th>${esProvisorio ? '' : '<th colspan="2">Máximo $</th>'}61</thead>
+        <table>
+            <thead><tr><th>Etapas</th><th>Mínimo UMA</th>${esProvisorio ? '' : '<th>Máximo UMA</th>'}<th>Mínimo $</th>${esProvisorio ? '' : '<th>Máximo $</th>'}</tr></thead>
             <tbody>
                 ${generarFila("Juicio completo", minApoFinal, maxApoFinal, minApoFinal * uma, maxApoFinal * uma)}
                 ${generarFila("Una etapa (1/3)", minApoFinal/3, maxApoFinal/3, (minApoFinal/3) * uma, (maxApoFinal/3) * uma)}
@@ -1058,8 +1059,8 @@
         // Procurador
         html += `<div class="legal-box" style="margin-bottom:0;">ARTÍCULO 20.- Los honorarios de los procuradores se fijarán en un 40% de los que por esta ley corresponda fijar a los abogados patrocinantes. Si el abogado actuare en carácter de apoderado sin patrocinio, percibirá la asignación total que hubiere correspondido a ambos.</div>
         <div class="dashboard-card"><h4>📋 Procurador (40% del patrocinante)</h4>
-        </table>
-            <thead><tr><th>Etapas</th><th colspan="2">Mínimo UMA</th>${esProvisorio ? '' : '<th colspan="2">Máximo UMA</th>'}<th colspan="2">Mínimo $</th>${esProvisorio ? '' : '<th colspan="2">Máximo $</th>'}61</thead>
+        <table>
+            <thead><tr><th>Etapas</th><th>Mínimo UMA</th>${esProvisorio ? '' : '<th>Máximo UMA</th>'}<th>Mínimo $</th>${esProvisorio ? '' : '<th>Máximo $</th>'}</tr></thead>
             <tbody>
                 ${generarFila("Juicio completo", minProc, maxProc, minProc * uma, maxProc * uma)}
                 ${generarFila("Una etapa (1/3)", minProc/3, maxProc/3, (minProc/3) * uma, (maxProc/3) * uma)}
@@ -1116,9 +1117,9 @@
         // Auxiliares
         html += `<div class="dashboard-card"><h4>🛠️ Auxiliares de justicia (5% y 10% de la base)</h4>
         <table>
-            <thead><tr><th colspan="2">Mínimo UMA</th>${esProvisorio ? '' : '<th colspan="2">Máximo UMA</th>'}<th colspan="2">Mínimo $</th>${esProvisorio ? '' : '<th colspan="2">Máximo $</th>'}61</thead>
+            <thead><tr><th>Mínimo UMA</th>${esProvisorio ? '' : '<th>Máximo UMA</th>'}<th>Mínimo $</th>${esProvisorio ? '' : '<th>Máximo $</th>'}</tr></thead>
             <tbody>
-                ${esProvisorio ? `<tr><td colspan="2">${auxMin.toFixed(2)}</td><td colspan="2">$${formatNumber(auxMin * uma)}</td></tr>` : `<tr><td colspan="2">${auxMin.toFixed(2)}</td><td colspan="2">${auxMax.toFixed(2)}</td><td colspan="2">$${formatNumber(auxMin * uma)}</td><td colspan="2">$${formatNumber(auxMax * uma)}</td></tr>`}
+                ${esProvisorio ? `<tr><td>${auxMin.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}</td></tr>` : `<tr><td>${auxMin.toFixed(2)}</td><td>${auxMax.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}</td><td>$${formatNumber(auxMax * uma)}</td></tr>`}
             </tbody>
         </table>
         <div class="legal-box">La tabla muestra la regla general del art. 21 antepenúltimo párrafo según el cual el monto no puede ser inferior al 5% ni superior al 10% del monto del proceso.<br>Tené en cuenta que:<br>i) Ante labores altamente complejas o extensas el juez puede aplicar un porcentaje mayor (art. 21)<br>ii) Según el art. 21 es aplicable el art. 478 del CPCCN (principio de proporcionalidad con los demás profesionales y posibilidad de perforar los mínimos arancelarios)<br>iii) Según el art. 61 bis (incorporado por ley 27.802), los honorarios de los peritos no están vinculados a la cuantía del juicio ni al porcentaje de incapacidad y la regulación responde exclusivamente a la apreciación judicial. El monto mínimo es 2 UMA. Si el proceso finaliza por transacción, avenimiento y conciliación, sin que se haya presentado la pericia se regula 1/4 de UMA si aceptó el cargo.<br>iv) También sigue vigente el inc. b) del art. 25 según el cual si no se presentó la pericia se efectúa una regulación compensatoria adecuada en base al art. 16, pudiendo el perito detallar las tareas realizadas desde la aceptación del cargo.</div></div>`;
