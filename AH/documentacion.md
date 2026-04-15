@@ -52,14 +52,6 @@ El asistente maneja un estado lineal de 6 pasos (`wizardState.step` de 0 a 5), p
 
 ---
 
-### Lógica de Retroceso ("◀ Atrás") y sus "Trampas"
-
-La función del botón "Atrás" tiene un comportamiento matemático estricto (`wizardState.step--`), es decir, **solo resta 1 al número del paso actual, sin recordar los saltos realizados hacia adelante**. Esto genera los siguientes flujos asimétricos:
-
-1.  **Retroceso normal:** Si hiciste la ruta lineal Paso 1 -> 2 -> 3 -> 4, "Atrás" te lleva 4 -> 3 -> 2 -> 1 correctamente.
-2.  **Trampa de retroceso con `exhorto`:** Si en el Paso 1 elegís `exhorto`, el sistema te salta al **Paso 5**. Si presionás "Atrás", te lleva al **Paso 4** (no al 1).
-3.  **Trampa de retroceso con `incidente` (Bucle infinito):** Si en el Paso 1 elegís `incidente`, el sistema te salta al **Paso 4**. Si presionás "Atrás", el paso baja a 3, pero la lógica del Paso 3 detecta que no es `conocimiento` e inmediatamente vuelve a sumar 1, forzándote de vuelta al **Paso 4**. El usuario queda atrapado en el Paso 4 y la única forma de salir es usando el botón "Reiniciar".
-
 ### Lógica de "Reiniciar"
 
 * **Acción:** Reemplaza el objeto completo de estado (`wizardState`) por sus valores en blanco/por defecto, borra todo el progreso y fuerza el `step` nuevamente a **0**.
