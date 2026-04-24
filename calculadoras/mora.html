@@ -1,314 +1,517 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calculadora de inicio de mora (sentencia / honorarios)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#f7fbff; --card:#ffffff; --muted:#6b7280; --text:#0f172a; --primary:#0b76f4; --accent:#0ea5a4; --border:#e6eef9;
-      --period1:#dbefff; --period2:#e6fff6; --period3:#fff4db;
-    }
-    body{font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',Roboto,Arial;margin:18px;background:var(--bg);color:var(--text)}
-    .container{max-width:980px;margin:0 auto}
-    .card{background:var(--card);border:1px solid var(--border);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(11,118,244,0.04);}
-    h1{font-size:1.3rem;margin:0 0 8px}
-    label{display:block;margin-top:10px;font-weight:600}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    input,select,button{padding:10px;border-radius:8px;border:1px solid #e9f1ff;font-size:0.95rem;background:#fff}
-    .small{font-size:0.9rem;color:var(--muted)}
-    /* CLASE DE ESTADO AGREGADA */
-    .status-message{margin-top:10px; padding:10px; border-radius:8px; display:none; font-size:0.9rem;}
-    .result{margin-top:12px;padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#f8fbff);border:1px solid var(--border)}
-    .trace{margin-top:10px;background:#fff;padding:12px;border-radius:8px;border:1px solid var(--border)}
-    button{background:var(--primary);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
-    button.ghost{background:transparent;color:var(--primary);border:1px solid rgba(11,118,244,0.12)}
-    .flex{display:flex;gap:12px;align-items:center}
-    .timeline{display:flex;gap:8px;align-items:center;margin-top:12px}
-    .period{padding:8px 10px;border-radius:8px;min-width:80px;text-align:center;font-size:0.9rem}
-    .legend{display:flex;gap:10px;margin-top:8px}
-    .legend span{display:flex;gap:6px;align-items:center}
-    .swatch{width:14px;height:14px;border-radius:4px;display:inline-block}
-    @media(max-width:720px){.row{flex-direction:column}.flex{flex-direction:column;align-items:flex-start}.timeline{flex-direction:column;align-items:flex-start}}
-  </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Calculadora de inicio de mora (sentencia / honorarios)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f7fd;
+            --card: #ffffff;
+            --muted: #5f6b7a;
+            --text: #0f172a;
+            --primary: #0b76f4;
+            --accent: #0ea5a4;
+            --border: #dce3f0;
+            --period1: #dbefff;
+            --period2: #e6fff6;
+            --period3: #fff4db;
+            --shadow: 0 10px 25px -8px rgba(11, 118, 244, 0.08);
+        }
+
+        body {
+            font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+            margin: 24px;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 28px 28px 32px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 16px;
+            color: var(--text);
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        input,
+        select,
+        button {
+            padding: 11px 12px;
+            border-radius: 10px;
+            border: 1px solid #d9e2f0;
+            font-size: 0.95rem;
+            background: #fff;
+            transition: border 0.15s, box-shadow 0.15s;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(11, 118, 244, 0.1);
+        }
+
+        .small {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        .status-message {
+            margin-top: 16px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            display: none;
+            font-size: 0.9rem;
+            background: #f8fdf8;
+            border: 1px solid var(--border);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #fff, #f8fbff);
+            border: 1px solid var(--border);
+        }
+
+        .trace {
+            margin-top: 20px;
+            background: #fff;
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.15s;
+        }
+
+        button:hover {
+            background: #0960c4;
+        }
+
+        button.ghost {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid rgba(11, 118, 244, 0.15);
+        }
+
+        button.ghost:hover {
+            background: rgba(11, 118, 244, 0.05);
+        }
+
+        .flex {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .timeline {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .period {
+            padding: 10px 14px;
+            border-radius: 12px;
+            min-width: 140px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .legend {
+            display: flex;
+            gap: 18px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend span {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (max-width: 720px) {
+            .row {
+                flex-direction: column;
+            }
+
+            .flex {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .timeline {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .input-group {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <h1>Calculadora de inicio de mora (sentencia / honorarios)</h1>
-      <p class="small">Calcula el vencimiento del pago (inicio de mora) según art. 257 CPCCN y los días corridos posteriores.</p>
+    <div class="container">
+        <div class="card">
+            <h1>Calculadora de inicio de mora (sentencia / honorarios)</h1>
 
-      <label>Fecha de notificación de la sentencia (DD / MM / AAAA)</label>
-      <div class="row">
-        <input id="d_dia" placeholder="DD" maxlength="2" style="width:86px" />
-        <input id="d_mes" placeholder="MM" maxlength="2" style="width:86px" />
-        <input id="d_anio" placeholder="AAAA" maxlength="4" style="width:118px" />
-      </div>
+            <label>Fecha de notificación de la sentencia (DD / MM / AAAA)</label>
+            <div class="row">
+                <input id="d_dia" placeholder="DD" maxlength="2" style="width:86px" inputmode="numeric" />
+                <input id="d_mes" placeholder="MM" maxlength="2" style="width:86px" inputmode="numeric" />
+                <input id="d_anio" placeholder="AAAA" maxlength="4" style="width:130px" inputmode="numeric" />
+            </div>
 
-      <label>Cantidad de días para el pago (días corridos)</label>
-      <input id="plazoDias" type="number" min="0" value="10" style="width:120px;margin-top:8px" />
+            <label for="diasHabiles">Días hábiles para que la sentencia se considere ejecutoriada o firme</label>
+            <input id="diasHabiles" type="number" min="1" step="1" value="10" style="width:130px;margin-top:6px" />
+            <p class="small" style="margin-top:4px;margin-bottom:0">
+                Ingrese la cantidad de días hábiles para que la sentencia se considere ejecutoriada o firme.
+                Si aplica el art. 257 CPCCN ingrese 10.
+            </p>
 
-      <div style="margin-top:12px" class="flex">
-        <div style="flex:1">
-          <button id="calcular">Calcular vencimiento</button>
-          <button id="reset" class="ghost" style="margin-left:8px">Limpiar</button>
-          <button id="force" class="ghost" style="margin-left:8px">Forzar recarga (cache)</button>
+            <label for="plazoDias">Cantidad de días para el pago (días corridos)</label>
+            <input id="plazoDias" type="number" min="0" step="1" value="10" style="width:130px;margin-top:6px" />
+
+            <div style="margin-top:24px" class="flex">
+                <div class="flex" style="gap:8px">
+                    <button id="calcular">Calcular vencimiento</button>
+                    <button id="reset" class="ghost">Limpiar</button>
+                    <button id="force" class="ghost">Forzar recarga (cache)</button>
+                </div>
+                <div style="flex:0 0 auto;text-align:right" class="small">Años soportados: <span id="anioRange"></span></div>
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
+
+            <div id="output" class="result" style="display:none">
+                <div id="vencimiento"></div>
+                <div id="periodos" style="margin-top:16px"></div>
+            </div>
+
+            <div id="trace" class="trace" style="display:none"></div>
         </div>
-        <div style="flex:0 0 220px;text-align:right" class="small">Años soportados: <span id="anioRange"></span></div>
-      </div>
-
-      <div id="statusMessage" class="status-message"></div>
-
-      <div id="output" class="result" style="display:none">
-        <div id="vencimiento"></div>
-        <div id="periodos" style="margin-top:12px"></div>
-      </div>
-
-      <div id="trace" class="trace" style="display:none"></div>
-
     </div>
-  </div>
 
-<script>
-// Utilities and inhábiles logic (same approach as other calculators)
-const API_BASE = 'https://api.argentinadatos.com/v1/feriados';
-const MIN_YEAR = 2021; let MAX_YEAR = new Date().getFullYear(); if (MAX_YEAR < 2025) MAX_YEAR = 2025;
-function toYmd(d){const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
-function parseYmd(str){const [y,m,day]=str.split('-').map(Number);return new Date(y,m-1,day)}
-function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
-function isWeekend(date){const dd=date.getDay();return dd===0||dd===6}
+    <script>
+        // Utilities and inhábiles logic (same approach as other calculators)
+        const API_BASE = 'https://api.argentinadatos.com/v1/feriados';
+        const MIN_YEAR = 2021; let MAX_YEAR = new Date().getFullYear(); if (MAX_YEAR < 2025) MAX_YEAR = 2025;
 
-// --- FUNCIONES DE FECHAS CLAVE (CORREGIDAS PARA 12 DÍAS DE FERIA) ---
-function thirdMondayOfJuly(year){
-    const d=new Date(year,6,1);
-    while(d.getDay()!==1) d.setDate(d.getDate()+1);
-    return addDays(d,14);
-}
+        function toYmd(d) { const y = d.getFullYear(); const m = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${day}` }
+        function parseYmd(str) { const [y, m, day] = str.split('-').map(Number); return new Date(y, m - 1, day) }
+        function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x }
+        function isWeekend(date) { const dd = date.getDay(); return dd === 0 || dd === 6 }
 
-function customInhabilesForYear(year){
-    const res=new Map();
-    
-    // 1. Feria Judicial de Enero (1 al 31 de enero, inclusive)
-    for(let day=1;day<=31;day++){
-      const d=new Date(year,0,day); 
-      res.set(toYmd(d),'Feria judicial de enero (art. 257 CPCCN)');
-    }
+        // --- FUNCIONES DE FECHAS CLAVE (CORREGIDAS PARA 12 DÍAS DE FERIA) ---
+        function thirdMondayOfJuly(year) {
+            const d = new Date(year, 6, 1);
+            while (d.getDay() !== 1) d.setDate(d.getDate() + 1);
+            return addDays(d, 14);
+        }
 
-    // 2. Feria Judicial de Invierno (12 días corridos)
-    const startFeria = thirdMondayOfJuly(year); 
-    
-    // El bucle corre por 12 días (i=0 a i=11).
-    for(let i=0;i<12;i++){ 
-        const diaFeria = addDays(startFeria, i);
-        res.set(toYmd(diaFeria),'Feria judicial de invierno (julio/agosto)');
-    }
-    
-    // 3. 16 de noviembre (ley local)
-    const nov16=new Date(year,10,16); 
-    res.set(toYmd(nov16),'16 de noviembre (ley local)');
-    
-    return res;
-}
-// --- FIN DE FUNCIONES DE FECHAS CLAVE ---
+        function customInhabilesForYear(year) {
+            const res = new Map();
 
+            // 1. Feria Judicial de Enero (1 al 31 de enero, inclusive)
+            for (let day = 1; day <= 31; day++) {
+                const d = new Date(year, 0, day);
+                res.set(toYmd(d), 'Feria judicial de enero (art. 257 CPCCN)');
+            }
 
-async function fetchFeriados(year) {
-  try {
-    const r = await fetch(`${API_BASE}/${year}`);
-    if (!r.ok) throw new Error('API feriados no disponible');
-    const data = await r.json();
-    const m = new Map();
-    data.forEach(f => {
-      if (f.fecha) m.set(f.fecha, f.nombre || f.tipo || 'Feriado');
-    });
-    return { success: true, feriados: m };
-  } catch (e) {
-    console.warn(`API feriados falló para el año ${year}`, e);
-    return { success: false, feriados: new Map() };
-  }
-}
+            // 2. Feria Judicial de Invierno (12 días corridos)
+            const startFeria = thirdMondayOfJuly(year);
+            for (let i = 0; i < 12; i++) {
+                const diaFeria = addDays(startFeria, i);
+                res.set(toYmd(diaFeria), 'Feria judicial de invierno (julio/agosto)');
+            }
 
-// robust custom overrides fetch with cache-buster
-async function tryFetch(url){try{const res=await fetch(url,{cache:'no-store'});if(res.ok)return {ok:true,data:await res.json(),url};return {ok:false,status:res.status,url}}catch(e){return {ok:false,error:e,url}}}
+            // 3. 16 de noviembre (ley local)
+            const nov16 = new Date(year, 10, 16);
+            res.set(toYmd(nov16), '16 de noviembre (ley local)');
 
-// --- FUNCION fetchCustomOverrides CORREGIDA PARA URL Y CLAVE JSON ---
-async function fetchCustomOverrides(){
-  // URL exacta del JSON
-  const CUSTOM_JSON_URL = 'https://jnc-34.github.io/jnc34/dias-inhabiles.json'; 
-  
-  const urlWithCacheBuster = CUSTOM_JSON_URL + '?_=' + Date.now();
-  
-  const r = await tryFetch(urlWithCacheBuster);
-  
-  if(r.ok){
-      console.log('custom_inhabiles loaded from', r.url); 
-      // CORRECCIÓN: Busca la clave correcta en tu JSON.
-      const overrides = r.data.dias_inhabiles_adicionales;
-      return Array.isArray(overrides) ? overrides : [];
-  }
-  
-  console.warn('No custom_inhabiles.json loaded from provided URL.');
-  return [];
-}
-// --- FIN DE CORRECCION fetchCustomOverrides ---
+            return res;
+        }
+        // --- FIN DE FUNCIONES DE FECHAS CLAVE ---
 
+        async function fetchFeriados(year) {
+            try {
+                const r = await fetch(`${API_BASE}/${year}`);
+                if (!r.ok) throw new Error('API feriados no disponible');
+                const data = await r.json();
+                const m = new Map();
+                data.forEach(f => {
+                    if (f.fecha) m.set(f.fecha, f.nombre || f.tipo || 'Feriado');
+                });
+                return { success: true, feriados: m };
+            } catch (e) {
+                console.warn(`API feriados falló para el año ${year}`, e);
+                return { success: false, feriados: new Map() };
+            }
+        }
 
-async function buildInhabilesForYears(years) {
-  const combined = new Map();
-  const loadedYears = [];
-  const failedYears = [];
+        // robust custom overrides fetch with cache-buster
+        async function tryFetch(url) { try { const res = await fetch(url, { cache: 'no-store' }); if (res.ok) return { ok: true, data: await res.json(), url }; return { ok: false, status: res.status, url } } catch (e) { return { ok: false, error: e, url } } }
 
-  for (const y of years) {
-    // 1. Cargar feriados nacionales (API)
-    const api = await fetchFeriados(y);
-    if (api.success) {
-      for (const [k, v] of api.feriados.entries()) combined.set(k, 'Feriado: ' + v);
-      loadedYears.push(y);
-    } else {
-      failedYears.push(y);
-    }
-    
-    // 2. Cargar feriados de Feria (codificados)
-    const custom = customInhabilesForYear(y);
-    for (const [k, v] of custom.entries()) combined.set(k, v);
-  }
+        // --- FUNCION fetchCustomOverrides CORREGIDA PARA URL Y CLAVE JSON ---
+        async function fetchCustomOverrides() {
+            const CUSTOM_JSON_URL = 'https://jnc-34.github.io/jnc34/dias-inhabiles.json';
+            const urlWithCacheBuster = CUSTOM_JSON_URL + '?_=' + Date.now();
+            const r = await tryFetch(urlWithCacheBuster);
+            if (r.ok) {
+                console.log('custom_inhabiles loaded from', r.url);
+                const overrides = r.data.dias_inhabiles_adicionales;
+                return Array.isArray(overrides) ? overrides : [];
+            }
+            console.warn('No custom_inhabiles.json loaded from provided URL.');
+            return [];
+        }
+        // --- FIN DE CORRECCION fetchCustomOverrides ---
 
-  // 3. Cargar Overrides (JSON local)
-  const overrides = await fetchCustomOverrides();
-  overrides.forEach(o => {
-    if (o && o.fecha && o.motivo) combined.set(o.fecha, o.motivo + ' (override)');
-  });
+        async function buildInhabilesForYears(years) {
+            const combined = new Map();
+            const loadedYears = [];
+            const failedYears = [];
 
-  return { inhMap: combined, loadedYears, failedYears };
-}
+            for (const y of years) {
+                const api = await fetchFeriados(y);
+                if (api.success) {
+                    for (const [k, v] of api.feriados.entries()) combined.set(k, 'Feriado: ' + v);
+                    loadedYears.push(y);
+                } else {
+                    failedYears.push(y);
+                }
 
+                const custom = customInhabilesForYear(y);
+                for (const [k, v] of custom.entries()) combined.set(k, v);
+            }
 
-function isInMapYmd(map,date){return map.has(toYmd(date))}
-function isBusinessDay(date,inhMap){return !isWeekend(date)&&!isInMapYmd(inhMap,date)}
-function nextBusinessDay(date,inhMap){let d=new Date(date);d.setHours(0,0,0,0);while(!isBusinessDay(d,inhMap)) d=addDays(d,1);return d}
-function nextBusinessDayStrict(date,inhMap){return nextBusinessDay(addDays(date,1),inhMap)}
-function countBusinessDaysFrom(startDate, days, inhMap){let counted=0;let cursor=new Date(startDate);cursor.setHours(0,0,0,0);while(counted<days){if(isBusinessDay(cursor,inhMap)) counted++; if(counted>=days) break; cursor=addDays(cursor,1);} return {lastCountedDay: cursor}}
+            const overrides = await fetchCustomOverrides();
+            overrides.forEach(o => {
+                if (o && o.fecha && o.motivo) combined.set(o.fecha, o.motivo + ' (override)');
+            });
 
-// UI wiring
-document.getElementById('anioRange').textContent = `${MIN_YEAR} - ${MAX_YEAR}`;
-const calcularBtn = document.getElementById('calcular'); const resetBtn = document.getElementById('reset'); const forceBtn = document.getElementById('force');
+            return { inhMap: combined, loadedYears, failedYears };
+        }
 
-resetBtn.addEventListener('click', ()=>{
-    ['d_dia','d_mes','d_anio'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('plazoDias').value='10';
-    document.getElementById('output').style.display='none';
-    document.getElementById('trace').style.display='none';
-    document.getElementById('statusMessage').style.display='none'; 
-});
-forceBtn.addEventListener('click', ()=>{ location.reload(true); });
+        function isInMapYmd(map, date) { return map.has(toYmd(date)) }
+        function isBusinessDay(date, inhMap) { return !isWeekend(date) && !isInMapYmd(inhMap, date) }
+        function nextBusinessDay(date, inhMap) { let d = new Date(date); d.setHours(0, 0, 0, 0); while (!isBusinessDay(d, inhMap)) d = addDays(d, 1); return d }
+        function nextBusinessDayStrict(date, inhMap) { return nextBusinessDay(addDays(date, 1), inhMap) }
+        function countBusinessDaysFrom(startDate, days, inhMap) { let counted = 0; let cursor = new Date(startDate); cursor.setHours(0, 0, 0, 0); while (counted < days) { if (isBusinessDay(cursor, inhMap)) counted++; if (counted >= days) break; cursor = addDays(cursor, 1); } return { lastCountedDay: cursor } }
 
-calcularBtn.addEventListener('click', async ()=>{
-  const dd=document.getElementById('d_dia').value; const dm=document.getElementById('d_mes').value; const dy=document.getElementById('d_anio').value;
-  if(!dd||!dm||!dy) return alert('Por favor ingrese la fecha de notificación');
-  const notif = new Date(Number(dy), Number(dm)-1, Number(dd)); notif.setHours(0,0,0,0);
-  const pagosCorridos = Number(document.getElementById('plazoDias').value) || 0;
+        // UI wiring
+        document.getElementById('anioRange').textContent = `${MIN_YEAR} - ${MAX_YEAR}`;
+        const calcularBtn = document.getElementById('calcular');
+        const resetBtn = document.getElementById('reset');
+        const forceBtn = document.getElementById('force');
 
-  // build inhábiles map for relevant years
-  const yearsToFetch = []; const y0 = notif.getFullYear(); for(let y=Math.max(MIN_YEAR,y0-1); y<=Math.max(MAX_YEAR,y0+1); y++) yearsToFetch.push(y);
-  
-  // Llamar a la función modificada y obtener el mapa y los estados de carga
-  const { inhMap, loadedYears, failedYears } = await buildInhabilesForYears(Array.from(new Set(yearsToFetch)).sort());
+        resetBtn.addEventListener('click', () => {
+            ['d_dia', 'd_mes', 'd_anio'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('diasHabiles').value = '10';
+            document.getElementById('plazoDias').value = '10';
+            document.getElementById('output').style.display = 'none';
+            document.getElementById('trace').style.display = 'none';
+            document.getElementById('statusMessage').style.display = 'none';
+        });
+        forceBtn.addEventListener('click', () => { location.reload(true); });
 
-  // Compute start: primer día efectivamente contado = día hábil siguiente al de la notificación
-  const startBiz = nextBusinessDayStrict(notif, inhMap);
+        calcularBtn.addEventListener('click', async () => {
+            const dd = document.getElementById('d_dia').value;
+            const dm = document.getElementById('d_mes').value;
+            const dy = document.getElementById('d_anio').value;
+            if (!dd || !dm || !dy) return alert('Por favor ingrese la fecha de notificación');
 
-  // Count 10 business days (art.257) starting from startBiz inclusive
-  const { lastCountedDay: lastBiz } = countBusinessDaysFrom(startBiz, 10, inhMap);
+            const notif = new Date(Number(dy), Number(dm) - 1, Number(dd));
+            notif.setHours(0, 0, 0, 0);
 
-  // After lastBiz, count pagosCorridos days corridos. We assume counting starts the day after lastBiz
-  const startCorr = addDays(lastBiz, 1);
-  const endCorr = addDays(startCorr, pagosCorridos-1); // inclusive count of pagosCorridos days
+            const diasHabiles = parseInt(document.getElementById('diasHabiles').value, 10) || 10;
+            const pagosCorridos = parseInt(document.getElementById('plazoDias').value, 10) || 0;
 
-  // Vencimiento: al final de endCorr (24:00). For display, show endCorr date and mention 'hasta las 24:00'
-  const vencimientoDate = endCorr; // time is end of day
+            // build inhábiles map for relevant years
+            const yearsToFetch = [];
+            const y0 = notif.getFullYear();
+            for (let y = Math.max(MIN_YEAR, y0 - 1); y <= Math.max(MAX_YEAR, y0 + 1); y++) yearsToFetch.push(y);
 
-  // --- MENSAJE DE ESTADO DE CARGA (TRANSPARENCIA) ---
-  const statusElem = document.getElementById('statusMessage');
-  let statusHTML = `<strong>Feriados nacionales cargados:</strong> ${loadedYears.sort().join(', ')} (vía API).`;
+            const { inhMap, loadedYears, failedYears } = await buildInhabilesForYears(Array.from(new Set(yearsToFetch)).sort());
 
-  if (failedYears.length > 0) {
-      statusHTML += `<br><span style="color:red; font-weight:600;">⚠️ Advertencia:</span> No se pudieron cargar los feriados nacionales (API) para el/los año(s): ${failedYears.sort().join(', ')}. Los días de **Feria** y feriados locales codificados (Enero, Julio, 16/11) SÍ fueron utilizados.`;
-      statusElem.style.borderColor = '#ff4d4f'; 
-      statusElem.style.background = '#fff0f0';
-  } else {
-      statusHTML += ` Los días de **Feria** y feriados locales codificados (Enero, Julio, 16/11) también fueron utilizados, junto a los días adicionales cargados por JSON.`;
-      statusElem.style.borderColor = 'var(--border)';
-      statusElem.style.background = '#f8fdf8';
-  }
-  
-  statusElem.innerHTML = statusHTML;
-  statusElem.style.display = 'block';
-  // --- FIN MENSAJE DE ESTADO DE CARGA ---
+            // Compute start: primer día efectivamente contado = día hábil siguiente al de la notificación
+            const startBiz = nextBusinessDayStrict(notif, inhMap);
 
-  // Output
-  document.getElementById('output').style.display='block';
-  const vencElem = document.getElementById('vencimiento');
-  vencElem.innerHTML = `<strong>Vencimiento del pago:</strong> ${vencimientoDate.toLocaleDateString('es-AR')} (hasta las 24:00).`;
+            // Count diasHabiles business days starting from startBiz inclusive
+            const { lastCountedDay: lastBiz } = countBusinessDaysFrom(startBiz, diasHabiles, inhMap);
 
-  // Periods display: timeline boxes + textual explanation
-  const periodos = document.getElementById('periodos'); periodos.innerHTML = '';
-  // timeline visual (simple boxes)
-  const timeline = document.createElement('div'); timeline.className='timeline';
-  const box1 = document.createElement('div'); box1.className='period'; box1.style.background='var(--period1)'; box1.innerHTML = `<strong>Notificación</strong><br>${notif.toLocaleDateString('es-AR')}`;
-  const box2 = document.createElement('div'); box2.className='period'; box2.style.background='var(--period2)'; box2.innerHTML = `<strong>10 días hábiles</strong><br>Inicio: ${startBiz.toLocaleDateString('es-AR')}<br>Fin: ${lastBiz.toLocaleDateString('es-AR')}`;
-  const box3 = document.createElement('div'); box3.className='period'; box3.style.background='var(--period3)'; box3.innerHTML = `<strong>${pagosCorridos} días corridos</strong><br>Inicio: ${startCorr.toLocaleDateString('es-AR')}<br>Fin: ${endCorr.toLocaleDateString('es-AR')}`;
-  timeline.appendChild(box1); timeline.appendChild(box2); timeline.appendChild(box3);
-  periodos.appendChild(timeline);
+            // After lastBiz, count pagosCorridos days corridos. Counting starts the day after lastBiz
+            const startCorr = addDays(lastBiz, 1);
+            const endCorr = addDays(startCorr, pagosCorridos - 1); // inclusive count of pagosCorridos days
 
-  // legend
-  const legend = document.createElement('div'); legend.className='legend';
-  legend.innerHTML = `<span><i class="swatch" style="background:var(--period1)"></i> Notificación</span><span><i class="swatch" style="background:var(--period2)"></i> 10 días hábiles (art.257)</span><span><i class="swatch" style="background:var(--period3)"></i> Días corridos para pago</span>`;
-  periodos.appendChild(legend);
+            const vencimientoDate = endCorr; // time is end of day (24:00)
 
-  // Trace: list which dates were counted in each period
-  const trace = document.getElementById('trace'); trace.style.display='block'; trace.innerHTML = '';
-  const p1 = document.createElement('div'); p1.innerHTML = `<strong>Detalle del cómputo</strong>`; trace.appendChild(p1);
+            // --- MENSAJE DE ESTADO DE CARGA (TRANSPARENCIA) ---
+            const statusElem = document.getElementById('statusMessage');
+            let statusHTML = `<strong>Feriados nacionales cargados:</strong> ${loadedYears.sort().join(', ')} (vía API).`;
 
-  // list business days counted
-  const ulBiz = document.createElement('ul'); ulBiz.style.padding='0'; ulBiz.style.listStyle='none'; ulBiz.style.marginTop='8px';
-  
-  // --- CORRECCIÓN EN EL BUCLE DE AUDITORÍA ---
-  // Ahora la auditoría comienza el día siguiente a la notificación (8/5/2024 -> 9/5/2024).
-  let startAudit = addDays(notif, 1);
-  let cur = new Date(startAudit); 
+            if (failedYears.length > 0) {
+                statusHTML += `<br><span style="color:#c00;font-weight:600;">⚠️ Advertencia:</span> No se pudieron cargar los feriados nacionales (API) para el/los año(s): ${failedYears.sort().join(', ')}. Los días de <strong>Feria</strong> y feriados locales codificados (Enero, Julio, 16/11) SÍ fueron utilizados.`;
+                statusElem.style.borderColor = '#ff4d4f';
+                statusElem.style.background = '#fff0f0';
+            } else {
+                statusHTML += ` Los días de <strong>Feria</strong> y feriados locales codificados (Enero, Julio, 16/11) también fueron utilizados, junto a los días adicionales cargados por JSON.`;
+                statusElem.style.borderColor = 'var(--border)';
+                statusElem.style.background = '#f8fdf8';
+            }
 
-  while(cur <= lastBiz){ // Audita hasta el final del período de 10 días hábiles
-      let statusText = '';
-      
-      if (isBusinessDay(cur, inhMap)) {
-          statusText = ' — contado (hábil)';
-      } else {
-          // Si no es hábil, obtiene el motivo o usa 'Fin de semana' por defecto.
-          const reason = inhMap.get(toYmd(cur)) || 'Fin de semana';
-          statusText = ` — descontado: ${reason} (no contado)`;
-      }
-      
-      const li=document.createElement('li'); 
-      li.textContent = `${cur.toLocaleDateString('es-AR')}${statusText}`; 
-      ulBiz.appendChild(li); 
-      
-      cur = addDays(cur,1); 
-  }
-  // --- FIN DE CORRECCIÓN EN EL BUCLE DE AUDITORÍA ---
-  
-  const wrapBiz = document.createElement('div'); 
-  wrapBiz.innerHTML = '<strong>Período de cómputo (desde el día siguiente a la notificación hasta el final de los 10 días hábiles)</strong>'; 
-  wrapBiz.appendChild(ulBiz); 
-  trace.appendChild(wrapBiz);
+            statusElem.innerHTML = statusHTML;
+            statusElem.style.display = 'block';
+            // --- FIN MENSAJE DE ESTADO DE CARGA ---
 
-  // list corridos days
-  const ulCorr = document.createElement('ul'); ulCorr.style.padding='0'; ulCorr.style.listStyle='none'; ulCorr.style.marginTop='8px'; let curC = new Date(startCorr); while(curC <= endCorr){ const li=document.createElement('li'); li.textContent = `${curC.toLocaleDateString('es-AR')} — contado (corridos)`; ulCorr.appendChild(li); curC = addDays(curC,1); }
-  const wrapCorr = document.createElement('div'); wrapCorr.innerHTML = `<strong>Período ${pagosCorridos} días corridos (fechas consideradas)</strong>`; wrapCorr.appendChild(ulCorr); trace.appendChild(wrapCorr);
+            // Output
+            document.getElementById('output').style.display = 'block';
+            const vencElem = document.getElementById('vencimiento');
+            vencElem.innerHTML = `<strong>Vencimiento del pago:</strong> ${vencimientoDate.toLocaleDateString('es-AR')} (hasta las 24:00).`;
 
-  // scroll into view
-  vencElem.scrollIntoView({behavior:'smooth'});
-});
-</script>
+            // Periods display
+            const periodos = document.getElementById('periodos');
+            periodos.innerHTML = '';
+            const timeline = document.createElement('div');
+            timeline.className = 'timeline';
+
+            const box1 = document.createElement('div');
+            box1.className = 'period';
+            box1.style.background = 'var(--period1)';
+            box1.innerHTML = `<strong>Notificación</strong><br>${notif.toLocaleDateString('es-AR')}`;
+
+            const box2 = document.createElement('div');
+            box2.className = 'period';
+            box2.style.background = 'var(--period2)';
+            box2.innerHTML = `<strong>${diasHabiles} días hábiles</strong><br>Inicio: ${startBiz.toLocaleDateString('es-AR')}<br>Fin: ${lastBiz.toLocaleDateString('es-AR')}`;
+
+            const box3 = document.createElement('div');
+            box3.className = 'period';
+            box3.style.background = 'var(--period3)';
+            box3.innerHTML = `<strong>${pagosCorridos} días corridos</strong><br>Inicio: ${startCorr.toLocaleDateString('es-AR')}<br>Fin: ${endCorr.toLocaleDateString('es-AR')}`;
+
+            timeline.appendChild(box1);
+            timeline.appendChild(box2);
+            timeline.appendChild(box3);
+            periodos.appendChild(timeline);
+
+            const legend = document.createElement('div');
+            legend.className = 'legend';
+            legend.innerHTML = `<span><i class="swatch" style="background:var(--period1)"></i> Notificación</span>
+                            <span><i class="swatch" style="background:var(--period2)"></i> ${diasHabiles} días hábiles (sentencia firme)</span>
+                            <span><i class="swatch" style="background:var(--period3)"></i> Días corridos para pago</span>`;
+            periodos.appendChild(legend);
+
+            // Trace
+            const trace = document.getElementById('trace');
+            trace.style.display = 'block';
+            trace.innerHTML = '';
+            const p1 = document.createElement('div');
+            p1.innerHTML = `<strong>Detalle del cómputo</strong>`;
+            trace.appendChild(p1);
+
+            const ulBiz = document.createElement('ul');
+            ulBiz.style.padding = '0';
+            ulBiz.style.listStyle = 'none';
+            ulBiz.style.marginTop = '8px';
+
+            let cur = addDays(notif, 1); // start audit day after notification
+            while (cur <= lastBiz) {
+                let statusText = '';
+                if (isBusinessDay(cur, inhMap)) {
+                    statusText = ' — contado (hábil)';
+                } else {
+                    const reason = inhMap.get(toYmd(cur)) || 'Fin de semana';
+                    statusText = ` — descontado: ${reason} (no contado)`;
+                }
+                const li = document.createElement('li');
+                li.textContent = `${cur.toLocaleDateString('es-AR')}${statusText}`;
+                ulBiz.appendChild(li);
+                cur = addDays(cur, 1);
+            }
+
+            const wrapBiz = document.createElement('div');
+            wrapBiz.innerHTML = `<strong>Período de cómputo (desde el día siguiente a la notificación hasta el final de los ${diasHabiles} días hábiles)</strong>`;
+            wrapBiz.appendChild(ulBiz);
+            trace.appendChild(wrapBiz);
+
+            const ulCorr = document.createElement('ul');
+            ulCorr.style.padding = '0';
+            ulCorr.style.listStyle = 'none';
+            ulCorr.style.marginTop = '8px';
+            let curC = new Date(startCorr);
+            while (curC <= endCorr) {
+                const li = document.createElement('li');
+                li.textContent = `${curC.toLocaleDateString('es-AR')} — contado (corridos)`;
+                ulCorr.appendChild(li);
+                curC = addDays(curC, 1);
+            }
+            const wrapCorr = document.createElement('div');
+            wrapCorr.innerHTML = `<strong>Período ${pagosCorridos} días corridos (fechas consideradas)</strong>`;
+            wrapCorr.appendChild(ulCorr);
+            trace.appendChild(wrapCorr);
+
+            vencElem.scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
 </body>
 </html>
