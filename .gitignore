@@ -1,12 +1,12 @@
-# Node (por si en el futuro lo usás)
-node_modules/
-
+@'
 # Logs
 *.log
 
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
+~$*
 
 # VS Code
 .vscode/
@@ -19,6 +19,8 @@ Thumbs.db
 *.tmp
 *.temp
 
-# Build
+# Build/Node
+node_modules/
 dist/
 build/
+'@ | Out-File -FilePath .gitignore -Encoding utf8
