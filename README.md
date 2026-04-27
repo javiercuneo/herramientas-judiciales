@@ -42,7 +42,7 @@
 
 | Herramienta | Descripción | Enlace |
 |-------------|-------------|--------|
-| **Calculadora de honorarios (Ley 27.423)** | Calcula honorarios profesionales de abogados y auxiliares según la Ley 27.42. | [Abrir](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios.html) |
+| **Calculadora de honorarios (Ley 27.423)** | Calcula honorarios profesionales de abogados y auxiliares según la Ley 27.423  . | [Abrir](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios.html) |
 | **Calculadora de honorarios del mediador** | Calcula los honorarios del mediador conforme a la Ley 26.589 | [Abrir](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html) |
 | **Calculadora de prorrateo (art. 730 CCCN)** | Realiza el cálculo del prorrateo del art. 730 del Código Civil y Comercial | [Abrir](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/prorrateo.html) |
 
