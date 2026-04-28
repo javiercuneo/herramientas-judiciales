@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -342,39 +342,50 @@
 
             const startDate = new Date(y, m - 1, d);
             
-            // --- CÁLCULO ORDINARIO ---
+            // --- CÁLCULO ORDINARIO (solo ferias, corregido) ---
             let ordDate = new Date(startDate);
             let ordObs = [];
-            let feriasJulioVistas = new Set();
 
+            // Sumar los meses del plazo, salteando los eneros
             for (let i = 0; i < plazo; i++) {
                 let dayRef = ordDate.getDate();
                 ordDate.setMonth(ordDate.getMonth() + 1);
+                // Ajuste por meses que no tienen ese día (ej. 31 -> 28/30)
                 if (ordDate.getDate() !== dayRef) ordDate.setDate(0);
 
+                // Si caímos en enero, lo salteamos entero
                 if (ordDate.getMonth() === 0) {
                     ordObs.push(`Se excluyó enero ${ordDate.getFullYear()} (feria)`);
-                    ordDate.setMonth(1);
-                }
-                
-                let curY = ordDate.getFullYear();
-                let fJul = getFeriaJulyRange(curY);
-                if (ordDate >= fJul.start && !feriasJulioVistas.has(curY)) {
-                    feriasJulioVistas.add(curY);
+                    ordDate.setMonth(1); // febrero
+                    if (ordDate.getDate() !== dayRef) ordDate.setDate(0);
                 }
             }
 
-            feriasJulioVistas.forEach(yr => {
-                let range = getFeriaJulyRange(yr);
-                ordDate.setDate(ordDate.getDate() + 12);
-                ordObs.push(`Se atravesó la feria de julio ${yr} (${range.start.toLocaleDateString('es-AR')} al ${range.end.toLocaleDateString('es-AR')}) y se agregaron 12 días`);
-            });
+            // Agregar las ferias de julio que realmente se atraviesen (superposición)
+            let changed;
+            do {
+                changed = false;
+                for (let yr = startDate.getFullYear(); yr <= ordDate.getFullYear(); yr++) {
+                    let feria = getFeriaJulyRange(yr);
+                    // ¿El intervalo [startDate, ordDate] se superpone con la feria?
+                    if (startDate <= feria.end && ordDate >= feria.start) {
+                        ordDate.setDate(ordDate.getDate() + 12);
+                        ordObs.push(
+                            `Se atravesó la feria de julio ${yr} ` +
+                            `(${feria.start.toLocaleDateString('es-AR')} al ${feria.end.toLocaleDateString('es-AR')}) ` +
+                            `y se agregaron 12 días`
+                        );
+                        changed = true;
+                        break; // reiniciamos verificación con la nueva fecha
+                    }
+                }
+            } while (changed);
 
             document.getElementById('resultDate').innerText = ordDate.toLocaleDateString('es-AR');
             document.getElementById('resultDetails').innerHTML = `<strong>Inicio:</strong> ${startDate.toLocaleDateString('es-AR')}<br><strong>Observaciones:</strong><br>${ordObs.map(o => `• ${o}`).join('<br>')}`;
 
-            // --- CÁLCULO FULL (SUSPENSIÓN CON LISTADO) ---
-            // Este código se ejecuta pero los resultados se guardan en elementos ocultos
+            // --- CÁLCULO FULL (con días inhábiles y feriados) ---
+            // Este cómputo se sigue haciendo igual, pero se muestra en la sección oculta
             let inhabilesList = [];
             
             let fullDate = new Date(ordDate);
@@ -441,7 +452,7 @@
                     </ul>
                 </details>` : '';
 
-            // Los resultados del cómputo con feriados se asignan a los elementos ocultos
+            // Resultados del cómputo con feriados (ocultos)
             document.getElementById('resultDateFull').innerText = fullDate.toLocaleDateString('es-AR');
             document.getElementById('resultDetailsFull').innerHTML = `Se adicionaron <strong>${inhabilesList.length} días inhábiles</strong> extra (fuera de ferias).<strong>${adObs}</strong>${listHTML}`;
 
