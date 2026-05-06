@@ -1,7 +1,7 @@
 // Estado global
 let wizardState = {
     step: 0,
-    valorUMA: 89875,
+    valorUMA: 92482,   // valor inicial realista
     tipoProceso: '',
     modoTerminacion: '',
     sentenciaResultado: null,
@@ -20,7 +20,7 @@ let wizardState = {
 function recolectarDatos() {
     if (wizardState.step === 0) {
         const input = document.getElementById('inputUMA');
-        if (input) wizardState.valorUMA = parseNumber(input.value) || 89875;
+        if (input) wizardState.valorUMA = parseNumber(input.value) || valorUMA;
     }
     if (wizardState.step === 4) {
         const input = document.getElementById('baseInputNum');

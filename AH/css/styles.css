@@ -295,10 +295,22 @@ body.dark .badge {
     margin-top: 10px;
     margin-bottom: 20px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 12px;
-    flex-wrap: wrap;
 }
+
+/* Para que el resultado no desborde y quede en línea aparte */
+.resultado-porcentaje {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px 16px;
+    background: var(--info-bg);
+    border-radius: 16px;
+    font-weight: 500;
+    box-sizing: border-box;
+}
+
 .percentage-input input {
     width: 100px;
     padding: 6px 10px;
@@ -307,13 +319,7 @@ body.dark .badge {
     background: var(--bg-card);
     color: var(--text-primary);
 }
-.resultado-porcentaje {
-    background: var(--info-bg);
-    padding: 12px 16px;
-    border-radius: 16px;
-    margin-top: 15px;
-    font-weight: 500;
-}
+
 .error-msg {
     color: #e74c3c;
     font-size: 0.8rem;
@@ -328,4 +334,18 @@ body.dark .badge {
     .grid-2col { grid-template-columns: 1fr; }
     .header { flex-direction: column; align-items: flex-start; }
     .header-actions { align-self: flex-end; }
+}
+details summary {
+    list-style: none; /* oculta el triángulo por defecto si querés personalizarlo después */
+}
+details summary::-webkit-details-marker {
+    display: none;
+}
+details summary::before {
+    content: '▸ ';
+    display: inline-block;
+    transition: transform 0.2s;
+}
+details[open] summary::before {
+    transform: rotate(90deg);
 }

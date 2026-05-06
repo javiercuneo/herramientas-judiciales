@@ -82,9 +82,9 @@
             case 0:
                 html += `<div class="warning-box"><strong>Bienvenido!</strong><br>Este asistente interactivo lo guiará en el proceso de estimación de honorarios mediante la selección de opciones. Antes de comenzar, por favor tenga en cuenta las siguientes consideraciones legales y técnicas:</div>
                 <div class="card-info"><strong>Naturaleza de la herramienta</strong><br>• Alcance: Los resultados se basan en interpretaciones de la <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/305000-309999/305057/texact.htm" target="_blank">Ley 27.423</a> que podrían diferir de su criterio profesional o del aplicado por los tribunales.<br>• Fundamentación: En cada paso, intentaremos explicitar el fundamento jurídico y su impacto en el cálculo.<br>• Limitación de responsabilidad: Esta herramienta es de carácter referencial; no sustituye el criterio del juez natural de la causa ni debe considerarse un dictamen profesional.</div>
-                <div class="card-info"><strong>Ámbito de aplicación temporal</strong><br>• Vigencia: La ley 27423 se publicó en el BO el 22/12/17.<br>Si seguís el criterio de aplicación inmediata a todos los juicios en trámite, incluidos los iniciados antes de su entrada en vigencia, podes usarlo para esos procesos.<br>Si te basas en el precedente <a href="https://sjconsulta.csjn.gov.ar/sjconsulta/documentos/verDocumentoByIdLinksJSP.html?idDocumento=7473801&cache=1551129603472" target="_blank">“Establecimiento Las Marías”</a> (CSJN, 04/09/2018) podes usarlo para las etapas con principio de ejecución bajo la nueva ley.</div>
+                <div class="card-info"><strong>Ámbito de aplicación temporal</strong><br>• Vigencia: La ley 27423 se publicó en el BO el 22/12/17.<br>• Si seguís el criterio de aplicación inmediata a todos los juicios en trámite, incluidos los iniciados antes de su entrada en vigencia, podes usarlo para esos procesos.<br>• Si te basas en el precedente <a href="https://sjconsulta.csjn.gov.ar/sjconsulta/documentos/verDocumentoByIdLinksJSP.html?idDocumento=7473801&cache=1551129603472" target="_blank">“Establecimiento Las Marías”</a> (CSJN, 04/09/2018) podes usarlo para las etapas con principio de ejecución bajo la nueva ley.</div>
                 <div class="card-info"><strong>Restricciones y exclusiones del cálculo</strong><br>• Mínimos arancelarios: El asistente no aplica automáticamente los mínimos de los arts. 58, 61, etc. Si el resultado es menor a dichos mínimos y los consideras aplicables, debes desestimar el cálculo. De todos modos los mostramos en el resultado final.<br>• Reducciones y topes: No se contemplan las limitaciones por prorrateo (art. 730 CCyCN), reajuste de precio (art. 1255 CCyCN), ejecución hipotecaria especial (art. 60 Ley 24.441) o régimen de vivienda (art. 254 CCyCN / art. 48 Ley 14.394).<br>• Materias excluidas: la herramienta no está pensada para casos penales, laborales o de familia.<br>• Asuntos no susceptibles de apreciación pecuniaria: para casos sin monto determinado no es posible un cálculo matemático; se debe recurrir a las pautas del art. 16 y si son aplicables, los mínimos legales.</div>
-                <div class="card-info"><strong>Auxiliares de justicia</strong><br>• Leyes especiales: no se incluyen las pautas de las leyes especiales que reglamenten cada actividad profesional (art. 1, 2° párrafo de la ley 27423) ni las modificaciones de la <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/420000-424999/423680/norma.htm" target="_blank">Ley 27.802 (Modernización Laboral)</a> pero se muestran algunas reglas incorporadas por ésta.<br>• Excluidos: no contempla los cálculos de los honorarios de los administradores judiciales, interventores o veedores, interventores recaudadores, liquidadores judiciales, árbitros, mediadores o amigables componedores (art. 32).<br>• Mediadores: tienen normativa propia (<a href="http://servicios.infoleg.gob.ar/infolegInternet/anexos/165000-169999/166999/texact.htm" target="_blank">Ley 26.589</a> y Decretos <a href="http://servicios.infoleg.gob.ar/infolegInternet/anexos/255000-259999/255741/norma.htm" target="_blank">2536/15</a> y <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/415000-419999/418049/norma.htm" target="_blank">696/2025</a>). Puede utilizar nuestra <a href="https://sites.google.com/view/juzgadocivil34/home/calculadora-de-honorarios-de-mediaci%C3%B3n?authuser=0" target="_blank">calculadora web</a>.</div>
+                <div class="card-info"><strong>Auxiliares de justicia</strong><br>• Leyes especiales: no se incluyen las pautas de las leyes especiales que reglamenten cada actividad profesional (art. 1, 2° párrafo de la ley 27423) ni las modificaciones de la <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/420000-424999/423680/norma.htm" target="_blank">Ley 27.802 (Modernización Laboral)</a> pero se muestran algunas reglas incorporadas por ésta.<br>• Excluidos: no contempla los cálculos de los honorarios de los administradores judiciales, interventores o veedores, interventores recaudadores, liquidadores judiciales, árbitros, mediadores o amigables componedores (art. 32).<br>• Mediadores: tienen normativa propia (<a href="http://servicios.infoleg.gob.ar/infolegInternet/anexos/165000-169999/166999/texact.htm" target="_blank">Ley 26.589</a> y Decretos <a href="http://servicios.infoleg.gob.ar/infolegInternet/anexos/255000-259999/255741/norma.htm" target="_blank">2536/15</a> y <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/415000-419999/418049/norma.htm" target="_blank">696/2025</a>). Puede utilizar nuestra <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html" target="_blank">calculadora web</a>.</div>
                 <div class="card-info"><strong>Reconvención y acumulación de acciones</strong><br>• Art. 28: en estos supuestos, los honorarios se regulan por separado para cada acción. Le sugerimos reiniciar el asistente para cada una de las pretensiones según sus particularidades.</div>
                 <div style="margin-top:25px;"><h3>Valor de la Unidad de Medida Arancelaria (UMA)</h3><div class="legal-box">Ingresa el valor de la UMA actualizado</div><input type="text" id="inputUMA" class="input-ui" value="${formatNumber(wizardState.valorUMA)}"></div>`;
                 break;
@@ -102,7 +102,8 @@
                             <select id="objetoBaseSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="desalojo">Desalojo</option><option value="sumas_dinero">Juicios en los que se reclaman sumas de dinero</option><option value="inmuebles">Juicios en los que se discuten cuestiones atinentes a inmuebles o muebles</option><option value="derechos_crediticios">Juicio sobre derechos crediticios</option><option value="titulos_acciones">Juicio sobre títulos de renta o acciones</option><option value="establecimientos">Juicio sobre establecimientos comerciales, industriales o mineros</option><option value="uso_habitacion">Juicio sobre derecho de uso o habitación</option><option value="escrituracion">Juicio de escrituración</option></select>
                             <div id="subObjetoBase"></div>
                             <div id="errorObjeto" class="error-msg"></div>`;
-                } else { wizardState.step = 4; renderScreen(); return; }
+                } else { wizardState.step = 2; 
+                    renderScreen(); return; }
                 break;
             case 4:
                 html += `<div id="baseContainer"></div>`;
@@ -361,12 +362,23 @@
             }
         });
         document.getElementById('btnReset')?.addEventListener('click', () => {
-            wizardState = {
-                step: 0, valorUMA: wizardState.valorUMA, tipoProceso: '', modoTerminacion: '', sentenciaResultado: null,
-                aperturaPrueba: null, caducidadCriterio: '', tuvoExcepciones: null, sucesionUnicoLetrado: false,
-                medidaOposicion: null, homologacionVivienda: false, objetoBase: '', desalojoVivienda: false,
-                baseValor: 0, esProvisorio: false
-            };
-            renderScreen();
-        });
+    wizardState = {
+        step: 0,
+        valorUMA: window.valorUMA || 92482,  // conserva la UMA actualizada
+        tipoProceso: '',
+        modoTerminacion: '',
+        sentenciaResultado: null,
+        aperturaPrueba: null,
+        caducidadCriterio: '',
+        tuvoExcepciones: null,
+        sucesionUnicoLetrado: false,
+        medidaOposicion: null,
+        homologacionVivienda: false,
+        objetoBase: '',
+        desalojoVivienda: false,
+        baseValor: 0,
+        esProvisorio: false
+    };
+    renderScreen();
+});
     }
