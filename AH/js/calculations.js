@@ -2,7 +2,7 @@
 // CÁLCULO FINAL (completo y corregido)
 // --------------------------------------------------------------
 function calcularFinal() {
-    if (!validarPasoActual()) return;
+if (validarPasoActual() !== '') return;
     recolectarDatos();
     const tipo = wizardState.tipoProceso;
     const uma = wizardState.valorUMA;

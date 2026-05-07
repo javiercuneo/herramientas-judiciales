@@ -154,6 +154,15 @@
         }
     }
 
+    function mostrarErrorEnPaso(msg) {
+        document.querySelectorAll('.error-msg').forEach(el => el.innerHTML = '');
+        if (!msg) return;
+        const step = wizardState.step;
+        const map = { 1: 'errorTipoProceso', 2: 'errorContingencias', 3: 'errorObjeto', 4: 'errorBase' };
+        const el = document.getElementById(map[step]);
+        if (el) el.innerHTML = msg;
+    }
+
     function renderContingencias() {
         const tipo = wizardState.tipoProceso;
         const container = document.getElementById('contingenciasContainer');
@@ -162,6 +171,7 @@
         if (tipo === 'conocimiento' || tipo === 'ejecucion_sentencia' || tipo === 'ejecutivo') {
             html += `<div class="legal-box">El modo en que termina el proceso tiene un impacto directo en el cálculo, ya que afecta tanto la alícuota aplicable como la base económica. Por favor, seleccioná la forma de finalización para ajustar el resultado a las pautas legales correspondientes</div>
                      <select id="modoTerminacionSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="sentencia">Sentencia</option><option value="modos_anormales">Modos anormales: allanamiento, transacción, desistimiento</option><option value="caducidad">Caducidad</option><option value="provisorios">Honorarios provisorios (art.12)</option></select>
+                     <div id="errorContingencias" class="error-msg"></div>
                      <div id="subTerminacion"></div>`;
             if (tipo === 'ejecucion_sentencia' || tipo === 'ejecutivo') {
                 html += `<div class="legal-box" style="margin-top:20px;"><strong>Excepciones</strong><br>${tipo === 'ejecucion_sentencia' ? 'La oposición de excepciones es un factor determinante en el proceso de ejecución ya que su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular.<br>ARTÍCULO 41.- En el procedimiento de ejecución de sentencias…no habiendo excepciones, los honorarios se reducirán en un 10%...' : 'La oposición de excepciones es un factor determinante en el proceso ejecutivo, ya que además de modificar la estructura de las etapas (art. 29, inc. f), su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular.<br>ARTÍCULO 34.- En los juicios ejecutivos y ejecuciones especiales…No habiendo excepciones, los honorarios se reducirán en un 10%...'}</div>
@@ -332,7 +342,7 @@
         } else if (tipo === 'incidente') {
             leyendaHtml = `<div class="legal-box">Por lo general, algunos incidentes se consideran de valor autónomo (o lo discutido) y en otros, su base es el del juicio principal.</div><input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
         }
-        container.innerHTML = introHtml + leyendaHtml;
+        container.innerHTML = introHtml + `<div id="errorBase" class="error-msg"></div>` + leyendaHtml;
     }
 
     function attachStepEvents() {
@@ -342,7 +352,12 @@
                 return;
             }
             recolectarDatos();
-            if (!validarPasoActual()) return;
+            const errorMsg = validarPasoActual();
+            if (errorMsg) {
+                mostrarErrorEnPaso(errorMsg);
+                return;
+            }
+            mostrarErrorEnPaso('');
             if (wizardState.step === 1) {
                 if (wizardState.tipoProceso === 'exhorto') { wizardState.step = 5; renderScreen(); return; }
                 if (wizardState.tipoProceso === 'incidente') { wizardState.step = 4; renderScreen(); return; }
@@ -375,7 +390,7 @@
         medidaOposicion: null,
         homologacionVivienda: false,
         objetoBase: '',
-        desalojoVivienda: false,
+        desalojoVivienda: null,
         baseValor: 0,
         esProvisorio: false
     };

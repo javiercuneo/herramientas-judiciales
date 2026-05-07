@@ -12,7 +12,7 @@ let wizardState = {
     medidaOposicion: null,
     homologacionVivienda: false,
     objetoBase: '',
-    desalojoVivienda: false,
+    desalojoVivienda: null,
     baseValor: 0,
     esProvisorio: false
 };
@@ -32,76 +32,61 @@ function validarPasoActual() {
     const step = wizardState.step;
     if (step === 1) {
         if (!wizardState.tipoProceso) {
-            const errorEl = document.getElementById('errorTipoProceso');
-            if (errorEl) errorEl.innerHTML = 'Debe seleccionar un tipo de proceso.';
-            return false;
+            return 'Debe seleccionar un tipo de proceso.';
         }
-        return true;
+        return '';
     }
     if (step === 2) {
         if (wizardState.tipoProceso === 'conocimiento' || wizardState.tipoProceso === 'ejecucion_sentencia' || wizardState.tipoProceso === 'ejecutivo') {
             if (!wizardState.modoTerminacion) {
-                alert('Debe seleccionar una forma de terminación.');
-                return false;
+                return 'Debe seleccionar una forma de terminación.';
             }
             if (wizardState.modoTerminacion === 'sentencia' && !wizardState.sentenciaResultado) {
-                alert('Debe seleccionar si la demanda fue admitida o rechazada.');
-                return false;
+                return 'Debe seleccionar si la demanda fue admitida o rechazada.';
             }
             if (wizardState.modoTerminacion === 'modos_anormales' && wizardState.aperturaPrueba === null) {
-                alert('Debe indicar si se produjo antes o después de la apertura a prueba.');
-                return false;
+                return 'Debe indicar si se produjo antes o después de la apertura a prueba.';
             }
             if (wizardState.modoTerminacion === 'caducidad' && !wizardState.caducidadCriterio) {
-                alert('Debe seleccionar un criterio para la caducidad.');
-                return false;
+                return 'Debe seleccionar un criterio para la caducidad.';
             }
             if (wizardState.modoTerminacion === 'caducidad' && wizardState.caducidadCriterio === 'art25' && wizardState.aperturaPrueba === null) {
-                alert('Debe indicar si la caducidad se declaró antes o después de la apertura a prueba.');
-                return false;
+                return 'Debe indicar si la caducidad se declaró antes o después de la apertura a prueba.';
             }
             if ((wizardState.tipoProceso === 'ejecucion_sentencia' || wizardState.tipoProceso === 'ejecutivo') && wizardState.tuvoExcepciones === null) {
-                alert('Debe indicar si se dedujeron excepciones.');
-                return false;
+                return 'Debe indicar si se dedujeron excepciones.';
             }
         } else if (wizardState.tipoProceso === 'sucesion') {
             if (wizardState.sucesionUnicoLetrado === null) {
-                alert('Debe indicar si intervino un solo abogado o varios.');
-                return false;
+                return 'Debe indicar si intervino un solo abogado o varios.';
             }
         } else if (wizardState.tipoProceso === 'medida_cautelar') {
             if (wizardState.medidaOposicion === null) {
-                alert('Debe indicar si hubo oposición en la medida cautelar.');
-                return false;
+                return 'Debe indicar si hubo oposición en la medida cautelar.';
             }
         } else if (wizardState.tipoProceso === 'homologacion_desocupacion') {
             if (wizardState.homologacionVivienda === null) {
-                alert('Debe indicar si la locación era para vivienda.');
-                return false;
+                return 'Debe indicar si la locación era para vivienda.';
             }
         }
-        return true;
+        return '';
     }
     if (step === 3 && wizardState.tipoProceso === 'conocimiento') {
         if (!wizardState.objetoBase) {
-            const errorEl = document.getElementById('errorObjeto');
-            if (errorEl) errorEl.innerHTML = 'Debe seleccionar el objeto del juicio.';
-            return false;
+            return 'Debe seleccionar el objeto del juicio.';
         }
         if (wizardState.objetoBase === 'desalojo' && wizardState.desalojoVivienda === null) {
-            alert('Debe indicar si el alquiler es para vivienda o demás casos.');
-            return false;
+            return 'Debe indicar si el alquiler es para vivienda o demás casos.';
         }
-        return true;
+        return '';
     }
     if (step === 4) {
         if (!wizardState.baseValor || wizardState.baseValor <= 0) {
-            alert('Debe ingresar un monto válido para la base regulatoria.');
-            return false;
+            return 'Debe ingresar un monto válido para la base regulatoria.';
         }
-        return true;
+        return '';
     }
-    return true;
+    return '';
 }
 
 // Exponer globalmente
