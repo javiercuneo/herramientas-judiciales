@@ -42,8 +42,8 @@ if (validarPasoActual() !== '') return;
             <h3>Incidente (art.33 ley 21839)</h3>
             <table>
                 <tr><th>Concepto</th><th>UMA</th><th>Pesos ($)</th></tr>
-                <tr><td colspan="2">Mínimo (2%)</td><td>${minUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td></tr>
-                <tr><td colspan="2">Máximo (20%)</td><td>${maxUMA.toFixed(2)}</td><td>$${formatNumber(maxPesos)}</td></tr>
+                <tr><td>Mínimo (2%)</td><td>${minUMA.toFixed(2)}</td><td>$${formatNumber(minPesos)}</td></tr>
+                <tr><td>Máximo (20%)</td><td>${maxUMA.toFixed(2)}</td><td>$${formatNumber(maxPesos)}</td></tr>
             </table>
             <div class="legal-box">Tener en cuenta que según el inc. g) del art. 29, “los incidentes se dividirán en 2 etapas; la primera se compone del planteo que lo origine, sea verbal o escrito, y la segunda, del desarrollo hasta su conclusión”.</div></div>`;
         document.getElementById('resultadosDinamicos').innerHTML = html;
