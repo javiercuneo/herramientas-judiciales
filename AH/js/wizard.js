@@ -143,7 +143,10 @@
                         msgDiv.innerHTML = wizardState.desalojoVivienda ? `<div class="legal-box">En el caso de que el destino del contrato sea para vivienda, el monto de la base se reduce en un 20 %.Cuando llegues al cálculo final, la base que ingreses se encontrará reducida en ese porcentaje<br>Art. 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato. En el caso de que la locación sea para vivienda y/o habitación, tal monto se reducirá en un 20 %</div>` : '';
                     });
                     if (selLoc.value === 'vivienda') document.getElementById('locacionMensaje').innerHTML = `<div class="legal-box">En el caso de que el destino del contrato sea para vivienda, el monto de la base se reduce en un 20 %.Cuando llegues al cálculo final, la base que ingreses se encontrará reducida en ese porcentaje<br>Art. 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato. En el caso de que la locación sea para vivienda y/o habitación, tal monto se reducirá en un 20 %</div>`;
-                } else div.innerHTML = '';
+                } else {
+                    div.innerHTML = '';
+                    wizardState.desalojoVivienda = null;
+                }
                 document.getElementById('errorObjeto').innerHTML = '';
             });
             selObj.dispatchEvent(new Event('change'));
@@ -167,11 +170,10 @@
         const tipo = wizardState.tipoProceso;
         const container = document.getElementById('contingenciasContainer');
         if (!container) return;
-        let html = `<h3>Contingencias procesales</h3>`;
+        let html = `<h3>Contingencias procesales</h3><div id="errorContingencias" class="error-msg"></div>`;
         if (tipo === 'conocimiento' || tipo === 'ejecucion_sentencia' || tipo === 'ejecutivo') {
             html += `<div class="legal-box">El modo en que termina el proceso tiene un impacto directo en el cálculo, ya que afecta tanto la alícuota aplicable como la base económica. Por favor, seleccioná la forma de finalización para ajustar el resultado a las pautas legales correspondientes</div>
                      <select id="modoTerminacionSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="sentencia">Sentencia</option><option value="modos_anormales">Modos anormales: allanamiento, transacción, desistimiento</option><option value="caducidad">Caducidad</option><option value="provisorios">Honorarios provisorios (art.12)</option></select>
-                     <div id="errorContingencias" class="error-msg"></div>
                      <div id="subTerminacion"></div>`;
             if (tipo === 'ejecucion_sentencia' || tipo === 'ejecutivo') {
                 html += `<div class="legal-box" style="margin-top:20px;"><strong>Excepciones</strong><br>${tipo === 'ejecucion_sentencia' ? 'La oposición de excepciones es un factor determinante en el proceso de ejecución ya que su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular.<br>ARTÍCULO 41.- En el procedimiento de ejecución de sentencias…no habiendo excepciones, los honorarios se reducirán en un 10%...' : 'La oposición de excepciones es un factor determinante en el proceso ejecutivo, ya que además de modificar la estructura de las etapas (art. 29, inc. f), su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular.<br>ARTÍCULO 34.- En los juicios ejecutivos y ejecuciones especiales…No habiendo excepciones, los honorarios se reducirán en un 10%...'}</div>
@@ -371,10 +373,17 @@
             renderScreen();
         });
         document.getElementById('btnBack')?.addEventListener('click', () => {
-            if (wizardState.step > 0) {
+            const step = wizardState.step;
+            if (step === 0) return;
+            if (step === 5) {
+                if (wizardState.tipoProceso === 'exhorto') wizardState.step = 1;
+                else wizardState.step = 4;
+            } else if (step === 4 && wizardState.tipoProceso === 'incidente') {
+                wizardState.step = 1;
+            } else {
                 wizardState.step--;
-                renderScreen();
             }
+            renderScreen();
         });
         document.getElementById('btnReset')?.addEventListener('click', () => {
     wizardState = {
@@ -386,9 +395,9 @@
         aperturaPrueba: null,
         caducidadCriterio: '',
         tuvoExcepciones: null,
-        sucesionUnicoLetrado: false,
+        sucesionUnicoLetrado: null,
         medidaOposicion: null,
-        homologacionVivienda: false,
+        homologacionVivienda: null,
         objetoBase: '',
         desalojoVivienda: null,
         baseValor: 0,
