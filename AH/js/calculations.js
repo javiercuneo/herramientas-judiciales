@@ -358,8 +358,31 @@ function mostrarTablasMinimos(modo) {
             <div class="legal-box">ARTÍCULO 19.- Cuando no fuere posible apreciar el valor pecuniario del asunto, los jueces fijarán los honorarios teniendo en cuenta la naturaleza de las actuaciones y la gestión profesional desarrollada, con arreglo a las siguientes pautas:<br>a) En asuntos judiciales:</div>
             <table><thead><tr><th>Asunto</th><th>UMA</th><th>$</th></tr></thead><tbody>${rows}</tbody></table></div>`;
         document.getElementById('resultadosDinamicos').innerHTML = html;
-    } else {
-        // TODO: Fase 2
+    } else if (modo === 'extrajudicial') {
+        const uma = wizardState.valorUMA;
+        const items = [
+            { labor: 'Consulta verbal', uma: 0.5 },
+            { labor: 'Consulta con informe', uma: 1 },
+            { labor: 'Redacción de carta documento', uma: 1 },
+            { labor: 'Estudio o información de actuaciones judiciales o administrativas', uma: 1.5 },
+            { labor: 'Asistencia y asesoramiento del cliente en la realización de actos jurídicos', uma: 1.5 },
+            { labor: 'Redacción de contrato de locación', uma: 2 },
+            { labor: 'Redacción de boleto de compraventa', uma: 3 },
+            { labor: 'Redacción de contrato o estatuto de sociedades comerciales, asociaciones o fundaciones y constitución de personas jurídicas en general', uma: 5 },
+            { labor: 'Redacción de otros contratos', uma: 2 },
+            { labor: 'Arreglo extrajudicial', uma: 1 },
+            { labor: 'Gastos administrativos de estudio para iniciación de juicios', uma: 0.5 },
+            { labor: 'Redacción de denuncia penal (sin firma de letrado)', uma: 3 },
+            { labor: 'Asistencia a una audiencia de mediación o conciliación', uma: 2 }
+        ];
+        let rows = '';
+        items.forEach(item => {
+            const pesos = item.uma * uma;
+            rows += `<tr><td>${item.labor}</td><td>${item.uma} UMA</td><td>$${formatNumber(pesos)}</td></tr>`;
+        });
+        return `<div class="dashboard-card"><h3>Mínimos por labor extrajudicial (art. 19 b)</h3>
+            <div class="legal-box">ARTÍCULO 19.- Cuando no fuere posible apreciar el valor pecuniario del asunto, los jueces fijarán los honorarios teniendo en cuenta la naturaleza de las actuaciones y la gestión profesional desarrollada, con arreglo a las siguientes pautas:<br>b) En asuntos extrajudiciales:</div>
+            <table><thead><tr><th>Labor</th><th>UMA</th><th>$</th></tr></thead><tbody>${rows}</tbody></table></div>`;
     }
 }
 window.mostrarTablasMinimos = mostrarTablasMinimos;

@@ -92,7 +92,9 @@
             case 1:
                 html += `<h3>Seleccione el tipo de proceso</h3><div class="legal-box">En la Ley 27.423, el tipo de proceso define coeficientes específicos que pueden reducir o incrementar el resultado final del cálculo. Por eso, es fundamental que elijas una de las siguientes opciones:</div>
                         <select id="tipoProcesoSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="conocimiento">De conocimiento (ordinario / sumarísimo)</option><option value="ejecucion_sentencia">Ejecución de sentencia (o de honorarios o acuerdos)</option><option value="ejecutivo">Ejecutivo (expensas, alquileres, etc.)</option><option value="sucesion">Sucesión</option><option value="exhorto">Exhorto</option><option value="incidente">Incidente (incluye BLSG)</option><option value="medida_cautelar">Medida cautelar</option><option value="homologacion_desocupacion">Homologación de convenio de desocupación (y su ejecución)</option><option value="minimos_judiciales">Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 a)</option></select>
-                        <div id="errorTipoProceso" class="error-msg"></div>`;
+                        <div id="errorTipoProceso" class="error-msg"></div>
+                        <button class="btn-info" id="btnExtrajudiciales" style="margin-top:12px;">Ver mínimos por labor extrajudicial (art. 19 b)</button>
+                        <div id="tablaExtrajudiciales" style="display:none; margin-top:16px;"><button class="btn-outline" id="cerrarExtrajudiciales" style="margin-bottom:12px;">Cerrar</button></div>`;
                 break;
             case 2:
                 html += `<div id="contingenciasContainer"></div>`;
@@ -390,6 +392,16 @@
                 wizardState.step--;
             }
             renderScreen();
+        });
+        document.getElementById('btnExtrajudiciales')?.addEventListener('click', () => {
+            const div = document.getElementById('tablaExtrajudiciales');
+            if (!div.querySelector('.dashboard-card')) {
+                div.insertAdjacentHTML('beforeend', mostrarTablasMinimos('extrajudicial'));
+            }
+            div.style.display = 'block';
+        });
+        document.getElementById('cerrarExtrajudiciales')?.addEventListener('click', () => {
+            document.getElementById('tablaExtrajudiciales').style.display = 'none';
         });
         document.getElementById('btnReset')?.addEventListener('click', () => {
     wizardState = {

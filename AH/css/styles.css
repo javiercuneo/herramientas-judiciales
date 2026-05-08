@@ -338,6 +338,15 @@ body.dark .badge {
 details summary {
     list-style: none; /* oculta el triángulo por defecto si querés personalizarlo después */
 }
+.btn-info {
+    background: var(--legal-bg);
+    border: 1px solid var(--btn-primary);
+    color: var(--btn-primary);
+}
+.btn-info:hover {
+    background: var(--btn-primary);
+    color: white;
+}
 details summary::-webkit-details-marker {
     display: none;
 }
