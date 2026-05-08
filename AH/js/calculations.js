@@ -119,7 +119,7 @@ if (validarPasoActual() !== '') return;
     // CASO GENERAL (conocimiento, ejecución sentencia, ejecutivo, sucesión)
     let baseReducida = wizardState.baseValor;
     let motivoBase = [];
-    if (tipo === 'conocimiento' && wizardState.objetoBase === 'desalojo' && wizardState.desalojoVivienda) {
+    if (tipo === 'conocimiento' && wizardState.objetoBase === 'desalojo' && wizardState.desalojoVivienda === 'vivienda') {
         baseReducida *= 0.8;
         motivoBase.push("Desalojo para vivienda: -20% (art.40)");
     }
