@@ -322,3 +322,44 @@ if (validarPasoActual() !== '') return;
     setupPorc('calcPorcApo', 'porcApoInput', 'aplicarPorcApo', 'resultadoPorcApo', etapaMinApoUno, etapaMaxApoUno, uma);
     setupPorc('calcPorcProc', 'porcProcInput', 'aplicarPorcProc', 'resultadoPorcProc', etapaMinProcUno, etapaMaxProcUno, uma);
 }
+
+// --------------------------------------------------------------
+// TABLA DE MÍNIMOS (art. 19 a) - asuntos no susceptibles de apreciación pecuniaria
+// --------------------------------------------------------------
+function mostrarTablasMinimos(modo) {
+    if (modo === 'judicial') {
+        const uma = wizardState.valorUMA;
+        const items = [
+            { asunto: 'Divorcio', uma: 10 },
+            { asunto: 'Acción sobre efectos del divorcio y responsabilidad parental', uma: 25 },
+            { asunto: 'Adopción', uma: 20 },
+            { asunto: 'Tutela', uma: 20 },
+            { asunto: 'Restricciones a la capacidad e inhabilitación', uma: 25 },
+            { asunto: 'Reclamación e impugnación de filiación', uma: 25 },
+            { asunto: 'Acciones de estado y familia', uma: 25 },
+            { asunto: 'Veeduría', uma: 10 },
+            { asunto: 'Información sumaria', uma: 2 },
+            { asunto: 'Trámite administrativo ante autoridad de aplicación', uma: 2 },
+            { asunto: 'Trámite ante la Inspección General de Justicia', uma: 3 },
+            { asunto: 'Presentación de denuncias penales con firma de letrado', uma: 8 },
+            { asunto: 'Incidente de excarcelación o exención de prisión o audiencia de control de detención o medidas de coerción', uma: 10 },
+            { asunto: 'Pedido y audiencia de suspensión de juicio a prueba', uma: 10 },
+            { asunto: 'Acta de juicio abreviado', uma: 15 },
+            { asunto: 'Actuación hasta la clausura de la instrucción o de control de la acusación', uma: 15 },
+            { asunto: 'Actuación desde la clausura de la instrucción o de control de la acusación hasta la sentencia', uma: 20 },
+            { asunto: 'Acción de incidencia colectiva, hábeas corpus, hábeas data', uma: 25 }
+        ];
+        let rows = '';
+        items.forEach(item => {
+            const pesos = item.uma * uma;
+            rows += `<tr><td>${item.asunto}</td><td>${item.uma} UMA</td><td>$${formatNumber(pesos)}</td></tr>`;
+        });
+        const html = `<div class="dashboard-card"><h3>Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 a)</h3>
+            <div class="legal-box">ARTÍCULO 19.- Cuando no fuere posible apreciar el valor pecuniario del asunto, los jueces fijarán los honorarios teniendo en cuenta la naturaleza de las actuaciones y la gestión profesional desarrollada, con arreglo a las siguientes pautas:<br>a) En asuntos judiciales:</div>
+            <table><thead><tr><th>Asunto</th><th>UMA</th><th>$</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        document.getElementById('resultadosDinamicos').innerHTML = html;
+    } else {
+        // TODO: Fase 2
+    }
+}
+window.mostrarTablasMinimos = mostrarTablasMinimos;

@@ -37,6 +37,7 @@ function validarPasoActual() {
         return '';
     }
     if (step === 2) {
+        if (wizardState.tipoProceso === 'minimos_judiciales') return '';
         if (wizardState.tipoProceso === 'conocimiento' || wizardState.tipoProceso === 'ejecucion_sentencia' || wizardState.tipoProceso === 'ejecutivo') {
             if (!wizardState.modoTerminacion) {
                 return 'Debe seleccionar una forma de terminación.';

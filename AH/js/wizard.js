@@ -11,6 +11,7 @@
                 case "incidente": tipoDesc = "Incidente (incluye BLSG)"; break;
                 case "medida_cautelar": tipoDesc = "Medida cautelar"; break;
                 case "homologacion_desocupacion": tipoDesc = "Homologación de convenio de desocupación (y su ejecución)"; break;
+                case "minimos_judiciales": tipoDesc = "Mínimos judiciales (art. 19 a)"; break;
                 default: tipoDesc = wizardState.tipoProceso;
             }
             lines.push(`Tipo de proceso: ${tipoDesc}`);
@@ -83,14 +84,14 @@
                 html += `<div class="warning-box"><strong>Bienvenido!</strong><br>Este asistente interactivo lo guiará en el proceso de estimación de honorarios mediante la selección de opciones. Antes de comenzar, por favor tenga en cuenta las siguientes consideraciones legales y técnicas:</div>
                 <div class="card-info"><strong>Naturaleza de la herramienta</strong><br>• Alcance: Los resultados se basan en interpretaciones de la <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/305000-309999/305057/texact.htm" target="_blank">Ley 27.423</a> que podrían diferir de su criterio profesional o del aplicado por los tribunales.<br>• Fundamentación: En cada paso, intentaremos explicitar el fundamento jurídico y su impacto en el cálculo.<br>• Limitación de responsabilidad: Esta herramienta es de carácter referencial; no sustituye el criterio del juez natural de la causa ni debe considerarse un dictamen profesional.</div>
                 <div class="card-info"><strong>Ámbito de aplicación temporal</strong><br>• Vigencia: La ley 27423 se publicó en el BO el 22/12/17.<br>• Si seguís el criterio de aplicación inmediata a todos los juicios en trámite, incluidos los iniciados antes de su entrada en vigencia, podes usarlo para esos procesos.<br>• Si te basas en el precedente <a href="https://sjconsulta.csjn.gov.ar/sjconsulta/documentos/verDocumentoByIdLinksJSP.html?idDocumento=7473801&cache=1551129603472" target="_blank">“Establecimiento Las Marías”</a> (CSJN, 04/09/2018) podes usarlo para las etapas con principio de ejecución bajo la nueva ley.</div>
-                <div class="card-info"><strong>Restricciones y exclusiones del cálculo</strong><br>• Mínimos arancelarios: El asistente no aplica automáticamente los mínimos de los arts. 58, 61, etc. Si el resultado es menor a dichos mínimos y los consideras aplicables, debes desestimar el cálculo. De todos modos los mostramos en el resultado final.<br>• Reducciones y topes: No se contemplan las limitaciones por prorrateo (art. 730 CCyCN), reajuste de precio (art. 1255 CCyCN), ejecución hipotecaria especial (art. 60 Ley 24.441) o régimen de vivienda (art. 254 CCyCN / art. 48 Ley 14.394).<br>• Materias excluidas: la herramienta no está pensada para casos penales, laborales o de familia.<br>• Asuntos no susceptibles de apreciación pecuniaria: para casos sin monto determinado no es posible un cálculo matemático; se debe recurrir a las pautas del art. 16 y si son aplicables, los mínimos legales.</div>
+                <div class="card-info"><strong>Restricciones y exclusiones del cálculo</strong><br>• Mínimos arancelarios: El asistente no aplica automáticamente los mínimos de los arts. 58, 61, etc. Si el resultado es menor a dichos mínimos y los consideras aplicables, debes desestimar el cálculo. De todos modos los mostramos en el resultado final.<br>• Reducciones y topes: no se contemplan las limitaciones por <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/prorrateo.html" target="_blank"> prorrateo</a> (art. 730 CCyCN), reajuste de precio (art. 1255 CCyCN), ejecución hipotecaria especial (art. 60 Ley 24.441) o régimen de vivienda (art. 254 CCyCN / art. 48 Ley 14.394).<br>• Materias excluidas: la herramienta no está pensada para casos penales, laborales o de familia.<br>• Asuntos no susceptibles de apreciación pecuniaria: para casos sin monto determinado no es posible un cálculo matemático; se debe recurrir a las pautas del art. 16 y si son aplicables, los mínimos legales.</div>
                 <div class="card-info"><strong>Auxiliares de justicia</strong><br>• Leyes especiales: no se incluyen las pautas de las leyes especiales que reglamenten cada actividad profesional (art. 1, 2° párrafo de la ley 27423) ni las modificaciones de la <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/420000-424999/423680/norma.htm" target="_blank">Ley 27.802 (Modernización Laboral)</a> pero se muestran algunas reglas incorporadas por ésta.<br>• Excluidos: no contempla los cálculos de los honorarios de los administradores judiciales, interventores o veedores, interventores recaudadores, liquidadores judiciales, árbitros, mediadores o amigables componedores (art. 32).<br>• Mediadores: tienen normativa propia (<a href="http://servicios.infoleg.gob.ar/infolegInternet/anexos/165000-169999/166999/texact.htm" target="_blank">Ley 26.589</a> y Decretos <a href="http://servicios.infoleg.gob.ar/infolegInternet/anexos/255000-259999/255741/norma.htm" target="_blank">2536/15</a> y <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/415000-419999/418049/norma.htm" target="_blank">696/2025</a>). Puede utilizar nuestra <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html" target="_blank">calculadora web</a>.</div>
                 <div class="card-info"><strong>Reconvención y acumulación de acciones</strong><br>• Art. 28: en estos supuestos, los honorarios se regulan por separado para cada acción. Le sugerimos reiniciar el asistente para cada una de las pretensiones según sus particularidades.</div>
                 <div style="margin-top:25px;"><h3>Valor de la Unidad de Medida Arancelaria (UMA)</h3><div class="legal-box">Ingresa el valor de la UMA actualizado</div><input type="text" id="inputUMA" class="input-ui" value="${formatNumber(wizardState.valorUMA)}"></div>`;
                 break;
             case 1:
                 html += `<h3>Seleccione el tipo de proceso</h3><div class="legal-box">En la Ley 27.423, el tipo de proceso define coeficientes específicos que pueden reducir o incrementar el resultado final del cálculo. Por eso, es fundamental que elijas una de las siguientes opciones:</div>
-                        <select id="tipoProcesoSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="conocimiento">De conocimiento (ordinario / sumarísimo)</option><option value="ejecucion_sentencia">Ejecución de sentencia (o de honorarios o acuerdos)</option><option value="ejecutivo">Ejecutivo (expensas, alquileres, etc.)</option><option value="sucesion">Sucesión</option><option value="exhorto">Exhorto</option><option value="incidente">Incidente (incluye BLSG)</option><option value="medida_cautelar">Medida cautelar</option><option value="homologacion_desocupacion">Homologación de convenio de desocupación (y su ejecución)</option></select>
+                        <select id="tipoProcesoSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="conocimiento">De conocimiento (ordinario / sumarísimo)</option><option value="ejecucion_sentencia">Ejecución de sentencia (o de honorarios o acuerdos)</option><option value="ejecutivo">Ejecutivo (expensas, alquileres, etc.)</option><option value="sucesion">Sucesión</option><option value="exhorto">Exhorto</option><option value="incidente">Incidente (incluye BLSG)</option><option value="medida_cautelar">Medida cautelar</option><option value="homologacion_desocupacion">Homologación de convenio de desocupación (y su ejecución)</option><option value="minimos_judiciales">Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 a)</option></select>
                         <div id="errorTipoProceso" class="error-msg"></div>`;
                 break;
             case 2:
@@ -112,7 +113,7 @@
                 html += `<div id="resultadosDinamicos"></div>`;
                 break;
         }
-        const showNextButton = !(step === 5 && (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'incidente'));
+        const showNextButton = !(step === 5 && (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'incidente' || wizardState.tipoProceso === 'minimos_judiciales'));
         const resetVisible = (step !== 0) ? '' : 'style="display:none"';
         html += `<div class="btn-group"><button class="btn-outline" id="btnBack" style="${step===0?'display:none':''}">◀ Atrás</button>${showNextButton ? `<button class="btn-primary" id="btnNext">${step===5?'Calcular':'Siguiente ▶'}</button>` : ''}<button class="btn-danger" id="btnReset" ${resetVisible}>Reiniciar</button></div></div>`;
         container.innerHTML = html;
@@ -153,7 +154,11 @@
         } else if (step === 4) {
             renderBase();
         } else if (step === 5) {
-            calcularFinal();
+            if (wizardState.tipoProceso === 'minimos_judiciales') {
+                mostrarTablasMinimos('judicial');
+            } else {
+                calcularFinal();
+            }
         }
     }
 
@@ -361,6 +366,7 @@
             }
             mostrarErrorEnPaso('');
             if (wizardState.step === 1) {
+                if (wizardState.tipoProceso === 'minimos_judiciales') { wizardState.step = 5; renderScreen(); return; }
                 if (wizardState.tipoProceso === 'exhorto') { wizardState.step = 5; renderScreen(); return; }
                 if (wizardState.tipoProceso === 'incidente') { wizardState.step = 4; renderScreen(); return; }
                 if (wizardState.tipoProceso === 'medida_cautelar') { wizardState.step = 2; renderScreen(); return; }
@@ -376,7 +382,7 @@
             const step = wizardState.step;
             if (step === 0) return;
             if (step === 5) {
-                if (wizardState.tipoProceso === 'exhorto') wizardState.step = 1;
+                if (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'minimos_judiciales') wizardState.step = 1;
                 else wizardState.step = 4;
             } else if (step === 4 && wizardState.tipoProceso === 'incidente') {
                 wizardState.step = 1;
