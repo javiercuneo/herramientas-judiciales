@@ -46,6 +46,8 @@
                 case "establecimientos": objDesc = "Establecimientos comerciales/industriales/mineros"; break;
                 case "uso_habitacion": objDesc = "Derecho de uso o habitación"; break;
                 case "escrituracion": objDesc = "Juicio de escrituración"; break;
+                case "familia_alimentos": objDesc = "Familia: alimentos"; break;
+                case "familia_liquidacion": objDesc = "Familia: liquidación del Régimen Patrimonial del Matrimonio"; break;
                 default: objDesc = wizardState.objetoBase;
             }
             lines.push(`Objeto: ${objDesc}`);
@@ -103,7 +105,7 @@
             case 3:
                 if (wizardState.tipoProceso === 'conocimiento') {
                     html += `<h3>Objeto del juicio</h3><div class="legal-box">El objeto reclamado en el juicio es un factor determinante para establecer la base regulatoria (o cuantía del asunto) sobre la cual se aplicará la escala de porcentajes para calcular los honorarios. Varía sustancialmente dependiendo del reclamo, si se requieren sumas de dinero u otros bienes (y su naturaleza). Por eso es necesario que elijas una de las siguientes opciones:</div>
-                            <select id="objetoBaseSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="desalojo">Desalojo</option><option value="sumas_dinero">Juicios en los que se reclaman sumas de dinero</option><option value="inmuebles">Juicios en los que se discuten cuestiones atinentes a inmuebles o muebles</option><option value="derechos_crediticios">Juicio sobre derechos crediticios</option><option value="titulos_acciones">Juicio sobre títulos de renta o acciones</option><option value="establecimientos">Juicio sobre establecimientos comerciales, industriales o mineros</option><option value="uso_habitacion">Juicio sobre derecho de uso o habitación</option><option value="escrituracion">Juicio de escrituración</option></select>
+                            <select id="objetoBaseSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="desalojo">Desalojo</option><option value="sumas_dinero">Juicios en los que se reclaman sumas de dinero</option><option value="inmuebles">Juicios en los que se discuten cuestiones atinentes a inmuebles o muebles</option><option value="derechos_crediticios">Juicio sobre derechos crediticios</option><option value="titulos_acciones">Juicio sobre títulos de renta o acciones</option><option value="establecimientos">Juicio sobre establecimientos comerciales, industriales o mineros</option><option value="uso_habitacion">Juicio sobre derecho de uso o habitación</option><option value="escrituracion">Juicio de escrituración</option><option value="familia_alimentos">Familia: alimentos</option><option value="familia_liquidacion">Familia: liquidación del Régimen Patrimonial del Matrimonio</option></select>
                             <div id="subObjetoBase"></div>
                             <div id="errorObjeto" class="error-msg"></div>`;
                 } else { wizardState.step = 2; 
@@ -348,6 +350,12 @@
                                 <input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
             } else if (objeto === 'escrituracion') {
                 leyendaHtml = `<div class="legal-box">Ingresá el valor del bien o el monto del boleto si es mayor.<br>ARTÍCULO 46.- En los juicios de escrituración y, en general, en los procesos derivados del contrato de compraventa de inmuebles, a los efectos de la regulación, se aplicará la norma del artículo 23, inciso a), salvo que resulte un monto mayor del boleto de compraventa, en cuyo caso se aplicará este último.</div>
+                                <input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
+            } else if (objeto === 'familia_alimentos') {
+                leyendaHtml = `<div class="legal-box">Ingresá el importe correspondiente a 2 años de la cuota fijada.<br><br>ARTÍCULO 39.- En los juicios de alimentos la base del cálculo de los honorarios será el importe correspondiente a 2 años de la cuota que se fijare judicialmente.</div>
+                                <input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
+            } else if (objeto === 'familia_liquidacion') {
+                leyendaHtml = `<div class="legal-box">Ingresá el valor del patrimonio adjudicado.<br><br>ARTÍCULO 45.- En la liquidación y disolución del régimen patrimonial del matrimonio se regularán honorarios al patrocinante o apoderado de cada parte conforme la escala del art. 21 calculado sobre el patrimonio que se le adjudique a su patrocinado o representado.</div>
                                 <input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
             }
         } else if (tipo === 'sucesion') {
