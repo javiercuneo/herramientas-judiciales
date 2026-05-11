@@ -61,42 +61,42 @@ function calcularEscalaBase(basePesos, valorUMA) {
         minPorc = 22; maxPorc = 33;
     } else if (baseEnUMA <= 45) {
         tituloEscala = "2ª escala (16-45 UMA): 20% a 26%";
-        minComp = (baseEnUMA-15)*0.20 + 3.3;
+        minComp = (baseEnUMA-15)*0.20 + 4.95;
         maxComp = (baseEnUMA-15)*0.26 + 4.95;
         minPorc = 20; maxPorc = 26;
         maximoEscalaAnterior = 4.95;
         limiteAnterior = 15;
     } else if (baseEnUMA <= 90) {
         tituloEscala = "3ª escala (46-90 UMA): 18% a 24%";
-        minComp = (baseEnUMA-45)*0.18 + 9.3;
+        minComp = (baseEnUMA-45)*0.18 + 11.7;
         maxComp = (baseEnUMA-45)*0.24 + 11.7;
         minPorc = 18; maxPorc = 24;
         maximoEscalaAnterior = 11.7;
         limiteAnterior = 45;
     } else if (baseEnUMA <= 150) {
         tituloEscala = "4ª escala (91-150 UMA): 17% a 22%";
-        minComp = (baseEnUMA-90)*0.17 + 17.4;
+        minComp = (baseEnUMA-90)*0.17 + 21.6;
         maxComp = (baseEnUMA-90)*0.22 + 21.6;
         minPorc = 17; maxPorc = 22;
         maximoEscalaAnterior = 21.6;
         limiteAnterior = 90;
     } else if (baseEnUMA <= 450) {
         tituloEscala = "5ª escala (151-450 UMA): 15% a 20%";
-        minComp = (baseEnUMA-150)*0.15 + 27.6;
+        minComp = (baseEnUMA-150)*0.15 + 33;
         maxComp = (baseEnUMA-150)*0.20 + 33;
         minPorc = 15; maxPorc = 20;
         maximoEscalaAnterior = 33;
         limiteAnterior = 150;
     } else if (baseEnUMA <= 750) {
         tituloEscala = "6ª escala (451-750 UMA): 13% a 17%";
-        minComp = (baseEnUMA-450)*0.13 + 72.6;
+        minComp = (baseEnUMA-450)*0.13 + 90;
         maxComp = (baseEnUMA-450)*0.17 + 90;
         minPorc = 13; maxPorc = 17;
         maximoEscalaAnterior = 90;
         limiteAnterior = 450;
     } else {
         tituloEscala = "7ª escala (+750 UMA): 12% a 15%";
-        minComp = (baseEnUMA-750)*0.12 + 111.6;
+        minComp = (baseEnUMA-750)*0.12 + 127.5;
         maxComp = (baseEnUMA-750)*0.15 + 127.5;
         minPorc = 12; maxPorc = 15;
         maximoEscalaAnterior = 127.5;

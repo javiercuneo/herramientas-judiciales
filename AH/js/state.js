@@ -13,6 +13,7 @@ let wizardState = {
     homologacionVivienda: null,
     objetoBase: '',
     desalojoVivienda: null,
+    posesoriasTipo: null,
     baseValor: 0,
     esProvisorio: false,
     desdeMinimos: false
@@ -80,6 +81,9 @@ function validarPasoActual() {
         }
         if (wizardState.objetoBase === 'desalojo' && wizardState.desalojoVivienda === null) {
             return 'Debe indicar si el alquiler es para vivienda o demás casos.';
+        }
+        if (wizardState.objetoBase === 'posesorias_interdictos' && wizardState.posesoriasTipo === null) {
+            return 'Debe seleccionar el tipo de actuación posesoria.';
         }
         return '';
     }

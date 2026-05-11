@@ -170,6 +170,15 @@ if (validarPasoActual() !== '') return;
         factorFinal = 0.9;
         motivoFinal = "10% adicional por ejecución de sentencia sin excepciones (art.41 + art.34)";
     }
+    // Reducciones adicionales (art. 38 y 49)
+    if (tipo === 'conocimiento' && wizardState.objetoBase === 'posesorias_interdictos' && wizardState.posesoriasTipo === 'beneficio') {
+        factorFinal *= 0.8;
+        motivoFinal = motivoFinal ? motivoFinal + ' + 20% por art. 38 (posesorias/interdictos beneficio exclusivo)' : '20% por art. 38 (posesorias/interdictos beneficio exclusivo)';
+    }
+    if (tipo === 'conocimiento' && wizardState.objetoBase === 'incidencia_colectiva') {
+        factorFinal *= 0.75;
+        motivoFinal = motivoFinal ? motivoFinal + ' + 25% por art. 49 (incidencia colectiva)' : '25% por art. 49 (incidencia colectiva)';
+    }
     const minFinal = minEscala * factorFinal;
     const maxFinal = maxEscala * factorFinal;
     const minApoFinal = minApoEscala * factorFinal;

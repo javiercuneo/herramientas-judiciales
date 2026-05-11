@@ -50,11 +50,15 @@
                 case "escrituracion": objDesc = "Juicio de escrituración"; break;
                 case "familia_alimentos": objDesc = "Familia: alimentos"; break;
                 case "familia_liquidacion": objDesc = "Familia: liquidación del Régimen Patrimonial del Matrimonio"; break;
+                case "posesorias_interdictos": objDesc = "Acciones Posesorias, Interdictos o División de Bienes Comunes"; break;
+                case "incidencia_colectiva": objDesc = "Derechos de incidencia colectiva con contenido patrimonial"; break;
                 default: objDesc = wizardState.objetoBase;
             }
             lines.push(`Objeto: ${objDesc}`);
             if (wizardState.objetoBase === 'desalojo' && wizardState.desalojoVivienda === 'vivienda') lines.push("Reducción por vivienda: -20% sobre la base (art.40)");
             if (wizardState.objetoBase === 'desalojo' && wizardState.desalojoVivienda === 'laboral') lines.push("Desalojo laboral (art. 43)");
+            if (wizardState.objetoBase === 'posesorias_interdictos' && wizardState.posesoriasTipo === 'beneficio') lines.push("Actuación en beneficio del patrocinado: -20% (art.38)");
+            if (wizardState.objetoBase === 'posesorias_interdictos' && wizardState.posesoriasTipo === 'demas') lines.push("Demás casos posesorias");
         }
         if (wizardState.baseValor > 0) lines.push(`Base ingresada: $${formatNumber(wizardState.baseValor)}`);
         if (lines.length === 0) return "";
@@ -115,7 +119,7 @@
             case 3:
                 if (wizardState.tipoProceso === 'conocimiento') {
                     html += `<h3>Objeto del juicio</h3><div class="legal-box">El objeto reclamado en el juicio es un factor determinante para establecer la base regulatoria (o cuantía del asunto) sobre la cual se aplicará la escala de porcentajes para calcular los honorarios. Varía sustancialmente dependiendo del reclamo, si se requieren sumas de dinero u otros bienes (y su naturaleza). Por eso es necesario que elijas una de las siguientes opciones:</div>
-                            <select id="objetoBaseSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="desalojo">Desalojo</option><option value="sumas_dinero">Juicios en los que se reclaman sumas de dinero</option><option value="inmuebles">Juicios en los que se discuten cuestiones atinentes a inmuebles o muebles</option><option value="derechos_crediticios">Juicio sobre derechos crediticios</option><option value="titulos_acciones">Juicio sobre títulos de renta o acciones</option><option value="establecimientos">Juicio sobre establecimientos comerciales, industriales o mineros</option><option value="uso_habitacion">Juicio sobre derecho de uso o habitación</option><option value="escrituracion">Juicio de escrituración</option><option value="familia_alimentos">Familia: alimentos</option><option value="familia_liquidacion">Familia: liquidación del Régimen Patrimonial del Matrimonio</option></select>
+                            <select id="objetoBaseSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="desalojo">Desalojo</option><option value="sumas_dinero">Juicios en los que se reclaman sumas de dinero</option><option value="inmuebles">Juicios en los que se discuten cuestiones atinentes a inmuebles o muebles</option><option value="derechos_crediticios">Juicio sobre derechos crediticios</option><option value="titulos_acciones">Juicio sobre títulos de renta o acciones</option><option value="establecimientos">Juicio sobre establecimientos comerciales, industriales o mineros</option><option value="uso_habitacion">Juicio sobre derecho de uso o habitación</option><option value="escrituracion">Juicio de escrituración</option><option value="familia_alimentos">Familia: alimentos</option><option value="familia_liquidacion">Familia: liquidación del Régimen Patrimonial del Matrimonio</option><option value="posesorias_interdictos">Acciones Posesorias, Interdictos o División de Bienes Comunes</option><option value="incidencia_colectiva">Derechos de incidencia colectiva con contenido patrimonial</option></select>
                             <div id="subObjetoBase"></div>
                             <div id="errorObjeto" class="error-msg"></div>`;
                 } else { wizardState.step = 2; 
@@ -155,6 +159,7 @@
                     selLoc.value = wizardState.desalojoVivienda === 'vivienda' ? 'vivienda' : (wizardState.desalojoVivienda === 'civil' ? 'civil' : (wizardState.desalojoVivienda === 'laboral' ? 'laboral' : ''));
                     selLoc.addEventListener('change', (e2) => {
                         wizardState.desalojoVivienda = e2.target.value;
+                        wizardState.posesoriasTipo = null;
                         const msgDiv = document.getElementById('locacionMensaje');
                         if (wizardState.desalojoVivienda === 'vivienda') {
                             msgDiv.innerHTML = `<div class="legal-box">En el caso de que el destino del contrato sea para vivienda, el monto de la base se reduce en un 20 %.Cuando llegues al cálculo final, la base que ingreses se encontrará reducida en ese porcentaje<br>Art. 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato. En el caso de que la locación sea para vivienda y/o habitación, tal monto se reducirá en un 20 %</div>`;
@@ -165,9 +170,17 @@
                         }
                     });
                     if (selLoc.value === 'vivienda') document.getElementById('locacionMensaje').innerHTML = `<div class="legal-box">En el caso de que el destino del contrato sea para vivienda, el monto de la base se reduce en un 20 %.Cuando llegues al cálculo final, la base que ingreses se encontrará reducida en ese porcentaje<br>Art. 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato. En el caso de que la locación sea para vivienda y/o habitación, tal monto se reducirá en un 20 %</div>`;
+                } else if (wizardState.objetoBase === 'posesorias_interdictos') {
+                    div.innerHTML = `<div class="legal-box">Seleccione el tipo de actuación:</div><select id="tipoPosesoria" class="input-ui"><option value="">-- Seleccione --</option><option value="beneficio">Actuación exclusivamente en beneficio del patrocinado, con relación a la cuota o parte defendida</option><option value="demas">Demás casos</option></select>`;
+                    const selPos = document.getElementById('tipoPosesoria');
+                    selPos.value = wizardState.posesoriasTipo || '';
+                    selPos.addEventListener('change', (e2) => {
+                        wizardState.posesoriasTipo = e2.target.value;
+                    });
                 } else {
                     div.innerHTML = '';
                     wizardState.desalojoVivienda = null;
+                    wizardState.posesoriasTipo = null;
                 }
                 document.getElementById('errorObjeto').innerHTML = '';
             });
@@ -348,7 +361,7 @@
                 leyendaHtml = `<div class="legal-box">${textoAdicional}Nota: no ingreses el monto con reducciones porque ya estará calculado por el sistema según tus elecciones previas.<br>ARTÍCULO 22.- En los juicios por cobro de sumas de dinero la cuantía del asunto …será el monto de la demanda o reconvención; si hubiera sentencia será el de la liquidación que resulte de la misma, actualizado por intereses si correspondiere. En caso de transacción, la cuantía será el monto de la misma<br>ARTÍCULO 24.- A los efectos de la regulación de honorarios, se tendrán en cuenta los intereses que deban calcularse sobre el monto de condena. Los intereses fijados en la sentencia deberán siempre integrar la base regulatoria, bajo pena de nulidad.<br>ARTÍCULO 52.- … A los efectos de la regulación se tendrán en cuenta los intereses, los frutos y los accesorios, que integrarán la base regulatoria según lo establecido en los artículos 22, 23 y 24.</div>
                                 <input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
             } else if (objeto === 'inmuebles') {
-                leyendaHtml = `<div class="legal-box">Ingresá el valor del bien según estas reglas:<br>- Si los bienes fueron tasados, ingresá el monto de la tasación.<br>- Si la valuación fiscal (VF) se consideró adecuada, ingresa el monto de la VF actualizada incrementado en un 50 %<br>- Si la VF se consideró inadecuada, se inició y terminó el procedimiento del art. 23 para la valuación de los bienes ingresá el valor de la estimación<br>- Recordá que si hay montos en dólares, tenés que definir el tipo de cambio que vas a usar (oficial venta, MEP, etc.) para ingresar la base en pesos<br>ARTÍCULO 23.- El monto de los procesos en caso de que existan bienes susceptibles de apreciación pecuniaria, se determinará conforme lo siguiente: a) Si se trata de bienes inmuebles o derechos sobre los mismos y no han sido tasados en autos, se tendrá como cuantía del asunto la valuación fiscal al momento en que se practique la regulación, incrementada en un 50%. No obstante reputándose ésta, inadecuada al valor real del inmueble, el profesional podrá estimar el valor que le asigne, de lo que se dará traslado al obligado al pago. En caso de oposición, el juez designará perito tasador…</div>
+                leyendaHtml = `<div class="legal-box">Ingresá el valor del bien según estas reglas:<br>- Si los bienes fueron tasados, ingresá el monto de la tasación.<br>- Si la valuación fiscal (VF) se consideró adecuada, ingresa el monto de la VF actualizada incrementado en un 50 %<br>- Si la VF se consideró inadecuada, se inició y terminó el procedimiento del art. 23 para la valuación de los bienes ingresá el valor de la estimación<br>- Recordá que si hay montos en dólares, tenés que definir el tipo de cambio que vas a usar (oficial venta, MEP, etc.) para ingresar la base en pesos<br><br>ARTÍCULO 23.- El monto de los procesos en caso de que existan bienes susceptibles de apreciación pecuniaria, se determinará conforme lo siguiente: a) Si se trata de bienes inmuebles o derechos sobre los mismos y no han sido tasados en autos, se tendrá como cuantía del asunto la valuación fiscal al momento en que se practique la regulación, incrementada en un 50%. No obstante reputándose ésta, inadecuada al valor real del inmueble, el profesional podrá estimar el valor que le asigne, de lo que se dará traslado al obligado al pago. En caso de oposición, el juez designará perito tasador… b) Si se trata de bienes muebles o semovientes, se tomará como cuantía del asunto el valor que surja de autos, sin perjuicio de efectuarse la determinación establecida en el inciso a)... g) Si se trata de usufructo o nuda propiedad, se determinará el valor de los bienes conforme el inciso a) de este artículo; i) Si se trata de bienes sujetos a agotamiento, minas, canteras y similares, se determinará el valor por el procedimiento previsto en el inciso b) del presente artículo;</div>
                                 <input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
             } else if (objeto === 'derechos_crediticios') {
                 leyendaHtml = `<div class="legal-box">Ingresá el valor consignado en las escrituras o documentos respectivos, deducidas las amortizaciones.<br>Art. 23 inc. d): Si se trata de derechos crediticios, se tomará como cuantía del asunto el valor consignado en las escrituras o documentos respectivos, deducidas las amortizaciones normales previstas en los mismos, o las extraordinarias que justifique el interesado.</div>
@@ -370,6 +383,12 @@
                                 <input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
             } else if (objeto === 'familia_liquidacion') {
                 leyendaHtml = `<div class="legal-box">Ingresá el valor del patrimonio adjudicado.<br><br>ARTÍCULO 45.- En la liquidación y disolución del régimen patrimonial del matrimonio se regularán honorarios al patrocinante o apoderado de cada parte conforme la escala del art. 21 calculado sobre el patrimonio que se le adjudique a su patrocinado o representado.</div>
+                                <input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
+            } else if (objeto === 'posesorias_interdictos') {
+                leyendaHtml = `<div class="legal-box">Si elegís esta opción, cuando llegues al cálculo final, el honorario que se muestra como resultado tendrá una reducción en ese porcentaje. ARTÍCULO 38.- Tratándose de acciones posesorias, interdictos o de división de bienes comunes, se aplicará la escala del artículo 21. El monto de los honorarios se reducirá en un 20% atendiendo al valor de los bienes conforme a lo dispuesto en el artículo 23 si fuere exclusivamente en beneficio del patrocinado, con relación a la cuota o parte defendida</div>
+                                <input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
+            } else if (objeto === 'incidencia_colectiva') {
+                leyendaHtml = `<div class="legal-box">En estos casos, los honorarios se reducen en un 25%. ARTÍCULO 49.- En las acciones sobre derechos de incidencia colectiva con contenido patrimonial, los honorarios serán los que resulten de la aplicación del artículo 21, reducidos en un 25%</div>
                                 <input type="text" id="baseInputNum" class="input-ui" placeholder="Ingrese el monto" value="${wizardState.baseValor ? formatNumber(wizardState.baseValor) : ''}">`;
             }
         } else if (tipo === 'sucesion') {
@@ -519,6 +538,7 @@
         homologacionVivienda: null,
         objetoBase: '',
         desalojoVivienda: null,
+        posesoriasTipo: null,
         baseValor: 0,
         esProvisorio: false,
         desdeMinimos: false
