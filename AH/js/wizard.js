@@ -11,6 +11,8 @@
                 case "incidente": tipoDesc = "Incidente (incluye BLSG)"; break;
                 case "medida_cautelar": tipoDesc = "Medida cautelar"; break;
                 case "homologacion_desocupacion": tipoDesc = "Homologación de convenio de desocupación (y su ejecución)"; break;
+                case "minimos_extrajudicial": tipoDesc = "Mínimos por labor extrajudicial (art. 19 b)"; break;
+                case "minimos_judicial": tipoDesc = "Mínimos judiciales (art. 19 a)"; break;
                 case "minimos_judiciales": tipoDesc = "Mínimos judiciales (art. 19 a)"; break;
                 default: tipoDesc = wizardState.tipoProceso;
             }
@@ -62,6 +64,11 @@
     function renderProgress() {
         const container = document.getElementById('progressBar');
         if (!container) return;
+        if (typeof wizardState.step !== 'number' || wizardState.step < 0 || wizardState.step > 5) {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'flex';
         let html = '';
         steps.forEach((s, idx) => {
             const activeClass = (idx === wizardState.step) ? 'active' : '';
@@ -77,6 +84,10 @@
         const container = document.getElementById('pantallas');
         if (!container) return;
         const step = wizardState.step;
+        if (step === 'minimos') {
+            renderMinimosScreen();
+            return;
+        }
         let html = `<div class="pantalla active" id="screen${step}">`;
         if (step !== 0) {
             const summary = getSummaryText();
@@ -90,14 +101,13 @@
                 <div class="card-info"><strong>Restricciones y exclusiones del cálculo</strong><br>• Mínimos arancelarios: El asistente no aplica automáticamente los mínimos de los arts. 58, 61, etc. Si el resultado es menor a dichos mínimos y los consideras aplicables, debes desestimar el cálculo. De todos modos los mostramos en el resultado final.<br>• Reducciones y topes: no se contemplan las limitaciones por <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/prorrateo.html" target="_blank"> prorrateo</a> (art. 730 CCyCN), reajuste de precio (art. 1255 CCyCN), ejecución hipotecaria especial (art. 60 Ley 24.441) o régimen de vivienda (art. 254 CCyCN / art. 48 Ley 14.394).<br>• Materias excluidas: la herramienta no está pensada para juicios penales. Solo menciona los mínimos para referencia<br>• Asuntos no susceptibles de apreciación pecuniaria: para otros casos sin monto determinado no es posible un cálculo matemático; se debe recurrir a las pautas del art. 16. El asistente muestra para referencia los valores de los mínimos del art. 19</div>
                 <div class="card-info"><strong>Auxiliares de justicia</strong><br>• Leyes especiales: no se incluyen las pautas de las leyes especiales que reglamenten cada actividad profesional (art. 1, 2° párrafo de la ley 27423) ni las modificaciones de la <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/420000-424999/423680/norma.htm" target="_blank">Ley 27.802 (Modernización Laboral)</a> pero se muestran algunas reglas incorporadas por ésta.<br>• Excluidos: no contempla los cálculos de los honorarios de los administradores judiciales, interventores o veedores, interventores recaudadores, liquidadores judiciales, árbitros, mediadores o amigables componedores (art. 32).<br>• Mediadores: tienen normativa propia (<a href="http://servicios.infoleg.gob.ar/infolegInternet/anexos/165000-169999/166999/texact.htm" target="_blank">Ley 26.589</a> y Decretos <a href="http://servicios.infoleg.gob.ar/infolegInternet/anexos/255000-259999/255741/norma.htm" target="_blank">2536/15</a> y <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/415000-419999/418049/norma.htm" target="_blank">696/2025</a>). Puede utilizar nuestra <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html" target="_blank">calculadora web</a>.</div>
                 <div class="card-info"><strong>Reconvención y acumulación de acciones</strong><br>• Art. 28: en estos supuestos, los honorarios se regulan por separado para cada acción. Le sugerimos reiniciar el asistente para cada una de las pretensiones según sus particularidades.</div>
-                <div style="margin-top:25px;"><h3>Valor de la Unidad de Medida Arancelaria (UMA)</h3><div class="legal-box">Ingresa el valor de la UMA actualizado</div><input type="text" id="inputUMA" class="input-ui" value="${formatNumber(wizardState.valorUMA)}"></div>`;
+                <div style="margin-top:25px;"><h3>Valor de la Unidad de Medida Arancelaria (UMA)</h3><div class="legal-box">Ingresa el valor de la UMA actualizado</div><input type="text" id="inputUMA" class="input-ui" value="${formatNumber(wizardState.valorUMA)}"></div>
+                <div style="margin-top:20px;"><button class="btn-info" id="btnVerMinimos">Ver mínimos arancelarios</button></div>`;
                 break;
             case 1:
                 html += `<h3>Seleccione el tipo de proceso</h3><div class="legal-box">En la Ley 27.423, el tipo de proceso define coeficientes específicos que pueden reducir o incrementar el resultado final del cálculo. Por eso, es fundamental que elijas una de las siguientes opciones:</div>
-                        <select id="tipoProcesoSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="conocimiento">De conocimiento (ordinario / sumarísimo)</option><option value="ejecucion_sentencia">Ejecución de sentencia (o de honorarios o acuerdos)</option><option value="ejecutivo">Ejecutivo (expensas, alquileres, etc.)</option><option value="sucesion">Sucesión</option><option value="exhorto">Exhorto</option><option value="incidente">Incidente (incluye BLSG)</option><option value="medida_cautelar">Medida cautelar</option><option value="homologacion_desocupacion">Homologación de convenio de desocupación (y su ejecución)</option><option value="minimos_judiciales">Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 a)</option></select>
-                        <div id="errorTipoProceso" class="error-msg"></div>
-                        <button class="btn-info" id="btnExtrajudiciales" style="margin-top:12px;">Ver mínimos por labor extrajudicial (art. 19 b)</button>
-                        <div id="tablaExtrajudiciales" style="display:none; margin-top:16px;"><button class="btn-outline" id="cerrarExtrajudiciales" style="margin-bottom:12px;">Cerrar</button></div>`;
+                        <select id="tipoProcesoSelect" class="input-ui"><option value="">-- Seleccione --</option><option value="conocimiento">De conocimiento (ordinario / sumarísimo)</option><option value="ejecucion_sentencia">Ejecución de sentencia (o de honorarios o acuerdos)</option><option value="ejecutivo">Ejecutivo (expensas, alquileres, etc.)</option><option value="sucesion">Sucesión</option><option value="exhorto">Exhorto</option><option value="incidente">Incidente (incluye BLSG)</option><option value="medida_cautelar">Medida cautelar</option><option value="homologacion_desocupacion">Homologación de convenio de desocupación (y su ejecución)</option></select>
+                        <div id="errorTipoProceso" class="error-msg"></div>`;
                 break;
             case 2:
                 html += `<div id="contingenciasContainer"></div>`;
@@ -118,7 +128,7 @@
                 html += `<div id="resultadosDinamicos"></div>`;
                 break;
         }
-        const showNextButton = !(step === 5 && (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'incidente' || wizardState.tipoProceso === 'minimos_judiciales'));
+        const showNextButton = !(step === 5 && (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'incidente' || wizardState.tipoProceso === 'minimos_judiciales' || wizardState.tipoProceso === 'minimos_judicial' || wizardState.tipoProceso === 'minimos_extrajudicial'));
         const resetVisible = (step !== 0) ? '' : 'style="display:none"';
         html += `<div class="btn-group"><button class="btn-outline" id="btnBack" style="${step===0?'display:none':''}">◀ Atrás</button>${showNextButton ? `<button class="btn-primary" id="btnNext">${step===5?'Calcular':'Siguiente ▶'}</button>` : ''}<button class="btn-danger" id="btnReset" ${resetVisible}>Reiniciar</button></div></div>`;
         container.innerHTML = html;
@@ -165,7 +175,11 @@
         } else if (step === 4) {
             renderBase();
         } else if (step === 5) {
-            if (wizardState.tipoProceso === 'minimos_judiciales') {
+            if (wizardState.tipoProceso === 'minimos_judicial') {
+                mostrarTablasMinimos('judicial');
+            } else if (wizardState.tipoProceso === 'minimos_extrajudicial') {
+                document.getElementById('resultadosDinamicos').innerHTML = mostrarTablasMinimos('extrajudicial');
+            } else if (wizardState.tipoProceso === 'minimos_judiciales') {
                 mostrarTablasMinimos('judicial');
             } else {
                 calcularFinal();
@@ -374,6 +388,74 @@
         container.innerHTML = introHtml + `<div id="errorBase" class="error-msg"></div>` + leyendaHtml;
     }
 
+    function renderMinimosScreen() {
+        const container = document.getElementById('pantallas');
+        if (!container) return;
+        const uma = wizardState.valorUMA;
+        let html = `<div class="pantalla active" id="screenMinimos">
+            <h3>Mínimos arancelarios previstos en la Ley 27.423</h3>
+            <select id="selectMinimoTipo" class="input-ui">
+                <option value="">-- Seleccione --</option>
+                <option value="extrajudicial">Mínimos por labor extrajudicial (art. 19 inc. b)</option>
+                <option value="judicial">Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 inc. a)</option>
+                <option value="acciones_48">Acciones de inconstitucionalidad, amparo, hábeas data, hábeas corpus</option>
+                <option value="contencioso_44">Demandas contencioso administrativas no susceptibles de apreciación pecuniaria</option>
+            </select>
+            <div id="minimoContenido"></div>
+            <button class="btn-primary" id="btnSiguienteMinimos" style="display:none;">Siguiente ▶</button>
+            <div style="margin-top:12px;">
+                <button class="btn-outline" id="btnVolverInicio">◀ Volver al inicio</button>
+            </div>
+        </div>`;
+        container.innerHTML = html;
+        renderProgress();
+
+        document.getElementById('selectMinimoTipo').addEventListener('change', (e) => {
+            const val = e.target.value;
+            const contenido = document.getElementById('minimoContenido');
+            const btnSig = document.getElementById('btnSiguienteMinimos');
+            contenido.innerHTML = '';
+            btnSig.style.display = 'none';
+            if (val === 'extrajudicial' || val === 'judicial') {
+                contenido.innerHTML = '<div class="legal-box">Al hacer clic en Siguiente verá la tabla</div>';
+                btnSig.style.display = 'inline-block';
+            } else if (val === 'acciones_48') {
+                const valor = 20 * uma;
+                contenido.innerHTML = `<div class="dashboard-card"><h3>Mínimos del art. 48</h3>
+                    <table><thead><tr><th>Concepto</th><th>Valor</th></tr></thead>
+                    <tbody><tr><td>Mínimo</td><td>20 UMA - $${formatNumber(valor)}</td></tr></tbody></table>
+                    <div class="legal-box">ARTÍCULO 48.- Por la interposición de acciones de inconstitucionalidad, de amparo, de hábeas data, de hábeas corpus, en caso de que no puedan regularse de conformidad con la escala del artículo 21, se aplicarán las normas del artículo 16, con un mínimo de 20 UMA</div></div>`;
+            } else if (val === 'contencioso_44') {
+                const val7 = 7 * uma;
+                const val5 = 5 * uma;
+                contenido.innerHTML = `<div class="dashboard-card"><h3>Mínimos del art. 44</h3>
+                    <table><thead><tr><th>Asunto</th><th>UMA</th><th>$</th></tr></thead>
+                    <tbody>
+                        <tr><td>Acciones contencioso administrativas</td><td>7 UMA</td><td>$${formatNumber(val7)}</td></tr>
+                        <tr><td>Actuaciones administrativas</td><td>5 UMA</td><td>$${formatNumber(val5)}</td></tr>
+                    </tbody></table>
+                    <div class="legal-box">ARTÍCULO 44.- La interposición de acciones y peticiones de naturaleza administrativa seguirá las siguientes reglas... En los casos en que los asuntos no sean susceptibles de apreciación pecuniaria, la regulación no será inferior a 7 o 5 UMA, según se trate del ejercicio de acciones contencioso administrativas o actuaciones administrativas, respectivamente</div></div>`;
+            }
+        });
+
+        document.getElementById('btnSiguienteMinimos').addEventListener('click', () => {
+            const val = document.getElementById('selectMinimoTipo').value;
+            if (val === 'extrajudicial') {
+                wizardState.tipoProceso = 'minimos_extrajudicial';
+            } else if (val === 'judicial') {
+                wizardState.tipoProceso = 'minimos_judicial';
+            }
+            wizardState.desdeMinimos = true;
+            wizardState.step = 5;
+            renderScreen();
+        });
+
+        document.getElementById('btnVolverInicio').addEventListener('click', () => {
+            wizardState.step = 0;
+            renderScreen();
+        });
+    }
+
     function attachStepEvents() {
         document.getElementById('btnNext')?.addEventListener('click', () => {
             if (wizardState.step === 5) {
@@ -388,7 +470,6 @@
             }
             mostrarErrorEnPaso('');
             if (wizardState.step === 1) {
-                if (wizardState.tipoProceso === 'minimos_judiciales') { wizardState.step = 5; renderScreen(); return; }
                 if (wizardState.tipoProceso === 'exhorto') { wizardState.step = 5; renderScreen(); return; }
                 if (wizardState.tipoProceso === 'incidente') { wizardState.step = 4; renderScreen(); return; }
                 if (wizardState.tipoProceso === 'medida_cautelar') { wizardState.step = 2; renderScreen(); return; }
@@ -404,8 +485,14 @@
             const step = wizardState.step;
             if (step === 0) return;
             if (step === 5) {
-                if (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'minimos_judiciales') wizardState.step = 1;
-                else wizardState.step = 4;
+                if (wizardState.desdeMinimos || wizardState.tipoProceso === 'minimos_judicial' || wizardState.tipoProceso === 'minimos_extrajudicial') {
+                    wizardState.step = 'minimos';
+                    wizardState.desdeMinimos = false;
+                } else if (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'minimos_judiciales') {
+                    wizardState.step = 1;
+                } else {
+                    wizardState.step = 4;
+                }
             } else if (step === 4 && wizardState.tipoProceso === 'incidente') {
                 wizardState.step = 1;
             } else {
@@ -413,15 +500,9 @@
             }
             renderScreen();
         });
-        document.getElementById('btnExtrajudiciales')?.addEventListener('click', () => {
-            const div = document.getElementById('tablaExtrajudiciales');
-            if (!div.querySelector('.dashboard-card')) {
-                div.insertAdjacentHTML('beforeend', mostrarTablasMinimos('extrajudicial'));
-            }
-            div.style.display = 'block';
-        });
-        document.getElementById('cerrarExtrajudiciales')?.addEventListener('click', () => {
-            document.getElementById('tablaExtrajudiciales').style.display = 'none';
+        document.getElementById('btnVerMinimos')?.addEventListener('click', () => {
+            wizardState.step = 'minimos';
+            renderScreen();
         });
         document.getElementById('btnReset')?.addEventListener('click', () => {
     wizardState = {
@@ -439,7 +520,8 @@
         objetoBase: '',
         desalojoVivienda: null,
         baseValor: 0,
-        esProvisorio: false
+        esProvisorio: false,
+        desdeMinimos: false
     };
     renderScreen();
 });

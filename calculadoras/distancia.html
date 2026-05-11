@@ -294,9 +294,11 @@
         </div>
 
         <button id="btnCalcularArg" class="btn-calcular">Calcular (Argentina)</button>
+        <button id="btnOSRMArg" class="btn-calcular" style="background:#2c7fb8; margin-top:0.5rem;">Calcular por ruta (OSRM)</button>
         
         <div id="resArg" class="resultado-container"></div>
         <div id="trazArg" class="trazabilidad-container"></div>
+        <div id="osrmArg" class="resultado-container" style="margin-top:0.5rem; border-left-color:#2c7fb8;"></div>
     </div>
 
     <div id="internacional" class="tab-content">
@@ -318,9 +320,11 @@
         </div>
 
         <button id="btnCalcularIntl" class="btn-calcular">Calcular (Internacional)</button>
+        <button id="btnOSRMIntl" class="btn-calcular" style="background:#2c7fb8; margin-top:0.5rem;">Calcular por ruta (OSRM)</button>
         
         <div id="resIntl" class="resultado-container"></div>
         <div id="trazIntl" class="trazabilidad-container"></div>
+        <div id="osrmIntl" class="resultado-container" style="margin-top:0.5rem; border-left-color:#2c7fb8;"></div>
     </div>
 
     <div class="legal-warning">
@@ -331,6 +335,15 @@
         <p><strong>Utilice la herramienta bajo su propia responsabilidad contrastando el resultado.</strong></p>
     </div>
 
+    <!-- FOOTER DE AUTORÍA -->
+    <div style="margin-top: 28px; padding-top: 18px; border-top: 1px solid #dce7ef; text-align: center; color: #4a627a; font-size: 13px; line-height: 1.8;">
+        <span style="font-weight: 500;">Desarrollado por L. Javier Cúneo Libarona con herramientas de IA generativa</span><br>
+        <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
+            <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #0f5b92; text-decoration: none;" title="GitHub personal">🐙 GitHub</a>
+            <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #0f5b92; text-decoration: none;" title="Repositorio de herramientas">⚖️ Herramientas</a>
+            <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #0f5b92; text-decoration: none;" title="LinkedIn">💼 LinkedIn</a>
+        </span>
+    </div>
 </div>
 
 <script>
@@ -580,6 +593,123 @@
                 trazDiv,
                 dist, calcularDias(dist), intlJuzgado, intlDiligencia, intlJuzgado.nombre, intlDiligencia.nombre
             );
+        });
+
+        // ============================================
+        // 5. CÁLCULO POR RUTA (OSRM) CON LÍMITE Y CACHE
+        // ============================================
+        const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
+        const OSRM_LIMITE_DIARIO = 10;
+        const OSRM_CACHE_KEY = 'osrm_cache';
+        const OSRM_COUNTER_KEY = 'osrm_daily_counter';
+        const OSRM_DATE_KEY = 'osrm_date';
+
+        function obtenerContadorDiario() {
+            const hoy = new Date().toDateString();
+            const fechaGuardada = localStorage.getItem(OSRM_DATE_KEY);
+            if (fechaGuardada !== hoy) {
+                localStorage.setItem(OSRM_DATE_KEY, hoy);
+                localStorage.setItem(OSRM_COUNTER_KEY, '0');
+                return 0;
+            }
+            return parseInt(localStorage.getItem(OSRM_COUNTER_KEY) || '0');
+        }
+
+        function incrementarContador() {
+            const contador = obtenerContadorDiario() + 1;
+            localStorage.setItem(OSRM_COUNTER_KEY, contador.toString());
+            return contador;
+        }
+
+        function cacheKey(lat1, lon1, lat2, lon2) {
+            return `${lat1.toFixed(4)},${lon1.toFixed(4)}_${lat2.toFixed(4)},${lon2.toFixed(4)}`;
+        }
+
+        function buscarCache(clave) {
+            const cache = JSON.parse(localStorage.getItem(OSRM_CACHE_KEY) || '{}');
+            return cache[clave] || null;
+        }
+
+        function guardarCache(clave, datos) {
+            const cache = JSON.parse(localStorage.getItem(OSRM_CACHE_KEY) || '{}');
+            cache[clave] = datos;
+            localStorage.setItem(OSRM_CACHE_KEY, JSON.stringify(cache));
+        }
+
+        async function calcularOSRM(lat1, lon1, lat2, lon2, nombre1, nombre2, divResultado) {
+            const contador = obtenerContadorDiario();
+            if (contador >= OSRM_LIMITE_DIARIO) {
+                divResultado.innerHTML = `<p style="color:#b45f06;">⚠️ Límite diario de ${OSRM_LIMITE_DIARIO} consultas alcanzado. Intente mañana.</p>`;
+                return;
+            }
+
+            const clave = cacheKey(lat1, lon1, lat2, lon2);
+            const cacheado = buscarCache(clave);
+            if (cacheado) {
+                mostrarResultadoOSRM(cacheado.distancia, cacheado.dias, nombre1, nombre2, divResultado, true);
+                return;
+            }
+
+            // Respetar 1 request/segundo: retraso pequeño antes de la llamada
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            try {
+                const url = `${OSRM_BASE}/${lon1},${lat1};${lon2},${lat2}?overview=false`;
+                const respuesta = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'HerramientasJudicialesIA/1.0 (javiercuneo.github.io)'
+                    }
+                });
+                if (!respuesta.ok) throw new Error('Error en OSRM');
+                const data = await respuesta.json();
+                if (!data.routes || data.routes.length === 0) throw new Error('Sin ruta encontrada');
+                
+                const distancia = data.routes[0].distance / 1000; // km
+                const dias = calcularDias(distancia);
+                guardarCache(clave, { distancia, dias });
+                incrementarContador();
+                mostrarResultadoOSRM(distancia, dias, nombre1, nombre2, divResultado, false);
+            } catch (err) {
+                divResultado.innerHTML = `<p style="color:red;">❌ Error al consultar OSRM: ${err.message}. Intente de nuevo.</p>`;
+            }
+        }
+
+        function mostrarResultadoOSRM(distancia, dias, nombre1, nombre2, div, cacheado) {
+            let html = `<h3>🛣️ Distancia por ruta (OSRM)</h3><p><strong>Distancia:</strong> ${distancia.toFixed(2)} km</p>`;
+            let logica = '';
+            if (dias === 0) {
+                html += `<p>✅ No corresponde ampliación.</p>`;
+                logica = `Distancia (${distancia.toFixed(2)} km) < 200 km.`;
+            } else {
+                const s = dias > 1 ? 's' : '';
+                html += `<p>📆 Corresponde ampliación por ${dias} día${s}.</p>`;
+                const baseDias = Math.floor(distancia / 200);
+                const resto = distancia % 200;
+                logica = `1 día/200km (${baseDias} día${baseDias !== 1 ? 's' : ''}) + fracción ${resto >= 100 ? '≥' : '<'} 100km (${resto >= 100 ? '1 día adicional' : '0 días'}).`;
+            }
+            html += `<p><small>🖥️ Método: OpenStreetMap (OSRM). ${cacheado ? '(cacheado)' : ''}</small></p>`;
+            html += `<p><small>© <a href="https://www.openstreetmap.org/fixmap" target="_blank">OpenStreetMap contributors</a></small></p>`;
+            html += `<p><small>Lógica aplicada (Art. 158 CPCCN): ${logica}</small></p>`;
+            div.innerHTML = html;
+        }
+
+        // Eventos para botones OSRM
+        document.getElementById('btnOSRMArg').addEventListener('click', () => {
+            const div = document.getElementById('osrmArg');
+            if (!argJuzgado.lat || !argDiligencia.lat) {
+                div.innerHTML = '<p style="color:red;">Debe seleccionar ambas localidades.</p>';
+                return;
+            }
+            calcularOSRM(argJuzgado.lat, argJuzgado.lon, argDiligencia.lat, argDiligencia.lon, argJuzgado.nombre, argDiligencia.nombre, div);
+        });
+
+        document.getElementById('btnOSRMIntl').addEventListener('click', () => {
+            const div = document.getElementById('osrmIntl');
+            if (!intlJuzgado.lat || !intlDiligencia.lat) {
+                div.innerHTML = '<p style="color:red;">Debe seleccionar ambas ciudades.</p>';
+                return;
+            }
+            calcularOSRM(intlJuzgado.lat, intlJuzgado.lon, intlDiligencia.lat, intlDiligencia.lon, intlJuzgado.nombre, intlDiligencia.nombre, div);
         });
 
         // Cerrar sugerencias al hacer click fuera

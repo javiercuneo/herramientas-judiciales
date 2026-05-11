@@ -14,7 +14,8 @@ let wizardState = {
     objetoBase: '',
     desalojoVivienda: null,
     baseValor: 0,
-    esProvisorio: false
+    esProvisorio: false,
+    desdeMinimos: false
 };
 
 function recolectarDatos() {
@@ -30,6 +31,7 @@ function recolectarDatos() {
 
 function validarPasoActual() {
     const step = wizardState.step;
+    if (step === 'minimos') return '';
     if (step === 1) {
         if (!wizardState.tipoProceso) {
             return 'Debe seleccionar un tipo de proceso.';
