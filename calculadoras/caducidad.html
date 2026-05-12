@@ -7,11 +7,7 @@
     <style>
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
@@ -59,10 +55,7 @@
             font-weight: 600;
         }
 
-        .form-group {
-            margin-bottom: 25px;
-        }
-
+        .form-group { margin-bottom: 25px; }
         label {
             display: block;
             color: #2d3748;
@@ -84,15 +77,8 @@
             transition: all 0.3s ease;
         }
 
-        .custom-months {
-            display: none;
-            margin-top: 15px;
-        }
-
-        .custom-months.show {
-            display: block;
-        }
-
+        .custom-months { display: none; margin-top: 15px; }
+        .custom-months.show { display: block; }
         .custom-months input {
             width: 100px;
             padding: 10px 15px;
@@ -101,22 +87,13 @@
             text-align: center;
         }
 
-        .date-inputs {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .date-input-group {
-            flex: 1;
-        }
-
+        .date-inputs { display: flex; gap: 10px; align-items: center; }
+        .date-input-group { flex: 1; }
         .date-input-group label {
             font-size: 12px;
             color: #718096;
             margin-bottom: 5px;
         }
-
         .date-input-group input {
             width: 100%;
             padding: 12px;
@@ -136,12 +113,7 @@
             padding-top: 20px;
         }
 
-        .buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
+        .buttons { display: flex; gap: 15px; margin-top: 30px; }
         button {
             flex: 1;
             padding: 15px;
@@ -158,7 +130,6 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-
         .btn-clear {
             background: #f7fafc;
             color: #4a5568;
@@ -173,10 +144,7 @@
             border-radius: 15px;
             border-left: 5px solid #667eea;
         }
-
-        .result.show {
-            display: block;
-        }
+        .result.show { display: block; }
 
         .result-title {
             color: #2d3748;
@@ -184,24 +152,19 @@
             font-weight: 700;
             margin-bottom: 10px;
         }
-
         .result-date {
             font-size: 32px;
             font-weight: 700;
             color: #667eea;
             margin-bottom: 10px;
         }
-
         .result-details {
             color: #4a5568;
             font-size: 14px;
             line-height: 1.6;
         }
 
-        /* Ocultamos la sección del cómputo con feriados */
-        .hidden-computation {
-            display: none;
-        }
+        .hidden-computation { display: none; }
 
         .error-message {
             color: #e53e3e;
@@ -209,7 +172,6 @@
             margin-top: 8px;
             display: none;
         }
-
         .error-message.show { display: block; }
     </style>
 </head>
@@ -257,7 +219,6 @@
             <div class="result-title">La caducidad se produce el día:</div>
             <div class="result-date" id="resultDate"></div>
             <div class="result-details" id="resultDetails"></div>
-            <!-- La siguiente sección está oculta pero el código JavaScript sigue generando los datos -->
             <div class="hidden-computation">
                 <hr class="hr-divider">
                 <div class="result-title">Cómputo con Días Inhábiles y Feriados:</div>
@@ -265,14 +226,16 @@
                 <div class="result-details" id="resultDetailsFull"></div>
             </div>
         </div>
+
+        <!-- FOOTER DE AUTORÍA -->
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #4a5568; font-size: 12px; line-height: 1.8;">
-  <span style="font-weight: 500;">Desarrollado por L. Javier Cúneo Libarona con herramientas de IA generativa</span><br>
-  <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-    <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #2d3748; text-decoration: none;" title="GitHub personal"><i class="fab fa-github"></i> GitHub</a>
-    <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #2d3748; text-decoration: none;" title="Repositorio de herramientas"><i class="fa-solid fa-gavel"></i> Herramientas</a>
-    <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #2d3748; text-decoration: none;" title="LinkedIn"><i class="fab fa-linkedin"></i> LinkedIn</a>
-  </span>
-</div>
+            <span style="font-weight: 500;">Desarrollado por L. Javier Cúneo Libarona con herramientas de IA generativa</span><br>
+            <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
+                <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #2d3748; text-decoration: none;" title="GitHub personal"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #2d3748; text-decoration: none;" title="Repositorio de herramientas"><i class="fa-solid fa-gavel"></i> Herramientas</a>
+                <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #2d3748; text-decoration: none;" title="LinkedIn"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </span>
+        </div>
     </div>
 
     <script>
@@ -304,7 +267,6 @@
                     } catch (e) { console.error(`Error año ${y}:`, e); }
                 }
 
-                // Agregar 16 de noviembre de cada año (2021-2026) como inhábil fijo
                 for (let y = 2021; y <= 2026; y++) {
                     const fecha = `${y}-11-16`;
                     if (!inhabilesMap.has(fecha)) {
@@ -350,64 +312,61 @@
 
             const startDate = new Date(y, m - 1, d);
             
-            // --- CÁLCULO ORDINARIO (solo ferias, corregido) ---
+            // --- CÁLCULO ORDINARIO (solo ferias) ---
             let ordDate = new Date(startDate);
             let ordObs = [];
 
-            // Sumar los meses del plazo, salteando los eneros
+            // Sumar meses, salteando eneros
             for (let i = 0; i < plazo; i++) {
                 let dayRef = ordDate.getDate();
                 ordDate.setMonth(ordDate.getMonth() + 1);
-                // Ajuste por meses que no tienen ese día (ej. 31 -> 28/30)
                 if (ordDate.getDate() !== dayRef) ordDate.setDate(0);
-
-                // Si caímos en enero, lo salteamos entero
                 if (ordDate.getMonth() === 0) {
                     ordObs.push(`Se excluyó enero ${ordDate.getFullYear()} (feria)`);
-                    ordDate.setMonth(1); // febrero
+                    ordDate.setMonth(1);
                     if (ordDate.getDate() !== dayRef) ordDate.setDate(0);
                 }
             }
 
-            // Agregar las ferias de julio que realmente se atraviesen (superposición)
-            let changed;
-            do {
-                changed = false;
-                for (let yr = startDate.getFullYear(); yr <= ordDate.getFullYear(); yr++) {
-                    let feria = getFeriaJulyRange(yr);
-                    // ¿El intervalo [startDate, ordDate] se superpone con la feria?
-                    if (startDate <= feria.end && ordDate >= feria.start) {
-                        ordDate.setDate(ordDate.getDate() + 12);
+            // Ajuste por ferias de julio (barrido único por año, sin repeticiones)
+            let yr = startDate.getFullYear();
+            let endYr = ordDate.getFullYear();
+            while (yr <= endYr) {
+                let feria = getFeriaJulyRange(yr);
+                // Solo ajustamos si el intervalo [startDate, ordDate] se superpone con esta feria
+                if (feria.start <= ordDate && feria.end >= startDate) {
+                    let overlapStart = new Date(Math.max(startDate.getTime(), feria.start.getTime()));
+                    let overlapEnd = new Date(Math.min(ordDate.getTime(), feria.end.getTime()));
+                    let daysOverlap = Math.ceil((overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                    if (daysOverlap > 0) {
+                        ordDate.setDate(ordDate.getDate() + daysOverlap);
                         ordObs.push(
                             `Se atravesó la feria de julio ${yr} ` +
                             `(${feria.start.toLocaleDateString('es-AR')} al ${feria.end.toLocaleDateString('es-AR')}) ` +
-                            `y se agregaron 12 días`
+                            `y se agregaron ${daysOverlap} días`
                         );
-                        changed = true;
-                        break; // reiniciamos verificación con la nueva fecha
+                        endYr = ordDate.getFullYear();  // actualizar por si cambió de año
                     }
                 }
-            } while (changed);
+                yr++;
+            }
 
             document.getElementById('resultDate').innerText = ordDate.toLocaleDateString('es-AR');
             document.getElementById('resultDetails').innerHTML = `<strong>Inicio:</strong> ${startDate.toLocaleDateString('es-AR')}<br><strong>Observaciones:</strong><br>${ordObs.map(o => `• ${o}`).join('<br>')}`;
 
-            // --- CÁLCULO FULL (con días inhábiles y feriados) ---
-            // Este cómputo se sigue haciendo igual, pero se muestra en la sección oculta
+            // --- CÁLCULO FULL (con días inhábiles y feriados, oculto) ---
             let inhabilesList = [];
-            
             let fullDate = new Date(ordDate);
             let previousLength;
+            let maxFullIter = 10;
             do {
                 previousLength = inhabilesList.length;
-                
                 inhabilesList = [];
                 let iter = new Date(startDate);
                 iter.setDate(iter.getDate() + 1);
                 
                 while (iter <= fullDate) {
                     let iso = iter.getFullYear() + '-' + String(iter.getMonth() + 1).padStart(2, '0') + '-' + String(iter.getDate()).padStart(2, '0');
-                    
                     let inFeriaJan = (iter.getMonth() === 0);
                     let rangeJul = getFeriaJulyRange(iter.getFullYear());
                     let inFeriaJul = (iter >= rangeJul.start && iter <= rangeJul.end);
@@ -421,10 +380,15 @@
                 fullDate = new Date(ordDate);
                 fullDate.setDate(fullDate.getDate() + inhabilesList.length);
                 
+                if (--maxFullIter <= 0) {
+                    console.warn('Límite de iteraciones en cálculo inhábiles');
+                    break;
+                }
             } while (inhabilesList.length > previousLength);
 
             let adjusted = true;
             let adObs = "";
+            let maxAdjIter = 10;
             while(adjusted) {
                 adjusted = false;
                 let isoFull = fullDate.getFullYear() + '-' + String(fullDate.getMonth() + 1).padStart(2, '0') + '-' + String(fullDate.getDate()).padStart(2, '0');
@@ -450,6 +414,10 @@
                     adObs = ` (Ajustado por feriado: ${inhabilesMap.get(isoFull)})`;
                     adjusted = true;
                 }
+                if (--maxAdjIter <= 0) {
+                    console.warn('Límite en ajuste final de fecha');
+                    break;
+                }
             }
 
             let listHTML = inhabilesList.length > 0 ? 
@@ -460,7 +428,6 @@
                     </ul>
                 </details>` : '';
 
-            // Resultados del cómputo con feriados (ocultos)
             document.getElementById('resultDateFull').innerText = fullDate.toLocaleDateString('es-AR');
             document.getElementById('resultDetailsFull').innerHTML = `Se adicionaron <strong>${inhabilesList.length} días inhábiles</strong> extra (fuera de ferias).<strong>${adObs}</strong>${listHTML}`;
 
