@@ -282,10 +282,8 @@ if (validarPasoActual() !== '') return;
     </tbody></table>
     <div class="legal-box">Art. 30: "Por las actuaciones correspondientes a la segunda o ulterior instancia, se regularán en cada una de ellas del 30% al 35% de la cantidad que se fije para honorarios en primera instancia...Si la sentencia recurrida fuera revocada en todas sus partes en favor del apelante, los honorarios profesionales por los trabajos en esa instancia de apelación se fijarán entre el 30% y 40% de los correspondientes a la primera instancia".</div></div>`;
 
-    // Art. 31 y auxiliares
-    html += `<div class="dashboard-card"><h4>📌 Recursos ante la CSJN (art. 31)</h4><table><thead><tr><th>Concepto</th><th>Mínimo (UMA)</th><th>Mínimo ($)</th></tr></thead><tbody><tr><td>Queja por denegación de recurso</td><td>15 UMA</td><td>$${formatNumber(15 * uma)}</td></tr><tr><td>Interposición de recurso extraordinario, etc.</td><td>20 UMA</td><td>$${formatNumber(20 * uma)}</td></tr></tbody></table><div class="legal-box">Art. 31: La interposición ante la CSJN de los recursos extraordinarios, de inconstitucionalidad, de revisión, de casación, ordinarios, directos y otros similares o que no sean los normales de acceso, no podrá remunerarse en una cantidad inferior a 20 UMA. Las quejas por denegación de estos recursos no podrán remunerarse en una cantidad inferior a 15 UMA. Si dichos recursos fueren concedidos y se tramitaren, se estará a lo dispuesto en el artículo 21.</div></div>`;
+    // Auxiliares de justicia
     html += `<div class="dashboard-card"><h4>🛠️ Auxiliares de justicia (5% y 10% de la base)</h4><table><thead><tr><th>Mínimo UMA</th>${esProvisorio ? '<th>Mínimo $</th>' : '<th>Máximo UMA</th><th>Mínimo $</th><th>Máximo $</th>'}</tr></thead><tbody><tr>${esProvisorio ? `<td>${auxMin.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}` : `<td>${auxMin.toFixed(2)}</td><td>${auxMax.toFixed(2)}</td><td>$${formatNumber(auxMin * uma)}</td><td>$${formatNumber(auxMax * uma)}`}</tr></tbody></table><div class="legal-box">La tabla muestra la regla general del art. 21 antepenúltimo párrafo según el cual el monto no puede ser inferior al 5% ni superior al 10% del monto del proceso.<br>Tené en cuenta que:<br>i) Ante labores altamente complejas o extensas el juez puede aplicar un porcentaje mayor (art. 21)<br>ii) Según el art. 21 es aplicable el art. 478 del CPCCN (principio de proporcionalidad con los demás profesionales y posibilidad de perforar los mínimos arancelarios)<br>iii) Según el art. 61 bis (incorporado por ley 27.802), los honorarios de los peritos no están vinculados a la cuantía del juicio ni al porcentaje de incapacidad y la regulación responde exclusivamente a la apreciación judicial. El monto mínimo es 2 UMA. Si el proceso finaliza por transacción, avenimiento y conciliación, sin que se haya presentado la pericia se regula 1/4 de UMA si aceptó el cargo.<br>iv) También sigue vigente el inc. b) del art. 25 según el cual si no se presentó la pericia se efectúa una regulación compensatoria adecuada en base al art. 16, pudiendo el perito detallar las tareas realizadas desde la aceptación del cargo.</div></div>`;
-    html += `<div class="dashboard-card"><h4>📌 Mínimos del art. 58 (juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos)</h4><table><thead><tr><th>Inciso</th><th>Mínimo (UMA)</th><th>Mínimo $</th></tr></thead><tbody><tr><td>a) procesos de conocimiento</td><td>10 UMA</td><td>$${formatNumber(10 * uma)}</td></tr><tr><td>b) ejecutivos</td><td>6 UMA</td><td>$${formatNumber(6 * uma)}</td></tr><tr><td>c) mediación</td><td>2 UMA</td><td>$${formatNumber(2 * uma)}</td></tr><tr><td>d) Auxiliares de la Justicia</td><td>4 UMA</td><td>$${formatNumber(4 * uma)}</td></tr></tbody></table><div class="legal-box">Art. 58: Mínimo establecido para regular honorarios de juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos.</div></div>`;
 
     // TABLA DEL PARTIDOR (solo para sucesión)
     if (tipo === 'sucesion') {
@@ -293,6 +291,15 @@ if (validarPasoActual() !== '') return;
         const partidorMax = baseFinal * 0.03;
         html += `<div class="dashboard-card"><h4>💰 Honorarios del partidor</h4><table><thead><tr><th>Concepto</th><th>Porcentaje</th><th>Monto (UMA)</th><th>Monto ($)</th></tr></thead><tbody><tr><td>Mínimo</td><td>2%</td><td>${(partidorMin/uma).toFixed(2)}</td><td>$${formatNumber(partidorMin)}</td></tr><tr><td>Máximo</td><td>3%</td><td>${(partidorMax/uma).toFixed(2)}</td><td>$${formatNumber(partidorMax)}</td></tr></tbody></table><div class="legal-box">Art. 35 última parte: …Los honorarios del abogado o abogados partidores en conjunto, se fijarán sobre el valor del haber a dividirse, aplicando una escala del 2 % al 3% del total. Si se trata del auxiliar de Justicia, los honorarios derivados de la actuación como perito partidor para realizar y suscribir las cuentas particionarias juntamente con el letrado, será regulada en una escala del 2 % al 3% del valor de los bienes objeto de la partición.</div></div>`;
     }
+
+    html += `<div style="margin-top:20px; text-align:center;">
+        <button id="btnIrAMinimosDesdeResultado" class="btn-outline" style="padding:10px 24px;">
+            📋 Ver mínimos arancelarios para contrastar
+        </button>
+        <p style="font-size:0.8rem; margin-top:8px; color: var(--text-secondary);">
+            Si el resultado parece inferior a los mínimos legales, consultá la tabla de mínimos.
+        </p>
+    </div>`;
 
     document.getElementById('resultadosDinamicos').innerHTML = html;
 
@@ -363,7 +370,7 @@ function mostrarTablasMinimos(modo) {
             const pesos = item.uma * uma;
             rows += `<tr><td>${item.asunto}</td><td>${item.uma} UMA</td><td>$${formatNumber(pesos)}</td></tr>`;
         });
-        const html = `<div class="dashboard-card"><h3>Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 a)</h3>
+        const html = `<div class="dashboard-card"><h3>Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 inc. a)</h3>
             <div class="legal-box">ARTÍCULO 19.- Cuando no fuere posible apreciar el valor pecuniario del asunto, los jueces fijarán los honorarios teniendo en cuenta la naturaleza de las actuaciones y la gestión profesional desarrollada, con arreglo a las siguientes pautas:<br>a) En asuntos judiciales:</div>
             <table><thead><tr><th>Asunto</th><th>UMA</th><th>$</th></tr></thead><tbody>${rows}</tbody></table></div>`;
         document.getElementById('resultadosDinamicos').innerHTML = html;
@@ -389,9 +396,90 @@ function mostrarTablasMinimos(modo) {
             const pesos = item.uma * uma;
             rows += `<tr><td>${item.labor}</td><td>${item.uma} UMA</td><td>$${formatNumber(pesos)}</td></tr>`;
         });
-        return `<div class="dashboard-card"><h3>Mínimos por labor extrajudicial (art. 19 b)</h3>
-            <div class="legal-box">ARTÍCULO 19.- Cuando no fuere posible apreciar el valor pecuniario del asunto, los jueces fijarán los honorarios teniendo en cuenta la naturaleza de las actuaciones y la gestión profesional desarrollada, con arreglo a las siguientes pautas:<br>b) En asuntos extrajudiciales:</div>
+        return `<div class="dashboard-card"><h3>Mínimos por labor extrajudicial (art. 19 inc. b)</h3>
+            <div class="legal-box">ARTÍCULO 19.- Cuando no fuere posible apreciar el valor pecuniario del asunto, los jueces fijarán los honorarios teniendo en cuenta la naturaleza de las actuaciones y la gestión profesional desarrollada, con arreglo a las siguientes pautas:...<br>b) En asuntos extrajudiciales:</div>
             <table><thead><tr><th>Labor</th><th>UMA</th><th>$</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    } else if (modo === 'art58') {
+        const uma = wizardState.valorUMA;
+        return `<div class="dashboard-card">
+            <h3>📌 Mínimos del art. 58 (juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos)</h3>
+            <table><thead><tr><th>Inciso</th><th>Mínimo (UMA)</th><th>Mínimo $</th></tr></thead>
+            <tbody>
+                <tr><td>a) procesos de conocimiento</td><td>10 UMA</td><td>$${formatNumber(10 * uma)}</td></tr>
+                <tr><td>b) ejecutivos</td><td>6 UMA</td><td>$${formatNumber(6 * uma)}</td></tr>
+                <tr><td>c) mediación</td><td>2 UMA</td><td>$${formatNumber(2 * uma)}</td></tr>
+                <tr><td>d) Auxiliares de la Justicia</td><td>4 UMA</td><td>$${formatNumber(4 * uma)}</td></tr>
+            </tbody></table>
+            <div class="legal-box">Art. 58: Mínimo establecido para regular honorarios de juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos.</div>
+        </div>`;
+    } else if (modo === 'recursos_csjn') {
+        return `<div class="dashboard-card">
+            <h4>📌 Recursos ante la CSJN (art. 31)</h4>
+            <table>
+                <thead>
+                    <tr><th colspan="3">Recursos ante la CSJN (art. 31)</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Queja por denegación de recurso</td>
+                        <td>15 UMA</td>
+                        <td>$${formatNumber(15 * wizardState.valorUMA)}</td>
+                    </tr>
+                    <tr>
+                        <td>Interposición de recurso extraordinario, etc.</td>
+                        <td>20 UMA</td>
+                        <td>$${formatNumber(20 * wizardState.valorUMA)}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="legal-box">Art. 31: La interposición ante la CSJN de los recursos extraordinarios, de inconstitucionalidad, de revisión, de casación, ordinarios, directos y otros similares o que no sean los normales de acceso, no podrá remunerarse en una cantidad inferior a 20 UMA. Las quejas por denegación de estos recursos no podrán remunerarse en una cantidad inferior a 15 UMA. Si dichos recursos fueren concedidos y se tramitaren, se estará a lo dispuesto en el artículo 21.</div>
+        </div>`;
+    } else if (modo === 'auxiliares_justicia') {
+        return `<div class="dashboard-card">
+            <h3>📌 Auxiliares de justicia</h3>
+            <table>
+                <thead>
+                    <tr><th colspan="2">Mínimos del art. 58: juicios susceptibles de apreciación pecuniaria no previstos en otros artículos</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>4 UMA</td>
+                        <td>$${formatNumber(4 * wizardState.valorUMA)}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table style="margin-top:16px;">
+                <thead>
+                    <tr><th colspan="3">Mínimos del art. 60: Procesos no susceptibles de apreciación pecuniaria</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Peritos y liquidadores de averías</td>
+                        <td>2 UMA</td>
+                        <td>$${formatNumber(2 * wizardState.valorUMA)}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="legal-box">ARTÍCULO 60 (B.O. 06/03/2026).- En los procesos no susceptibles de apreciación pecuniaria, los honorarios de los peritos y de los peritos liquidadores de averías serán fijados conforme a las pautas valorativas del artículo 16 y en un mínimo de 2 UMA, siendo suficiente para la fijación de los honorarios mínimos, la aceptación del cargo conferido. En el caso de los demás auxiliares de la Justicia, se aplicarán las normas específicas.</div>
+            <table style="margin-top:16px;">
+                <thead>
+                    <tr><th colspan="3">Mínimos del art. 61 bis: controversias judiciales</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Peritos</td>
+                        <td>2 UMA por pericia</td>
+                        <td>$${formatNumber(2 * wizardState.valorUMA)}</td>
+                    </tr>
+                    <tr>
+                        <td>Peritos que aceptaron el cargo y no presentaron dictamen por transacción, avenimiento o conciliación</td>
+                        <td>¼ de UMA</td>
+                        <td>$${formatNumber(0.25 * wizardState.valorUMA)}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="legal-box">Artículo 61 bis (B.O. 06/03/2026) Los honorarios de los peritos que intervengan en las controversias judiciales, no estarán vinculados a la cuantía del respectivo juicio, ni al porcentaje de incapacidad que se dictamine en caso de producirse una pericia médica. Su regulación responderá exclusivamente a la apreciación judicial de la labor técnica realizada en el pleito y su relevancia; calidad y extensión en lo concreto y deberá fijarse en un monto que asegure una adecuada retribución al perito. Por cada pericia, se fijará un monto mínimo de 2 UMA. En caso de finalizar el proceso por transacción, avenimiento y conciliación, sin que el perito haya presentado la pericia encargada, se le regulará 1/4 de UMA en tanto el perito haya aceptado el cargo.</div>
+        </div>`;
     }
 }
 window.mostrarTablasMinimos = mostrarTablasMinimos;

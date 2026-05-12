@@ -11,12 +11,19 @@
                 case "incidente": tipoDesc = "Incidente (incluye BLSG)"; break;
                 case "medida_cautelar": tipoDesc = "Medida cautelar"; break;
                 case "homologacion_desocupacion": tipoDesc = "Homologación de convenio de desocupación (y su ejecución)"; break;
-                case "minimos_extrajudicial": tipoDesc = "Mínimos por labor extrajudicial (art. 19 b)"; break;
-                case "minimos_judicial": tipoDesc = "Mínimos judiciales (art. 19 a)"; break;
-                case "minimos_judiciales": tipoDesc = "Mínimos judiciales (art. 19 a)"; break;
+                case "minimos_extrajudicial": tipoDesc = "Mínimos Arancelarios - Mínimos por labor extrajudicial (art. 19 inc. b)"; break;
+                case "minimos_judicial": tipoDesc = "Mínimos Arancelarios - Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 inc. a)"; break;
+                case "minimos_judiciales": tipoDesc = "Mínimos Arancelarios - Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 inc. a)"; break;
+                case "minimos_art58": tipoDesc = "Mínimos Arancelarios - Mínimos del art. 58"; break;
+                case "minimos_recursos_csjn": tipoDesc = "Mínimos Arancelarios - Recursos ante la CSJN (art. 31)"; break;
+                case "minimos_auxiliares": tipoDesc = "Mínimos Arancelarios - Auxiliares de justicia"; break;
                 default: tipoDesc = wizardState.tipoProceso;
             }
-            lines.push(`Tipo de proceso: ${tipoDesc}`);
+            if (wizardState.tipoProceso.startsWith('minimos_')) {
+                lines.push(tipoDesc);
+            } else {
+                lines.push(`Tipo de proceso: ${tipoDesc}`);
+            }
         }
         if (wizardState.sucesionUnicoLetrado && wizardState.tipoProceso === 'sucesion') lines.push("Sucesión: Un solo abogado (reducción 50% sobre la escala)");
         if (wizardState.medidaOposicion !== null && wizardState.tipoProceso === 'medida_cautelar') {
@@ -68,6 +75,10 @@
     function renderProgress() {
         const container = document.getElementById('progressBar');
         if (!container) return;
+        if (wizardState.step === 5 && wizardState.tipoProceso.startsWith('minimos_')) {
+            container.innerHTML = '';
+            return;
+        }
         if (typeof wizardState.step !== 'number' || wizardState.step < 0 || wizardState.step > 5) {
             container.style.display = 'none';
             return;
@@ -132,7 +143,7 @@
                 html += `<div id="resultadosDinamicos"></div>`;
                 break;
         }
-        const showNextButton = !(step === 5 && (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'incidente' || wizardState.tipoProceso === 'minimos_judiciales' || wizardState.tipoProceso === 'minimos_judicial' || wizardState.tipoProceso === 'minimos_extrajudicial'));
+        const showNextButton = !(step === 5 && (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'incidente' || wizardState.tipoProceso === 'minimos_judiciales' || wizardState.tipoProceso === 'minimos_judicial' || wizardState.tipoProceso === 'minimos_extrajudicial' || wizardState.tipoProceso === 'minimos_art58' || wizardState.tipoProceso === 'minimos_recursos_csjn' || wizardState.tipoProceso === 'minimos_auxiliares'));
         const resetVisible = (step !== 0) ? '' : 'style="display:none"';
         html += `<div class="btn-group"><button class="btn-outline" id="btnBack" style="${step===0?'display:none':''}">◀ Atrás</button>${showNextButton ? `<button class="btn-primary" id="btnNext">${step===5?'Calcular':'Siguiente ▶'}</button>` : ''}<button class="btn-danger" id="btnReset" ${resetVisible}>Reiniciar</button></div></div>`;
         container.innerHTML = html;
@@ -194,8 +205,22 @@
                 document.getElementById('resultadosDinamicos').innerHTML = mostrarTablasMinimos('extrajudicial');
             } else if (wizardState.tipoProceso === 'minimos_judiciales') {
                 mostrarTablasMinimos('judicial');
+            } else if (wizardState.tipoProceso === 'minimos_art58') {
+                document.getElementById('resultadosDinamicos').innerHTML = mostrarTablasMinimos('art58');
+            } else if (wizardState.tipoProceso === 'minimos_recursos_csjn') {
+                document.getElementById('resultadosDinamicos').innerHTML = mostrarTablasMinimos('recursos_csjn');
+            } else if (wizardState.tipoProceso === 'minimos_auxiliares') {
+                document.getElementById('resultadosDinamicos').innerHTML = mostrarTablasMinimos('auxiliares_justicia');
             } else {
                 calcularFinal();
+            }
+            const btnMin = document.getElementById('btnIrAMinimosDesdeResultado');
+            if (btnMin) {
+                btnMin.addEventListener('click', () => {
+                    wizardState.desdeResultado = true;
+                    wizardState.step = 'minimos';
+                    renderScreen();
+                });
             }
         }
     }
@@ -417,13 +442,16 @@
                 <option value="">-- Seleccione --</option>
                 <option value="extrajudicial">Mínimos por labor extrajudicial (art. 19 inc. b)</option>
                 <option value="judicial">Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 inc. a)</option>
-                <option value="acciones_48">Acciones de inconstitucionalidad, amparo, hábeas data, hábeas corpus</option>
-                <option value="contencioso_44">Demandas contencioso administrativas no susceptibles de apreciación pecuniaria</option>
+                <option value="acciones_48">Acciones de inconstitucionalidad, amparo, hábeas data, hábeas corpus (art.48)</option>
+                <option value="contencioso_44">Demandas contencioso administrativas no susceptibles de apreciación pecuniaria (art. 44)</option>
+                <option value="minimos_art58">Mínimos en juicios susceptibles de apreciación pecuniaria (art. 58)</option>
+                <option value="recursos_csjn">Recursos ante la CSJN (art. 31)</option>
+                <option value="auxiliares_justicia">Auxiliares de justicia</option>
             </select>
             <div id="minimoContenido"></div>
             <button class="btn-primary" id="btnSiguienteMinimos" style="display:none;">Siguiente ▶</button>
             <div style="margin-top:12px;">
-                <button class="btn-outline" id="btnVolverInicio">◀ Volver al inicio</button>
+                <button class="btn-outline" id="btnVolverInicio">${wizardState.desdeResultado ? '◀ Volver al resultado' : '◀ Volver al inicio'}</button>
             </div>
         </div>`;
         container.innerHTML = html;
@@ -438,22 +466,41 @@
             if (val === 'extrajudicial' || val === 'judicial') {
                 contenido.innerHTML = '<div class="legal-box">Al hacer clic en Siguiente verá la tabla</div>';
                 btnSig.style.display = 'inline-block';
+            } else if (val === 'minimos_art58' || val === 'recursos_csjn' || val === 'auxiliares_justicia') {
+                contenido.innerHTML = '<div class="legal-box">Al hacer clic en Siguiente verá los mínimos correspondientes.</div>';
+                btnSig.style.display = 'inline-block';
             } else if (val === 'acciones_48') {
-                const valor = 20 * uma;
-                contenido.innerHTML = `<div class="dashboard-card"><h3>Mínimos del art. 48</h3>
-                    <table><thead><tr><th>Concepto</th><th>Valor</th></tr></thead>
-                    <tbody><tr><td>Mínimo</td><td>20 UMA - $${formatNumber(valor)}</td></tr></tbody></table>
-                    <div class="legal-box">ARTÍCULO 48.- Por la interposición de acciones de inconstitucionalidad, de amparo, de hábeas data, de hábeas corpus, en caso de que no puedan regularse de conformidad con la escala del artículo 21, se aplicarán las normas del artículo 16, con un mínimo de 20 UMA</div></div>`;
-            } else if (val === 'contencioso_44') {
-                const val7 = 7 * uma;
-                const val5 = 5 * uma;
-                contenido.innerHTML = `<div class="dashboard-card"><h3>Mínimos del art. 44</h3>
-                    <table><thead><tr><th>Asunto</th><th>UMA</th><th>$</th></tr></thead>
+                contenido.innerHTML = `<table>
+                    <thead>
+                        <tr><th colspan="2">Mínimos del art. 48</th></tr>
+                    </thead>
                     <tbody>
-                        <tr><td>Acciones contencioso administrativas</td><td>7 UMA</td><td>$${formatNumber(val7)}</td></tr>
-                        <tr><td>Actuaciones administrativas</td><td>5 UMA</td><td>$${formatNumber(val5)}</td></tr>
-                    </tbody></table>
-                    <div class="legal-box">ARTÍCULO 44.- La interposición de acciones y peticiones de naturaleza administrativa seguirá las siguientes reglas... En los casos en que los asuntos no sean susceptibles de apreciación pecuniaria, la regulación no será inferior a 7 o 5 UMA, según se trate del ejercicio de acciones contencioso administrativas o actuaciones administrativas, respectivamente</div></div>`;
+                        <tr>
+                            <td>20 UMA</td>
+                            <td>${formatNumber(20 * uma)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="legal-box">ARTÍCULO 48.- Por la interposición de acciones de inconstitucionalidad, de amparo, de hábeas data, de hábeas corpus, en caso de que no puedan regularse de conformidad con la escala del artículo 21, se aplicarán las normas del artículo 16, con un mínimo de 20 UMA.</div>`;
+            } else if (val === 'contencioso_44') {
+                contenido.innerHTML = `<table>
+                    <thead>
+                        <tr><th colspan="3">Mínimos del art. 44</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Acciones contencioso administrativas</td>
+                            <td>7 UMA</td>
+                            <td>${formatNumber(7 * uma)}</td>
+                        </tr>
+                        <tr>
+                            <td>Actuaciones administrativas</td>
+                            <td>5 UMA</td>
+                            <td>${formatNumber(5 * uma)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="legal-box">ARTÍCULO 44.- La interposición de acciones y peticiones de naturaleza administrativa seguirá las siguientes reglas… En los casos en que los asuntos no sean susceptibles de apreciación pecuniaria, la regulación no será inferior a 7 o 5 UMA, según se trate del ejercicio de acciones contencioso administrativas o actuaciones administrativas, respectivamente.</div>`;
             }
         });
 
@@ -463,6 +510,12 @@
                 wizardState.tipoProceso = 'minimos_extrajudicial';
             } else if (val === 'judicial') {
                 wizardState.tipoProceso = 'minimos_judicial';
+            } else if (val === 'minimos_art58') {
+                wizardState.tipoProceso = 'minimos_art58';
+            } else if (val === 'recursos_csjn') {
+                wizardState.tipoProceso = 'minimos_recursos_csjn';
+            } else if (val === 'auxiliares_justicia') {
+                wizardState.tipoProceso = 'minimos_auxiliares';
             }
             wizardState.desdeMinimos = true;
             wizardState.step = 5;
@@ -470,7 +523,12 @@
         });
 
         document.getElementById('btnVolverInicio').addEventListener('click', () => {
-            wizardState.step = 0;
+            if (wizardState.desdeResultado) {
+                wizardState.desdeResultado = false;
+                wizardState.step = 5;
+            } else {
+                wizardState.step = 0;
+            }
             renderScreen();
         });
     }
@@ -504,7 +562,7 @@
             const step = wizardState.step;
             if (step === 0) return;
             if (step === 5) {
-                if (wizardState.desdeMinimos || wizardState.tipoProceso === 'minimos_judicial' || wizardState.tipoProceso === 'minimos_extrajudicial') {
+                if (wizardState.desdeMinimos || wizardState.tipoProceso === 'minimos_judicial' || wizardState.tipoProceso === 'minimos_extrajudicial' || wizardState.tipoProceso === 'minimos_art58' || wizardState.tipoProceso === 'minimos_recursos_csjn' || wizardState.tipoProceso === 'minimos_auxiliares') {
                     wizardState.step = 'minimos';
                     wizardState.desdeMinimos = false;
                 } else if (wizardState.tipoProceso === 'exhorto' || wizardState.tipoProceso === 'minimos_judiciales') {
@@ -541,7 +599,8 @@
         posesoriasTipo: null,
         baseValor: 0,
         esProvisorio: false,
-        desdeMinimos: false
+        desdeMinimos: false,
+        desdeResultado: false
     };
     renderScreen();
 });

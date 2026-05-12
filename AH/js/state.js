@@ -16,7 +16,8 @@ let wizardState = {
     posesoriasTipo: null,
     baseValor: 0,
     esProvisorio: false,
-    desdeMinimos: false
+    desdeMinimos: false,
+    desdeResultado: false
 };
 
 function recolectarDatos() {
