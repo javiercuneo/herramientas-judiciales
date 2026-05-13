@@ -141,6 +141,14 @@
       "motivo": "Viernes Santo"
     },
     {
+      "fecha": "2026-04-21",
+      "motivo": "Resolución 926 CSNJ del 8 de mayo de 2026 (tribunales nacionales y federales de la Capital Federal; comicios CPACF)"
+    },
+    {
+      "fecha": "2026-04-22",
+      "motivo": "Resolución 926 CSNJ del 8 de mayo de 2026 (tribunales nacionales y federales de la Capital Federal; comicios CPACF)"
+    },
+    {
       "fecha": "2026-05-01",
       "motivo": "Día del Trabajador"
     },
@@ -188,6 +196,5 @@
       "fecha": "2026-12-25",
       "motivo": "Navidad"
     }
-  ],
-  "instrucciones": "Puedes agregar fechas adicionales siguiendo el formato YYYY-MM-DD. Este archivo se carga dinámicamente desde GitHub."
+  ]
 }
