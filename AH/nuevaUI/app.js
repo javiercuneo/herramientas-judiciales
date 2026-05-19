@@ -63,18 +63,6 @@ const objetosJuicio = [
   { id: 12, name: 'Derechos de incidencia colectiva con contenido patrimonial', icon: 'group' }
 ];
 
-// ===== Mínimos de Honorarios =====
-const minimosHonorarios = [
-  { tipo: 'Juicio de conocimiento', minimo: 30 },
-  { tipo: 'Ejecución de sentencia', minimo: 20 },
-  { tipo: 'Juicio ejecutivo', minimo: 20 },
-  { tipo: 'Sucesión', minimo: 25 },
-  { tipo: 'Exhorto', minimo: 5 },
-  { tipo: 'Incidente', minimo: 10 },
-  { tipo: 'Medida cautelar', minimo: 10 },
-  { tipo: 'Homologación de convenio', minimo: 15 }
-];
-
 // ===== Iconos SVG =====
 const icons = {
   book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
@@ -112,9 +100,26 @@ const btnNext = document.getElementById('btnNext');
 
 // ===== Inicialización =====
 document.addEventListener('DOMContentLoaded', () => {
+  cargarUMA(); // carga valor UMA desde Google Sheets
   renderStepper();
   renderStep(0);
   setupNavigation();
+
+  // Monitorear carga async de UMA desde Google Sheets (cargarUMA en core.js actualiza window.valorUMA)
+  var umaInterval = setInterval(function() {
+    var loaded = window.valorUMA;
+    if (loaded && loaded !== 92482) {
+      state.umaValue = loaded;
+      updateSummaryBar();
+      var input = document.getElementById('umaInput');
+      if (input && !input.value) {
+        input.value = formatNumber(loaded);
+      }
+      clearInterval(umaInterval);
+    }
+  }, 300);
+  // Timeout de seguridad
+  setTimeout(function() { clearInterval(umaInterval); }, 15000);
 });
 
 // ===== Renderizado del Stepper =====
@@ -306,11 +311,13 @@ function renderStep1() {
         </div>
       `).join('')}
     </div>
+    <div id="errorTipoProceso" class="error-message" style="display: none;"></div>
   `;
 
   // Event listeners para tarjetas
   document.querySelectorAll('.selectable-card').forEach(card => {
     card.addEventListener('click', () => {
+      showError('errorTipoProceso', '');
       document.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
       const id = parseInt(card.dataset.id);
@@ -343,6 +350,7 @@ function renderStep2() {
   let content = `
     <h2 class="cards-title">Contingencias Procesales</h2>
     <p class="cards-subtitle">Indicá las características del proceso</p>
+    <div id="errorContingencias" class="error-message" style="display: none;"></div>
   `;
 
   // Conocimiento, Ejecución de sentencia, Ejecutivo
@@ -560,6 +568,7 @@ function attachStep2Listeners() {
     // Sub-opciones de modo
     document.querySelectorAll('[data-subvalue]').forEach(opt => {
       opt.addEventListener('click', () => {
+        showError('errorContingencias', '');
         document.querySelectorAll('[data-subvalue]').forEach(o => o.classList.remove('selected'));
         opt.classList.add('selected');
         state.selections.subOpcionModo = opt.dataset.subvalue;
@@ -578,6 +587,7 @@ function attachStep2Listeners() {
     // Caducidad momento
     document.querySelectorAll('[data-caducidad-momento]').forEach(opt => {
       opt.addEventListener('click', () => {
+        showError('errorContingencias', '');
         document.querySelectorAll('[data-caducidad-momento]').forEach(o => o.classList.remove('selected'));
         opt.classList.add('selected');
         state.selections.caducidadMomento = opt.dataset['caducidad-momento'] || opt.dataset.caducidadMomento;
@@ -588,6 +598,7 @@ function attachStep2Listeners() {
   // Excepciones
   document.querySelectorAll('[data-excepciones]').forEach(opt => {
     opt.addEventListener('click', () => {
+      showError('errorContingencias', '');
       document.querySelectorAll('[data-excepciones]').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       state.selections.excepciones = opt.dataset.excepciones;
@@ -597,6 +608,7 @@ function attachStep2Listeners() {
   // Abogados (Sucesión)
   document.querySelectorAll('[data-abogados]').forEach(opt => {
     opt.addEventListener('click', () => {
+      showError('errorContingencias', '');
       document.querySelectorAll('[data-abogados]').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       state.selections.abogados = opt.dataset.abogados;
@@ -606,6 +618,7 @@ function attachStep2Listeners() {
   // Cautelar
   document.querySelectorAll('[data-cautelar]').forEach(opt => {
     opt.addEventListener('click', () => {
+      showError('errorContingencias', '');
       document.querySelectorAll('[data-cautelar]').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       state.selections.cautelarOposicion = opt.dataset.cautelar;
@@ -615,6 +628,7 @@ function attachStep2Listeners() {
   // Locación
   document.querySelectorAll('[data-locacion]').forEach(opt => {
     opt.addEventListener('click', () => {
+      showError('errorContingencias', '');
       document.querySelectorAll('[data-locacion]').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       state.selections.tipoLocacion = opt.dataset.locacion;
@@ -638,11 +652,13 @@ function renderStep3() {
     </div>
     
     <div id="subOpcionesObjeto"></div>
+    <div id="errorObjeto" class="error-message" style="display: none;"></div>
   `;
 
   // Event listeners para tarjetas
   document.querySelectorAll('.selectable-card').forEach(card => {
     card.addEventListener('click', () => {
+      showError('errorObjeto', '');
       document.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
       const id = parseInt(card.dataset.id);
@@ -712,6 +728,7 @@ function renderSubOpcionesObjeto(objetoId) {
   // Attach listeners
   document.querySelectorAll('[data-subobjeto]').forEach(opt => {
     opt.addEventListener('click', () => {
+      showError('errorObjeto', '');
       document.querySelectorAll('[data-subobjeto]').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       state.selections.subOpcionObjeto = opt.dataset.subobjeto;
@@ -769,16 +786,18 @@ function renderStep4() {
 //   - state.selections.montoJuicio
 
 function renderStep5() {
+  // Sincronizar state → wizardState antes del cálculo
+  syncWizardState();
+
   mainContent.innerHTML = `
     <div class="result-screen">
       <h2>Resultado del Cálculo</h2>
       <p>Honorarios estimados según Ley 27.423</p>
       
-      <!-- Contenedor donde se inyectará el resultado de tus cálculos -->
       <div id="resultadoCalculo" class="result-card">
-        <p>Aquí se mostrarán los resultados de tus cálculos.</p>
-        <p>Datos disponibles en el objeto <code>state</code>:</p>
-        <pre style="text-align: left; font-size: 12px; background: #f5f5f5; padding: 16px; border-radius: 8px; overflow-x: auto;">${JSON.stringify(state, null, 2)}</pre>
+        <div id="resultadosDinamicos">
+          <p style="text-align:center; color:var(--text-muted);">Calculando...</p>
+        </div>
       </div>
       
       <div class="result-actions">
@@ -790,54 +809,117 @@ function renderStep5() {
     </div>
   `;
   
-  // ====================================================
-  // INYECTA TUS CÁLCULOS AQUÍ
-  // Podés llamar a tu función de cálculo y actualizar el DOM:
-  // Ejemplo:
-  //   const resultado = tuFuncionDeCalculo(state);
-  //   document.getElementById('resultadoCalculo').innerHTML = resultado;
-  // ====================================================
+  // Ejecutar el motor de cálculo del wizard original
+  calcularFinal();
+  
+  // El botón "Ver mínimos para contrastar" que genera calcularFinal()
+  // no aplica en la nueva UI (ya existe en pantalla de inicio)
+  var btnViejoMinimos = document.getElementById('btnIrAMinimosDesdeResultado');
+  if (btnViejoMinimos && btnViejoMinimos.parentNode) {
+    btnViejoMinimos.parentNode.removeChild(btnViejoMinimos);
+  }
   
   document.getElementById('btnNuevoCalculo').addEventListener('click', () => {
     resetState();
     navigateTo(0);
   });
   
-  // Ocultar botón siguiente en resultado
   btnNext.style.display = 'none';
+}
+
+// ===== Categorías de Mínimos =====
+const categoriasMinimos = [
+  { id: 'judicial', name: 'Asuntos judiciales no susceptibles de apreciación pecuniaria', subtitle: 'Art. 19 inc. a', icon: 'gavel' },
+  { id: 'extrajudicial', name: 'Mínimos por labor extrajudicial', subtitle: 'Art. 19 inc. b', icon: 'document' },
+  { id: 'acciones_48', name: 'Acciones de inconstitucionalidad, amparo, hábeas data, hábeas corpus', subtitle: 'Art. 48', icon: 'shield' },
+  { id: 'contencioso_44', name: 'Demandas contencioso administrativas no susceptibles de apreciación pecuniaria', subtitle: 'Art. 44', icon: 'building' },
+  { id: 'minimos_art58', name: 'Mínimos en juicios susceptibles de apreciación pecuniaria', subtitle: 'Art. 58', icon: 'dollar' },
+  { id: 'recursos_csjn', name: 'Recursos ante la CSJN', subtitle: 'Art. 31', icon: 'alert' },
+  { id: 'auxiliares_justicia', name: 'Auxiliares de justicia', subtitle: 'Arts. 58, 60, 61 bis', icon: 'users' }
+];
+
+function getMinimoHTML(categoriaId, uma) {
+  if (categoriaId === 'judicial') {
+    var items = [
+      { asunto: 'Divorcio', uma: 10 },
+      { asunto: 'Acción sobre efectos del divorcio y responsabilidad parental', uma: 25 },
+      { asunto: 'Adopción', uma: 20 },
+      { asunto: 'Tutela', uma: 20 },
+      { asunto: 'Restricciones a la capacidad e inhabilitación', uma: 25 },
+      { asunto: 'Reclamación e impugnación de filiación', uma: 25 },
+      { asunto: 'Acciones de estado y familia', uma: 25 },
+      { asunto: 'Veeduría', uma: 10 },
+      { asunto: 'Información sumaria', uma: 2 },
+      { asunto: 'Trámite administrativo ante autoridad de aplicación', uma: 2 },
+      { asunto: 'Trámite ante la Inspección General de Justicia', uma: 3 },
+      { asunto: 'Presentación de denuncias penales con firma de letrado', uma: 8 },
+      { asunto: 'Incidente de excarcelación o exención de prisión o audiencia de control de detención o medidas de coerción', uma: 10 },
+      { asunto: 'Pedido y audiencia de suspensión de juicio a prueba', uma: 10 },
+      { asunto: 'Acta de juicio abreviado', uma: 15 },
+      { asunto: 'Actuación hasta la clausura de la instrucción o de control de la acusación', uma: 15 },
+      { asunto: 'Actuación desde la clausura de la instrucción o de control de la acusación hasta la sentencia', uma: 20 },
+      { asunto: 'Acción de incidencia colectiva, hábeas corpus, hábeas data', uma: 25 }
+    ];
+    return '<div class="dashboard-card"><h3>Mínimos en asuntos judiciales no susceptibles de apreciación pecuniaria (art. 19 inc. a)</h3><div class="legal-box">ARTÍCULO 19.- Cuando no fuere posible apreciar el valor pecuniario del asunto, los jueces fijarán los honorarios teniendo en cuenta la naturaleza de las actuaciones y la gestión profesional desarrollada, con arreglo a las siguientes pautas:<br>a) En asuntos judiciales:</div><table><thead><tr><th>Asunto</th><th>UMA</th><th>$</th></tr></thead><tbody>' + items.map(function(item) { return '<tr><td>' + item.asunto + '</td><td>' + item.uma + ' UMA</td><td>$' + formatNumber(item.uma * uma) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+  }
+  if (categoriaId === 'extrajudicial') {
+    var items = [
+      { labor: 'Consulta verbal', uma: 0.5 },
+      { labor: 'Consulta con informe', uma: 1 },
+      { labor: 'Redacción de carta documento', uma: 1 },
+      { labor: 'Estudio o información de actuaciones judiciales o administrativas', uma: 1.5 },
+      { labor: 'Asistencia y asesoramiento del cliente en la realización de actos jurídicos', uma: 1.5 },
+      { labor: 'Redacción de contrato de locación', uma: 2 },
+      { labor: 'Redacción de boleto de compraventa', uma: 3 },
+      { labor: 'Redacción de contrato o estatuto de sociedades comerciales, asociaciones o fundaciones y constitución de personas jurídicas en general', uma: 5 },
+      { labor: 'Redacción de otros contratos', uma: 2 },
+      { labor: 'Arreglo extrajudicial', uma: 1 },
+      { labor: 'Gastos administrativos de estudio para iniciación de juicios', uma: 0.5 },
+      { labor: 'Redacción de denuncia penal (sin firma de letrado)', uma: 3 },
+      { labor: 'Asistencia a una audiencia de mediación o conciliación', uma: 2 }
+    ];
+    return '<div class="dashboard-card"><h3>Mínimos por labor extrajudicial (art. 19 inc. b)</h3><div class="legal-box">ARTÍCULO 19.- Cuando no fuere posible apreciar el valor pecuniario del asunto, los jueces fijarán los honorarios teniendo en cuenta la naturaleza de las actuaciones y la gestión profesional desarrollada, con arreglo a las siguientes pautas:<br>b) En asuntos extrajudiciales:</div><table><thead><tr><th>Labor</th><th>UMA</th><th>$</th></tr></thead><tbody>' + items.map(function(item) { return '<tr><td>' + item.labor + '</td><td>' + item.uma + ' UMA</td><td>$' + formatNumber(item.uma * uma) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+  }
+  if (categoriaId === 'acciones_48') {
+    return '<div class="dashboard-card"><h3>Mínimos del art. 48</h3><table><thead><tr><th colspan="2">Acciones de inconstitucionalidad, amparo, hábeas data, hábeas corpus</th></tr></thead><tbody><tr><td>20 UMA</td><td>$' + formatNumber(20 * uma) + '</td></tr></tbody></table><div class="legal-box">ARTÍCULO 48.- Por la interposición de acciones de inconstitucionalidad, de amparo, de hábeas data, de hábeas corpus, en caso de que no puedan regularse de conformidad con la escala del artículo 21, se aplicarán las normas del artículo 16, con un mínimo de 20 UMA.</div></div>';
+  }
+  if (categoriaId === 'contencioso_44') {
+    return '<div class="dashboard-card"><h3>Mínimos del art. 44</h3><table><thead><tr><th>Tipo</th><th>Mínimo (UMA)</th><th>Mínimo $</th></tr></thead><tbody><tr><td>Acciones contencioso administrativas</td><td>7 UMA</td><td>$' + formatNumber(7 * uma) + '</td></tr><tr><td>Actuaciones administrativas</td><td>5 UMA</td><td>$' + formatNumber(5 * uma) + '</td></tr></tbody></table><div class="legal-box">ARTÍCULO 44.- La interposición de acciones y peticiones de naturaleza administrativa seguirá las siguientes reglas… En los casos en que los asuntos no sean susceptibles de apreciación pecuniaria, la regulación no será inferior a 7 o 5 UMA, según se trate del ejercicio de acciones contencioso administrativas o actuaciones administrativas, respectivamente.</div></div>';
+  }
+  if (categoriaId === 'minimos_art58') {
+    return '<div class="dashboard-card"><h3>Mínimos del art. 58 (juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos)</h3><table><thead><tr><th>Inciso</th><th>Mínimo (UMA)</th><th>Mínimo $</th></tr></thead><tbody><tr><td>a) procesos de conocimiento</td><td>10 UMA</td><td>$' + formatNumber(10 * uma) + '</td></tr><tr><td>b) ejecutivos</td><td>6 UMA</td><td>$' + formatNumber(6 * uma) + '</td></tr><tr><td>c) mediación</td><td>2 UMA</td><td>$' + formatNumber(2 * uma) + '</td></tr><tr><td>d) Auxiliares de la Justicia</td><td>4 UMA</td><td>$' + formatNumber(4 * uma) + '</td></tr></tbody></table><div class="legal-box">Art. 58: Mínimo establecido para regular honorarios de juicios susceptibles de apreciación pecuniaria que no estuviesen previstos en otros artículos.</div></div>';
+  }
+  if (categoriaId === 'recursos_csjn') {
+    return '<div class="dashboard-card"><h3>Recursos ante la CSJN (art. 31)</h3><table><thead><tr><th>Concepto</th><th>Mínimo</th><th>Valor</th></tr></thead><tbody><tr><td>Queja por denegación de recurso</td><td>15 UMA</td><td>$' + formatNumber(15 * uma) + '</td></tr><tr><td>Interposición de recurso extraordinario, etc.</td><td>20 UMA</td><td>$' + formatNumber(20 * uma) + '</td></tr></tbody></table><div class="legal-box">Art. 31: La interposición ante la CSJN de los recursos extraordinarios, de inconstitucionalidad, de revisión, de casación, ordinarios, directos y otros similares o que no sean los normales de acceso, no podrá remunerarse en una cantidad inferior a 20 UMA. Las quejas por denegación de estos recursos no podrán remunerarse en una cantidad inferior a 15 UMA. Si dichos recursos fueren concedidos y se tramitaren, se estará a lo dispuesto en el artículo 21.</div></div>';
+  }
+  if (categoriaId === 'auxiliares_justicia') {
+    return '<div class="dashboard-card"><h3>Auxiliares de justicia</h3><table><thead><tr><th>Concepto</th><th>Mínimo</th><th>$</th></tr></thead><tbody><tr><td>Art. 58 - Juicios susceptibles de apreciación pecuniaria</td><td>4 UMA</td><td>$' + formatNumber(4 * uma) + '</td></tr><tr><td>Art. 60 - Peritos (procesos no susceptibles)</td><td>2 UMA</td><td>$' + formatNumber(2 * uma) + '</td></tr><tr><td>Art. 61 bis - Peritos (controversias judiciales)</td><td>2 UMA por pericia</td><td>$' + formatNumber(2 * uma) + '</td></tr><tr><td>Art. 61 bis - Peritos sin dictamen (transacción)</td><td>1/4 UMA</td><td>$' + formatNumber(0.25 * uma) + '</td></tr></tbody></table><div class="legal-box">ARTÍCULO 60 (B.O. 06/03/2026).- En los procesos no susceptibles de apreciación pecuniaria, los honorarios de los peritos y de los peritos liquidadores de averías serán fijados conforme a las pautas valorativas del artículo 16 y en un mínimo de 2 UMA, siendo suficiente para la fijación de los honorarios mínimos, la aceptación del cargo conferido. En el caso de los demás auxiliares de la Justicia, se aplicarán las normas específicas.<br><br>Artículo 61 bis (B.O. 06/03/2026) Los honorarios de los peritos que intervengan en las controversias judiciales, no estarán vinculados a la cuantía del respectivo juicio, ni al porcentaje de incapacidad que se dictamine en caso de producirse una pericia médica. Su regulación responderá exclusivamente a la apreciación judicial de la labor técnica realizada en el pleito y su relevancia; calidad y extensión en lo concreto y deberá fijarse en un monto que asegure una adecuada retribución al perito. Por cada pericia, se fijará un monto mínimo de 2 UMA. En caso de finalizar el proceso por transacción, avenimiento y conciliación, sin que el perito haya presentado la pericia encargada, se le regulará 1/4 de UMA en tanto el perito haya aceptado el cargo.</div></div>';
+  }
+  return '';
 }
 
 // ===== Pantalla de Mínimos =====
 function renderMinimos() {
-  const umaActual = state.umaValue || 1;
+  var umaActual = state.umaValue || window.valorUMA || 92482;
   
   mainContent.innerHTML = `
     <div class="minimos-screen">
       <h2>Honorarios Mínimos</h2>
-      <p>Valores mínimos según tipo de proceso ${state.umaValue ? `(UMA: $${formatNumber(state.umaValue)})` : ''}</p>
+      <p>Seleccioná una categoría para ver los valores mínimos establecidos por ley (UMA: $${formatNumber(umaActual)})</p>
       
-      <div class="minimos-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Tipo de Proceso</th>
-              <th>Mínimo (UMAs)</th>
-              ${state.umaValue ? '<th>Valor ($)</th>' : ''}
-            </tr>
-          </thead>
-          <tbody>
-            ${minimosHonorarios.map(item => `
-              <tr>
-                <td>${item.tipo}</td>
-                <td class="minimos-value">${item.minimo} UMAs</td>
-                ${state.umaValue ? `<td class="minimos-value">$${formatNumber(item.minimo * umaActual)}</td>` : ''}
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+      <div class="cards-grid" id="minimosCards">
+        ${categoriasMinimos.map(function(cat) { return `
+          <div class="selectable-card" data-categoria="${cat.id}">
+            <div class="card-icon">${icons[cat.icon] || icons.document}</div>
+            <span class="card-label">${cat.name}</span>
+            <span style="font-size:0.8rem;color:var(--text-muted);margin-top:-4px;">${cat.subtitle}</span>
+          </div>
+        `; }).join('')}
       </div>
       
-      <div class="back-from-minimos">
+      <div id="minimoDetalle" style="margin-top: 2rem;"></div>
+      
+      <div class="back-from-minimos" style="margin-top: 2rem;">
         <button class="btn btn-secondary" id="btnVolverInicio">
           Volver al inicio
         </button>
@@ -845,7 +927,16 @@ function renderMinimos() {
     </div>
   `;
 
-  document.getElementById('btnVolverInicio').addEventListener('click', () => {
+  document.querySelectorAll('#minimosCards .selectable-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('#minimosCards .selectable-card').forEach(function(c) { c.classList.remove('selected'); });
+      card.classList.add('selected');
+      var categoria = card.dataset.categoria;
+      document.getElementById('minimoDetalle').innerHTML = getMinimoHTML(categoria, umaActual);
+    });
+  });
+
+  document.getElementById('btnVolverInicio').addEventListener('click', function() {
     renderStep(0);
   });
 
@@ -873,15 +964,15 @@ function handleNext() {
   // Validaciones según paso actual
   if (currentStep === 1) {
     if (!state.selections.tipoProcesoId) {
-      alert('Por favor seleccioná un tipo de proceso');
+      showError('errorTipoProceso', 'Por favor seleccioná un tipo de proceso');
       return;
     }
     
     // Bifurcación de navegación
     const tipoId = state.selections.tipoProcesoId;
     
-    if (tipoId === 5) { // Exhorto -> directo a Resultado (pero necesita monto)
-      navigateTo(4); // Primero va a monto
+    if (tipoId === 5) { // Exhorto -> directo a Resultado (no necesita base)
+      navigateTo(5);
     } else if (tipoId === 6) { // Incidente -> directo a Base regulatoria
       navigateTo(4);
     } else {
@@ -909,14 +1000,14 @@ function handleNext() {
 
   if (currentStep === 3) {
     if (!state.selections.objetoJuicioId) {
-      alert('Por favor seleccioná el objeto del juicio');
+      showError('errorObjeto', 'Por favor seleccioná el objeto del juicio');
       return;
     }
     
     // Validar sub-opciones si aplica
     const objeto = objetosJuicio.find(o => o.id === state.selections.objetoJuicioId);
     if (objeto.hasSubOptions && !state.selections.subOpcionObjeto) {
-      alert('Por favor seleccioná la sub-opción correspondiente');
+      showError('errorObjeto', 'Por favor seleccioná la sub-opción correspondiente');
       return;
     }
     
@@ -947,26 +1038,26 @@ function validateStep2() {
   // Conocimiento, Ejecución, Ejecutivo
   if ([1, 2, 3].includes(tipoId)) {
     if (!state.selections.modoTerminacion) {
-      alert('Por favor seleccioná el modo de terminación');
+      showError('errorContingencias', 'Por favor seleccioná el modo de terminación');
       return false;
     }
     
     // Validar sub-opciones de modo
     if (state.selections.modoTerminacion === 'Sentencia' && !state.selections.subOpcionModo) {
-      alert('Por favor indicá si la demanda fue admitida o rechazada');
+      showError('errorContingencias', 'Por favor indicá si la demanda fue admitida o rechazada');
       return false;
     }
     if (state.selections.modoTerminacion === 'Modos anormales' && !state.selections.subOpcionModo) {
-      alert('Por favor indicá cuándo se produjo');
+      showError('errorContingencias', 'Por favor indicá cuándo se produjo');
       return false;
     }
     if (state.selections.modoTerminacion === 'Caducidad') {
       if (!state.selections.caducidadArticulo) {
-        alert('Por favor seleccioná el artículo a aplicar');
+        showError('errorContingencias', 'Por favor seleccioná el artículo a aplicar');
         return false;
       }
       if (state.selections.caducidadArticulo === 'Art. 25' && !state.selections.caducidadMomento) {
-        alert('Por favor indicá cuándo se declaró la caducidad');
+        showError('errorContingencias', 'Por favor indicá cuándo se declaró la caducidad');
         return false;
       }
     }
@@ -974,25 +1065,25 @@ function validateStep2() {
 
   // Ejecución y Ejecutivo -> excepciones
   if ([2, 3].includes(tipoId) && !state.selections.excepciones) {
-    alert('Por favor indicá si se dedujeron excepciones');
+    showError('errorContingencias', 'Por favor indicá si se dedujeron excepciones');
     return false;
   }
 
   // Sucesión -> abogados
   if (tipoId === 4 && !state.selections.abogados) {
-    alert('Por favor indicá la cantidad de abogados');
+    showError('errorContingencias', 'Por favor indicá la cantidad de abogados');
     return false;
   }
 
   // Medida cautelar -> oposición
   if (tipoId === 7 && !state.selections.cautelarOposicion) {
-    alert('Por favor indicá si hubo oposición');
+    showError('errorContingencias', 'Por favor indicá si hubo oposición');
     return false;
   }
 
   // Homologación -> tipo locación
   if (tipoId === 8 && !state.selections.tipoLocacion) {
-    alert('Por favor indicá el tipo de locación');
+    showError('errorContingencias', 'Por favor indicá el tipo de locación');
     return false;
   }
 
@@ -1013,17 +1104,84 @@ function updateNavButtons() {
 }
 
 function updateFooterInfo(step) {
-  const infos = {
-    0: 'El valor de la UMA (Unidad de Medida Arancelaria) se actualiza periódicamente. Consultá el valor vigente antes de realizar el cálculo.',
-    1: 'Seleccioná el tipo de proceso judicial para determinar la escala aplicable según la Ley 27.423.',
-    2: 'Las contingencias procesales pueden modificar el porcentaje de honorarios aplicable.',
-    3: 'El objeto del juicio determina la base de cálculo y los porcentajes específicos a aplicar.',
-    4: 'Ingresá el monto reclamado o el valor del bien en disputa como base regulatoria.',
-    5: 'Este cálculo es orientativo. Los valores finales pueden variar según las circunstancias del caso.',
-    minimos: 'Los mínimos establecidos por ley garantizan un piso para los honorarios profesionales.'
-  };
-  
-  footerInfo.innerHTML = `<p>${infos[step] || ''}</p>`;
+  var s = state.selections;
+  var msg = '';
+
+  if (step === 0) {
+    msg = 'El valor de la UMA (Unidad de Medida Arancelaria) se actualiza periódicamente. Consultá el valor vigente antes de realizar el cálculo.';
+  } else if (step === 1) {
+    msg = 'En la Ley 27.423, el tipo de proceso define coeficientes específicos que pueden reducir o incrementar el resultado final del cálculo. Por eso, es fundamental que elijas una de las siguientes opciones:';
+  } else if (step === 2) {
+    var tipoId = s.tipoProcesoId;
+    if ([1, 2, 3].includes(tipoId)) {
+      msg = 'El modo en que termina el proceso tiene un impacto directo en el cálculo, ya que afecta tanto la alícuota aplicable como la base económica. Por favor, seleccioná la forma de finalización para ajustar el resultado a las pautas legales correspondientes.';
+      if (tipoId === 2) {
+        msg += '<br><br><strong>Excepciones</strong><br>La oposición de excepciones es un factor determinante en el proceso de ejecución ya que su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular.<br>ARTÍCULO 41.- En el procedimiento de ejecución de sentencias…no habiendo excepciones, los honorarios se reducirán en un 10%...';
+      } else if (tipoId === 3) {
+        msg += '<br><br><strong>Excepciones</strong><br>La oposición de excepciones es un factor determinante en el proceso ejecutivo, ya que además de modificar la estructura de las etapas (art. 29, inc. f), su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular.<br>ARTÍCULO 34.- En los juicios ejecutivos y ejecuciones especiales…No habiendo excepciones, los honorarios se reducirán en un 10%...';
+      }
+    } else if (tipoId === 4) {
+      msg = 'En los procesos sucesorios, la existencia de un abogado único para todos los herederos es un factor determinante ya que según el art. 35, los honorarios deben regularse en la mitad de la escala del art. 21. Es necesario que indiques si hubo uno o más letrados para aplicar este tope específico.<br><br>ARTÍCULO 35.- En el proceso sucesorio, si 1 solo abogado patrocina o representa a todos los herederos o interesados, sus honorarios se regularán…en la mitad del mínimo y del máximo de la escala establecida en el art. 21.';
+    } else if (tipoId === 7) {
+      msg = 'En las medidas cautelares, la existencia de oposición o controversia tiene un impacto directo en el cálculo de los honorarios, ya que modifica el porcentaje de la escala aplicable.<br><br>- Sin oposición: los honorarios se regulan tomando como base el 25% de la escala general establecida en el art. 21.<br>- Con oposición: la base para el cálculo se eleva al 50% de dicha escala.<br><br>Por favor, indicá si existió controversia para que el asistente aplique el coeficiente correcto.<br><br>ARTÍCULO 37.- En las medidas cautelares, ya sea que éstas tramiten autónomamente, en forma incidental o dentro del proceso, los honorarios se regularán sobre el monto que se pretende a asegurar, aplicándose como base el 25% de la escala del art. 21; salvo casos de controversia u oposición, en que la base se elevará al 50 %.';
+    } else if (tipoId === 8) {
+      msg = 'Seleccione el tipo de locación:';
+    }
+  } else if (step === 3) {
+    msg = 'El objeto reclamado en el juicio es un factor determinante para establecer la base regulatoria (o cuantía del asunto) sobre la cual se aplicará la escala de porcentajes para calcular los honorarios. Varía sustancialmente dependiendo del reclamo, si se requieren sumas de dinero u otros bienes (y su naturaleza). Por eso es necesario que elijas una de las siguientes opciones:';
+  } else if (step === 4) {
+    var tipoId = s.tipoProcesoId;
+    var objId = s.objetoJuicioId;
+    msg = 'La base regulatoria, también llamada cuantía o monto del asunto, es el valor económico que se toma como referencia para aplicar la escala de honorarios del art. 21 en los procesos susceptibles de apreciación pecuniaria. Su correcta determinación es fundamental ya que de ella depende el coeficiente aplicable y la determinación de los mínimos y máximos arancelarios. Según las elecciones previas, en este paso tenés que ingresar ese monto.<br><br>';
+
+    if (tipoId === 1 && objId === 11) {
+      if (s.subOpcionObjeto === 'Alquiler para vivienda') {
+        msg += 'Ingresá el valor de la totalidad del contrato. Si es un desalojo sin contrato o en el caso que el profesional haya estimado inadecuado el valor del contrato, ingresá la sumatoria de alquileres estimados o determinados por el perito designado.<br>Nota: si elegiste "alquiler para vivienda" en el paso anterior, no ingreses el monto reducido porque ya estará calculado por el sistema.<br><br>ARTÍCULO 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato… Si el profesional estimare inadecuado el alquiler fijado en el contrato o en caso de que éste no pudiera determinarse exactamente o se tratase de juicios por intrusión o tenencia precaria, deberá fijarse el valor locativo actualizado del inmueble, para lo cual el profesional podrá acompañar tasaciones al respecto o designar perito para que lo determine.';
+      } else if (s.subOpcionObjeto === 'Desalojo laboral') {
+        msg += 'En los juicios donde se reclama la restitución de inmuebles dados al trabajador por su empleo, la base regulatoria es el 50% de la última remuneración mensual durante 2 años.<br><br>ARTÍCULO 43.- …En las demandas de desalojo por restitución de inmuebles o parte de ellos, concedidos a los trabajadores en virtud de la relación de trabajo, se considerará como valor del juicio el cincuenta por ciento (50%) de la última remuneración mensual normal y habitual que deba percibir según su categoría profesional por el término de dos (2) años.';
+      } else {
+        msg += 'Ingresá el valor de la totalidad del contrato. Si es un desalojo sin contrato o en el caso que el profesional haya estimado inadecuado el valor del contrato, ingresá la sumatoria de alquileres estimados o determinados por el perito designado.<br><br>ARTÍCULO 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato… Si el profesional estimare inadecuado el alquiler fijado en el contrato o en caso de que éste no pudiera determinarse exactamente o se tratase de juicios por intrusión o tenencia precaria, deberá fijarse el valor locativo actualizado del inmueble, para lo cual el profesional podrá acompañar tasaciones al respecto o designar perito para que lo determine.';
+      }
+    } else if (tipoId === 1 && objId === 1) {
+      msg += 'Nota: no ingreses el monto con reducciones porque ya estará calculado por el sistema según tus elecciones previas.<br><br>ARTÍCULO 22.- En los juicios por cobro de sumas de dinero la cuantía del asunto …será el monto de la demanda o reconvención; si hubiera sentencia será el de la liquidación que resulte de la misma, actualizado por intereses si correspondiere. En caso de transacción, la cuantía será el monto de la misma.<br><br>ARTÍCULO 24.- A los efectos de la regulación de honorarios, se tendrán en cuenta los intereses que deban calcularse sobre el monto de condena. Los intereses fijados en la sentencia deberán siempre integrar la base regulatoria, bajo pena de nulidad.<br><br>ARTÍCULO 52.- … A los efectos de la regulación se tendrán en cuenta los intereses, los frutos y los accesorios, que integrarán la base regulatoria según lo establecido en los artículos 22, 23 y 24.';
+    } else if (tipoId === 1 && objId === 2) {
+      msg += 'Ingresá el valor del bien según estas reglas:<br>- Si los bienes fueron tasados, ingresá el monto de la tasación.<br>- Si la valuación fiscal (VF) se consideró adecuada, ingresa el monto de la VF actualizada incrementado en un 50%.<br>- Si la VF se consideró inadecuada, se inició y terminó el procedimiento del art. 23 para la valuación de los bienes, ingresá el valor de la estimación.<br>- Recordá que si hay montos en dólares, tenés que definir el tipo de cambio que vas a usar (oficial venta, MEP, etc.) para ingresar la base en pesos.<br><br>ARTÍCULO 23.- El monto de los procesos en caso de que existan bienes susceptibles de apreciación pecuniaria, se determinará conforme lo siguiente: a) Si se trata de bienes inmuebles o derechos sobre los mismos y no han sido tasados en autos, se tendrá como cuantía del asunto la valuación fiscal al momento en que se practique la regulación, incrementada en un 50%. No obstante reputándose ésta, inadecuada al valor real del inmueble, el profesional podrá estimar el valor que le asigne, de lo que se dará traslado al obligado al pago. En caso de oposición, el juez designará perito tasador… b) Si se trata de bienes muebles o semovientes, se tomará como cuantía del asunto el valor que surja de autos, sin perjuicio de efectuarse la determinación establecida en el inciso a)... g) Si se trata de usufructo o nuda propiedad, se determinará el valor de los bienes conforme el inciso a) de este artículo; i) Si se trata de bienes sujetos a agotamiento, minas, canteras y similares, se determinará el valor por el procedimiento previsto en el inciso b) del presente artículo.';
+    } else if (tipoId === 1 && objId === 3) {
+      msg += 'Ingresá el valor consignado en las escrituras o documentos respectivos, deducidas las amortizaciones.<br><br>Art. 23 inc. d): Si se trata de derechos crediticios, se tomará como cuantía del asunto el valor consignado en las escrituras o documentos respectivos, deducidas las amortizaciones normales previstas en los mismos, o las extraordinarias que justifique el interesado.';
+    } else if (tipoId === 1 && objId === 4) {
+      msg += 'Ingresá el valor de cotización de los títulos.<br><br>Art. 23 inc. e): Si se trata de títulos de renta o acciones de entidades privadas, se tomará como cuantía del asunto el valor de cotización de la Bolsa de Comercio de Buenos Aires; si no cotizara en bolsa, el valor que informe cualquier entidad bancaria oficial; si por esta vía fuere imposible lograr la determinación, se aplicará el procedimiento del inciso a).';
+    } else if (tipoId === 1 && objId === 5) {
+      msg += 'Art. 23 inc. f): Si se trata de establecimientos comerciales, industriales o mineros, se valuará el activo conforme las normas de los incisos de este artículo; se descontará el pasivo justificado por certificación contable u otro medio idóneo en caso de que no se lleve la contabilidad en legal forma, y al líquido que resulte se le sumará un diez por ciento (10%) que será computado como valor llave.';
+    } else if (tipoId === 1 && objId === 6) {
+      msg += 'Ingresá el valor del bien según estas reglas:<br><br>Art. 23 inc. h): Si se trata de uso y habitación, será valuado en el 10% anual del valor del bien respectivo, justipreciado según las reglas del inciso a) y el resultado se multiplicará por el número de años por el que se transmite el derecho, no pudiendo exceder en ningún caso del 100% de aquél.';
+    } else if (tipoId === 1 && objId === 7) {
+      msg += 'Ingresá el valor del bien o el monto del boleto si es mayor.<br><br>ARTÍCULO 46.- En los juicios de escrituración y, en general, en los procesos derivados del contrato de compraventa de inmuebles, a los efectos de la regulación, se aplicará la norma del artículo 23, inciso a), salvo que resulte un monto mayor del boleto de compraventa, en cuyo caso se aplicará este último.';
+    } else if (tipoId === 1 && objId === 8) {
+      msg += 'Ingresá el importe correspondiente a 2 años de la cuota fijada.<br><br>ARTÍCULO 39.- En los juicios de alimentos la base del cálculo de los honorarios será el importe correspondiente a 2 años de la cuota que se fijare judicialmente.';
+    } else if (tipoId === 1 && objId === 9) {
+      msg += 'Ingresá el valor del patrimonio adjudicado.<br><br>ARTÍCULO 45.- En la liquidación y disolución del régimen patrimonial del matrimonio se regularán honorarios al patrocinante o apoderado de cada parte conforme la escala del art. 21 calculado sobre el patrimonio que se le adjudique a su patrocinado o representado.';
+    } else if (tipoId === 1 && objId === 10) {
+      msg += 'Si elegís esta opción, cuando llegues al cálculo final, el honorario que se muestra como resultado tendrá una reducción en ese porcentaje.<br><br>ARTÍCULO 38.- Tratándose de acciones posesorias, interdictos o de división de bienes comunes, se aplicará la escala del artículo 21. El monto de los honorarios se reducirá en un 20% atendiendo al valor de los bienes conforme a lo dispuesto en el artículo 23 si fuere exclusivamente en beneficio del patrocinado, con relación a la cuota o parte defendida.';
+    } else if (tipoId === 1 && objId === 12) {
+      msg += 'En estos casos, los honorarios se reducen en un 25%.<br><br>ARTÍCULO 49.- En las acciones sobre derechos de incidencia colectiva con contenido patrimonial, los honorarios serán los que resulten de la aplicación del artículo 21, reducidos en un 25%.';
+    } else if (tipoId === 4) {
+      msg += 'Ingrese el valor del patrimonio que se transmite (art. 35).<br>Si la valuación fiscal se consideró inadecuada, se inició y terminó el procedimiento del art. 23 para la valuación de los bienes, ingrese el valor de la estimación.<br>Si hay montos en dólares, tenés que definir el tipo de cambio que vas a usar (oficial venta, MEP, etc.).<br>Si la valuación fiscal se consideró adecuada, ingresa ese monto incrementado en un 50%.<br><br>ARTÍCULO 23.- El monto de los procesos en caso de que existan bienes susceptibles de apreciación pecuniaria, se determinará conforme lo siguiente:<br>a) Si se trata de bienes inmuebles o derechos sobre los mismos y no han sido tasados en autos, se tendrá como cuantía del asunto la valuación fiscal al momento en que se practique la regulación, incrementada en un cincuenta por ciento (50%). No obstante reputándose ésta, inadecuada al valor real del inmueble, el profesional podrá estimar el valor que le asigne, de lo que se dará traslado al obligado al pago. En caso de oposición, el juez designará perito tasador.<br><br>ARTÍCULO 35.- En el proceso sucesorio, los honorarios se regulan sobre el valor del patrimonio que se transmite. Para establecer el valor de los bienes se tendrá en cuenta lo dispuesto en el artículo 23.';
+    } else if (tipoId === 5) {
+      msg += 'Por lo general, algunos incidentes se consideran de valor autónomo (o lo discutido) y en otros, su base es el del juicio principal.';
+    } else if (tipoId === 6) {
+      msg += 'Por lo general, algunos incidentes se consideran de valor autónomo (o lo discutido) y en otros, su base es el del juicio principal.';
+    } else if (tipoId === 7) {
+      msg += 'Ingrese el monto a asegurar.';
+    } else if (tipoId === 8) {
+      msg += 'Ingresá el valor de la totalidad del contrato. Si es un desalojo sin contrato o en el caso que el profesional haya estimado inadecuado el valor del contrato, ingresá la sumatoria de alquileres estimados o determinados por el perito designado.<br>Nota: si elegiste "alquiler para vivienda" en el paso anterior, no ingreses el monto reducido porque ya estará calculado por el sistema.<br><br>ARTÍCULO 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato… Si el profesional estimare inadecuado el alquiler fijado en el contrato o en caso de que éste no pudiera determinarse exactamente o se tratase de juicios por intrusión o tenencia precaria, deberá fijarse el valor locativo actualizado del inmueble, para lo cual el profesional podrá acompañar tasaciones al respecto o designar perito para que lo determine.<br><br>Tratándose de una homologación de convenio de desocupación y su ejecución, los honorarios se regularán en un 50% del establecido en el párrafo primero.';
+    }
+  } else if (step === 5) {
+    msg = 'Este cálculo es orientativo. Los valores finales pueden variar según las circunstancias del caso.';
+  } else if (step === 'minimos') {
+    msg = 'Los mínimos establecidos por ley garantizan un piso para los honorarios profesionales.';
+  }
+
+  footerInfo.innerHTML = '<p>' + msg + '</p>';
 }
 
 // ===== Utilidades =====
@@ -1039,6 +1197,18 @@ function parseNumber(str) {
 function truncate(str, length) {
   if (!str) return '';
   return str.length > length ? str.substring(0, length) + '...' : str;
+}
+
+// Muestra error inline en un container, oculta los demás
+var errorContainers = ['errorTipoProceso', 'errorContingencias', 'errorObjeto'];
+function showError(containerId, msg) {
+  errorContainers.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.textContent = ''; }
+  });
+  if (!msg) return;
+  var el = document.getElementById(containerId);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
 }
 
 function resetState() {
@@ -1063,3 +1233,94 @@ function resetState() {
   };
   state.fromMinimos = false;
 }
+
+// ===== Bridge: mapea state (nuevo) → wizardState (viejo) para usar core.js / calculations.js =====
+function syncWizardState() {
+  const s = state.selections;
+  // Map tipoProcesoId (1-8) → string
+  var tipoMap = {
+    1: 'conocimiento', 2: 'ejecucion_sentencia', 3: 'ejecutivo',
+    4: 'sucesion', 5: 'exhorto', 6: 'incidente',
+    7: 'medida_cautelar', 8: 'homologacion_desocupacion'
+  };
+  wizardState.tipoProceso = tipoMap[s.tipoProcesoId] || '';
+  wizardState.step = state.currentStep;
+  wizardState.valorUMA = state.umaValue || window.valorUMA || 92482;
+
+  // Map modoTerminacion
+  var modoMap = { 'Sentencia': 'sentencia', 'Modos anormales': 'modos_anormales', 'Caducidad': 'caducidad', 'Honorarios provisorios': 'provisorios' };
+  wizardState.modoTerminacion = modoMap[s.modoTerminacion] || '';
+
+  // Map sentenciaResultado (solo aplica si modoTerminacion === 'Sentencia')
+  if (s.modoTerminacion === 'Sentencia') {
+    wizardState.sentenciaResultado = s.subOpcionModo === 'Demanda admitida' ? 'admitida' : (s.subOpcionModo === 'Demanda rechazada' ? 'rechazada' : null);
+  } else {
+    wizardState.sentenciaResultado = null;
+  }
+
+  // Map aperturaPrueba (boolean: true=después, false=antes)
+  // Puede venir de subOpcionModo (modos anormales) o caducidadMomento (caducidad art.25)
+  if (s.modoTerminacion === 'Modos anormales') {
+    wizardState.aperturaPrueba = s.subOpcionModo === 'Después de apertura a prueba' ? true : (s.subOpcionModo === 'Antes de apertura a prueba' ? false : null);
+  } else if (s.caducidadArticulo === 'Art. 25') {
+    wizardState.aperturaPrueba = s.caducidadMomento === 'Después de apertura a prueba' ? true : (s.caducidadMomento === 'Antes de apertura a prueba' ? false : null);
+  } else {
+    wizardState.aperturaPrueba = null;
+  }
+
+  // Map caducidadCriterio
+  if (s.caducidadArticulo === 'Art. 22') wizardState.caducidadCriterio = 'art22';
+  else if (s.caducidadArticulo === 'Art. 25') wizardState.caducidadCriterio = 'art25';
+  else wizardState.caducidadCriterio = '';
+
+  // Map tuvoExcepciones (boolean)
+  if (s.excepciones === 'Se dedujeron excepciones') wizardState.tuvoExcepciones = true;
+  else if (s.excepciones === 'No se dedujeron excepciones') wizardState.tuvoExcepciones = false;
+  else wizardState.tuvoExcepciones = null;
+
+  // Map sucesionUnicoLetrado (boolean)
+  if (s.abogados === 'Un solo abogado') wizardState.sucesionUnicoLetrado = true;
+  else if (s.abogados === 'Varios abogados') wizardState.sucesionUnicoLetrado = false;
+  else wizardState.sucesionUnicoLetrado = null;
+
+  // Map medidaOposicion (boolean)
+  if (s.cautelarOposicion === 'Cautelar con oposición') wizardState.medidaOposicion = true;
+  else if (s.cautelarOposicion === 'Cautelar sin oposición') wizardState.medidaOposicion = false;
+  else wizardState.medidaOposicion = null;
+
+  // Map homologacionVivienda (boolean)
+  if (s.tipoLocacion === 'Alquiler para vivienda') wizardState.homologacionVivienda = true;
+  else if (s.tipoLocacion === 'Demás casos') wizardState.homologacionVivienda = false;
+  else wizardState.homologacionVivienda = null;
+
+  // Map objetoBase (id 1-12 → string)
+  var objetoMap = {
+    1: 'sumas_dinero', 2: 'inmuebles', 3: 'derechos_crediticios',
+    4: 'titulos_acciones', 5: 'establecimientos', 6: 'uso_habitacion',
+    7: 'escrituracion', 8: 'familia_alimentos', 9: 'familia_liquidacion',
+    10: 'posesorias_interdictos', 11: 'desalojo', 12: 'incidencia_colectiva'
+  };
+  wizardState.objetoBase = objetoMap[s.objetoJuicioId] || '';
+
+  // Map desalojoVivienda (string: 'vivienda'|'civil'|'laboral'|null)
+  if (s.subOpcionObjeto === 'Alquiler para vivienda') wizardState.desalojoVivienda = 'vivienda';
+  else if (s.subOpcionObjeto === 'Demás casos civiles') wizardState.desalojoVivienda = 'civil';
+  else if (s.subOpcionObjeto === 'Desalojo laboral') wizardState.desalojoVivienda = 'laboral';
+  else wizardState.desalojoVivienda = null;
+
+  // Map posesoriasTipo (string: 'beneficio'|'demas'|null)
+  if (s.subOpcionObjeto === 'Actuación exclusiva beneficio patrocinado') wizardState.posesoriasTipo = 'beneficio';
+  else if (s.subOpcionObjeto === 'Demás casos') wizardState.posesoriasTipo = 'demas';
+  else wizardState.posesoriasTipo = null;
+
+  // Map baseValor
+  wizardState.baseValor = s.montoJuicio || 0;
+
+  // Map esProvisorio
+  wizardState.esProvisorio = s.modoTerminacion === 'Honorarios provisorios';
+
+  // Resetear flags que no aplican en la nueva UI
+  wizardState.desdeMinimos = false;
+  wizardState.desdeResultado = false;
+}
+window.syncWizardState = syncWizardState;
