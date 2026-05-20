@@ -42,7 +42,8 @@ body {
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* ===== Header y Stepper ===== */
@@ -170,39 +171,63 @@ body {
 /* ===== Main Content ===== */
 .main-content {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   max-width: 1000px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem 1.5rem 6rem;
+  padding: 2rem 1.5rem;
 }
 
 /* ===== Footer ===== */
 .footer {
+  flex-shrink: 0;
   background: var(--surface);
   border-top: 1px solid var(--border);
   padding: 1rem 1.5rem;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   z-index: 100;
-}
-
-.footer-info {
-  max-width: 800px;
-  margin: 0 auto 1rem;
-  text-align: center;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
 }
 
 .footer-nav {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  max-width: 400px;
+  align-items: center;
   margin: 0 auto;
+}
+
+.footer-nav-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.author-footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.author-links {
+  display: inline-flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.author-links a {
+  color: var(--text-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.author-links a:hover {
+  color: var(--primary);
 }
 
 /* ===== Botones ===== */
@@ -805,6 +830,56 @@ body {
   color: var(--danger);
   font-size: 0.875rem;
   margin-top: 0.5rem;
+}
+
+/* ===== Info Toggle (details/summary) ===== */
+.info-toggle-wrapper {
+  max-width: 600px;
+  margin: 1.5rem auto 0;
+}
+
+.info-toggle {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.info-toggle summary {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--primary);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+}
+
+.info-toggle summary:hover {
+  background: var(--surface-hover);
+}
+
+.info-toggle summary::before {
+  content: 'ℹ️';
+  font-size: 0.9rem;
+}
+
+.info-toggle[open] summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.info-toggle[open] summary::before {
+  content: 'ℹ️';
+}
+
+.info-toggle-content {
+  padding: 0 1rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
 }
 
 /* ===== Tooltip ===== */

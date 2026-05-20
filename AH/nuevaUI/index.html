@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Honorarios - Ley 27.423</title>
+  <title>Honorio</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +14,7 @@
     <!-- Header con Stepper -->
     <header class="header">
       <div class="header-content">
-        <h1 class="logo">Honorarios</h1>
+        <h1 class="logo">Honorio</h1>
         <div class="stepper" id="stepper">
           <!-- Se genera dinámicamente -->
         </div>
@@ -30,24 +30,27 @@
       <!-- Los pasos se renderizan aquí -->
     </main>
 
-    <!-- Footer con explicaciones y navegación -->
+    <!-- Footer de navegación -->
     <footer class="footer">
-      <div class="footer-info" id="footerInfo">
-        <p>Bienvenido al asistente de cálculo de honorarios profesionales.</p>
-      </div>
       <div class="footer-nav">
-        <button class="btn btn-secondary" id="btnBack" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          Atrás
+        <button class="btn btn-outline" id="btnReiniciar" title="Reiniciar cálculo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Reiniciar
         </button>
-        <button class="btn btn-primary" id="btnNext">
-          Siguiente
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </button>
+        <div class="footer-nav-center">
+          <button class="btn btn-secondary" id="btnBack" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Atrás
+          </button>
+          <button class="btn btn-primary" id="btnNext">
+            Siguiente
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </footer>
   </div>

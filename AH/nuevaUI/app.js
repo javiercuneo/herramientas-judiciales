@@ -27,13 +27,13 @@ const state = {
 
 // ===== Configuración de Pasos =====
 const steps = [
-  { id: 0, name: 'Inicio', short: 'UMA' },
-  { id: 1, name: 'Tipo de Proceso', short: 'Tipo' },
-  { id: 2, name: 'Contingencias', short: 'Conting.' },
+  { id: 0, name: 'Inicio', short: 'Inicio' },
+  { id: 1, name: 'Tipo de Proceso', short: 'Tipo de proceso' },
+  { id: 2, name: 'Contingencias', short: 'Contingencias' },
   { id: 3, name: 'Objeto', short: 'Objeto' },
-  { id: 4, name: 'Base Regulatoria', short: 'Monto' },
+  { id: 4, name: 'Base Regulatoria', short: 'Base' },
   { id: 5, name: 'Resultado', short: 'Resultado' }
-];
+];  
 
 // ===== Tipos de Proceso =====
 const tiposProceso = [
@@ -94,33 +94,113 @@ const icons = {
 const mainContent = document.getElementById('mainContent');
 const stepper = document.getElementById('stepper');
 const summaryBar = document.getElementById('summaryBar');
-const footerInfo = document.getElementById('footerInfo');
 const btnBack = document.getElementById('btnBack');
 const btnNext = document.getElementById('btnNext');
+const btnReiniciar = document.getElementById('btnReiniciar');
+
+// ===== Información contextual (toggles colapsables) =====
+function getInfoToggle(step) {
+  var s = state.selections;
+  var question = '';
+  var answer = '';
+  
+  if (step === 0) {
+    question = '¿Qué es la UMA?';
+    answer = 'El valor de la UMA (Unidad de Medida Arancelaria) se actualiza periódicamente. Consultá el valor vigente antes de realizar el cálculo.';
+  } else if (step === 1) {
+    question = '¿Por qué es necesario este dato?';
+    answer = 'El tipo de proceso define coeficientes específicos que pueden reducir o incrementar el resultado final del cálculo. Por eso, es fundamental que elijas una de las siguientes opciones.';
+  } else if (step === 2) {
+    question = '¿Por qué son importantes las contingencias?';
+    var tipoId = s.tipoProcesoId;
+    if ([1, 2, 3].includes(tipoId)) {
+      answer = 'El modo en que termina el proceso tiene un impacto directo en el cálculo, ya que afecta tanto la alícuota aplicable como la base económica. Por favor, seleccioná la forma de finalización para ajustar el resultado a las pautas legales correspondientes.';
+      
+    } else if (tipoId === 4) {
+      answer = 'En los procesos sucesorios, la existencia de un abogado único para todos los herederos es un factor determinante ya que según el art. 35, los honorarios deben regularse en la mitad de la escala del art. 21. Es necesario que indiques si hubo uno o más letrados para aplicar este tope específico.<br><br>';
+    } else if (tipoId === 7) {
+      answer = 'En las medidas cautelares, la existencia de oposición o controversia tiene un impacto directo en el cálculo de los honorarios, ya ques según el art. 37, modifica el porcentaje de la escala aplicable.<br><br>Por favor, indicá si existió controversia para que el asistente aplique el coeficiente correcto.<br>';
+    }
+  } else if (step === 3) {
+    var paso3TipoId = s.tipoProcesoId;
+    if (paso3TipoId === 8) {
+      question = '¿Cómo se calculan los honorarios?';
+      answer = 'En este tipo de procesos, los honorarios se regulan en un 50% del establecido para el desalojo. A su vez en los desalojos, cuya base es el total de los alquileres del contrato, si la locación es para vivienda el monto de la base se reduce en un 20%.';
+    } else {
+      question = '¿Por qué es necesario el objeto del juicio?';
+      answer = 'El objeto reclamado en el juicio es un factor determinante para establecer la base regulatoria (o cuantía del asunto) sobre la cual se aplicará la escala de porcentajes para calcular los honorarios. Varía sustancialmente dependiendo del reclamo, si se requieren sumas de dinero u otros bienes (y su naturaleza). Por eso es necesario que elijas una de las siguientes opciones.';
+    }
+  } else if (step === 4) {
+    question = '¿Cómo se determina la base regulatoria?';
+    var tipoId = s.tipoProcesoId;
+    var objId = s.objetoJuicioId;
+    answer = 'La base regulatoria, también llamada cuantía o monto del asunto, es el valor económico que se toma como referencia para aplicar la escala de honorarios del art. 21 en los procesos susceptibles de apreciación pecuniaria. Su correcta determinación es fundamental ya que de ella depende el coeficiente aplicable y la determinación de los mínimos y máximos arancelarios. Según las elecciones previas, en este paso tenés que ingresar ese monto.<br><br>';
+    if (tipoId === 6) {
+      answer += 'Algunos incidentes se consideran de valor autónomo y en otros, su base es la del juicio principal.';
+    } else if (tipoId === 1 && objId === 11 && s.subOpcionObjeto === 'Desalojo laboral') {
+      answer += 'En los juicios donde se reclama la restitución de inmuebles dados al trabajador por su empleo, la base regulatoria es el 50% de la última remuneración mensual durante 2 años.';
+    } else if (tipoId === 1 && objId === 11) {
+      answer += 'Ingresá el valor de la totalidad del contrato. Si es un desalojo sin contrato o en el caso que el profesional haya estimado inadecuado el valor del contrato, ingresá la sumatoria de alquileres estimados o determinados por el perito designado.';
+    } else if (tipoId === 1 && objId === 1) {
+      answer += 'Nota: no ingreses el monto con reducciones porque ya estará calculado por el sistema según tus elecciones previas.';
+    } else if (tipoId === 4) {
+      answer += 'Ingrese el valor del patrimonio que se transmite (art. 35).';
+    }
+  } else if (step === 5) {
+    return '';
+  } else if (step === 'minimos') {
+    question = 'Más información';
+    answer = 'Los mínimos establecidos por ley garantizan un piso para los honorarios profesionales.';
+  }
+  
+  if (!question) return '';
+  return '<div class="info-toggle-wrapper"><details class="info-toggle"><summary>' + question + '</summary><div class="info-toggle-content">' + answer + '</div></details></div>';
+}
 
 // ===== Inicialización =====
 document.addEventListener('DOMContentLoaded', () => {
-  cargarUMA(); // carga valor UMA desde Google Sheets
+  cargarUMA(); // carga valor UMA desde Google Sheets (para módulos viejos)
+  fetchUMA();  // carga UMA desde Google Sheets para la nueva UI
   renderStepper();
   renderStep(0);
   setupNavigation();
-
-  // Monitorear carga async de UMA desde Google Sheets (cargarUMA en core.js actualiza window.valorUMA)
-  var umaInterval = setInterval(function() {
-    var loaded = window.valorUMA;
-    if (loaded && loaded !== 92482) {
-      state.umaValue = loaded;
-      updateSummaryBar();
-      var input = document.getElementById('umaInput');
-      if (input && !input.value) {
-        input.value = formatNumber(loaded);
-      }
-      clearInterval(umaInterval);
-    }
-  }, 300);
-  // Timeout de seguridad
-  setTimeout(function() { clearInterval(umaInterval); }, 15000);
 });
+
+function fetchUMA() {
+  var url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8tumvxptTGBCfScMwWxK7r6ATnGfMw061GKGdzfIVyThcSGzUqjI-vcpME1AtykPmjqTq0xdjgc7D/pub?output=csv';
+  fetch(url)
+    .then(function(r) { return r.text(); })
+    .then(function(data) {
+      var filas = data.split('\n');
+      // Parsear CSV correctamente: unir campos entrecomillados que contienen comas
+      var rawCols = filas[0].split(',');
+      var cols = [];
+      for (var i = 0; i < rawCols.length; i++) {
+        var f = rawCols[i];
+        if (f.startsWith('"') && !f.endsWith('"')) {
+          while (i + 1 < rawCols.length && !rawCols[i + 1].endsWith('"')) {
+            f += ',' + rawCols[++i];
+          }
+          if (i + 1 < rawCols.length) f += ',' + rawCols[++i];
+        }
+        cols.push(f);
+      }
+      var val = cols[1] ? cols[1].replace(/"/g, '').trim() : '';
+      // Eliminar separadores de miles (puntos o comas) porque la UMA siempre es entera
+      val = val.replace(/\./g, '').replace(/,/g, '');
+      var num = parseNumber(val);
+      if (val && !isNaN(num)) {
+        state.umaValue = num;
+        window.valorUMA = num;
+        updateSummaryBar();
+        var input = document.getElementById('umaInput');
+        if (input && !input.value) {
+          input.value = formatNumber(num);
+        }
+      }
+    })
+    .catch(function(e) { console.warn('No se pudo cargar UMA desde Google Sheets', e); });
+}
 
 // ===== Renderizado del Stepper =====
 function renderStepper() {
@@ -150,6 +230,8 @@ function updateSummaryBar() {
   }
   if (state.selections.objetoJuicio) {
     items.push(`<div class="summary-item"><strong>Objeto:</strong> ${truncate(state.selections.objetoJuicio, 25)}</div>`);
+  } else if (state.selections.tipoLocacion) {
+    items.push(`<div class="summary-item"><strong>Locación:</strong> ${truncate(state.selections.tipoLocacion, 25)}</div>`);
   }
   if (state.selections.montoJuicio) {
     items.push(`<div class="summary-item"><strong>Monto:</strong> $${formatNumber(state.selections.montoJuicio)}</div>`);
@@ -164,7 +246,6 @@ function renderStep(stepNumber) {
   state.currentStep = stepNumber;
   renderStepper();
   updateSummaryBar();
-  updateFooterInfo(stepNumber);
   updateNavButtons();
 
   mainContent.innerHTML = '';
@@ -203,19 +284,19 @@ function renderStep0() {
     <div class="welcome-screen">
       <div class="welcome-left">
         <div>
-          <h2 class="welcome-title">Calculadora de Honorarios</h2>
+          <h2 class="welcome-title">Honorio</h2>
           <p class="welcome-subtitle">Calculá los honorarios según la ley 27.423</p>
         </div>
         
         <div class="uma-input-group">
-          <label for="umaInput">Valor de la UMA (Unidad de Medida Arancelaria)</label>
+          <label for="umaInput">Ingresá el valor de la UMA</label>
           <input 
             type="text" 
             id="umaInput" 
             class="uma-input" 
             placeholder="Ingrese el valor de la UMA"
             value="${state.umaValue || ''}"
-            inputmode="numeric"
+            inputmode="decimal"
           >
           <div id="umaError" class="error-message" style="display: none;">Por favor ingrese un valor numérico válido</div>
         </div>
@@ -258,6 +339,66 @@ function renderStep0() {
         </div>
       </div>
     </div>
+
+    <div class="welcome-info-section">
+      <div class="info-toggle-wrapper">
+        <details class="info-toggle">
+          <summary>Naturaleza de la herramienta</summary>
+          <div class="info-toggle-content">
+            <ul>
+              <li>Esta herramienta es de carácter referencial; no sustituye el criterio del juez ni debe considerarse un dictamen profesional</li>
+              <li>Los resultados se basan en interpretaciones de la Ley 27.423 que podrían diferir de tu criterio o del de los distintos tribunales</li>
+              <li>En cada paso, intentaremos explicitar el fundamento jurídico y su impacto en el cálculo</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+      <div class="info-toggle-wrapper">
+        <details class="info-toggle">
+          <summary>Ámbito de aplicación temporal</summary>
+          <div class="info-toggle-content">
+            <ul>
+              <li>Vigencia: La ley 27423 se publicó en el BO el 22/12/17.</li>
+              <li>Te sirve si seguís el criterio de aplicación inmediata a todos los juicios en trámite, incluidos los iniciados antes de su entrada en vigencia</li>
+              <li>Si seguís el precedente "Establecimiento Las Marías" (CSJN, 04/09/2018) podes usarlo para las etapas con principio de ejecución bajo la nueva ley.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+      <div class="info-toggle-wrapper">
+        <details class="info-toggle">
+          <summary>Restricciones y exclusiones del cálculo</summary>
+          <div class="info-toggle-content">
+            <ul>
+              <li>Mínimos arancelarios: El asistente no aplica automáticamente los mínimos de los arts. 58, 61, etc. Si el resultado es menor a dichos mínimos y los consideras aplicables, desestimá el cálculo o hace clic en "ver mínimos"</li>
+              <li>Reducciones y topes: no se contemplan las limitaciones por prorrateo (art. 730 CCyCN), reajuste de precio (art. 1255 CCyCN), ejecución hipotecaria especial (art. 60 Ley 24.441) o régimen de vivienda (art. 254 CCyCN / art. 48 Ley 14.394).</li>
+              <li>Materias excluidas: la herramienta no está pensada para juicios penales. Solo menciona algunos mínimos para referencia</li>
+              <li>Asuntos no susceptibles de apreciación pecuniaria: para algunos casos sin monto determinado (por ejemplo convocatoria de asamblea), no es posible un cálculo matemático; debes recurrir a las pautas del art. 16. Si haces clic en "ver mínimos" podes ver algunos valores para referencia</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+      <div class="info-toggle-wrapper">
+        <details class="info-toggle">
+          <summary>Auxiliares de justicia</summary>
+          <div class="info-toggle-content">
+            <ul>
+              <li>Leyes especiales: no se incluyen las pautas de las leyes especiales que reglamenten cada actividad profesional (art. 1, 2° párrafo de la ley 27423) ni las modificaciones de la Ley 27.802 (Modernización Laboral) pero se muestran algunas reglas incorporadas por ésta.</li>
+              <li>Excluidos: no contempla los cálculos de los honorarios de los administradores judiciales, interventores o veedores, interventores recaudadores, liquidadores judiciales, árbitros, mediadores o amigables componedores (art. 32).</li>
+              <li>Mediadores: tienen normativa propia (Ley 26.589 y Decretos 2536/15 y 696/2025). Puede utilizar nuestra calculadora web (<a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html" target="_blank" rel="noopener">link</a>).</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+      <div class="info-toggle-wrapper">
+        <details class="info-toggle">
+          <summary>Reconvención y acumulación de acciones</summary>
+          <div class="info-toggle-content">
+            <p>Art. 28: en estos supuestos, los honorarios se regulan por separado para cada acción. Le sugerimos reiniciar el asistente para cada una de las pretensiones según sus particularidades.</p>
+          </div>
+        </details>
+      </div>
+    </div>
   `;
 
   // Event listeners
@@ -295,6 +436,7 @@ function renderStep0() {
   // Ocultar botones de navegación en paso 0
   btnBack.style.display = 'none';
   btnNext.style.display = 'none';
+  btnReiniciar.style.display = 'none';
 }
 
 // ===== PASO 1: Tipo de Proceso =====
@@ -302,7 +444,7 @@ function renderStep1() {
   mainContent.innerHTML = `
     <h2 class="cards-title">Tipo de Proceso</h2>
     <p class="cards-subtitle">¿De qué tipo de proceso se trata?</p>
-    
+    ${getInfoToggle(1)}
     <div class="cards-grid">
       ${tiposProceso.map(tipo => `
         <div class="selectable-card ${state.selections.tipoProcesoId === tipo.id ? 'selected' : ''}" data-id="${tipo.id}">
@@ -350,6 +492,7 @@ function renderStep2() {
   let content = `
     <h2 class="cards-title">Contingencias Procesales</h2>
     <p class="cards-subtitle">Indicá las características del proceso</p>
+    ${getInfoToggle(2)}
     <div id="errorContingencias" class="error-message" style="display: none;"></div>
   `;
 
@@ -373,13 +516,9 @@ function renderStep2() {
     content += renderCautelarOposicion();
   }
 
-  // Solo para Homologación
-  if (tipoId === 8) {
-    content += renderTipoLocacion();
-  }
-
   mainContent.innerHTML = content;
   attachStep2Listeners();
+  updateSubInfoToggles();
 }
 
 function renderModoTerminacion() {
@@ -411,6 +550,7 @@ function renderModoTerminacion() {
     html += `
       <div class="suboptions-section" id="subOpcionesModo">
         <h3>¿La demanda fue admitida o rechazada?</h3>
+        <div id="subInfoToggle-sentencia"></div>
         <div class="binary-options">
           <div class="binary-option ${state.selections.subOpcionModo === 'Demanda admitida' ? 'selected' : ''}" data-subvalue="Demanda admitida">
             <div class="card-icon">${icons.check}</div>
@@ -427,6 +567,7 @@ function renderModoTerminacion() {
     html += `
       <div class="suboptions-section" id="subOpcionesModo">
         <h3>¿Cuándo se produjo?</h3>
+        <div id="subInfoToggle-modosAnormales"></div>
         <div class="binary-options">
           <div class="binary-option ${state.selections.subOpcionModo === 'Antes de apertura a prueba' ? 'selected' : ''}" data-subvalue="Antes de apertura a prueba">
             <div class="card-icon">${icons.document}</div>
@@ -442,7 +583,8 @@ function renderModoTerminacion() {
   } else if (state.selections.modoTerminacion === 'Caducidad') {
     html += `
       <div class="suboptions-section" id="subOpcionesModo">
-        <h3>¿Bajo qué criterio se calculará?</h3>
+        <h3>Caducidad</h3>
+        <div id="subInfoToggle-caducidad"></div>
         <div class="binary-options">
           <div class="binary-option ${state.selections.caducidadArticulo === 'Art. 22' ? 'selected' : ''}" data-caducidad="Art. 22">
             <div class="card-icon">${icons.document}</div>
@@ -460,6 +602,7 @@ function renderModoTerminacion() {
       html += `
         <div class="suboptions-section" id="subOpcionesCaducidad">
           <h3>¿Cuándo se declaró la caducidad?</h3>
+          <div id="subInfoToggle-caducidadMomento"></div>
           <div class="binary-options">
             <div class="binary-option ${state.selections.caducidadMomento === 'Antes de apertura a prueba' ? 'selected' : ''}" data-caducidad-momento="Antes de apertura a prueba">
               <div class="card-icon">${icons.document}</div>
@@ -482,6 +625,7 @@ function renderExcepciones() {
   return `
     <div class="suboptions-section">
       <h3>¿Se dedujeron excepciones?</h3>
+      <div id="subInfoToggle-excepciones"></div>
       <div class="binary-options" id="excepcionesOptions">
         <div class="binary-option ${state.selections.excepciones === 'Se dedujeron excepciones' ? 'selected' : ''}" data-excepciones="Se dedujeron excepciones">
           <div class="card-icon">${icons.alert}</div>
@@ -498,14 +642,18 @@ function renderExcepciones() {
 
 function renderAbogados() {
   return `
-    <div class="binary-options" id="abogadosOptions">
-      <div class="binary-option ${state.selections.abogados === 'Un solo abogado' ? 'selected' : ''}" data-abogados="Un solo abogado">
-        <div class="card-icon">${icons.users}</div>
-        <span class="card-label">Un solo abogado</span>
-      </div>
-      <div class="binary-option ${state.selections.abogados === 'Varios abogados' ? 'selected' : ''}" data-abogados="Varios abogados">
-        <div class="card-icon">${icons.group}</div>
-        <span class="card-label">Varios abogados</span>
+    <div class="suboptions-section">
+      <h3>Elegí una opción</h3>
+      <div id="subInfoToggle-abogados"></div>
+      <div class="binary-options" id="abogadosOptions">
+        <div class="binary-option ${state.selections.abogados === 'Un solo abogado' ? 'selected' : ''}" data-abogados="Un solo abogado">
+          <div class="card-icon">${icons.users}</div>
+          <span class="card-label">Un solo abogado</span>
+        </div>
+        <div class="binary-option ${state.selections.abogados === 'Varios abogados' ? 'selected' : ''}" data-abogados="Varios abogados">
+          <div class="card-icon">${icons.group}</div>
+          <span class="card-label">Varios abogados</span>
+        </div>
       </div>
     </div>
   `;
@@ -513,14 +661,18 @@ function renderAbogados() {
 
 function renderCautelarOposicion() {
   return `
-    <div class="binary-options" id="cautelarOptions">
-      <div class="binary-option ${state.selections.cautelarOposicion === 'Cautelar con oposición' ? 'selected' : ''}" data-cautelar="Cautelar con oposición">
-        <div class="card-icon">${icons.shield}</div>
-        <span class="card-label">Cautelar con oposición</span>
-      </div>
-      <div class="binary-option ${state.selections.cautelarOposicion === 'Cautelar sin oposición' ? 'selected' : ''}" data-cautelar="Cautelar sin oposición">
-        <div class="card-icon">${icons.shield}</div>
-        <span class="card-label">Cautelar sin oposición</span>
+    <div class="suboptions-section">
+      <h3>¿Hubo oposición a la medida cautelar?</h3>
+      <div id="subInfoToggle-cautelar"></div>
+      <div class="binary-options" id="cautelarOptions">
+        <div class="binary-option ${state.selections.cautelarOposicion === 'Cautelar con oposición' ? 'selected' : ''}" data-cautelar="Cautelar con oposición">
+          <div class="card-icon">${icons.shield}</div>
+          <span class="card-label">Cautelar con oposición</span>
+        </div>
+        <div class="binary-option ${state.selections.cautelarOposicion === 'Cautelar sin oposición' ? 'selected' : ''}" data-cautelar="Cautelar sin oposición">
+          <div class="card-icon">${icons.shield}</div>
+          <span class="card-label">Cautelar sin oposición</span>
+        </div>
       </div>
     </div>
   `;
@@ -528,14 +680,18 @@ function renderCautelarOposicion() {
 
 function renderTipoLocacion() {
   return `
-    <div class="binary-options" id="locacionOptions">
-      <div class="binary-option ${state.selections.tipoLocacion === 'Alquiler para vivienda' ? 'selected' : ''}" data-locacion="Alquiler para vivienda">
-        <div class="card-icon">${icons.home}</div>
-        <span class="card-label">Alquiler para vivienda</span>
-      </div>
-      <div class="binary-option ${state.selections.tipoLocacion === 'Demás casos' ? 'selected' : ''}" data-locacion="Demás casos">
-        <div class="card-icon">${icons.building}</div>
-        <span class="card-label">Demás casos</span>
+    <div class="suboptions-section">
+      <h3>Tipo de locación</h3>
+      <div id="subInfoToggle-locacion"></div>
+      <div class="binary-options" id="locacionOptions">
+        <div class="binary-option ${state.selections.tipoLocacion === 'Alquiler para vivienda' ? 'selected' : ''}" data-locacion="Alquiler para vivienda">
+          <div class="card-icon">${icons.home}</div>
+          <span class="card-label">Alquiler para vivienda</span>
+        </div>
+        <div class="binary-option ${state.selections.tipoLocacion === 'Demás casos' ? 'selected' : ''}" data-locacion="Demás casos">
+          <div class="card-icon">${icons.building}</div>
+          <span class="card-label">Demás casos</span>
+        </div>
       </div>
     </div>
   `;
@@ -572,6 +728,7 @@ function attachStep2Listeners() {
         document.querySelectorAll('[data-subvalue]').forEach(o => o.classList.remove('selected'));
         opt.classList.add('selected');
         state.selections.subOpcionModo = opt.dataset.subvalue;
+        updateSubInfoToggles();
       });
     });
 
@@ -591,6 +748,7 @@ function attachStep2Listeners() {
         document.querySelectorAll('[data-caducidad-momento]').forEach(o => o.classList.remove('selected'));
         opt.classList.add('selected');
         state.selections.caducidadMomento = opt.dataset['caducidad-momento'] || opt.dataset.caducidadMomento;
+        updateSubInfoToggles();
       });
     });
   }
@@ -602,6 +760,7 @@ function attachStep2Listeners() {
       document.querySelectorAll('[data-excepciones]').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       state.selections.excepciones = opt.dataset.excepciones;
+      updateSubInfoToggles();
     });
   });
 
@@ -612,6 +771,7 @@ function attachStep2Listeners() {
       document.querySelectorAll('[data-abogados]').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       state.selections.abogados = opt.dataset.abogados;
+      updateSubInfoToggles();
     });
   });
 
@@ -622,6 +782,7 @@ function attachStep2Listeners() {
       document.querySelectorAll('[data-cautelar]').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       state.selections.cautelarOposicion = opt.dataset.cautelar;
+      updateSubInfoToggles();
     });
   });
 
@@ -632,16 +793,55 @@ function attachStep2Listeners() {
       document.querySelectorAll('[data-locacion]').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       state.selections.tipoLocacion = opt.dataset.locacion;
+      updateSubInfoToggles();
     });
   });
 }
 
 // ===== PASO 3: Objeto del Juicio =====
 function renderStep3() {
+  const tipoId = state.selections.tipoProcesoId;
+  
+  if (tipoId === 8) {
+    // Homologación — mostrar cards de locación (reemplaza objetos generales)
+    mainContent.innerHTML = `
+      <h2 class="cards-title">Objeto del Juicio</h2>
+      <p class="cards-subtitle">Indicá el tipo de locación</p>
+      ${getInfoToggle(3)}
+      <div class="cards-grid" id="locacionCardsStep3">
+        <div class="selectable-card ${state.selections.tipoLocacion === 'Alquiler para vivienda' ? 'selected' : ''}" data-locacion="Alquiler para vivienda">
+          <div class="card-icon">${icons.home}</div>
+          <span class="card-label">Alquiler para vivienda</span>
+        </div>
+        <div class="selectable-card ${state.selections.tipoLocacion === 'Demás casos' ? 'selected' : ''}" data-locacion="Demás casos">
+          <div class="card-icon">${icons.building}</div>
+          <span class="card-label">Demás casos</span>
+        </div>
+      </div>
+      <div id="errorObjeto" class="error-message" style="display: none;"></div>
+    `;
+    
+    document.querySelectorAll('#locacionCardsStep3 .selectable-card').forEach(card => {
+      card.addEventListener('click', () => {
+        showError('errorObjeto', '');
+        document.querySelectorAll('#locacionCardsStep3 .selectable-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        state.selections.tipoLocacion = card.dataset.locacion;
+        state.selections.objetoJuicioId = null;
+        state.selections.objetoJuicio = null;
+        updateSummaryBar();
+        updateStep3SubToggles();
+      });
+    });
+    updateStep3SubToggles();
+    return;
+  }
+  
+  // Resto de tipos — grid normal de objetos
   mainContent.innerHTML = `
     <h2 class="cards-title">Objeto del Juicio</h2>
     <p class="cards-subtitle">¿Cuál es el objeto del juicio?</p>
-    
+    ${getInfoToggle(3)}
     <div class="cards-grid">
       ${objetosJuicio.map(obj => `
         <div class="selectable-card ${state.selections.objetoJuicioId === obj.id ? 'selected' : ''}" data-id="${obj.id}">
@@ -670,6 +870,7 @@ function renderStep3() {
       
       // Mostrar sub-opciones si corresponde
       renderSubOpcionesObjeto(id);
+      updateStep3SubToggles();
     });
   });
 
@@ -677,6 +878,7 @@ function renderStep3() {
   if (state.selections.objetoJuicioId) {
     renderSubOpcionesObjeto(state.selections.objetoJuicioId);
   }
+  updateStep3SubToggles();
 }
 
 function renderSubOpcionesObjeto(objetoId) {
@@ -686,7 +888,8 @@ function renderSubOpcionesObjeto(objetoId) {
     // Acciones Posesorias
     container.innerHTML = `
       <div class="suboptions-section">
-        <h3>Especificá el caso</h3>
+        <h3>Especificá el tipo de actuación del caso</h3>
+        <div id="subInfoToggle-obj-posesorias"></div>
         <div class="binary-options">
           <div class="binary-option ${state.selections.subOpcionObjeto === 'Actuación exclusiva beneficio patrocinado' ? 'selected' : ''}" data-subobjeto="Actuación exclusiva beneficio patrocinado">
             <div class="card-icon">${icons.users}</div>
@@ -704,6 +907,7 @@ function renderSubOpcionesObjeto(objetoId) {
     container.innerHTML = `
       <div class="suboptions-section">
         <h3>Tipo de desalojo</h3>
+        <div id="subInfoToggle-obj-desalojo"></div>
         <div class="binary-options" style="max-width: 800px;">
           <div class="binary-option ${state.selections.subOpcionObjeto === 'Alquiler para vivienda' ? 'selected' : ''}" data-subobjeto="Alquiler para vivienda">
             <div class="card-icon">${icons.home}</div>
@@ -732,6 +936,7 @@ function renderSubOpcionesObjeto(objetoId) {
       document.querySelectorAll('[data-subobjeto]').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       state.selections.subOpcionObjeto = opt.dataset.subobjeto;
+      updateStep3SubToggles();
     });
   });
 }
@@ -742,7 +947,7 @@ function renderStep4() {
     <div class="amount-input-container">
       <h2>Base Regulatoria</h2>
       <p>Ingresá el monto del juicio para calcular los honorarios</p>
-      
+      ${getInfoToggle(4)}
       <div class="amount-input-wrapper">
         <span class="currency-symbol">$</span>
         <input 
@@ -800,12 +1005,6 @@ function renderStep5() {
         </div>
       </div>
       
-      <div class="result-actions">
-        <button class="btn btn-secondary" id="btnNuevoCalculo">
-          ${icons.calculator}
-          Nuevo Cálculo
-        </button>
-      </div>
     </div>
   `;
   
@@ -818,11 +1017,6 @@ function renderStep5() {
   if (btnViejoMinimos && btnViejoMinimos.parentNode) {
     btnViejoMinimos.parentNode.removeChild(btnViejoMinimos);
   }
-  
-  document.getElementById('btnNuevoCalculo').addEventListener('click', () => {
-    resetState();
-    navigateTo(0);
-  });
   
   btnNext.style.display = 'none';
 }
@@ -906,7 +1100,7 @@ function renderMinimos() {
     <div class="minimos-screen">
       <h2>Honorarios Mínimos</h2>
       <p>Seleccioná una categoría para ver los valores mínimos establecidos por ley (UMA: $${formatNumber(umaActual)})</p>
-      
+      ${getInfoToggle('minimos')}
       <div class="cards-grid" id="minimosCards">
         ${categoriasMinimos.map(function(cat) { return `
           <div class="selectable-card" data-categoria="${cat.id}">
@@ -948,6 +1142,12 @@ function renderMinimos() {
 function setupNavigation() {
   btnBack.addEventListener('click', handleBack);
   btnNext.addEventListener('click', handleNext);
+  btnReiniciar.addEventListener('click', handleReiniciar);
+}
+
+function handleReiniciar() {
+  resetState();
+  navigateTo(0);
 }
 
 function handleBack() {
@@ -975,6 +1175,8 @@ function handleNext() {
       navigateTo(5);
     } else if (tipoId === 6) { // Incidente -> directo a Base regulatoria
       navigateTo(4);
+    } else if (tipoId === 8) { // Homologación -> Objeto (no Contingencias)
+      navigateTo(3);
     } else {
       navigateTo(2); // Resto va a Contingencias
     }
@@ -999,16 +1201,27 @@ function handleNext() {
   }
 
   if (currentStep === 3) {
-    if (!state.selections.objetoJuicioId) {
-      showError('errorObjeto', 'Por favor seleccioná el objeto del juicio');
-      return;
-    }
+    const tipoId = state.selections.tipoProcesoId;
     
-    // Validar sub-opciones si aplica
-    const objeto = objetosJuicio.find(o => o.id === state.selections.objetoJuicioId);
-    if (objeto.hasSubOptions && !state.selections.subOpcionObjeto) {
-      showError('errorObjeto', 'Por favor seleccioná la sub-opción correspondiente');
-      return;
+    if (tipoId === 8) {
+      // Homologación — validar tipoLocacion
+      if (!state.selections.tipoLocacion) {
+        showError('errorObjeto', 'Por favor seleccioná el tipo de locación');
+        return;
+      }
+    } else {
+      // Resto — validar objeto del juicio
+      if (!state.selections.objetoJuicioId) {
+        showError('errorObjeto', 'Por favor seleccioná el objeto del juicio');
+        return;
+      }
+      
+      // Validar sub-opciones si aplica
+      const objeto = objetosJuicio.find(o => o.id === state.selections.objetoJuicioId);
+      if (objeto && objeto.hasSubOptions && !state.selections.subOpcionObjeto) {
+        showError('errorObjeto', 'Por favor seleccioná la sub-opción correspondiente');
+        return;
+      }
     }
     
     navigateTo(4);
@@ -1081,12 +1294,6 @@ function validateStep2() {
     return false;
   }
 
-  // Homologación -> tipo locación
-  if (tipoId === 8 && !state.selections.tipoLocacion) {
-    showError('errorContingencias', 'Por favor indicá el tipo de locación');
-    return false;
-  }
-
   return true;
 }
 
@@ -1101,87 +1308,7 @@ function updateNavButtons() {
   btnBack.disabled = state.history.length <= 1;
   btnBack.style.display = step === 0 || step === 'minimos' ? 'none' : 'flex';
   btnNext.style.display = step === 0 || step === 5 || step === 'minimos' ? 'none' : 'flex';
-}
-
-function updateFooterInfo(step) {
-  var s = state.selections;
-  var msg = '';
-
-  if (step === 0) {
-    msg = 'El valor de la UMA (Unidad de Medida Arancelaria) se actualiza periódicamente. Consultá el valor vigente antes de realizar el cálculo.';
-  } else if (step === 1) {
-    msg = 'En la Ley 27.423, el tipo de proceso define coeficientes específicos que pueden reducir o incrementar el resultado final del cálculo. Por eso, es fundamental que elijas una de las siguientes opciones:';
-  } else if (step === 2) {
-    var tipoId = s.tipoProcesoId;
-    if ([1, 2, 3].includes(tipoId)) {
-      msg = 'El modo en que termina el proceso tiene un impacto directo en el cálculo, ya que afecta tanto la alícuota aplicable como la base económica. Por favor, seleccioná la forma de finalización para ajustar el resultado a las pautas legales correspondientes.';
-      if (tipoId === 2) {
-        msg += '<br><br><strong>Excepciones</strong><br>La oposición de excepciones es un factor determinante en el proceso de ejecución ya que su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular.<br>ARTÍCULO 41.- En el procedimiento de ejecución de sentencias…no habiendo excepciones, los honorarios se reducirán en un 10%...';
-      } else if (tipoId === 3) {
-        msg += '<br><br><strong>Excepciones</strong><br>La oposición de excepciones es un factor determinante en el proceso ejecutivo, ya que además de modificar la estructura de las etapas (art. 29, inc. f), su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular.<br>ARTÍCULO 34.- En los juicios ejecutivos y ejecuciones especiales…No habiendo excepciones, los honorarios se reducirán en un 10%...';
-      }
-    } else if (tipoId === 4) {
-      msg = 'En los procesos sucesorios, la existencia de un abogado único para todos los herederos es un factor determinante ya que según el art. 35, los honorarios deben regularse en la mitad de la escala del art. 21. Es necesario que indiques si hubo uno o más letrados para aplicar este tope específico.<br><br>ARTÍCULO 35.- En el proceso sucesorio, si 1 solo abogado patrocina o representa a todos los herederos o interesados, sus honorarios se regularán…en la mitad del mínimo y del máximo de la escala establecida en el art. 21.';
-    } else if (tipoId === 7) {
-      msg = 'En las medidas cautelares, la existencia de oposición o controversia tiene un impacto directo en el cálculo de los honorarios, ya que modifica el porcentaje de la escala aplicable.<br><br>- Sin oposición: los honorarios se regulan tomando como base el 25% de la escala general establecida en el art. 21.<br>- Con oposición: la base para el cálculo se eleva al 50% de dicha escala.<br><br>Por favor, indicá si existió controversia para que el asistente aplique el coeficiente correcto.<br><br>ARTÍCULO 37.- En las medidas cautelares, ya sea que éstas tramiten autónomamente, en forma incidental o dentro del proceso, los honorarios se regularán sobre el monto que se pretende a asegurar, aplicándose como base el 25% de la escala del art. 21; salvo casos de controversia u oposición, en que la base se elevará al 50 %.';
-    } else if (tipoId === 8) {
-      msg = 'Seleccione el tipo de locación:';
-    }
-  } else if (step === 3) {
-    msg = 'El objeto reclamado en el juicio es un factor determinante para establecer la base regulatoria (o cuantía del asunto) sobre la cual se aplicará la escala de porcentajes para calcular los honorarios. Varía sustancialmente dependiendo del reclamo, si se requieren sumas de dinero u otros bienes (y su naturaleza). Por eso es necesario que elijas una de las siguientes opciones:';
-  } else if (step === 4) {
-    var tipoId = s.tipoProcesoId;
-    var objId = s.objetoJuicioId;
-    msg = 'La base regulatoria, también llamada cuantía o monto del asunto, es el valor económico que se toma como referencia para aplicar la escala de honorarios del art. 21 en los procesos susceptibles de apreciación pecuniaria. Su correcta determinación es fundamental ya que de ella depende el coeficiente aplicable y la determinación de los mínimos y máximos arancelarios. Según las elecciones previas, en este paso tenés que ingresar ese monto.<br><br>';
-
-    if (tipoId === 1 && objId === 11) {
-      if (s.subOpcionObjeto === 'Alquiler para vivienda') {
-        msg += 'Ingresá el valor de la totalidad del contrato. Si es un desalojo sin contrato o en el caso que el profesional haya estimado inadecuado el valor del contrato, ingresá la sumatoria de alquileres estimados o determinados por el perito designado.<br>Nota: si elegiste "alquiler para vivienda" en el paso anterior, no ingreses el monto reducido porque ya estará calculado por el sistema.<br><br>ARTÍCULO 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato… Si el profesional estimare inadecuado el alquiler fijado en el contrato o en caso de que éste no pudiera determinarse exactamente o se tratase de juicios por intrusión o tenencia precaria, deberá fijarse el valor locativo actualizado del inmueble, para lo cual el profesional podrá acompañar tasaciones al respecto o designar perito para que lo determine.';
-      } else if (s.subOpcionObjeto === 'Desalojo laboral') {
-        msg += 'En los juicios donde se reclama la restitución de inmuebles dados al trabajador por su empleo, la base regulatoria es el 50% de la última remuneración mensual durante 2 años.<br><br>ARTÍCULO 43.- …En las demandas de desalojo por restitución de inmuebles o parte de ellos, concedidos a los trabajadores en virtud de la relación de trabajo, se considerará como valor del juicio el cincuenta por ciento (50%) de la última remuneración mensual normal y habitual que deba percibir según su categoría profesional por el término de dos (2) años.';
-      } else {
-        msg += 'Ingresá el valor de la totalidad del contrato. Si es un desalojo sin contrato o en el caso que el profesional haya estimado inadecuado el valor del contrato, ingresá la sumatoria de alquileres estimados o determinados por el perito designado.<br><br>ARTÍCULO 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato… Si el profesional estimare inadecuado el alquiler fijado en el contrato o en caso de que éste no pudiera determinarse exactamente o se tratase de juicios por intrusión o tenencia precaria, deberá fijarse el valor locativo actualizado del inmueble, para lo cual el profesional podrá acompañar tasaciones al respecto o designar perito para que lo determine.';
-      }
-    } else if (tipoId === 1 && objId === 1) {
-      msg += 'Nota: no ingreses el monto con reducciones porque ya estará calculado por el sistema según tus elecciones previas.<br><br>ARTÍCULO 22.- En los juicios por cobro de sumas de dinero la cuantía del asunto …será el monto de la demanda o reconvención; si hubiera sentencia será el de la liquidación que resulte de la misma, actualizado por intereses si correspondiere. En caso de transacción, la cuantía será el monto de la misma.<br><br>ARTÍCULO 24.- A los efectos de la regulación de honorarios, se tendrán en cuenta los intereses que deban calcularse sobre el monto de condena. Los intereses fijados en la sentencia deberán siempre integrar la base regulatoria, bajo pena de nulidad.<br><br>ARTÍCULO 52.- … A los efectos de la regulación se tendrán en cuenta los intereses, los frutos y los accesorios, que integrarán la base regulatoria según lo establecido en los artículos 22, 23 y 24.';
-    } else if (tipoId === 1 && objId === 2) {
-      msg += 'Ingresá el valor del bien según estas reglas:<br>- Si los bienes fueron tasados, ingresá el monto de la tasación.<br>- Si la valuación fiscal (VF) se consideró adecuada, ingresa el monto de la VF actualizada incrementado en un 50%.<br>- Si la VF se consideró inadecuada, se inició y terminó el procedimiento del art. 23 para la valuación de los bienes, ingresá el valor de la estimación.<br>- Recordá que si hay montos en dólares, tenés que definir el tipo de cambio que vas a usar (oficial venta, MEP, etc.) para ingresar la base en pesos.<br><br>ARTÍCULO 23.- El monto de los procesos en caso de que existan bienes susceptibles de apreciación pecuniaria, se determinará conforme lo siguiente: a) Si se trata de bienes inmuebles o derechos sobre los mismos y no han sido tasados en autos, se tendrá como cuantía del asunto la valuación fiscal al momento en que se practique la regulación, incrementada en un 50%. No obstante reputándose ésta, inadecuada al valor real del inmueble, el profesional podrá estimar el valor que le asigne, de lo que se dará traslado al obligado al pago. En caso de oposición, el juez designará perito tasador… b) Si se trata de bienes muebles o semovientes, se tomará como cuantía del asunto el valor que surja de autos, sin perjuicio de efectuarse la determinación establecida en el inciso a)... g) Si se trata de usufructo o nuda propiedad, se determinará el valor de los bienes conforme el inciso a) de este artículo; i) Si se trata de bienes sujetos a agotamiento, minas, canteras y similares, se determinará el valor por el procedimiento previsto en el inciso b) del presente artículo.';
-    } else if (tipoId === 1 && objId === 3) {
-      msg += 'Ingresá el valor consignado en las escrituras o documentos respectivos, deducidas las amortizaciones.<br><br>Art. 23 inc. d): Si se trata de derechos crediticios, se tomará como cuantía del asunto el valor consignado en las escrituras o documentos respectivos, deducidas las amortizaciones normales previstas en los mismos, o las extraordinarias que justifique el interesado.';
-    } else if (tipoId === 1 && objId === 4) {
-      msg += 'Ingresá el valor de cotización de los títulos.<br><br>Art. 23 inc. e): Si se trata de títulos de renta o acciones de entidades privadas, se tomará como cuantía del asunto el valor de cotización de la Bolsa de Comercio de Buenos Aires; si no cotizara en bolsa, el valor que informe cualquier entidad bancaria oficial; si por esta vía fuere imposible lograr la determinación, se aplicará el procedimiento del inciso a).';
-    } else if (tipoId === 1 && objId === 5) {
-      msg += 'Art. 23 inc. f): Si se trata de establecimientos comerciales, industriales o mineros, se valuará el activo conforme las normas de los incisos de este artículo; se descontará el pasivo justificado por certificación contable u otro medio idóneo en caso de que no se lleve la contabilidad en legal forma, y al líquido que resulte se le sumará un diez por ciento (10%) que será computado como valor llave.';
-    } else if (tipoId === 1 && objId === 6) {
-      msg += 'Ingresá el valor del bien según estas reglas:<br><br>Art. 23 inc. h): Si se trata de uso y habitación, será valuado en el 10% anual del valor del bien respectivo, justipreciado según las reglas del inciso a) y el resultado se multiplicará por el número de años por el que se transmite el derecho, no pudiendo exceder en ningún caso del 100% de aquél.';
-    } else if (tipoId === 1 && objId === 7) {
-      msg += 'Ingresá el valor del bien o el monto del boleto si es mayor.<br><br>ARTÍCULO 46.- En los juicios de escrituración y, en general, en los procesos derivados del contrato de compraventa de inmuebles, a los efectos de la regulación, se aplicará la norma del artículo 23, inciso a), salvo que resulte un monto mayor del boleto de compraventa, en cuyo caso se aplicará este último.';
-    } else if (tipoId === 1 && objId === 8) {
-      msg += 'Ingresá el importe correspondiente a 2 años de la cuota fijada.<br><br>ARTÍCULO 39.- En los juicios de alimentos la base del cálculo de los honorarios será el importe correspondiente a 2 años de la cuota que se fijare judicialmente.';
-    } else if (tipoId === 1 && objId === 9) {
-      msg += 'Ingresá el valor del patrimonio adjudicado.<br><br>ARTÍCULO 45.- En la liquidación y disolución del régimen patrimonial del matrimonio se regularán honorarios al patrocinante o apoderado de cada parte conforme la escala del art. 21 calculado sobre el patrimonio que se le adjudique a su patrocinado o representado.';
-    } else if (tipoId === 1 && objId === 10) {
-      msg += 'Si elegís esta opción, cuando llegues al cálculo final, el honorario que se muestra como resultado tendrá una reducción en ese porcentaje.<br><br>ARTÍCULO 38.- Tratándose de acciones posesorias, interdictos o de división de bienes comunes, se aplicará la escala del artículo 21. El monto de los honorarios se reducirá en un 20% atendiendo al valor de los bienes conforme a lo dispuesto en el artículo 23 si fuere exclusivamente en beneficio del patrocinado, con relación a la cuota o parte defendida.';
-    } else if (tipoId === 1 && objId === 12) {
-      msg += 'En estos casos, los honorarios se reducen en un 25%.<br><br>ARTÍCULO 49.- En las acciones sobre derechos de incidencia colectiva con contenido patrimonial, los honorarios serán los que resulten de la aplicación del artículo 21, reducidos en un 25%.';
-    } else if (tipoId === 4) {
-      msg += 'Ingrese el valor del patrimonio que se transmite (art. 35).<br>Si la valuación fiscal se consideró inadecuada, se inició y terminó el procedimiento del art. 23 para la valuación de los bienes, ingrese el valor de la estimación.<br>Si hay montos en dólares, tenés que definir el tipo de cambio que vas a usar (oficial venta, MEP, etc.).<br>Si la valuación fiscal se consideró adecuada, ingresa ese monto incrementado en un 50%.<br><br>ARTÍCULO 23.- El monto de los procesos en caso de que existan bienes susceptibles de apreciación pecuniaria, se determinará conforme lo siguiente:<br>a) Si se trata de bienes inmuebles o derechos sobre los mismos y no han sido tasados en autos, se tendrá como cuantía del asunto la valuación fiscal al momento en que se practique la regulación, incrementada en un cincuenta por ciento (50%). No obstante reputándose ésta, inadecuada al valor real del inmueble, el profesional podrá estimar el valor que le asigne, de lo que se dará traslado al obligado al pago. En caso de oposición, el juez designará perito tasador.<br><br>ARTÍCULO 35.- En el proceso sucesorio, los honorarios se regulan sobre el valor del patrimonio que se transmite. Para establecer el valor de los bienes se tendrá en cuenta lo dispuesto en el artículo 23.';
-    } else if (tipoId === 5) {
-      msg += 'Por lo general, algunos incidentes se consideran de valor autónomo (o lo discutido) y en otros, su base es el del juicio principal.';
-    } else if (tipoId === 6) {
-      msg += 'Por lo general, algunos incidentes se consideran de valor autónomo (o lo discutido) y en otros, su base es el del juicio principal.';
-    } else if (tipoId === 7) {
-      msg += 'Ingrese el monto a asegurar.';
-    } else if (tipoId === 8) {
-      msg += 'Ingresá el valor de la totalidad del contrato. Si es un desalojo sin contrato o en el caso que el profesional haya estimado inadecuado el valor del contrato, ingresá la sumatoria de alquileres estimados o determinados por el perito designado.<br>Nota: si elegiste "alquiler para vivienda" en el paso anterior, no ingreses el monto reducido porque ya estará calculado por el sistema.<br><br>ARTÍCULO 40: En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato… Si el profesional estimare inadecuado el alquiler fijado en el contrato o en caso de que éste no pudiera determinarse exactamente o se tratase de juicios por intrusión o tenencia precaria, deberá fijarse el valor locativo actualizado del inmueble, para lo cual el profesional podrá acompañar tasaciones al respecto o designar perito para que lo determine.<br><br>Tratándose de una homologación de convenio de desocupación y su ejecución, los honorarios se regularán en un 50% del establecido en el párrafo primero.';
-    }
-  } else if (step === 5) {
-    msg = 'Este cálculo es orientativo. Los valores finales pueden variar según las circunstancias del caso.';
-  } else if (step === 'minimos') {
-    msg = 'Los mínimos establecidos por ley garantizan un piso para los honorarios profesionales.';
-  }
-
-  footerInfo.innerHTML = '<p>' + msg + '</p>';
+  btnReiniciar.style.display = step === 0 || step === 'minimos' ? 'none' : 'flex';
 }
 
 // ===== Utilidades =====
@@ -1191,12 +1318,199 @@ function formatNumber(num) {
 
 function parseNumber(str) {
   if (!str) return null;
-  return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+  str = str.replace(/\s/g, '').replace(/\$/g, '');
+  var lastDot = str.lastIndexOf('.');
+  var lastComma = str.lastIndexOf(',');
+  if (lastComma > lastDot) {
+    // Formato AR: la coma es decimal, los puntos son separadores de miles
+    str = str.replace(/\./g, '').replace(',', '.');
+  } else if (lastDot > lastComma && lastComma > -1) {
+    // Inusual: punto después de coma, ej "92,482.50" — tratar coma como miles, punto como decimal
+    str = str.replace(',', '');
+  } else if (lastComma > -1 && lastDot === -1) {
+    // Solo coma → decimal (AR)
+    str = str.replace(',', '.');
+  } else if (lastDot > -1 && lastComma === -1) {
+    // Solo punto en un número grande → es separador de miles (AR: 95.626 = 95626)
+    str = str.replace(/\./g, '');
+  }
+  // Si no hay separadores, parseFloat lo interpreta directamente
+  return parseFloat(str);
 }
 
 function truncate(str, length) {
   if (!str) return '';
   return str.length > length ? str.substring(0, length) + '...' : str;
+}
+
+// ===== Step 2: Info toggles dinámicos según sub-opción =====
+function updateSubInfoToggles() {
+  var s = state.selections;
+  var tipoId = s.tipoProcesoId;
+  
+  function makeToggle(q, a) {
+    return '<div class="info-toggle-wrapper"><details class="info-toggle"><summary>' + q + '</summary><div class="info-toggle-content">' + a + '</div></details></div>';
+  }
+  
+  function fill(id, html) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+  
+  // Sentencia — toggle debajo de "¿La demanda fue admitida o rechazada?"
+  if (s.modoTerminacion === 'Sentencia') {
+    if (s.subOpcionModo === 'Demanda rechazada') {
+      fill('subInfoToggle-sentencia', makeToggle('¿Qué pasa si la demanda es rechazada?',
+        'Cuando la demanda es rechazada, para establecer la base el monto se disminuye en un 30%.<br><br>Art. 22: "Si fuere íntegramente desestimada la demanda o la reconvención, se tendrá como valor del pleito el importe de la misma, actualizado por intereses al momento de la sentencia, si ello correspondiere, disminuido en un 30%".<br><br>Al elegir esta opción, el monto de la base que ingreses en los pasos siguientes se reducirá en ese porcentaje.'));
+    } else if (s.subOpcionModo === 'Demanda admitida') {
+      fill('subInfoToggle-sentencia', makeToggle('¿Qué pasa si la demanda es admitida?',
+        'Cuando la demanda es admitida, no se aplica reducción sobre la base. El cálculo se realiza sobre el monto total del pleito conforme a la escala del art. 21.'));
+    } else {
+      fill('subInfoToggle-sentencia', makeToggle('¿Demanda admitida o rechazada?',
+        'Si elegís "Demanda admitida", el cálculo se realiza sobre el monto total del pleito sin reducciones.<br><br>Si elegís "Demanda rechazada", la base se disminuye en un 30% (Art. 22).'));
+    }
+  } else {
+    fill('subInfoToggle-sentencia', '');
+  }
+  
+  // Modos anormales — toggle debajo de "¿Cuándo se produjo?"
+  if (s.modoTerminacion === 'Modos anormales') {
+    var a25 = 'ARTÍCULO 25 - En caso de allanamiento, desistimiento y transacción, antes de decretarse la apertura a prueba, los honorarios serán del 50% de la escala del artículo 21. En los demás casos, se aplica el 100%.';
+    if (s.subOpcionModo === 'Antes de apertura a prueba') a25 += '<br><br>Seleccionaste ANTES de la apertura a prueba. Se aplica el 50% de la escala.';
+    else if (s.subOpcionModo === 'Después de apertura a prueba') a25 += '<br><br>Seleccionaste DESPUÉS de la apertura a prueba. Se aplica el 100% de la escala.';
+    fill('subInfoToggle-modosAnormales', makeToggle('¿Qué dice el art. 25?', a25));
+  } else {
+    fill('subInfoToggle-modosAnormales', '');
+  }
+  
+  // Caducidad — toggle debajo de "Caducidad"
+  if (s.modoTerminacion === 'Caducidad') {
+    fill('subInfoToggle-caducidad', makeToggle('¿Cómo se aplica la caducidad?',
+      'La caducidad de la instancia (arts. 310 y ss. CPCCN) no se menciona explícitamente como una categoría separada en la ley. Por eso, podés elegir tratarla:<br><br>i) como "demanda desestimada", en cuyo caso la base se va a reducir en un 30%;<br><br>ii) o bien como los demás modos anormales de terminación del proceso (allanamiento, desistimiento y transacción) que sí menciona la ley en el art. 25. En este último caso, si el juicio no se abrió a prueba, los honorarios son el 50% de la escala.'));
+  } else {
+    fill('subInfoToggle-caducidad', '');
+  }
+  
+  // Caducidad momento — toggle debajo de "¿Cuándo se declaró la caducidad?"
+  fill('subInfoToggle-caducidadMomento', '');
+  
+  // Excepciones — toggle para Ejecución de sentencia (tipoId 2)
+  if (tipoId === 2) {
+    if (s.excepciones === 'Se dedujeron excepciones') {
+      fill('subInfoToggle-excepciones', makeToggle('¿Por qué son importantes las excepciones?',
+        'La oposición de excepciones es un factor determinante en el proceso de ejecución ya que su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular. Si elegis la opción "Se dedujeron excepciones" el cálculo al final no tendrá reducciones. ARTÍCULO 41: "En el procedimiento de ejecución de sentencias…no habiendo excepciones, los honorarios se reducirán en un 10%..."'));
+    } else if (s.excepciones === 'No se dedujeron excepciones') {
+      fill('subInfoToggle-excepciones', makeToggle('¿Por qué son importantes las excepciones?',
+        'La oposición de excepciones es un factor determinante en el proceso de ejecución ya que su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular. Si elegis la opción "No se dedujeron excepciones" el cálculo al final tendrá una reducción del 10 % en el honorario. ARTÍCULO 41: "En el procedimiento de ejecución de sentencias…no habiendo excepciones, los honorarios se reducirán en un 10%..."'));
+    } else {
+      fill('subInfoToggle-excepciones', makeToggle('¿Por qué son importantes las excepciones?',
+        'La oposición de excepciones es un factor determinante en el proceso de ejecución. Si se dedujeron excepciones, el cálculo final no tendrá reducciones. Si no se dedujeron excepciones, los honorarios se reducirán en un 10% (Art. 41).'));
+    }
+  }
+  // Excepciones — toggle para Ejecutivo (tipoId 3) — mismo contenido, separado para editar textos
+  else if (tipoId === 3) {
+    if (s.excepciones === 'Se dedujeron excepciones') {
+      fill('subInfoToggle-excepciones', makeToggle('¿Por qué son importantes las excepciones?',
+        'La oposición de excepciones es un factor determinante en el proceso ejecutivo ya que su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular. Si elegís la opción "Se dedujeron excepciones", el cálculo final no tendrá reducciones. ARTÍCULO 34: "En los juicios ejecutivos y ejecuciones especiales, por lo actuado desde su iniciación hasta la sentencia, los honorarios del abogado o procurador serán calculados de acuerdo a la escala del artículo 21. No habiendo excepciones, los honorarios se reducirán en un 10% del que correspondiere regular"'));
+    } else if (s.excepciones === 'No se dedujeron excepciones') {
+      fill('subInfoToggle-excepciones', makeToggle('¿Por qué son importantes las excepciones?',
+        'La oposición de excepciones es un factor determinante en el proceso ejecutivo ya que su ausencia genera una reducción directa del 10% sobre el monto que correspondería regular. Si elegís la opción "No se dedujeron excepciones", el cálculo final del honorario tendrá una reducción del 10 %. ARTÍCULO 34: "En los juicios ejecutivos y ejecuciones especiales, por lo actuado desde su iniciación hasta la sentencia, los honorarios del abogado o procurador serán calculados de acuerdo a la escala del artículo 21. No habiendo excepciones, los honorarios se reducirán en un 10% del que correspondiere regular"'));
+    } else {
+      fill('subInfoToggle-excepciones', makeToggle('¿Por qué son importantes las excepciones?',
+        'La oposición de excepciones es un factor determinante en el proceso ejecutivo. Si se dedujeron excepciones, el cálculo final no tendrá reducciones. Si no se dedujeron excepciones, los honorarios se reducirán en un 10% (Art. 34).'));
+    }
+  } else {
+    fill('subInfoToggle-excepciones', '');
+  }
+  
+  // Abogados (Sucesión) — toggle debajo de "¿Cómo actúan los abogados?"
+  if (tipoId === 4 && s.abogados) {
+    if (s.abogados === 'Un solo abogado') {
+      fill('subInfoToggle-abogados', makeToggle('¿Cómo afecta el cálculo esta opción?',
+        'Si elegis "un solo abogado", cuando llegues al final del cálculo, verás la escala del art. 21 reducida a la mitad (ARTÍCULO 35). Si elegis "Varios abogados" verás el cálculo sin reducciones'));
+    } else {
+      fill('subInfoToggle-abogados', makeToggle('¿Cómo afecta el cálculo esta opción?',
+        'Si elegis "un solo abogado", cuando llegues al final del cálculo, verás la escala del art. 21 reducida a la mitad (ARTÍCULO 35). Si elegis "Varios abogados" verás el cálculo sin reducciones'));
+    }
+  } else {
+    fill('subInfoToggle-abogados', '');
+  }
+  
+  // Cautelar — toggle debajo de "¿Hubo oposición?"
+  if (tipoId === 7 && s.cautelarOposicion) {
+    if (s.cautelarOposicion === 'Cautelar con oposición') {
+      fill('subInfoToggle-cautelar', makeToggle('Medida cautelar con oposición',
+        'En las medidas cautelares con oposición, la base para el cálculo se eleva al 50% de la escala del art. 21.<br><br>ARTÍCULO 37.- En las medidas cautelares, ya sea que éstas tramiten autónomamente, en forma incidental o dentro del proceso, los honorarios se regularán sobre el monto que se pretende a asegurar, aplicándose como base el 25% de la escala del art. 21; salvo casos de controversia u oposición, en que la base se elevará al 50 %.'));
+    } else {
+      fill('subInfoToggle-cautelar', makeToggle('Medida cautelar sin oposición',
+        'En las medidas cautelares sin oposición, los honorarios se regulan tomando como base el 25% de la escala general establecida en el art. 21.<br><br>ARTÍCULO 37.- En las medidas cautelares, ya sea que éstas tramiten autónomamente, en forma incidental o dentro del proceso, los honorarios se regularán sobre el monto que se pretende a asegurar, aplicándose como base el 25% de la escala del art. 21; salvo casos de controversia u oposición, en que la base se elevará al 50 %.'));
+    }
+  } else {
+    fill('subInfoToggle-cautelar', '');
+  }
+  
+  // Locación — toggle debajo de "Tipo de locación"
+  if (tipoId === 8 && s.tipoLocacion) {
+    if (s.tipoLocacion === 'Alquiler para vivienda') {
+      fill('subInfoToggle-locacion', makeToggle('Homologación para vivienda',
+        'En la homologación de convenio de desocupación y su ejecución, los honorarios se regularán en un 50% del establecido en el párrafo primero del art. 40.'));
+    } else {
+      fill('subInfoToggle-locacion', makeToggle('Homologación — demás casos',
+        'En la homologación de convenio de desocupación, los honorarios se regularán según la escala del art. 21. Tratándose de una homologación de convenio de desocupación y su ejecución, los honorarios se regularán en un 50% del establecido en el párrafo primero del art. 40.'));
+    }
+  } else {
+    fill('subInfoToggle-locacion', '');
+  }
+}
+
+// ===== Step 3: Info toggles dinámicos según objeto/sub-opción =====
+function updateStep3SubToggles() {
+  var s = state.selections;
+  
+  function makeToggle(q, a) {
+    return '<div class="info-toggle-wrapper"><details class="info-toggle"><summary>' + q + '</summary><div class="info-toggle-content">' + a + '</div></details></div>';
+  }
+  
+  function fill(id, html) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+  
+  // Acciones Posesorias — toggle debajo de "Especificá el caso"
+  if (s.objetoJuicioId === 10) {
+    if (s.subOpcionObjeto === 'Actuación exclusiva beneficio patrocinado') {
+      fill('subInfoToggle-obj-posesorias', makeToggle('Acciones posesorias — beneficio del patrocinado',
+        'ARTÍCULO 46.- Si se actuare exclusivamente en beneficio del patrocinado (cuota o parte defendida), la base se determina por el beneficio que corresponda a la parte.'));
+    } else if (s.subOpcionObjeto === 'Demás casos') {
+      fill('subInfoToggle-obj-posesorias', makeToggle('Acciones posesorias — demás casos',
+        'ARTÍCULO 46.- En los demás casos de acciones posesorias o interdictos, la base se determina según la escala del art. 21 sobre el valor del bien.'));
+    } else {
+      fill('subInfoToggle-obj-posesorias', makeToggle('Acciones posesorias, interdictos — Art. 38',
+        'ARTÍCULO 38: "Tratándose de acciones posesorias, interdictos o de división de bienes comunes, se aplicará la escala del artículo 21. El monto de los honorarios se reducirá en un 20% atendiendo al valor de los bienes conforme a lo dispuesto en el artículo 23 si fuere exclusivamente en beneficio del patrocinado, con relación a la cuota o parte defendida"'));
+    }
+  } else {
+    fill('subInfoToggle-obj-posesorias', '');
+  }
+  
+  // Desalojo — toggle debajo de "Tipo de desalojo"
+  if (s.objetoJuicioId === 11) {
+    if (s.subOpcionObjeto === 'Alquiler para vivienda') {
+      fill('subInfoToggle-obj-desalojo', makeToggle('Desalojo por vivienda — Art. 40',
+        'En el caso de que el destino del contrato sea para vivienda, el monto de la base se reduce en un 20%. Cuando llegues al cálculo final, la base que ingreses se encontrará reducida en ese porcentaje.<br><br>Art. 40: "En los procesos de desalojo se fijarán los honorarios de acuerdo con la escala del art. 21, tomando como base el total de los alquileres del contrato. En el caso de que la locación sea para vivienda y/o habitación, tal monto se reducirá en un 20%"'));
+    } else if (s.subOpcionObjeto === 'Desalojo laboral') {
+      fill('subInfoToggle-obj-desalojo', makeToggle('Desalojo laboral — Art. 43',
+        'ARTÍCULO 43 (segunda parte): ... En las demandas de desalojo por restitución de inmuebles o parte de ellos, concedidos a los trabajadores en virtud de la relación de trabajo, se considerará como valor del juicio el 50% de la última remuneración mensual normal y habitual que deba percibir según su categoría profesional por el término de 2 años.'));
+    } else if (s.subOpcionObjeto === 'Demás casos civiles') {
+      fill('subInfoToggle-obj-desalojo', makeToggle('Desalojo — demás casos civiles',
+        'En los desalojos cuyo contrato no sea para vivienda ni se trata de un desalojo laboral, los honorarios se regulan según la escala del art. 21 sin la reducción del art. 40.'));
+    } else {
+      fill('subInfoToggle-obj-desalojo', makeToggle('Desalojo — seleccioná un tipo',
+        'El tipo de desalojo modifica la base a ingresar y el cálculo del honorario. Elegí una de estas opciones.'));
+    }
+  } else {
+    fill('subInfoToggle-obj-desalojo', '');
+  }
+  
 }
 
 // Muestra error inline en un container, oculta los demás
@@ -1212,8 +1526,8 @@ function showError(containerId, msg) {
 }
 
 function resetState() {
+  var umaPreservado = state.umaValue;
   state.currentStep = 0;
-  state.umaValue = null;
   state.history = [0];
   state.selections = {
     tipoProcesoId: null,
@@ -1231,6 +1545,7 @@ function resetState() {
     subOpcionObjeto: null,
     montoJuicio: null
   };
+  state.umaValue = umaPreservado;
   state.fromMinimos = false;
 }
 
