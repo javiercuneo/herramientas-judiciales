@@ -36,14 +36,14 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
+  overflow-y: auto;
 }
 
 /* ===== Layout Principal ===== */
 .app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 /* ===== Header y Stepper ===== */
@@ -171,8 +171,6 @@ body {
 /* ===== Main Content ===== */
 .main-content {
   flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   max-width: 1000px;
   width: 100%;
   margin: 0 auto;
@@ -181,7 +179,6 @@ body {
 
 /* ===== Footer ===== */
 .footer {
-  flex-shrink: 0;
   background: var(--surface);
   border-top: 1px solid var(--border);
   padding: 1rem 1.5rem;
