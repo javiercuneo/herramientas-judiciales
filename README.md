@@ -57,6 +57,7 @@
 | Herramienta | Descripción | Enlace |
 |-------------|-------------|--------|
 | **Asistente para la regulación de honorarios** | Herramienta interactiva para guiar el proceso de regulación de honorarios, explicando etapas y criterios | [Abrir](https://javiercuneo.github.io/Herramientas-Judiciales-IA/AH/asistente.html) |
+| **Calculadora de Ejecución de Sentencias contra el Estado** | Determina la fecha a partir de la cual una sentencia contra el Estado Nacional es ejecutable y embargable, según el art. 170 Ley 11.672 | [Abrir](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/ejecucion-estado.html) |
 
 ---
 
