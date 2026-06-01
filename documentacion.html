@@ -215,6 +215,7 @@
     <a href="#prorrateo">Prorrateo (art. 730)</a>
     <a href="#tasa">Tasa de Justicia</a>
     <a href="#asistente">Asistente de honorarios (en desarrollo)</a>
+    <a href="#ejecucion-estado">Ejecución contra el Estado</a>
   </div>
 
   <!-- 1. Vencimiento de plazos -->
@@ -456,6 +457,41 @@
           <strong>🚧 Estado actual:</strong> El proyecto es extenso y se encuentra en fase de ajuste de criterios y depuración. Algunas funcionalidades pueden estar incompletas o presentar errores.
         </div>
         <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/AH/asistente.html" class="btn" target="_blank">🔧 Probar versión beta</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ejecución de Sentencias contra el Estado -->
+  <section id="ejecucion-estado">
+    <h2 class="section-title">⚖️ Calculadora de Ejecución de Sentencias contra el Estado (en desarrollo)</h2>
+    <div class="tool-card">
+      <div class="tool-header">
+        <h3>Determinación de la fecha de ejecutabilidad</h3>
+        <span class="badge">Ley 11.672</span>
+      </div>
+      <div class="tool-content">
+        <p>Determina la fecha concreta a partir de la cual una sentencia condenatoria contra el Estado Nacional resulta ejecutable y susceptible de embargo forzado, conforme al régimen del Pasivo Corriente (art. 170, Ley 11.672 — Complementaria Permanente de Presupuesto).</p>
+        <div class="use-case">
+          <strong>🧩 Caso de uso típico</strong>
+          <p>Un abogado obtuvo sentencia firme contra el Estado Nacional y necesita saber cuándo puede solicitar judicialmente el embargo de fondos públicos, considerando los plazos de inclusión presupuestaria y los efectos de una certificación de agotamiento de partida.</p>
+        </div>
+        <p><strong>⚙️ Funcionamiento:</strong> La herramienta guía al usuario en 3 pasos:</p>
+        <ol>
+          <li><strong>Advertencia inicial:</strong> Explica la diferencia entre el régimen de Consolidación (Ley 23.982, no cubierto) y el de Pasivo Corriente (Ley 11.672, cubierto).</li>
+          <li><strong>Fecha de notificación:</strong> El usuario ingresa la fecha de notificación judicial de la liquidación firme, sentencia o regulación de honorarios.</li>
+          <li><strong>Certificación de agotamiento:</strong> El usuario indica si el Servicio Administrativo Financiero emitió certificación de agotamiento de la partida presupuestaria.</li>
+        </ol>
+        <p><strong>📌 Lógica de cálculo:</strong></p>
+        <ul>
+          <li>Si la notificación es <strong>antes del 31 de julio</strong> → la deuda se incluye en el presupuesto del año siguiente.</li>
+          <li>Si es el <strong>31 de julio o después</strong> → se desplaza al presupuesto del año subsiguiente.</li>
+          <li>Si existe <strong>certificación de agotamiento</strong> → el plazo de espera se extiende un año fiscal adicional.</li>
+          <li>La fecha de ejecutabilidad es siempre el <strong>1 de enero</strong> del año que corresponda según las reglas anteriores.</li>
+        </ul>
+        <div class="warning-note">
+          <strong>⚠️ Importante:</strong> Esta herramienta solo aplica para obligaciones de causa posterior al <strong>1 de abril de 1991</strong> (Régimen de Pasivo Corriente). No cubre deudas consolidadas bajo la Ley 23.982 ni regímenes especiales.
+        </div>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/ejecucion-estado.html" class="btn" target="_blank">🔧 Abrir calculadora</a>
       </div>
     </div>
   </section>

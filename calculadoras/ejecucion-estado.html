@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Ejecución de Sentencias contra el Estado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 6px;
+            font-size: 26px;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 13px;
+        }
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 32px;
+        }
+        .step-dot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 14px;
+            border: 3px solid #e0e0e0;
+            color: #bbb;
+            background: white;
+            transition: all 0.3s;
+        }
+        .step-dot.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .step-dot.completed {
+            border-color: #48bb78;
+            background: #48bb78;
+            color: white;
+        }
+        .step-line {
+            width: 60px;
+            height: 3px;
+            background: #e0e0e0;
+            transition: background 0.3s;
+        }
+        .step-line.completed {
+            background: #48bb78;
+        }
+        /* Content */
+        .content-area {
+            min-height: 300px;
+        }
+        /* Step 0: Warning */
+        .warning-screen h2 {
+            color: #667eea;
+            font-size: 22px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .warning-box {
+            background: #fef9e7;
+            border-left: 6px solid #e6b800;
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .warning-box p, .warning-box li {
+            font-size: 13px;
+            color: #7a5c00;
+            line-height: 1.7;
+        }
+        .warning-box ul {
+            margin: 10px 0 10px 20px;
+        }
+        .warning-box li { margin-bottom: 6px; }
+        .warning-box strong { color: #5c4300; }
+        .info-box {
+            background: #ebf4ff;
+            border-left: 6px solid #667eea;
+            padding: 18px 22px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .info-box p, .info-box li {
+            font-size: 13px;
+            color: #1e3a5f;
+            line-height: 1.7;
+        }
+        .info-box ul { margin: 10px 0 10px 20px; }
+        .info-box li { margin-bottom: 6px; }
+        .info-box strong { color: #0b1a2a; }
+        .btn-start-wrapper {
+            text-align: center;
+            margin-top: 28px;
+        }
+        /* Step 1: Date */
+        .date-screen h2 {
+            color: #667eea;
+            font-size: 22px;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        .date-screen p {
+            text-align: center;
+            color: #888;
+            margin-bottom: 24px;
+        }
+        .date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.5fr;
+            gap: 10px;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        .date-inputs input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        .date-inputs input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .date-inputs input.invalid {
+            border-color: #e74c3c;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group small {
+            color: #999;
+            margin-top: 5px;
+            font-size: 11px;
+            text-align: center;
+        }
+        .checkpoint-note {
+            text-align: center;
+            margin-top: 20px;
+            padding: 14px;
+            background: #f7f8fc;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .checkpoint-note strong {
+            color: #667eea;
+        }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+            font-weight: 600;
+        }
+        .error-msg.show { display: block; }
+        /* Step 2: Binary */
+        .binary-screen h2 {
+            color: #667eea;
+            font-size: 22px;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        .binary-screen p {
+            text-align: center;
+            color: #888;
+            margin-bottom: 24px;
+        }
+        .binary-options {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .binary-card {
+            flex: 1;
+            min-width: 180px;
+            max-width: 240px;
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 28px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+        }
+        .binary-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.2);
+        }
+        .binary-card.selected {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+        .binary-card-icon {
+            font-size: 32px;
+        }
+        .binary-card-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.4;
+        }
+        .binary-card-desc {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.5;
+        }
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+            gap: 12px;
+        }
+        .nav-buttons.center {
+            justify-content: center;
+        }
+        .nav-buttons .spacer {
+            flex: 1;
+        }
+        button {
+            padding: 13px 30px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.4);
+        }
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #555;
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: #d0d0d0;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(72,187,120,0.4);
+        }
+        .btn-block {
+            min-width: 200px;
+        }
+        /* Step 3: Result */
+        .result-screen h2 {
+            color: #667eea;
+            font-size: 22px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .result-date-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 28px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .result-date-box .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        .result-date-box .date {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .result-date-box .sub {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-top: 8px;
+        }
+        /* Timeline */
+        .timeline {
+            margin-bottom: 24px;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            border: 2px solid #e0e0e0;
+            background: white;
+        }
+        .timeline-icon.completed {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .timeline-icon.warning {
+            border-color: #e6b800;
+            background: #fef9e7;
+            color: #7a5c00;
+        }
+        .timeline-icon.success {
+            border-color: #48bb78;
+            background: #48bb78;
+            color: white;
+        }
+        .timeline-content {
+            flex: 1;
+            padding-top: 8px;
+        }
+        .timeline-content .step-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+        .timeline-content .step-value {
+            font-size: 13px;
+            color: #888;
+            margin-top: 2px;
+        }
+        .timeline-bar-wrapper {
+            margin-top: 8px;
+            background: #e8e8e8;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .timeline-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+        .timeline-bar.blue { background: linear-gradient(90deg, #667eea, #764ba2); }
+        .timeline-bar.green { background: linear-gradient(90deg, #48bb78, #38a169); }
+        .timeline-bar.yellow { background: linear-gradient(90deg, #ecc94b, #d69e2e); }
+        .timeline-bar.full { width: 100%; }
+        .timeline-bar.half { width: 50%; }
+        .timeline-bar.threequarters { width: 75%; }
+        /* Legal explanation */
+        .legal-explain {
+            background: #f7f8fc;
+            border-left: 4px solid #667eea;
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.7;
+        }
+        .legal-explain strong {
+            color: #667eea;
+        }
+        /* Footer */
+        .tool-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+        .tool-footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .tool-footer a:hover {
+            text-decoration: underline;
+        }
+        .tool-footer .links {
+            display: inline-flex;
+            gap: 12px;
+            margin-top: 4px;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            h1 { font-size: 20px; }
+            .step-line { width: 30px; }
+            .date-inputs { grid-template-columns: 1fr; max-width: 100%; }
+            .binary-options { flex-direction: column; align-items: center; }
+            .binary-card { width: 100%; max-width: none; }
+            .nav-buttons { flex-direction: column; gap: 10px; }
+            .nav-buttons .spacer { display: none; }
+            .result-date-box .date { font-size: 28px; }
+            .timeline-item { gap: 10px; }
+            .btn-block { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚖️ Ejecución de Sentencias contra el Estado</h1>
+        <p class="subtitle">Ley 11.672 — Determinación de la fecha de ejecutabilidad</p>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator" id="stepIndicator"></div>
+
+        <!-- Content -->
+        <div class="content-area" id="contentArea"></div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons" id="navButtons">
+            <button class="btn-secondary" id="btnBack">← Atrás</button>
+            <div class="spacer"></div>
+            <button class="btn-primary" id="btnNext">Siguiente →</button>
+        </div>
+
+        <div class="tool-footer">
+            <span>Desarrollado por L. Javier Cúneo Libarona con herramientas de IA generativa</span><br>
+            <span class="links">
+                <a href="https://github.com/javiercuneo" target="_blank">🐙 GitHub</a>
+                <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank">⚖️ Herramientas</a>
+                <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank">💼 LinkedIn</a>
+            </span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== State =====
+            var state = {
+                step: 0,
+                history: [0],
+                dia: '',
+                mes: '',
+                anio: '',
+                tieneCertificacion: null
+            };
+
+            var totalSteps = 4; // 0, 1, 2, 3
+
+            // ===== DOM refs =====
+            var stepIndicator = document.getElementById('stepIndicator');
+            var contentArea = document.getElementById('contentArea');
+            var btnBack = document.getElementById('btnBack');
+            var btnNext = document.getElementById('btnNext');
+            var navButtons = document.getElementById('navButtons');
+
+            // ===== Helpers =====
+            function formatFecha(dia, mes, anio) {
+                return String(dia).padStart(2, '0') + '/' + String(mes).padStart(2, '0') + '/' + anio;
+            }
+
+            function parseNum(v) { var n = parseInt(v, 10); return isNaN(n) ? null : n; }
+
+            function esFechaValida(dia, mes, anio) {
+                var d = parseNum(dia), m = parseNum(mes), a = parseNum(anio);
+                if (!d || !m || !a) return false;
+                if (m < 1 || m > 12) return false;
+                if (d < 1) return false;
+                var f = new Date(a, m - 1, d);
+                if (f.getFullYear() !== a || f.getMonth() !== m - 1 || f.getDate() !== d) return false;
+                return true;
+            }
+
+            function esFechaPostConsolidacion(dia, mes, anio) {
+                if (anio > 1991) return true;
+                if (anio < 1991) return false;
+                if (mes > 4) return true;
+                if (mes < 4) return false;
+                return dia >= 1;
+            }
+
+            function esAntesDeHoy(dia, mes, anio) {
+                var hoy = new Date();
+                var f = new Date(anio, mes - 1, dia);
+                f.setHours(23, 59, 59);
+                return f <= hoy;
+            }
+
+            function esAntesDel31Julio(dia, mes, anio) {
+                // 31/julio inclusive = DESPUÉS
+                if (mes < 7) return true;
+                if (mes > 7) return false;
+                return dia < 31;
+            }
+
+            function calcularFechaEjecutabilidad(dia, mes, anio, tieneCert) {
+                var notifYear = parseInt(anio, 10);
+                var antes31Julio = esAntesDel31Julio(dia, mes, anio);
+
+                var baseYear;
+                if (antes31Julio) {
+                    baseYear = notifYear + 2;
+                } else {
+                    baseYear = notifYear + 3;
+                }
+                if (tieneCert) {
+                    baseYear++;
+                }
+                return { year: baseYear, antes: antes31Julio };
+            }
+
+            var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+            function mesNombre(m) { return meses[m - 1] || ''; }
+
+            // ===== Render Stepper =====
+            function renderStepper() {
+                var labels = ['Advertencia', 'Notificación', 'Certificación', 'Resultado'];
+                var html = '';
+                for (var i = 0; i < totalSteps; i++) {
+                    var cls = 'step-dot';
+                    if (i === state.step) cls += ' active';
+                    else if (i < state.step) cls += ' completed';
+                    html += '<div class="' + cls + '">' + (i < state.step ? '✓' : (i + 1)) + '</div>';
+                    if (i < totalSteps - 1) {
+                        html += '<div class="step-line' + (i < state.step ? ' completed' : '') + '"></div>';
+                    }
+                }
+                stepIndicator.innerHTML = html;
+            }
+
+            // ===== Navigation =====
+            function navigateTo(step) {
+                if (state.step === 3 && step === 3) return; // already on result
+                state.step = step;
+                if (state.history[state.history.length - 1] !== step) {
+                    state.history.push(step);
+                }
+                renderStepper();
+                renderScreen();
+                updateNav();
+            }
+
+            function goBack() {
+                if (state.history.length > 1) {
+                    state.history.pop();
+                    state.step = state.history[state.history.length - 1];
+                }
+                renderStepper();
+                renderScreen();
+                updateNav();
+            }
+
+            function goNext() {
+                if (state.step === 0) {
+                    navigateTo(1);
+                } else if (state.step === 1) {
+                    var d = state.dia, m = state.mes, a = state.anio;
+                    if (!esFechaValida(d, m, a)) {
+                        mostrarError('errorFecha', 'Fecha inválida. Verifique el día, mes y año.');
+                        marcarInvalido();
+                        return;
+                    }
+                    if (!esFechaPostConsolidacion(d, m, a)) {
+                        mostrarError('errorFecha', 'Esta herramienta solo aplica para deudas posteriores al 1 de abril de 1991 (Régimen de Pasivo Corriente, Ley 11.672).');
+                        marcarInvalido();
+                        return;
+                    }
+                    if (!esAntesDeHoy(d, m, a)) {
+                        mostrarError('errorFecha', 'La fecha de notificación no puede ser posterior a hoy.');
+                        marcarInvalido();
+                        return;
+                    }
+                    ocultarError('errorFecha');
+                    desmarcarInvalido();
+                    navigateTo(2);
+                } else if (state.step === 2) {
+                    if (state.tieneCertificacion === null) {
+                        mostrarError('errorCert', 'Debe seleccionar una opción.');
+                        return;
+                    }
+                    ocultarError('errorCert');
+                    navigateTo(3);
+                }
+            }
+
+            function mostrarError(id, msg) {
+                var el = document.getElementById(id);
+                if (el) { el.textContent = msg; el.classList.add('show'); }
+            }
+
+            function ocultarError(id) {
+                var el = document.getElementById(id);
+                if (el) el.classList.remove('show');
+            }
+
+            function marcarInvalido() {
+                var dia = document.getElementById('inputDia');
+                var mes = document.getElementById('inputMes');
+                var anio = document.getElementById('inputAnio');
+                if (dia) dia.classList.add('invalid');
+                if (mes) mes.classList.add('invalid');
+                if (anio) anio.classList.add('invalid');
+            }
+
+            function desmarcarInvalido() {
+                var dia = document.getElementById('inputDia');
+                var mes = document.getElementById('inputMes');
+                var anio = document.getElementById('inputAnio');
+                if (dia) dia.classList.remove('invalid');
+                if (mes) mes.classList.remove('invalid');
+                if (anio) anio.classList.remove('invalid');
+            }
+
+            function updateNav() {
+                if (state.step === 0) {
+                    btnBack.style.display = 'none';
+                    btnNext.style.display = 'none';
+                } else if (state.step === 3) {
+                    btnBack.style.display = 'flex';
+                    btnNext.style.display = 'none';
+                } else {
+                    btnBack.style.display = 'flex';
+                    btnNext.style.display = 'flex';
+                }
+            }
+
+            // ===== Render Screens =====
+            function renderScreen() {
+                switch (state.step) {
+                    case 0: renderStep0(); break;
+                    case 1: renderStep1(); break;
+                    case 2: renderStep2(); break;
+                    case 3: renderStep3(); break;
+                }
+            }
+
+            // ------ Step 0: Warning ------
+            function renderStep0() {
+                contentArea.innerHTML = `
+                    <div class="warning-screen">
+                        <h2>Advertencia sobre el alcance de esta herramienta</h2>
+
+                        <div class="warning-box">
+                            <p><strong>❌ Régimen NO contemplado: Consolidación de deudas (Ley 23.982)</strong></p>
+                            <p>Se aplica a obligaciones vencidas o de causa anterior al <strong>1 de abril de 1991</strong>. Implica que la obligación original se extingue y es reemplazada por derechos según un orden de prelación (prioridades) por categorías sociales. El pago puede ser en efectivo (según disponibilidad presupuestaria y orden cronológico) o mediante Bonos de Consolidación.</p>
+                            <p style="margin-top:8px;"><strong>Esta herramienta no cubre este régimen.</strong></p>
+                        </div>
+
+                        <div class="info-box">
+                            <p><strong>✅ Régimen contemplado: Pasivo Corriente (Ley 11.672 — Art. 170)</strong></p>
+                            <p>Para obligaciones de causa posterior al <strong>1 de abril de 1991</strong> (deudas post-consolidación). El sistema funciona así:</p>
+                            <ul>
+                                <li>Las sentencias condenatorias contra el Estado tienen carácter <strong>meramente declarativo</strong>: el juez reconoce el derecho, pero el pago no es inmediato ni ejecutable por embargos comunes.</li>
+                                <li>El Estado debe incluir la deuda en el proyecto de presupuesto del año siguiente si la notificación se produce <strong>antes del 31 de julio</strong>; caso contrario, se desplaza al año subsiguiente.</li>
+                                <li>Recién una vez <strong>transcurrido el período fiscal</strong> sin que el crédito se haya cancelado, el acreedor puede ejecutar forzadamente (embargo).</li>
+                                <li>Si el organismo emite <strong>certificación de agotamiento de partida</strong>, el plazo se extiende un año fiscal adicional.</li>
+                            </ul>
+                        </div>
+
+                        <div class="btn-start-wrapper">
+                            <button class="btn-primary btn-block" id="btnEntendido">Entendido, continuar →</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('btnEntendido').addEventListener('click', function() {
+                    navigateTo(1);
+                });
+            }
+
+            // ------ Step 1: Date ------
+            function renderStep1() {
+                contentArea.innerHTML = `
+                    <div class="date-screen">
+                        <h2>Fecha de Notificación</h2>
+                        <p>Ingresá la fecha de notificación judicial de la liquidación firme, sentencia o regulación de honorarios</p>
+                        <div class="date-inputs">
+                            <div class="input-group">
+                                <input type="text" id="inputDia" placeholder="DD" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="${state.dia}">
+                                <small>Día</small>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="inputMes" placeholder="MM" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="${state.mes}">
+                                <small>Mes</small>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="inputAnio" placeholder="YYYY" maxlength="4" pattern="[0-9]*" inputmode="numeric" value="${state.anio}">
+                                <small>Año</small>
+                            </div>
+                        </div>
+                        <div class="error-msg" id="errorFecha"></div>
+                        <div class="checkpoint-note">
+                            📌 <strong>Hito legal — 31 de julio:</strong> Si la notificación es <strong>ANTES</strong> del 31 de julio, la deuda se incluye en el presupuesto del año siguiente. Si es el <strong>31 de julio o después</strong>, se desplaza al año subsiguiente.
+                        </div>
+                    </div>
+                `;
+
+                state.dia = document.getElementById('inputDia').value;
+                state.mes = document.getElementById('inputMes').value;
+                state.anio = document.getElementById('inputAnio').value;
+
+                ['inputDia', 'inputMes', 'inputAnio'].forEach(function(id) {
+                    document.getElementById(id).addEventListener('input', function(e) {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                        if (id === 'inputDia') state.dia = this.value;
+                        else if (id === 'inputMes') state.mes = this.value;
+                        else if (id === 'inputAnio') state.anio = this.value;
+                        ocultarError('errorFecha');
+                        desmarcarInvalido();
+                    });
+                });
+
+                // auto-tab
+                document.getElementById('inputDia').addEventListener('input', function() {
+                    if (this.value.length === 2) document.getElementById('inputMes').focus();
+                });
+                document.getElementById('inputMes').addEventListener('input', function() {
+                    if (this.value.length === 2) document.getElementById('inputAnio').focus();
+                });
+            }
+
+            // ------ Step 2: Certification ------
+            function renderStep2() {
+                contentArea.innerHTML = `
+                    <div class="binary-screen">
+                        <h2>Certificación de Agotamiento de Partida</h2>
+                        <p>¿El Servicio Administrativo Financiero emitió certificación de agotamiento de la partida presupuestaria?</p>
+                        <div class="binary-options">
+                            <div class="binary-card ${state.tieneCertificacion === true ? 'selected' : ''}" data-cert="si">
+                                <div class="binary-card-icon">📄</div>
+                                <div class="binary-card-label">Sí, existe certificación</div>
+                                <div class="binary-card-desc">El Estado acreditó que se agotaron los fondos y cumplió con la comunicación al Congreso (Art. 22, Ley 23.982)</div>
+                            </div>
+                            <div class="binary-card ${state.tieneCertificacion === false ? 'selected' : ''}" data-cert="no">
+                                <div class="binary-card-icon">✅</div>
+                                <div class="binary-card-label">No existe certificación</div>
+                                <div class="binary-card-desc">No se emitió certificación, o el crédito presupuestario fue suficiente y se pagó en término</div>
+                            </div>
+                        </div>
+                        <div class="error-msg" id="errorCert"></div>
+                    </div>
+                `;
+
+                document.querySelectorAll('[data-cert]').forEach(function(card) {
+                    card.addEventListener('click', function() {
+                        document.querySelectorAll('[data-cert]').forEach(function(c) {
+                            c.classList.remove('selected');
+                        });
+                        card.classList.add('selected');
+                        state.tieneCertificacion = card.dataset.cert === 'si';
+                        ocultarError('errorCert');
+                    });
+                });
+            }
+
+            // ------ Step 3: Result ------
+            function renderStep3() {
+                var d = parseInt(state.dia, 10);
+                var m = parseInt(state.mes, 10);
+                var a = parseInt(state.anio, 10);
+                var cert = state.tieneCertificacion;
+
+                var result = calcularFechaEjecutabilidad(d, m, a, cert);
+                var resultYear = result.year;
+                var antes = result.antes;
+
+                var fechaNotifStr = formatFecha(d, m, a);
+                var checkpointStr = antes ? '✅ Antes del 31 de julio' : '❌ 31 de julio o después';
+                var checkpointColor = antes ? 'completed' : 'warning';
+                var presupuestoYear = antes ? (a + 1) : (a + 2);
+                var certYearExtra = cert ? (', +1 año por certificación') : '';
+                var explicacion = '';
+
+                if (antes && !cert) {
+                    explicacion = 'Notificación anterior al 31 de julio → incluida en presupuesto ' + presupuestoYear + ' → sin certificación → ejecutable desde 01/01/' + resultYear + '.';
+                } else if (!antes && !cert) {
+                    explicacion = 'Notificación posterior al 31 de julio → presupuestada para ' + presupuestoYear + ' → sin certificación → ejecutable desde 01/01/' + resultYear + '.';
+                } else if (antes && cert) {
+                    explicacion = 'Notificación anterior al 31 de julio → presupuestada para ' + presupuestoYear + ' → se certificó agotamiento → +1 año de espera → ejecutable desde 01/01/' + resultYear + '.';
+                } else {
+                    explicacion = 'Notificación posterior al 31 de julio → presupuestada para ' + presupuestoYear + ' → se certificó agotamiento → +1 año de espera → ejecutable desde 01/01/' + resultYear + '.';
+                }
+
+                var barClass1 = 'full';
+                var barClass2 = antes ? 'full' : 'full';
+                var barClass3 = 'full';
+                var barClass4 = 'full';
+
+                contentArea.innerHTML = `
+                    <div class="result-screen">
+                        <h2>Resultado del Cálculo</h2>
+
+                        <div class="result-date-box">
+                            <div class="label">🔓 Fecha de ejecutabilidad (embargo viable)</div>
+                            <div class="date">01/01/${resultYear}</div>
+                            <div class="sub">A partir de esta fecha puede solicitarse la ejecución forzada</div>
+                        </div>
+
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-icon completed">📅</div>
+                                <div class="timeline-content">
+                                    <div class="step-label">Notificación judicial</div>
+                                    <div class="step-value">${fechaNotifStr}</div>
+                                    <div class="timeline-bar-wrapper"><div class="timeline-bar blue ${barClass1}"></div></div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon ${checkpointColor}">📌</div>
+                                <div class="timeline-content">
+                                    <div class="step-label">Checkpoint presupuestario — 31 de julio</div>
+                                    <div class="step-value">${checkpointStr}</div>
+                                    <div class="timeline-bar-wrapper"><div class="timeline-bar blue ${barClass2}"></div></div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon completed">💰</div>
+                                <div class="timeline-content">
+                                    <div class="step-label">Ejercicio presupuestario</div>
+                                    <div class="step-value">El Estado debe prever la partida para el ejercicio ${presupuestoYear}${cert ? ' (pero certificó agotamiento)' : ''}</div>
+                                    <div class="timeline-bar-wrapper"><div class="timeline-bar ${cert ? 'yellow' : 'green'} ${barClass3}"></div></div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon success">🔓</div>
+                                <div class="timeline-content">
+                                    <div class="step-label">Ejecutable desde</div>
+                                    <div class="step-value">01/01/${resultYear} — Vía judicial habilitada para embargar</div>
+                                    <div class="timeline-bar-wrapper"><div class="timeline-bar green ${barClass4}"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="legal-explain">
+                            <strong>📋 Resumen:</strong> ${explicacion}
+                        </div>
+
+                        <div style="text-align: center;">
+                            <button class="btn-success btn-block" id="btnReiniciarCalc">🔄 Nuevo cálculo</button>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('btnReiniciarCalc').addEventListener('click', function() {
+                    state.step = 0;
+                    state.history = [0];
+                    state.dia = '';
+                    state.mes = '';
+                    state.anio = '';
+                    state.tieneCertificacion = null;
+                    renderStepper();
+                    renderScreen();
+                    updateNav();
+                });
+            }
+
+            // ===== Init =====
+            btnBack.addEventListener('click', goBack);
+            btnNext.addEventListener('click', goNext);
+
+            renderStepper();
+            renderScreen();
+            updateNav();
+
+        })();
+    </script>
+</body>
+</html>
