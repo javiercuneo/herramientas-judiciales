@@ -482,7 +482,7 @@
             ulBiz.style.listStyle = 'none';
             ulBiz.style.marginTop = '8px';
 
-            let cur = addDays(notif, 1); // start audit day after notification
+            let cur = new Date(startBiz); // start audit from the first counted business day
             while (cur <= lastBiz) {
                 let statusText = '';
                 if (isBusinessDay(cur, inhMap)) {
@@ -498,7 +498,7 @@
             }
 
             const wrapBiz = document.createElement('div');
-            wrapBiz.innerHTML = `<strong>Período de cómputo (desde el día siguiente a la notificación hasta el final de los ${diasHabiles} días hábiles)</strong>`;
+            wrapBiz.innerHTML = `<strong>Período de cómputo (desde el primer día hábil contado hasta el final de los ${diasHabiles} días hábiles)</strong>`;
             wrapBiz.appendChild(ulBiz);
             trace.appendChild(wrapBiz);
 
