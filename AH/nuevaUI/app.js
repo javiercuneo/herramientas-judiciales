@@ -202,6 +202,17 @@ function fetchUMA() {
     .catch(function(e) { console.warn('No se pudo cargar UMA desde Google Sheets', e); });
 }
 
+// ===== Control del Logo Mascota en Header =====
+function updateHeaderLogo(stepNumber) {
+  var mascot = document.getElementById('headerMascot');
+  if (!mascot) return;
+  if (stepNumber === 0 || stepNumber === 'minimos') {
+    mascot.style.display = 'none';
+  } else {
+    mascot.style.display = 'block';
+  }
+}
+
 // ===== Renderizado del Stepper =====
 function renderStepper() {
   stepper.innerHTML = steps.map((step, index) => `
@@ -245,6 +256,14 @@ function updateSummaryBar() {
 function renderStep(stepNumber) {
   state.currentStep = stepNumber;
   renderStepper();
+  updateHeaderLogo(stepNumber);
+  if (stepNumber === 5) {
+    summaryBar.style.display = 'none';
+    mainContent.classList.add('main-content--wide');
+  } else {
+    summaryBar.style.display = '';
+    mainContent.classList.remove('main-content--wide');
+  }
   updateSummaryBar();
   updateNavButtons();
 
@@ -283,10 +302,7 @@ function renderStep0() {
   mainContent.innerHTML = `
     <div class="welcome-screen">
       <div class="welcome-left">
-        <div>
-          <h2 class="welcome-title">Honorio</h2>
-          <p class="welcome-subtitle">Calculá los honorarios según la ley 27.423</p>
-        </div>
+        <img src="img/honorio2.png" alt="Honorio" class="welcome-logo">
         
         <div class="uma-input-group">
           <label for="umaInput">Ingresá el valor de la UMA</label>
@@ -991,34 +1007,66 @@ function renderStep4() {
 //   - state.selections.montoJuicio
 
 function renderStep5() {
-  // Sincronizar state → wizardState antes del cálculo
   syncWizardState();
 
+  var s = state.selections;
+  var tipoDisplay = s.tipoProceso || '—';
+  var montoDisplay = s.montoJuicio ? '$' + formatNumber(s.montoJuicio) : '—';
+  var umaDisplay = state.umaValue ? '$' + formatNumber(state.umaValue) : '—';
+  var baseUmaDisplay = (state.umaValue && s.montoJuicio) ? (s.montoJuicio / state.umaValue).toFixed(2) + ' UMA' : '—';
+
   mainContent.innerHTML = `
-    <div class="result-screen">
-      <h2>Resultado del Cálculo</h2>
-      <p>Honorarios estimados según Ley 27.423</p>
+    <div class="result-screen result-screen--full">
+      <div class="result-hero">
+        <div class="hero-card">
+          <span class="hero-icon">${icons.gavel}</span>
+          <span class="hero-label">Tipo de proceso</span>
+          <span class="hero-value">${tipoDisplay}</span>
+        </div>
+        <div class="hero-card">
+          <span class="hero-icon">${icons.dollar}</span>
+          <span class="hero-label">Base regulatoria</span>
+          <span class="hero-value">${montoDisplay}</span>
+        </div>
+        <div class="hero-card">
+          <span class="hero-icon">${icons.calculator}</span>
+          <span class="hero-label">Valor UMA</span>
+          <span class="hero-value">${umaDisplay}</span>
+        </div>
+        <div class="hero-card">
+          <span class="hero-icon">${icons.shield}</span>
+          <span class="hero-label">Base en UMA</span>
+          <span class="hero-value">${baseUmaDisplay}</span>
+        </div>
+      </div>
       
-      <div id="resultadoCalculo" class="result-card">
+      <div class="result-grid" id="resultadoCalculo">
         <div id="resultadosDinamicos">
           <p style="text-align:center; color:var(--text-muted);">Calculando...</p>
         </div>
       </div>
       
+      <div class="result-actions">
+        <button class="btn btn-outline" id="btnPrint">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+          Imprimir
+        </button>
+      </div>
     </div>
   `;
   
-  // Ejecutar el motor de cálculo del wizard original
   calcularFinal();
   
-  // El botón "Ver mínimos para contrastar" que genera calcularFinal()
-  // no aplica en la nueva UI (ya existe en pantalla de inicio)
   var btnViejoMinimos = document.getElementById('btnIrAMinimosDesdeResultado');
   if (btnViejoMinimos && btnViejoMinimos.parentNode) {
     btnViejoMinimos.parentNode.removeChild(btnViejoMinimos);
   }
   
   btnNext.style.display = 'none';
+
+  document.getElementById('btnPrint').addEventListener('click', function() {
+    window.print();
+  });
 }
 
 // ===== Categorías de Mínimos =====

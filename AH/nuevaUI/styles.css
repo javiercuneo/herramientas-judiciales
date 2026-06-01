@@ -1,6 +1,7 @@
 /* ===== Variables y Reset ===== */
 :root {
   --primary: #2563eb;
+  --legal-bg: #eff6ff;
   --primary-hover: #1d4ed8;
   --primary-light: #eff6ff;
   --secondary: #64748b;
@@ -58,7 +59,7 @@ body {
 .header-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -175,6 +176,10 @@ body {
   width: 100%;
   margin: 0 auto;
   padding: 2rem 1.5rem;
+}
+
+.main-content--wide {
+  max-width: 1400px;
 }
 
 /* ===== Footer ===== */
@@ -968,7 +973,7 @@ body {
 }
 
 .info-text {
-  background: #fefce8;
+  background: var(--legal-bg);
   padding: 12px 16px;
   border-radius: var(--radius);
   font-size: 0.85rem;
@@ -1060,4 +1065,286 @@ body {
 
 @media (max-width: 700px) {
   .grid-2col { grid-template-columns: 1fr; }
+}
+
+/* ===== Logo Welcome ===== */
+.welcome-logo {
+  max-width: 100%;
+  height: auto;
+  max-height: 180px;
+  display: block;
+}
+
+/* ===== Header Mascot ===== */
+.header-mascot {
+  height: 64px;
+  width: auto;
+  border-radius: 50%;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .header-mascot {
+    height: 44px;
+  }
+}
+
+/* ===== Result Screen Full-width ===== */
+.result-screen--full {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: left;
+}
+
+/* ===== Hero Bar ===== */
+.result-hero {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.hero-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.hero-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.hero-icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 0.5rem;
+  color: var(--primary);
+}
+
+.hero-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.hero-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ===== Result Grid 2 Columns ===== */
+.result-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.result-grid > * {
+  min-width: 0;
+}
+
+@media (max-width: 860px) {
+  .result-grid {
+    grid-template-columns: 1fr;
+  }
+  .result-hero {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .result-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Dashboard Card Colors ===== */
+.dashboard-card--patro {
+  background: linear-gradient(135deg, rgba(37,99,235,0.06), transparent);
+  border-color: rgba(37,99,235,0.15);
+}
+
+.dashboard-card--apo {
+  background: linear-gradient(135deg, rgba(124,58,237,0.06), transparent);
+  border-color: rgba(124,58,237,0.15);
+}
+
+.dashboard-card--proc {
+  background: linear-gradient(135deg, rgba(5,150,105,0.06), transparent);
+  border-color: rgba(5,150,105,0.15);
+}
+
+.dashboard-card--segunda {
+  background: linear-gradient(135deg, rgba(217,119,6,0.06), transparent);
+  border-color: rgba(217,119,6,0.15);
+}
+
+.dashboard-card--aux {
+  background: linear-gradient(135deg, rgba(8,145,178,0.06), transparent);
+  border-color: rgba(8,145,178,0.15);
+}
+
+.dashboard-card--partidor {
+  background: linear-gradient(135deg, rgba(190,24,93,0.06), transparent);
+  border-color: rgba(190,24,93,0.15);
+}
+
+/* ===== Scale Info Grid ===== */
+.scale-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.scale-item {
+  background: var(--surface-hover);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+}
+
+.scale-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.scale-value {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ===== Result Grid Columns (lawyers left, extras right) ===== */
+.result-lawyers {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.result-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ===== Combined Cell (UMA + $) ===== */
+.uma-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pesos-value {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ===== Legal Toggle ===== */
+.legal-toggle {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.legal-toggle summary {
+  cursor: pointer;
+  color: var(--primary);
+  font-weight: 500;
+  padding: 0.5rem 0;
+  user-select: none;
+}
+
+.legal-toggle summary:hover {
+  color: var(--primary-hover);
+}
+
+.legal-toggle .legal-box {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+/* ===== Result Actions ===== */
+.result-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+/* ===== Print Styles ===== */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .header,
+  .footer,
+  .summary-bar,
+  .result-actions,
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  #btnBack,
+  #btnNext,
+  #btnReiniciar,
+  .author-footer,
+  .stepper {
+    display: none !important;
+  }
+  .main-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .result-screen--full {
+    max-width: 100% !important;
+  }
+  .dashboard-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  .hero-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  .result-grid {
+    display: block !important;
+  }
+  .legal-toggle .legal-box {
+    display: block !important;
+  }
+  .legal-toggle details {
+    display: block !important;
+  }
+  .legal-toggle summary {
+    display: none !important;
+  }
+  .app-container {
+    height: auto !important;
+    overflow: visible !important;
+  }
 }
