@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Asistente de Honorarios · Ley 27.423</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>Asistente para la regulación de Honorarios · Ley 27.423</h1>
+        <div class="header-actions">
+            <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" class="back-link">← Volver al panel de herramientas</a>
+            <button class="dark-mode-toggle" id="darkModeToggle">🌙 Dark mode</button>
+        </div>
+    </div>
+    <div class="progress-bar" id="progressBar"></div>
+    <div id="pantallas"></div>
+</div>
+
+<script>
+    // Dark mode
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        darkModeToggle.textContent = document.body.classList.contains('dark') ? '☀️ Light mode' : '🌙 Dark mode';
+    });
+
+    const steps = [
+        { id: "inicio", title: "Inicio" },
+        { id: "tipoProceso", title: "Tipo de proceso" },
+        { id: "contingencias", title: "Contingencias" },
+        { id: "objeto", title: "Objeto del juicio" },
+        { id: "base", title: "Base" },
+        { id: "resultado", title: "Resultado" }
+    ];
+
+    window.addEventListener('DOMContentLoaded', () => {
+        cargarUMA();
+        renderScreen();
+    });
+</script>
+<script src="js/core.js"></script>
+<script src="js/state.js"></script>
+<script src="js/calculations.js"></script>
+<script src="js/wizard.js"></script>
+</body>
+</html>
