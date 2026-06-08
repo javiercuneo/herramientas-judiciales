@@ -174,8 +174,8 @@
                 text-align: left;
                 font-weight: bold;
             }
-            td:nth-of-type(1):before { content: "DescripciÃ³n del bien"; }
-            td:nth-of-type(2):before { content: "ValuaciÃ³n fiscal"; }
+            td:nth-of-type(1):before { content: "Descripción del bien"; }
+            td:nth-of-type(2):before { content: "Valuación fiscal"; }
             td:nth-of-type(3):before { content: "Titularidad"; }
             td:nth-of-type(4):before { content: "Sobretasa"; }
             td:nth-of-type(5):before { content: "Subtotal"; }
@@ -185,29 +185,29 @@
 <body>
 
 <div class="container">
-    <h1><a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/0-4999/298/texact.htm">Calculadora de Tasa de Justicia (Ley NÂº 23.898)</a></h1>
+    <h1><a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/0-4999/298/texact.htm">Calculadora de Tasa de Justicia (Ley Nº 23.898)</a></h1>
 
     <div class="form-group">
         <label for="objetoJuicio">Objeto del juicio:</label>
         <select id="objetoJuicio">
-            <option value="">Seleccione una opciÃ³n</option>
+            <option value="">Seleccione una opción</option>
             <option value="sumasDinero">Sumas de dinero</option>
             <option value="desalojo">Desalojo</option>
-            <option value="inmuebles">Inmuebles (escrituraciÃ³n, prescripciÃ³n adquisitiva, reivindicaciÃ³n etc.)</option>
+            <option value="inmuebles">Inmuebles (escrituración, prescripción adquisitiva, reivindicación etc.)</option>
             <option value="otros">Otros</option>
-            <option value="sucesion">SucesiÃ³n</option>
+            <option value="sucesion">Sucesión</option>
         </select>
     </div>
 
     <div id="calculadoraContainer" class="table-container">
         </div>
-      <!-- FOOTER DE AUTORÃA -->
+      <!-- FOOTER DE AUTORÍA -->
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
-        <span style="font-weight: 500;">Desarrollado por L. Javier CÃºneo Libarona con herramientas de IA generativa</span><br>
+        <span style="font-weight: 500;">Desarrollado por L. Javier Cúneo Libarona con herramientas de IA generativa</span><br>
         <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">ðŸ™ GitHub</a>
-          <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">âš–ï¸ Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">ðŸ’¼ LinkedIn</a>
+          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">🐙 GitHub</a>
+          <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">⚖️ Herramientas</a>
+          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">💼 LinkedIn</a>
         </span>
       </div>
     </div>
@@ -268,23 +268,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         switch(type) {
             case 'sumasDinero':
-                labelText = 'Ingresar monto reclamado con intereses (art. 4 inc. a). Si es en dÃ³lares convertir al valor oficial tipo vendedor del BNA al dÃ­a del pago';
+                labelText = 'Ingresar monto reclamado con intereses (art. 4 inc. a). Si es en dólares convertir al valor oficial tipo vendedor del BNA al día del pago';
                 calculationFunction = (monto) => monto * 0.03;
                 break;
             case 'desalojo':
-                labelText = 'Ingresar el valor actualizado del alquiler (art. 4 inc. b). El sistema calcula el 3% sobre seis cÃ¡nones.';
+                labelText = 'Ingresar el valor actualizado del alquiler (art. 4 inc. b). El sistema calcula el 3% sobre seis cánones.';
                 calculationFunction = (monto) => monto * 6 * 0.03;
                 break;
             case 'inmuebles':
-                labelText = 'Ingresar ValuaciÃ³n fiscal actualizada o mayor valor del negocio jurÃ­dico sobre el cual versa el litigio (art. 4 inc. c)';
+                labelText = 'Ingresar Valuación fiscal actualizada o mayor valor del negocio jurídico sobre el cual versa el litigio (art. 4 inc. c)';
                 calculationFunction = (monto) => monto * 0.03;
                 break;
             case 'otros':
                 labelText = 'Importe';
                 calculationFunction = (monto) => monto * 0.03;
                 infoText = `Reinscripciones de hipotecas y de prendas (art. 4 inc. f): ingresar importe de la suma garantizada;
-TercerÃ­as de dominio o mejor derecho (art. 4 inc. h): ingresar valor del crÃ©dito o del bien;
-Bienes muebles o derechos susceptibles de apreciaciÃ³n pecuniaria (art. 4 inc. d) : ingresar valuaciÃ³n fiscal o estimaciÃ³n`;
+Tercerías de dominio o mejor derecho (art. 4 inc. h): ingresar valor del crédito o del bien;
+Bienes muebles o derechos susceptibles de apreciación pecuniaria (art. 4 inc. d) : ingresar valuación fiscal o estimación`;
                 break;
         }
         
@@ -389,11 +389,11 @@ Bienes muebles o derechos susceptibles de apreciaciÃ³n pecuniaria (art. 4 inc.
             <div class="form-group">
                 <label>Contenido de la herencia:</label>
                 <select class="subTipoSucesion">
-                    <option value="">Seleccione una opciÃ³n</option>
+                    <option value="">Seleccione una opción</option>
                     <option value="sumasDineroSucesion">Sumas de dinero</option>
                     <option value="inmueblesCABA">Inmuebles CABA</option>
                     <option value="inmueblesProvincia">Inmuebles en otras jurisdicciones</option>
-                    <option value="otrosBienes">AutomÃ³vil, participaciÃ³n societaria u otros bienes</option>
+                    <option value="otrosBienes">Automóvil, participación societaria u otros bienes</option>
                 </select>
             </div>
             <div class="sucesion-content" data-subtotal="0"></div>
@@ -431,7 +431,7 @@ Bienes muebles o derechos susceptibles de apreciaciÃ³n pecuniaria (art. 4 inc.
             <table class="simpleTableSucesion">
                 <thead>
                     <tr>
-                        <th>Ingresar monto. Si es en dÃ³lares convertir al valor oficial tipo vendedor del BNA al dÃ­a del pago</th>
+                        <th>Ingresar monto. Si es en dólares convertir al valor oficial tipo vendedor del BNA al día del pago</th>
                         <th>Subtotal</th>
                     </tr>
                 </thead>
@@ -489,23 +489,23 @@ Bienes muebles o derechos susceptibles de apreciaciÃ³n pecuniaria (art. 4 inc.
     }
 
     function createSucesionComplexTable(parentDiv, type) {
-        let headerLabel = 'ValuaciÃ³n fiscal';
+        let headerLabel = 'Valuación fiscal';
         let tasa = 0;
         let infoText = '';
         
         switch(type) {
             case 'inmueblesCABA':
-                headerLabel = 'ValuaciÃ³n fiscal';
+                headerLabel = 'Valuación fiscal';
                 tasa = 0.015;
                 infoText = 'El sistema calcula sobre la tasa reducida del art. 3 inc. c del 1.5 %. Puedes incluir una sobretasa de manera opcional.';
                 break;
             case 'inmueblesProvincia':
-                headerLabel = 'ValuaciÃ³n fiscal';
+                headerLabel = 'Valuación fiscal';
                 tasa = 0.0075;
                 infoText = 'El sistema calcula sobre la tasa reducida del art. 4 inc. g, segunda parte, del 0.75 %. Puedes incluir una sobretasa de manera opcional.';
                 break;
             case 'otrosBienes':
-                headerLabel = 'ValuaciÃ³n fiscal actualizada (AutomÃ³viles)\nValor que surge de la certificaciÃ³n contable (participaciÃ³n en sociedades)\nOtros bienes: valor que surge de valuaciÃ³n agregada al expediente';
+                headerLabel = 'Valuación fiscal actualizada (Automóviles)\nValor que surge de la certificación contable (participación en sociedades)\nOtros bienes: valor que surge de valuación agregada al expediente';
                 tasa = 0.015;
                 infoText = 'El sistema calcula sobre la tasa reducida del art. 3 inc. c del 1.5 %.';
                 break;
@@ -518,12 +518,12 @@ Bienes muebles o derechos susceptibles de apreciaciÃ³n pecuniaria (art. 4 inc.
         let tableHTML = `
             <thead>
                 <tr>
-                    <th>DescripciÃ³n del bien</th>
+                    <th>Descripción del bien</th>
                     <th>${headerLabel}</th>
                     <th>
                         Titularidad
                         <span class="porcentaje-nota">
-                            NOTA: indicar como nÃºmero entero (50, 100, 20), porcentaje (50 %, 20 %) o bien expresarlo como fracciÃ³n: 1/2, 2/5, 25/100)
+                            NOTA: indicar como número entero (50, 100, 20), porcentaje (50 %, 20 %) o bien expresarlo como fracción: 1/2, 2/5, 25/100)
                         </span>
                     </th>
                     ${(type === 'inmueblesCABA' || type === 'inmueblesProvincia') ? '<th>Sobretasa</th>' : ''}
@@ -537,7 +537,7 @@ Bienes muebles o derechos susceptibles de apreciaciÃ³n pecuniaria (art. 4 inc.
             tableHTML = `
                 <thead>
                     <tr>
-                        <th>DescripciÃ³n del bien</th>
+                        <th>Descripción del bien</th>
                         <th>${headerLabel}</th>
                         <th>Titularidad</th>
                         ${(type === 'inmueblesCABA' || type === 'inmueblesProvincia') ? '<th>Sobretasa</th>' : ''}
@@ -546,7 +546,7 @@ Bienes muebles o derechos susceptibles de apreciaciÃ³n pecuniaria (art. 4 inc.
                 </thead>
                 <tbody></tbody>
             `;
-            parentDiv.innerHTML += `<div class="porcentaje-nota">NOTA: indicar la titularidad como nÃºmero entero (50, 100, 20), porcentaje (50 %, 20 %) o bien expresarlo como fracciÃ³n: 1/2, 2/5, 25/100)</div>`;
+            parentDiv.innerHTML += `<div class="porcentaje-nota">NOTA: indicar la titularidad como número entero (50, 100, 20), porcentaje (50 %, 20 %) o bien expresarlo como fracción: 1/2, 2/5, 25/100)</div>`;
         }
 
         table.innerHTML = tableHTML;

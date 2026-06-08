@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Plazos Judiciales (dÃ­as hÃ¡biles hacia atrÃ¡s)</title>
-    <!-- Evitar cachÃ© del navegador -->
+    <title>Calculadora de Plazos Judiciales (días hábiles hacia atrás)</title>
+    <!-- Evitar caché del navegador -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -241,8 +241,8 @@
 </head>
 <body>
 <div class="container">
-    <h1>ðŸ“… Calculadora de plazos judiciales</h1>
-    <div class="subtitulo">Resta dÃ­as hÃ¡biles a una fecha objetivo (fecha lÃ­mite hacia atrÃ¡s)</div>
+    <h1>📅 Calculadora de plazos judiciales</h1>
+    <div class="subtitulo">Resta días hábiles a una fecha objetivo (fecha límite hacia atrás)</div>
 
     <div class="panel">
         <div class="input-group">
@@ -251,58 +251,58 @@
                 <input type="text" id="fechaObjetivo" placeholder="ej: 25/05/2025" value="">
             </div>
             <div class="campo">
-                <label>DÃ­as hÃ¡biles de antelaciÃ³n (mÃ­nimo 1) *</label>
+                <label>Días hábiles de antelación (mínimo 1) *</label>
                 <input type="number" id="diasAntelacion" min="1" value="5" step="1">
             </div>
         </div>
         <div class="botones">
-            <button class="btn" id="calcularBtn">Calcular fecha lÃ­mite</button>
+            <button class="btn" id="calcularBtn">Calcular fecha límite</button>
             <button class="btn reset" id="resetBtn">Limpiar</button>
         </div>
-        <div id="infoAnios" class="info-anios">â³ Cargando feriados y dÃ­as inhÃ¡biles...</div>
+        <div id="infoAnios" class="info-anios">⏳ Cargando feriados y días inhábiles...</div>
     </div>
 
     <div id="errorGlobal" class="error-mensaje" style="display: none;"></div>
 
     <div class="resultado-principal" id="resultadoPanel" style="display: none;">
-        <div style="text-align: center; margin-bottom: 10px; font-weight: 500; color: #667eea;">ðŸ—“ï¸ Fecha lÃ­mite</div>
+        <div style="text-align: center; margin-bottom: 10px; font-weight: 500; color: #667eea;">🗓️ Fecha límite</div>
         <div class="fecha-limite" id="fechaLimite">-</div>
     </div>
 
     <div class="trazabilidad" id="trazabilidadPanel" style="display: none;">
         <div class="card">
-            <h3>ðŸ“‹ DÃ­as evaluados (desde el anterior a la objetivo)</h3>
+            <h3>📋 Días evaluados (desde el anterior a la objetivo)</h3>
             <div class="lista" id="listaDiasEvaluados"></div>
         </div>
         <div class="card">
-            <h3>ðŸš« DÃ­as NO contados (inhÃ¡biles)</h3>
+            <h3>🚫 Días NO contados (inhábiles)</h3>
             <div class="lista" id="listaNoContados"></div>
         </div>
     </div>
 
     <div class="footer">
-        <p>âš–ï¸ Los dÃ­as hÃ¡biles excluyen fines de semana, feriados nacionales, ferias (enero y julio), 16 de noviembre (Ley 26.674) y <a href="https://jnc-34.github.io/jnc34/dias-inhabiles.json" target="_blank" rel="noopener">dÃ­as inhÃ¡biles adicionales (ver)</a>.</p>
-        <p style="margin-top: 10px;">ðŸ“§ Si crees que ha habido un error, envÃ­anos un mail a <a href="mailto:javiercuneol@gmail.gov.ar">javiercuneol@gmail.gov.ar</a> describiendo quÃ© saliÃ³ mal.</p>
+        <p>⚖️ Los días hábiles excluyen fines de semana, feriados nacionales, ferias (enero y julio), 16 de noviembre (Ley 26.674) y <a href="https://jnc-34.github.io/jnc34/dias-inhabiles.json" target="_blank" rel="noopener">días inhábiles adicionales (ver)</a>.</p>
+        <p style="margin-top: 10px;">📧 Si crees que ha habido un error, envíanos un mail a <a href="mailto:javiercuneol@gmail.gov.ar">javiercuneol@gmail.gov.ar</a> describiendo qué salió mal.</p>
     </div>
     <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
-        <span style="font-weight: 500;">Desarrollado por L. Javier CÃºneo Libarona con herramientas de IA generativa</span><br>
+        <span style="font-weight: 500;">Desarrollado por L. Javier Cúneo Libarona con herramientas de IA generativa</span><br>
         <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">ðŸ™ GitHub</a>
-          <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">âš–ï¸ Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">ðŸ’¼ LinkedIn</a>
+          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">🐙 GitHub</a>
+          <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">⚖️ Herramientas</a>
+          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">💼 LinkedIn</a>
         </span>
       </div>
 </div>
 
 <script>
     (function() {
-        // ---------- ConfiguraciÃ³n ----------
+        // ---------- Configuración ----------
         const JSON_ADICIONAL = 'https://jnc-34.github.io/jnc34/dias-inhabiles.json';
 
         // Variables globales
         let feriadosMap = new Map();           // fecha -> motivo (de API)
         let adicionalMap = new Map();           // fecha -> motivo (de JSON)
-        let anosDisponibles = new Set();        // aÃ±os con cobertura total
+        let anosDisponibles = new Set();        // años con cobertura total
         let datosCargados = false;
         let errorCarga = false;
 
@@ -326,13 +326,13 @@
             if (partes.length !== 3) return null;
             const dia = parseInt(partes[0], 10);
             const mes = parseInt(partes[1], 10) - 1; // JS meses 0-11
-            const aÃ±o = parseInt(partes[2], 10);
-            if (isNaN(dia) || isNaN(mes) || isNaN(aÃ±o)) return null;
-            // Validar rango bÃ¡sico
-            if (aÃ±o < 2021 || aÃ±o > 2030) return null; // limitamos para evitar aÃ±os muy lejanos
-            const fecha = new Date(aÃ±o, mes, dia);
-            // Verificar que la fecha sea vÃ¡lida (ej. 31/02 no)
-            if (fecha.getDate() !== dia || fecha.getMonth() !== mes || fecha.getFullYear() !== aÃ±o) return null;
+            const año = parseInt(partes[2], 10);
+            if (isNaN(dia) || isNaN(mes) || isNaN(año)) return null;
+            // Validar rango básico
+            if (año < 2021 || año > 2030) return null; // limitamos para evitar años muy lejanos
+            const fecha = new Date(año, mes, dia);
+            // Verificar que la fecha sea válida (ej. 31/02 no)
+            if (fecha.getDate() !== dia || fecha.getMonth() !== mes || fecha.getFullYear() !== año) return null;
             return fecha;
         }
 
@@ -340,18 +340,18 @@
             if (!fecha) return '';
             const dia = fecha.getDate().toString().padStart(2, '0');
             const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-            const aÃ±o = fecha.getFullYear();
-            return `${dia}/${mes}/${aÃ±o}`;
+            const año = fecha.getFullYear();
+            return `${dia}/${mes}/${año}`;
         }
 
         function formatearFechaYMD(fecha) {
             return `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,'0')}-${String(fecha.getDate()).padStart(2,'0')}`;
         }
 
-        // ---------- CÃ¡lculo de ferias y dÃ­as especiales ----------
-        function getTercerLunesJulio(aÃ±o) {
-            // Primer dÃ­a de julio
-            const primerJulio = new Date(aÃ±o, 6, 1); // mes 6 = julio
+        // ---------- Cálculo de ferias y días especiales ----------
+        function getTercerLunesJulio(año) {
+            // Primer día de julio
+            const primerJulio = new Date(año, 6, 1); // mes 6 = julio
             let diaSemana = primerJulio.getDay(); // 0 domingo, 1 lunes...
             let diasParaPrimerLunes;
             if (diaSemana === 1) diasParaPrimerLunes = 0;
@@ -359,7 +359,7 @@
             else diasParaPrimerLunes = (8 - diaSemana) % 7;
             const primerLunes = new Date(primerJulio);
             primerLunes.setDate(primerJulio.getDate() + diasParaPrimerLunes);
-            // tercer lunes = primer lunes + 14 dÃ­as
+            // tercer lunes = primer lunes + 14 días
             const tercerLunes = new Date(primerLunes);
             tercerLunes.setDate(primerLunes.getDate() + 14);
             return tercerLunes;
@@ -370,11 +370,11 @@
         }
 
         function esFeriaJulio(fecha) {
-            const aÃ±o = fecha.getFullYear();
-            const tercerLunes = getTercerLunesJulio(aÃ±o);
+            const año = fecha.getFullYear();
+            const tercerLunes = getTercerLunesJulio(año);
             const inicioFeria = new Date(tercerLunes);
             const finFeria = new Date(tercerLunes);
-            finFeria.setDate(tercerLunes.getDate() + 11); // 12 dÃ­as inclusive (tercerLunes + 11)
+            finFeria.setDate(tercerLunes.getDate() + 11); // 12 días inclusive (tercerLunes + 11)
             return fecha >= inicioFeria && fecha <= finFeria;
         }
 
@@ -382,10 +382,10 @@
             return fecha.getMonth() === 10 && fecha.getDate() === 16;
         }
 
-        // ---------- Verificar inhÃ¡biles con motivo (jerarquÃ­a) ----------
+        // ---------- Verificar inhábiles con motivo (jerarquía) ----------
         function getMotivoInhabil(fecha) {
             const ymd = formatearFechaYMD(fecha);
-            // 1. JSON adicional (prioridad mÃ¡xima)
+            // 1. JSON adicional (prioridad máxima)
             if (adicionalMap.has(ymd)) {
                 return adicionalMap.get(ymd);
             }
@@ -410,40 +410,40 @@
             if (diaSem === 0 || diaSem === 6) {
                 return "Fin de semana";
             }
-            return null; // hÃ¡bil
+            return null; // hábil
         }
 
         // ---------- Carga de datos (corregida) ----------
         async function cargarDatos() {
-            infoAniosDiv.textContent = 'â³ Cargando feriados y dÃ­as inhÃ¡biles...';
+            infoAniosDiv.textContent = '⏳ Cargando feriados y días inhábiles...';
             errorGlobalDiv.style.display = 'none';
             errorCarga = false;
             feriadosMap.clear();
             adicionalMap.clear();
 
             try {
-                // Cargar feriados por aÃ±o desde 2021 hasta aÃ±o actual+1
-                const aÃ±oActual = new Date().getFullYear();
-                const aÃ±oMaximo = aÃ±oActual + 1; // por ejemplo 2027 si hoy es 2026
-                const aÃ±osACargar = [];
-                for (let aÃ±o = 2021; aÃ±o <= aÃ±oMaximo; aÃ±o++) {
-                    aÃ±osACargar.push(aÃ±o);
+                // Cargar feriados por año desde 2021 hasta año actual+1
+                const añoActual = new Date().getFullYear();
+                const añoMaximo = añoActual + 1; // por ejemplo 2027 si hoy es 2026
+                const añosACargar = [];
+                for (let año = 2021; año <= añoMaximo; año++) {
+                    añosACargar.push(año);
                 }
 
-                // Consultar cada aÃ±o a la API
-                const promesas = aÃ±osACargar.map(async (aÃ±o) => {
+                // Consultar cada año a la API
+                const promesas = añosACargar.map(async (año) => {
                     try {
-                        const res = await fetch(`https://api.argentinadatos.com/v1/feriados/${aÃ±o}`, { cache: 'no-cache' });
+                        const res = await fetch(`https://api.argentinadatos.com/v1/feriados/${año}`, { cache: 'no-cache' });
                         if (res.ok) {
                             const data = await res.json();
-                            return { aÃ±o, data };
+                            return { año, data };
                         } else {
-                            console.warn(`No se pudo obtener feriados para ${aÃ±o}: ${res.status}`);
-                            return { aÃ±o, data: [] };
+                            console.warn(`No se pudo obtener feriados para ${año}: ${res.status}`);
+                            return { año, data: [] };
                         }
                     } catch (e) {
-                        console.error(`Error en aÃ±o ${aÃ±o}:`, e);
-                        return { aÃ±o, data: [] };
+                        console.error(`Error en año ${año}:`, e);
+                        return { año, data: [] };
                     }
                 });
 
@@ -471,98 +471,98 @@
                     });
                 }
 
-                // Determinar aÃ±os disponibles: uniÃ³n de aÃ±os de feriados y adicionales
-                const aÃ±osFeriados = new Set();
+                // Determinar años disponibles: unión de años de feriados y adicionales
+                const añosFeriados = new Set();
                 feriadosMap.forEach((_, fechaStr) => {
-                    const aÃ±o = parseInt(fechaStr.split('-')[0], 10);
-                    if (!isNaN(aÃ±o)) aÃ±osFeriados.add(aÃ±o);
+                    const año = parseInt(fechaStr.split('-')[0], 10);
+                    if (!isNaN(año)) añosFeriados.add(año);
                 });
-                const aÃ±osAdicional = new Set();
+                const añosAdicional = new Set();
                 adicionalMap.forEach((_, fechaStr) => {
-                    const aÃ±o = parseInt(fechaStr.split('-')[0], 10);
-                    if (!isNaN(aÃ±o)) aÃ±osAdicional.add(aÃ±o);
+                    const año = parseInt(fechaStr.split('-')[0], 10);
+                    if (!isNaN(año)) añosAdicional.add(año);
                 });
 
-                // UniÃ³n y filtrar desde 2021 hasta aÃ±oMaximo
+                // Unión y filtrar desde 2021 hasta añoMaximo
                 anosDisponibles.clear();
-                for (let aÃ±o = 2021; aÃ±o <= aÃ±oMaximo; aÃ±o++) {
-                    if (aÃ±osFeriados.has(aÃ±o) || aÃ±osAdicional.has(aÃ±o)) {
-                        anosDisponibles.add(aÃ±o);
+                for (let año = 2021; año <= añoMaximo; año++) {
+                    if (añosFeriados.has(año) || añosAdicional.has(año)) {
+                        anosDisponibles.add(año);
                     }
                 }
 
                 if (anosDisponibles.size === 0) {
-                    throw new Error('No se encontraron aÃ±os con datos.');
+                    throw new Error('No se encontraron años con datos.');
                 }
 
                 datosCargados = true;
                 const listaAnios = Array.from(anosDisponibles).sort().join(', ');
-                infoAniosDiv.innerHTML = `âœ… AÃ±os disponibles: <strong>${listaAnios}</strong> (segÃºn feriados y adicionales)`;
-                console.log('Datos cargados. Feriados:', feriadosMap.size, 'Adicionales:', adicionalMap.size, 'AÃ±os:', listaAnios);
+                infoAniosDiv.innerHTML = `✅ Años disponibles: <strong>${listaAnios}</strong> (según feriados y adicionales)`;
+                console.log('Datos cargados. Feriados:', feriadosMap.size, 'Adicionales:', adicionalMap.size, 'Años:', listaAnios);
             } catch (error) {
                 console.error('Error en carga de datos:', error);
                 errorCarga = true;
                 datosCargados = false;
-                infoAniosDiv.innerHTML = 'âŒ Error al cargar los datos. La calculadora no funcionarÃ¡. Intenta recargar la pÃ¡gina mÃ¡s tarde.';
+                infoAniosDiv.innerHTML = '❌ Error al cargar los datos. La calculadora no funcionará. Intenta recargar la página más tarde.';
                 errorGlobalDiv.style.display = 'block';
-                errorGlobalDiv.textContent = 'No se pudieron obtener los feriados o el archivo adicional. Por favor, intentÃ¡ mÃ¡s tarde.';
+                errorGlobalDiv.textContent = 'No se pudieron obtener los feriados o el archivo adicional. Por favor, intentá más tarde.';
                 calcularBtn.disabled = true;
             }
         }
 
-        // ---------- ValidaciÃ³n de fecha hÃ¡bil ----------
+        // ---------- Validación de fecha hábil ----------
         function fechaEsHabil(fecha) {
             return getMotivoInhabil(fecha) === null;
         }
 
-        // ---------- CÃ¡lculo principal (corregido) ----------
+        // ---------- Cálculo principal (corregido) ----------
         function calcular() {
             if (!datosCargados || errorCarga) {
-                alert('Los datos aÃºn no estÃ¡n listos o hay un error. Intenta recargar.');
+                alert('Los datos aún no están listos o hay un error. Intenta recargar.');
                 return;
             }
 
             // Obtener y validar fecha objetivo
             const fechaStr = fechaInput.value.trim();
             if (!fechaStr) {
-                alert('IngresÃ¡ una fecha objetivo.');
+                alert('Ingresá una fecha objetivo.');
                 return;
             }
             const fechaObj = parseFechaDDMMAAAA(fechaStr);
             if (!fechaObj) {
-                alert('Formato de fecha invÃ¡lido. UsÃ¡ DD/MM/AAAA (ej: 25/05/2025).');
+                alert('Formato de fecha inválido. Usá DD/MM/AAAA (ej: 25/05/2025).');
                 return;
             }
 
-            const aÃ±oFecha = fechaObj.getFullYear();
-            if (!anosDisponibles.has(aÃ±oFecha)) {
-                alert(`El aÃ±o ${aÃ±oFecha} no estÃ¡ disponible en la base de feriados. AÃ±os disponibles: ${Array.from(anosDisponibles).sort().join(', ')}`);
+            const añoFecha = fechaObj.getFullYear();
+            if (!anosDisponibles.has(añoFecha)) {
+                alert(`El año ${añoFecha} no está disponible en la base de feriados. Años disponibles: ${Array.from(anosDisponibles).sort().join(', ')}`);
                 return;
             }
 
-            // Validar que la fecha objetivo sea hÃ¡bil
+            // Validar que la fecha objetivo sea hábil
             if (!fechaEsHabil(fechaObj)) {
                 const motivo = getMotivoInhabil(fechaObj);
-                alert(`La fecha objetivo es inhÃ¡bil (${motivo}). Por favor elegÃ­ una fecha hÃ¡bil.`);
+                alert(`La fecha objetivo es inhábil (${motivo}). Por favor elegí una fecha hábil.`);
                 return;
             }
 
-            // Validar dÃ­as
+            // Validar días
             const dias = parseInt(diasInput.value, 10);
             if (isNaN(dias) || dias < 1) {
-                alert('Los dÃ­as deben ser un nÃºmero entero mayor o igual a 1.');
+                alert('Los días deben ser un número entero mayor o igual a 1.');
                 return;
             }
 
-            // Comenzar conteo desde el dÃ­a anterior a la fecha objetivo
+            // Comenzar conteo desde el día anterior a la fecha objetivo
             let fechaActual = new Date(fechaObj);
-            fechaActual.setDate(fechaActual.getDate() - 1); // dÃ­a anterior
+            fechaActual.setDate(fechaActual.getDate() - 1); // día anterior
 
             let diasRestantes = dias;
             const evaluados = [];      // { fecha, contado, motivo }
             const noContados = [];     // { fecha, motivo }
 
-            // Iterar hacia atrÃ¡s hasta que hayamos restado todos los dÃ­as hÃ¡biles
+            // Iterar hacia atrás hasta que hayamos restado todos los días hábiles
             while (diasRestantes > 0) {
                 const motivo = getMotivoInhabil(fechaActual);
                 const esHabil = motivo === null;
@@ -583,12 +583,12 @@
                 }
 
                 if (diasRestantes > 0) {
-                    // retroceder un dÃ­a
+                    // retroceder un día
                     fechaActual.setDate(fechaActual.getDate() - 1);
                 }
             }
 
-            // fechaActual es la fecha lÃ­mite (donde se completÃ³ la resta)
+            // fechaActual es la fecha límite (donde se completó la resta)
             const fechaLimite = new Date(fechaActual);
 
             // Mostrar resultados
@@ -596,28 +596,28 @@
             resultadoPanel.style.display = 'block';
             trazabilidadPanel.style.display = 'grid';
 
-            // Llenar listas (orden descendente: de mÃ¡s reciente a mÃ¡s antigua)
-            // Nuestro evaluados ya estÃ¡ en orden desde el dÃ­a anterior a objetivo hacia atrÃ¡s (reciente a antiguo)
+            // Llenar listas (orden descendente: de más reciente a más antigua)
+            // Nuestro evaluados ya está en orden desde el día anterior a objetivo hacia atrás (reciente a antiguo)
             listaEvaluados.innerHTML = '';
             evaluados.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'item';
                 const fechaStr = formatearFechaDDMMAAAA(item.fecha);
-                div.innerHTML = `<span class="fecha">${fechaStr}</span> <span class="${item.contado ? 'contado' : 'no-contado'}">${item.contado ? 'âœ… CONTADO' : 'âŒ NO CONTADO'}</span> ${item.motivo ? '<span class="motivo">(' + item.motivo + ')</span>' : ''}`;
+                div.innerHTML = `<span class="fecha">${fechaStr}</span> <span class="${item.contado ? 'contado' : 'no-contado'}">${item.contado ? '✅ CONTADO' : '❌ NO CONTADO'}</span> ${item.motivo ? '<span class="motivo">(' + item.motivo + ')</span>' : ''}`;
                 listaEvaluados.appendChild(div);
             });
 
-            // Para no contados, tambiÃ©n descendente
+            // Para no contados, también descendente
             listaNoContados.innerHTML = '';
             noContados.reverse().forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'item';
                 const fechaStr = formatearFechaDDMMAAAA(item.fecha);
-                div.innerHTML = `<span class="fecha">${fechaStr}</span> <span class="no-contado">âŒ</span> <span class="motivo">${item.motivo}</span>`;
+                div.innerHTML = `<span class="fecha">${fechaStr}</span> <span class="no-contado">❌</span> <span class="motivo">${item.motivo}</span>`;
                 listaNoContados.appendChild(div);
             });
 
-            console.log('CÃ¡lculo exitoso. DÃ­as restados:', dias, 'Fecha lÃ­mite:', formatearFechaDDMMAAAA(fechaLimite));
+            console.log('Cálculo exitoso. Días restados:', dias, 'Fecha límite:', formatearFechaDDMMAAAA(fechaLimite));
         }
 
         // ---------- Reset ----------
@@ -631,7 +631,7 @@
             listaNoContados.innerHTML = '';
         }
 
-        // ---------- InicializaciÃ³n y eventos ----------
+        // ---------- Inicialización y eventos ----------
         window.addEventListener('load', async () => {
             await cargarDatos();
             calcularBtn.addEventListener('click', calcular);
@@ -654,7 +654,7 @@
                 }
             });
 
-            // Bloquear entrada de letras en dÃ­as
+            // Bloquear entrada de letras en días
             diasInput.addEventListener('keypress', (e) => {
                 if (isNaN(parseInt(e.key, 10)) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
                     e.preventDefault();

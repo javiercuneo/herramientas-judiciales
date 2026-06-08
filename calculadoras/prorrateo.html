@@ -279,7 +279,7 @@
                     <td class="label-cell">VALOR UMA (pesos)</td>
                     <td>
                         <input type="text" id="umaInput" placeholder="Ingrese valor UMA" value="" oninput="calculate()">
-                        <div style="font-size: 12px; color: #666;">Si la carga automÃ¡tica falla, ingrÃ©selo manualmente (sin puntos, solo nÃºmeros)</div>
+                        <div style="font-size: 12px; color: #666;">Si la carga automática falla, ingréselo manualmente (sin puntos, solo números)</div>
                     </td>
                 </tr>
             </table>
@@ -295,17 +295,17 @@
             <table>
                 <thead>
                     <tr>
-                        <th>DESCRIPCIÃ“N</th>
+                        <th>DESCRIPCIÓN</th>
                         <th>MONTO (en $ o UMAs)</th>
                         <th>UMA</th>
                         <th>IVA</th>
-                        <th>% PARTICIPACIÃ“N</th>
+                        <th>% PARTICIPACIÓN</th>
                         <th>HONORARIO PRORRATEADO</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody id="honorario-body">
-                    <!-- Las filas se generan dinÃ¡micamente con JS -->
+                    <!-- Las filas se generan dinámicamente con JS -->
                 </tbody>
                 <tbody id="honorario-totals">
                     <tr class="total-row">
@@ -326,11 +326,11 @@
             </table>
             
             <div class="button-container">
-                <button class="action-button add-button" onclick="addHonorario()">AÃ±adir Honorario</button>
+                <button class="action-button add-button" onclick="addHonorario()">Añadir Honorario</button>
             </div>
 
             <div id="errorMessage">
-                âš ï¸ <strong>ADVERTENCIA:</strong> La sumatoria de honorarios (incluyendo tasa si corresponde) es $<span id="errorTotalBase">0.00</span> 
+                ⚠️ <strong>ADVERTENCIA:</strong> La sumatoria de honorarios (incluyendo tasa si corresponde) es $<span id="errorTotalBase">0.00</span> 
                 y no supera el 25% del monto del proceso ($<span id="errorPercent25">0.00</span>). Por lo tanto, el prorrateo no aplica.
             </div>
         </div>
@@ -341,19 +341,19 @@
         </div>
 </div>
  <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
-      <span style="font-weight: 500;">Desarrollado por L. Javier CÃºneo Libarona con herramientas de IA generativa</span><br>
+      <span style="font-weight: 500;">Desarrollado por L. Javier Cúneo Libarona con herramientas de IA generativa</span><br>
       <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-        <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">ðŸ™ GitHub</a>
-        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">âš–ï¸ Herramientas</a>
-        <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">ðŸ’¼ LinkedIn</a>
+        <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">🐙 GitHub</a>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">⚖️ Herramientas</a>
+        <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">💼 LinkedIn</a>
       </span>
     </div>
     <script>
         // --- Elementos del DOM ---
         const honorarioBody = document.getElementById('honorario-body');
 
-        // --- Funciones auxiliares de nÃºmeros ---
-        // Convierte un string a nÃºmero, aceptando coma o punto decimal, y eliminando puntos de miles si se indica.
+        // --- Funciones auxiliares de números ---
+        // Convierte un string a número, aceptando coma o punto decimal, y eliminando puntos de miles si se indica.
         function parseNumber(value, removeThousandsSeparator = false) {
             if (typeof value !== 'string') value = String(value);
             if (removeThousandsSeparator) {
@@ -376,24 +376,24 @@
         // --- Obtener valor UMA actual desde el input (ya limpio de puntos) ---
         function getValorUMA() {
             const umaInput = document.getElementById('umaInput');
-            // Al obtener el valor, quitamos puntos (por si el usuario escribiÃ³ con ellos)
+            // Al obtener el valor, quitamos puntos (por si el usuario escribió con ellos)
             return parseNumber(umaInput.value, true);
         }
 
-        // --- FunciÃ³n para obtener el monto efectivo de una fila (considera UMA e IVA) ---
+        // --- Función para obtener el monto efectivo de una fila (considera UMA e IVA) ---
         function getMontoEfectivoFila(row) {
             const montoInput = row.querySelector('.honorario-input');
             const umaCheck = row.querySelector('.uma-checkbox');
             const ivaCheck = row.querySelector('.iva-checkbox');
             let monto = parseNumber(montoInput ? montoInput.value : ''); // sin eliminar puntos (puede tener decimales)
             
-            // Si UMA estÃ¡ marcado, multiplicar por valor UMA
+            // Si UMA está marcado, multiplicar por valor UMA
             if (umaCheck && umaCheck.checked) {
                 const umaValor = getValorUMA();
                 monto = monto * umaValor;
             }
             
-            // Si IVA estÃ¡ marcado, agregar 21%
+            // Si IVA está marcado, agregar 21%
             if (ivaCheck && ivaCheck.checked) {
                 monto = monto * 1.21;
             }
@@ -413,12 +413,12 @@
             calculate();
         }
 
-        // --- AÃ±adir nueva fila de honorario ---
+        // --- Añadir nueva fila de honorario ---
         function addHonorario() {
             const rowCount = honorarioBody.rows.length + 1;
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
-                <td><input type="text" class="description-input" placeholder="DescripciÃ³n - Honorario ${rowCount}"></td>
+                <td><input type="text" class="description-input" placeholder="Descripción - Honorario ${rowCount}"></td>
                 <td><input type="text" class="honorario-input" placeholder="0.00" oninput="calculate()"></td>
                 <td class="small-checkbox"><input type="checkbox" class="uma-checkbox" onchange="calculate()"></td>
                 <td class="small-checkbox"><input type="checkbox" class="iva-checkbox" onchange="calculate()"></td>
@@ -441,11 +441,11 @@
             }
         }
 
-        // --- Actualizar placeholders de descripciÃ³n ---
+        // --- Actualizar placeholders de descripción ---
         function updateHonorarioPlaceholders() {
             const descriptionInputs = document.querySelectorAll('.description-input');
             descriptionInputs.forEach((input, index) => {
-                input.placeholder = `DescripciÃ³n - Honorario ${index + 1}`;
+                input.placeholder = `Descripción - Honorario ${index + 1}`;
             });
         }
 
@@ -475,19 +475,19 @@
                 const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8tumvxptTGBCfScMwWxK7r6ATnGfMw061GKGdzfIVyThcSGzUqjI-vcpME1AtykPmjqTq0xdjgc7D/pub?output=csv');
                 const csvText = await response.text();
                 const lines = csvText.split('\n');
-                // La primera lÃ­nea (fila 1 del sheet) contiene "UMA,89.875"
+                // La primera línea (fila 1 del sheet) contiene "UMA,89.875"
                 if (lines.length >= 1) {
                     const firstLine = lines[0];
                     const columns = firstLine.split(',');
                     if (columns.length >= 2) {
                         let rawValue = columns[1].trim().replace(/"/g, '');
-                        // Eliminar puntos (separador de miles) para obtener el nÃºmero entero
+                        // Eliminar puntos (separador de miles) para obtener el número entero
                         rawValue = rawValue.replace(/\./g, '');
                         const umaValor = parseFloat(rawValue);
                         if (!isNaN(umaValor) && umaValor > 0) {
-                            umaInput.value = umaValor; // asignar como nÃºmero sin formato
+                            umaInput.value = umaValor; // asignar como número sin formato
                         } else {
-                            umaInput.value = ''; // No vÃ¡lido, dejar vacÃ­o
+                            umaInput.value = ''; // No válido, dejar vacío
                         }
                     } else {
                         umaInput.value = '';
@@ -497,12 +497,12 @@
                 }
             } catch (e) {
                 console.warn("Error al cargar UMA:", e);
-                umaInput.value = ''; // dejar vacÃ­o para ingreso manual
+                umaInput.value = ''; // dejar vacío para ingreso manual
             }
             calculate(); // recalcular con el nuevo valor
         }
 
-        // --- CÃ¡lculo principal ---
+        // --- Cálculo principal ---
         function calculate() {
             // 1. Monto del proceso
             const montoProcess = parseNumber(document.getElementById('montoProcess').value);
@@ -535,7 +535,7 @@
                 totalHonorariosEfectivos += montoEf;
             });
             
-            // 5. Incluir tasa en la base de comparaciÃ³n si el checkbox estÃ¡ marcado
+            // 5. Incluir tasa en la base de comparación si el checkbox está marcado
             const incluirTasa = document.getElementById('incluirTasaCheckbox').checked;
             let baseComparacion = totalHonorariosEfectivos;
             if (incluirTasa) {
@@ -551,7 +551,7 @@
             }
             document.getElementById('percentTotal').textContent = formatNumber(percentOfProcess) + '%';
             
-            // 6. LÃ³gica de prorrateo
+            // 6. Lógica de prorrateo
             const errorMessage = document.getElementById('errorMessage');
             const errorTotalBaseSpan = document.getElementById('errorTotalBase');
             const errorPercent25Span = document.getElementById('errorPercent25');
@@ -568,7 +568,7 @@
                 });
             }
             
-            // Si la base de comparaciÃ³n es <= 25%, no aplica prorrateo
+            // Si la base de comparación es <= 25%, no aplica prorrateo
             if (baseComparacion <= percent25) {
                 errorMessage.style.display = 'block';
                 errorTotalBaseSpan.textContent = formatNumber(baseComparacion);
@@ -607,7 +607,7 @@
             document.getElementById('totalProrrateo').textContent = formatNumber(totalProrrateo);
         }
 
-        // --- InicializaciÃ³n ---
+        // --- Inicialización ---
         document.addEventListener('DOMContentLoaded', function() {
             cargarUMA(); // Intenta cargar UMA desde B1 y lo deja en el input
             // Crear 5 filas iniciales
