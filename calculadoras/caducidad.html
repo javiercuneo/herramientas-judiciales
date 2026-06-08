@@ -237,211 +237,187 @@
             </span>
         </div>
     </div>
+    <script src="js/calendario-judicial.js"></script>
+<script>
+    const apiStatus = document.getElementById('apiStatus');
+    const form = document.getElementById('calculatorForm');
+    const result = document.getElementById('result');
+    
+    let datosCargados = false;
 
-    <script>
-        const apiStatus = document.getElementById('apiStatus');
-        const form = document.getElementById('calculatorForm');
-        const result = document.getElementById('result');
-        
-        let inhabilesMap = new Map(); 
-
-        async function initData() {
-            try {
-                const resJson = await fetch('https://raw.githubusercontent.com/jnc-34/jnc34/refs/heads/main/dias-inhabiles.json');
-                const dataJson = await resJson.json();
-                (dataJson.dias_inhabiles_adicionales || []).forEach(item => {
-                    inhabilesMap.set(item.fecha, item.motivo);
-                });
-
-                for (let y = 2021; y <= 2026; y++) {
-                    try {
-                        const resApi = await fetch(`https://api.argentinadatos.com/v1/feriados/${y}`);
-                        if (resApi.ok) {
-                            const dataApi = await resApi.json();
-                            dataApi.forEach(f => {
-                                if (!inhabilesMap.has(f.fecha)) {
-                                    inhabilesMap.set(f.fecha, f.nombre);
-                                }
-                            });
-                        }
-                    } catch (e) { console.error(`Error año ${y}:`, e); }
-                }
-
-                for (let y = 2021; y <= 2026; y++) {
-                    const fecha = `${y}-11-16`;
-                    if (!inhabilesMap.has(fecha)) {
-                        inhabilesMap.set(fecha, "16 de noviembre (incorporado por regla fija)");
-                    }
-                }
-
-                apiStatus.innerText = `Calculadora disponible (Datos: 2021 a 2026 cargados + 16/11 fijo)`;
+    async function initData() {
+        try {
+            const currentYear = new Date().getFullYear();
+            const years = [];
+            for (let y = 2021; y <= currentYear + 1; y++) years.push(y);
+            
+            const initResult = await CalendarioJudicial.init(years);
+            
+            if (initResult.dataLoaded) {
+                datosCargados = true;
+                apiStatus.innerText = 'Calculadora disponible (Datos: ' + initResult.loadedYears[0] + ' a ' + initResult.loadedYears[initResult.loadedYears.length - 1] + ' cargados)';
                 apiStatus.style.color = "#059669";
-            } catch (err) {
-                console.error("Error crítico:", err);
+            } else {
                 apiStatus.innerText = "Error cargando feriados. Revise la consola.";
                 apiStatus.style.color = "#dc2626";
             }
+        } catch (err) {
+            apiStatus.innerText = "Error cargando feriados. Revise la consola.";
+            apiStatus.style.color = "#dc2626";
         }
-        initData();
+    }
+    initData();
 
-        function getThirdMondayOfJuly(year) {
-            let count = 0;
-            for (let d = 1; d <= 31; d++) {
-                let dt = new Date(year, 6, d);
-                if (dt.getDay() === 1) {
-                    count++;
-                    if (count === 3) return dt;
-                }
-            }
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (!datosCargados) {
+            alert('Los datos aun no estan listos. Intenta recargar.');
+            return;
         }
+        
+        const d = parseInt(document.getElementById('day').value);
+        const m = parseInt(document.getElementById('month').value);
+        const y = parseInt(document.getElementById('year').value);
+        const pVal = document.getElementById('plazo').value;
+        let plazo = pVal === 'custom' ? parseInt(document.getElementById('customValue').value) : parseInt(pVal);
 
-        function getFeriaJulyRange(year) {
-            let start = getThirdMondayOfJuly(year);
-            let end = new Date(start);
-            end.setDate(start.getDate() + 11);
-            return { start, end };
-        }
+        const startDate = new Date(y, m - 1, d);
+        
+        // --- CALCULO ORDINARIO (solo ferias) ---
+        let ordDate = new Date(startDate);
+        let ordObs = [];
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const d = parseInt(document.getElementById('day').value);
-            const m = parseInt(document.getElementById('month').value);
-            const y = parseInt(document.getElementById('year').value);
-            const pVal = document.getElementById('plazo').value;
-            let plazo = pVal === 'custom' ? parseInt(document.getElementById('customValue').value) : parseInt(pVal);
-
-            const startDate = new Date(y, m - 1, d);
-            
-            // --- CÁLCULO ORDINARIO (solo ferias) ---
-            let ordDate = new Date(startDate);
-            let ordObs = [];
-
-            // Sumar meses, salteando eneros
-            for (let i = 0; i < plazo; i++) {
-                let dayRef = ordDate.getDate();
-                ordDate.setMonth(ordDate.getMonth() + 1);
+        for (let i = 0; i < plazo; i++) {
+            let dayRef = ordDate.getDate();
+            ordDate.setMonth(ordDate.getMonth() + 1);
+            if (ordDate.getDate() !== dayRef) ordDate.setDate(0);
+            if (ordDate.getMonth() === 0) {
+                ordObs.push('Se excluyo enero ' + ordDate.getFullYear() + ' (feria)');
+                ordDate.setMonth(1);
                 if (ordDate.getDate() !== dayRef) ordDate.setDate(0);
-                if (ordDate.getMonth() === 0) {
-                    ordObs.push(`Se excluyó enero ${ordDate.getFullYear()} (feria)`);
-                    ordDate.setMonth(1);
-                    if (ordDate.getDate() !== dayRef) ordDate.setDate(0);
+            }
+        }
+
+        let yr = startDate.getFullYear();
+        let endYr = ordDate.getFullYear();
+        while (yr <= endYr) {
+            let startJulio = CalendarioJudicial.getPenultimoLunesJulio(yr);
+            let endJulio = new Date(startJulio);
+            endJulio.setDate(startJulio.getDate() + 11);
+            
+            if (startJulio <= ordDate && endJulio >= startDate) {
+                let overlapStart = new Date(Math.max(startDate.getTime(), startJulio.getTime()));
+                let overlapEnd = new Date(Math.min(ordDate.getTime(), endJulio.getTime()));
+                let daysOverlap = Math.ceil((overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                if (daysOverlap > 0) {
+                    ordDate.setDate(ordDate.getDate() + daysOverlap);
+                    ordObs.push(
+                        'Se atraveso la feria de julio ' + yr +
+                        ' (' + startJulio.toLocaleDateString('es-AR') + ' al ' + endJulio.toLocaleDateString('es-AR') + ') ' +
+                        'y se agregaron ' + daysOverlap + ' dias'
+                    );
+                    endYr = ordDate.getFullYear();
                 }
             }
+            yr++;
+        }
 
-            // Ajuste por ferias de julio (barrido único por año, sin repeticiones)
-            let yr = startDate.getFullYear();
-            let endYr = ordDate.getFullYear();
-            while (yr <= endYr) {
-                let feria = getFeriaJulyRange(yr);
-                // Solo ajustamos si el intervalo [startDate, ordDate] se superpone con esta feria
-                if (feria.start <= ordDate && feria.end >= startDate) {
-                    let overlapStart = new Date(Math.max(startDate.getTime(), feria.start.getTime()));
-                    let overlapEnd = new Date(Math.min(ordDate.getTime(), feria.end.getTime()));
-                    let daysOverlap = Math.ceil((overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-                    if (daysOverlap > 0) {
-                        ordDate.setDate(ordDate.getDate() + daysOverlap);
-                        ordObs.push(
-                            `Se atravesó la feria de julio ${yr} ` +
-                            `(${feria.start.toLocaleDateString('es-AR')} al ${feria.end.toLocaleDateString('es-AR')}) ` +
-                            `y se agregaron ${daysOverlap} días`
-                        );
-                        endYr = ordDate.getFullYear();  // actualizar por si cambió de año
-                    }
+        document.getElementById('resultDate').innerText = ordDate.toLocaleDateString('es-AR');
+        document.getElementById('resultDetails').innerHTML = '<strong>Inicio:</strong> ' + startDate.toLocaleDateString('es-AR') + '<br><strong>Observaciones:</strong><br>' + ordObs.map(function(o) { return '- ' + o; }).join('<br>');
+
+        // --- CALCULO FULL (con dias inhabiles y feriados, oculto) ---
+        let inhabilesList = [];
+        let fullDate = new Date(ordDate);
+        let previousLength;
+        let maxFullIter = 10;
+        do {
+            previousLength = inhabilesList.length;
+            inhabilesList = [];
+            let iter = new Date(startDate);
+            iter.setDate(iter.getDate() + 1);
+            
+            while (iter <= fullDate) {
+                let inFeriaJan = (iter.getMonth() === 0);
+                let startJulio = CalendarioJudicial.getPenultimoLunesJulio(iter.getFullYear());
+                let endJulio = new Date(startJulio);
+                endJulio.setDate(startJulio.getDate() + 11);
+                let inFeriaJul = (iter >= startJulio && iter <= endJulio);
+                
+                let esFeriadoNac = CalendarioJudicial.esFeriado(iter);
+                let esAdicional = CalendarioJudicial.esInhabilCustom(iter);
+                let es16Nov = CalendarioJudicial.es16Noviembre(iter);
+                
+                if ((esFeriadoNac || esAdicional || es16Nov) && !inFeriaJan && !inFeriaJul) {
+                    inhabilesList.push({ fecha: iter.toLocaleDateString('es-AR'), nombre: CalendarioJudicial.obtenerMotivoInhabil(iter) });
                 }
-                yr++;
-            }
-
-            document.getElementById('resultDate').innerText = ordDate.toLocaleDateString('es-AR');
-            document.getElementById('resultDetails').innerHTML = `<strong>Inicio:</strong> ${startDate.toLocaleDateString('es-AR')}<br><strong>Observaciones:</strong><br>${ordObs.map(o => `• ${o}`).join('<br>')}`;
-
-            // --- CÁLCULO FULL (con días inhábiles y feriados, oculto) ---
-            let inhabilesList = [];
-            let fullDate = new Date(ordDate);
-            let previousLength;
-            let maxFullIter = 10;
-            do {
-                previousLength = inhabilesList.length;
-                inhabilesList = [];
-                let iter = new Date(startDate);
                 iter.setDate(iter.getDate() + 1);
-                
-                while (iter <= fullDate) {
-                    let iso = iter.getFullYear() + '-' + String(iter.getMonth() + 1).padStart(2, '0') + '-' + String(iter.getDate()).padStart(2, '0');
-                    let inFeriaJan = (iter.getMonth() === 0);
-                    let rangeJul = getFeriaJulyRange(iter.getFullYear());
-                    let inFeriaJul = (iter >= rangeJul.start && iter <= rangeJul.end);
-
-                    if (inhabilesMap.has(iso) && !inFeriaJan && !inFeriaJul) {
-                        inhabilesList.push({ fecha: iter.toLocaleDateString('es-AR'), nombre: inhabilesMap.get(iso) });
-                    }
-                    iter.setDate(iter.getDate() + 1);
-                }
-                
-                fullDate = new Date(ordDate);
-                fullDate.setDate(fullDate.getDate() + inhabilesList.length);
-                
-                if (--maxFullIter <= 0) {
-                    console.warn('Límite de iteraciones en cálculo inhábiles');
-                    break;
-                }
-            } while (inhabilesList.length > previousLength);
-
-            let adjusted = true;
-            let adObs = "";
-            let maxAdjIter = 10;
-            while(adjusted) {
-                adjusted = false;
-                let isoFull = fullDate.getFullYear() + '-' + String(fullDate.getMonth() + 1).padStart(2, '0') + '-' + String(fullDate.getDate()).padStart(2, '0');
-                let rangeJulFull = getFeriaJulyRange(fullDate.getFullYear());
-                
-                if (fullDate.getMonth() === 0) {
-                    fullDate.setMonth(1, 1);
-                    adObs = " (Ajustado al primer día hábil post-feria de enero)";
-                    adjusted = true;
-                }
-                else if (fullDate >= rangeJulFull.start && fullDate <= rangeJulFull.end) {
-                    fullDate.setDate(rangeJulFull.end.getDate() + 1);
-                    adObs = " (Ajustado al primer día hábil post-feria de julio)";
-                    adjusted = true;
-                }
-                else if (fullDate.getDay() === 0 || fullDate.getDay() === 6) {
-                    fullDate.setDate(fullDate.getDate() + 1);
-                    adObs = " (Ajustado al siguiente día hábil por fin de semana)";
-                    adjusted = true;
-                }
-                else if (inhabilesMap.has(isoFull)) {
-                    fullDate.setDate(fullDate.getDate() + 1);
-                    adObs = ` (Ajustado por feriado: ${inhabilesMap.get(isoFull)})`;
-                    adjusted = true;
-                }
-                if (--maxAdjIter <= 0) {
-                    console.warn('Límite en ajuste final de fecha');
-                    break;
-                }
             }
+            
+            fullDate = new Date(ordDate);
+            fullDate.setDate(fullDate.getDate() + inhabilesList.length);
+            
+            if (--maxFullIter <= 0) {
+                console.warn('Limite de iteraciones en calculo inhabiles');
+                break;
+            }
+        } while (inhabilesList.length > previousLength);
 
-            let listHTML = inhabilesList.length > 0 ? 
-                `<details>
-                    <summary>Ver detalle de los ${inhabilesList.length} días adicionados</summary>
-                    <ul class="inhabiles-list">
-                        ${inhabilesList.map(item => `<li>• ${item.fecha}: ${item.nombre}</li>`).join('')}
-                    </ul>
-                </details>` : '';
+        let adjusted = true;
+        let adObs = "";
+        let maxAdjIter = 10;
+        while(adjusted) {
+            adjusted = false;
+            let startJulioFull = CalendarioJudicial.getPenultimoLunesJulio(fullDate.getFullYear());
+            let endJulioFull = new Date(startJulioFull);
+            endJulioFull.setDate(startJulioFull.getDate() + 11);
+            
+            if (fullDate.getMonth() === 0) {
+                fullDate.setMonth(1, 1);
+                adObs = " (Ajustado al primer dia habil post-feria de enero)";
+                adjusted = true;
+            }
+            else if (fullDate >= startJulioFull && fullDate <= endJulioFull) {
+                fullDate.setDate(endJulioFull.getDate() + 1);
+                adObs = " (Ajustado al primer dia habil post-feria de julio)";
+                adjusted = true;
+            }
+            else if (fullDate.getDay() === 0 || fullDate.getDay() === 6) {
+                fullDate.setDate(fullDate.getDate() + 1);
+                adObs = " (Ajustado al siguiente dia habil por fin de semana)";
+                adjusted = true;
+            }
+            else if (!CalendarioJudicial.esDiaHabil(fullDate)) {
+                var motivo = CalendarioJudicial.obtenerMotivoInhabil(fullDate);
+                fullDate.setDate(fullDate.getDate() + 1);
+                adObs = ' (Ajustado por feriado: ' + motivo + ')';
+                adjusted = true;
+            }
+            if (--maxAdjIter <= 0) {
+                console.warn('Limite en ajuste final de fecha');
+                break;
+            }
+        }
 
-            document.getElementById('resultDateFull').innerText = fullDate.toLocaleDateString('es-AR');
-            document.getElementById('resultDetailsFull').innerHTML = `Se adicionaron <strong>${inhabilesList.length} días inhábiles</strong> extra (fuera de ferias).<strong>${adObs}</strong>${listHTML}`;
+        let listHTML = inhabilesList.length > 0 ? 
+            '<details><summary>Ver detalle de los ' + inhabilesList.length + ' dias adicionados</summary>' +
+            '<ul class="inhabiles-list">' +
+            inhabilesList.map(function(item) { return '<li> ' + item.fecha + ': ' + item.nombre + '</li>'; }).join('') +
+            '</ul></details>' : '';
 
-            result.classList.add('show');
-        });
+        document.getElementById('resultDateFull').innerText = fullDate.toLocaleDateString('es-AR');
+        document.getElementById('resultDetailsFull').innerHTML = 'Se adicionaron <strong>' + inhabilesList.length + ' dias inhabiles</strong> extra (fuera de ferias).<strong>' + adObs + '</strong>' + listHTML;
 
-        document.getElementById('plazo').addEventListener('change', function() {
-            document.getElementById('customMonths').classList.toggle('show', this.value === 'custom');
-        });
-        document.getElementById('clearBtn').addEventListener('click', () => {
-            form.reset();
-            result.classList.remove('show');
-            document.getElementById('customMonths').classList.remove('show');
-        });
-    </script>
+        result.classList.add('show');
+    });
+
+    document.getElementById('plazo').addEventListener('change', function() {
+        document.getElementById('customMonths').classList.toggle('show', this.value === 'custom');
+    });
+    document.getElementById('clearBtn').addEventListener('click', function() {
+        form.reset();
+        result.classList.remove('show');
+        document.getElementById('customMonths').classList.remove('show');
+    });
+</script>
 </body>
 </html>
