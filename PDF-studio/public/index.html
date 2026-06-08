@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Studio PWA</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <meta name="theme-color" content="#1a1a2e">
+</head>
+<body>
+    <div id="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>PDF Studio</h2>
+                <div class="pill">OFFLINE</div>
+            </div>
+            <nav id="nav">
+                <button data-view="markdown" class="active">📝 PDF a Markdown</button>
+                <button data-view="merge">🔗 Unir PDFs</button>
+                <button data-view="split">✂️ Separar PDF</button>
+                <button data-view="rotate">🔄 Rotar Páginas</button>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <!-- View: PDF to Markdown -->
+            <section id="view-markdown" class="view active-view">
+                <header>
+                    <h1>Convertir PDF a Markdown</h1>
+                    <p>Extrae texto estructurado de tus documentos.</p>
+                </header>
+                <div class="tool-container">
+                    <input type="file" id="md-file" accept="application/pdf">
+                    <div class="options-panel">
+                        <label class="opt-label"><input type="checkbox" id="opt-hash" checked> Quitar códigos de sistema (hash SGI, etc.)</label>
+                        <label class="opt-label"><input type="checkbox" id="opt-footers" checked> Quitar encabezados/pies de página repetidos</label>
+                        <label class="opt-label"><input type="checkbox" id="opt-borders" checked> Limpiar bordes de página (numeración, sellos)</label>
+                        <label class="opt-label"><input type="checkbox" id="opt-split" checked> Reparar palabras partidas entre líneas</label>
+                        <label class="opt-label"><input type="checkbox" id="opt-columns" checked> Detectar columnas múltiples</label>
+                        <label class="opt-label"><input type="checkbox" id="opt-structure" checked> Detectar estructura (negritas, títulos)</label>
+                        <label class="opt-label"><input type="checkbox" id="opt-anonymize"> Anonimizar datos personales (DNI, CUIT, firmas, teléfonos)</label>
+                    </div>
+                    <button class="btn primary" id="md-btn" disabled>Extraer y Convertir</button>
+                    <div id="md-output" class="output-area"></div>
+                    <button class="btn secondary hidden" id="md-download-btn">Descargar .md</button>
+                </div>
+            </section>
+
+            <!-- View: Merge PDFs -->
+            <section id="view-merge" class="view">
+                <header>
+                    <h1>Unir Múltiples PDFs</h1>
+                    <p>Selecciona varios archivos para combinarlos.</p>
+                </header>
+                <div class="tool-container">
+                    <input type="file" id="merge-files" accept="application/pdf" multiple>
+                    <ul id="merge-list" class="file-list"></ul>
+                    <button class="btn primary" id="merge-btn" disabled>Unir PDFs</button>
+                </div>
+            </section>
+
+            <!-- View: Split PDF -->
+            <section id="view-split" class="view">
+                <header>
+                    <h1>Separar PDF</h1>
+                    <p>Extrae páginas o rangos específicos (ej. 1, 3, 4-7).</p>
+                </header>
+                <div class="tool-container">
+                    <input type="file" id="split-file" accept="application/pdf">
+                    <div class="input-group">
+                        <label for="split-range">Rango de páginas a extraer:</label>
+                        <input type="text" id="split-range" placeholder="ej. 1, 3, 4-7">
+                    </div>
+                    <button class="btn primary" id="split-btn" disabled>Separar y Descargar</button>
+                </div>
+            </section>
+
+            <!-- View: Rotate PDF -->
+            <section id="view-rotate" class="view">
+                <header>
+                    <h1>Rotar PDF</h1>
+                    <p>Rota todas las páginas de un documento y guárdalo.</p>
+                </header>
+                <div class="tool-container">
+                    <input type="file" id="rotate-file" accept="application/pdf">
+                    <div class="input-group">
+                        <label for="rotate-degrees">Grados:</label>
+                        <select id="rotate-degrees">
+                            <option value="90">90° (Derecha)</option>
+                            <option value="180">180° (Al revés)</option>
+                            <option value="270">270° (Izquierda)</option>
+                        </select>
+                    </div>
+                    <button class="btn primary" id="rotate-btn" disabled>Rotar y Descargar</button>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+    <script src="/app.js?v=2"></script>
+</body>
+</html>
