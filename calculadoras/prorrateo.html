@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora Art. 730 - Prorrateo de Honorarios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Estilos CSS (se mantienen igual) */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 1300px;
-            margin: 0 auto;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
-            background-color: #f0f2f5;
             color: #333;
         }
 
@@ -238,11 +238,9 @@
     </style>
 </head>
 <body>
-    <div class="header">
+    <div class="app-wrapper">
         <h1>Calculadora de Prorrateo (Art. 730 CCCN)</h1>
-        <p>Esta planilla permite realizar el cálculo del prorrateo del art. 730 Cód. Civ. y Com.</p>
-        <p><strong>NOTA:</strong> el cálculo no disminuye el monto de la tasa de justicia.</p>
-    </div>
+        <p class="subtitle">Esta planilla permite realizar el cA!lculo del prorrateo del art. 730 CA3digo Civil y Comercial. <strong>NOTA:</strong> el cA!lculo no disminuye el monto de la tasa de justicia.</p>
 
     <div class="container">
         <!-- Panel izquierdo: Datos del Proceso -->
@@ -281,7 +279,7 @@
                     <td class="label-cell">VALOR UMA (pesos)</td>
                     <td>
                         <input type="text" id="umaInput" placeholder="Ingrese valor UMA" value="" oninput="calculate()">
-                        <div style="font-size: 12px; color: #666;">Si la carga automática falla, ingréselo manualmente (sin puntos, solo números)</div>
+                        <div style="font-size: 12px; color: #666;">Si la carga automÃ¡tica falla, ingrÃ©selo manualmente (sin puntos, solo nÃºmeros)</div>
                     </td>
                 </tr>
             </table>
@@ -297,17 +295,17 @@
             <table>
                 <thead>
                     <tr>
-                        <th>DESCRIPCIÓN</th>
+                        <th>DESCRIPCIÃ“N</th>
                         <th>MONTO (en $ o UMAs)</th>
                         <th>UMA</th>
                         <th>IVA</th>
-                        <th>% PARTICIPACIÓN</th>
+                        <th>% PARTICIPACIÃ“N</th>
                         <th>HONORARIO PRORRATEADO</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody id="honorario-body">
-                    <!-- Las filas se generan dinámicamente con JS -->
+                    <!-- Las filas se generan dinÃ¡micamente con JS -->
                 </tbody>
                 <tbody id="honorario-totals">
                     <tr class="total-row">
@@ -328,11 +326,11 @@
             </table>
             
             <div class="button-container">
-                <button class="action-button add-button" onclick="addHonorario()">Añadir Honorario</button>
+                <button class="action-button add-button" onclick="addHonorario()">AÃ±adir Honorario</button>
             </div>
 
             <div id="errorMessage">
-                ⚠️ <strong>ADVERTENCIA:</strong> La sumatoria de honorarios (incluyendo tasa si corresponde) es $<span id="errorTotalBase">0.00</span> 
+                âš ï¸ <strong>ADVERTENCIA:</strong> La sumatoria de honorarios (incluyendo tasa si corresponde) es $<span id="errorTotalBase">0.00</span> 
                 y no supera el 25% del monto del proceso ($<span id="errorPercent25">0.00</span>). Por lo tanto, el prorrateo no aplica.
             </div>
         </div>
@@ -340,21 +338,22 @@
     
     <div style="text-align: center; margin-top: 20px;">
         <button class="action-button reset-button" onclick="resetCalculator()">Reiniciar Calculadora</button>
-    </div>
- <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; text-align: center; color: #555; font-size: 13px; line-height: 1.8; font-family: inherit;">
-      <span style="font-weight: 500;">Desarrollado por L. Javier Cúneo Libarona con herramientas de IA generativa</span><br>
+        </div>
+</div>
+ <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
+      <span style="font-weight: 500;">Desarrollado por L. Javier CÃºneo Libarona con herramientas de IA generativa</span><br>
       <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-        <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #004085; text-decoration: none;" title="GitHub personal">🐙 GitHub</a>
-        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #004085; text-decoration: none;" title="Repositorio de herramientas">⚖️ Herramientas</a>
-        <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #004085; text-decoration: none;" title="LinkedIn">💼 LinkedIn</a>
+        <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">ðŸ™ GitHub</a>
+        <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">âš–ï¸ Herramientas</a>
+        <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">ðŸ’¼ LinkedIn</a>
       </span>
     </div>
     <script>
         // --- Elementos del DOM ---
         const honorarioBody = document.getElementById('honorario-body');
 
-        // --- Funciones auxiliares de números ---
-        // Convierte un string a número, aceptando coma o punto decimal, y eliminando puntos de miles si se indica.
+        // --- Funciones auxiliares de nÃºmeros ---
+        // Convierte un string a nÃºmero, aceptando coma o punto decimal, y eliminando puntos de miles si se indica.
         function parseNumber(value, removeThousandsSeparator = false) {
             if (typeof value !== 'string') value = String(value);
             if (removeThousandsSeparator) {
@@ -377,24 +376,24 @@
         // --- Obtener valor UMA actual desde el input (ya limpio de puntos) ---
         function getValorUMA() {
             const umaInput = document.getElementById('umaInput');
-            // Al obtener el valor, quitamos puntos (por si el usuario escribió con ellos)
+            // Al obtener el valor, quitamos puntos (por si el usuario escribiÃ³ con ellos)
             return parseNumber(umaInput.value, true);
         }
 
-        // --- Función para obtener el monto efectivo de una fila (considera UMA e IVA) ---
+        // --- FunciÃ³n para obtener el monto efectivo de una fila (considera UMA e IVA) ---
         function getMontoEfectivoFila(row) {
             const montoInput = row.querySelector('.honorario-input');
             const umaCheck = row.querySelector('.uma-checkbox');
             const ivaCheck = row.querySelector('.iva-checkbox');
             let monto = parseNumber(montoInput ? montoInput.value : ''); // sin eliminar puntos (puede tener decimales)
             
-            // Si UMA está marcado, multiplicar por valor UMA
+            // Si UMA estÃ¡ marcado, multiplicar por valor UMA
             if (umaCheck && umaCheck.checked) {
                 const umaValor = getValorUMA();
                 monto = monto * umaValor;
             }
             
-            // Si IVA está marcado, agregar 21%
+            // Si IVA estÃ¡ marcado, agregar 21%
             if (ivaCheck && ivaCheck.checked) {
                 monto = monto * 1.21;
             }
@@ -414,12 +413,12 @@
             calculate();
         }
 
-        // --- Añadir nueva fila de honorario ---
+        // --- AÃ±adir nueva fila de honorario ---
         function addHonorario() {
             const rowCount = honorarioBody.rows.length + 1;
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
-                <td><input type="text" class="description-input" placeholder="Descripción - Honorario ${rowCount}"></td>
+                <td><input type="text" class="description-input" placeholder="DescripciÃ³n - Honorario ${rowCount}"></td>
                 <td><input type="text" class="honorario-input" placeholder="0.00" oninput="calculate()"></td>
                 <td class="small-checkbox"><input type="checkbox" class="uma-checkbox" onchange="calculate()"></td>
                 <td class="small-checkbox"><input type="checkbox" class="iva-checkbox" onchange="calculate()"></td>
@@ -442,11 +441,11 @@
             }
         }
 
-        // --- Actualizar placeholders de descripción ---
+        // --- Actualizar placeholders de descripciÃ³n ---
         function updateHonorarioPlaceholders() {
             const descriptionInputs = document.querySelectorAll('.description-input');
             descriptionInputs.forEach((input, index) => {
-                input.placeholder = `Descripción - Honorario ${index + 1}`;
+                input.placeholder = `DescripciÃ³n - Honorario ${index + 1}`;
             });
         }
 
@@ -476,19 +475,19 @@
                 const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8tumvxptTGBCfScMwWxK7r6ATnGfMw061GKGdzfIVyThcSGzUqjI-vcpME1AtykPmjqTq0xdjgc7D/pub?output=csv');
                 const csvText = await response.text();
                 const lines = csvText.split('\n');
-                // La primera línea (fila 1 del sheet) contiene "UMA,89.875"
+                // La primera lÃ­nea (fila 1 del sheet) contiene "UMA,89.875"
                 if (lines.length >= 1) {
                     const firstLine = lines[0];
                     const columns = firstLine.split(',');
                     if (columns.length >= 2) {
                         let rawValue = columns[1].trim().replace(/"/g, '');
-                        // Eliminar puntos (separador de miles) para obtener el número entero
+                        // Eliminar puntos (separador de miles) para obtener el nÃºmero entero
                         rawValue = rawValue.replace(/\./g, '');
                         const umaValor = parseFloat(rawValue);
                         if (!isNaN(umaValor) && umaValor > 0) {
-                            umaInput.value = umaValor; // asignar como número sin formato
+                            umaInput.value = umaValor; // asignar como nÃºmero sin formato
                         } else {
-                            umaInput.value = ''; // No válido, dejar vacío
+                            umaInput.value = ''; // No vÃ¡lido, dejar vacÃ­o
                         }
                     } else {
                         umaInput.value = '';
@@ -498,12 +497,12 @@
                 }
             } catch (e) {
                 console.warn("Error al cargar UMA:", e);
-                umaInput.value = ''; // dejar vacío para ingreso manual
+                umaInput.value = ''; // dejar vacÃ­o para ingreso manual
             }
             calculate(); // recalcular con el nuevo valor
         }
 
-        // --- Cálculo principal ---
+        // --- CÃ¡lculo principal ---
         function calculate() {
             // 1. Monto del proceso
             const montoProcess = parseNumber(document.getElementById('montoProcess').value);
@@ -536,7 +535,7 @@
                 totalHonorariosEfectivos += montoEf;
             });
             
-            // 5. Incluir tasa en la base de comparación si el checkbox está marcado
+            // 5. Incluir tasa en la base de comparaciÃ³n si el checkbox estÃ¡ marcado
             const incluirTasa = document.getElementById('incluirTasaCheckbox').checked;
             let baseComparacion = totalHonorariosEfectivos;
             if (incluirTasa) {
@@ -552,7 +551,7 @@
             }
             document.getElementById('percentTotal').textContent = formatNumber(percentOfProcess) + '%';
             
-            // 6. Lógica de prorrateo
+            // 6. LÃ³gica de prorrateo
             const errorMessage = document.getElementById('errorMessage');
             const errorTotalBaseSpan = document.getElementById('errorTotalBase');
             const errorPercent25Span = document.getElementById('errorPercent25');
@@ -569,7 +568,7 @@
                 });
             }
             
-            // Si la base de comparación es <= 25%, no aplica prorrateo
+            // Si la base de comparaciÃ³n es <= 25%, no aplica prorrateo
             if (baseComparacion <= percent25) {
                 errorMessage.style.display = 'block';
                 errorTotalBaseSpan.textContent = formatNumber(baseComparacion);
@@ -608,7 +607,7 @@
             document.getElementById('totalProrrateo').textContent = formatNumber(totalProrrateo);
         }
 
-        // --- Inicialización ---
+        // --- InicializaciÃ³n ---
         document.addEventListener('DOMContentLoaded', function() {
             cargarUMA(); // Intenta cargar UMA desde B1 y lo deja en el input
             // Crear 5 filas iniciales
@@ -617,3 +616,6 @@
     </script>
 </body>
 </html>
+
+
+

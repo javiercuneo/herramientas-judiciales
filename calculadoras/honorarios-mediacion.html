@@ -4,15 +4,16 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Calculadora para fijar honorarios de mediación</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f6f7fb;
+      --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       --card: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
-      --accent: #2563eb;
-      --accent-weak: #dbeafe;
-      --ring: #93c5fd;
+      --accent: #667eea;
+      --accent-weak: #e8e0ff;
+      --ring: #667eea;
       --error: #b91c1c;
     }
     html, body { height: 100%; }
@@ -29,8 +30,8 @@
       box-shadow: 0 8px 30px rgba(0,0,0,.08);
       box-sizing: border-box;
     }
-    h1 { font-size: clamp(1.1rem, 2.2vw + 0.6rem, 1.6rem); margin: 0 0 14px; }
-    p.sub { margin: 0 0 18px; color: var(--muted); font-size: .95rem; }
+    h1 { color: #667eea; margin-bottom: 10px; font-size: 28px; text-align: center; }
+    p.sub { margin: 0 0 18px; color: #666; font-size: 13px; text-align: center; }
 
     .grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
     @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
@@ -98,12 +99,12 @@
 
     <p id="msg" class="error" role="alert"></p>
           <!-- FOOTER DE AUTORÍA -->
-      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 13px; line-height: 1.8;">
+      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
         <span style="font-weight: 500;">Desarrollado por L. Javier Cúneo Libarona con herramientas de IA generativa</span><br>
         <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: none;" title="GitHub personal">🐙 GitHub</a>
-          <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: none;" title="Repositorio de herramientas">⚖️ Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: none;" title="LinkedIn">💼 LinkedIn</a>
+          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">🐙 GitHub</a>
+          <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">⚖️ Herramientas</a>
+          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">💼 LinkedIn</a>
         </span>
       </div>
   </div>

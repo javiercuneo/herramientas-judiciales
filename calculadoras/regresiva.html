@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Plazos Judiciales (días hábiles hacia atrás)</title>
-    <!-- Evitar caché del navegador -->
+    <title>Calculadora de Plazos Judiciales (dÃ­as hÃ¡biles hacia atrÃ¡s)</title>
+    <!-- Evitar cachÃ© del navegador -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -20,40 +20,35 @@
         }
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #f4f7fb;
-            color: #1e2b3c;
-            line-height: 1.5;
-            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 20px;
+            font-size: 14px;
         }
         .container {
-            max-width: 1000px;
-            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
             background: white;
-            border-radius: 24px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-            padding: 30px;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         h1 {
             font-size: 1.8rem;
             font-weight: 600;
-            color: #0b3b5c;
-            margin-bottom: 8px;
-            border-left: 6px solid #2a7faa;
-            padding-left: 18px;
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
         }
         .subtitulo {
             font-size: 0.95rem;
             color: #5a6e7c;
             margin-bottom: 30px;
-            padding-left: 24px;
+            text-align: center;
         }
         .panel {
-            background: #f0f4fa;
-            border-radius: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
             padding: 25px;
             margin-bottom: 30px;
         }
@@ -78,15 +73,14 @@
             width: 100%;
             padding: 12px 16px;
             font-size: 1rem;
-            border: 2px solid #cbd5e1;
-            border-radius: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-family: 'Montserrat', sans-serif;
             transition: 0.2s;
         }
         .campo input:focus {
             outline: none;
-            border-color: #2a7faa;
-            box-shadow: 0 0 0 3px rgba(42,127,170,0.2);
+            border-color: #667eea;
         }
         .campo input.error {
             border-color: #c44545;
@@ -101,56 +95,50 @@
         .btn {
             padding: 12px 28px;
             border: none;
-            border-radius: 40px;
+            border-radius: 8px;
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
             transition: 0.2s;
             font-family: 'Montserrat', sans-serif;
-            background-color: #2a7faa;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         .btn:hover {
-            background-color: #1e5f83;
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.4);
         }
         .btn.reset {
-            background-color: #e0e7ef;
-            color: #1e2b3c;
+            background: #e0e0e0;
+            color: #555;
         }
         .btn.reset:hover {
-            background-color: #cbd5e1;
+            background: #d0d0d0;
         }
         .btn:disabled {
             opacity: 0.5;
             pointer-events: none;
         }
         .info-anios {
-            background: #d9e8f5;
-            border-radius: 30px;
-            padding: 12px 20px;
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #0b3b5c;
-            font-weight: 500;
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 12px;
+            font-style: italic;
         }
         .resultado-principal {
-            background: linear-gradient(145deg, #ffffff, #f9fcff);
-            border-radius: 24px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 15px;
             padding: 25px;
             margin: 30px 0;
-            border: 1px solid #dde7f0;
+            border-left: 5px solid #667eea;
         }
         .fecha-limite {
             font-size: 2rem;
             font-weight: 600;
-            color: #0b3b5c;
+            color: #667eea;
             text-align: center;
             padding: 15px;
-            background: #e2f0fa;
-            border-radius: 60px;
             letter-spacing: 1px;
         }
         .error-mensaje {
@@ -169,17 +157,17 @@
         }
         .card {
             background: #ffffff;
-            border-radius: 20px;
+            border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            border: 1px solid #e2eaf2;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
         }
         .card h3 {
             font-weight: 600;
             font-size: 1.2rem;
             margin-bottom: 18px;
-            color: #154e75;
-            border-bottom: 2px solid #cbd5e1;
+            color: #667eea;
+            border-bottom: 2px solid #e0e0e0;
             padding-bottom: 8px;
         }
         .lista {
@@ -202,7 +190,7 @@
         .fecha {
             font-weight: 600;
             min-width: 100px;
-            color: #0b3b5c;
+            color: #667eea;
         }
         .motivo {
             color: #3f5466;
@@ -216,18 +204,18 @@
             color: #b13e3e;
         }
         .footer {
-            margin-top: 40px;
             text-align: center;
-            font-size: 0.85rem;
-            color: #62778b;
+            color: #666;
+            margin-top: 20px;
+            font-size: 12px;
+            line-height: 1.6;
         }
         .footer a {
-            color: #1e5f83;
+            color: #667eea;
             text-decoration: none;
-            font-weight: 500;
         }
         .badge {
-            background: #2a7faa;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 3px 10px;
             border-radius: 30px;
@@ -241,15 +229,20 @@
                 grid-template-columns: 1fr;
             }
             .container {
-                padding: 20px;
-            }
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>📅 Calculadora de plazos judiciales</h1>
-    <div class="subtitulo">Resta días hábiles a una fecha objetivo (fecha límite hacia atrás)</div>
+    <h1>ðŸ“… Calculadora de plazos judiciales</h1>
+    <div class="subtitulo">Resta dÃ­as hÃ¡biles a una fecha objetivo (fecha lÃ­mite hacia atrÃ¡s)</div>
 
     <div class="panel">
         <div class="input-group">
@@ -258,58 +251,58 @@
                 <input type="text" id="fechaObjetivo" placeholder="ej: 25/05/2025" value="">
             </div>
             <div class="campo">
-                <label>Días hábiles de antelación (mínimo 1) *</label>
+                <label>DÃ­as hÃ¡biles de antelaciÃ³n (mÃ­nimo 1) *</label>
                 <input type="number" id="diasAntelacion" min="1" value="5" step="1">
             </div>
         </div>
         <div class="botones">
-            <button class="btn" id="calcularBtn">Calcular fecha límite</button>
+            <button class="btn" id="calcularBtn">Calcular fecha lÃ­mite</button>
             <button class="btn reset" id="resetBtn">Limpiar</button>
         </div>
-        <div id="infoAnios" class="info-anios">⏳ Cargando feriados y días inhábiles...</div>
+        <div id="infoAnios" class="info-anios">â³ Cargando feriados y dÃ­as inhÃ¡biles...</div>
     </div>
 
     <div id="errorGlobal" class="error-mensaje" style="display: none;"></div>
 
     <div class="resultado-principal" id="resultadoPanel" style="display: none;">
-        <div style="text-align: center; margin-bottom: 10px; font-weight: 500; color: #1e5f83;">🗓️ Fecha límite</div>
+        <div style="text-align: center; margin-bottom: 10px; font-weight: 500; color: #667eea;">ðŸ—“ï¸ Fecha lÃ­mite</div>
         <div class="fecha-limite" id="fechaLimite">-</div>
     </div>
 
     <div class="trazabilidad" id="trazabilidadPanel" style="display: none;">
         <div class="card">
-            <h3>📋 Días evaluados (desde el anterior a la objetivo)</h3>
+            <h3>ðŸ“‹ DÃ­as evaluados (desde el anterior a la objetivo)</h3>
             <div class="lista" id="listaDiasEvaluados"></div>
         </div>
         <div class="card">
-            <h3>🚫 Días NO contados (inhábiles)</h3>
+            <h3>ðŸš« DÃ­as NO contados (inhÃ¡biles)</h3>
             <div class="lista" id="listaNoContados"></div>
         </div>
     </div>
 
     <div class="footer">
-        <p>⚖️ Los días hábiles excluyen fines de semana, feriados nacionales, ferias (enero y julio), 16 de noviembre (Ley 26.674) y <a href="https://jnc-34.github.io/jnc34/dias-inhabiles.json" target="_blank" rel="noopener">días inhábiles adicionales (ver)</a>.</p>
-        <p style="margin-top: 10px;">📧 Si crees que ha habido un error, envíanos un mail a <a href="mailto:javiercuneol@gmail.gov.ar">javiercuneol@gmail.gov.ar</a> describiendo qué salió mal.</p>
+        <p>âš–ï¸ Los dÃ­as hÃ¡biles excluyen fines de semana, feriados nacionales, ferias (enero y julio), 16 de noviembre (Ley 26.674) y <a href="https://jnc-34.github.io/jnc34/dias-inhabiles.json" target="_blank" rel="noopener">dÃ­as inhÃ¡biles adicionales (ver)</a>.</p>
+        <p style="margin-top: 10px;">ðŸ“§ Si crees que ha habido un error, envÃ­anos un mail a <a href="mailto:javiercuneol@gmail.gov.ar">javiercuneol@gmail.gov.ar</a> describiendo quÃ© saliÃ³ mal.</p>
     </div>
-    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #dde7f0; text-align: center; color: #62778b; font-size: 12px; line-height: 1.8;">
-        <span style="font-weight: 500;">Desarrollado por L. Javier Cúneo Libarona con herramientas de IA generativa</span><br>
+    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
+        <span style="font-weight: 500;">Desarrollado por L. Javier CÃºneo Libarona con herramientas de IA generativa</span><br>
         <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #1e5f83; text-decoration: none;" title="GitHub personal">🐙 GitHub</a>
-          <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #1e5f83; text-decoration: none;" title="Repositorio de herramientas">⚖️ Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #1e5f83; text-decoration: none;" title="LinkedIn">💼 LinkedIn</a>
+          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">ðŸ™ GitHub</a>
+          <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">âš–ï¸ Herramientas</a>
+          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">ðŸ’¼ LinkedIn</a>
         </span>
       </div>
 </div>
 
 <script>
     (function() {
-        // ---------- Configuración ----------
+        // ---------- ConfiguraciÃ³n ----------
         const JSON_ADICIONAL = 'https://jnc-34.github.io/jnc34/dias-inhabiles.json';
 
         // Variables globales
         let feriadosMap = new Map();           // fecha -> motivo (de API)
         let adicionalMap = new Map();           // fecha -> motivo (de JSON)
-        let anosDisponibles = new Set();        // años con cobertura total
+        let anosDisponibles = new Set();        // aÃ±os con cobertura total
         let datosCargados = false;
         let errorCarga = false;
 
@@ -333,13 +326,13 @@
             if (partes.length !== 3) return null;
             const dia = parseInt(partes[0], 10);
             const mes = parseInt(partes[1], 10) - 1; // JS meses 0-11
-            const año = parseInt(partes[2], 10);
-            if (isNaN(dia) || isNaN(mes) || isNaN(año)) return null;
-            // Validar rango básico
-            if (año < 2021 || año > 2030) return null; // limitamos para evitar años muy lejanos
-            const fecha = new Date(año, mes, dia);
-            // Verificar que la fecha sea válida (ej. 31/02 no)
-            if (fecha.getDate() !== dia || fecha.getMonth() !== mes || fecha.getFullYear() !== año) return null;
+            const aÃ±o = parseInt(partes[2], 10);
+            if (isNaN(dia) || isNaN(mes) || isNaN(aÃ±o)) return null;
+            // Validar rango bÃ¡sico
+            if (aÃ±o < 2021 || aÃ±o > 2030) return null; // limitamos para evitar aÃ±os muy lejanos
+            const fecha = new Date(aÃ±o, mes, dia);
+            // Verificar que la fecha sea vÃ¡lida (ej. 31/02 no)
+            if (fecha.getDate() !== dia || fecha.getMonth() !== mes || fecha.getFullYear() !== aÃ±o) return null;
             return fecha;
         }
 
@@ -347,18 +340,18 @@
             if (!fecha) return '';
             const dia = fecha.getDate().toString().padStart(2, '0');
             const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-            const año = fecha.getFullYear();
-            return `${dia}/${mes}/${año}`;
+            const aÃ±o = fecha.getFullYear();
+            return `${dia}/${mes}/${aÃ±o}`;
         }
 
         function formatearFechaYMD(fecha) {
             return `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,'0')}-${String(fecha.getDate()).padStart(2,'0')}`;
         }
 
-        // ---------- Cálculo de ferias y días especiales ----------
-        function getTercerLunesJulio(año) {
-            // Primer día de julio
-            const primerJulio = new Date(año, 6, 1); // mes 6 = julio
+        // ---------- CÃ¡lculo de ferias y dÃ­as especiales ----------
+        function getTercerLunesJulio(aÃ±o) {
+            // Primer dÃ­a de julio
+            const primerJulio = new Date(aÃ±o, 6, 1); // mes 6 = julio
             let diaSemana = primerJulio.getDay(); // 0 domingo, 1 lunes...
             let diasParaPrimerLunes;
             if (diaSemana === 1) diasParaPrimerLunes = 0;
@@ -366,7 +359,7 @@
             else diasParaPrimerLunes = (8 - diaSemana) % 7;
             const primerLunes = new Date(primerJulio);
             primerLunes.setDate(primerJulio.getDate() + diasParaPrimerLunes);
-            // tercer lunes = primer lunes + 14 días
+            // tercer lunes = primer lunes + 14 dÃ­as
             const tercerLunes = new Date(primerLunes);
             tercerLunes.setDate(primerLunes.getDate() + 14);
             return tercerLunes;
@@ -377,11 +370,11 @@
         }
 
         function esFeriaJulio(fecha) {
-            const año = fecha.getFullYear();
-            const tercerLunes = getTercerLunesJulio(año);
+            const aÃ±o = fecha.getFullYear();
+            const tercerLunes = getTercerLunesJulio(aÃ±o);
             const inicioFeria = new Date(tercerLunes);
             const finFeria = new Date(tercerLunes);
-            finFeria.setDate(tercerLunes.getDate() + 11); // 12 días inclusive (tercerLunes + 11)
+            finFeria.setDate(tercerLunes.getDate() + 11); // 12 dÃ­as inclusive (tercerLunes + 11)
             return fecha >= inicioFeria && fecha <= finFeria;
         }
 
@@ -389,10 +382,10 @@
             return fecha.getMonth() === 10 && fecha.getDate() === 16;
         }
 
-        // ---------- Verificar inhábiles con motivo (jerarquía) ----------
+        // ---------- Verificar inhÃ¡biles con motivo (jerarquÃ­a) ----------
         function getMotivoInhabil(fecha) {
             const ymd = formatearFechaYMD(fecha);
-            // 1. JSON adicional (prioridad máxima)
+            // 1. JSON adicional (prioridad mÃ¡xima)
             if (adicionalMap.has(ymd)) {
                 return adicionalMap.get(ymd);
             }
@@ -417,40 +410,40 @@
             if (diaSem === 0 || diaSem === 6) {
                 return "Fin de semana";
             }
-            return null; // hábil
+            return null; // hÃ¡bil
         }
 
         // ---------- Carga de datos (corregida) ----------
         async function cargarDatos() {
-            infoAniosDiv.textContent = '⏳ Cargando feriados y días inhábiles...';
+            infoAniosDiv.textContent = 'â³ Cargando feriados y dÃ­as inhÃ¡biles...';
             errorGlobalDiv.style.display = 'none';
             errorCarga = false;
             feriadosMap.clear();
             adicionalMap.clear();
 
             try {
-                // Cargar feriados por año desde 2021 hasta año actual+1
-                const añoActual = new Date().getFullYear();
-                const añoMaximo = añoActual + 1; // por ejemplo 2027 si hoy es 2026
-                const añosACargar = [];
-                for (let año = 2021; año <= añoMaximo; año++) {
-                    añosACargar.push(año);
+                // Cargar feriados por aÃ±o desde 2021 hasta aÃ±o actual+1
+                const aÃ±oActual = new Date().getFullYear();
+                const aÃ±oMaximo = aÃ±oActual + 1; // por ejemplo 2027 si hoy es 2026
+                const aÃ±osACargar = [];
+                for (let aÃ±o = 2021; aÃ±o <= aÃ±oMaximo; aÃ±o++) {
+                    aÃ±osACargar.push(aÃ±o);
                 }
 
-                // Consultar cada año a la API
-                const promesas = añosACargar.map(async (año) => {
+                // Consultar cada aÃ±o a la API
+                const promesas = aÃ±osACargar.map(async (aÃ±o) => {
                     try {
-                        const res = await fetch(`https://api.argentinadatos.com/v1/feriados/${año}`, { cache: 'no-cache' });
+                        const res = await fetch(`https://api.argentinadatos.com/v1/feriados/${aÃ±o}`, { cache: 'no-cache' });
                         if (res.ok) {
                             const data = await res.json();
-                            return { año, data };
+                            return { aÃ±o, data };
                         } else {
-                            console.warn(`No se pudo obtener feriados para ${año}: ${res.status}`);
-                            return { año, data: [] };
+                            console.warn(`No se pudo obtener feriados para ${aÃ±o}: ${res.status}`);
+                            return { aÃ±o, data: [] };
                         }
                     } catch (e) {
-                        console.error(`Error en año ${año}:`, e);
-                        return { año, data: [] };
+                        console.error(`Error en aÃ±o ${aÃ±o}:`, e);
+                        return { aÃ±o, data: [] };
                     }
                 });
 
@@ -478,98 +471,98 @@
                     });
                 }
 
-                // Determinar años disponibles: unión de años de feriados y adicionales
-                const añosFeriados = new Set();
+                // Determinar aÃ±os disponibles: uniÃ³n de aÃ±os de feriados y adicionales
+                const aÃ±osFeriados = new Set();
                 feriadosMap.forEach((_, fechaStr) => {
-                    const año = parseInt(fechaStr.split('-')[0], 10);
-                    if (!isNaN(año)) añosFeriados.add(año);
+                    const aÃ±o = parseInt(fechaStr.split('-')[0], 10);
+                    if (!isNaN(aÃ±o)) aÃ±osFeriados.add(aÃ±o);
                 });
-                const añosAdicional = new Set();
+                const aÃ±osAdicional = new Set();
                 adicionalMap.forEach((_, fechaStr) => {
-                    const año = parseInt(fechaStr.split('-')[0], 10);
-                    if (!isNaN(año)) añosAdicional.add(año);
+                    const aÃ±o = parseInt(fechaStr.split('-')[0], 10);
+                    if (!isNaN(aÃ±o)) aÃ±osAdicional.add(aÃ±o);
                 });
 
-                // Unión y filtrar desde 2021 hasta añoMaximo
+                // UniÃ³n y filtrar desde 2021 hasta aÃ±oMaximo
                 anosDisponibles.clear();
-                for (let año = 2021; año <= añoMaximo; año++) {
-                    if (añosFeriados.has(año) || añosAdicional.has(año)) {
-                        anosDisponibles.add(año);
+                for (let aÃ±o = 2021; aÃ±o <= aÃ±oMaximo; aÃ±o++) {
+                    if (aÃ±osFeriados.has(aÃ±o) || aÃ±osAdicional.has(aÃ±o)) {
+                        anosDisponibles.add(aÃ±o);
                     }
                 }
 
                 if (anosDisponibles.size === 0) {
-                    throw new Error('No se encontraron años con datos.');
+                    throw new Error('No se encontraron aÃ±os con datos.');
                 }
 
                 datosCargados = true;
                 const listaAnios = Array.from(anosDisponibles).sort().join(', ');
-                infoAniosDiv.innerHTML = `✅ Años disponibles: <strong>${listaAnios}</strong> (según feriados y adicionales)`;
-                console.log('Datos cargados. Feriados:', feriadosMap.size, 'Adicionales:', adicionalMap.size, 'Años:', listaAnios);
+                infoAniosDiv.innerHTML = `âœ… AÃ±os disponibles: <strong>${listaAnios}</strong> (segÃºn feriados y adicionales)`;
+                console.log('Datos cargados. Feriados:', feriadosMap.size, 'Adicionales:', adicionalMap.size, 'AÃ±os:', listaAnios);
             } catch (error) {
                 console.error('Error en carga de datos:', error);
                 errorCarga = true;
                 datosCargados = false;
-                infoAniosDiv.innerHTML = '❌ Error al cargar los datos. La calculadora no funcionará. Intenta recargar la página más tarde.';
+                infoAniosDiv.innerHTML = 'âŒ Error al cargar los datos. La calculadora no funcionarÃ¡. Intenta recargar la pÃ¡gina mÃ¡s tarde.';
                 errorGlobalDiv.style.display = 'block';
-                errorGlobalDiv.textContent = 'No se pudieron obtener los feriados o el archivo adicional. Por favor, intentá más tarde.';
+                errorGlobalDiv.textContent = 'No se pudieron obtener los feriados o el archivo adicional. Por favor, intentÃ¡ mÃ¡s tarde.';
                 calcularBtn.disabled = true;
             }
         }
 
-        // ---------- Validación de fecha hábil ----------
+        // ---------- ValidaciÃ³n de fecha hÃ¡bil ----------
         function fechaEsHabil(fecha) {
             return getMotivoInhabil(fecha) === null;
         }
 
-        // ---------- Cálculo principal (corregido) ----------
+        // ---------- CÃ¡lculo principal (corregido) ----------
         function calcular() {
             if (!datosCargados || errorCarga) {
-                alert('Los datos aún no están listos o hay un error. Intenta recargar.');
+                alert('Los datos aÃºn no estÃ¡n listos o hay un error. Intenta recargar.');
                 return;
             }
 
             // Obtener y validar fecha objetivo
             const fechaStr = fechaInput.value.trim();
             if (!fechaStr) {
-                alert('Ingresá una fecha objetivo.');
+                alert('IngresÃ¡ una fecha objetivo.');
                 return;
             }
             const fechaObj = parseFechaDDMMAAAA(fechaStr);
             if (!fechaObj) {
-                alert('Formato de fecha inválido. Usá DD/MM/AAAA (ej: 25/05/2025).');
+                alert('Formato de fecha invÃ¡lido. UsÃ¡ DD/MM/AAAA (ej: 25/05/2025).');
                 return;
             }
 
-            const añoFecha = fechaObj.getFullYear();
-            if (!anosDisponibles.has(añoFecha)) {
-                alert(`El año ${añoFecha} no está disponible en la base de feriados. Años disponibles: ${Array.from(anosDisponibles).sort().join(', ')}`);
+            const aÃ±oFecha = fechaObj.getFullYear();
+            if (!anosDisponibles.has(aÃ±oFecha)) {
+                alert(`El aÃ±o ${aÃ±oFecha} no estÃ¡ disponible en la base de feriados. AÃ±os disponibles: ${Array.from(anosDisponibles).sort().join(', ')}`);
                 return;
             }
 
-            // Validar que la fecha objetivo sea hábil
+            // Validar que la fecha objetivo sea hÃ¡bil
             if (!fechaEsHabil(fechaObj)) {
                 const motivo = getMotivoInhabil(fechaObj);
-                alert(`La fecha objetivo es inhábil (${motivo}). Por favor elegí una fecha hábil.`);
+                alert(`La fecha objetivo es inhÃ¡bil (${motivo}). Por favor elegÃ­ una fecha hÃ¡bil.`);
                 return;
             }
 
-            // Validar días
+            // Validar dÃ­as
             const dias = parseInt(diasInput.value, 10);
             if (isNaN(dias) || dias < 1) {
-                alert('Los días deben ser un número entero mayor o igual a 1.');
+                alert('Los dÃ­as deben ser un nÃºmero entero mayor o igual a 1.');
                 return;
             }
 
-            // Comenzar conteo desde el día anterior a la fecha objetivo
+            // Comenzar conteo desde el dÃ­a anterior a la fecha objetivo
             let fechaActual = new Date(fechaObj);
-            fechaActual.setDate(fechaActual.getDate() - 1); // día anterior
+            fechaActual.setDate(fechaActual.getDate() - 1); // dÃ­a anterior
 
             let diasRestantes = dias;
             const evaluados = [];      // { fecha, contado, motivo }
             const noContados = [];     // { fecha, motivo }
 
-            // Iterar hacia atrás hasta que hayamos restado todos los días hábiles
+            // Iterar hacia atrÃ¡s hasta que hayamos restado todos los dÃ­as hÃ¡biles
             while (diasRestantes > 0) {
                 const motivo = getMotivoInhabil(fechaActual);
                 const esHabil = motivo === null;
@@ -590,12 +583,12 @@
                 }
 
                 if (diasRestantes > 0) {
-                    // retroceder un día
+                    // retroceder un dÃ­a
                     fechaActual.setDate(fechaActual.getDate() - 1);
                 }
             }
 
-            // fechaActual es la fecha límite (donde se completó la resta)
+            // fechaActual es la fecha lÃ­mite (donde se completÃ³ la resta)
             const fechaLimite = new Date(fechaActual);
 
             // Mostrar resultados
@@ -603,28 +596,28 @@
             resultadoPanel.style.display = 'block';
             trazabilidadPanel.style.display = 'grid';
 
-            // Llenar listas (orden descendente: de más reciente a más antigua)
-            // Nuestro evaluados ya está en orden desde el día anterior a objetivo hacia atrás (reciente a antiguo)
+            // Llenar listas (orden descendente: de mÃ¡s reciente a mÃ¡s antigua)
+            // Nuestro evaluados ya estÃ¡ en orden desde el dÃ­a anterior a objetivo hacia atrÃ¡s (reciente a antiguo)
             listaEvaluados.innerHTML = '';
             evaluados.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'item';
                 const fechaStr = formatearFechaDDMMAAAA(item.fecha);
-                div.innerHTML = `<span class="fecha">${fechaStr}</span> <span class="${item.contado ? 'contado' : 'no-contado'}">${item.contado ? '✅ CONTADO' : '❌ NO CONTADO'}</span> ${item.motivo ? '<span class="motivo">(' + item.motivo + ')</span>' : ''}`;
+                div.innerHTML = `<span class="fecha">${fechaStr}</span> <span class="${item.contado ? 'contado' : 'no-contado'}">${item.contado ? 'âœ… CONTADO' : 'âŒ NO CONTADO'}</span> ${item.motivo ? '<span class="motivo">(' + item.motivo + ')</span>' : ''}`;
                 listaEvaluados.appendChild(div);
             });
 
-            // Para no contados, también descendente
+            // Para no contados, tambiÃ©n descendente
             listaNoContados.innerHTML = '';
             noContados.reverse().forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'item';
                 const fechaStr = formatearFechaDDMMAAAA(item.fecha);
-                div.innerHTML = `<span class="fecha">${fechaStr}</span> <span class="no-contado">❌</span> <span class="motivo">${item.motivo}</span>`;
+                div.innerHTML = `<span class="fecha">${fechaStr}</span> <span class="no-contado">âŒ</span> <span class="motivo">${item.motivo}</span>`;
                 listaNoContados.appendChild(div);
             });
 
-            console.log('Cálculo exitoso. Días restados:', dias, 'Fecha límite:', formatearFechaDDMMAAAA(fechaLimite));
+            console.log('CÃ¡lculo exitoso. DÃ­as restados:', dias, 'Fecha lÃ­mite:', formatearFechaDDMMAAAA(fechaLimite));
         }
 
         // ---------- Reset ----------
@@ -638,7 +631,7 @@
             listaNoContados.innerHTML = '';
         }
 
-        // ---------- Inicialización y eventos ----------
+        // ---------- InicializaciÃ³n y eventos ----------
         window.addEventListener('load', async () => {
             await cargarDatos();
             calcularBtn.addEventListener('click', calcular);
@@ -661,7 +654,7 @@
                 }
             });
 
-            // Bloquear entrada de letras en días
+            // Bloquear entrada de letras en dÃ­as
             diasInput.addEventListener('keypress', (e) => {
                 if (isNaN(parseInt(e.key, 10)) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
                     e.preventDefault();
@@ -672,3 +665,8 @@
 </script>
 </body>
 </html>
+
+
+
+
+
