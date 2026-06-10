@@ -151,7 +151,7 @@
         }
         .trazabilidad {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 25px;
             margin-top: 30px;
         }
@@ -274,10 +274,6 @@
             <h3>📋 Días evaluados (desde el anterior a la objetivo)</h3>
             <div class="lista" id="listaDiasEvaluados"></div>
         </div>
-        <div class="card">
-            <h3>🚫 Días NO contados (inhábiles)</h3>
-            <div class="lista" id="listaNoContados"></div>
-        </div>
     </div>
 
     <div class="footer">
@@ -293,20 +289,12 @@
         </span>
       </div>
 </div>
-
+<script src="js/calendario-judicial.js"></script>
 <script>
     (function() {
-        // ---------- Configuración ----------
-        const JSON_ADICIONAL = 'https://jnc-34.github.io/jnc34/dias-inhabiles.json';
-
-        // Variables globales
-        let feriadosMap = new Map();           // fecha -> motivo (de API)
-        let adicionalMap = new Map();           // fecha -> motivo (de JSON)
-        let anosDisponibles = new Set();        // años con cobertura total
         let datosCargados = false;
-        let errorCarga = false;
+        let anosDisponibles = [];
 
-        // Elementos DOM
         const fechaInput = document.getElementById('fechaObjetivo');
         const diasInput = document.getElementById('diasAntelacion');
         const calcularBtn = document.getElementById('calcularBtn');
@@ -317,22 +305,20 @@
         const fechaLimiteSpan = document.getElementById('fechaLimite');
         const trazabilidadPanel = document.getElementById('trazabilidadPanel');
         const listaEvaluados = document.getElementById('listaDiasEvaluados');
-        const listaNoContados = document.getElementById('listaNoContados');
 
-        // ---------- Utilidades de fecha ----------
+
         function parseFechaDDMMAAAA(str) {
             if (!str) return null;
             const partes = str.split('/');
             if (partes.length !== 3) return null;
             const dia = parseInt(partes[0], 10);
-            const mes = parseInt(partes[1], 10) - 1; // JS meses 0-11
-            const año = parseInt(partes[2], 10);
-            if (isNaN(dia) || isNaN(mes) || isNaN(año)) return null;
-            // Validar rango básico
-            if (año < 2021 || año > 2030) return null; // limitamos para evitar años muy lejanos
-            const fecha = new Date(año, mes, dia);
-            // Verificar que la fecha sea válida (ej. 31/02 no)
-            if (fecha.getDate() !== dia || fecha.getMonth() !== mes || fecha.getFullYear() !== año) return null;
+            const mes = parseInt(partes[1], 10) - 1;
+            const anio = parseInt(partes[2], 10);
+            if (isNaN(dia) || isNaN(mes) || isNaN(anio)) return null;
+            const currentYear = new Date().getFullYear();
+            if (anio < 2021 || anio > currentYear + 1) return null;
+            const fecha = new Date(anio, mes, dia);
+            if (fecha.getDate() !== dia || fecha.getMonth() !== mes || fecha.getFullYear() !== anio) return null;
             return fecha;
         }
 
@@ -340,231 +326,53 @@
             if (!fecha) return '';
             const dia = fecha.getDate().toString().padStart(2, '0');
             const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-            const año = fecha.getFullYear();
-            return `${dia}/${mes}/${año}`;
+            const anio = fecha.getFullYear();
+            return dia + '/' + mes + '/' + anio;
         }
 
-        function formatearFechaYMD(fecha) {
-            return `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,'0')}-${String(fecha.getDate()).padStart(2,'0')}`;
-        }
-
-        // ---------- Cálculo de ferias y días especiales ----------
-        function getTercerLunesJulio(año) {
-            // Primer día de julio
-            const primerJulio = new Date(año, 6, 1); // mes 6 = julio
-            let diaSemana = primerJulio.getDay(); // 0 domingo, 1 lunes...
-            let diasParaPrimerLunes;
-            if (diaSemana === 1) diasParaPrimerLunes = 0;
-            else if (diaSemana === 0) diasParaPrimerLunes = 1; // domingo -> lunes 2
-            else diasParaPrimerLunes = (8 - diaSemana) % 7;
-            const primerLunes = new Date(primerJulio);
-            primerLunes.setDate(primerJulio.getDate() + diasParaPrimerLunes);
-            // tercer lunes = primer lunes + 14 días
-            const tercerLunes = new Date(primerLunes);
-            tercerLunes.setDate(primerLunes.getDate() + 14);
-            return tercerLunes;
-        }
-
-        function esFeriaEnero(fecha) {
-            return fecha.getMonth() === 0; // enero
-        }
-
-        function esFeriaJulio(fecha) {
-            const año = fecha.getFullYear();
-            const tercerLunes = getTercerLunesJulio(año);
-            const inicioFeria = new Date(tercerLunes);
-            const finFeria = new Date(tercerLunes);
-            finFeria.setDate(tercerLunes.getDate() + 11); // 12 días inclusive (tercerLunes + 11)
-            return fecha >= inicioFeria && fecha <= finFeria;
-        }
-
-        function es16Noviembre(fecha) {
-            return fecha.getMonth() === 10 && fecha.getDate() === 16;
-        }
-
-        // ---------- Verificar inhábiles con motivo (jerarquía) ----------
-        function getMotivoInhabil(fecha) {
-            const ymd = formatearFechaYMD(fecha);
-            // 1. JSON adicional (prioridad máxima)
-            if (adicionalMap.has(ymd)) {
-                return adicionalMap.get(ymd);
-            }
-            // 2. Feriados de API
-            if (feriadosMap.has(ymd)) {
-                return feriadosMap.get(ymd);
-            }
-            // 3. 16 de noviembre
-            if (es16Noviembre(fecha)) {
-                return "16 de noviembre (Ley 26.674)";
-            }
-            // 4. Feria de enero
-            if (esFeriaEnero(fecha)) {
-                return "Feria judicial de enero";
-            }
-            // 5. Feria de julio
-            if (esFeriaJulio(fecha)) {
-                return "Feria judicial de julio";
-            }
-            // 6. Fin de semana
-            const diaSem = fecha.getDay();
-            if (diaSem === 0 || diaSem === 6) {
-                return "Fin de semana";
-            }
-            return null; // hábil
-        }
-
-        // ---------- Carga de datos (corregida) ----------
-        async function cargarDatos() {
-            infoAniosDiv.textContent = '⏳ Cargando feriados y días inhábiles...';
-            errorGlobalDiv.style.display = 'none';
-            errorCarga = false;
-            feriadosMap.clear();
-            adicionalMap.clear();
-
-            try {
-                // Cargar feriados por año desde 2021 hasta año actual+1
-                const añoActual = new Date().getFullYear();
-                const añoMaximo = añoActual + 1; // por ejemplo 2027 si hoy es 2026
-                const añosACargar = [];
-                for (let año = 2021; año <= añoMaximo; año++) {
-                    añosACargar.push(año);
-                }
-
-                // Consultar cada año a la API
-                const promesas = añosACargar.map(async (año) => {
-                    try {
-                        const res = await fetch(`https://api.argentinadatos.com/v1/feriados/${año}`, { cache: 'no-cache' });
-                        if (res.ok) {
-                            const data = await res.json();
-                            return { año, data };
-                        } else {
-                            console.warn(`No se pudo obtener feriados para ${año}: ${res.status}`);
-                            return { año, data: [] };
-                        }
-                    } catch (e) {
-                        console.error(`Error en año ${año}:`, e);
-                        return { año, data: [] };
-                    }
-                });
-
-                const resultados = await Promise.all(promesas);
-                resultados.forEach(({ data }) => {
-                    if (Array.isArray(data)) {
-                        data.forEach(item => {
-                            if (item.fecha && item.nombre) {
-                                feriadosMap.set(item.fecha, item.nombre);
-                            }
-                        });
-                    }
-                });
-
-                // Cargar JSON adicional
-                const respAdicional = await fetch(JSON_ADICIONAL, { cache: 'no-cache' });
-                if (!respAdicional.ok) throw new Error(`Error JSON adicional: ${respAdicional.status}`);
-                const adicionalData = await respAdicional.json();
-
-                if (adicionalData.dias_inhabiles_adicionales && Array.isArray(adicionalData.dias_inhabiles_adicionales)) {
-                    adicionalData.dias_inhabiles_adicionales.forEach(item => {
-                        if (item.fecha && item.motivo) {
-                            adicionalMap.set(item.fecha, item.motivo);
-                        }
-                    });
-                }
-
-                // Determinar años disponibles: unión de años de feriados y adicionales
-                const añosFeriados = new Set();
-                feriadosMap.forEach((_, fechaStr) => {
-                    const año = parseInt(fechaStr.split('-')[0], 10);
-                    if (!isNaN(año)) añosFeriados.add(año);
-                });
-                const añosAdicional = new Set();
-                adicionalMap.forEach((_, fechaStr) => {
-                    const año = parseInt(fechaStr.split('-')[0], 10);
-                    if (!isNaN(año)) añosAdicional.add(año);
-                });
-
-                // Unión y filtrar desde 2021 hasta añoMaximo
-                anosDisponibles.clear();
-                for (let año = 2021; año <= añoMaximo; año++) {
-                    if (añosFeriados.has(año) || añosAdicional.has(año)) {
-                        anosDisponibles.add(año);
-                    }
-                }
-
-                if (anosDisponibles.size === 0) {
-                    throw new Error('No se encontraron años con datos.');
-                }
-
-                datosCargados = true;
-                const listaAnios = Array.from(anosDisponibles).sort().join(', ');
-                infoAniosDiv.innerHTML = `✅ Años disponibles: <strong>${listaAnios}</strong> (según feriados y adicionales)`;
-                console.log('Datos cargados. Feriados:', feriadosMap.size, 'Adicionales:', adicionalMap.size, 'Años:', listaAnios);
-            } catch (error) {
-                console.error('Error en carga de datos:', error);
-                errorCarga = true;
-                datosCargados = false;
-                infoAniosDiv.innerHTML = '❌ Error al cargar los datos. La calculadora no funcionará. Intenta recargar la página más tarde.';
-                errorGlobalDiv.style.display = 'block';
-                errorGlobalDiv.textContent = 'No se pudieron obtener los feriados o el archivo adicional. Por favor, intentá más tarde.';
-                calcularBtn.disabled = true;
-            }
-        }
-
-        // ---------- Validación de fecha hábil ----------
-        function fechaEsHabil(fecha) {
-            return getMotivoInhabil(fecha) === null;
-        }
-
-        // ---------- Cálculo principal (corregido) ----------
         function calcular() {
-            if (!datosCargados || errorCarga) {
-                alert('Los datos aún no están listos o hay un error. Intenta recargar.');
+            if (!datosCargados) {
+                alert('Los datos aun no estan listos o hay un error. Intenta recargar.');
                 return;
             }
 
-            // Obtener y validar fecha objetivo
             const fechaStr = fechaInput.value.trim();
             if (!fechaStr) {
-                alert('Ingresá una fecha objetivo.');
+                alert('Ingrese una fecha objetivo.');
                 return;
             }
             const fechaObj = parseFechaDDMMAAAA(fechaStr);
             if (!fechaObj) {
-                alert('Formato de fecha inválido. Usá DD/MM/AAAA (ej: 25/05/2025).');
+                alert('Formato de fecha invalido. Use DD/MM/AAAA (ej: 25/05/2025).');
                 return;
             }
 
-            const añoFecha = fechaObj.getFullYear();
-            if (!anosDisponibles.has(añoFecha)) {
-                alert(`El año ${añoFecha} no está disponible en la base de feriados. Años disponibles: ${Array.from(anosDisponibles).sort().join(', ')}`);
+            const anioFecha = fechaObj.getFullYear();
+            if (anosDisponibles.indexOf(anioFecha) === -1) {
+                alert('El año ' + anioFecha + ' no esta disponible en la base de feriados. Años disponibles: ' + anosDisponibles.sort().join(', '));
                 return;
             }
 
-            // Validar que la fecha objetivo sea hábil
-            if (!fechaEsHabil(fechaObj)) {
-                const motivo = getMotivoInhabil(fechaObj);
-                alert(`La fecha objetivo es inhábil (${motivo}). Por favor elegí una fecha hábil.`);
+            if (!CalendarioJudicial.esDiaHabil(fechaObj)) {
+                const motivo = CalendarioJudicial.obtenerMotivoInhabil(fechaObj);
+                alert('La fecha objetivo es inhabil (' + motivo + '). Por favor elija una fecha habil.');
                 return;
             }
 
-            // Validar días
             const dias = parseInt(diasInput.value, 10);
             if (isNaN(dias) || dias < 1) {
-                alert('Los días deben ser un número entero mayor o igual a 1.');
+                alert('Los dias deben ser un numero entero mayor o igual a 1.');
                 return;
             }
 
-            // Comenzar conteo desde el día anterior a la fecha objetivo
             let fechaActual = new Date(fechaObj);
-            fechaActual.setDate(fechaActual.getDate() - 1); // día anterior
+            fechaActual.setDate(fechaActual.getDate() - 1);
 
             let diasRestantes = dias;
-            const evaluados = [];      // { fecha, contado, motivo }
-            const noContados = [];     // { fecha, motivo }
+            const evaluados = [];
 
-            // Iterar hacia atrás hasta que hayamos restado todos los días hábiles
             while (diasRestantes > 0) {
-                const motivo = getMotivoInhabil(fechaActual);
+                const motivo = CalendarioJudicial.obtenerMotivoInhabil(fechaActual);
                 const esHabil = motivo === null;
 
                 evaluados.push({
@@ -574,53 +382,33 @@
                 });
 
                 if (!esHabil) {
-                    noContados.push({
-                        fecha: new Date(fechaActual),
-                        motivo: motivo
-                    });
                 } else {
                     diasRestantes--;
                 }
 
                 if (diasRestantes > 0) {
-                    // retroceder un día
                     fechaActual.setDate(fechaActual.getDate() - 1);
                 }
             }
 
-            // fechaActual es la fecha límite (donde se completó la resta)
             const fechaLimite = new Date(fechaActual);
 
-            // Mostrar resultados
             fechaLimiteSpan.textContent = formatearFechaDDMMAAAA(fechaLimite);
             resultadoPanel.style.display = 'block';
             trazabilidadPanel.style.display = 'grid';
 
-            // Llenar listas (orden descendente: de más reciente a más antigua)
-            // Nuestro evaluados ya está en orden desde el día anterior a objetivo hacia atrás (reciente a antiguo)
             listaEvaluados.innerHTML = '';
-            evaluados.forEach(item => {
+            evaluados.forEach(function(item) {
                 const div = document.createElement('div');
                 div.className = 'item';
-                const fechaStr = formatearFechaDDMMAAAA(item.fecha);
-                div.innerHTML = `<span class="fecha">${fechaStr}</span> <span class="${item.contado ? 'contado' : 'no-contado'}">${item.contado ? '✅ CONTADO' : '❌ NO CONTADO'}</span> ${item.motivo ? '<span class="motivo">(' + item.motivo + ')</span>' : ''}`;
+                const fechaS = formatearFechaDDMMAAAA(item.fecha);
+                div.innerHTML = '<span class="fecha">' + fechaS + '</span> <span class="' + (item.contado ? 'contado' : 'no-contado') + '">' + (item.contado ? 'OK CONTADO' : 'X NO CONTADO') + '</span>' + (item.motivo ? '<span class="motivo">(' + item.motivo + ')</span>' : '');
                 listaEvaluados.appendChild(div);
             });
 
-            // Para no contados, también descendente
-            listaNoContados.innerHTML = '';
-            noContados.reverse().forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'item';
-                const fechaStr = formatearFechaDDMMAAAA(item.fecha);
-                div.innerHTML = `<span class="fecha">${fechaStr}</span> <span class="no-contado">❌</span> <span class="motivo">${item.motivo}</span>`;
-                listaNoContados.appendChild(div);
-            });
 
-            console.log('Cálculo exitoso. Días restados:', dias, 'Fecha límite:', formatearFechaDDMMAAAA(fechaLimite));
         }
 
-        // ---------- Reset ----------
         function resetear() {
             fechaInput.value = '';
             diasInput.value = '5';
@@ -628,16 +416,34 @@
             trazabilidadPanel.style.display = 'none';
             errorGlobalDiv.style.display = 'none';
             listaEvaluados.innerHTML = '';
-            listaNoContados.innerHTML = '';
+
         }
 
-        // ---------- Inicialización y eventos ----------
-        window.addEventListener('load', async () => {
-            await cargarDatos();
+        window.addEventListener('load', async function() {
+            var currentYear = new Date().getFullYear();
+            var YEARS = [];
+            for (var y = 2021; y <= currentYear + 1; y++) YEARS.push(y);
+
+            var initResult = await CalendarioJudicial.init(YEARS);
+
+            if (initResult.dataLoaded) {
+                datosCargados = true;
+                errorGlobalDiv.style.display = 'none';
+                calcularBtn.disabled = false;
+                anosDisponibles = [];
+                for (var y = 2021; y <= currentYear + 1; y++) anosDisponibles.push(y);
+                infoAniosDiv.innerHTML = 'OK Años disponibles: <strong>' + anosDisponibles.sort().join(', ') + '</strong> (según feriados y adicionales)';
+            } else {
+                datosCargados = false;
+                infoAniosDiv.innerHTML = 'Error al cargar los datos. La calculadora no funcionara. Intenta recargar la pagina mas tarde.';
+                errorGlobalDiv.style.display = 'block';
+                errorGlobalDiv.textContent = 'No se pudieron obtener los feriados o el archivo adicional.';
+                calcularBtn.disabled = true;
+            }
+
             calcularBtn.addEventListener('click', calcular);
             resetBtn.addEventListener('click', resetear);
 
-            // Validar formato de fecha mientras escribe (opcional, solo para feedback)
             fechaInput.addEventListener('blur', function() {
                 const val = this.value.trim();
                 if (val === '') return;
@@ -646,18 +452,11 @@
                     this.classList.add('error');
                 } else {
                     this.classList.remove('error');
-                    if (!anosDisponibles.has(fecha.getFullYear())) {
+                    if (anosDisponibles.indexOf(fecha.getFullYear()) === -1) {
                         this.classList.add('error');
                     } else {
                         this.classList.remove('error');
                     }
-                }
-            });
-
-            // Bloquear entrada de letras en días
-            diasInput.addEventListener('keypress', (e) => {
-                if (isNaN(parseInt(e.key, 10)) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
-                    e.preventDefault();
                 }
             });
         });
