@@ -500,7 +500,7 @@
     }
 
     function formatearFecha(fecha) {
-        const dias = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+        const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
                       'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
         return dias[fecha.getDay()] + ', ' + fecha.getDate() + ' de ' + meses[fecha.getMonth()] + ' de ' + fecha.getFullYear();
@@ -634,17 +634,17 @@
         html += '</div>';
 
         html += '<div class="warning">';
-        html += '<p><strong>Nota:</strong> Si NO resulta aplicable el plazo de gracia del art. 124 CPCCN, el vencimiento se produce el dia: <strong>' + formatearFecha(datos.fechaVencimientoSinGracia) + '</strong></p>';
+        html += '<p><strong>Nota:</strong> Si NO resulta aplicable el plazo de gracia del art. 124 CPCCN, el vencimiento se produce el día: <strong>' + formatearFecha(datos.fechaVencimientoSinGracia) + '</strong></p>';
         html += '</div>';
 
         html += '<div class="result-item">';
-        html += '<h3>Informacion del Calculo</h3>';
+        html += '<h3>Información del Cálculo</h3>';
         html += '<p><strong>Modalidad:</strong> ' + obtenerTextoModalidad(datos.modalidad) + '</p>';
         if (datos.modalidad === 'automatica') {
             html += '<p><strong>Fecha de firma:</strong> ' + formatearFecha(datos.fechaIngresada) + '</p>';
-            html += '<p><strong>Fecha de notificacion:</strong> ' + formatearFecha(datos.fechaNotificacion) + '</p>';
+            html += '<p><strong>Fecha de notificación:</strong> ' + formatearFecha(datos.fechaNotificacion) + '</p>';
         } else {
-            html += '<p><strong>Fecha de notificacion:</strong> ' + formatearFecha(datos.fechaNotificacion) + '</p>';
+            html += '<p><strong>Fecha de notificación:</strong> ' + formatearFecha(datos.fechaNotificacion) + '</p>';
         }
         html += '<p><strong>Fecha de inicio del conteo:</strong> ' + formatearFecha(datos.fechaInicioConteo) + '</p>';
         html += '<p><strong>Plazo:</strong> ' + datos.plazo + ' días hábiles</p>';
@@ -675,9 +675,9 @@
 
     function obtenerTextoModalidad(modalidad) {
         const textos = {
-            'cedula-habitual': 'Por cedula - Dia y hora habil (art. 152 CPCCN)',
-            'cedula-inhabitual': 'Por cedula - Dia y hora inhabil (art. 152 CPCCN)',
-            'automatica': 'Notificacion automatica (art. 133 CPCCN)'
+            'cedula-habitual': 'Por cédula - Día y hora hábil (art. 152 CPCCN)',
+            'cedula-inhabitual': 'Por cédula - Día y hora inhábil (art. 152 CPCCN)',
+            'automatica': 'Notificación automática (art. 133 CPCCN)'
         };
         return textos[modalidad] || modalidad;
     }
@@ -701,7 +701,7 @@
         if (modalidad === 'automatica') {
             label.textContent = 'Seleccione la fecha de la firma de la resolucion';
         } else {
-            label.textContent = 'Seleccione la fecha de la notificacion';
+            label.textContent = 'Seleccione la fecha de la notificación';
         }
     }
 
