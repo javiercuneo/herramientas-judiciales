@@ -3,7 +3,7 @@
 
     var CONFIG = {
         API_FERIADOS_URL: 'https://api.argentinadatos.com/v1/feriados',
-        JSON_CUSTOM_URL: 'https://jnc-34.github.io/jnc34/dias-inhabiles.json',
+        JSON_CUSTOM_URL: '../data/dias-inhabiles.json',
         DEFAULT_MIN_YEAR: 2021
     };
 
