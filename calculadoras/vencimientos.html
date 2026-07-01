@@ -371,7 +371,7 @@
 <script>
     let datosCargados = false;
 
-    // Generar a�os din�micos: 2021 al a�o actual + 1
+    // Generar años dinámicos: 2021 al año actual + 1
     const MIN_YEAR = 2021;
     const MAX_YEAR = new Date().getFullYear() + 1;
 
@@ -383,7 +383,7 @@
         datosCargados = result.dataLoaded;
         const div = document.getElementById('yearsAvailable');
         if (result.dataLoaded) {
-            div.textContent = 'Calculadora disponible para los a�os ' + MIN_YEAR + ' - ' + MAX_YEAR;
+            div.textContent = 'Calculadora disponible para los años ' + MIN_YEAR + ' - ' + MAX_YEAR;
         } else {
             div.innerHTML = 'No se pudieron cargar los feriados. Se usan reglas fijas.';
         }
@@ -647,12 +647,12 @@
             html += '<p><strong>Fecha de notificacion:</strong> ' + formatearFecha(datos.fechaNotificacion) + '</p>';
         }
         html += '<p><strong>Fecha de inicio del conteo:</strong> ' + formatearFecha(datos.fechaInicioConteo) + '</p>';
-        html += '<p><strong>Plazo:</strong> ' + datos.plazo + ' dias habiles</p>';
+        html += '<p><strong>Plazo:</strong> ' + datos.plazo + ' días hábiles</p>';
         html += '</div>';
 
         if (datos.diasIgnorados.length > 0) {
             html += '<div class="result-item">';
-            html += '<h3>Dias NO Contados (Inhabiles)</h3>';
+            html += '<h3>Días NO Contados (Inhábiles)</h3>';
             html += '<div class="dias-inhabiles">';
             datos.diasIgnorados.sort(function(a, b) { return a.fecha.getTime() - b.fecha.getTime(); });
             datos.diasIgnorados.forEach(function(dia) {
