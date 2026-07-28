@@ -1,4 +1,4 @@
-# Informe Tecnico: Unificacion de Proyectos — Asistente de Honorarios Judiciales
+# Informe Tecnico: Unificacion de Proyectos ï¿½ Asistente de Honorarios Judiciales
 
 **Fecha:** 27 de julio de 2026
 **Version:** 1.1 (revisada)
@@ -11,7 +11,7 @@
 | Aspecto | Proyecto A (Clasico) | Proyecto B (Honorio/Next.js) |
 |---------|---------------------|------------------------------|
 | **Arquitectura** | Vanilla JS, HTML/CSS estatico | Next.js 16 + React 19 + TypeScript, App Router |
-| **Estado** | **Fuente de verdad — completamente funcional** | **Prototipo visual — sin logica legal real** |
+| **Estado** | **Fuente de verdad ï¿½ completamente funcional** | **Prototipo visual ï¿½ sin logica legal real** |
 | **Logica de negocio** | ~13K lineas JS. Ley 27.423 completa | ~500 lineas TS mock (marketing, descartable) |
 | **UX** | Wizard imperativo, DOM directo | Componentes React animados, shadcn/ui |
 
@@ -21,57 +21,57 @@
 
 ## 2. Arquitectura de Ambos Proyectos
 
-### 2.1 Proyecto A — `asistente-honorarios-clasico` (Motor Legal)
+### 2.1 Proyecto A ï¿½ `asistente-honorarios-clasico` (Motor Legal)
 
 ```
 asistente-honorarios-clasico/
 +-- index.html
 +-- css/styles.css             # ~8KB
 +-- js/
-    +-- core.js                # 5KB  — UMA, parseNumber, formatNumber, calcularEscalaBase
-    +-- state.js               # 5KB  — wizardState global, validarPasoActual, recolectarDatos
-    +-- calculations.js        # 43KB — calcularFinal(), mostrarTablasMinimos()
-    +-- wizard.js              # 68KB — renderScreen(), navegacion entre pasos, DOM imperativo
+    +-- core.js                # 5KB  ï¿½ UMA, parseNumber, formatNumber, calcularEscalaBase
+    +-- state.js               # 5KB  ï¿½ wizardState global, validarPasoActual, recolectarDatos
+    +-- calculations.js        # 43KB ï¿½ calcularFinal(), mostrarTablasMinimos()
+    +-- wizard.js              # 68KB ï¿½ renderScreen(), navegacion entre pasos, DOM imperativo
 ```
 
 **Contrato publico del motor (expuesto en `window`):**
-- `window.wizardState` — estado global mutable
-- `window.valorUMA` — valor de la UMA
-- `window.calcularEscalaBase(base, uma)` — calculo de escala pura (7 escalas Art. 21)
-- `window.calcularFinal()` — calculo completo con reducciones
-- `window.mostrarTablasMinimos(modo)` — tablas de minimos legales
-- `window.parseNumber(str)`, `window.formatNumber(num)` — formato argentino
-- `window.recolectarDatos()`, `window.validarPasoActual()` — validacion por paso
-- `window.cargarUMA()` — fetch desde Google Sheets
+- `window.wizardState` ï¿½ estado global mutable
+- `window.valorUMA` ï¿½ valor de la UMA
+- `window.calcularEscalaBase(base, uma)` ï¿½ calculo de escala pura (7 escalas Art. 21)
+- `window.calcularFinal()` ï¿½ calculo completo con reducciones
+- `window.mostrarTablasMinimos(modo)` ï¿½ tablas de minimos legales
+- `window.parseNumber(str)`, `window.formatNumber(num)` ï¿½ formato argentino
+- `window.recolectarDatos()`, `window.validarPasoActual()` ï¿½ validacion por paso
+- `window.cargarUMA()` ï¿½ fetch desde Google Sheets
 
-### 2.2 Proyecto A — `asistente-honorarios-moderno` (Intento de refactor)
+### 2.2 Proyecto A ï¿½ `asistente-honorarios-moderno` (Intento de refactor)
 
 **Estado:** Abandonado. Copia identica de los JS del clasico + `app.js` (90KB) con UI alternativa. Build Vite/React incompleto en `dist/`. No se reutilizara.
 
-### 2.3 Proyecto B — `honorio` (Nuevo Frontend)
+### 2.3 Proyecto B ï¿½ `honorio` (Nuevo Frontend)
 
 ```
 honorio/
 +-- app/
-¦   +-- layout.tsx             # Root layout, fonts Geist + Instrument Serif
-¦   +-- page.tsx               # ? <InterviewExperience />
-¦   +-- globals.css            # Tailwind v4 + shadcn tokens OKLCH
+ï¿½   +-- layout.tsx             # Root layout, fonts Geist + Instrument Serif
+ï¿½   +-- page.tsx               # ? <InterviewExperience />
+ï¿½   +-- globals.css            # Tailwind v4 + shadcn tokens OKLCH
 +-- components/
-¦   +-- ui/button.tsx          # shadcn/base-ui Button con CVA
-¦   +-- interview/
-¦       +-- interview-experience.tsx   # Orquestador: intro ? questions ? dashboard
-¦       +-- dashboard-view.tsx         # Dashboard final (KPIs, donut, barras)
-¦       +-- step-shell.tsx             # Wrapper de paso generico
-¦       +-- numeric-field.tsx          # Input numerico con presets
-¦       +-- cards-field.tsx            # Grid de tarjetas single/multi select
-¦       +-- progress-rail.tsx          # Barra de progreso
-¦       +-- context-panel.tsx          # Panel lateral resumen + jump nav
-¦       +-- intro-view.tsx             # Pantalla de inicio
-¦       +-- explanation-disclosure.tsx # Detalle desplegable
+ï¿½   +-- ui/button.tsx          # shadcn/base-ui Button con CVA
+ï¿½   +-- interview/
+ï¿½       +-- interview-experience.tsx   # Orquestador: intro ? questions ? dashboard
+ï¿½       +-- dashboard-view.tsx         # Dashboard final (KPIs, donut, barras)
+ï¿½       +-- step-shell.tsx             # Wrapper de paso generico
+ï¿½       +-- numeric-field.tsx          # Input numerico con presets
+ï¿½       +-- cards-field.tsx            # Grid de tarjetas single/multi select
+ï¿½       +-- progress-rail.tsx          # Barra de progreso
+ï¿½       +-- context-panel.tsx          # Panel lateral resumen + jump nav
+ï¿½       +-- intro-view.tsx             # Pantalla de inicio
+ï¿½       +-- explanation-disclosure.tsx # Detalle desplegable
 +-- lib/
-¦   +-- interview-data.ts      # Schema de 5 pasos (MOCK — debe reemplazarse)
-¦   +-- plan.ts                # Logica MOCK (marketing — debe descartarse)
-¦   +-- utils.ts               # cn() = clsx + tailwind-merge
+ï¿½   +-- interview-data.ts      # Schema de 5 pasos (MOCK ï¿½ debe reemplazarse)
+ï¿½   +-- plan.ts                # Logica MOCK (marketing ï¿½ debe descartarse)
+ï¿½   +-- utils.ts               # cn() = clsx + tailwind-merge
 +-- package.json               # Next 16, React 19, Tailwind 4, motion, lucide, etc.
 +-- tsconfig.json / next.config.mjs / components.json
 +-- pnpm-lock.yaml
@@ -85,20 +85,20 @@ El motor JS existente permanece intacto. Se incorpora a honorio como dependencia
 
 ```
 +----------------------+     +------------------------------+
-¦  honorio/ (Next.js)  ¦     ¦  Motor Legal (Vanilla JS)    ¦
-¦                      ¦     ¦                              ¦
-¦  Componentes UI      ¦---->¦  Adaptadores TS              ¦---->¦ window.calcularEscalaBase()
-¦  (React + Tailwind)  ¦     ¦  (lib/legal/adapters.ts)     ¦     ¦ window.wizardState
-¦                      ¦     ¦  Tipos + wrappers            ¦     ¦ window.calcularFinal()
-¦  InterviewExperience ¦     ¦  Sin modificar el JS legacy  ¦     ¦ etc.
+ï¿½  honorio/ (Next.js)  ï¿½     ï¿½  Motor Legal (Vanilla JS)    ï¿½
+ï¿½                      ï¿½     ï¿½                              ï¿½
+ï¿½  Componentes UI      ï¿½---->ï¿½  Adaptadores TS              ï¿½---->ï¿½ window.calcularEscalaBase()
+ï¿½  (React + Tailwind)  ï¿½     ï¿½  (lib/legal/adapters.ts)     ï¿½     ï¿½ window.wizardState
+ï¿½                      ï¿½     ï¿½  Tipos + wrappers            ï¿½     ï¿½ window.calcularFinal()
+ï¿½  InterviewExperience ï¿½     ï¿½  Sin modificar el JS legacy  ï¿½     ï¿½ etc.
 +----------------------+     +------------------------------+
                                   ?
                              +---------+
-                             ¦ public/  ¦
-                             ¦ legacy/  ¦
-                             ¦ core.js  ¦
-                             ¦ state.js ¦
-                             ¦ calc.js  ¦
+                             ï¿½ public/  ï¿½
+                             ï¿½ legacy/  ï¿½
+                             ï¿½ core.js  ï¿½
+                             ï¿½ state.js ï¿½
+                             ï¿½ calc.js  ï¿½
                              +---------+
 ```
 
@@ -112,7 +112,7 @@ El motor JS existente permanece intacto. Se incorpora a honorio como dependencia
 
 ---
 
-## 4. Plan de Implementacion: Milestone 1 — Integracion
+## 4. Plan de Implementacion: Milestone 1 ï¿½ Integracion
 
 ### Fase 0: Preparacion del motor legacy (1 tarea)
 
@@ -122,7 +122,7 @@ origen: asistente-honorarios-clasico/js/{core.js, state.js, calculations.js}
 destino: honorio/public/legacy/{core.js, state.js, calculations.js}
 ```
 
-Se copian **sin modificaciones**. El archivo `wizard.js` (UI imperativa) **NO** se copia — es el que reemplazaremos con la UI de honorio.
+Se copian **sin modificaciones**. El archivo `wizard.js` (UI imperativa) **NO** se copia ï¿½ es el que reemplazaremos con la UI de honorio.
 
 ### Fase 1: Capa de adaptacion TS (2-3 tareas)
 
@@ -231,7 +231,7 @@ export const LEGAL_STEPS: WizardStep[] = [
     select: 'single',
     eyebrow: 'Proceso',
     question: 'Seleccione el tipo de proceso',
-    helper: 'El tipo de proceso determina las reglas aplicables',
+    helper: 'Define coeficientes especÃ­ficos que pueden reducir o incrementar el resultado final del cÃ¡lculo',
     options: [
       { id: 'conocimiento', label: 'Juicio de conocimiento', description: 'Proceso ordinario mas completo' },
       { id: 'ejecutivo', label: 'Juicio ejecutivo', description: 'Ejecucion de titulos ejecutivos' },
@@ -308,23 +308,23 @@ El dashboard actual de honorio (donut chart, confidence gauge, lever bars) se re
 ```
 honorio/
 +-- public/
-¦   +-- legacy/
-¦       +-- core.js              # Copia directa del clasico (intacto)
-¦       +-- state.js             # Copia directa del clasico (intacto)
-¦       +-- calculations.js      # Copia directa del clasico (intacto)
+ï¿½   +-- legacy/
+ï¿½       +-- core.js              # Copia directa del clasico (intacto)
+ï¿½       +-- state.js             # Copia directa del clasico (intacto)
+ï¿½       +-- calculations.js      # Copia directa del clasico (intacto)
 +-- app/                         # (sin cambios estructurales)
 +-- lib/
-¦   +-- legal/
-¦   ¦   +-- types.ts             # Interfaces TS nuevas
-¦   ¦   +-- adapters.ts          # Wrappers tipados (nuevo)
-¦   ¦   +-- index.ts             # Re-export
-¦   +-- wizard/
-¦   ¦   +-- wizard-schema.ts     # Schema declarativo (nuevo)
-¦   +-- interview-data.ts        # SE ELIMINA (reemplazado por wizard-schema.ts)
-¦   +-- plan.ts                  # SE ELIMINA (mock de marketing)
-¦   +-- utils.ts                 # Se conserva
+ï¿½   +-- legal/
+ï¿½   ï¿½   +-- types.ts             # Interfaces TS nuevas
+ï¿½   ï¿½   +-- adapters.ts          # Wrappers tipados (nuevo)
+ï¿½   ï¿½   +-- index.ts             # Re-export
+ï¿½   +-- wizard/
+ï¿½   ï¿½   +-- wizard-schema.ts     # Schema declarativo (nuevo)
+ï¿½   +-- interview-data.ts        # SE ELIMINA (reemplazado por wizard-schema.ts)
+ï¿½   +-- plan.ts                  # SE ELIMINA (mock de marketing)
+ï¿½   +-- utils.ts                 # Se conserva
 +-- hooks/
-¦   +-- useWizard.ts             # Hook de estado/navegacion (nuevo)
+ï¿½   +-- useWizard.ts             # Hook de estado/navegacion (nuevo)
 +-- components/                  # Se adaptan los existentes
 +-- package.json                 # Sin cambios
 ```
