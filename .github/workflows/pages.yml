@@ -1,0 +1,73 @@
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install honorio dependencies
+        working-directory: honorio
+        run: npm ci
+
+      - name: Build honorio (static export)
+        working-directory: honorio
+        run: npm run build
+
+      - name: Assemble Pages site
+        run: |
+          set -euo pipefail
+          mkdir -p site
+
+          # Contenido publico existente (servido hoy desde la raiz de main).
+          # Lista explicita (allowlist), no blacklist: solo lo que index.html
+          # efectivamente enlaza pasa a produccion.
+          cp index.html site/
+          cp documentacion.html site/
+          cp -r calculadoras site/
+          cp -r data site/
+          cp -r asistente-honorarios-clasico site/
+          mkdir -p site/asistente-honorarios-moderno
+          cp -r asistente-honorarios-moderno/. site/asistente-honorarios-moderno/
+          rm -rf site/asistente-honorarios-moderno/node_modules
+          cp -r "proyectos finalizados" "site/proyectos finalizados"
+
+          # honorio: export estatico de Next.js, publicado en /honorio
+          mkdir -p site/honorio
+          cp -r honorio/out/. site/honorio/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
