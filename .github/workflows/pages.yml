@@ -52,6 +52,9 @@ jobs:
           rm -rf site/asistente-honorarios-moderno/node_modules
           cp -r "proyectos finalizados" "site/proyectos finalizados"
 
+          # PDF-studio: PWA estatica de vanilla JS (client-side)
+          cp -r PDF-studio/public site/PDF-studio
+
           # honorio: export estatico de Next.js, publicado en /honorio
           mkdir -p site/honorio
           cp -r honorio/out/. site/honorio/

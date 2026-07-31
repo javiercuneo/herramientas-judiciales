@@ -2,7 +2,7 @@
   "name": "PDF Studio Minimal",
   "short_name": "PDF Studio",
   "description": "Una aplicación web PWA 100% nativa para convertir y alterar archivos PDF.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#4361ee",
