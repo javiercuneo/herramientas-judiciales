@@ -104,8 +104,25 @@ Las herramientas incluidas en este repositorio:
 
 ## 📄 Licencia
 
-Este proyecto se distribuye bajo la licencia **MIT**.  
-Consulte el archivo [LICENSE](LICENSE) para más detalles.
+Este proyecto se distribuye bajo la licencia **MIT** ([LICENSE](LICENSE)),
+**con una excepción**:
+
+| Qué | Licencia | Dónde |
+|---|---|---|
+| Todo el repositorio | MIT | [LICENSE](LICENSE) |
+| `honorio/` — asistente de honorarios | AGPL-3.0-or-later | [honorio/LICENSE](honorio/LICENSE) |
+
+Las calculadoras son aritmética sobre reglas explícitas y están bajo MIT sin
+condiciones: usalas, copialas, vendelas si querés.
+
+`honorio/` está bajo AGPL porque su motor no es aritmética: son los criterios
+para resolver los puntos donde la ley es ambigua. La AGPL **no prohíbe el uso
+comercial**; exige que quien la modifique y la ofrezca a terceros publique su
+versión bajo la misma licencia. La app es y va a seguir siendo gratuita. Para
+integrarla en un producto propio bajo otros términos, escribime.
+
+Ver [honorio/README.md](honorio/README.md#licencia) y
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 

@@ -3,17 +3,17 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-07-31 · rama `milestone-1-integracion`
+Última actualización: 2026-07-31 (tarde) · rama `milestone-1-integracion`
 
 ---
 
 ## Dónde estamos
 
-`honorio/` está en medio de un **rediseño visual completo**, ya cerrado en su
-mayor parte. El motor jurídico no se tocó en ninguna de las pasadas: las 9
-validaciones de `lib/legal/__tests__` siguen en verde.
+`honorio/` cerró el **rediseño visual** y quedó **sin bugs conocidos**. El motor
+jurídico solo cambió para arreglar provisorios; las validaciones de
+`lib/legal/__tests__` son ahora **10** y están todas en verde.
 
-Commits de la sesión, en orden:
+Commits previos de la sesión de rediseño:
 
 | Commit | Qué |
 |---|---|
@@ -23,8 +23,24 @@ Commits de la sesión, en orden:
 | `0e689c0` | Wizard sobre el mismo sistema |
 | `cc99cc6` | Auto-avance, provisorios, tildes y ajustes de lectura |
 
-Pantallas: **dashboard** y **wizard** rediseñados. **Portada e intro** alineados
-al sistema. Falta pulido de mensajes y los assets de marca definitivos.
+Pendiente de commitear (pasada del 31/7 a la tarde):
+
+- **Provisorios arreglados.** `esProvisorio` nunca se seteaba desde el wizard
+  React: la presentación estaba entera, solo faltaba que la bandera llegara.
+  Ahora la condición **se deriva de `modoTerminacion` dentro del motor**
+  (`esRegulacionProvisoria`), no de una bandera que el llamador tenga que
+  acordarse de poner. Cubierto por `provisorios.validation.ts`.
+- **Mínimos arancelarios rehechos.** Se fue el `<select>` heredado; abre
+  mostrando los 44 conceptos, con buscador (`lib/minimos-buscar.ts`) y en
+  orden de articulado. Ver CHANGELOG.
+- **Marca.** `components/brand.tsx` pinta la ilustración con `mask-image` y
+  `currentColor`: una sola pieza para los dos temas.
+- **Documentación nueva:** `honorio/README.md`, `honorio/CHANGELOG.md`,
+  `honorio/docs/ROADMAP.md`. El paquete dejó de llamarse `my-project` y
+  arranca en `1.0.0`.
+
+Pantallas: **dashboard**, **wizard**, **portada**, **intro** y **mínimos**
+sobre el mismo sistema. Falta pulido de mensajes.
 
 ---
 
@@ -122,33 +138,55 @@ describiera mal el número, porque el ×1,4 se aplica después.
 
 ### Bugs conocidos
 
-- **Los honorarios provisorios todavía no funcionan.** Reportado por el autor
-  después del commit `cc99cc6`. La presentación ya está (una sola columna, sin
-  máximo, con el art. 12 declarado detrás del `por qué`), pero el resultado no
-  es correcto. **Hay que revisar el camino provisorio de punta a punta**: qué
-  manda el wizard (`esProvisorio`, `modoTerminacion: 'provisorios'`), qué hace
-  `resolveReglas` con eso, y qué devuelve `buildGeneral`. Empezar por reproducir
-  el caso antes de tocar nada.
+Ninguno.
+
+### Licencia: decidida
+
+`honorio/` es **AGPL-3.0-or-later** (`honorio/LICENSE`, texto verbatim de la
+FSF); el resto del repositorio sigue MIT (`LICENSE` en la raíz). Decidido por
+Javier el 31/7. El motivo, para no rediscutirlo: no quiere restringir el uso
+ni cobrar por la app, quiere que un tercero no pueda cerrar el motor —donde
+están los criterios— como producto propio.
+
+Consecuencias que hay que sostener:
+
+- **Todo PR sobre `honorio/` necesita la aceptación de `CONTRIBUTING.md`**, que
+  incluye la cesión de licencia. Sin eso se pierde la opción de licenciar
+  comercialmente, porque haría falta el permiso de cada contribuyente.
+  Si aparece un PR, esto es lo primero que hay que mirar.
+- Los archivos de `lib/legal/` llevan encabezado SPDX. Un archivo nuevo del
+  motor lo lleva también.
+- Al publicar el motor como paquete o API, arrastrar `LICENSE` y los SPDX.
+
+### Decisiones abiertas, del autor
+
+- **Autoría visible en la app.** Hoy figura en los README, no en la interfaz.
+  Sin decidir dónde; la idea era resolverla junto con la versión del motor en
+  el informe imprimible.
 
 ### Pendiente de diseño y contenido
 
-- **Assets de marca.** Existen `public/honorio.svg` y `honorio2.svg`, iguales a
-  los PNG pero vectoriales: convienen porque con `fill="currentColor"` se
-  adaptan solos al tema claro/oscuro. **Todavía no están cableados** — la
-  portada usa el PNG. Además hay dos propuestas nuevas sin revisar:
-  `public/resultado gemini.png` y `public/resultado gpt.png`.
+- **Informe imprimible.** Pedido del autor: PDF del cálculo con interruptor
+  para incluir u omitir las explicaciones. Propuesto, no empezado. Requiere
+  mostrar la versión del motor en el informe.
+- **Assets de marca.** Cableado y resuelto: `components/brand.tsx` usa
+  `mask-image` + `currentColor` sobre `public/honorio-marca.svg`.
+  **Ojo con lo que decía la versión anterior de este documento:** los SVG no
+  eran "iguales a los PNG"; el trazado toma la tinta y deja el papel
+  transparente, que es justamente lo que hace que `currentColor` funcione y que
+  no haga falta un recuadro de papel. Quedaron sin usar cuatro variantes que
+  Javier generó (`honorio trazo blanco/negro.svg`, `honorio2 trazo
+  blanco/negro.svg`) y dos propuestas de ícono sin revisar (`resultado
+  gemini.png`, `resultado gpt.png`). **Son suyas: no borrarlas sin preguntar.**
+  `honorio-wordmark.svg` está generado pero no cableado; el logotipo de la app
+  sigue siendo tipográfico.
   Idea de marca a conservar: *un abogado que hace mal los números*.
-  Con dos íconos alcanza (marca + portada); el resto de la iconografía es
-  `lucide-react` y meter ilustraciones rompería esa consistencia.
 - **Mensajes.** Varios pasos del wizard traen `brief: 'Ver más'`, que era el
   rótulo del botón viejo, no un resumen. Hoy se reemplaza en presentación por
   "Qué dice la ley sobre este paso" (ver `explanation-disclosure.tsx`), pero
   **conviene escribir briefs reales en el schema**.
-- **Caducidad.** La ley no la previó y la app adopta un criterio. Está declarado
-  en `REGLA_LABEL` (`base-caducidad-art22`), pero merece tratamiento más visible
-  en el ledger, coherente con el principio de transparencia.
-- **Motor de honorarios de mediación.** Vive aparte en
-  `calculadoras/honorarios-mediacion.html`. A futuro podría integrarse.
+- El resto bajó a [ROADMAP](../honorio/docs/ROADMAP.md): caducidad, mediación,
+  consumo del motor desde afuera, regulación redactada.
 
 ---
 
@@ -173,6 +211,17 @@ describiera mal el número, porque el ×1,4 se aplica después.
 - **`npm run lint` no corre**: `eslint` no está instalado pese al script.
   Verificar con `npx tsc --noEmit` y `npm run build`.
 - **Los comandos se corren desde `honorio/`**, no desde la raíz del repo.
+- **Una carpeta de ruta que empieza con `_` no existe para el App Router**:
+  es carpeta privada. La página temporal de verificación tiene que llamarse
+  `app/verificar/`, no `app/_verificar/`, o da 404 sin explicar por qué.
+- **`next dev` puede quedar bloqueado por un candado de un proceso muerto**
+  ("Another next dev server is already running" con un PID que ya no existe).
+  Levantarlo en otro puerto (`npx next dev -p 3007`) destraba y sirve igual.
+- **Las capturas de pantalla del panel fallan, pero el JavaScript no.** Para
+  verificar color, tamaño o si una imagen cargó, alcanza con leer estilos
+  computados; para saber qué dibuja un SVG, dibujarlo en un `<canvas>` y
+  muestrear píxeles. Es más confiable que mirar una captura: en esta sesión
+  una captura mal leída llevó a dar por invertido un trazado que estaba bien.
 
 ---
 
@@ -183,7 +232,7 @@ npx tsc --noEmit
 npm run build
 ```
 
-Y las validaciones del motor, que deben quedar todas en verde:
+Y las validaciones del motor —10 archivos—, que deben quedar todas en verde:
 
 ```bash
 for f in lib/legal/__tests__/*.validation.ts; do npx tsx "$f"; done
