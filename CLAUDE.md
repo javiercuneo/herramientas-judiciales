@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Read `docs/ESTADO.md` before starting any work.** It carries what the code
+> can't: where the current effort stands, which design and interpretive
+> decisions were already made and why, what is known to be broken, and the
+> traps that have already cost time. It is updated in the same commit as the
+> work it describes.
+
 ## What this repo is
 
 A collection of legal/judicial tools for Argentine legal practice (plazos, honorarios, tasa de justicia). It is **not one app** — it's several independent projects at different maturity levels living side by side in one repo. Most are static HTML/JS tools deployed via GitHub Pages; one (`honorio/`) is an active Next.js migration.
