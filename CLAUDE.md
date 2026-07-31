@@ -30,10 +30,6 @@ asistente-honorarios-clasico/    THE reference implementation ("fuente de verdad
                                     js/state.js         - global wizardState + step validation
                                     js/calculations.js  - calcularFinal(), mostrarTablasMinimos() (~43KB, bulk of legal logic)
                                     js/wizard.js         - screen rendering / navigation (imperative DOM, ~68KB)
-AH/                               DUPLICATE of asistente-honorarios-clasico/js (identical file sizes) plus its
-                                  own asistente.html. Legacy/earlier copy — treat clasico/ as canonical when in doubt.
-asistente-honorarios-moderno/     Abandoned Vite/React refactor attempt. Not used, not maintained.
-
 honorio/                          ACTIVE — Next.js 16 + React 19 + TypeScript rewrite of the fee-calculator UX.
                                   This is where current development happens. See below.
 
@@ -108,5 +104,5 @@ Stack: Next.js 16 (App Router), React 19, TypeScript, Tailwind v4 + shadcn/ui (`
 ## Working across the repo
 
 - Before editing legal calculation code anywhere (`calculate.ts`, `calculations.js`, `core.js`), check `docs/domain/03_REGLAS_DE_NEGOCIO.md` and `docs/domain/07_GLOSARIO.md` for the normative reasoning, and `docs/domain/08_DEUDA_TECNICA_FUNCIONAL.md` for known issues that may already be tracked.
-- If a fix belongs in the shared engine, prefer fixing it in `asistente-honorarios-clasico/js/` (the canonical source) and propagating deliberately to `honorio/public/legacy/` and `AH/`, rather than patching one copy silently.
+- If a fix belongs in the shared engine, prefer fixing it in `asistente-honorarios-clasico/js/` (the canonical source) and propagating deliberately to `honorio/public/legacy/`, rather than patching one copy silently.
 - The standalone calculators in `calculadoras/` are independent single-file tools — no shared build step, no bundler; edits are direct HTML/JS file edits.

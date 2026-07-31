@@ -8,8 +8,8 @@ Incluye:
 
 Arquitectura actual:
 - Algunas herramientas son SPA en un archivo HTML independiente con JS embebido
-- El asistente de honorarios (AH/) está modularizado en:
-  - `asistente.html` – estructura y carga de módulos
+- El asistente de honorarios (asistente-honorarios-clasico/) está modularizado en:
+  - `index.html` – estructura y carga de módulos
   - `css/styles.css` – estilos con modo oscuro
   - `js/core.js` – cálculos puros (escalas, UMA, parseo/formateo)
   - `js/state.js` – estado global y validaciones
@@ -22,7 +22,7 @@ Dependencias:
 - Feriados desde API externa + JSON local (otras herramientas)
 
 Herramienta más compleja:
-- AH/asistente.html + js/.js + css/styles.css
+- asistente-honorarios-clasico/index.html + js/.js + css/styles.css
 - Implementa un wizard de 5 pasos con estado global (`wizardState`)
 - Contiene lógica normativa compleja basada en la Ley 27.423 y artículos complementarios
 - Soporta múltiples tipos de procesos (conocimiento, ejecución, sucesión, exhorto, incidente, medida cautelar,etc.)

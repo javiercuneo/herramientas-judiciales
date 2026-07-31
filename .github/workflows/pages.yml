@@ -47,9 +47,6 @@ jobs:
           cp -r calculadoras site/
           cp -r data site/
           cp -r asistente-honorarios-clasico site/
-          mkdir -p site/asistente-honorarios-moderno
-          cp -r asistente-honorarios-moderno/. site/asistente-honorarios-moderno/
-          rm -rf site/asistente-honorarios-moderno/node_modules
           cp -r "proyectos finalizados" "site/proyectos finalizados"
 
           # PDF-studio: PWA estatica de vanilla JS (client-side)
