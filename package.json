@@ -1,0 +1,12 @@
+{
+  "name": "herramientas-judiciales",
+  "private": true,
+  "type": "module",
+  "description": "Scripts a nivel repositorio. Cada proyecto (honorio/, PDF-studio/) tiene su propio package.json.",
+  "scripts": {
+    "docs": "node scripts/build-docs.mjs site/docs"
+  },
+  "devDependencies": {
+    "marked": "^15.0.7"
+  }
+}
