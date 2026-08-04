@@ -61,14 +61,11 @@ quedar todas en verde**. No son opcionales: son lo que impide que un cambio
 de interfaz mueva un número.
 
 ```bash
-for f in lib/legal/__tests__/*.validation.ts; do npx tsx "$f"; done
+npm run check
 ```
 
-Y para todo lo demás:
-
-```bash
-npx tsc --noEmit && npm run build
-```
+CI corre lo mismo en tu pull request, así que si falla lo vas a ver igual;
+correrlo antes te ahorra la vuelta. Y para el resto, `npm run build`.
 
 ## Si tu aporte cambia un número
 

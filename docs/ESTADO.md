@@ -3,17 +3,99 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-07-31 (tarde) · rama `milestone-1-integracion`
+Última actualización: 2026-08-04 · rama `milestone-1-integracion`
+
+> **Este es el único ESTADO del repositorio.** Se evaluó partirlo en uno por
+> proyecto y se descartó el 3/8: con varios proyectos conviviendo, dos
+> archivos de continuidad se desincronizan y aparece la duda de cuál leer
+> primero. Si `honorio/` se separa algún día del repo, se lleva el suyo.
 
 ---
 
 ## Dónde estamos
 
-`honorio/` cerró el **rediseño visual** y quedó **sin bugs conocidos**. El motor
-jurídico solo cambió para arreglar provisorios; las validaciones de
-`lib/legal/__tests__` son ahora **10** y están todas en verde.
+`honorio/` cerró el **rediseño visual** y va por **2.0.0**: se arregló el
+flujo *hacia atrás* de la entrevista, que arrastraba respuestas de un proceso
+a otro. Las validaciones de `lib/legal/__tests__` son ahora **11** y están
+todas en verde.
 
-Commits previos de la sesión de rediseño:
+El 4/8 el foco se corrió del motor a **cómo se presenta el repositorio**.
+Javier lo tiene enlazado en LinkedIn y funciona de hecho como carta de
+presentación, así que se reescribieron el README de la raíz y la landing, y se
+hizo visible la parte de ingeniería que existía y no se veía. Ver
+[Presentación del repositorio](#presentación-del-repositorio) más abajo.
+
+### Lo del 3/8: el flujo hacia atrás
+
+El bug reportado: llegar a *conocimiento*, elegir **honorarios provisorios**,
+volver atrás y cambiar a **sucesión**. El paso de terminación desaparece —la
+sucesión no lo pregunta— pero la respuesta seguía en `answers`, el resumen
+del caso mostraba «Terminación: provisorios» y el resultado salía marcado
+como provisorio.
+
+Es doblemente incorrecto: es un estado que la entrevista no puede producir
+yendo hacia adelante, y es un error jurídico. En el sucesorio no se admiten
+regulaciones provisorias salvo excepción, y en esa excepción —el letrado
+renuncia con la sucesión sin terminar— **la regulación es definitiva y va con
+mínimo y máximo**, justo lo contrario de lo que hace el art. 12.
+
+La causa no era del caso: `answers` era un acumulador que solo crecía.
+`visibleSteps` sí se recalculaba, pero nadie borraba lo que dejaba de
+preguntarse, y `syncAllToLegacy` volcaba todo al motor. Un barrido
+exhaustivo de los **25.600 cruces** posibles encontró otras dos salidas, esas
+con consecuencia numérica:
+
+| Camino | Qué quedaba pegado |
+|---|---|
+| Sentencia «rechazada» → atrás → modos anormales / caducidad | base −30 % (art. 22) sin haberlo preguntado |
+| Modos anormales «antes de prueba» → atrás → caducidad / art. 22 | escala −50 % (art. 25) sin haberlo preguntado |
+
+**Importante para futuras sesiones:** el legacy **no** es referencia acá. El
+clásico tiene el mismo agujero —`wizard.js` setea `wizardState.tipoProceso`
+en el `change` del `<select>` y no limpia nada— y su `mostrarResumen()`
+imprime «Terminación: …» con solo mirar `modoTerminacion`, sin mirar el tipo
+de proceso. Lo heredamos fielmente. Si aparece otro caso raro por esta vía,
+no alcanza con comparar contra el clásico.
+
+El arreglo, en tres capas:
+
+1. **`lib/wizard/reachability.ts`** — una respuesta vive mientras su paso sea
+   visible. `podarInalcanzables` itera hasta punto fijo, porque podar una
+   respuesta puede volver invisible a otro paso. Reemplaza el nuleo ad-hoc
+   de las sub-opciones de `objeto`, que era este mismo problema resuelto
+   para un solo caso.
+2. **El motor se defiende solo** — `esRegulacionProvisoria` mira el tipo de
+   proceso, no solo el modo de terminación. Un estado imposible no depende
+   de que el llamador lo haya limpiado. Importa para el consumo del motor
+   desde afuera, que está en el ROADMAP.
+3. **`calculate()` reconstruye el estado del motor entero**
+   (`resetWizardState` + `syncAllToLegacy`) en vez de parchearlo.
+   `wizardState` es un objeto mutable de larga vida: parchearlo dejaba
+   adentro lo que la poda ya había descartado.
+
+**Consecuencia que hay que sostener:** volver atrás y cambiar el tipo de
+proceso ahora **vacía** las respuestas que ese proceso no comparte. Volver al
+proceso anterior obliga a responderlas de nuevo. Es deliberado —decisión de
+Javier el 3/8— y es el precio de que no queden respuestas que el usuario no
+dio. Si alguna vez molesta, la salida **no** es dejar de podar: sería guardar
+las respuestas viejas en un cajón aparte, que es exactamente el estado oculto
+que causó este bug.
+
+### Cambio de criterio en el motor
+
+`resolveReglas` aplicaba el −50 % del art. 25 también cuando la caducidad se
+trataba por **art. 22**, acumulando la quita de base del 22 y la de escala
+del 25 sobre el mismo hecho. **El motor clásico nunca tuvo esa rama.** Se
+quitó el 3/8 con confirmación de Javier: los dos criterios de la caducidad
+son alternativos —o art. 22 o art. 25—; elegido el art. 22 la instancia cae
+como demanda desestimada y el momento de la apertura a prueba no juega.
+Recién con el art. 25 importa.
+
+Hoy no cambia ningún número de una corrida limpia, porque con el criterio del
+art. 22 la entrevista nunca pregunta la apertura a prueba. Solo se disparaba
+por la fuga descrita arriba.
+
+Commits de la sesión de rediseño (31/7):
 
 | Commit | Qué |
 |---|---|
@@ -22,25 +104,89 @@ Commits previos de la sesión de rediseño:
 | `369abc2` | Baja de ruido del dashboard + preferencias de lectura |
 | `0e689c0` | Wizard sobre el mismo sistema |
 | `cc99cc6` | Auto-avance, provisorios, tildes y ajustes de lectura |
-
-Pendiente de commitear (pasada del 31/7 a la tarde):
-
-- **Provisorios arreglados.** `esProvisorio` nunca se seteaba desde el wizard
-  React: la presentación estaba entera, solo faltaba que la bandera llegara.
-  Ahora la condición **se deriva de `modoTerminacion` dentro del motor**
-  (`esRegulacionProvisoria`), no de una bandera que el llamador tenga que
-  acordarse de poner. Cubierto por `provisorios.validation.ts`.
-- **Mínimos arancelarios rehechos.** Se fue el `<select>` heredado; abre
-  mostrando los 44 conceptos, con buscador (`lib/minimos-buscar.ts`) y en
-  orden de articulado. Ver CHANGELOG.
-- **Marca.** `components/brand.tsx` pinta la ilustración con `mask-image` y
-  `currentColor`: una sola pieza para los dos temas.
-- **Documentación nueva:** `honorio/README.md`, `honorio/CHANGELOG.md`,
-  `honorio/docs/ROADMAP.md`. El paquete dejó de llamarse `my-project` y
-  arranca en `1.0.0`.
+| `2df2c74` | Mínimos arancelarios buscables, sin el `<select>` heredado |
+| `a43db27` | La marca sigue el tema; limpieza de assets de plantilla |
+| `ca2e4d1` | Enlace roto al precedente "Las Marías" en la intro |
+| `1f1ddd2` | README, CHANGELOG y ROADMAP |
+| `41ca84d` | AGPL-3.0 para `honorio/`, MIT para el resto |
 
 Pantallas: **dashboard**, **wizard**, **portada**, **intro** y **mínimos**
 sobre el mismo sistema. Falta pulido de mensajes.
+
+---
+
+## Presentación del repositorio
+
+Trabajo del 4/8. El diagnóstico: el repositorio es la carta de presentación de
+Javier —está en su LinkedIn— y presentaba mal lo que tiene. Honorio figuraba
+como una tarjeta más bajo «🚧 En desarrollo», y el texto más visible era un
+descargo pidiendo disculpas por el código («puede contener errores», «no sigue
+estándares profesionales»). Con 11 validaciones corriendo y una arquitectura
+documentada, ese descargo ya era falso además de caro.
+
+**El criterio que ordenó todo:** hay dos descargos distintos y estaban
+mezclados. Uno es correcto y profesional —*no sustituye el criterio del juez,
+no es asesoramiento legal*— y se conserva. El otro es una disculpa preventiva y
+se reemplazó por lo contrario: **cómo se verifica**. Decir «11 validaciones
+impiden que un cambio de interfaz mueva un número» genera más confianza que
+pedir perdón, y encima es cierto.
+
+Qué cambió:
+
+| Qué | Estado |
+|---|---|
+| `AGENTS.md` | Reescrito. Es la **referencia canónica** para cualquier agente. |
+| `CLAUDE.md` | Reducido a un puntero a `AGENTS.md`. |
+| `PROJECT_CONTEXT.md` | **Borrado.** Estaba desactualizado (no sabía que Honorio existía) y todo lo suyo ya vivía en `AGENTS.md` y acá. |
+| `README.md` (raíz) | Reescrito al registro de `honorio/README.md`. Honorio primero; sección de verificación; sin emojis. |
+| `index.html` | Reconstruida sobre los tokens de Honorio. Links **relativos**. |
+| `scripts/validate.mjs` | Runner único de las validaciones. |
+| `.github/workflows/motor.yml` | CI: tipos + validaciones + build, en cada push y PR. |
+| `scripts/build-docs.mjs` | `docs/domain/` renderizado a HTML y publicado. |
+| `next.config.mjs` | Se quitó `ignoreBuildErrors`. |
+
+**Sobre `ignoreBuildErrors: true`:** apagaba el chequeo de tipos durante
+`next build`. Se sacó el 4/8 después de confirmar que `tsc --noEmit` pasa
+limpio: no estaba tapando nada, pero mientras estuviera ahí el build podía
+publicar código con errores de tipo sin avisar. Era además la única cosa del
+repositorio que le daba la razón al descargo que estábamos sacando.
+
+**Sobre las validaciones:** antes eran scripts sueltos que había que acordarse
+de correr a mano, así que la frase «ningún cambio puede mover un número sin que
+una validación falle» era un deseo. Ahora hay `npm run check`, corre en CI en
+cada push y cada PR, y otra vez en `pages.yml` antes de publicar: **si una
+falla, el sitio no sale.** La frase pasó a ser verdad.
+
+**Sobre `npm run lint`:** se eliminó el script. Declaraba `eslint .` y `eslint`
+nunca estuvo instalado, así que era una promesa que fallaba. Si alguna vez se
+quiere linter, se instala primero.
+
+### Mudanza de Honorio a repo propio — en curso
+
+Decisión del 4/8. Javier registró **`honorio.ar`** en NIC (`honorio.com.ar`
+estaba tomado) y creó el repositorio **`javiercuneo/honorio`**, público, AGPL,
+con `LICENSE`, `README.md` y `.gitignore`.
+
+**Todavía no se mudó nada, y el orden importa.** En cuanto `honorio/` sale de
+este repositorio, `javiercuneo.github.io/Herramientas-Judiciales-IA/honorio/`
+deja de existir, porque `pages.yml` lo construye desde acá. Todo lo que apunta
+ahí queda roto hasta que el repo nuevo tenga Pages arriba. La secuencia
+acordada:
+
+1. `git subtree split --prefix=honorio` para conservar la historia.
+2. Pages arriba en el repo nuevo, con `basePath` vacío y `CNAME` a `honorio.ar`.
+3. Recién entonces sacar `honorio/` de acá y repuntar los enlaces.
+
+Los pasos 2 y 3 esperan a que NIC acredite el pago (24 h desde el 4/8) y a que
+la delegación DNS propague.
+
+**El nombre del repositorio principal sigue sin decidirse.** `honorio.ar` es un
+dominio de *producto*, no el paraguas: si Javier construye algo que no tenga
+que ver con honorarios, «Honorio» no lo contiene. Candidato en danza para el
+paraguas: **`elsecretario`** —en el juzgado es quien lo hace funcionar, y para
+el abogado es el asistente—. Sin decidir. Mientras tanto el repositorio se
+sigue llamando `Herramientas-Judiciales-IA` y la landing se presenta bajo el
+nombre de Javier, que es identidad que no caduca.
 
 ---
 
@@ -138,7 +284,26 @@ describiera mal el número, porque el ×1,4 se aplica después.
 
 ### Bugs conocidos
 
-Ninguno.
+Ninguno. El del flujo hacia atrás se cerró el 3/8 y quedó cubierto por
+`retroceso.validation.ts`, que barre los 25.600 cruces en cada corrida.
+
+### Pendiente inmediato (pedido de Javier, 3/8)
+
+Los tres van juntos porque comparten el mismo problema de fondo: hoy nada en
+la interfaz dice quién hizo esto ni contra qué versión del motor se calculó.
+
+- **Enlace a la documentación desde la app.** *Medio resuelto el 4/8:* ya hay
+  a dónde apuntar. `docs/domain/` se publica como HTML en `/docs/`
+  (`scripts/build-docs.mjs`) y la landing lo enlaza. Falta lo de adentro de la
+  app: **desde qué pantalla de Honorio se entra**.
+- **Informe imprimible.** PDF del cálculo con interruptor para incluir u
+  omitir las explicaciones. Propuesto, no empezado.
+- **Autoría visible.** Ver abajo.
+
+La versión del motor —hoy `2.0.0`— es el hilo que los une: el informe la
+tiene que mostrar, y es lo que hace que un cálculo sea reproducible dentro de
+dos años. Ver el encabezado de `honorio/CHANGELOG.md` para el criterio de
+numeración.
 
 ### Licencia: decidida
 
@@ -161,14 +326,11 @@ Consecuencias que hay que sostener:
 ### Decisiones abiertas, del autor
 
 - **Autoría visible en la app.** Hoy figura en los README, no en la interfaz.
-  Sin decidir dónde; la idea era resolverla junto con la versión del motor en
-  el informe imprimible.
+  Sin decidir dónde. Cae en el pendiente inmediato de arriba: es la misma
+  pregunta que "qué firma el informe imprimible".
 
 ### Pendiente de diseño y contenido
 
-- **Informe imprimible.** Pedido del autor: PDF del cálculo con interruptor
-  para incluir u omitir las explicaciones. Propuesto, no empezado. Requiere
-  mostrar la versión del motor en el informe.
 - **Assets de marca.** Cableado y resuelto: `components/brand.tsx` usa
   `mask-image` + `currentColor` sobre `public/honorio-marca.svg`.
   **Ojo con lo que decía la versión anterior de este documento:** los SVG no
@@ -192,15 +354,28 @@ Consecuencias que hay que sostener:
 
 ## Trampas conocidas
 
-- **El panel del navegador de la sesión no compone frames.** `document.hidden`
-  es `true` y `requestAnimationFrame` no dispara, así que
+- **El panel del navegador no compone frames si el panel no está a la vista.**
+  Esto se anotó varias veces como si fuera una limitación del entorno, y no lo
+  es: **la causa es que el panel del navegador está cerrado o en segundo plano
+  en la app.** Con el panel oculto, `document.hidden` es `true`,
+  `requestAnimationFrame` no dispara, `clientWidth` mide 0 y las capturas
+  fallan con *«the Browser pane is not displayed»*. Consecuencias:
   `AnimatePresence mode="wait"` nunca completa la salida y **el paso del wizard
-  no llega a montarse**. Las capturas de pantalla también fallan. Consecuencia
-  práctica: para verificar hay que armar una **página temporal** que renderice
-  los componentes sin `AnimatePresence`, y comprobar por
-  `read_page` / estilos computados. Borrarla antes de commitear.
+  no llega a montarse**; y no se puede verificar layout ni sacar capturas.
+  **La solución es abrir el panel del navegador y reintentar.** Si no se puede,
+  las alternativas siguen sirviendo: `read_page`, estilos computados, y una
+  **página temporal** que renderice los componentes sin `AnimatePresence`
+  (`app/verificar/`, borrarla antes de commitear).
 - **`setAnswer` del wizard toma un solo argumento** (el valor), no `(id, valor)`:
   aplica siempre al paso actual.
+- **`answers` ya no es un acumulador.** `setAnswer` poda las respuestas que
+  dejaron de preguntarse. Si algo necesita sobrevivir a un cambio de rumbo,
+  **no** se guarda en `answers` "por las dudas": se declara como paso del
+  proceso en `PROCESS_STEP_MAP`, o vive fuera del wizard. Ver
+  `lib/wizard/reachability.ts`.
+- **El orden de `ALL_STEPS` no es cosmético.** Todo `dependsOn` apunta hacia
+  atrás, y de eso depende que podar no invalide el `index` del paso actual.
+  Un paso nuevo va después de aquellos de los que depende.
 - **No diferir `wizard.next()` en un `setTimeout` que cierre sobre `wizard`.**
   Ese objeto queda con las respuestas del render anterior y la validación no ve
   la selección recién hecha. Ya pasó una vez: usar una ref al último render.
@@ -208,9 +383,13 @@ Consecuencias que hay que sostener:
   de tarjeta te sacaba de la pregunta.
 - **`git commit -m` con here-string falla** en este entorno (guardia de sandbox).
   Usar `git commit -F <archivo>`.
-- **`npm run lint` no corre**: `eslint` no está instalado pese al script.
-  Verificar con `npx tsc --noEmit` y `npm run build`.
-- **Los comandos se corren desde `honorio/`**, no desde la raíz del repo.
+- **`npm run lint` ya no existe.** Declaraba `eslint .` sin que `eslint`
+  estuviera instalado. Para verificar: `npm run check` (tipos + validaciones) y
+  `npm run build`.
+- **Los comandos de Honorio se corren desde `honorio/`**, no desde la raíz.
+  Desde el 4/8 la raíz **también** tiene `package.json`, con `npm run docs`
+  para generar la documentación de dominio. Son dos proyectos npm distintos:
+  fijarse en cuál se está parado antes de instalar algo.
 - **Una carpeta de ruta que empieza con `_` no existe para el App Router**:
   es carpeta privada. La página temporal de verificación tiene que llamarse
   `app/verificar/`, no `app/_verificar/`, o da 404 sin explicar por qué.
@@ -232,8 +411,9 @@ npx tsc --noEmit
 npm run build
 ```
 
-Y las validaciones del motor —10 archivos—, que deben quedar todas en verde:
+Y las validaciones del motor —11 archivos—, que deben quedar todas en verde.
+Todo junto, que es lo mismo que corre CI:
 
 ```bash
-for f in lib/legal/__tests__/*.validation.ts; do npx tsx "$f"; done
+npm run check
 ```

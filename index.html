@@ -1,490 +1,630 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⚖️ Herramientas Judiciales con IA</title>
-  <!-- Google Fonts: Montserrat -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background: #f4f6f9;
-      color: #1e2b3c;
-      line-height: 1.5;
-    }
-    .top-bar {
-      background: #0b1a2a;
-      color: white;
-      padding: 48px 24px 40px;
-      text-align: center;
-      border-bottom: 4px solid #2b6f9c;
-    }
-    .top-bar h1 {
-      font-weight: 600;
-      font-size: 2.5rem;
-      letter-spacing: -0.5px;
-      margin-bottom: 12px;
-    }
-    .top-bar .subhead {
-      font-size: 1.2rem;
-      max-width: 780px;
-      margin: 0 auto;
-      opacity: 0.9;
-      font-weight: 400;
-    }
-    .wrapper {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 32px 24px 48px;
-    }
-    .lang-switch {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 24px;
-    }
-    .lang-toggle {
-      background: white;
-      border-radius: 40px;
-      padding: 4px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-      border: 1px solid #dbe1e8;
-      display: inline-flex;
-    }
-    .lang-toggle button {
-      background: transparent;
-      border: none;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 500;
-      font-size: 0.95rem;
-      padding: 8px 20px;
-      border-radius: 32px;
-      cursor: pointer;
-      color: #2c3e50;
-      transition: all 0.15s;
-    }
-    .lang-toggle button.active {
-      background: #0b1a2a;
-      color: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    section { margin-bottom: 48px; }
-    h2 {
-      font-weight: 600;
-      font-size: 1.8rem;
-      margin-bottom: 24px;
-      border-left: 6px solid #2b6f9c;
-      padding-left: 20px;
-      color: #0b1a2a;
-    }
-    h3 {
-      font-weight: 600;
-      font-size: 1.3rem;
-      margin: 24px 0 16px;
-      color: #1e3a5f;
-    }
-    .grid-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
-    }
-    .tool-card {
-      background: white;
-      border-radius: 20px;
-      padding: 24px 20px 20px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.04), 0 2px 6px rgba(0,0,0,0.03);
-      transition: transform 0.2s, box-shadow 0.2s;
-      border: 1px solid #eaedf0;
-      display: flex;
-      flex-direction: column;
-    }
-    .tool-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 16px 28px rgba(0,20,40,0.08);
-      border-color: #cbd5e1;
-    }
-    .tool-card h4 {
-      font-weight: 600;
-      font-size: 1.25rem;
-      margin-bottom: 8px;
-      color: #0b1a2a;
-    }
-    .tool-card p {
-      color: #475569;
-      margin-bottom: 20px;
-      flex: 1;
-      font-size: 0.95rem;
-    }
-    .btn {
-      display: inline-block;
-      background: #0b1a2a;
-      color: white;
-      font-weight: 500;
-      padding: 10px 16px;
-      border-radius: 40px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      text-align: center;
-      transition: background 0.2s;
-      border: none;
-      align-self: flex-start;
-    }
-    .btn-outline {
-      background: transparent;
-      color: #0b1a2a;
-      border: 1.5px solid #0b1a2a;
-    }
-    .btn-outline:hover {
-      background: #0b1a2a;
-      color: white;
-    }
-    .btn:hover { background: #1f3a57; }
-    .notice-box {
-      background: #fef9e7;
-      border-left: 6px solid #e6b800;
-      padding: 24px 28px;
-      border-radius: 16px;
-      margin: 32px 0 40px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-    }
-    .notice-box p { margin-bottom: 12px; font-size: 1rem; }
-    .notice-box strong { color: #7a5c00; }
-    .author-card {
-      background: white;
-      border-radius: 24px;
-      padding: 28px 32px;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.03);
-      border: 1px solid #e2e8f0;
-      margin: 32px 0;
-    }
-    .author-links {
-      margin-top: 16px;
-      display: flex;
-      gap: 28px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .author-links a, .author-links span {
-      color: #0b1a2a;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .author-links a:hover { border-bottom: 2px solid #2b6f9c; }
-    .footer-note {
-      text-align: center;
-      margin-top: 48px;
-      color: #546a7a;
-      font-size: 0.9rem;
-      border-top: 1px solid #d0d9e2;
-      padding-top: 28px;
-    }
-    .badge-dev {
-      background: #eef2ff;
-      color: #1e3a5f;
-      padding: 6px 14px;
-      border-radius: 30px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      display: inline-block;
-      margin-right: 12px;
-    }
-    .doc-promo {
-      background: linear-gradient(145deg, #ffffff 0%, #f9fcff 100%);
-      border: 1px solid #cbdde9;
-      border-radius: 28px;
-      padding: 28px 32px;
-      margin-bottom: 40px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 8px 14px rgba(0,20,40,0.04);
-    }
-    .doc-promo-content h3 {
-      margin: 0 0 8px;
-      font-size: 1.8rem;
-      font-weight: 600;
-    }
-    .doc-promo-content p {
-      font-size: 1.1rem;
-      color: #2c3e50;
-      max-width: 700px;
-    }
-    @media (max-width: 600px) {
-      .top-bar h1 { font-size: 2rem; }
-      .wrapper { padding: 20px 16px; }
-      .lang-switch { justify-content: center; }
-      .doc-promo { flex-direction: column; align-items: flex-start; gap: 20px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Herramientas para la práctica judicial · L. Javier Cúneo Libarona</title>
+<meta name="description" content="Software para computar plazos, regular honorarios y liquidar la tasa de justicia. Herramientas de uso diario en el fuero, con el cálculo a la vista.">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Herramientas para la práctica judicial">
+<meta property="og:description" content="Software para computar plazos, regular honorarios y liquidar la tasa de justicia. El cálculo siempre a la vista.">
+<meta property="og:locale" content="es_AR">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet">
+
+<style>
+/* ------------------------------------------------------------------
+   Mismo sistema visual que Honorio ("instrumento de medicion").
+   Tres roles tipograficos con significado:
+     --font-meter  Archivo      cifras, titulos, lo que mide
+     --font-sans   sistema      interfaz y lectura
+     --font-law    Source Serif la norma. Si ves serif, estas leyendo la ley.
+   Un solo acento: cobalto. Lo activo, lo enfocado y lo seleccionado.
+   ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+  --bg: #e9ebee;
+  --fg: #12161c;
+  --card: #ffffff;
+  --muted-fg: #5a626e;
+  --faint: #8b93a0;
+  --accent: #1e45ce;
+  --accent-tint: rgb(30 69 206 / 0.09);
+  --border: rgb(18 22 28 / 0.13);
+  --hair: rgb(18 22 28 / 0.07);
+  --sunk: #f2f4f6;
+  --axis-base: #9a6b12;
+  --axis-escala: #6b3fbf;
+  --axis-honorarios: #a8482b;
+  --radius: 0.375rem;
+  --font-meter: 'Archivo', 'DIN Alternate', 'Segoe UI', sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-law: 'Source Serif 4', ui-serif, Georgia, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #0d0f13;
+    --fg: #edeff3;
+    --card: #16191f;
+    --muted-fg: #99a1ae;
+    --faint: #6b7381;
+    --accent: #7a99ff;
+    --accent-tint: rgb(122 153 255 / 0.13);
+    --border: rgb(237 239 243 / 0.15);
+    --hair: rgb(237 239 243 / 0.08);
+    --sunk: #101318;
+    --axis-base: #e0b45c;
+    --axis-escala: #b99bff;
+    --axis-honorarios: #e09070;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+h1, h2, h3, .meter { font-family: var(--font-meter); font-weight: 600; letter-spacing: -0.015em; }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+.rule { border: 0; border-top: 1px solid var(--hair); margin: 0; }
+
+/* ---------- Etiquetas ---------- */
+.label {
+  font-family: var(--font-meter);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ---------- Portada ---------- */
+.hero { padding: 88px 0 64px; }
+.hero .label { display: block; margin-bottom: 20px; }
+.hero h1 {
+  font-size: clamp(2.1rem, 5.2vw, 3.4rem);
+  line-height: 1.1;
+  margin: 0 0 24px;
+  max-width: 18ch;
+}
+.hero .lede {
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  color: var(--muted-fg);
+  max-width: 58ch;
+  margin: 0 0 12px;
+}
+.hero .who { font-size: 1rem; color: var(--fg); max-width: 58ch; margin: 0 0 32px; }
+.hero .who strong { font-weight: 600; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-meter);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 11px 20px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-solid { background: var(--accent); color: var(--bg); }
+.btn-solid:hover { filter: brightness(1.08); }
+.btn-ghost { border-color: var(--border); color: var(--fg); }
+.btn-ghost:hover { background: var(--accent-tint); border-color: var(--accent); color: var(--accent); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Secciones ---------- */
+section { padding: 64px 0; }
+.sec-head { margin-bottom: 32px; }
+.sec-head h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 8px 0 10px; }
+.sec-head p { color: var(--muted-fg); max-width: 62ch; margin: 0; }
+
+/* ---------- Honorio ---------- */
+.flag {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2);
+  padding: 40px;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.flag h3 { font-size: clamp(1.8rem, 3.4vw, 2.4rem); margin: 0 0 6px; }
+.flag .sub { color: var(--muted-fg); margin: 0 0 20px; }
+.flag .quote {
+  font-family: var(--font-law);
+  font-size: 1.08rem;
+  line-height: 1.65;
+  border-left: 2px solid var(--accent);
+  padding-left: 18px;
+  margin: 0 0 24px;
+}
+.flag ul { margin: 0 0 28px; padding-left: 18px; color: var(--muted-fg); }
+.flag li { margin-bottom: 7px; }
+.flag li strong { color: var(--fg); font-weight: 600; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+.chip {
+  font-family: var(--font-meter);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 5px 11px;
+  border-radius: var(--radius);
+  background: var(--sunk);
+  border: 1px solid var(--hair);
+  color: var(--muted-fg);
+}
+.chip b { font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; }
+
+/* Los tres ejes del calculo. Es el sistema real de la app, no un adorno. */
+.ejes { background: var(--sunk); border: 1px solid var(--hair); border-radius: var(--radius); padding: 22px; }
+.ejes .label { display: block; margin-bottom: 16px; }
+.eje { display: flex; gap: 12px; align-items: baseline; padding: 11px 0; border-top: 1px solid var(--hair); }
+.eje:first-of-type { border-top: 0; padding-top: 0; }
+.eje .bar { width: 3px; align-self: stretch; border-radius: 2px; flex: none; }
+.eje .n { font-family: var(--font-meter); font-weight: 600; font-size: 0.95rem; }
+.eje .d { font-size: 0.85rem; color: var(--muted-fg); }
+.ejes .foot { font-size: 0.8rem; color: var(--faint); margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--hair); }
+
+/* ---------- Listado de herramientas ---------- */
+.group { margin-bottom: 44px; }
+.group > .label { display: block; margin-bottom: 14px; }
+.tools { border-top: 1px solid var(--hair); }
+.tool {
+  display: grid;
+  grid-template-columns: minmax(210px, 1fr) 2fr;
+  gap: 8px 28px;
+  padding: 16px 14px;
+  border-bottom: 1px solid var(--hair);
+  text-decoration: none;
+  align-items: baseline;
+  border-radius: var(--radius);
+  transition: background 0.12s;
+}
+.tool:hover { background: var(--card); }
+.tool:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.tool .t { font-family: var(--font-meter); font-weight: 600; font-size: 1rem; }
+.tool:hover .t { color: var(--accent); }
+.tool .d { color: var(--muted-fg); font-size: 0.92rem; }
+.tag {
+  font-family: var(--font-meter);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 6px;
+  margin-left: 8px;
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+
+/* ---------- Cómo está hecho ---------- */
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.col h3 { font-size: 1.1rem; margin: 0 0 10px; }
+.col p { color: var(--muted-fg); font-size: 0.94rem; margin: 0 0 12px; }
+.col .num {
+  font-family: var(--font-meter);
+  font-size: 2.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  display: block;
+  margin-bottom: 12px;
+  color: var(--accent);
+}
+code, pre {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.85em;
+}
+pre {
+  background: var(--sunk);
+  border: 1px solid var(--hair);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 0;
+  color: var(--muted-fg);
+}
+
+/* ---------- Prosa ---------- */
+.prose { max-width: 66ch; }
+.prose p { margin: 0 0 18px; }
+.prose p:last-child { margin-bottom: 0; }
+.prose a { color: var(--accent); }
+
+/* ---------- Pie ---------- */
+.foot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.foot-grid h3 { font-size: 1rem; margin: 0 0 12px; }
+.foot-grid p, .foot-grid li { font-size: 0.88rem; color: var(--muted-fg); }
+.foot-grid ul { margin: 0; padding-left: 17px; }
+.foot-grid li { margin-bottom: 6px; }
+.lic { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 14px; }
+.lic td { padding: 7px 0; border-bottom: 1px solid var(--hair); color: var(--muted-fg); }
+.lic td:first-child { color: var(--fg); }
+.lic td:last-child { text-align: right; font-family: var(--font-meter); font-weight: 500; }
+.colofon {
+  padding: 32px 0 56px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  align-items: center;
+  font-size: 0.88rem;
+  color: var(--faint);
+}
+.colofon a { color: var(--muted-fg); text-decoration: none; border-bottom: 1px solid var(--border); padding-bottom: 1px; }
+.colofon a:hover { color: var(--accent); border-color: var(--accent); }
+.colofon .sep { color: var(--border); }
+
+@media (max-width: 860px) {
+  .flag { grid-template-columns: 1fr; gap: 32px; padding: 28px; }
+  .cols { grid-template-columns: 1fr; gap: 28px; }
+  .foot-grid { grid-template-columns: 1fr; gap: 32px; }
+  .tool { grid-template-columns: 1fr; gap: 3px; }
+  .hero { padding: 56px 0 40px; }
+  section { padding: 48px 0; }
+}
+</style>
 </head>
 <body>
 
-<div class="top-bar">
-  <h1 id="main-title">⚖️ Herramientas Judiciales con IA</h1>
-  <div class="subhead" id="main-subtitle">
-    Herramientas con inteligencia artificial para automatizar flujos de trabajo jurídico y apoyar la labor diaria en el ámbito judicial.
+<header class="wrap hero">
+  <span class="label">L. Javier Cúneo Libarona</span>
+  <h1>Herramientas para la práctica judicial</h1>
+  <p class="lede">
+    Software para lo que se hace todos los días en el fuero: computar plazos,
+    regular honorarios, liquidar la tasa. Cada herramienta salió de un problema
+    concreto de trabajo, no de una idea de producto.
+  </p>
+  <p class="who">
+    Abogado. <strong>Prosecretario Administrativo</strong> en un juzgado civil.
+  </p>
+  <div class="actions">
+    <a class="btn btn-solid" href="honorio/">Abrir Honorio</a>
+    <a class="btn btn-ghost" href="#herramientas">Ver todas las herramientas</a>
+    <a class="btn btn-ghost" href="documentacion.html">Guía de uso</a>
   </div>
+</header>
+
+<hr class="rule">
+
+<!-- ============ HONORIO ============ -->
+<section class="wrap" id="honorio">
+  <div class="sec-head">
+    <span class="label">Proyecto principal</span>
+  </div>
+
+  <div class="flag">
+    <div>
+      <h3>Honorio</h3>
+      <p class="sub">Asistente para la regulación de honorarios de la Ley 27.423.</p>
+
+      <div class="chips">
+        <span class="chip">versión <b>2.0.0</b></span>
+        <span class="chip"><b>11</b> suites de validación</span>
+        <span class="chip"><b>8</b> tipos de proceso</span>
+        <span class="chip">sin backend</span>
+      </div>
+
+      <p class="quote">
+        No es una caja negra a propósito. La ley es ambigua en varios puntos y
+        la jurisprudencia está dispersa: donde la app adopta un criterio
+        interpretativo, lo declara junto al número, detrás de un «por qué».
+        Quien no quiere leerlo no lo lee; quien tiene que fundar una regulación
+        lo tiene ahí.
+      </p>
+
+      <ul>
+        <li><strong>Primera y segunda instancia</strong>, para patrocinante, apoderado, procurador y auxiliares.</li>
+        <li><strong>Ocho tipos de proceso:</strong> conocimiento, ejecución de sentencia, ejecutivo, sucesión, medida cautelar, homologación, exhorto e incidente.</li>
+        <li><strong>Reducciones de los arts. 22, 25, 34, 35, 37, 38, 40, 41 y 49</strong>, mostrando qué transformó cada una.</li>
+        <li><strong>Regulaciones provisorias</strong> del art. 12, reparto por etapas y mínimos arancelarios buscables.</li>
+      </ul>
+
+      <div class="actions">
+        <a class="btn btn-solid" href="honorio/">Abrir Honorio</a>
+        <a class="btn btn-ghost" href="https://github.com/javiercuneo/Herramientas-Judiciales-IA/blob/main/honorio/README.md">Cómo está armado</a>
+      </div>
+    </div>
+
+    <aside class="ejes">
+      <span class="label">Los tres ejes del cálculo</span>
+      <div class="eje">
+        <span class="bar" style="background: var(--axis-base)"></span>
+        <div>
+          <div class="n">Base regulatoria</div>
+          <div class="d">Sobre qué monto se calcula. Arts. 22 y 40.</div>
+        </div>
+      </div>
+      <div class="eje">
+        <span class="bar" style="background: var(--axis-escala)"></span>
+        <div>
+          <div class="n">Escala del art. 21</div>
+          <div class="d">Qué porcentaje corresponde. Arts. 25, 35, 37 y 41.</div>
+        </div>
+      </div>
+      <div class="eje">
+        <span class="bar" style="background: var(--axis-honorarios)"></span>
+        <div>
+          <div class="n">Honorario final</div>
+          <div class="d">Qué se le aplica al resultado. Arts. 34, 38 y 49.</div>
+        </div>
+      </div>
+      <p class="foot">
+        Cada regla de la ley toca uno solo de los tres ejes, y la app lo marca
+        con su color. Es la diferencia entre saber que el honorario bajó y saber
+        qué fue lo que bajó.
+      </p>
+    </aside>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ HERRAMIENTAS ============ -->
+<section class="wrap" id="herramientas">
+  <div class="sec-head">
+    <span class="label">Calculadoras</span>
+    <h2>Herramientas de uso diario</h2>
+    <p>
+      Cada una es un archivo, sin instalación y sin servidor: todo se calcula en
+      el navegador y nada de lo que escribís sale de tu máquina.
+    </p>
+  </div>
+
+  <div class="group">
+    <span class="label">Plazos</span>
+    <div class="tools">
+      <a class="tool" href="calculadoras/vencimientos.html">
+        <span class="t">Vencimiento de plazos</span>
+        <span class="d">Vencimiento de un plazo judicial desde una fecha de inicio.</span>
+      </a>
+      <a class="tool" href="calculadoras/caducidad.html">
+        <span class="t">Caducidad de la instancia</span>
+        <span class="d">Cómputo de los arts. 310 y ss. del CPCCN.</span>
+      </a>
+      <a class="tool" href="calculadoras/distancia.html">
+        <span class="t">Ampliación por distancia</span>
+        <span class="d">Art. 158 CPCCN, dentro del país o al exterior.</span>
+      </a>
+      <a class="tool" href="calculadoras/entre-fechas.html">
+        <span class="t">Contador de días</span>
+        <span class="d">Días hábiles o corridos entre dos fechas.</span>
+      </a>
+      <a class="tool" href="calculadoras/regresiva.html">
+        <span class="t">Fecha límite (regresiva)</span>
+        <span class="d">Resta días hábiles a una fecha objetivo para saber hasta cuándo hay tiempo.</span>
+      </a>
+      <a class="tool" href="calculadoras/mora.html">
+        <span class="t">Mora</span>
+        <span class="d">Inicio de la mora según el plazo de la resolución y la fecha en que quedó firme.</span>
+      </a>
+      <a class="tool" href="calculadoras/ejecucion-estado.html">
+        <span class="t">Ejecución contra el Estado <span class="tag">en desarrollo</span></span>
+        <span class="d">Desde cuándo una sentencia contra el Estado Nacional es ejecutable y embargable. Art. 170, Ley 11.672.</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="group">
+    <span class="label">Honorarios y tributos</span>
+    <div class="tools">
+      <a class="tool" href="calculadoras/honorarios.html">
+        <span class="t">Honorarios · Ley 27.423</span>
+        <span class="d">Cálculo directo, sin entrevista. Para el caso simple.</span>
+      </a>
+      <a class="tool" href="calculadoras/honorarios-mediacion.html">
+        <span class="t">Honorarios del mediador</span>
+        <span class="d">Ley 26.589.</span>
+      </a>
+      <a class="tool" href="calculadoras/prorrateo.html">
+        <span class="t">Prorrateo · art. 730 CCyCN</span>
+        <span class="d">Límite de responsabilidad del deudor por las costas.</span>
+      </a>
+      <a class="tool" href="calculadoras/tasa.html">
+        <span class="t">Tasa de justicia</span>
+        <span class="d">Ley 23.898, orientada a procesos civiles.</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="group">
+    <span class="label">Otras</span>
+    <div class="tools">
+      <a class="tool" href="PDF-studio/">
+        <span class="t">PDF Studio</span>
+        <span class="d">Unir, separar, rotar y comprimir PDF sin subirlos a ningún lado.</span>
+      </a>
+      <a class="tool" href="asistente-honorarios-clasico/">
+        <span class="t">Asistente de honorarios clásico</span>
+        <span class="d">La versión original de la que salió Honorio. Se conserva funcionando como referencia.</span>
+      </a>
+      <a class="tool" href="proyectos%20finalizados/bandejito.html">
+        <span class="t">Bandejito <span class="tag">finalizado</span></span>
+        <span class="d">Distribuía automáticamente los escritos que ingresaban al juzgado: leía el PDF del listado diario, aplicaba las reglas de reparto de la oficina y mandaba a cada responsable sus tareas con las alertas de vencimiento. En uso hasta que lo reemplazó un desarrollo institucional.</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ CÓMO ESTÁ HECHO ============ -->
+<section class="wrap" id="como">
+  <div class="sec-head">
+    <span class="label">Cómo está hecho</span>
+    <h2>La exactitud del número es el producto</h2>
+    <p>
+      Un cálculo de honorarios puede terminar fundando una resolución judicial y
+      una fecha mal computada hace perder un derecho. De eso se derivan las
+      reglas con las que se trabaja acá.
+    </p>
+  </div>
+
+  <div class="cols">
+    <div class="col">
+      <span class="num">11</span>
+      <h3>Validaciones que corren en cada cambio</h3>
+      <p>
+        Suites que comparan la salida del motor contra casos conocidos, una por
+        concern: escala del art. 21, reducciones de base, de escala y finales,
+        segunda instancia, partidor, provisorios, procesos generales y
+        especiales, exhorto e incidente.
+      </p>
+      <p>
+        Una de ellas barre los <strong>25.600 recorridos posibles</strong> de la
+        entrevista. No son decorativas: son lo que impide que un cambio de
+        interfaz mueva un número.
+      </p>
+      <pre>for f in lib/legal/__tests__/*.validation.ts
+do npx tsx "$f"; done</pre>
+    </div>
+
+    <div class="col">
+      <span class="num">1</span>
+      <h3>Una sola capa con reglas jurídicas</h3>
+      <p>
+        Toda la aritmética y todas las reglas de la ley viven en
+        <code>lib/legal/</code>, que no conoce React ni el DOM. El schema define
+        qué se pregunta, la orquestación navega y los componentes solo dibujan.
+        Ninguna de esas tres capas puede decidir nada jurídico.
+      </p>
+      <p>
+        El motor tiene un punto de entrada único y es una función pura: mismo
+        estado, mismo resultado. Devuelve el cálculo <em>y</em> la lista de
+        transformaciones que lo produjeron, que es lo que la app muestra como
+        cadena.
+      </p>
+    </div>
+
+    <div class="col">
+      <span class="num">0</span>
+      <h3>Cambios de resultado sin documentar</h3>
+      <p>
+        Los resultados vigentes se consideran correctos y son la referencia a
+        preservar. Un refactor que mejora el código y cambia un número no es un
+        refactor: es un error.
+      </p>
+      <p>
+        Cuando un número tiene que cambiar, se anota con el caso concreto y el
+        artículo que lo funda, aunque el diff sea de una línea. Por eso el
+        registro de versiones se numera según qué le pasó al número, no según
+        cuánto código se tocó: un cálculo de hoy tiene que poder reproducirse
+        dentro de dos años.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ AUTOR ============ -->
+<section class="wrap" id="autor">
+  <div class="sec-head">
+    <span class="label">Autor</span>
+    <h2>L. Javier Cúneo Libarona</h2>
+    <p>
+      Abogado. Prosecretario Administrativo en un juzgado civil. Estas
+      herramientas salieron de resolver, durante años, los mismos cálculos que
+      ahora hacen ellas.
+    </p>
+  </div>
+  <div class="prose">
+    <p>
+      El código está escrito con asistencia de modelos de lenguaje. No hay razón
+      para esconderlo y tampoco mucho mérito en negarlo: hoy cualquiera genera
+      una calculadora.
+    </p>
+    <p>
+      Lo que un modelo no genera es el criterio. Un ejemplo real, de agosto de
+      2026: el motor aplicaba la reducción del art. 25 también cuando la
+      caducidad se resolvía por art. 22, acumulando dos quitas sobre el mismo
+      hecho. Nada en el código lo delataba y el resultado parecía razonable.
+      Está mal porque los dos criterios de la caducidad son alternativos:
+      elegido el art. 22, la instancia cae como demanda desestimada y el momento
+      de la apertura a prueba deja de jugar. Esa corrección no sale de leer la
+      ley con más atención; sale de haber resuelto el caso.
+    </p>
+    <p>
+      Por eso el trabajo está en dos lugares que no son el código: decidir qué
+      hace la herramienta donde la ley no es clara —y dejar escrito por qué— y
+      verificar que el número sea el correcto. Lo primero está en la
+      <a href="docs/">documentación de dominio</a>; lo segundo, en las
+      validaciones de arriba.
+    </p>
+    <div class="actions" style="margin-top:26px">
+      <a class="btn btn-ghost" href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934">LinkedIn</a>
+      <a class="btn btn-ghost" href="https://github.com/javiercuneo">GitHub</a>
+      <a class="btn btn-ghost" href="mailto:javiercuneol@hotmail.com">javiercuneol@hotmail.com</a>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ PIE ============ -->
+<section class="wrap">
+  <div class="foot-grid">
+    <div>
+      <h3>Responsabilidad</h3>
+      <p>
+        Estas herramientas son de carácter <strong>referencial y
+        orientativo</strong>. No sustituyen el criterio del juez natural de la
+        causa ni constituyen asesoramiento legal. Quien las usa es responsable
+        de verificar el resultado antes de darle efecto.
+      </p>
+      <p>
+        Honorio, en particular, <strong>no aplica los mínimos arancelarios
+        automáticamente</strong>: si el cálculo cae por debajo de un mínimo que
+        corresponde, hay que desestimarlo. Por eso la tabla de mínimos está a un
+        clic dentro de la app.
+      </p>
+    </div>
+    <div>
+      <h3>Licencia</h3>
+      <table class="lic">
+        <tr><td>Todo el repositorio</td><td>MIT</td></tr>
+        <tr><td>Honorio</td><td>AGPL-3.0-or-later</td></tr>
+      </table>
+      <p>
+        Las calculadoras son aritmética sobre reglas explícitas: usalas,
+        copialas, vendelas si querés. Honorio va bajo AGPL porque lo que hay en
+        su motor no es aritmética, son los criterios para resolver los puntos
+        donde la ley es ambigua. La AGPL no prohíbe el uso comercial: exige que
+        quien la modifique y la ofrezca a terceros publique su versión bajo la
+        misma licencia. La app es y va a seguir siendo gratuita.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="wrap colofon">
+  <span>L. Javier Cúneo Libarona</span>
+  <span class="sep">·</span>
+  <a href="https://github.com/javiercuneo">GitHub</a>
+  <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934">LinkedIn</a>
+  <a href="mailto:javiercuneol@hotmail.com">javiercuneol@hotmail.com</a>
+  <span class="sep">·</span>
+  <a href="documentacion.html">Guía de uso</a>
+  <a href="docs/">Documentación de dominio</a>
 </div>
 
-<div class="wrapper">
-  <!-- Toggle idioma -->
-  <div class="lang-switch">
-    <div class="lang-toggle" id="langToggle">
-      <button id="btnEs" class="active">🇪🇸 Español</button>
-      <button id="btnEn">🇬🇧 English</button>
-    </div>
-  </div>
-
-  <!-- Bloque de documentación -->
-  <div class="doc-promo">
-    <div class="doc-promo-content">
-      <h3 id="doc-title">📘 Documentación detallada</h3>
-      <p id="doc-desc">Accedé a una guía completa de las herramientas: cómo funciona cada calculadora, casos de uso, limitaciones y fundamentos normativos.</p>
-    </div>
-    <a href="https://javiercuneo.github.io/Herramientas-Judiciales-IA/documentacion.html" class="btn" style="padding: 14px 28px; font-size: 1rem;" id="doc-link">Ver documentación →</a>
-  </div>
-
-  <!-- Grupo: Calculadoras de plazos -->
-  <section>
-    <h2 id="group-deadlines-title">📅 Calculadoras de plazos</h2>
-    <div class="grid-cards" id="deadlines-group"></div>
-  </section>
-
-  <!-- Grupo: Honorarios -->
-  <section>
-    <h2 id="group-fees-title">⚖️ Honorarios</h2>
-    <div class="grid-cards" id="fees-group"></div>
-  </section>
-
-  <!-- Grupo: Tasa de justicia -->
-  <section>
-    <h2 id="group-tax-title">🏛️ Tasa de justicia</h2>
-    <div class="grid-cards" id="tax-group"></div>
-  </section>
-
-  <!-- Grupo: En desarrollo -->
-  <section>
-    <h2 id="group-dev-title">🚧 En desarrollo</h2>
-    <div class="grid-cards" id="dev-group"></div>
-  </section>
-
-  <!-- Grupo: Proyectos completados -->
-  <section>
-    <h2 id="group-completed-title">✅ Proyectos completados</h2>
-    <div class="grid-cards" id="completed-group"></div>
-  </section>
-
-  <!-- Advertencias IA y limitación -->
-  <div class="notice-box" id="disclaimer-box">
-    <p><strong>🤖 Estas herramientas fueron generadas utilizando IA, por lo que:</strong><br>
-    • El código puede contener errores.<br>
-    • No sigue necesariamente estándares profesionales de desarrollo.<br>
-    • Está pensado como prototipo o apoyo práctico.</p>
-    <p><strong>⚠️ Limitación de responsabilidad:</strong> las herramientas incluidas en este repositorio:<br>
-    • Son de carácter referencial y orientativo.<br>
-    • No sustituyen el criterio del juez natural de la causa.<br>
-    • No constituyen asesoramiento legal ni dictamen profesional.<br>
-    • El usuario es el único responsable del uso que haga de los resultados obtenidos.</p>
-  </div>
-
-  <!-- Autor y licencia -->
-  <div class="author-card">
-    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-      <span class="badge-dev">👤 AUTOR</span>
-      <h3 style="margin:0; font-size: 1.6rem; font-weight: 600;" id="author-name">L. Javier Cúneo Libarona</h3>
-    </div>
-    <p style="margin-top: 12px; font-size: 1.05rem; line-height: 1.6;" id="author-bio"></p>
-    <div class="author-links">
-      <a href="https://github.com/javiercuneo" target="_blank" rel="noopener">🔗 GitHub</a>
-      <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener">🔗 LinkedIn</a>
-      <span>📧 <a href="mailto:javiercuneol@gmail.com">javiercuneol@gmail.com</a></span>
-    </div>
-    <div style="margin-top: 28px; background: #f8fafc; padding: 16px 20px; border-radius: 16px;">
-      <p style="margin:0"><strong>📝 Licencia MIT</strong> · Este proyecto se distribuye bajo la licencia MIT.</p>
-      <p style="margin-top: 10px;"><strong>📌 Objetivo:</strong> <span id="project-goal"></span></p>
-    </div>
-  </div>
-
-  <!-- Footer simple sin versión -->
-  <div class="footer-note">
-    ⚖️ Herramientas Judiciales con IA · 
-    <a href="https://github.com/javiercuneo" target="_blank">GitHub</a> · 
-    <a href="mailto:javiercuneol@gmail.com">javiercuneol@gmail.com</a>
-  </div>
-</div>
-
-<script>
-  (function() {
-    'use strict';
-
-    // ---------- DATOS DE HERRAMIENTAS ----------
-    const toolsData = {
-      deadlines: [
-        { nameEs: 'Calculadora de vencimiento de plazos', nameEn: 'Deadline Expiration Calculator', descEs: 'Calcula el vencimiento de un plazo judicial a partir de una fecha de inicio.', descEn: 'Calculates judicial deadline expiration based on a start date.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/vencimientos.html' },
-        { nameEs: 'Calculadora de ampliación de plazos por distancia', nameEn: 'Distance Extension Calculator (Art. 158 CPCCN)', descEs: 'Ampliación de plazos conforme al art. 158 CPCCN dentro de Argentina o internacionalmente.', descEn: 'Deadline extension according to Art. 158 CPCCN, within Argentina or internationally.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/distancia.html' },
-        { nameEs: 'Contador de días', nameEn: 'Days Counter', descEs: 'Computa días hábiles o corridos entre dos fechas, con opción de feriados.', descEn: 'Counts business or calendar days between two dates, with holiday options.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/entre-fechas.html' },
-        { nameEs: 'Calculadora de fecha límite (regresiva)', nameEn: 'Backwards Deadline Calculator', descEs: 'Resta días hábiles a una fecha objetivo para obtener la fecha de inicio (fecha límite hacia atrás).', descEn: 'Subtracts business days from a target date to find the start date (backwards deadline).', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/regresiva.html' },
-        { nameEs: 'Calculadora de mora', nameEn: 'Default Date Calculator', descEs: 'Determina la fecha de inicio de la mora según el plazo fijado en resolución y la fecha en que quedó firme.', descEn: 'Determines default start date based on compliance deadline set in a ruling and its final date.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/mora.html' },
-        { nameEs: 'Calculadora de caducidad de la instancia', nameEn: 'Instance Expiration (Caducity) Calculator', descEs: 'Ejecuta el cálculo de los arts. 310 y ss. del CPCCN.', descEn: 'Calculates expiration of instance as per articles 310 et seq. of the CPCCN.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/caducidad.html' }
-      ],
-      fees: [
-        { nameEs: 'Calculadora de honorarios (Ley 27.423)', nameEn: 'Legal Fees Calculator (Law 27.423)', descEs: 'Calcula honorarios profesionales de abogados y auxiliares según la Ley 27.423.', descEn: 'Calculates professional fees for lawyers and court auxiliaries under Law 27.423.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios.html' },
-        { nameEs: 'Calculadora de honorarios del mediador', nameEn: 'Mediator Fees Calculator (Law 26.589)', descEs: 'Calcula los honorarios del mediador conforme a la Ley 26.589.', descEn: 'Calculates mediator fees according to Law 26.589.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html' },
-        { nameEs: 'Calculadora de prorrateo (art. 730 CCCN)', nameEn: 'Prorate Calculator (Art. 730 Civil and Commercial Code)', descEs: 'Realiza el cálculo del prorrateo del art. 730 del Código Civil y Comercial.', descEn: 'Performs prorate calculation according to Art. 730 of the Civil and Commercial Code.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/prorrateo.html' }
-      ],
-      tax: [
-        { nameEs: 'Calculadora de tasa de justicia', nameEn: 'Court Tax Calculator (Law 23.898)', descEs: 'Estima el tributo según parámetros de la Ley Nº 23.898, orientada a procesos civiles.', descEn: 'Estimates court tax under Law 23.898, focused on civil proceedings.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/tasa.html' }
-      ],
-      dev: [
-        { nameEs: 'Asistente de honorarios — Clásico', nameEn: 'Fee Assistant — Classic', descEs: 'Versión clásica del asistente para la regulación de honorarios (Ley 27.423) con wizard paso a paso.', descEn: 'Classic version of the fee regulation assistant (Law 27.423) with step-by-step wizard.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/asistente-honorarios-clasico/' },
-        { nameEs: 'Asistente de honorarios — Honorio (Nuevo)', nameEn: 'Fee Assistant — Honorio (New)', descEs: 'Nueva interfaz moderna del asistente de honorarios con stepper y diseño renovado.', descEn: 'New modern UI for the fee assistant with stepper and redesigned interface.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/honorio/' },
-        { nameEs: 'Calculadora de Ejecución de Sentencias contra el Estado', nameEn: 'State Judgment Enforcement Calculator', descEs: 'Determina la fecha a partir de la cual una sentencia contra el Estado Nacional es ejecutable y embargable, según el régimen del art. 170 Ley 11.672.', descEn: 'Determines when a judgment against the National State becomes enforceable under Art. 170 of Law 11.672.', url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/ejecucion-estado.html' }
-      ],
-      completed: [
-        { 
-          nameEs: 'Bandejito: Automatización de flujo de trabajo', 
-          nameEn: 'Bandejito: Workflow Automation',
-          descEs: 'App en Google Apps Script que distribuye escritos judiciales automáticamente. Analiza PDF, aplica reglas y envía correos con tareas.',
-          descEn: 'Google Apps Script web app that automates distribution of court filings. Parses PDF, applies rules and sends emails.',
-          url: 'https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/bandejito.html'
-        }
-      ]
-    };
-
-    // ---------- TEXTOS i18n ----------
-    const i18n = {
-      es: {
-        mainTitle: '⚖️ Herramientas Judiciales con IA',
-        mainSub: 'Herramientas con inteligencia artificial para automatizar flujos de trabajo jurídico y apoyar la labor diaria en el ámbito judicial.',
-        deadlinesTitle: '📅 Calculadoras de plazos',
-        feesTitle: '⚖️ Honorarios',
-        taxTitle: '🏛️ Tasa de justicia',
-        devTitle: '🚧 En desarrollo',
-        completedTitle: '✅ Proyectos completados',
-        docTitle: '📘 Documentación detallada',
-        docDesc: 'Accedé a una guía completa de las herramientas: cómo funciona cada calculadora, casos de uso, limitaciones y fundamentos normativos.',
-        docBtn: 'Ver documentación →',
-        disclaimer1: '🤖 Estas herramientas fueron generadas utilizando IA, por lo que:',
-        disclaimerItems: ['El código puede contener errores.', 'No sigue necesariamente estándares profesionales de desarrollo.', 'Está pensado como prototipo o apoyo práctico.'],
-        disclaimer2: '⚠️ Limitación de responsabilidad: las herramientas incluidas en este repositorio:',
-        limitItems: ['Son de carácter referencial y orientativo.', 'No sustituyen el criterio del juez natural de la causa.', 'No constituyen asesoramiento legal ni dictamen profesional.', 'El usuario es el único responsable del uso que haga de los resultados obtenidos.'],
-        authorName: 'L. Javier Cúneo Libarona',
-        authorBio: '💼 Abogado (PJN). Actualmente Prosecretario Administrativo en un juzgado civil. Interesado en la aplicación práctica de herramientas digitales e inteligencia artificial para mejorar la eficiencia, estandarización y funcionamiento de la gestión judicial. Este repositorio refleja una línea de trabajo orientada a la aplicación práctica de inteligencia artificial en el ámbito jurídico.',
-        goal: 'Explorar el uso de IA aplicada al ámbito jurídico, facilitando tareas repetitivas y promoviendo el uso de herramientas tecnológicas en la práctica profesional.',
-        openBtn: 'Abrir'
-      },
-      en: {
-        mainTitle: '⚖️ Judicial AI Tools',
-        mainSub: 'AI-powered tools to automate legal workflows and support daily judicial operations.',
-        deadlinesTitle: '📅 Deadline Calculators',
-        feesTitle: '⚖️ Legal Fees',
-        taxTitle: '🏛️ Court Tax',
-        devTitle: '🚧 In Development',
-        completedTitle: '✅ Completed Projects',
-        docTitle: '📘 Detailed Documentation',
-        docDesc: 'Access a complete guide to the tools: how each calculator works, use cases, limitations and regulatory basis.',
-        docBtn: 'View documentation →',
-        disclaimer1: '🤖 These tools were generated using AI, therefore:',
-        disclaimerItems: ['The code may contain errors.', 'It does not necessarily follow professional development standards.', 'Intended as a prototype or practical aid.'],
-        disclaimer2: '⚠️ Limitation of liability: the tools in this repository:',
-        limitItems: ['Are for reference and guidance only.', 'Do not replace the judgment of the presiding judge.', 'Do not constitute legal advice or professional opinion.', 'The user is solely responsible for the use made of the results.'],
-        authorName: 'L. Javier Cúneo Libarona',
-        authorBio: '💼 Lawyer (PJN). Currently Administrative Pro-Secretary in a civil court. Interested in the practical application of digital tools and artificial intelligence to improve efficiency, standardization and functioning of judicial management. This repository reflects a line of work oriented to the practical application of artificial intelligence in the legal field.',
-        goal: 'Explore the use of AI in the legal field, streamlining repetitive tasks and promoting the use of technological tools in professional practice.',
-        openBtn: 'Open'
-      }
-    };
-
-    // DOM elements
-    const btnEs = document.getElementById('btnEs');
-    const btnEn = document.getElementById('btnEn');
-    const mainTitle = document.getElementById('main-title');
-    const mainSub = document.getElementById('main-subtitle');
-    const groupDeadlinesTitle = document.getElementById('group-deadlines-title');
-    const groupFeesTitle = document.getElementById('group-fees-title');
-    const groupTaxTitle = document.getElementById('group-tax-title');
-    const groupDevTitle = document.getElementById('group-dev-title');
-    const groupCompletedTitle = document.getElementById('group-completed-title');
-    const docTitle = document.getElementById('doc-title');
-    const docDesc = document.getElementById('doc-desc');
-    const docLink = document.getElementById('doc-link');
-    const disclaimerBox = document.getElementById('disclaimer-box');
-    const authorNameSpan = document.getElementById('author-name');
-    const authorBio = document.getElementById('author-bio');
-    const projectGoal = document.getElementById('project-goal');
-
-    const deadlinesContainer = document.getElementById('deadlines-group');
-    const feesContainer = document.getElementById('fees-group');
-    const taxContainer = document.getElementById('tax-group');
-    const devContainer = document.getElementById('dev-group');
-    const completedContainer = document.getElementById('completed-group');
-
-    let currentLang = 'es';
-
-    function renderCards(lang) {
-      const btnText = i18n[lang].openBtn;
-      function renderGroup(container, items) {
-        container.innerHTML = '';
-        items.forEach(item => {
-          const card = document.createElement('div');
-          card.className = 'tool-card';
-          const name = lang === 'es' ? item.nameEs : item.nameEn;
-          const desc = lang === 'es' ? item.descEs : item.descEn;
-          card.innerHTML = `<h4>${name}</h4><p>${desc}</p><a href="${item.url}" class="btn" target="_blank" rel="noopener">${btnText}</a>`;
-          container.appendChild(card);
-        });
-      }
-      renderGroup(deadlinesContainer, toolsData.deadlines);
-      renderGroup(feesContainer, toolsData.fees);
-      renderGroup(taxContainer, toolsData.tax);
-      renderGroup(devContainer, toolsData.dev);
-      renderGroup(completedContainer, toolsData.completed);
-    }
-
-    function updateStaticTexts(lang) {
-      const t = i18n[lang];
-      mainTitle.textContent = t.mainTitle;
-      mainSub.textContent = t.mainSub;
-      groupDeadlinesTitle.textContent = t.deadlinesTitle;
-      groupFeesTitle.textContent = t.feesTitle;
-      groupTaxTitle.textContent = t.taxTitle;
-      groupDevTitle.textContent = t.devTitle;
-      groupCompletedTitle.textContent = t.completedTitle;
-      docTitle.textContent = t.docTitle;
-      docDesc.textContent = t.docDesc;
-      docLink.textContent = t.docBtn;
-      
-      const items1 = t.disclaimerItems.map(it => `• ${it}`).join('<br>');
-      const items2 = t.limitItems.map(it => `• ${it}`).join('<br>');
-      disclaimerBox.innerHTML = `<p><strong>${t.disclaimer1}</strong><br>${items1}</p><p><strong>${t.disclaimer2}</strong><br>${items2}</p>`;
-      
-      authorNameSpan.textContent = t.authorName;
-      authorBio.innerHTML = t.authorBio;
-      projectGoal.textContent = t.goal;
-    }
-
-    function setLanguage(lang) {
-      currentLang = lang;
-      if (lang === 'es') {
-        btnEs.classList.add('active');
-        btnEn.classList.remove('active');
-      } else {
-        btnEn.classList.add('active');
-        btnEs.classList.remove('active');
-      }
-      updateStaticTexts(lang);
-      renderCards(lang);
-    }
-
-    btnEs.addEventListener('click', () => setLanguage('es'));
-    btnEn.addEventListener('click', () => setLanguage('en'));
-
-    setLanguage('es');
-  })();
-</script>
 </body>
 </html>
