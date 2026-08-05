@@ -171,7 +171,7 @@ GitHub pueda emitir su certificado— y creó **`javiercuneo/honorio`**.
 |---|---|
 | 1. `git subtree split --prefix=honorio` | **Hecho.** 37 commits, historia completa. Empujado a `main` con `--force` sobre el commit inicial. |
 | 2. Pages arriba en el repo nuevo | **Hecho y verificado el 4/8.** `honorio.ar` sirve la app por HTTPS: fuentes, chunks, CSS, la marca y los scripts legacy, todos 200. Sin errores de consola. |
-| 3. Sacar `honorio/` de acá y repuntar enlaces | **Pendiente.** Ya se puede hacer: el paso 2 está verificado. |
+| 3. Sacar `honorio/` de acá y repuntar enlaces | **Hecho el 4/8.** `honorio/` salió del repositorio; `redirects/honorio/` deja una redirección a `honorio.ar` para los enlaces que ya andan dando vueltas. |
 
 **Hallazgo del paso 2:** mirando la red de `honorio.ar` recién publicado
 apareció un 404 a `/_vercel/insights/script.js`. Era `@vercel/analytics`,
@@ -181,29 +181,55 @@ de dónde estuviera alojada. **Una afirmación de privacidad no puede depender
 del hosting.** Vale como método: después de publicar en un lugar nuevo,
 mirar la pestaña de red, no solo si la página carga.
 
-**El paso 3 es el peligroso y el orden no es negociable.** En cuanto `honorio/`
-salga de este repositorio, `.../Herramientas-Judiciales-IA/honorio/` deja de
-existir, porque `pages.yml` lo construye desde acá. Cuando se haga, hay que:
-
-- Sacar `honorio/` y su bloque de `pages.yml` (incluido `PAGES_BASE_PATH`).
-- Repuntar a `https://honorio.ar` los enlaces de `index.html` (dos botones y la
-  fila del listado), del `README.md` y de `documentacion.html`.
-- Dejar dicho en el README que Honorio vive en otro repositorio.
-
-**Mientras tanto Honorio está en los dos lados**, y eso es a propósito: el
-sitio viejo sigue funcionando. Lo que **no** se puede hacer es tocar
-`honorio/` acá y esperar que el repo nuevo se entere. **La fuente ahora es
-`javiercuneo/honorio`.** Si hay que arreglar algo del motor antes del paso 3,
-se arregla allá.
-
-`next.config.mjs` toma el prefijo de **`PAGES_BASE_PATH`**, con default vacío.
-Este repositorio lo pasa en su workflow para seguir sirviendo en `/honorio`; el
-repo nuevo no lo pasa y publica en la raíz de `honorio.ar`. El mismo código
-sirve en los dos lugares y por eso la transición no obliga a bifurcar.
+**La fuente de Honorio ahora es `javiercuneo/honorio`.** No queda nada suyo que
+tocar acá. Puede sobrevivir una carpeta `honorio/` sin versionar en la copia de
+trabajo, con `node_modules` y builds viejos: **no es la fuente, es basura, se
+puede borrar.** Editarla no tiene ningún efecto.
 
 `docs/domain/` **no se mudó**: documenta la Ley 27.423, que implementan tanto
 Honorio como el asistente clásico, y el clásico se queda. Si algún día el
 clásico se retira, esos ocho documentos se van con Honorio.
+
+`asistente-honorarios-clasico/` **sí importa para Honorio**: es la fuente de
+`public/legacy/*.js`, que Honorio todavía carga por `<script>`. Un arreglo a ese
+motor compartido se hace acá y se propaga allá a propósito.
+
+---
+
+## Pendientes del repositorio
+
+### Revisión visual de las calculadoras
+
+**Pedido de Javier, 4/8.** Cada calculadora es un HTML con su CSS adentro,
+escritas en momentos distintos y sin ningún criterio común. El resultado es
+disparejo y en algunos casos malo: **`prorrateo.html` es el peor** —según sus
+palabras, «una ensalada de colores imposible de ver»—.
+
+Lo que hay que decidir antes de tocar nada: **si conviene un CSS compartido**
+(un `calculadoras/css/comun.css` del que tomen todas) o si se arregla una por
+una. El compartido es lo obvio, pero rompe la propiedad que hace que estas
+herramientas duren: hoy cada archivo es autónomo y no se pisan entre sí.
+Una salida intermedia es un CSS común **solo para color y tipografía**, dejando
+el layout en cada archivo.
+
+El sistema visual ya existe y está probado: son los tokens de la landing y de
+Honorio (cobalto `#1E45CE`, neutro frío, `radius: 0.375rem`, Archivo para
+cifras). No hay que inventarlo, hay que aplicarlo.
+
+### `documentacion.html` quedó vieja
+
+Sigue con el estilo anterior —emojis en los títulos, otra paleta, otra
+tipografía— y ahora choca con la landing, que se rehízo. Es la única página del
+sitio que no sigue el sistema. Además menciona herramientas con la descripción
+vieja.
+
+### `calculadoras/honorarios.html` salió de la vista
+
+Decisión de Javier del 4/8: **se sacó de la landing y del README**, porque
+Honorio la reemplaza. **El archivo queda en el repositorio** —sigue publicada
+en su URL, y los enlaces viejos siguen andando— como referencia y porque podría
+volver con otra forma. Idea anotada, no comprometida: un modo «power user» de
+Honorio, cálculo directo sin entrevista, para quien ya sabe lo que quiere.
 
 **El nombre del repositorio principal sigue sin decidirse.** `honorio.ar` es un
 dominio de *producto*, no el paraguas: si Javier construye algo que no tenga

@@ -1,26 +1,33 @@
-@'
 # Logs
 *.log
 
-# OS files
+# Archivos del sistema operativo
 .DS_Store
 Thumbs.db
 desktop.ini
 ~$*
 
-# VS Code
+# Editores
 .vscode/
 
-# Env files
+# Variables de entorno
 .env
 .env.*
 
-# Temporary files
+# Temporales
 *.tmp
 *.temp
 
-# Build/Node
+# Node y builds
 node_modules/
 dist/
 build/
-'@ | Out-File -FilePath .gitignore -Encoding utf8
+
+# Honorio se mudo a github.com/javiercuneo/honorio el 4/8/2026.
+# Puede quedar una carpeta honorio/ sin versionar en la copia de trabajo,
+# con node_modules y builds viejos de cuando vivia aca. Se ignora para que
+# un `git add -A` no la vuelva a meter: ya paso una vez, cuando al borrar
+# honorio/ se fue tambien su .gitignore y con el las reglas que excluian
+# .next/ y out/. Entraron 2200 archivos y un cache de Turbopack de 210 MB,
+# que GitHub rechaza por superar el limite de 100 MB por archivo.
+/honorio/

@@ -26,27 +26,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install honorio dependencies
-        working-directory: honorio
-        run: npm ci
-
-      # Las validaciones del motor corren ANTES del build: si un cambio
-      # movio un numero, no se publica. Es lo que hace que la afirmacion
-      # "ningun cambio puede mover un numero sin que una validacion falle"
-      # sea cierta y no un deseo.
-      - name: Validar el motor
-        working-directory: honorio
-        run: npm run check
-
-      # Mientras Honorio se sirva desde este repositorio va bajo /honorio,
-      # asi que necesita el prefijo. En su repositorio propio no lo lleva:
-      # ahi el default vacio de next.config.mjs es el correcto.
-      - name: Build honorio (static export)
-        working-directory: honorio
-        run: npm run build
-        env:
-          PAGES_BASE_PATH: /Herramientas-Judiciales-IA/honorio
-
       - name: Install repo dependencies
         run: npm ci
 
@@ -70,9 +49,11 @@ jobs:
           # Se publica solo public/, que es la raiz servible.
           cp -r PDF-studio/public site/PDF-studio
 
-          # honorio: export estatico de Next.js, publicado en /honorio
-          mkdir -p site/honorio
-          cp -r honorio/out/. site/honorio/
+          # /honorio/ ya no sirve la app: Honorio vive en honorio.ar,
+          # en su propio repositorio. Queda una pagina de redireccion para
+          # que los enlaces viejos —los que ya andan dando vueltas— no
+          # mueran en un 404.
+          cp -r redirects/honorio site/honorio
 
       # docs/domain/ renderizado a HTML. Va despues del ensamblado
       # porque escribe dentro de site/.

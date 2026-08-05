@@ -40,9 +40,9 @@ Lo que se sigue de eso:
   quita sobre la base no es lo mismo que aplicarla sobre la escala.
 - **No elimines validaciones** porque parezcan defensivas de más.
 - **No confíes en el motor clásico como oráculo.** Es la referencia histórica,
-  no la verdad. Ya se encontró al menos un caso donde el clásico y `honorio/`
-  compartían el mismo agujero (ver `ESTADO.md`, flujo hacia atrás). Que dos
-  implementaciones coincidan prueba que son consistentes, no que están bien.
+  no la verdad. Ya se encontró un caso donde el clásico y Honorio compartían el
+  mismo agujero (ver `ESTADO.md`, flujo hacia atrás). Que dos implementaciones
+  coincidan prueba que son consistentes, no que están bien.
 
 **Lo que sí podés hacer sin preguntar:** cambios de interfaz, texto, estilos,
 tipos, estructura de archivos, documentación y cualquier cosa que no toque un
@@ -60,14 +60,19 @@ corren en milisegundos.
 
 No es una aplicación: son varios proyectos independientes, en distinto grado
 de madurez, conviviendo en un repositorio. Tratalos como tales — un cambio en
-`calculadoras/` no tiene por qué mirar `honorio/`.
+`calculadoras/` no tiene por qué mirar `PDF-studio/`.
+
+> **Honorio ya no está acá.** Desde el 4/8/2026 vive en
+> [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) y se publica
+> en [honorio.ar](https://honorio.ar). Se llevó su historia completa. Si hay que
+> tocar el asistente de honorarios, **es en ese repositorio**, no en este.
+> Puede quedar un `honorio/` sin versionar en la copia de trabajo, con
+> `node_modules` y builds viejos: no es la fuente y se puede borrar.
 
 ```
-honorio/                        Next.js 16 + React 19 + TS. El proyecto activo y el
-                                  más maduro. Asistente de honorarios de la Ley 27.423.
-                                  Licencia AGPL-3.0 (el resto del repo es MIT).
-asistente-honorarios-clasico/   El motor original en JS vanilla del que salió honorio/.
+asistente-honorarios-clasico/   El motor original en JS vanilla del que salió Honorio.
                                   Referencia histórica. Sigue publicado y funcionando.
+                                  Es la FUENTE del motor legacy que Honorio todavía carga.
 calculadoras/                   Herramientas de un solo archivo HTML con JS embebido
                                   (plazos, mora, tasa, prorrateo, caducidad...).
                                   Sin build, sin bundler: se editan directo.
@@ -78,7 +83,11 @@ PDF-studio/                     Express + JS vanilla, PWA de herramientas PDF.
                                   App aparte, package.json propio. No toca honorarios.
 docs/domain/                    Documentación del dominio (01 a 08): tipos de proceso,
                                   reglas de negocio, modelo, glosario, deuda técnica.
-                                  El "por qué" de las reglas que están en el código.
+                                  El "por qué" de las reglas de la Ley 27.423. Lo
+                                  comparten el clásico y Honorio; por eso quedó acá.
+assets/                         Capturas y material de la landing.
+redirects/honorio/              Redirección de /honorio/ a honorio.ar.
+scripts/build-docs.mjs          Renderiza docs/domain/ a HTML para publicarlo.
 index.html, documentacion.html  Landing y guía de uso, publicadas en GitHub Pages.
 proyectos finalizados/          Trabajos cerrados, conservados como muestra.
 ```
@@ -91,90 +100,38 @@ por si el problema ya está anotado.
 
 ---
 
-## `honorio/`
+## Honorio, que ya no vive acá
 
-Todos los comandos se corren **desde `honorio/`**, no desde la raíz.
+El asistente de honorarios se mudó a
+[`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) el 4/8/2026, con
+su historia completa. **Cualquier cambio al motor de honorarios va allá.** Ese
+repositorio tiene su propio `AGENTS.md`, su `ESTADO.md` y sus validaciones.
 
-```bash
-npm run dev      # servidor de desarrollo
-npm run build    # export estático (es lo que se publica)
-npm run start    # sirve el build
-```
+Lo que quedó acá y sigue relacionado:
 
-### Cómo se verifica un cambio en el motor
+- **`asistente-honorarios-clasico/`** es la FUENTE del motor legacy que Honorio
+  todavía carga por `<script>` (`public/legacy/*.js` allá). Si hay que arreglar
+  algo de ese motor compartido, **se arregla acá** —que es la fuente— y se
+  propaga al otro repositorio a propósito. Nunca se parchea una copia sola.
+- **`docs/domain/`** documenta la Ley 27.423 para los dos.
+- **`redirects/honorio/`** hace que los enlaces viejos a `/honorio/` no mueran.
 
-Un solo comando, y es el mismo que corre CI:
+---
 
-```bash
-npm run check      # tipos + las 11 validaciones
-```
+## Las calculadoras
 
-Por separado, si necesitás aislar:
+Un archivo HTML cada una, con su CSS y su JS adentro. Sin build y sin bundler:
+se abren, se editan y se guardan. Esa simplicidad es deliberada —duran años sin
+mantenimiento— y el precio es que **no comparten nada de presentación**, así que
+un arreglo visual hay que hacerlo tantas veces como archivos haya.
 
-```bash
-npm run typecheck  # tsc --noEmit
-npm run validate   # solo las validaciones
-npm run build      # el export estatico, que es lo que se publica
-```
+Lo único compartido es `calculadoras/js/calendario-judicial.js`, del que depende
+todo lo que computa fechas. **Tocarlo afecta a varias herramientas a la vez:**
+un cambio ahí se verifica abriendo cada una de las que calculan plazos.
 
-Las validaciones de `lib/legal/__tests__/*.validation.ts` son scripts sueltos
-—no hay framework de tests, a propósito— que comparan la salida del motor
-contra casos conocidos y salen con código distinto de cero si algo no coincide.
-`scripts/validate.mjs` las corre todas y junta los resultados.
-
-**Tienen que quedar todas en verde antes de dar un cambio por hecho.** Son lo
-único que impide que un ajuste de interfaz mueva un número, y por eso corren
-en `.github/workflows/motor.yml` en cada push y cada PR, y otra vez antes de
-publicar: si una falla, el sitio no sale.
-
-Si agregás una regla al motor, agregá su validación. Si cambiás un resultado a
-propósito, va al [`CHANGELOG`](honorio/CHANGELOG.md) aunque el diff sea de una
-línea.
-
-### Cómo está armado
-
-Cuatro capas, con una regla que las ordena: **las reglas jurídicas viven en una
-sola de ellas.**
-
-| Capa | Dónde | Qué puede hacer |
-|---|---|---|
-| Motor | `lib/legal/` | Toda la aritmética y todas las reglas de la ley. No conoce React, DOM ni HTML. |
-| Schema | `lib/wizard/` | Qué se pregunta, en qué orden y bajo qué condición. Datos puros, sin efectos. |
-| Orquestación | `hooks/useWizard.ts` | Navegación, validación y estado. Ninguna regla jurídica. |
-| Presentación | `components/` | Solo renderiza. Ninguna regla jurídica. |
-
-Punto de entrada único del motor:
-
-```ts
-import { buildCalculationResult } from '@/lib/legal/calculate'
-const resultado = buildCalculationResult(estado) // función pura
-```
-
-Devuelve el cálculo **y** la lista de transformaciones que lo produjeron: eso
-es lo que la interfaz muestra como cadena, y es lo que permitiría consumir el
-motor desde afuera. No lo rompas devolviendo solo el número.
-
-Invariantes que hay que sostener:
-
-- El alias `@/*` apunta a la raíz de `honorio/`.
-- `components/dashboard/cadena.ts` deriva los pasos intermedios por aritmética
-  sobre los factores que emite el motor. **No reimplementa ninguna fórmula
-  legal y no debe hacerlo.**
-- Todo componente nuevo del dashboard se compone desde
-  `components/dashboard/primitives.tsx`.
-- Los archivos de `lib/legal/` llevan encabezado SPDX (AGPL). Uno nuevo también.
-
-### El motor legacy
-
-`public/legacy/{core,state,calculations}.js` es una copia temporal del clásico,
-cargada por `<script>` y manejada por `window.*` para lo que todavía no se
-portó. Dos reglas:
-
-1. **No agregues dependientes nuevos.** Todo lo nuevo va a `lib/legal/`.
-2. Esos archivos deben quedar **idénticos** a
-   `asistente-honorarios-clasico/js/*.js`. Si hay que arreglar algo del motor
-   compartido, se arregla en el clásico —que es la fuente— y se propaga a
-   propósito. Nunca se parchea una copia sola.
+Los feriados salen de una API externa con respaldo local en
+`data/dias-inhabiles.json`. Si la API no responde, la herramienta tiene que
+seguir dando un resultado con el respaldo, no romperse.
 
 ---
 
@@ -182,18 +139,21 @@ portó. Dos reglas:
 
 - **Español rioplatense, con tildes**, en interfaz, documentación y commits.
   No "tú", no "vosotros", no texto sin acentuar.
-- **Sin emojis en documentación técnica.** `ESTADO.md`, `honorio/README.md` y
+- **Sin emojis en documentación técnica.** `ESTADO.md`, `README.md` y
   `CONTRIBUTING.md` marcan el registro: directo, con las razones dichas, sin
-  decoración. (La landing y el README de la raíz todavía no lo siguen.)
-- **Commits en español**, con prefijo tipo `feat(honorio):`, `fix:`, `docs:`,
+  decoración. `documentacion.html` es la excepción que falta corregir.
+- **Commits en español**, con prefijo tipo `feat:`, `fix:`, `docs:`,
   `chore:`. Miralos con `git log --oneline` antes de escribir el tuyo.
 - **`git commit -m` con here-string falla** en este entorno. Usá
   `git commit -F <archivo>`.
-- **Licencias:** el repositorio es MIT; `honorio/` es AGPL-3.0-or-later, a
-  propósito. Si aparece un PR sobre `honorio/`, lo primero que se mira es la
-  aceptación de [`CONTRIBUTING.md`](CONTRIBUTING.md): sin eso se pierde la
-  opción de licenciar comercialmente. El motivo de la excepción está en
-  `honorio/README.md` y no hace falta rediscutirlo.
+- **Licencia MIT** para todo lo que hay acá. La excepción —Honorio, bajo
+  AGPL— se fue con él; el CLA de `CONTRIBUTING.md` aplica en aquel
+  repositorio, no en este.
+- **La landing publica lo que la allowlist de `pages.yml` nombra.** Si agregás
+  algo al sitio, va ahí *y* se enlaza desde `index.html`. Si no, no existe para
+  nadie: ya pasó con PDF-studio, que estuvo meses publicado y sin figurar.
+
+---
 
 ## Trampas conocidas
 

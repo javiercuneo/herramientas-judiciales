@@ -1,82 +1,33 @@
 # Cómo contribuir
 
-Gracias por mirar el código. Antes de abrir un pull request, dos cosas.
+Gracias por mirar el código.
 
-## 1. No todo el repositorio tiene la misma licencia
+Todo lo que hay en este repositorio está bajo **licencia MIT**: para aportar
+alcanza con abrir un pull request. No hay CLA ni cesión de derechos que firmar.
 
-| Qué | Licencia |
-|---|---|
-| Todo el repositorio | MIT |
-| `honorio/` | AGPL-3.0-or-later |
-
-Si tu aporte toca `honorio/`, sigue leyendo. Si toca cualquier otra cosa,
-alcanza con abrir el PR: entra bajo MIT y no hace falta nada más.
-
-## 2. Aportes a `honorio/`
-
-`honorio/` está bajo AGPL y **su autor se reserva la posibilidad de
-licenciarlo también bajo otros términos** a quien lo necesite (por ejemplo,
-una empresa que quiera integrarlo sin las obligaciones de la AGPL). Eso solo
-es posible si conserva los derechos sobre todo el código, incluido el que
-aporten terceros.
-
-Por eso, al abrir un PR sobre `honorio/`, incluí esta línea en la descripción:
-
-```
-Acepto los términos de CONTRIBUTING.md para este aporte.
-```
-
-Con eso declarás dos cosas:
-
-**a) Que el aporte es tuyo.** Que lo escribiste vos, o que tenés derecho a
-entregarlo, y que no estás copiando código de un tercero con otra licencia.
-Es el sentido del [Developer Certificate of Origin](https://developercertificate.org/),
-que también podés dejar asentado firmando tus commits con `git commit -s`.
-
-**b) Que autorizás a licenciarlo bajo otros términos.** Que le otorgás a
-L. Javier Cúneo Libarona una licencia perpetua, mundial, irrevocable y sin
-cargo para usar, modificar y sublicenciar tu aporte, incluido el derecho de
-distribuirlo bajo licencias distintas de la AGPL. **Conservás la autoría y
-todos tus derechos**: no cedés el copyright, no perdés la posibilidad de usar
-tu propio código donde quieras. Es un permiso, no una entrega.
-
-Sin (b), un solo PR aceptado dejaría al proyecto sin la opción de licenciar
-comercialmente, porque haría falta el permiso de cada persona que alguna vez
-tocó una línea. Con (b), la app sigue gratis y abierta y la puerta queda
-abierta.
-
-Si el punto (b) no te cierra —es una objeción legítima y hay gente que no
-firma CLAs por principio—, escribinos igual: se puede resolver de otra
-manera, por ejemplo describiendo el cambio en un issue para que se
-implemente de cero.
-
----
-
-## Antes de abrir el PR
-
-Los comandos de `honorio/` se corren desde `honorio/`, no desde la raíz.
-
-Si tocaste algo de `lib/legal/`, **las validaciones del motor tienen que
-quedar todas en verde**. No son opcionales: son lo que impide que un cambio
-de interfaz mueva un número.
-
-```bash
-npm run check
-```
-
-CI corre lo mismo en tu pull request, así que si falla lo vas a ver igual;
-correrlo antes te ahorra la vuelta. Y para el resto, `npm run build`.
+> Honorio —el asistente de honorarios— **se mudó** a
+> [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) y está bajo
+> AGPL. Si tu aporte es para él, las condiciones son otras y están en el
+> [CONTRIBUTING de ese repositorio](https://github.com/javiercuneo/honorio/blob/main/CONTRIBUTING.md).
 
 ## Si tu aporte cambia un número
 
 Decilo en el PR, con el caso concreto: qué entrada, qué daba antes, qué da
-ahora y qué artículo o criterio lo justifica. Un cálculo de honorarios puede
-terminar fundando una resolución judicial, así que un cambio de resultado se
-documenta en el [CHANGELOG](honorio/CHANGELOG.md) aunque el código sea de una
-línea.
+ahora y qué artículo o criterio lo justifica.
+
+Esto es lo único que se pide en serio. Una fecha de vencimiento mal computada
+hace perder un derecho, y un cálculo de honorarios puede terminar fundando una
+resolución judicial. Los resultados actuales se consideran correctos: si uno
+cambia, tiene que ser a propósito y quedar escrito.
+
+## Si tocás el calendario judicial
+
+`calculadoras/js/calendario-judicial.js` lo comparten todas las herramientas
+que computan plazos. Un cambio ahí las afecta a todas a la vez: probá cada una
+antes de abrir el PR, no solo aquella por la que empezaste.
 
 ## Ideas, dudas y errores
 
 Un issue alcanza. Si encontraste un cálculo mal, lo más útil es el caso
-completo: tipo de proceso, modo de terminación, base y el número que
-esperabas.
+completo: qué herramienta, qué datos cargaste, qué resultado esperabas y por
+qué. Con eso se puede reproducir; sin eso, casi nunca.

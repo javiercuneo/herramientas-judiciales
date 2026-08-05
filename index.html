@@ -273,6 +273,13 @@ pre {
 }
 
 /* ---------- Prosa ---------- */
+/* Justificado con particion de palabras. Sin `hyphens` el justificado
+   abre huecos y deja rios de espacio en blanco; el <html lang="es"> de
+   arriba es lo que le dice al navegador con que diccionario partir. */
+.prose p, .sec-head p, .hero .lede, .shots figcaption, .foot-grid p, .flag .quote {
+  text-align: justify;
+  hyphens: auto;
+}
 .prose { max-width: 66ch; }
 .prose p { margin: 0 0 18px; }
 .prose p:last-child { margin-bottom: 0; }
@@ -326,7 +333,7 @@ pre {
     Abogado. <strong>Prosecretario Administrativo</strong> en un juzgado civil.
   </p>
   <div class="actions">
-    <a class="btn btn-solid" href="honorio/">Abrir Honorio</a>
+    <a class="btn btn-solid" href="https://honorio.ar">Abrir Honorio</a>
     <a class="btn btn-ghost" href="#herramientas">Ver todas las herramientas</a>
     <a class="btn btn-ghost" href="documentacion.html">Guía de uso</a>
   </div>
@@ -368,8 +375,8 @@ pre {
       </ul>
 
       <div class="actions">
-        <a class="btn btn-solid" href="honorio/">Abrir Honorio</a>
-        <a class="btn btn-ghost" href="https://github.com/javiercuneo/Herramientas-Judiciales-IA/blob/main/honorio/README.md">Cómo está armado</a>
+        <a class="btn btn-solid" href="https://honorio.ar">Abrir Honorio</a>
+        <a class="btn btn-ghost" href="https://github.com/javiercuneo/honorio">Código y documentación</a>
       </div>
     </div>
 
@@ -472,10 +479,6 @@ pre {
   <div class="group">
     <span class="label">Honorarios y tributos</span>
     <div class="tools">
-      <a class="tool" href="calculadoras/honorarios.html">
-        <span class="t">Honorarios · Ley 27.423</span>
-        <span class="d">Cálculo directo, sin entrevista. Para el caso simple.</span>
-      </a>
       <a class="tool" href="calculadoras/honorarios-mediacion.html">
         <span class="t">Honorarios del mediador</span>
         <span class="d">Ley 26.589.</span>

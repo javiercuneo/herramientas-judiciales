@@ -14,7 +14,10 @@ de una idea de producto.
 ## Honorio
 
 Asistente para la regulación de honorarios de la **Ley 27.423**. Es el proyecto
-principal del repositorio y el único que se mantiene activamente.
+principal, y desde agosto de 2026 **vive en su propio repositorio y dominio**:
+[honorio.ar](https://honorio.ar) · [javiercuneo/honorio](https://github.com/javiercuneo/honorio).
+
+Se fue con toda su historia. Acá quedó lo demás.
 
 Hace una entrevista corta sobre el expediente y devuelve el honorario con cada
 paso del cálculo a la vista: la base, las reducciones aplicadas, la escala del
@@ -34,9 +37,9 @@ lee; quien tiene que fundar una regulación lo tiene ahí.
 - Regulaciones provisorias del art. 12, reparto por etapas y mínimos
   arancelarios como tabla de referencia.
 
-[Abrir Honorio](https://javiercuneo.github.io/Herramientas-Judiciales-IA/honorio/) ·
-[Documentación](honorio/README.md) ·
-[Registro de versiones](honorio/CHANGELOG.md)
+[Abrir Honorio](https://honorio.ar) ·
+[Código y documentación](https://github.com/javiercuneo/honorio) ·
+[Registro de versiones](https://github.com/javiercuneo/honorio/blob/main/CHANGELOG.md)
 
 ---
 
@@ -64,7 +67,6 @@ de una API externa y un respaldo local en [`data/`](data/).
 
 | Herramienta | Qué hace |
 |---|---|
-| [Honorarios (Ley 27.423)](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios.html) | Cálculo directo, sin entrevista. Para el caso simple. |
 | [Honorarios del mediador](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html) | Ley 26.589. |
 | [Prorrateo (art. 730 CCyCN)](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/prorrateo.html) | Límite de responsabilidad del deudor por las costas. |
 | [Tasa de justicia](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/tasa.html) | Ley 23.898, orientada a procesos civiles. |
@@ -116,8 +118,8 @@ Por eso el trabajo está en dos lugares que no son el código:
 
 ## Cómo se verifica
 
-El motor de Honorio tiene **11 suites de validación** que comparan su salida
-contra casos conocidos, uno por concern: escala del art. 21, reducciones de
+El motor de Honorio —hoy en [su repositorio](https://github.com/javiercuneo/honorio)— tiene
+**11 suites de validación** que comparan su salida contra casos conocidos, uno por concern: escala del art. 21, reducciones de
 base, de escala y finales, segunda instancia, partidor, provisorios, procesos
 generales, especiales, exhorto e incidente, y un barrido exhaustivo de los
 25.600 recorridos posibles de la entrevista.
@@ -137,10 +139,10 @@ Sobre eso hay tres reglas que sostienen al resto:
    refactor: es un error.
 2. **Un cambio de resultado se documenta siempre**, con el caso concreto y el
    artículo que lo funda, aunque el diff sea de una línea. Está en el
-   [CHANGELOG](honorio/CHANGELOG.md), que por eso se versiona según qué le pasó
+   [CHANGELOG](https://github.com/javiercuneo/honorio/blob/main/CHANGELOG.md), que por eso se versiona según qué le pasó
    al número y no según cuánto código se tocó.
 3. **Las reglas jurídicas viven en una sola capa** (`lib/legal/`). La interfaz
-   solo dibuja. Detalle en [honorio/README.md](honorio/README.md#cómo-está-armado).
+   solo dibuja. Detalle en su [README](https://github.com/javiercuneo/honorio#cómo-está-armado).
 
 La continuidad del trabajo —decisiones tomadas, lo que se sabe roto, las
 trampas que ya costaron tiempo— está en [`docs/ESTADO.md`](docs/ESTADO.md), que
@@ -164,14 +166,14 @@ Por eso la tabla de mínimos está a un clic dentro de la app.
 
 | Qué | Licencia |
 |---|---|
-| Todo el repositorio | [MIT](LICENSE) |
-| `honorio/` | [AGPL-3.0-or-later](honorio/LICENSE) |
+| Este repositorio | [MIT](LICENSE) |
+| [Honorio](https://github.com/javiercuneo/honorio) | AGPL-3.0-or-later |
 
 Las calculadoras son aritmética sobre reglas explícitas: cualquiera las
 reescribe en una tarde y no hay motivo para ponerles condiciones. Usalas,
 copialas, vendelas si querés.
 
-Lo que hay en `honorio/lib/legal/` no es eso. Son los criterios para resolver
+Lo que hay en el motor de Honorio no es eso. Son los criterios para resolver
 los puntos donde la ley es ambigua. La AGPL **no prohíbe el uso comercial**:
 exige que quien la modifique y la ofrezca a terceros publique su versión bajo la
 misma licencia. La app es y va a seguir siendo gratuita; impedir que el trabajo
