@@ -196,6 +196,94 @@ motor compartido se hace acá y se propaga allá a propósito.
 
 ---
 
+## Prioridades — por dónde seguir
+
+Definidas con Javier el 4/8. **El criterio que las ordena:** el repositorio es
+su carta de presentación, así que primero se arregla lo que alguien ve al
+entrar, después lo que le da crédito, y al final lo que solo se nota si va a
+buscarlo. No están ordenadas por esfuerzo.
+
+Algunas viven en el otro repositorio; está indicado.
+
+### 1. La guía de uso miente — `documentacion.html` · este repo
+
+Es lo más urgente porque **está enlazada desde el hero de la landing** como uno
+de los tres botones principales. El que la abre encuentra, hoy:
+
+- Doce secciones con emoji en el título, otra paleta y otra tipografía: el
+  único lugar del sitio que no sigue el sistema visual.
+- **Cero menciones a Honorio**, que es el proyecto principal.
+- Al asistente clásico presentado como «en desarrollo», cuando en realidad es
+  la referencia histórica que Honorio reemplazó.
+- La calculadora de honorarios que se acaba de retirar de la landing,
+  presentada como vigente.
+- Nada sobre PDF-studio ni sobre Bandejito.
+
+Contradice a la landing en la misma sesión de navegación, y esa contradicción
+es peor que no tener guía. Es reescritura, no maquillaje.
+
+### 2. Honorio no tiene vuelta — repo `honorio`
+
+Desde la landing hay un «Abrir Honorio», pero desde `honorio.ar` **no hay
+manera de volver**. Y como `honorio.ar` es la puerta de entrada de mucha gente
+que nunca va a ver la landing, hoy el resto de las herramientas no existe para
+ellos.
+
+Un enlace discreto en la cabecera o el pie alcanza. Es lo más barato de esta
+lista y de las que más rinde. **Ojo:** es un enlace entre dos sitios, así que
+va absoluto y al lado del de la calculadora de mediación, en el mismo lugar
+donde ya está anotado que viven las URL externas.
+
+### 3. Autoría e informe imprimible — repo `honorio`
+
+**Javier preguntó cómo estaban y ESTADO no se lo aclaró. La respuesta es que
+no están: nunca se empezaron ni se decidió nada.** Figuraban como pendientes,
+que es distinto de trabajo a medio hacer. Por eso no había estado que leer.
+
+**Son un solo trabajo, no dos.** Las dos preguntas son la misma: *¿quién firma
+este cálculo, y contra qué versión del motor se hizo?* Resolver «autoría» por
+separado termina en un nombre en un rincón sin función.
+
+Lo que hay que decidir, y no está decidido:
+
+- **Qué lleva la firma.** Propuesta: nombre, rol, versión del motor (hoy
+  `2.0.0`) y fecha del cálculo. La versión es lo que hace que el número sea
+  reproducible dentro de dos años — el criterio de numeración está en el
+  encabezado del `CHANGELOG`.
+- **Dónde aparece en la app.** Un pie discreto en el dashboard, o en la
+  portada, o solo en el informe.
+- **Cómo se genera el informe.** CSS de impresión (barato, se ve como la app)
+  o PDF armado (más control, más trabajo).
+- **Qué incluye.** Javier ya pidió un interruptor para incluir u omitir las
+  explicaciones: el cálculo desnudo para adjuntar, o el cálculo fundado para
+  quien tiene que sostenerlo.
+
+### 4. Revisión visual de las calculadoras — este repo
+
+Descrita abajo. Va cuarta y no antes **porque a cada calculadora se entra a
+propósito, buscándola**: el daño es por herramienta, no en la puerta de
+entrada. Y son once archivos, así que conviene hacerlo de una sentada y con el
+criterio ya decidido, no de a una.
+
+### 5. El nombre y el dominio
+
+`herramientas-judiciales` como nombre de repositorio es el paso intermedio: no
+resuelve nada de fondo, pero saca el `-IA`, que era lo que envejecía mal. El
+destino sigue siendo un dominio propio bajo el nombre de Javier
+(`javiercuneo.com.ar`), que hace que el nombre del repositorio deje de
+importar. Está esperando otra vuelta por NIC.
+
+### 6. Terminar de portar el motor legacy — repo `honorio`
+
+Va último. Es el trabajo más grande, **no se ve desde afuera**, y hoy nada está
+roto: `public/legacy/*.js` se carga y funciona. No es una limpieza, es una
+migración con validaciones de por medio. Que quede claro para no confundirlo
+con una tarea de mantenimiento: la app **no arranca la entrevista** hasta que
+esos scripts cargan (`LegacyLoader.tsx`), así que borrarlos sin portar rompe
+todo.
+
+---
+
 ## Pendientes del repositorio
 
 ### Revisión visual de las calculadoras
@@ -218,10 +306,9 @@ cifras). No hay que inventarlo, hay que aplicarlo.
 
 ### `documentacion.html` quedó vieja
 
-Sigue con el estilo anterior —emojis en los títulos, otra paleta, otra
-tipografía— y ahora choca con la landing, que se rehízo. Es la única página del
-sitio que no sigue el sistema. Además menciona herramientas con la descripción
-vieja.
+Detallado arriba, en **Prioridad 1**. Los enlaces **no** están rotos: se
+verificaron los catorce en producción el 4/8 y todos dan 200. El problema es
+el contenido y el estilo, no la navegación.
 
 ### `calculadoras/honorarios.html` salió de la vista
 
