@@ -212,22 +212,35 @@ buscarlo. No están ordenadas por esfuerzo.
 
 Algunas viven en el otro repositorio; está indicado.
 
-### 1. La guía de uso miente — `documentacion.html` · este repo
+### 1. La guía de uso — hecha el 5/8
 
-Es lo más urgente porque **está enlazada desde el hero de la landing** como uno
-de los tres botones principales. El que la abre encuentra, hoy:
+`documentacion.html` estaba enlazada desde el hero y contradecía a la landing:
+doce secciones con emoji y otra paleta, cero menciones a Honorio, el clásico
+presentado como «en desarrollo» y la calculadora de honorarios recién retirada
+presentada como vigente. Reescrita entera sobre el sistema visual del sitio.
 
-- Doce secciones con emoji en el título, otra paleta y otra tipografía: el
-  único lugar del sitio que no sigue el sistema visual.
-- **Cero menciones a Honorio**, que es el proyecto principal.
-- Al asistente clásico presentado como «en desarrollo», cuando en realidad es
-  la referencia histórica que Honorio reemplazó.
-- La calculadora de honorarios que se acaba de retirar de la landing,
-  presentada como vigente.
-- Nada sobre PDF-studio ni sobre Bandejito.
+**Lo que se conservó, porque era lo que valía:** todo el contenido normativo
+—artículos, acordadas, fórmulas, APIs— y sobre todo las advertencias de
+alcance. Se reorganizó en cuatro grupos y **cada herramienta tiene ahora un
+bloque explícito de qué NO hace**, que es lo que decide si el resultado se
+puede usar.
 
-Contradice a la landing en la misma sesión de navegación, y esa contradicción
-es peor que no tener guía. Es reescritura, no maquillaje.
+Tres cosas que se corrigieron de fondo, no de forma:
+
+- **La ampliación por distancia** decía que la Corte exige medir por vía
+  terrestre y que la herramienta usa línea recta, sin sacar la conclusión.
+  Ahora dice la consecuencia: la lineal **siempre es menor o igual**, así que
+  el resultado puede quedar corto y hay que tomarlo como piso.
+- **El asistente clásico** dejó de figurar como «prototipo en desarrollo» y
+  pasó a lo que es: el origen de Honorio, conservado como referencia contra la
+  que se validan los cálculos.
+- Se agregó una sección **«Cómo se calculan los días»**, que estaba repetida a
+  pedazos en cada herramienta, con las dos advertencias que importan: el receso
+  de invierno es estimado, y si la API de feriados no responde el resultado
+  puede quedar corrido.
+
+Entraron PDF-studio y Honorio. Bandejito no: tiene su propia página y no es una
+herramienta de uso.
 
 ### 2 y 3. Hechas el 5/8 — repo `honorio`
 
@@ -249,12 +262,63 @@ planilla que Javier ya mantiene y queda versionado con su norma. El motivo
 es el mismo por el que se sacó `@vercel/analytics` el 4/8: una afirmación de
 privacidad no puede depender de a quién le pide un archivo la página.
 
-### 4. Revisión visual de las calculadoras — este repo
+### 4. Revisión visual de las calculadoras — este repo · **es la que sigue**
 
-Descrita abajo. Va cuarta y no antes **porque a cada calculadora se entra a
-propósito, buscándola**: el daño es por herramienta, no en la puerta de
-entrada. Y son once archivos, así que conviene hacerlo de una sentada y con el
-criterio ya decidido, no de a una.
+Descrita abajo, y **ya hay un análisis medido**:
+[`INFORME_REFACTOR_SHARED_CSS.md`](INFORME_REFACTOR_SHARED_CSS.md), del 31/7.
+Leerlo antes de empezar — tiene el inventario archivo por archivo y evita
+rehacer la medición.
+
+**Lo que ese informe deja probado**, y conviene no rediscutir:
+
+- La duplicación del 72 % es de **líneas de propiedad sueltas**, no de reglas.
+  Reglas CSS completas idénticas en dos o más archivos: **solo el 9 %**.
+- Los `<style>` no son copias sino **hermanos con variaciones hechas a mano**:
+  `body` tiene once variantes, `.container` usa 700/800/900/1000 px, `tasa`
+  tiene otra paleta, `prorrateo` rompe el patrón con fondo blanco, `mora` y
+  `honorarios-mediacion` usan `system-ui` y variables CSS.
+- Por eso **no existe extracción mecánica segura**: cualquier CSS compartido
+  real obliga a normalizar, y normalizar cambia el aspecto de las páginas.
+
+**Dónde el informe quedó viejo, y es importante:** es del 31/7, *anterior* al
+rediseño de la landing. Su plan proponía unificar sobre la paleta que ya
+existía —el degradé violeta `#667eea → #764ba2` con Montserrat— «sin
+rediseñar». Eso hoy sería un error: dejaría a las calculadoras coherentes entre
+sí y **peleadas con la landing desde la que se entra**. Y es justamente la
+paleta que a Javier no le gusta (dijo de `prorrateo`: «una ensalada de colores
+imposible de ver»).
+
+**El criterio correcto ahora es adoptar el sistema del sitio** —cobalto
+`#1E45CE`, neutro frío, `radius: 0.375rem`, Archivo para cifras— que ya está
+probado en la landing, en la guía y en Honorio. No hay que inventarlo.
+
+Del plan del informe sigue sirviendo todo lo procedimental: capturas *antes* de
+tocar, un archivo por commit, y **nada de tocar el JS de cálculo**.
+
+### 4 bis. Dos fuentes de días inhábiles, y no coinciden
+
+Encontrado el 5/8 revisando el repositorio. **Es un problema de correctitud, no
+de prolijidad, y por eso no se tocó:** arreglarlo mueve números, y eso necesita
+decisión explícita.
+
+| | Fuente | Entradas |
+|---|---|---|
+| `calendario-judicial.js` (caducidad, entre-fechas, regresiva, vencimientos) | `data/dias-inhabiles.json`, en este repo | 13 |
+| `mora.html` | `jnc-34.github.io/jnc34/dias-inhabiles.json`, **repositorio de terceros** | 49 |
+
+`mora.html` no usa el módulo compartido: se trae su propio JSON, con su propia
+constante `CUSTOM_JSON_URL`. Las 36 fechas que sobran en el externo son en su
+mayoría feriados nacionales —que las otras ya reciben por la API—, así que
+puede que hoy no haya diferencia visible; **pero nada garantiza que siga así**,
+porque ese archivo lo mantiene otro repositorio.
+
+Dos herramientas del mismo sitio pudiendo discrepar sobre si un día es hábil es
+la peor falla posible acá. Lo que hay que decidir antes de tocar: **cuál de las
+dos listas es la buena**, y verificarlo comparando salidas contra casos reales,
+no leyendo los archivos.
+
+La guía ya lo declara en la sección de `mora`, para no afirmar una consistencia
+que hoy no existe.
 
 ### 5. El nombre y el dominio
 
@@ -262,7 +326,14 @@ criterio ya decidido, no de a una.
 resuelve nada de fondo, pero saca el `-IA`, que era lo que envejecía mal. El
 destino sigue siendo un dominio propio bajo el nombre de Javier
 (`javiercuneo.com.ar`), que hace que el nombre del repositorio deje de
-importar. Está esperando otra vuelta por NIC.
+importar.
+
+**Registrado el 5/8, pero va a demorar.** NIC lo tomó como *registro de
+dominio especial* porque el nombre coincide con el de una persona: pidió DNI y
+alguien tiene que revisar el pedido a mano. No hay fecha estimada. **No
+conviene planificar contra ese hito** —el sitio funciona en
+`javiercuneo.github.io/herramientas-judiciales/`— y cuando salga, el trabajo es
+el barrido de URL descrito más arriba, que ya se hizo una vez y salió bien.
 
 ### 6. Terminar de portar el motor legacy — repo `honorio`
 
