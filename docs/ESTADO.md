@@ -161,24 +161,41 @@ falla, el sitio no sale.** La frase pasó a ser verdad.
 nunca estuvo instalado, así que era una promesa que fallaba. Si alguna vez se
 quiere linter, se instala primero.
 
-### Mudanza de Honorio a repo propio — en curso
+### Mudanza de Honorio a repo propio — paso 2 de 3
 
 Decisión del 4/8. Javier registró **`honorio.ar`** en NIC (`honorio.com.ar`
-estaba tomado) y creó el repositorio **`javiercuneo/honorio`**, público, AGPL,
-con `LICENSE`, `README.md` y `.gitignore`.
+estaba tomado), delegó el DNS en Cloudflare —**sin proxy**, nube gris, para que
+GitHub pueda emitir su certificado— y creó **`javiercuneo/honorio`**.
 
-**Todavía no se mudó nada, y el orden importa.** En cuanto `honorio/` sale de
-este repositorio, `javiercuneo.github.io/Herramientas-Judiciales-IA/honorio/`
-deja de existir, porque `pages.yml` lo construye desde acá. Todo lo que apunta
-ahí queda roto hasta que el repo nuevo tenga Pages arriba. La secuencia
-acordada:
+| Paso | Estado |
+|---|---|
+| 1. `git subtree split --prefix=honorio` | **Hecho.** 37 commits, historia completa. Empujado a `main` con `--force` sobre el commit inicial. |
+| 2. Pages arriba en el repo nuevo | En curso. DNS resuelve a las cuatro IP de GitHub y los workflows corren. |
+| 3. Sacar `honorio/` de acá y repuntar enlaces | **Pendiente. No hacerlo hasta que `honorio.ar` sirva la app.** |
 
-1. `git subtree split --prefix=honorio` para conservar la historia.
-2. Pages arriba en el repo nuevo, con `basePath` vacío y `CNAME` a `honorio.ar`.
-3. Recién entonces sacar `honorio/` de acá y repuntar los enlaces.
+**El paso 3 es el peligroso y el orden no es negociable.** En cuanto `honorio/`
+salga de este repositorio, `.../Herramientas-Judiciales-IA/honorio/` deja de
+existir, porque `pages.yml` lo construye desde acá. Cuando se haga, hay que:
 
-Los pasos 2 y 3 esperan a que NIC acredite el pago (24 h desde el 4/8) y a que
-la delegación DNS propague.
+- Sacar `honorio/` y su bloque de `pages.yml` (incluido `PAGES_BASE_PATH`).
+- Repuntar a `https://honorio.ar` los enlaces de `index.html` (dos botones y la
+  fila del listado), del `README.md` y de `documentacion.html`.
+- Dejar dicho en el README que Honorio vive en otro repositorio.
+
+**Mientras tanto Honorio está en los dos lados**, y eso es a propósito: el
+sitio viejo sigue funcionando. Lo que **no** se puede hacer es tocar
+`honorio/` acá y esperar que el repo nuevo se entere. **La fuente ahora es
+`javiercuneo/honorio`.** Si hay que arreglar algo del motor antes del paso 3,
+se arregla allá.
+
+`next.config.mjs` toma el prefijo de **`PAGES_BASE_PATH`**, con default vacío.
+Este repositorio lo pasa en su workflow para seguir sirviendo en `/honorio`; el
+repo nuevo no lo pasa y publica en la raíz de `honorio.ar`. El mismo código
+sirve en los dos lugares y por eso la transición no obliga a bifurcar.
+
+`docs/domain/` **no se mudó**: documenta la Ley 27.423, que implementan tanto
+Honorio como el asistente clásico, y el clásico se queda. Si algún día el
+clásico se retira, esos ocho documentos se van con Honorio.
 
 **El nombre del repositorio principal sigue sin decidirse.** `honorio.ar` es un
 dominio de *producto*, no el paraguas: si Javier construye algo que no tenga
