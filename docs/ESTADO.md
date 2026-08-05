@@ -295,30 +295,33 @@ probado en la landing, en la guía y en Honorio. No hay que inventarlo.
 Del plan del informe sigue sirviendo todo lo procedimental: capturas *antes* de
 tocar, un archivo por commit, y **nada de tocar el JS de cálculo**.
 
-### 4 bis. Dos fuentes de días inhábiles, y no coinciden
+### 4 bis. Las dos fuentes de días inhábiles — resuelto el 5/8
 
-Encontrado el 5/8 revisando el repositorio. **Es un problema de correctitud, no
-de prolijidad, y por eso no se tocó:** arreglarlo mueve números, y eso necesita
-decisión explícita.
+`mora.html` no leía `data/dias-inhabiles.json` como el resto: tenía su propia
+constante `CUSTOM_JSON_URL` apuntando a `jnc-34.github.io/jnc34`, un
+repositorio **del propio Javier** (`jnc` por Juzgado Nacional Civil 34), creado
+antes y abandonado. Quedó colgado de la mudanza: se creyó unificado y no lo
+estaba.
 
-| | Fuente | Entradas |
-|---|---|---|
-| `calendario-judicial.js` (caducidad, entre-fechas, regresiva, vencimientos) | `data/dias-inhabiles.json`, en este repo | 13 |
-| `mora.html` | `jnc-34.github.io/jnc34/dias-inhabiles.json`, **repositorio de terceros** | 49 |
+Ahora apunta a `../data/dias-inhabiles.json`, que es la fuente única y la que
+Javier alimenta cuando aparece un inhábil nuevo.
 
-`mora.html` no usa el módulo compartido: se trae su propio JSON, con su propia
-constante `CUSTOM_JSON_URL`. Las 36 fechas que sobran en el externo son en su
-mayoría feriados nacionales —que las otras ya reciben por la API—, así que
-puede que hoy no haya diferencia visible; **pero nada garantiza que siga así**,
-porque ese archivo lo mantiene otro repositorio.
+**El cambio no perdió nada y corrigió un error.** Antes de tocar se comparó
+fecha por fecha: de las 36 que el externo tenía de más, **35 son feriados
+nacionales que la API de `argentinadatos.com` ya devuelve** —y que `mora`
+también consulta, igual que el resto—. La única huérfana era `2026-06-17`,
+«Paso a la Inmortalidad del General Martín Güemes»… que **está mal**: es un
+feriado trasladable, en 2026 el 17 cae miércoles y rige el **lunes 15/6**, que
+la API sí trae. Era la fecha nominal, no la vigente.
 
-Dos herramientas del mismo sitio pudiendo discrepar sobre si un día es hábil es
-la peor falla posible acá. Lo que hay que decidir antes de tocar: **cuál de las
-dos listas es la buena**, y verificarlo comparando salidas contra casos reales,
-no leyendo los archivos.
+**Lo que queda:** `mora.html` comparte ahora la lista y la API, pero **todavía
+no usa el módulo `calendario-judicial.js`**: tiene su propia copia de la lógica
+de feria y fin de semana. Es duplicación de código, no divergencia de datos, y
+entra naturalmente en la revisión de la prioridad 4.
 
-La guía ya lo declara en la sección de `mora`, para no afirmar una consistencia
-que hoy no existe.
+**Método que conviene repetir:** ante dos fuentes que difieren, no elegir la
+más larga. Comparar entrada por entrada contra la fuente autoritativa —acá, la
+API— y ver cuáles quedan huérfanas. Fue una sola, y estaba mal.
 
 ### 5. El nombre y el dominio
 
