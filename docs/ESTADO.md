@@ -295,6 +295,39 @@ probado en la landing, en la guía y en Honorio. No hay que inventarlo.
 Del plan del informe sigue sirviendo todo lo procedimental: capturas *antes* de
 tocar, un archivo por commit, y **nada de tocar el JS de cálculo**.
 
+#### Auditoría del 5/8: lo que está roto de verdad
+
+Antes de discutir paletas conviene arreglar esto, que no es opinable:
+
+| Herramienta | `<table>` | `@media` | `max-width` |
+|---|---|---|---|
+| caducidad | 0 | **0** | 700 |
+| distancia | 0 | 1 | 640 · 900 |
+| ejecucion-estado | 0 | 1 | 240 · 420 · 500 · 600 · 800 |
+| entre-fechas | 0 | 1 | 768 · 900 |
+| honorarios-mediacion | 0 | 1 | — |
+| honorarios | **7** | 1 | 768 · 900 |
+| mora | 0 | 1 | 1000 · 720 |
+| prorrateo | **2** | 1 | — |
+| regresiva | 0 | 1 | 700 · 900 |
+| tasa | **2** | 1 | 600 · 900 |
+| vencimientos | 0 | 1 | 768 · 900 |
+
+1. **Ninguna de las once tiene `overflow-x` en sus tablas.** Las cuatro que
+   usan tabla —honorarios, prorrateo, tasa— desbordan la página a lo ancho en
+   pantalla chica. Medido en `prorrateo`: **753 px de contenido en 406 de
+   viewport**, con scroll horizontal de toda la página. Es el arreglo de mejor
+   relación esfuerzo/resultado de la lista y no toca ni un cálculo.
+2. **`caducidad` no tiene ninguna media query.** Es la única.
+3. Los `max-width` van de 240 a 1000 px sin criterio. Confirma lo del informe:
+   son hermanos con variaciones a mano.
+
+**Ya arreglado el 5/8:** `prorrateo` tenía el subtítulo con la codificación
+rota —decía «el cA!lculo del prorrateo del art. 730 CA3digo Civil»— y así se
+veía en producción. Los bytes eran ASCII literal, no un problema de `charset`:
+alguna conversión rompió los acentos y quedó guardado. **Era el único archivo
+afectado**; las once declaran UTF-8 y ninguna tiene BOM.
+
 ### 4 bis. Las dos fuentes de días inhábiles — resuelto el 5/8
 
 `mora.html` no leía `data/dias-inhabiles.json` como el resto: tenía su propia
