@@ -54,6 +54,10 @@
             flex-wrap: wrap;
         }
         .table-container {
+            /* Item de flex: sin min-width:0 no se encoge por debajo de su
+               contenido, asi que la tabla estira toda la pagina aunque el
+               contenedor de adentro tenga overflow-x. */
+            min-width: 0;
             background: white;
             border-radius: 12px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
@@ -235,6 +239,9 @@
             .total-row { background-color: #f0f0f0 !important; color: black !important; }
             th, td { border: 1px solid #ccc; padding: 8px; }
         }
+    
+        /* La tabla scrollea sola en pantalla chica; sin esto estira la pagina */
+        .tabla-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     </style>
 </head>
 <body>
@@ -244,9 +251,12 @@
 
     <div class="container">
         <!-- Panel izquierdo: Datos del Proceso -->
-        <div class="table-container" style="flex: 0 0 400px;">
+        <!-- flex-shrink 1 (y no 0): con 0 la columna no bajaba de 400px mas
+             padding y desbordaba la pantalla en celular. Ahora se encoge y,
+             si no entra, envuelve. -->
+        <div class="table-container" style="flex: 1 1 400px;">
             <h3>Datos del Proceso</h3>
-            <table>
+            <div class="tabla-scroll"><table>
                 <tr>
                     <td class="label-cell">MONTO DEL PROCESO</td>
                     <td><input type="text" id="montoProcess" placeholder="Ingrese el monto" oninput="calculate()"></td>
@@ -282,7 +292,7 @@
                         <div style="font-size: 12px; color: #666;">Si la carga automática falla, ingréselo manualmente (sin puntos, solo números)</div>
                     </td>
                 </tr>
-            </table>
+            </table></div>
         </div>
 
         <!-- Panel derecho: Honorarios y Prorrateo -->
@@ -292,7 +302,7 @@
                 <strong>Modo de ingreso:</strong> Los montos pueden ser ingresados con coma o punto decimal. Ejemplo: `1000.50` o `1000,50`. 
                 Marcar UMA para interpretar el valor como cantidad de UMAs (se multiplica por el valor UMA ingresado). Marcar IVA para agregar 21%.
             </div>
-            <table>
+            <div class="tabla-scroll"><table>
                 <thead>
                     <tr>
                         <th>DESCRIPCIÓN</th>
@@ -323,7 +333,7 @@
                         <td colspan="5"></td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
             
             <div class="button-container">
                 <button class="action-button add-button" onclick="addHonorario()">Añadir Honorario</button>

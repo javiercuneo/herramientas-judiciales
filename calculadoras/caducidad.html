@@ -28,6 +28,14 @@
             padding: 40px;
         }
 
+        /* Era la unica calculadora sin ninguna media query. No llegaba a
+           desbordar, pero 40px de padding a cada lado se comen un tercio
+           del ancho util en un telefono. */
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .container { padding: 22px 18px; border-radius: 14px; }
+        }
+
         h1 {
             color: #2d3748;
             font-size: 28px;

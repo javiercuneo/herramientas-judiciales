@@ -180,6 +180,9 @@
             td:nth-of-type(4):before { content: "Sobretasa"; }
             td:nth-of-type(5):before { content: "Subtotal"; }
         }
+    
+        /* La tabla scrollea sola en pantalla chica; sin esto estira la pagina */
+        .tabla-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     </style>
 </head>
 <body>
@@ -296,14 +299,14 @@ Bienes muebles o derechos susceptibles de apreciación pecuniaria (art. 4 inc. d
         }
 
         html += `
-            <table id="simpleTable">
+            <div class="tabla-scroll"><table id="simpleTable">
                 <tbody>
                     <tr>
                         <td>${labelText}</td>
                         <td><input type="text" class="montoInput" step="0.01"></td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
             <div class="total-section">
                 <label>Tasa de justicia a integrar:</label>
                 <input type="text" id="totalTasa" readonly>
@@ -428,7 +431,7 @@ Bienes muebles o derechos susceptibles de apreciación pecuniaria (art. 4 inc. d
             </div>
         `;
         const html = infoText + `
-            <table class="simpleTableSucesion">
+            <div class="tabla-scroll"><table class="simpleTableSucesion">
                 <thead>
                     <tr>
                         <th>Ingresar monto. Si es en dólares convertir al valor oficial tipo vendedor del BNA al día del pago</th>
@@ -441,7 +444,7 @@ Bienes muebles o derechos susceptibles de apreciación pecuniaria (art. 4 inc. d
                         <td><input type="text" class="resultadoSucesion" readonly></td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
             <div class="add-row">
                 <button class="addSucesionSumasDineroRowBtn">+</button>
             </div>

@@ -313,14 +313,26 @@ Antes de discutir paletas conviene arreglar esto, que no es opinable:
 | tasa | **2** | 1 | 600 · 900 |
 | vencimientos | 0 | 1 | 768 · 900 |
 
-1. **Ninguna de las once tiene `overflow-x` en sus tablas.** Las cuatro que
-   usan tabla —honorarios, prorrateo, tasa— desbordan la página a lo ancho en
-   pantalla chica. Medido en `prorrateo`: **753 px de contenido en 406 de
-   viewport**, con scroll horizontal de toda la página. Es el arreglo de mejor
-   relación esfuerzo/resultado de la lista y no toca ni un cálculo.
-2. **`caducidad` no tiene ninguna media query.** Es la única.
+1. ~~Ninguna de las once tiene `overflow-x` en sus tablas.~~ **Resuelto el
+   5/8.** Las once tablas de `honorarios` (7), `prorrateo` (2) y `tasa` (2)
+   quedaron envueltas en `.tabla-scroll`, que scrollea sola sin estirar la
+   página. Medido en `prorrateo`: de **753 px de contenido en 406 de
+   viewport** a **406 = 406**, sin scroll horizontal general.
+
+   **La lección, porque va a repetirse:** el contenedor con `overflow-x` **no
+   alcanzó**. `prorrateo` seguía desbordando porque sus columnas son ítems de
+   flex, y un ítem de flex no baja de su contenido sin `min-width: 0`; y
+   porque la primera columna tenía `flex: 0 0 400px`, donde el segundo cero
+   significa «no encogerse nunca». Son tres arreglos, no uno: **envolver,
+   `min-width: 0` en el ítem de flex, y permitir que encoja.** Es el mismo
+   bug que apareció en la landing con `grid`.
+2. ~~`caducidad` no tiene ninguna media query.~~ **Resuelto el 5/8**, pero la
+   auditoría lo había marcado mal: medido, **no desbordaba**. Lo real era que
+   40 px de padding por lado se comían un tercio del ancho en un teléfono.
+   Con una media query a 600 px el ancho útil pasó de 286 a 346 px.
 3. Los `max-width` van de 240 a 1000 px sin criterio. Confirma lo del informe:
-   son hermanos con variaciones a mano.
+   son hermanos con variaciones a mano. **Pendiente**, y es parte de la
+   unificación visual, no de lo roto.
 
 **Ya arreglado el 5/8:** `prorrateo` tenía el subtítulo con la codificación
 rota —decía «el cA!lculo del prorrateo del art. 730 CA3digo Civil»— y así se

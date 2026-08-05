@@ -117,7 +117,10 @@
       @media (max-width: 768px) {
           .container { padding: 20px; }
       }
-  </style>
+  
+        /* La tabla scrollea sola en pantalla chica; sin esto estira la pagina */
+        .tabla-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    </style>
 </head>
 <body>
 
@@ -308,12 +311,12 @@
 
           // Tabla Datos del Juicio (Ahora incluye la Escala)
           html += '<h3>Datos del juicio ingresados</h3>';
-          html += '<table>';
+          html += '<div class="tabla-scroll"><table>';
           html += `<tr><td>Base</td><td>${formatNumber(data.baseRegulatoria)}</td></tr>`;
           html += `<tr><td>Valor UMA</td><td>${formatNumber(data.valorUMA)}</td></tr>`;
           html += `<tr><td>Base en UMA</td><td>${formatNumber(data.baseEnUMA)}</td></tr>`;
           html += `<tr><td>Escala Aplicada</td><td>${tituloEscala}</td></tr>`;
-          html += '</table>';
+          html += '</table></div>';
           
           if (grupo === 'grupo2') { calcMinComp /= 2; calcMaxComp /= 2; }
           else if (grupo === 'grupo3') { calcMinComp /= 4; calcMaxComp /= 4; }
@@ -322,50 +325,50 @@
           else if (grupo === 'grupo6') { calcMinComp *= 0.45; calcMaxComp *= 0.45; }
 
           html += '<h3>Auxiliares (art. 21, 4° párrafo)</h3>';
-          html += '<table>';
+          html += '<div class="tabla-scroll"><table>';
           html += `<tr><td>Mínimo</td><td>${formatNumber(baseEnUMA * 0.05)}</td></tr>`;
           html += `<tr><td>Máximo</td><td>${formatNumber(baseEnUMA * 0.10)}</td></tr>`;
-          html += '</table><p class="note">Nota: ver si aplica art. 61 = 6 UMA</p>';
+          html += '</table></div><p class="note">Nota: ver si aplica art. 61 = 6 UMA</p>';
 
           // TABLA PATROCINANTE
           html += `<h3>Abogado PATROCINANTE</h3>`;
-          html += '<table>';
+          html += '<div class="tabla-scroll"><table>';
           html += `<tr><th>Etapas</th><th>Mínimo (en UMA)</th><th>Máximo (en UMA)</th></tr>`;
           html += `<tr><td>Juicio Completo</td><td><strong>${formatNumber(calcMinComp)}</strong></td><td><strong>${formatNumber(calcMaxComp)}</strong></td></tr>`;
           html += `<tr><td>Una Etapa</td><td>${formatNumber(calcMinComp / 3)}</td><td>${formatNumber(calcMaxComp / 3)}</td></tr>`;
           html += `<tr><td>Dos Etapas</td><td>${formatNumber((calcMinComp / 3) * 2)}</td><td>${formatNumber((calcMaxComp / 3) * 2)}</td></tr>`;
-          html += '</table>';
+          html += '</table></div>';
 
           // TABLA APODERADO
           html += `<h3>Abogado APODERADO (+40%)</h3>`;
-          html += '<table>';
+          html += '<div class="tabla-scroll"><table>';
           html += `<tr><th>Etapas</th><th>Mínimo (en UMA)</th><th>Máximo (en UMA)</th></tr>`;
           html += `<tr><td>Juicio Completo</td><td><strong>${formatNumber(calcMinComp * 1.4)}</strong></td><td><strong>${formatNumber(calcMaxComp * 1.4)}</strong></td></tr>`;
           html += `<tr><td>Una Etapa</td><td>${formatNumber((calcMinComp / 3) * 1.4)}</td><td>${formatNumber((calcMaxComp / 3) * 1.4)}</td></tr>`;
           html += `<tr><td>Dos Etapas</td><td>${formatNumber(((calcMinComp / 3) * 2) * 1.4)}</td><td>${formatNumber(((calcMaxComp / 3) * 2) * 1.4)}</td></tr>`;
-          html += '</table>';
+          html += '</table></div>';
           
           html += '<p class="note">Nota: para las actuaciones posteriores a la ejecución de sentencia propiamente dicha se debe regular en un 40% de la escala.</p>';
 
       } else {
           // Caso Grupo 7 (Escalas diferenciadas)
           html += '<h3>Datos del juicio ingresados</h3>';
-          html += '<table>';
+          html += '<div class="tabla-scroll"><table>';
           html += `<tr><td>Base</td><td>${formatNumber(data.baseRegulatoria)}</td></tr>`;
           html += `<tr><td>Valor UMA</td><td>${formatNumber(data.valorUMA)}</td></tr>`;
           html += `<tr><td>Base en UMA</td><td>${formatNumber(data.baseEnUMA)}</td></tr>`;
-          html += '</table>';
+          html += '</table></div>';
 
           const baseEnUMA = data.baseRegulatoria / data.valorUMA;
-          html += '<h3>Exhorto (escalas art. 50)</h3><table>';
+          html += '<h3>Exhorto (escalas art. 50)</h3><div class="tabla-scroll"><table>';
           html += `<tr><th colspan="2">Inc. a) - notificaciones</th></tr><tr><td>Mínimo (3 UMA)</td><td>${formatNumber(valorUMA * 3)}</td></tr>`;
           html += `<tr><th colspan="2">Inc. b) - inscripciones y actos registrales</th></tr><tr><td>Mínimo (10 UMA)</td><td>${formatNumber(valorUMA * 10)}</td></tr><tr><td>Máximo (20 UMA)</td><td>${formatNumber(valorUMA * 20)}</td></tr>`;
-          html += `<tr><th colspan="2">Inc. c) - diligencias de prueba</th></tr><tr><td>Mínimo (7 UMA)</td><td>${formatNumber(valorUMA * 7)}</td></tr><tr><td>Máximo (30 UMA)</td><td>${formatNumber(valorUMA * 30)}</td></tr></table>`;
+          html += `<tr><th colspan="2">Inc. c) - diligencias de prueba</th></tr><tr><td>Mínimo (7 UMA)</td><td>${formatNumber(valorUMA * 7)}</td></tr><tr><td>Máximo (30 UMA)</td><td>${formatNumber(valorUMA * 30)}</td></tr></table></div>`;
 
-          html += '<h3>Beneficio para litigar sin gastos / incidente (art.33 ley 21839)</h3><table>';
+          html += '<h3>Beneficio para litigar sin gastos / incidente (art.33 ley 21839)</h3><div class="tabla-scroll"><table>';
           html += `<tr><th>Concepto</th><th>Patrocinante (UMA)</th><th>Apoderado (UMA)</th></tr>`;
           html += `<tr><td>Mínimo (2%)</td><td>${formatNumber(baseEnUMA * 0.02)}</td><td>${formatNumber(baseEnUMA * 0.02 * 1.4)}</td></tr>`;
-          html += `<tr><td>Máximo (20%)</td><td>${formatNumber(baseEnUMA * 0.20)}</td><td>${formatNumber(baseEnUMA * 0.20 * 1.4)}</td></tr></table>`;
+          html += `<tr><td>Máximo (20%)</td><td>${formatNumber(baseEnUMA * 0.20)}</td><td>${formatNumber(baseEnUMA * 0.20 * 1.4)}</td></tr></table></div>`;
       }
 
       const resDiv = document.getElementById('resultados');
