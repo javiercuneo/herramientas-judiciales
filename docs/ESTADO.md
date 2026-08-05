@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-04 · rama `milestone-1-integracion`
+Última actualización: 2026-08-05 · rama `main`
 
 > **Este es el único ESTADO del repositorio.** Se evaluó partirlo en uno por
 > proyecto y se descartó el 3/8: con varios proyectos conviviendo, dos
@@ -182,9 +182,16 @@ del hosting.** Vale como método: después de publicar en un lugar nuevo,
 mirar la pestaña de red, no solo si la página carga.
 
 **La fuente de Honorio ahora es `javiercuneo/honorio`.** No queda nada suyo que
-tocar acá. Puede sobrevivir una carpeta `honorio/` sin versionar en la copia de
-trabajo, con `node_modules` y builds viejos: **no es la fuente, es basura, se
-puede borrar.** Editarla no tiene ningún efecto.
+tocar acá.
+
+**Ojo con la carpeta `honorio/` de la copia de trabajo.** Hasta el 5/8 era la
+basura de la mudanza —`node_modules`, `.next` y `out`, sin una sola línea de
+código— y este documento decía que se podía borrar. Se borró, y en su lugar
+se **clonó el repositorio nuevo**: la ruta está en `.gitignore`, así que el
+clon convive sin ensuciar nada y es donde se trabaja Honorio. Antes de tocar
+algo ahí, `git remote -v`: `honorio` y `herramientas-judiciales` son dos
+repositorios distintos y desde `honorio/` los comandos de git aplican al
+primero.
 
 `docs/domain/` **no se mudó**: documenta la Ley 27.423, que implementan tanto
 Honorio como el asistente clásico, y el clásico se queda. Si algún día el
@@ -222,41 +229,25 @@ de los tres botones principales. El que la abre encuentra, hoy:
 Contradice a la landing en la misma sesión de navegación, y esa contradicción
 es peor que no tener guía. Es reescritura, no maquillaje.
 
-### 2. Honorio no tiene vuelta — repo `honorio`
+### 2 y 3. Hechas el 5/8 — repo `honorio`
 
-Desde la landing hay un «Abrir Honorio», pero desde `honorio.ar` **no hay
-manera de volver**. Y como `honorio.ar` es la puerta de entrada de mucha gente
-que nunca va a ver la landing, hoy el resto de las herramientas no existe para
-ellos.
+**La vuelta al repositorio** y **autoría + informe imprimible** salieron
+juntas en `honorio` 2.1.0. El detalle completo —qué se decidió, qué se
+descartó y por qué— está en el `docs/ESTADO.md` de aquel repositorio, que es
+donde corresponde. En una línea cada una:
 
-Un enlace discreto en la cabecera o el pie alcanza. Es lo más barato de esta
-lista y de las que más rinde. **Ojo:** es un enlace entre dos sitios, así que
-va absoluto y al lado del de la calculadora de mediación, en el mismo lugar
-donde ya está anotado que viven las URL externas.
+- Hay un enlace **Herramientas** en la cabecera de Honorio, absoluto, con el
+  resto de las URL externas en `lib/enlaces.ts`.
+- La firma va al pie del dashboard y se imprime con el informe: autor,
+  versión del motor, la UMA con su norma, fecha, contacto, código y
+  licencia. El informe es **CSS de impresión**, con interruptor para incluir
+  u omitir los fundamentos.
 
-### 3. Autoría e informe imprimible — repo `honorio`
-
-**Javier preguntó cómo estaban y ESTADO no se lo aclaró. La respuesta es que
-no están: nunca se empezaron ni se decidió nada.** Figuraban como pendientes,
-que es distinto de trabajo a medio hacer. Por eso no había estado que leer.
-
-**Son un solo trabajo, no dos.** Las dos preguntas son la misma: *¿quién firma
-este cálculo, y contra qué versión del motor se hizo?* Resolver «autoría» por
-separado termina en un nombre en un rincón sin función.
-
-Lo que hay que decidir, y no está decidido:
-
-- **Qué lleva la firma.** Propuesta: nombre, rol, versión del motor (hoy
-  `2.0.0`) y fecha del cálculo. La versión es lo que hace que el número sea
-  reproducible dentro de dos años — el criterio de numeración está en el
-  encabezado del `CHANGELOG`.
-- **Dónde aparece en la app.** Un pie discreto en el dashboard, o en la
-  portada, o solo en el informe.
-- **Cómo se genera el informe.** CSS de impresión (barato, se ve como la app)
-  o PDF armado (más control, más trabajo).
-- **Qué incluye.** Javier ya pidió un interruptor para incluir u omitir las
-  explicaciones: el cálculo desnudo para adjuntar, o el cálculo fundado para
-  quien tiene que sostenerlo.
+De la misma sesión, y no estaba en esta lista: **el valor de la UMA dejó de
+pedirse a Google desde el navegador del visitante.** Lo lee el build de una
+planilla que Javier ya mantiene y queda versionado con su norma. El motivo
+es el mismo por el que se sacó `@vercel/analytics` el 4/8: una afirmación de
+privacidad no puede depender de a quién le pide un archivo la página.
 
 ### 4. Revisión visual de las calculadoras — este repo
 

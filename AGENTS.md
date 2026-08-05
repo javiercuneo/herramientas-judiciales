@@ -66,8 +66,12 @@ de madurez, conviviendo en un repositorio. Tratalos como tales — un cambio en
 > [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) y se publica
 > en [honorio.ar](https://honorio.ar). Se llevó su historia completa. Si hay que
 > tocar el asistente de honorarios, **es en ese repositorio**, no en este.
-> Puede quedar un `honorio/` sin versionar en la copia de trabajo, con
-> `node_modules` y builds viejos: no es la fuente y se puede borrar.
+>
+> En la copia de trabajo hay un `honorio/`, ignorado por `.gitignore`. Desde
+> el 5/8/2026 **es un clon del repositorio nuevo**, no la basura que quedó de
+> la mudanza: se trabaja ahí y se commitea contra `javiercuneo/honorio`.
+> Antes de tocarlo, `git remote -v` para confirmar contra qué se está
+> parado.
 
 ```
 asistente-honorarios-clasico/   El motor original en JS vanilla del que salió Honorio.
