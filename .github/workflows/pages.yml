@@ -38,9 +38,14 @@ jobs:
         working-directory: honorio
         run: npm run check
 
+      # Mientras Honorio se sirva desde este repositorio va bajo /honorio,
+      # asi que necesita el prefijo. En su repositorio propio no lo lleva:
+      # ahi el default vacio de next.config.mjs es el correcto.
       - name: Build honorio (static export)
         working-directory: honorio
         run: npm run build
+        env:
+          PAGES_BASE_PATH: /Herramientas-Judiciales-IA/honorio
 
       - name: Install repo dependencies
         run: npm ci
@@ -55,6 +60,7 @@ jobs:
           # index.html o no va a existir para nadie.
           cp index.html site/
           cp documentacion.html site/
+          cp -r assets site/
           cp -r calculadoras site/
           cp -r data site/
           cp -r asistente-honorarios-clasico site/

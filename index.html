@@ -10,6 +10,12 @@
 <meta property="og:title" content="Herramientas para la práctica judicial">
 <meta property="og:description" content="Software para computar plazos, regular honorarios y liquidar la tasa de justicia. El cálculo siempre a la vista.">
 <meta property="og:locale" content="es_AR">
+<!-- og:image exige URL absoluta: LinkedIn y WhatsApp no resuelven relativas.
+     Es la unica URL absoluta al propio sitio que queda, y hay que cambiarla
+     el dia que el sitio principal tenga dominio. -->
+<meta property="og:image" content="https://javiercuneo.github.io/Herramientas-Judiciales-IA/assets/honorio-resultado.png">
+<meta property="og:image:alt" content="Pantalla de resultado de Honorio, con el honorario y cada paso del calculo a la vista.">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -90,7 +96,10 @@ h1, h2, h3, .meter { font-family: var(--font-meter); font-weight: 600; letter-sp
 }
 
 /* ---------- Portada ---------- */
-.hero { padding: 88px 0 64px; }
+/* padding-block y no padding: .hero tambien lleva .wrap, que aporta el
+   margen horizontal. Con `padding` a secas lo pisaba —misma
+   especificidad, declarado despues— y el texto quedaba contra el borde. */
+.hero { padding-block: 88px 64px; }
 .hero .label { display: block; margin-bottom: 20px; }
 .hero h1 {
   font-size: clamp(2.1rem, 5.2vw, 3.4rem);
@@ -128,7 +137,7 @@ h1, h2, h3, .meter { font-family: var(--font-meter); font-weight: 600; letter-sp
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---------- Secciones ---------- */
-section { padding: 64px 0; }
+section { padding-block: 64px; }
 .sec-head { margin-bottom: 32px; }
 .sec-head h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 8px 0 10px; }
 .sec-head p { color: var(--muted-fg); max-width: 62ch; margin: 0; }
@@ -180,6 +189,25 @@ section { padding: 64px 0; }
 .eje .n { font-family: var(--font-meter); font-weight: 600; font-size: 0.95rem; }
 .eje .d { font-size: 0.85rem; color: var(--muted-fg); }
 .ejes .foot { font-size: 0.8rem; color: var(--faint); margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--hair); }
+
+/* ---------- Capturas ---------- */
+.shots { margin: 28px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.shot {
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2);
+  overflow: hidden;
+  background: var(--card);
+  line-height: 0;
+}
+.shot img { width: 100%; height: auto; display: block; }
+.shots figcaption {
+  grid-column: 1 / -1;
+  color: var(--muted-fg);
+  font-size: 0.9rem;
+  max-width: 74ch;
+  margin-top: 4px;
+}
+.shots figcaption strong { color: var(--fg); font-weight: 600; }
 
 /* ---------- Listado de herramientas ---------- */
 .group { margin-bottom: 44px; }
@@ -261,7 +289,7 @@ pre {
 .lic td:first-child { color: var(--fg); }
 .lic td:last-child { text-align: right; font-family: var(--font-meter); font-weight: 500; }
 .colofon {
-  padding: 32px 0 56px;
+  padding-block: 32px 56px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px 22px;
@@ -278,8 +306,9 @@ pre {
   .cols { grid-template-columns: 1fr; gap: 28px; }
   .foot-grid { grid-template-columns: 1fr; gap: 32px; }
   .tool { grid-template-columns: 1fr; gap: 3px; }
-  .hero { padding: 56px 0 40px; }
-  section { padding: 48px 0; }
+  .shots { grid-template-columns: 1fr; }
+  .hero { padding-block: 56px 40px; }
+  section { padding-block: 48px; }
 }
 </style>
 </head>
@@ -374,6 +403,23 @@ pre {
       </p>
     </aside>
   </div>
+
+  <figure class="shots">
+    <div class="shot">
+      <img src="assets/honorio-resultado.png" width="1653" height="873" loading="lazy" decoding="async"
+           alt="Pantalla de resultado de Honorio: el honorario mínimo y máximo en pesos y en UMA, el porcentaje efectivo, la línea «La tabla del tramo sugiere $12.000.000» y la escala del art. 21 con el tramo aplicado resaltado.">
+    </div>
+    <div class="shot">
+      <img src="assets/honorio-entrevista.png" width="1633" height="943" loading="lazy" decoding="async"
+           alt="Un paso de la entrevista de Honorio: la pregunta por la forma de terminación del proceso, con cada opción citando su artículo, y el panel de respuestas dadas hasta el momento.">
+    </div>
+    <figcaption>
+      En el resultado, <strong>la cifra nunca viene sola</strong>: debajo está lo
+      que la tabla del art. 21 sugeriría por sí sola —el número que casi todos
+      esperan— y el tramo que efectivamente se aplicó. En la entrevista, cada
+      opción trae el artículo que la gobierna.
+    </figcaption>
+  </figure>
 </section>
 
 <hr class="rule">
