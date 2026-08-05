@@ -170,8 +170,16 @@ GitHub pueda emitir su certificado— y creó **`javiercuneo/honorio`**.
 | Paso | Estado |
 |---|---|
 | 1. `git subtree split --prefix=honorio` | **Hecho.** 37 commits, historia completa. Empujado a `main` con `--force` sobre el commit inicial. |
-| 2. Pages arriba en el repo nuevo | En curso. DNS resuelve a las cuatro IP de GitHub y los workflows corren. |
-| 3. Sacar `honorio/` de acá y repuntar enlaces | **Pendiente. No hacerlo hasta que `honorio.ar` sirva la app.** |
+| 2. Pages arriba en el repo nuevo | **Hecho y verificado el 4/8.** `honorio.ar` sirve la app por HTTPS: fuentes, chunks, CSS, la marca y los scripts legacy, todos 200. Sin errores de consola. |
+| 3. Sacar `honorio/` de acá y repuntar enlaces | **Pendiente.** Ya se puede hacer: el paso 2 está verificado. |
+
+**Hallazgo del paso 2:** mirando la red de `honorio.ar` recién publicado
+apareció un 404 a `/_vercel/insights/script.js`. Era `@vercel/analytics`,
+resto de la plantilla de v0. Se sacó: la app declara que nada de lo que se
+escribe sale del navegador, y con ese paquete adentro la afirmación dependía
+de dónde estuviera alojada. **Una afirmación de privacidad no puede depender
+del hosting.** Vale como método: después de publicar en un lugar nuevo,
+mirar la pestaña de red, no solo si la página carga.
 
 **El paso 3 es el peligroso y el orden no es negociable.** En cuanto `honorio/`
 salga de este repositorio, `.../Herramientas-Judiciales-IA/honorio/` deja de
