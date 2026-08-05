@@ -7,7 +7,7 @@ Software para lo que hago todos los días: computar plazos, regular honorarios,
 liquidar la tasa. Cada herramienta salió de un problema concreto de trabajo, no
 de una idea de producto.
 
-**[Ver las herramientas →](https://javiercuneo.github.io/Herramientas-Judiciales-IA/)**
+**[Ver las herramientas →](https://javiercuneo.github.io/herramientas-judiciales/)**
 
 ---
 
@@ -52,13 +52,13 @@ en el navegador: nada de lo que escribís sale de tu máquina.
 
 | Herramienta | Qué hace |
 |---|---|
-| [Vencimiento de plazos](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/vencimientos.html) | Vencimiento de un plazo judicial desde una fecha de inicio. |
-| [Caducidad de la instancia](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/caducidad.html) | Cómputo de los arts. 310 y ss. del CPCCN. |
-| [Ampliación por distancia](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/distancia.html) | Art. 158 CPCCN, dentro del país o al exterior. |
-| [Contador de días](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/entre-fechas.html) | Días hábiles o corridos entre dos fechas. |
-| [Fecha límite (regresiva)](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/regresiva.html) | Resta días hábiles a una fecha objetivo para saber hasta cuándo hay tiempo. |
-| [Mora](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/mora.html) | Inicio de la mora según el plazo de la resolución y la fecha en que quedó firme. |
-| [Ejecución de sentencias contra el Estado](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/ejecucion-estado.html) | Desde cuándo una sentencia contra el Estado Nacional es ejecutable y embargable (art. 170, Ley 11.672). |
+| [Vencimiento de plazos](https://javiercuneo.github.io/herramientas-judiciales/calculadoras/vencimientos.html) | Vencimiento de un plazo judicial desde una fecha de inicio. |
+| [Caducidad de la instancia](https://javiercuneo.github.io/herramientas-judiciales/calculadoras/caducidad.html) | Cómputo de los arts. 310 y ss. del CPCCN. |
+| [Ampliación por distancia](https://javiercuneo.github.io/herramientas-judiciales/calculadoras/distancia.html) | Art. 158 CPCCN, dentro del país o al exterior. |
+| [Contador de días](https://javiercuneo.github.io/herramientas-judiciales/calculadoras/entre-fechas.html) | Días hábiles o corridos entre dos fechas. |
+| [Fecha límite (regresiva)](https://javiercuneo.github.io/herramientas-judiciales/calculadoras/regresiva.html) | Resta días hábiles a una fecha objetivo para saber hasta cuándo hay tiempo. |
+| [Mora](https://javiercuneo.github.io/herramientas-judiciales/calculadoras/mora.html) | Inicio de la mora según el plazo de la resolución y la fecha en que quedó firme. |
+| [Ejecución de sentencias contra el Estado](https://javiercuneo.github.io/herramientas-judiciales/calculadoras/ejecucion-estado.html) | Desde cuándo una sentencia contra el Estado Nacional es ejecutable y embargable (art. 170, Ley 11.672). |
 
 Las que dependen de fechas usan un calendario judicial compartido, con feriados
 de una API externa y un respaldo local en [`data/`](data/).
@@ -67,16 +67,16 @@ de una API externa y un respaldo local en [`data/`](data/).
 
 | Herramienta | Qué hace |
 |---|---|
-| [Honorarios del mediador](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/honorarios-mediacion.html) | Ley 26.589. |
-| [Prorrateo (art. 730 CCyCN)](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/prorrateo.html) | Límite de responsabilidad del deudor por las costas. |
-| [Tasa de justicia](https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/tasa.html) | Ley 23.898, orientada a procesos civiles. |
+| [Honorarios del mediador](https://javiercuneo.github.io/herramientas-judiciales/calculadoras/honorarios-mediacion.html) | Ley 26.589. |
+| [Prorrateo (art. 730 CCyCN)](https://javiercuneo.github.io/herramientas-judiciales/calculadoras/prorrateo.html) | Límite de responsabilidad del deudor por las costas. |
+| [Tasa de justicia](https://javiercuneo.github.io/herramientas-judiciales/calculadoras/tasa.html) | Ley 23.898, orientada a procesos civiles. |
 
 ### Otras
 
 | Herramienta | Qué hace |
 |---|---|
-| [PDF Studio](https://javiercuneo.github.io/Herramientas-Judiciales-IA/PDF-studio/) | Unir, separar, rotar y comprimir PDF sin subirlos a ningún lado. |
-| [Asistente de honorarios clásico](https://javiercuneo.github.io/Herramientas-Judiciales-IA/asistente-honorarios-clasico/) | La versión original de la que salió Honorio. Se conserva funcionando como referencia. |
+| [PDF Studio](https://javiercuneo.github.io/herramientas-judiciales/PDF-studio/) | Unir, separar, rotar y comprimir PDF sin subirlos a ningún lado. |
+| [Asistente de honorarios clásico](https://javiercuneo.github.io/herramientas-judiciales/asistente-honorarios-clasico/) | La versión original de la que salió Honorio. Se conserva funcionando como referencia. |
 
 ### Bandejito
 
@@ -87,7 +87,7 @@ internas de la oficina por los últimos números del expediente y mandaba a cada
 responsable el correo con sus tareas y las alertas de vencimiento.
 
 Estuvo en uso hasta que lo reemplazó un desarrollo institucional.
-[Ver cómo funcionaba](https://javiercuneo.github.io/Herramientas-Judiciales-IA/proyectos%20finalizados/bandejito.html).
+[Ver cómo funcionaba](https://javiercuneo.github.io/herramientas-judiciales/proyectos%20finalizados/bandejito.html).
 
 ---
 
@@ -110,7 +110,7 @@ Por eso el trabajo está en dos lugares que no son el código:
 
 - **Decidir qué hace la herramienta donde la ley no es clara**, y dejar escrito
   por qué. Está en [`docs/domain/`](docs/domain/) —publicado en
-  [la documentación de dominio](https://javiercuneo.github.io/Herramientas-Judiciales-IA/docs/)—
+  [la documentación de dominio](https://javiercuneo.github.io/herramientas-judiciales/docs/)—
   y, para Honorio, en los «por qué» de la propia app.
 - **Verificar que el número sea el correcto.** Ver abajo.
 

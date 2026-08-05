@@ -318,13 +318,33 @@ en su URL, y los enlaces viejos siguen andando— como referencia y porque podr�
 volver con otra forma. Idea anotada, no comprometida: un modo «power user» de
 Honorio, cálculo directo sin entrevista, para quien ya sabe lo que quiere.
 
-**El nombre del repositorio principal sigue sin decidirse.** `honorio.ar` es un
-dominio de *producto*, no el paraguas: si Javier construye algo que no tenga
-que ver con honorarios, «Honorio» no lo contiene. Candidato en danza para el
-paraguas: **`elsecretario`** —en el juzgado es quien lo hace funcionar, y para
-el abogado es el asistente—. Sin decidir. Mientras tanto el repositorio se
-sigue llamando `Herramientas-Judiciales-IA` y la landing se presenta bajo el
-nombre de Javier, que es identidad que no caduca.
+### El nombre: renombrado el 4/8
+
+`Herramientas-Judiciales-IA` pasó a **`herramientas-judiciales`**. Lo que se
+buscaba era sacar el `-IA`: en 2023 era una señal, hoy es el default y ubica al
+autor del lado del que usa la herramienta de moda, no del que tiene el dominio.
+
+**La URL vieja de Pages quedó rota, sin redirección.**
+`javiercuneo.github.io/Herramientas-Judiciales-IA/` devuelve **404 duro** —se
+verificó—. GitHub redirige las URL del repositorio, pero no las del sitio.
+Cualquier enlace compartido antes del 4/8 —incluido el de LinkedIn— hay que
+cambiarlo a mano. **Si el sitio vuelve a cambiar de URL, esto se repite:** es
+el argumento más fuerte para pasar a dominio propio y no volver a mover nada.
+
+`honorio.ar` es un dominio de *producto*, no el paraguas: si Javier construye
+algo que no tenga que ver con honorarios, «Honorio» no lo contiene. Se evaluó
+un nombre inventado para el conjunto (**`elsecretario`** era el candidato) y se
+descartó por lo mismo: cualquier marca nueva vuelve a apretar el día que el
+trabajo se corra de tema. **La decisión fue el nombre propio**: Javier registró
+`javiercuneo.com.ar` el 4/8. Una persona no caduca ni cambia de rubro, y deja
+que cada producto tenga su nombre debajo.
+
+Cuando el dominio esté activo hay que repetir el barrido: son **17 URL
+absolutas** en `README.md`, `index.html` (`og:image`, que no admite relativas)
+y `docs/INFORME_REFACTOR_SHARED_CSS.md`, más **2 en el repositorio de
+Honorio** —la calculadora de mediación en `intro-view.tsx` y el enlace a la
+documentación de dominio en su `AGENTS.md`—. Todo lo demás del sitio ya es
+relativo y no se toca.
 
 ---
 

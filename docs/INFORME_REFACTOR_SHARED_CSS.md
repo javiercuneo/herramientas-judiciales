@@ -48,7 +48,7 @@ Las calculadoras son estáticas, standalone y funcionan; el costo de mantenimien
 ## 3. Plan de ejecución (Opción B) — para retomar en sesión nueva
 
 ### Paso 0 — Baseline
-- Sacar captura (before) de las 10 calculadoras, idealmente desde el deploy (https://javiercuneo.github.io/Herramientas-Judiciales-IA/calculadoras/<archivo>.html) o sirviendo el repo localmente.
+- Sacar captura (before) de las 10 calculadoras, idealmente desde el deploy (https://javiercuneo.github.io/herramientas-judiciales/calculadoras/<archivo>.html) o sirviendo el repo localmente.
 - Verificar encoding UTF-8 de todos los archivos antes de editar.
 
 ### Paso 1 — Crear `calculadoras/css/shared.css` (base canónica)
