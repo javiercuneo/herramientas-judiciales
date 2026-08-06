@@ -23,6 +23,10 @@ node_modules/
 dist/
 build/
 
+# El sitio publicado se arma en CI (pages.yml) y lo genera scripts/build-docs.mjs.
+# Correrlo local deja un site/ de cientos de archivos que no va al repositorio.
+/site/
+
 # Honorio se mudo a github.com/javiercuneo/honorio el 4/8/2026.
 # Puede quedar una carpeta honorio/ sin versionar en la copia de trabajo,
 # con node_modules y builds viejos de cuando vivia aca. Se ignora para que

@@ -119,13 +119,21 @@ Por eso el trabajo está en dos lugares que no son el código:
 ## Cómo se verifica
 
 El motor de Honorio —hoy en [su repositorio](https://github.com/javiercuneo/honorio)— tiene
-**11 suites de validación** que comparan su salida contra casos conocidos, uno por concern: escala del art. 21, reducciones de
+**11 suites de validación**, una por concern: escala del art. 21, reducciones de
 base, de escala y finales, segunda instancia, partidor, provisorios, procesos
 generales, especiales, exhorto e incidente, y un barrido exhaustivo de los
-25.600 recorridos posibles de la entrevista.
+**25.600 cruces** de la entrevista —cada uno de los 160 recorridos posibles
+contra cada uno de los otros—, que prueba que volver atrás y cambiar el tipo de
+proceso no deja pegada ninguna respuesta que ya no se preguntó.
 
-No son opcionales ni decorativas: son lo que impide que un cambio de interfaz
-mueva un número. Corren solas en cada push y en cada pull request, y el sitio
+Cada caso es una entrada con su resultado esperado, escrito a mano en el archivo
+de validación: **no hay autoridad externa detrás**, ni jurisprudencia ni tabla
+oficial. Lo que garantizan es consistencia, no corrección — que el número de hoy
+sea el mismo que el de ayer salvo que alguien haya decidido cambiarlo y lo haya
+escrito.
+
+Con esa limitación, no son opcionales ni decorativas: son lo que impide que un
+cambio de interfaz mueva un número. Corren solas en cada push y en cada pull request, y el sitio
 **no se publica si alguna falla**.
 
 ```bash

@@ -391,7 +391,7 @@ pre {
 
       <div class="chips">
         <span class="chip">versión <b>2.0.0</b></span>
-        <span class="chip"><b>11</b> suites de validación</span>
+        <span class="chip"><b>11</b> validaciones automáticas</span>
         <span class="chip"><b>8</b> tipos de proceso</span>
         <span class="chip">sin backend</span>
       </div>
@@ -573,15 +573,24 @@ pre {
       <span class="num">11</span>
       <h3>Validaciones que corren en cada cambio</h3>
       <p>
-        Suites que comparan la salida del motor contra casos conocidos, una por
-        concern: escala del art. 21, reducciones de base, de escala y finales,
-        segunda instancia, partidor, provisorios, procesos generales y
-        especiales, exhorto e incidente.
+        Once archivos de control, cada uno sobre una parte del cálculo: la
+        escala del art. 21, las reducciones sobre la base, sobre la escala y
+        sobre el honorario ya calculado, la segunda instancia, el partidor, los
+        provisorios, los procesos generales, los especiales, el exhorto y el
+        incidente.
       </p>
       <p>
-        Una de ellas barre los <strong>25.600 recorridos posibles</strong> de la
-        entrevista. No son decorativas: son lo que impide que un cambio de
-        interfaz mueva un número.
+        Cada control es una entrada con el resultado que se espera de ella,
+        escrito a mano en ese archivo. No hay detrás una tabla oficial ni un
+        fallo que diga que ese número es el correcto: lo que garantizan es que
+        el número de hoy sea el mismo que el de ayer, salvo que alguien haya
+        decidido cambiarlo y lo haya dejado escrito.
+      </p>
+      <p>
+        Una de ellas barre los <strong>25.600 cambios de rumbo posibles</strong>:
+        cada uno de los 160 recorridos de la entrevista contra cada uno de los
+        otros, para probar que volver atrás y cambiar el tipo de proceso no deja
+        pegada ninguna respuesta que ya no se preguntó.
       </p>
       <pre>for f in lib/legal/__tests__/*.validation.ts
 do npx tsx "$f"; done</pre>
@@ -591,16 +600,17 @@ do npx tsx "$f"; done</pre>
       <span class="num">1</span>
       <h3>Una sola capa con reglas jurídicas</h3>
       <p>
-        Toda la aritmética y todas las reglas de la ley viven en
-        <code>lib/legal/</code>, que no conoce React ni el DOM. El schema define
-        qué se pregunta, la orquestación navega y los componentes solo dibujan.
-        Ninguna de esas tres capas puede decidir nada jurídico.
+        Todas las cuentas y todas las reglas de la ley están en un solo lugar
+        del código, separado de la pantalla. Qué se pregunta, en qué orden se
+        pregunta y cómo se ve la respuesta son tres cosas aparte, y ninguna de
+        las tres puede decidir nada jurídico: pasan los datos y muestran lo que
+        el motor devolvió.
       </p>
       <p>
-        El motor tiene un punto de entrada único y es una función pura: mismo
-        estado, mismo resultado. Devuelve el cálculo <em>y</em> la lista de
-        transformaciones que lo produjeron, que es lo que la app muestra como
-        cadena.
+        Ese motor tiene una sola puerta de entrada y no arrastra memoria de
+        nada: con los mismos datos da siempre el mismo resultado. Y no devuelve
+        solo el número, devuelve también la lista de operaciones que lo
+        produjeron, que es la cadena que la app muestra en pantalla.
       </p>
     </div>
 
@@ -609,12 +619,12 @@ do npx tsx "$f"; done</pre>
       <h3>Cambios de resultado sin documentar</h3>
       <p>
         Los resultados vigentes se consideran correctos y son la referencia a
-        preservar. Un refactor que mejora el código y cambia un número no es un
-        refactor: es un error.
+        preservar. Ordenar el código y de paso mover un número no es una mejora:
+        es un error.
       </p>
       <p>
         Cuando un número tiene que cambiar, se anota con el caso concreto y el
-        artículo que lo funda, aunque el diff sea de una línea. Por eso el
+        artículo que lo funda, aunque el cambio sea de una línea. Por eso el
         registro de versiones se numera según qué le pasó al número, no según
         cuánto código se tocó: un cálculo de hoy tiene que poder reproducirse
         dentro de dos años.

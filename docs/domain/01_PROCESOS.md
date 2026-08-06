@@ -1,741 +1,679 @@
-# Procesos Judiciales y Extrajudiciales
+# Los procesos de la entrevista
 
-> Documento de dominio — Calculadora de honorarios bajo Ley 27.423
+> Documento de dominio — Ley 27.423
 
-Este documento describe cada tipo de proceso soportado por el sistema, detallando su finalidad, inputs requeridos, pasos del wizard, preguntas condicionales, datos que se ignoran, resultado que produce, artículos de la ley aplicables y módulos de cálculo que utiliza.
+La entrevista de Honorio conoce **ocho tipos de proceso**. Este documento
+describe, para cada uno: qué pregunta, en qué orden, qué hace con cada
+respuesta, qué devuelve y qué deliberadamente no hace.
 
-
-> **Verificado el 5/8/2026 contra el texto de la ley**, que está en
-> [00_LEY_27423.md](00_LEY_27423.md). No tenía errores de atribución: está generado desde el schema de la entrevista. Lo que sí tenía era 47 palabras con la primera letra comida, ya restauradas.
-
----
-
-## 1. Conocimiento (De Conocimiento)
-
-### Finalidad
-Calcular los honorarios de los profesionales intervinientes (patrocinante, apoderado, procurador, auxiliares) en un juicio de conocimiento ordinario o abreviado, conforme a la escala del art. 21 de la Ley 27.423.
-
-### Cuándo se utiliza
-Cuando el usuario necesita calcular honorarios en un juicio civil o comercial de conocimiento, incluyendo diversas sub-categorías según la materia del litigio.
-
-### Qué inputs requiere
-- **Monto base del juicio**: Valor económico del litigio o pretensión.
-- **Sub-objeto del juicio**: Categoría específica dentro de los conocimientos:
-  - desalojo (con sub-opciones: vivienda, civil, laboral)
-  - sumas_dinero
-  - inmuebles
-  - derechos_crediticios
-  - 	itulos_acciones
-  - establecimientos
-  - uso_habitacion
-  - escrituracion
-  - familia_alimentos
-  - familia_liquidacion
-  - posesorias_interdictos (con sub-opciones: beneficio, demas)
-  - incidencia_colectiva
-- **Modo de terminación del juicio**: Cómo concluyó el proceso:
-  - sentencia (con sub-opción: admitida o rechazada)
-  - modos_anormales (con sub-opción: antes o después de apertura a prueba)
-  - caducidad (con sub-opción: art22 o art25; art25 incluye pregunta sobre apertura a prueba)
-  - provisorios
-
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Conocimiento)
-2. Selección del sub-objeto del juicio
-3. Ingreso del monto base
-4. Selección del modo de terminación
-5. Preguntas condicionales según sub-objeto y terminación
-6. Cálculo de honorarios según escala del art. 21
-7. Adición de honorarios de patrocinante, apoderado, procurador y auxiliares
-8. Resultado final con desglose
-
-### Qué preguntas son condicionales
-- **Si sub-objeto = desalojo** → Pregunta si es vivienda (reduce base 20% art. 40), civil o laboral
-- **Si terminación = sentencia** → Pregunta si fue admitida (honorarios completos) o rechazada (reduce base 30% art. 22)
-- **Si terminación = modos_anormales** → Pregunta si ocurrió antes o después de apertura a prueba
-- **Si terminación = caducidad** → Pregunta si es art22 o art25; si art25, pregunta sobre apertura a prueba
-- **Si sub-objeto = posesorias_interdictos** → Pregunta si es beneficio exclusivo (reduce final 20% art. 38) o demas
-- **Si sub-objeto = incidencia_colectiva** → Reduce honorarios finales 25% (art. 49)
-
-### Qué datos ignora
-- No se utiliza el valor de la UMA para cálculo de escala
-- No se aplica reducción por juicio abreviado (solo aplica en ciertos sub-objetos)
-- No se considera la segunda instancia en el cálculo inicial (se calcula aparte)
-
-### Qué resultado produce
-- **Honorarios del patrocinante**: Calculados según escala del art. 21
-- **Honorarios del apoderado**: 40% adicionales sobre patrocinante (art. 21)
-- **Honorarios del procurador**: 40% sobre base (art. 21)
-- **Honorarios de auxiliares**: 5%-10% sobre base según categoría
-- **Total general**: Suma de todos los honorarios
-- **Segunda instancia** (opcional): Calculada aparte según art. 30
-
-### Qué artículos de la ley intervienen
-- **Art. 21**: Escala de honorarios para juicios de conocimiento
-- **Art. 22**: Reducción del 30% para demanda rechazada
-- **Art. 30**: Segunda instancia
-- **Art. 38**: Reducción del 20% para posesorias interdictos con beneficio exclusivo
-- **Art. 40**: Reducción del 20% para desalojo de vivienda
-- **Art. 49**: Reducción del 25% para incidencia colectiva
-
-### De qué otros módulos depende
-- escala_art21 — Cálculo de la escala por monto
-- patrocinante — Cálculo de honorarios del patrocinante
-- apoderado — Cálculo de honorarios del apoderado (+40%)
-- procurador — Cálculo de honorarios del procurador
-- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
-- segunda_instancia — Cálculo de honorarios de segunda instancia (art. 30)
+Las tablas de mínimos arancelarios —art. 19, 31, 44, 48, 58, 60 y 61 bis— **no
+son un proceso**: son una pantalla de consulta aparte, sin entrevista y sin
+cálculo. Están al final, en su propia sección.
 
 ---
 
-## 2. Ejecución de Sentencia
+## Cómo leer este documento
 
-### Finalidad
-Calcular los honorarios en el proceso de ejecución de una sentencia firme, aplicando las reducciones específicas del art. 41.
+**Todo tiene dos nombres.** Uno es la categoría jurídica y el otro es la clave
+con la que el código la representa. Los dos aparecen siempre, porque son los dos
+necesarios: sin el primero no se puede discutir si la regla es correcta, y sin
+el segundo no se puede encontrar dónde está escrita.
 
-### Cuándo se utiliza
-Cuando el juicio de conocimiento ya terminó con sentencia y se está ejecutando la condena. Se calcula sobre la base de la sentencia ejecutada.
+Así:
 
-### Qué inputs requiere
-- **Monto base de la sentencia**: Valor económico de lo decidido en sentencia
-- **Modo de terminación**: sentencia, modos_anormales, caducidad o provisorios
-- **Tuvo excepciones**: si o 
-o — Si el ejecutado planteó excepciones en la ejecución
+> **Objeto del juicio** (`objeto`, que el motor recibe como `objetoBase`) —
+> qué se reclama. Doce opciones, entre ellas `sumas_dinero`, `escrituracion`
+> y `familia_alimentos`.
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Ejecución de Sentencia)
-2. Ingreso del monto base
-3. Selección del modo de terminación
-4. Pregunta sobre excepciones
-5. Preguntas condicionales según terminación
-6. Cálculo con escala del art. 21 reducida al 50% (art. 41)
-7. Reducción adicional del 10% si no hubo excepciones (art. 41 + art. 34)
-8. Cálculo de patrocinante, apoderado, procurador y auxiliares
-9. Resultado final
+`sumas_dinero` no es una categoría de la ley ni pretende serlo: es el
+identificador de una opción en el código. La categoría jurídica es «juicio por
+cobro de sumas de dinero», y el artículo que la gobierna es el 22.
 
-### Qué preguntas son condicionales
-- **Si terminación = modos_anormales** → Pregunta si fue antes o después de apertura a prueba
-- **Si terminación = caducidad** → Pregunta si es art22 o art25
-- **Si excepciones = 
-o** → Aplica reducción adicional del 10%
+**Cada afirmación de acá se puede verificar en dos archivos**, los dos en el
+repositorio [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio):
 
-### Qué datos ignora
-- No se utilizan sub-objetos del juicio original (desalojo, sumas de dinero, etc.)
-- No se aplica la reducción por demanda rechazada (art. 22) — ya está contemplada en el proceso original
-- No se considera la segunda instancia en este cálculo
+| Qué querés comprobar | Dónde está |
+|---|---|
+| Qué se pregunta, en qué orden, con qué condición | `lib/wizard/wizard-schema.ts` |
+| Qué hace el motor con cada respuesta | `lib/legal/calculate.ts` |
 
-### Qué resultado produce
-- **Base de cálculo**: Monto de la sentencia
-- **Escala reducida**: 50% de la escala del art. 21 (art. 41)
-- **Reducción adicional**: 10% si no hubo excepciones (art. 34)
-- **Honorarios del patrocinante**: Calculados sobre la escala reducida
-- **Honorarios del apoderado**: 40% adicionales sobre patrocinante
-- **Honorarios del procurador**: 40% sobre base
-- **Honorarios de auxiliares**: 5%-10% sobre base
-- **Total general**: Suma de todos los honorarios
+En `wizard-schema.ts`, el orden real de las preguntas de cada proceso está en
+una sola constante, `PROCESS_STEP_MAP`. En `calculate.ts`, la traducción de
+respuestas a reglas jurídicas está toda en una sola función, `resolveReglas()`.
+Si algo de este documento no coincide con esas dos, mandan esas dos.
 
-### Qué artículos de la ley intervienen
-- **Art. 21**: Escala de referencia para el cálculo base
-- **Art. 34**: Reducción del 10% cuando no hubo excepciones
-- **Art. 41**: Reducción del 50% para ejecución de sentencia
-
-### De qué otros módulos depende
-- escala_art21 — Cálculo de la escala por monto
-- patrocinante — Cálculo de honorarios del patrocinante
-- apoderado — Cálculo de honorarios del apoderado (+40%)
-- procurador — Cálculo de honorarios del procurador
-- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+**Verificado el 6/8/2026** contra el motor y contra el texto de la ley, que
+está en [00_LEY_27423.md](00_LEY_27423.md). La versión anterior de este
+documento estaba generada a partir de una descripción del sistema y no del
+sistema: afirmaba que el cálculo no usa la UMA, inventaba un «total general»
+que el motor nunca devolvió, listaba los pasos del wizard en un orden que no es
+el real y atribuía a la ley una reducción por «juicio abreviado» que no existe.
 
 ---
 
-## 3. Ejecutivo
+## Lo que se pregunta siempre, en cualquier proceso
 
-### Finalidad
-Calcular los honorarios en un juicio ejecutivo (proceso de ejecución forzada de obligaciones documentadas en título ejecutivo), conforme al art. 21 con reducciones aplicables.
+**1. Valor de la UMA** (`umaInicio` → `valorUMA`). Primera pregunta de los ocho
+procesos, sin excepción. La app propone el último valor conocido y el usuario lo
+confirma o lo corrige.
 
-### Cuándo se utiliza
-Cuando se trabaja en un juicio ejecutivo por deudas documentadas (cheques, pagarés, facturas, etc.) y se requiere el cálculo de honorarios.
+No es un dato de contexto: **es la unidad en la que se calcula todo**. La escala
+del art. 21 no está escrita en pesos sino en tramos de UMA, así que lo primero
+que hace el motor con la base es dividirla por la UMA para saber en qué tramo
+cae. Cambiar la UMA cambia el tramo, y cambiar el tramo cambia la alícuota.
 
-### Qué inputs requiere
-- **Monto base del juicio ejecutivo**: Valor económico de la obligación ejecutada
-- **Modo de terminación**: sentencia, modos_anormales, caducidad o provisorios
-- **Tuvo excepciones**: si o 
-o — Si el ejecutado planteó excepciones de previo y especial pronunciamiento
+**2. Tipo de proceso** (`tipoProceso`). Las ocho opciones son las secciones de
+este documento. Es la respuesta que decide qué se pregunta después: cada
+proceso tiene su propia lista de pasos.
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Ejecutivo)
-2. Ingreso del monto base
-3. Selección del modo de terminación
-4. Pregunta sobre excepciones
-5. Preguntas condicionales según terminación
-6. Cálculo con escala del art. 21
-7. Reducción del 10% si no hubo excepciones (art. 34)
-8. Cálculo de patrocinante, apoderado, procurador y auxiliares
-9. Resultado final
-
-### Qué preguntas son condicionales
-- **Si terminación = modos_anormales** → Pregunta si fue antes o después de apertura a prueba
-- **Si terminación = caducidad** → Pregunta si es art22 o art25
-- **Si excepciones = 
-o** → Aplica reducción del 10% (art. 34)
-
-### Qué datos ignora
-- No se utilizan sub-objetos ni categorías especiales del juicio de conocimiento
-- No se aplica la reducción del 50% del art. 41 (solo para ejecución de sentencia)
-- No se considera la segunda instancia en este cálculo
-
-### Qué resultado produce
-- **Base de cálculo**: Monto del juicio ejecutivo
-- **Escala del art. 21**: Sin reducción adicional porcentual (salvo excepciones)
-- **Reducción por ausencia de excepciones**: 10% (art. 34) si no hubo excepciones
-- **Honorarios del patrocinante**: Calculados según escala
-- **Honorarios del apoderado**: 40% adicionales sobre patrocinante
-- **Honorarios del procurador**: 40% sobre base
-- **Honorarios de auxiliares**: 5%-10% sobre base
-- **Total general**: Suma de todos los honorarios
-
-### Qué artículos de la ley intervienen
-- **Art. 21**: Escala de honorarios para juicios ejecutivos
-- **Art. 34**: Reducción del 10% cuando no hubo excepciones
-
-### De qué otros módulos depende
-- escala_art21 — Cálculo de la escala por monto
-- patrocinante — Cálculo de honorarios del patrocinante
-- apoderado — Cálculo de honorarios del apoderado (+40%)
-- procurador — Cálculo de honorarios del procurador
-- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+De ahí en adelante, cada proceso va por su lado.
 
 ---
 
-## 4. Sucesión
+## 1. Juicio de conocimiento — `conocimiento`
 
-### Finalidad
-Calcular los honorarios en un juicio sucesorio (apertura de sucesión, inventario, partición, etc.), incluyendo los honorarios del partidor cuando corresponda.
+### Qué es
 
-### Cuándo se utiliza
-Cuando se requiere calcular honorarios en un proceso sucesorio, ya sea con un único letrado o con varios profesionales intervinientes.
+El proceso de conocimiento —ordinario o sumarísimo—, donde se discute y se
+resuelve el fondo del asunto. Es el proceso con más preguntas de los ocho, y el
+único que pregunta por el objeto del juicio.
 
-### Qué inputs requiere
-- **Monto base del patrimonio sucesorio**: Valor total del patrimonio a distribuir
-- **Sucesión con único letrado**: si o 
-o — Indica si un solo abogado intervino en todo el proceso
+### Qué pregunta, en este orden
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Sucesión)
-2. Ingreso del monto base (valor del patrimonio)
-3. Pregunta sobre único letrado
-4. Si es único letrado: aplica reducción del 50% sobre escala (art. 35)
-5. Cálculo de la escala del art. 21
-6. Cálculo de honorarios del partidor (2%-3% del base, art. 35)
-7. Cálculo de patrocinante, apoderado, procurador y auxiliares
-8. Resultado final
+| # | Pregunta | Clave | Cuándo aparece |
+|---|---|---|---|
+| 1 | Valor de la UMA | `umaInicio` | siempre |
+| 2 | Tipo de proceso | `tipoProceso` | siempre |
+| 3 | ¿Cómo terminó el proceso? | `modoTerminacion` | siempre |
+| 4 | ¿Cómo se resolvió la demanda? | `sentenciaResultado` | si terminó por `sentencia` |
+| 5 | ¿Con qué criterio se trata la caducidad? | `caducidadCriterio` | si terminó por `caducidad` |
+| 6 | ¿Antes o después de la apertura a prueba? | `aperturaPrueba` | si `modos_anormales`, o `caducidad` + `art25` |
+| 7 | ¿Qué se reclama en el juicio? | `objeto` | siempre |
+| 8 | Tipo de desalojo / tipo de acción posesoria | `desalojoVivienda`, `posesoriasTipo` | según la respuesta anterior |
+| 9 | Base regulatoria | `base` | siempre |
 
-### Qué preguntas son condicionales
-- **Si único letrado = si** → Reduce la escala al 50% (art. 35)
-- **Siempre** → Se calculan honorarios del partidor (2%-3% del monto base)
+**La terminación se pregunta antes que el objeto, y la base al final.** Ese es
+el orden real de la pantalla, y no es indiferente: la base se pide última porque
+para entonces ya se sabe si va a sufrir una reducción, y la app puede decirlo
+mientras se la ingresa.
 
-### Qué datos ignora
-- No se utilizan sub-objetos ni categorías del juicio de conocimiento
-- No se aplica la reducción por demanda rechazada (art. 22)
-- No se considera modo de terminación (la sucesión tiene su propia lógica)
-- No se aplica la reducción del 50% por ejecución de sentencia (art. 41)
+**Las opciones de terminación** (`modoTerminacion`) son cuatro:
 
-### Qué resultado produce
-- **Base de cálculo**: Valor del patrimonio sucesorio
-- **Escala del art. 21**: Calculada sobre el patrimonio
-- **Reducción por único letrado**: 50% si corresponde (art. 35)
-- **Honorarios del partidor**: 2%-3% del monto base (art. 35)
-- **Honorarios del patrocinante**: Calculados según escala
-- **Honorarios del apoderado**: 40% adicionales sobre patrocinante
-- **Honorarios del procurador**: 40% sobre base
-- **Honorarios de auxiliares**: 5%-10% sobre base
-- **Total general**: Suma de todos los honorarios
+- **Sentencia** (`sentencia`) — sentencia definitiva. Abre la pregunta 4.
+- **Modos anormales** (`modos_anormales`) — allanamiento, desistimiento o
+  transacción, los tres del art. 25. Abre la pregunta 6.
+- **Caducidad de instancia** (`caducidad`) — art. 310 CPCCN. Abre la pregunta 5.
+- **Honorarios provisorios** (`provisorios`) — art. 12. No abre ninguna
+  pregunta; ver más abajo qué hace.
 
-### Qué artículos de la ley intervienen
-- **Art. 21**: Escala de honorarios para juicios sucesorios
-- **Art. 35**: Reducción del 50% para sucesión con único letrado; honorarios del partidor (2%-3%)
+**Las opciones de objeto** (`objeto`) son doce: `sumas_dinero`, `desalojo`,
+`inmuebles`, `derechos_crediticios`, `titulos_acciones`, `establecimientos`,
+`uso_habitacion`, `escrituracion`, `familia_alimentos`, `familia_liquidacion`,
+`posesorias_interdictos` e `incidencia_colectiva`.
 
-### De qué otros módulos depende
-- escala_art21 — Cálculo de la escala por monto
-- patrocinante — Cálculo de honorarios del patrocinante
-- apoderado — Cálculo de honorarios del apoderado (+40%)
-- procurador — Cálculo de honorarios del procurador
-- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
-- partidor — Cálculo de honorarios del partidor (2%-3%)
+**Nueve de las doce no mueven ningún número.** Están para orientar el paso
+siguiente: cada una trae en pantalla el artículo que dice cómo se arma la base
+en ese tipo de juicio —art. 23 inc. a para inmuebles, art. 39 para alimentos,
+art. 45 para la liquidación del régimen patrimonial, art. 46 para
+escrituración—, pero **la base la calcula y la ingresa el usuario**. El motor no
+la deriva.
 
----
+Las tres que sí mueven el número son `desalojo` (por su sub-pregunta),
+`posesorias_interdictos` (por su sub-pregunta) e `incidencia_colectiva`.
 
-## 5. Exhorto
+Lo mismo pasa dentro del desalojo: de las tres opciones de `desalojoVivienda`,
+solo `vivienda` reduce la base. `civil` no reduce nada, y `laboral` tampoco: lo
+que hace su descripción en pantalla es indicar cómo armar la base en ese caso
+—el 50 % de la última remuneración mensual por dos años, art. 43—, cuenta que
+también hace el usuario.
 
-### Finalidad
-Calcular los honorarios por la actuación profesional en un exhorto (carta rogatoria), conforme al art. 50 de la Ley 27.423.
+### Qué hace con esas respuestas
 
-### Cuándo se utiliza
-Cuando un abogado actúa en un exhorto emitido por un juez de otro distrito, y se requiere calcular sus honorarios por la labor realizada.
+El motor aplica las reglas en tres etapas, y **el orden importa**: una quita
+sobre la base no da lo mismo que la misma quita sobre la escala.
 
-### Qué inputs requiere
-- **No requiere monto base**: Los honorarios se calculan en función de la cantidad de UMA
-- **No requiere selección de sub-objeto**: La categoría se determina por el inciso del art. 50
+**Etapa 1 — sobre la base regulatoria.** Las tres son multiplicativas entre sí.
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Exhorto)
-2. Selección del inciso del art. 50:
-   - **Inciso a)**: Asistencia a audiencia — Mínimo 3 UMA
-   - **Inciso b)**: Trámites judiciales simples — 10 a 20 UMA
-   - **Inciso c)**: Trámites judiciales complejos — 7 a 30 UMA
-3. Cálculo inmediato del honorario según la tabla de UMA
-4. Resultado final
+| Regla | Factor | Cuándo |
+|---|---|---|
+| Desalojo de vivienda (art. 40) | × 0,8 | `objeto` = `desalojo` y `desalojoVivienda` = `vivienda` |
+| Demanda íntegramente desestimada (art. 22) | × 0,7 | `sentenciaResultado` = `rechazada` |
+| Caducidad tratada como demanda desestimada (art. 22) | × 0,7 | `caducidadCriterio` = `art22` |
 
-### Qué preguntas son condicionales
-- No hay preguntas condicionales — el cálculo es directo según el inciso seleccionado
+**Etapa 2 — la escala del art. 21**, sobre la base ya reducida, y después las
+reducciones que operan sobre ella.
 
-### Qué datos ignora
-- No se utiliza monto base del juicio
-- No se aplica escala del art. 21
-- No se calculan honorarios de apoderado, procurador o auxiliares
-- No se considera modo de terminación
-- No se aplica reducción por demanda rechazada u otros conceptos
+La escala tiene siete tramos, de 22 %-33 % hasta 12 %-15 %, y no es un
+porcentaje plano: cada tramo suma el máximo del grado anterior más la alícuota
+del tramo aplicada solamente al excedente. Por eso la app muestra, cuando
+difieren, el número que daría leer la alícuota como si fuera directa sobre la
+base: para que se vea que no es lo mismo.
 
-### Qué resultado produce
-- **Honorario fijo en UMA**: Calculado según el inciso del art. 50
-- **Monto en pesos**: UMA × valor de la UMA vigente al momento del cálculo
-- **No incluye**: Honorarios de apoderado, procurador o auxiliares
+| Regla | Factor | Cuándo |
+|---|---|---|
+| Terminación anormal antes de la apertura a prueba (art. 25) | × 0,5 | `modos_anormales` + `aperturaPrueba` = antes, **o** `caducidad` + `art25` + `aperturaPrueba` = antes |
 
-### Qué artículos de la ley intervienen
-- **Art. 50**: Honorarios por exhortos (incisos a, b, c)
+Los dos criterios de la caducidad son **alternativos**. Elegido el art. 22, la
+instancia cae como demanda desestimada, la quita es de base y el momento de la
+apertura a prueba deja de jugar —por eso la pregunta 6 no aparece—. Recién con
+el art. 25 el momento importa. Hasta el 3/8/2026 el motor aplicaba también el
+-50 % al criterio del art. 22, acumulando dos quitas sobre el mismo hecho.
 
-### De qué otros módulos depende
-- valor_uma — Consulta del valor de la UMA vigente
-- exhorto_calc — Cálculo directo por inciso (sin escala)
+**Etapa 3 — sobre el honorario ya calculado.** Multiplicativas entre sí.
 
----
+| Regla | Factor | Cuándo |
+|---|---|---|
+| Acciones posesorias o interdictos en beneficio exclusivo del patrocinado (art. 38) | × 0,8 | `posesoriasTipo` = `beneficio` |
+| Proceso colectivo con contenido patrimonial (art. 49) | × 0,75 | `objeto` = `incidencia_colectiva` |
 
-## 6. Incidente
+**Los honorarios provisorios no son una cuarta reducción.** Si `modoTerminacion`
+= `provisorios`, no cambia ningún factor: cambia qué se puede afirmar. El art. 12
+manda fijarlos «en el mínimo que le hubiere podido corresponder», así que el
+resultado se marca como provisorio (`esProvisorio`) y **la app deja de enunciar
+el máximo** —en la banda de honorarios, en la alícuota, en auxiliares, en
+segunda instancia—. El máximo no se oculta por prudencia: mostrarlo sería
+afirmar un tope que este cálculo no está afirmando.
 
-### Finalidad
-Calcular los honorarios en un incidente surgido dentro de un proceso principal, conforme al art. 29 inc. g de la Ley 27.423.
+### Qué devuelve
 
-### Cuándo se utiliza
-Cuando se trabaja en un incidente (art. 157 y ss. del CPC) y se requiere calcular los honorarios de los profesionales intervinientes en dicho incidente.
+- **Patrocinante** — lo que sale de la escala, con todas las reducciones.
+- **Apoderado** — patrocinante × 1,4. Sale del art. 20: el apoderado sin
+  patrocinio percibe lo de ambos, o sea 100 % + 40 %. Se aplica al final, sobre
+  el honorario ya reducido.
+- **Procurador** — patrocinante × 0,4 (art. 20, primera oración). También al
+  final.
+- **Auxiliares de la Justicia** — del 5 % al 10 % de la base **en UMA**
+  (art. 21). Es un rango único, sin categorías: la ley no distingue entre
+  peritos, martilleros o contadores en este punto, y el motor tampoco. Se
+  calcula sobre la base ya reducida por la etapa 1.
+- **Segunda instancia** — no es opcional y no se pide aparte: se calcula
+  **siempre**, para el rol que esté seleccionado en pantalla, como un porcentaje
+  del honorario de primera instancia (art. 30). Mínimo 30 %, máximo 35 %, y 40 %
+  si la sentencia fue revocada en todas sus partes a favor del apelante. Es un
+  bloque aparte en la pantalla porque es una regulación distinta, no porque se
+  calcule por fuera.
+- **La cadena** — la lista de transformaciones aplicadas, cada una con su
+  artículo, el valor antes y el valor después. Es lo que la app muestra como
+  «por qué», y es parte del resultado del motor, no un adorno de la interfaz.
 
-### Qué inputs requiere
-- **Monto base del incidente**: Valor económico del incidente
+**No hay un total general.** El motor no suma los honorarios de los distintos
+roles y la app no muestra esa suma, porque sumarlos no significa nada: son
+alternativos entre sí —un mismo abogado es patrocinante o apoderado, no los
+dos— y quien los cobra es una persona distinta en cada caso.
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Incidente)
-2. Ingreso del monto base
-3. Cálculo de honorarios según escala del art. 29 inc. g (2%-20% del base)
-4. Cálculo de patrocinante, apoderado, procurador y auxiliares
-5. Resultado final
+### Qué no hace
 
-### Qué preguntas son condicionales
-- No hay preguntas condicionales — el cálculo es directo sobre el monto base
+- **No calcula la base regulatoria.** La ingresa el usuario. El objeto del
+  juicio le dice qué artículo la gobierna, pero la cuenta es suya.
+- **No aplica ninguna reducción por «juicio abreviado».** No existe en la ley.
+- **No aplica el -50 % del art. 41** (ejecución de sentencia) ni el del art. 35
+  (único letrado en la sucesión): son de otros procesos.
+- **No mira el art. 29 inc. b** para dividir el honorario por etapas. La escala
+  se calcula completa; la división en etapas del art. 29 no está implementada.
 
-### Qué datos ignora
-- No se utiliza modo de terminación del juicio principal
-- No se aplica escala del art. 21 (se usa la del art. 29 inc. g)
-- No se considera si hubo sentencia rechazada o demanda admitida
-- No se aplica reducción por único letrado (art. 35)
-- No se aplica reducción del 50% por ejecución de sentencia (art. 41)
+### Dónde mirarlo
 
-### Qué resultado produce
-- **Base de cálculo**: Monto del incidente
-- **Escala del art. 29 inc. g**: 2%-20% del monto base (según tabla de la ley 21.839)
-- **Honorarios del patrocinante**: Calculados según escala del incidente
-- **Honorarios del apoderado**: 40% adicionales sobre patrocinante
-- **Honorarios del procurador**: 40% sobre base
-- **Honorarios de auxiliares**: 5%-10% sobre base
-- **Total general**: Suma de todos los honorarios
-
-### Qué artículos de la ley intervienen
-- **Art. 29 inc. g**: Honorarios por incidentes — 2 etapas del procedimiento
-- **Ley 21.839**: Referencia histórica para la escala de incidentes
-
-### De qué otros módulos depende
-- escala_art29g — Cálculo de la escala por monto para incidentes
-- patrocinante — Cálculo de honorarios del patrocinante
-- apoderado — Cálculo de honorarios del apoderado (+40%)
-- procurador — Cálculo de honorarios del procurador
-- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+`buildGeneral()` en `lib/legal/calculate.ts`. Es la misma función que atiende
+ejecución de sentencia, ejecutivo y sucesión: lo que cambia entre los cuatro es
+lo que devuelve `resolveReglas()`, no el recorrido.
 
 ---
 
-## 7. Medida Cautelar
+## 2. Ejecución de sentencia — `ejecucion_sentencia`
 
-### Finalidad
-Calcular los honorarios por la labor profesional en una medida cautelar (embargo, inhibición, secuestro, etc.), conforme al art. 37 de la Ley 27.423.
+### Qué es
 
-### Cuándo se utiliza
-Cuando se requiere calcular honorarios por la obtención o defensa de una medida cautelar, considerando si hubo oposición del afectado.
+El procedimiento de ejecución de una sentencia firme, de honorarios o de
+acuerdos homologados (art. 41).
 
-### Qué inputs requiere
-- **Monto base de la medida cautelar**: Valor económico de la medida
-- **Oposición del afectado**: si o 
-o — Si el afectado por la medida se opuso judicialmente
+### Qué pregunta, en este orden
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Medida Cautelar)
-2. Ingreso del monto base
-3. Pregunta sobre oposición
-4. Cálculo de escala del art. 21
-5. Reducción del 25% si no hubo oposición (art. 37)
-6. Si hubo oposición: escala completa del 50% (art. 37)
-7. Cálculo de patrocinante, apoderado, procurador y auxiliares
-8. Resultado final
+Las mismas 1 a 6 del conocimiento —UMA, tipo, terminación y sus condicionales—,
+y después:
 
-### Qué preguntas son condicionales
-- **Si oposición = 
-o** → Aplica reducción del 25% sobre escala del art. 21 (art. 37)
-- **Si oposición = si** → Aplica escala del 50% sobre escala del art. 21 (art. 37)
+| # | Pregunta | Clave | Cuándo aparece |
+|---|---|---|---|
+| 7 | ¿Se dedujeron excepciones? | `tuvoExcepciones` | siempre |
+| 8 | Base regulatoria | `base` | siempre |
 
-### Qué datos ignora
-- No se utiliza modo de terminación del juicio
-- No se aplica reducción por demanda rechazada (art. 22)
-- No se aplica reducción por único letrado (art. 35)
-- No se calcula segunda instancia (art. 30)
-- No se aplican reducciones por ejecución de sentencia (art. 41)
+**No pregunta el objeto del juicio.** Lo que se ejecuta ya está determinado por
+la sentencia.
 
-### Qué resultado produce
-- **Base de cálculo**: Monto de la medida cautelar
-- **Porcentaje aplicado**: 25% sin oposición / 50% con oposición (art. 37)
-- **Honorarios del patrocinante**: Calculados según el porcentaje aplicado
-- **Honorarios del apoderado**: 40% adicionales sobre patrocinante
-- **Honorarios del procurador**: 40% sobre base
-- **Honorarios de auxiliares**: 5%-10% sobre base
-- **Total general**: Suma de todos los honorarios
-- **No incluye**: Cálculo de segunda instancia
+### Qué hace con esas respuestas
 
-### Qué artículos de la ley intervienen
-- **Art. 37**: Honorarios por medida cautelar — 25% sin oposición, 50% con oposición
+Todo lo del conocimiento en materia de terminación —art. 22 sobre la base por
+demanda desestimada o caducidad `art22`, art. 25 sobre la escala—, más dos
+reglas propias:
 
-### De qué otros módulos depende
-- escala_art21 — Cálculo de la escala por monto
-- patrocinante — Cálculo de honorarios del patrocinante
-- apoderado — Cálculo de honorarios del apoderado (+40%)
-- procurador — Cálculo de honorarios del procurador
-- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+| Regla | Etapa | Factor |
+|---|---|---|
+| Ejecución de sentencia (art. 41) | escala | × 0,5, **siempre** |
+| Sin excepciones (art. 41 + art. 34) | honorario final | × 0,9 |
+
+El -50 % del art. 41 no depende de ninguna respuesta: se aplica por el solo
+hecho de ser este proceso. El -10 % adicional se aplica solo si
+`tuvoExcepciones` = `no`.
+
+### Qué devuelve
+
+Lo mismo que el conocimiento, incluida la segunda instancia. No devuelve
+partidor.
+
+### Qué no hace
+
+- **No aplica el art. 38 ni el art. 49**: dependen del objeto, que este proceso
+  no pregunta.
+- **No distingue el objeto del juicio original.** Si lo ejecutado venía de un
+  desalojo de vivienda, el -20 % del art. 40 ya operó en aquel juicio; acá no
+  vuelve a aplicarse.
+
+### Dónde mirarlo
+
+`buildGeneral()`, con `aplicaArt41 = true` fijo en `resolveReglas()`.
 
 ---
 
-## 8. Homologación de Desocupación
+## 3. Juicio ejecutivo — `ejecutivo`
 
-### Finalidad
-Calcular los honorarios en un juicio de homologación de un acuerdo de desocupación (convenio de desalojo), conforme al art. 40 de la Ley 27.423.
+### Qué es
 
-### Cuándo se utiliza
-Cuando se trabaja en un juicio de homologación de un acuerdo de desocupación, ya sea de vivienda o de otro tipo de inmueble.
+El juicio ejecutivo y las ejecuciones especiales: expensas, alquileres,
+pagarés, cheques, cualquier obligación con título ejecutivo (art. 34).
 
-### Qué inputs requiere
-- **Tipo de inmueble**: vivienda o otros — Si el inmueble es vivienda habitada u otro tipo de inmueble
+### Qué pregunta
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Homologación de Desocupación)
-2. Pregunta sobre tipo de inmueble
-3. Si es vivienda:
-   - Reduce base un 20% (art. 40)
-   - Calcula escala del art. 21 sobre base reducida
-   - Aplica reducción del 50% sobre honorarios (art. 40 pár. 2)
-4. Si es otros:
-   - Calcula escala del art. 21 sobre base completa
-   - Aplica reducción del 50% sobre honorarios (art. 40 pár. 2)
-5. Cálculo de patrocinante, apoderado, procurador y auxiliares
-6. Resultado final
+**Exactamente las mismas preguntas que la ejecución de sentencia**, en el mismo
+orden: UMA, tipo, terminación y condicionales, excepciones, base.
 
-### Qué preguntas son condicionales
-- **Si tipo = vivienda** → Reduce base un 20% ANTES de calcular la escala (art. 40)
-- **Siempre** → Aplica reducción del 50% sobre los honorarios calculados (art. 40 pár. 2)
+### Qué hace con esas respuestas
 
-### Qué datos ignora
-- No se utiliza modo de terminación del juicio
-- No se aplica reducción por demanda rechazada (art. 22)
-- No se aplica reducción por único letrado (art. 35)
-- No se calcula segunda instancia
-- No se aplican reducciones por ejecución de sentencia (art. 41)
+Igual que la ejecución de sentencia, **menos el -50 % del art. 41**. Queda:
 
-### Qué resultado produce
-- **Base de cálculo**: Monto del acuerdo de desocupación
-- **Reducción por vivienda**: 20% sobre base (solo si es vivienda, art. 40)
-- **Escala del art. 21**: Calculada sobre base (con o sin reducción por vivienda)
-- **Reducción del 50%**: Siempre aplicada sobre honorarios (art. 40 pár. 2)
-- **Honorarios del patrocinante**: Calculados sobre base reducida
-- **Honorarios del apoderado**: 40% adicionales sobre patrocinante
-- **Honorarios del procurador**: 40% sobre base
-- **Honorarios de auxiliares**: 5%-10% sobre base
-- **Total general**: Suma de todos los honorarios
+| Regla | Etapa | Factor |
+|---|---|---|
+| Sin excepciones (art. 34) | honorario final | × 0,9 |
 
-### Qué artículos de la ley intervienen
-- **Art. 40**: Homologación de desocupación — Reducción del 20% por vivienda y 50% sobre honorarios
+más las reglas de terminación comunes (art. 22 sobre la base, art. 25 sobre la
+escala).
 
-### De qué otros módulos depende
-- escala_art21 — Cálculo de la escala por monto
-- patrocinante — Cálculo de honorarios del patrocinante
-- apoderado — Cálculo de honorarios del apoderado (+40%)
-- procurador — Cálculo de honorarios del procurador
-- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+Es la única diferencia entre este proceso y el anterior, y explica por qué la
+entrevista es idéntica: la distingue el tipo de proceso, no una respuesta.
+
+### Qué devuelve
+
+Lo mismo que el conocimiento, incluida la segunda instancia. Sin partidor.
+
+### Qué no hace
+
+No aplica el art. 41 (ese es el proceso 2), ni el 38, ni el 49, ni el 35.
+
+### Dónde mirarlo
+
+`buildGeneral()`, con `aplicaArt41 = false`.
 
 ---
 
-## 9. Mínimos Judiciales (art. 19 inc. a)
+## 4. Sucesión — `sucesion`
 
-### Finalidad
-Consultar los honorarios mínimos para asuntos judiciales sin apreciación económica, conforme al art. 19 inc. a) de la Ley 27.423.
+### Qué es
 
-### Cuándo se utiliza
-Cuando se requiere determinar el honorario mínimo que corresponde a un profesional por su actuación en un asunto judicial que no tiene valor económico cuantificable (amparos, habeas corpus, etc.).
+El proceso sucesorio. Los honorarios se regulan sobre el valor del patrimonio
+que se transmite, gananciales incluidos (art. 35).
 
-### Qué inputs requiere
-- **No requiere monto base**: Es una consulta de tabla de valores fijos en UMA
-- **Categoría del asunto**: Tipo de asunto judicial sin cuantía (seleccionado de una lista predefinida)
+### Qué pregunta, en este orden
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Mínimos Judiciales)
-2. Selección de la categoría del asunto
-3. Consulta de la tabla de valores en UMA
-4. Cálculo del monto en pesos (UMA × valor vigente)
-5. Resultado final
+| # | Pregunta | Clave | Cuándo aparece |
+|---|---|---|---|
+| 1 | Valor de la UMA | `umaInicio` | siempre |
+| 2 | Tipo de proceso | `tipoProceso` | siempre |
+| 3 | ¿Intervino un solo letrado por todos los herederos? | `sucesionUnicoLetrado` | siempre |
+| 4 | Base regulatoria (el patrimonio que se transmite) | `base` | siempre |
 
-### Qué preguntas son condicionales
-- No hay preguntas condicionales — es una consulta directa de tabla
+Cuatro preguntas, dos recorridos posibles. **No pregunta cómo terminó el
+proceso** y por lo tanto tampoco ofrece honorarios provisorios: en el sucesorio
+no se admiten salvo excepción, y en esa excepción —el letrado renuncia con la
+sucesión sin terminar— la regulación es definitiva y se enuncia con mínimo y
+máximo, que es justo lo contrario de lo que hace el art. 12.
 
-### Qué datos ignora
-- No se utiliza monto base del juicio
-- No se aplica escala del art. 21
-- No se calculan honorarios de apoderado, procurador o auxiliares
-- No se considera modo de terminación
-- No se aplica reducción por demanda rechazada u otros conceptos
+### Qué hace con esas respuestas
 
-### Qué resultado produce
-- **Honorario mínimo en UMA**: Valor fijo según la categoría
-- **Monto en pesos**: UMA × valor de la UMA vigente
-- **No incluye**: Honorarios de otros profesionales
+| Regla | Etapa | Factor | Cuándo |
+|---|---|---|---|
+| Un solo abogado para todos los herederos (art. 35) | escala | × 0,5 | `sucesionUnicoLetrado` = `unico` |
 
-### Qué artículos de la ley intervienen
-- **Art. 19 inc. a)**: Honorarios mínimos para asuntos judiciales sin apreciación económica
+El art. 35 dice «en la mitad del mínimo y del máximo de la escala»: la quita es
+sobre la escala, no sobre la base. Si hay varios letrados, la escala va
+completa.
 
-### De qué otros módulos depende
-- valor_uma — Consulta del valor de la UMA vigente
-- minimos_judiciales_calc — Consulta de tabla de valores fijos
+### Qué devuelve
 
----
+Lo mismo que el conocimiento —incluida la segunda instancia—, y además:
 
-## 10. Mínimos Extrajudiciales (art. 19 inc. b)
+- **Partidor** — del 2 % al 3 % de la base (art. 35, última parte). Se calcula
+  siempre en este proceso, sin preguntar nada.
 
-### Finalidad
-Consultar los honorarios mínimos para asuntos extrajudiciales, conforme al art. 19 inc. b) de la Ley 27.423.
+### Qué no hace
 
-### Cuándo se utiliza
-Cuando se requiere determinar el honorario mínimo que corresponde a un profesional por su actuación en trámites extrajudiciales (asesoramiento, dictámenes, etc.).
+No aplica nada que dependa de la terminación (arts. 22 y 25) ni del objeto
+(arts. 38, 40 y 49), porque no los pregunta. Tampoco el art. 41 ni el 34.
 
-### Qué inputs requiere
-- **No requiere monto base**: Es una consulta de tabla de valores fijos en UMA
-- **Categoría del asunto**: Tipo de asunto extrajudicial (seleccionado de una lista predefinida)
+### Dónde mirarlo
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Mínimos Extrajudiciales)
-2. Selección de la categoría del asunto
-3. Consulta de la tabla de valores en UMA
-4. Cálculo del monto en pesos (UMA × valor vigente)
-5. Resultado final
-
-### Qué preguntas son condicionales
-- No hay preguntas condicionales — es una consulta directa de tabla
-
-### Qué datos ignora
-- No se utiliza monto base del juicio
-- No se aplica escala del art. 21
-- No se calculan honorarios de apoderado, procurador o auxiliares
-- No se considera modo de terminación
-- No se aplica reducción por demanda rechazada u otros conceptos
-
-### Qué resultado produce
-- **Honorario mínimo en UMA**: Valor fijo según la categoría
-- **Monto en pesos**: UMA × valor de la UMA vigente
-- **No incluye**: Honorarios de otros profesionales
-
-### Qué artículos de la ley intervienen
-- **Art. 19 inc. b)**: Honorarios mínimos para asuntos extrajudiciales
-
-### De qué otros módulos depende
-- valor_uma — Consulta del valor de la UMA vigente
-- minimos_extrajudiciales_calc — Consulta de tabla de valores fijos
+`buildGeneral()` con `aplicaArt35`, y `calcularPartidor()`.
 
 ---
 
-## 11. Mínimos Art. 58
+## 5. Medida cautelar — `medida_cautelar`
 
-### Finalidad
-Consultar los honorarios mínimos para asuntos con apreciación económica que no están contemplados en las escalas generales de la ley, conforme al art. 58 de la Ley 27.423.
+### Qué es
 
-### Cuándo se utiliza
-Cuando se requiere determinar el honorario mínimo para un tipo de trabajo profesional que, aunque tiene valor económico, no encaja en las categorías de juicios de conocimiento, ejecutivo, sucesión, etc.
+Medidas cautelares que tramiten autónomamente, en forma incidental o dentro del
+proceso: embargo, inhibición, secuestro. Los honorarios se regulan sobre el
+monto que se pretende asegurar (art. 37).
 
-### Qué inputs requiere
-- **No requiere monto base**: Es una consulta de tabla de valores fijos en UMA
-- **Categoría del asunto**: Tipo de asunto con cuantía no contemplado en otras escalas
+### Qué pregunta, en este orden
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Mínimos Art. 58)
-2. Selección de la categoría del asunto
-3. Consulta de la tabla de valores en UMA
-4. Cálculo del monto en pesos (UMA × valor vigente)
-5. Resultado final
+| # | Pregunta | Clave | Cuándo aparece |
+|---|---|---|---|
+| 1 | Valor de la UMA | `umaInicio` | siempre |
+| 2 | Tipo de proceso | `tipoProceso` | siempre |
+| 3 | ¿Existió oposición? | `medidaOposicion` | siempre |
+| 4 | Base (el monto que se pretende asegurar) | `base` | siempre |
 
-### Qué preguntas son condicionales
-- No hay preguntas condicionales — es una consulta directa de tabla
+### Qué hace con esas respuestas
 
-### Qué datos ignora
-- No se utiliza monto base del juicio
-- No se aplica escala del art. 21
-- No se calculan honorarios de apoderado, procurador o auxiliares
-- No se considera modo de terminación
-- No se aplica reducción por demanda rechazada u otros conceptos
+El art. 37 no establece una reducción sobre la escala: establece **qué
+porcentaje de la escala del art. 21 se toma como base**.
 
-### Qué resultado produce
-- **Honorario mínimo en UMA**: Valor fijo según la categoría
-- **Monto en pesos**: UMA × valor de la UMA vigente
-- **No incluye**: Honorarios de otros profesionales
+| Respuesta | Porcentaje de la escala del art. 21 |
+|---|---|
+| Sin oposición (`sin`) | 25 % |
+| Con oposición o controversia (`con`) | 50 % |
 
-### Qué artículos de la ley intervienen
-- **Art. 58**: Honorarios mínimos para asuntos con apreciación económica no contemplados en otras escalas
+La diferencia con «una reducción del 25 %» no es de redacción: reducir un 25 %
+dejaría el 75 %. Acá se aplica el 25 %.
 
-### De qué otros módulos depende
-- valor_uma — Consulta del valor de la UMA vigente
-- minimos_art58_calc — Consulta de tabla de valores fijos
+### Qué devuelve
 
----
+Patrocinante, apoderado (× 1,4), procurador (× 0,4) y auxiliares (5-10 % de la
+base en UMA, calculados sobre la base **sin** el factor del art. 37).
 
-## 12. Mínimos Recursos CSJN
+**No devuelve segunda instancia ni partidor.**
 
-### Finalidad
-Consultar los honorarios mínimos para la intervención profesional en recursos ante la Corte Suprema de Justicia de la Nación.
+### Qué no hace
 
-### Cuándo se utiliza
-Cuando se requiere determinar el honorario mínimo para un abogado que actúa en un recurso extraordinario federal, recurso de queja, o cualquier otro recurso ante la CSJN.
+No pregunta terminación ni objeto, así que no aplica los arts. 22, 25, 34, 35,
+38, 40, 41 ni 49.
 
-### Qué inputs requiere
-- **No requiere monto base**: Es una consulta de tabla de valores fijos en UMA
-- **Tipo de recurso**: Categoría del recurso ante la CSJN (seleccionado de una lista predefinida)
+### Dónde mirarlo
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Mínimos Recursos CSJN)
-2. Selección del tipo de recurso
-3. Consulta de la tabla de valores en UMA
-4. Cálculo del monto en pesos (UMA × valor vigente)
-5. Resultado final
-
-### Qué preguntas son condicionales
-- No hay preguntas condicionales — es una consulta directa de tabla
-
-### Qué datos ignora
-- No se utiliza monto base del juicio
-- No se aplica escala del art. 21
-- No se calculan honorarios de apoderado, procurador o auxiliares
-- No se considera modo de terminación
-- No se aplica reducción por demanda rechazada u otros conceptos
-
-### Qué resultado produce
-- **Honorario mínimo en UMA**: Valor fijo según el tipo de recurso
-- **Monto en pesos**: UMA × valor de la UMA vigente
-- **No incluye**: Honorarios de otros profesionales
-
-### Qué artículos de la ley intervienen
-- **Disposiciones específicas de la CSJN**: Normativa propia del Máximo Tribunal sobre honorarios mínimos
-
-### De qué otros módulos depende
-- valor_uma — Consulta del valor de la UMA vigente
-- minimos_csjn_calc — Consulta de tabla de valores fijos
+`buildMedidaCautelar()` y `aplicarFactorCautelar()`.
 
 ---
 
-## 13. Mínimos Auxiliares
+## 6. Homologación de convenios de desocupación — `homologacion_desocupacion`
 
-### Finalidad
-Consultar los honorarios mínimos para auxiliares de la justicia (peritos, martilleros, contadores, etc.), conforme a la normativa aplicable.
+### Qué es
 
-### Cuándo se utiliza
-Cuando se requiere determinar el honorario mínimo que corresponde a un auxiliar de la justicia por su actuación en un proceso judicial.
+La homologación de un convenio de desocupación y su ejecución (art. 40, último
+párrafo).
 
-### Qué inputs requiere
-- **No requiere monto base**: Es una consulta de tabla de valores fijos en UMA
-- **Categoría del auxiliar**: Tipo de auxiliar de la justicia (perito, martillero, contador, etc.)
+### Qué pregunta, en este orden
 
-### Qué pasos del wizard aparecen
-1. Selección del tipo de proceso (Mínimos Auxiliares)
-2. Selección de la categoría del auxiliar
-3. Consulta de la tabla de valores en UMA
-4. Cálculo del monto en pesos (UMA × valor vigente)
-5. Resultado final
+| # | Pregunta | Clave | Cuándo aparece |
+|---|---|---|---|
+| 1 | Valor de la UMA | `umaInicio` | siempre |
+| 2 | Tipo de proceso | `tipoProceso` | siempre |
+| 3 | ¿Qué tipo de convenio es? | `homologacionVivienda` | siempre |
+| 4 | Base (el total de los alquileres del contrato) | `base` | siempre |
 
-### Qué preguntas son condicionales
-- No hay preguntas condicionales — es una consulta directa de tabla
+**Sí requiere base.** El art. 40 la define: el total de los alquileres del
+contrato, o el valor locativo actualizado del inmueble si el del contrato no
+sirve o no puede determinarse.
 
-### Qué datos ignora
-- No se utiliza monto base del juicio
-- No se aplica escala del art. 21
-- No se calculan honorarios de patrocinante, apoderado o procurador
-- No se considera modo de terminación
-- No se aplica reducción por demanda rechazada u otros conceptos
+### Qué hace con esas respuestas
 
-### Qué resultado produce
-- **Honorario mínimo en UMA**: Valor fijo según la categoría del auxiliar
-- **Monto en pesos**: UMA × valor de la UMA vigente
-- **No incluye**: Honorarios de abogados u otros profesionales
+Dos reglas, las dos del art. 40, y en etapas distintas:
 
-### Qué artículos de la ley intervienen
-- **Disposiciones sobre auxiliares de justicia**: Normativa específica para honorarios de auxiliares (peritos, martilleros, etc.)
+| Regla | Etapa | Factor | Cuándo |
+|---|---|---|---|
+| Locación para vivienda o habitación | base | × 0,8 | `homologacionVivienda` = `vivienda` |
+| Homologación de convenio de desocupación | escala | × 0,5 | **siempre** |
 
-### De qué otros módulos depende
-- valor_uma — Consulta del valor de la UMA vigente
-- minimos_auxiliares_calc — Consulta de tabla de valores fijos
+El -20 % opera sobre la base, antes de entrar a la escala. El -50 % opera sobre
+la escala y no depende de ninguna respuesta: es lo que distingue a la
+homologación del desalojo contencioso.
 
----
+### Qué devuelve
 
-## Tabla Resumen de Procesos
+Patrocinante, apoderado, procurador y auxiliares (calculados sobre la base ya
+reducida por vivienda, si corresponde).
 
-| Proceso | Requiere monto base | Usa escala art. 21 | Tiene reducciones | Incluye 2ª instancia | Artículos principales |
-|---|---|---|---|---|---|
-| Conocimiento | Sí | Sí | Según sub-objeto y terminación | Sí | 21, 22, 30, 38, 40, 49 |
-| Ejecución de Sentencia | Sí | Sí (50%) | 50% siempre + 10% sin excepciones | No | 21, 34, 41 |
-| Ejecutivo | Sí | Sí | 10% sin excepciones | No | 21, 34 |
-| Sucesión | Sí | Sí | 50% si único letrado | Sí | 21, 35 |
-| Exhorto | No | No | No | No | 50 |
-| Incidente | Sí | No (usa art. 29g) | No | No | 29g, Ley 21839 |
-| Medida Cautelar | Sí | Sí (reducida) | 25% sin oposición / 50% con oposición | No | 37 |
-| Homologación Desocupación | No explícito | Sí | 20% vivienda + 50% siempre | No | 40 |
-| Mínimos Judiciales | No | No | No | No | 19 inc. a |
-| Mínimos Extrajudiciales | No | No | No | No | 19 inc. b |
-| Mínimos Art. 58 | No | No | No | No | 58 |
-| Mínimos Recursos CSJN | No | No | No | No | Disposiciones CSJN |
-| Mínimos Auxiliares | No | No | No | No | Disposiciones auxiliares |
+**No devuelve segunda instancia ni partidor.**
+
+### Qué no hace
+
+No pregunta terminación ni objeto: ninguna de las reglas de esos dos grupos se
+aplica.
+
+### Dónde mirarlo
+
+`buildHomologacion()` y `aplicarFactorHomologacion()`.
 
 ---
 
-## Flujo General de Cálculo
+## 7. Exhorto — `exhorto`
 
-`
-1. Usuario selecciona tipo de proceso
-         │
-         ├── ¿Es un mínimo? ──Sí──► Consulta de tabla ──► Resultado
-         │
-         └── No
-              │
-         2. Ingreso de monto base
-              │
-         3. Selección de sub-objeto (si aplica)
-              │
-         4. Selección de modo de terminación (si aplica)
-              │
-         5. Preguntas condicionales
-              │
-         6. Cálculo de escala base
-              │
-         7. Aplicación de reducciones
-              │
-         8. Cálculo de honorarios profesionales
-              │
-         9. Resultado final con desglose
-`
+### Qué es
+
+El diligenciamiento de exhortos y oficios de la Ley 22.172 (art. 50). Los
+honorarios están fijados directamente en UMA: no hay escala, no hay base.
+
+### Qué pregunta
+
+| # | Pregunta | Clave |
+|---|---|---|
+| 1 | Valor de la UMA | `umaInicio` |
+| 2 | Tipo de proceso | `tipoProceso` |
+
+**Dos preguntas y termina.** Un solo recorrido posible.
+
+### Qué hace con esas respuestas
+
+Nada más que convertir a pesos. **No pregunta el inciso**: muestra los tres a la
+vez, con su rango en UMA y en pesos, y el usuario elige leyendo cuál describe la
+diligencia que hizo.
+
+| Inciso | Qué comprende | UMA |
+|---|---|---|
+| a) | Notificaciones o actos semejantes | no menos de 3 |
+| b) | Inscripciones y actos registrales: dominios, hijuelas, testamentos, gravámenes, secuestros, embargos, inhibiciones, inventarios, remates, desalojos | de 10 a 20 |
+| c) | Diligencias de prueba en las que se intervino produciéndolas o controlándolas | de 7 a 30 |
+
+### Qué devuelve
+
+Los tres incisos, cada uno en UMA y en pesos.
+
+**No devuelve honorarios por rol** —no hay patrocinante, apoderado ni
+procurador—, **ni auxiliares, ni segunda instancia, ni partidor.** El art. 50
+regula la labor del profesional que diligencia, y no se divide en roles.
+
+### Dónde mirarlo
+
+`buildExhorto()`. Los cinco valores están escritos como constantes al principio
+de la función.
 
 ---
 
-> **Nota**: Este documento refleja la lógica de cálculo implementada en el sistema. Para detalles sobre los valores específicos de las escalas, consulte los artículos de la Ley 27.423 y sus modificaciones.
+## 8. Incidente — `incidente`
+
+### Qué es
+
+Los incidentes (art. 29 inc. g), que la ley considera divididos en dos etapas:
+el planteo y el desarrollo hasta su conclusión. En la entrevista esta opción
+**incluye los beneficios de litigar sin gastos**.
+
+### Qué pregunta
+
+| # | Pregunta | Clave |
+|---|---|---|
+| 1 | Valor de la UMA | `umaInicio` |
+| 2 | Tipo de proceso | `tipoProceso` |
+| 3 | Base regulatoria | `base` |
+
+Tres preguntas, un solo recorrido posible.
+
+### Qué hace con esas respuestas
+
+Aplica un rango del **2 % al 20 % de la base**, directo, sin pasar por la escala
+del art. 21 y sin ninguna reducción.
+
+> **Ese 2 %-20 % no está en la Ley 27.423.** El art. 29 inc. g divide el
+> incidente en dos etapas pero no fija ningún porcentaje, y el artículo que sí
+> lo hacía —el 47, que regulaba los incidentes entre el 8 % y el 25 % de lo que
+> correspondiera al proceso principal, con un piso de 5 UMA— **fue observado por
+> el Decreto 1077/2017 y nunca entró en vigencia**. El 2 %-20 % viene del art. 33
+> de la Ley 21.839, el régimen anterior, y se conserva como criterio a falta de
+> norma vigente que lo reemplace.
+>
+> Es una interpretación, no una transcripción. Está declarada como tal en
+> [03_REGLAS_DE_NEGOCIO.md](03_REGLAS_DE_NEGOCIO.md), regla 16.
+
+### Qué devuelve
+
+El rango en UMA y en pesos.
+
+**No devuelve apoderado, procurador, auxiliares, segunda instancia ni
+partidor.** El motor los deja en cero y la pantalla del incidente no los pide.
+
+### Dónde mirarlo
+
+`buildIncidente()`.
+
+---
+
+## Las tablas de mínimos
+
+**No son un proceso y no tienen entrevista.** Son una pantalla de consulta:
+siete categorías, cada una con su artículo, su texto legal completo y su lista
+de conceptos con el valor en UMA. No hay base regulatoria, no hay escala, no hay
+reducciones. Se busca el concepto y se lee el número.
+
+Están en el orden del articulado, y las tres primeras son las que no tienen
+monto, que es el caso por el que se consulta esta pantalla: cuando la escala del
+art. 21 no se puede aplicar.
+
+| Categoría | Clave | Artículo | Qué cubre |
+|---|---|---|---|
+| Asuntos judiciales sin apreciación pecuniaria | `judicial` | 19 inc. a | Divorcio, adopción, tutela, filiación, restricciones a la capacidad, información sumaria, denuncias penales, excarcelación, suspensión de juicio a prueba y demás |
+| Asuntos extrajudiciales | `extrajudicial` | 19 inc. b | Consultas, dictámenes, gestiones |
+| Recursos ante la CSJN | `recursos_csjn` | 31 | Queja por denegación: 15 UMA. Interposición de extraordinario y similares: 20 UMA |
+| Acciones y actuaciones administrativas | `contencioso_44` | 44 | Contencioso administrativas: 7 UMA. Administrativas: 5 UMA |
+| Amparo, hábeas corpus, hábeas data, inconstitucionalidad | `acciones_48` | 48 | 20 UMA, cuando no pueden regularse por la escala del art. 21 |
+| Juicios con apreciación pecuniaria no previstos en otros artículos | `art58` | 58 | Conocimiento 10, ejecutivos 6, mediación 2, auxiliares 4 UMA |
+| Auxiliares de la Justicia | `auxiliares_justicia` | 58, 60 y 61 bis | Peritos: 2 UMA por pericia. 1/4 de UMA si aceptó el cargo y el proceso terminó por transacción, avenimiento o conciliación antes del dictamen |
+
+Los arts. 60 y 61 bis son texto **con reforma publicada el 6/3/2026**: el
+61 bis desvincula el honorario del perito de la cuantía del juicio y del
+porcentaje de incapacidad que dictamine.
+
+### Dónde mirarlo
+
+`lib/legal/minimos-data.ts` para los valores, `components/interview/minimos-view.tsx`
+para la pantalla.
+
+---
+
+## Tabla resumen
+
+| Proceso | Clave | Pregunta terminación | Pregunta objeto | Necesita base | Usa la escala del art. 21 | Segunda instancia | Artículos |
+|---|---|---|---|---|---|---|---|
+| Conocimiento | `conocimiento` | sí | sí | sí | sí | sí | 21, 22, 25, 38, 40, 49, 12 |
+| Ejecución de sentencia | `ejecucion_sentencia` | sí | no | sí | sí, al 50 % | sí | 21, 22, 25, 34, 41, 12 |
+| Ejecutivo | `ejecutivo` | sí | no | sí | sí | sí | 21, 22, 25, 34, 12 |
+| Sucesión | `sucesion` | no | no | sí | sí | sí | 21, 35 |
+| Medida cautelar | `medida_cautelar` | no | no | sí | sí, al 25 % o 50 % | no | 21, 37 |
+| Homologación de desocupación | `homologacion_desocupacion` | no | no | sí | sí, al 50 % | no | 21, 40 |
+| Exhorto | `exhorto` | no | no | no | no | no | 50 |
+| Incidente | `incidente` | no | no | sí | no | no | 29 inc. g |
+
+Todos preguntan la UMA. Todos los que usan la escala del art. 21 calculan
+apoderado (× 1,4), procurador (× 0,4) y auxiliares (5-10 % de la base en UMA);
+el exhorto y el incidente no.
+
+### Cuántos recorridos tiene cada proceso
+
+Un «recorrido» es una combinación completa de respuestas. Sirve para dimensionar
+la entrevista y es lo que barre la validación del flujo hacia atrás.
+
+| Proceso | Recorridos | De dónde salen |
+|---|---|---|
+| Conocimiento | 120 | 8 caminos de terminación × 15 de objeto |
+| Ejecución de sentencia | 16 | 8 de terminación × 2 de excepciones |
+| Ejecutivo | 16 | idem |
+| Sucesión | 2 | único letrado: sí o no |
+| Medida cautelar | 2 | oposición: sí o no |
+| Homologación de desocupación | 2 | vivienda o demás casos |
+| Exhorto | 1 | no pregunta nada más |
+| Incidente | 1 | idem |
+| **Total** | **160** | |
+
+Los 8 caminos de terminación: sentencia admitida, sentencia rechazada, modos
+anormales antes de prueba, modos anormales después, caducidad art. 22,
+caducidad art. 25 antes de prueba, caducidad art. 25 después, y provisorios.
+
+Los 15 de objeto: las nueve opciones sin sub-pregunta, más las tres del
+desalojo, más las dos de las posesorias, más incidencia colectiva.
+
+`lib/legal/__tests__/retroceso.validation.ts` los enumera y cruza cada uno
+contra cada uno —25.600 pares— para verificar que volver atrás en la entrevista
+y cambiar el tipo de proceso no deje pegada ninguna respuesta que el nuevo
+recorrido ya no pregunta.
+
+---
+
+## El orden de las etapas del cálculo
+
+Vale para los cuatro procesos que pasan por `buildGeneral()` —conocimiento,
+ejecución de sentencia, ejecutivo y sucesión—. Los otros cuatro son variantes
+más cortas del mismo esqueleto.
+
+```
+Base regulatoria que ingresó el usuario
+   │
+   ├─ Etapa 1: reducciones sobre la BASE          arts. 40, 22
+   │            (multiplicativas entre sí)
+   ▼
+Base final
+   │
+   ├─ Se divide por la UMA para ubicar el tramo
+   ├─ Se aplica la escala del art. 21 (máximo del grado
+   │   anterior + alícuota sobre el excedente)
+   ▼
+Honorario del patrocinante, en UMA
+   │
+   ├─ Etapa 2: reducciones sobre la ESCALA        arts. 35, 41, 25
+   │            (multiplicativas entre sí)
+   │
+   ├─ Etapa 3: reducciones sobre el HONORARIO     arts. 34, 38, 49
+   ▼
+Honorario final del patrocinante
+   │
+   ├─ Apoderado    = × 1,4                        art. 20
+   ├─ Procurador   = × 0,4                        art. 20
+   ├─ 2ª instancia = × 0,30 / 0,35 / 0,40         art. 30
+   │
+   ├─ Auxiliares   = 5-10 % de la base final      art. 21
+   └─ Partidor     = 2-3 % de la base final       art. 35 (solo sucesión)
+```
+
+Si el resultado es provisorio (art. 12), la cadena es la misma: lo único que
+cambia es que solo se enuncia el mínimo.
+
+---
+
+> Este documento describe **lo que el sistema hace hoy**, no lo que debería
+> hacer. Las decisiones interpretativas —dónde la ley admite más de una lectura
+> y por qué se eligió una— están en
+> [03_REGLAS_DE_NEGOCIO.md](03_REGLAS_DE_NEGOCIO.md). Lo que se sabe que falta o
+> está mal, en [08_DEUDA_TECNICA_FUNCIONAL.md](08_DEUDA_TECNICA_FUNCIONAL.md).

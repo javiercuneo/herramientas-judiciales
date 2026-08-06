@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-05 · rama `main`
+Última actualización: 2026-08-06 · rama `main`
 
 > **Este documento es solo de este repositorio.** Honorio se mudó el 4/8 a
 > [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) y se llevó su
@@ -22,6 +22,12 @@ revisadas una por una. Las prioridades que se habían fijado el 4/8 están todas
 cerradas.
 
 Lo que queda es mantenimiento y las ideas anotadas más abajo, ninguna urgente.
+
+Desde el 6/8 hay un frente abierto: **los textos que describen el motor no
+estaban verificados contra el motor**. Se corrigieron la sección «Cómo está
+hecho» de la landing y `docs/domain/01_PROCESOS.md`; los documentos de dominio
+02 a 08 salieron de la misma fuente y hay que pasarlos por el mismo tamiz.
+Está detallado abajo, en Pendientes.
 
 ---
 
@@ -188,6 +194,82 @@ completado se queda:** es una marca tipográfica monocroma, no un emoji.
 ---
 
 ## Lo demás que se hizo, en orden
+
+### `01_PROCESOS.md`, reescrito contra el motor — 6/8
+
+Estaba **generado a partir de una descripción del sistema, no del sistema**, y
+por eso sonaba plausible y era falso en varios puntos. Lo que se encontró:
+
+- **«No se utiliza el valor de la UMA para cálculo de escala».** Al revés: la
+  escala del art. 21 está escrita en tramos de UMA, así que lo primero que hace
+  el motor es dividir la base por la UMA para ubicar el tramo. Es el dato más
+  central del cálculo.
+- **Un «total general: suma de todos los honorarios» que no existe.** El motor
+  nunca devolvió esa suma y la app no la muestra, porque los roles son
+  alternativos entre sí: sumarlos no significa nada.
+- **La segunda instancia, descrita como «opcional» y «calculada aparte».** Se
+  calcula siempre, en la misma pasada, como porcentaje del honorario ya
+  reducido (art. 30). Es un bloque aparte en pantalla, no en el cálculo.
+- **Una reducción por «juicio abreviado» que no está en la ley.**
+- **Auxiliares «5-10 % según categoría».** El art. 21 no distingue categorías
+  ahí, y el motor tampoco: es un rango único.
+- **El orden de los pasos del wizard, inventado.** Decía objeto → base →
+  terminación; el orden real es terminación → objeto → base, y la UMA es
+  siempre el paso 0. Está en `PROCESS_STEP_MAP`, una sola constante.
+- **Cinco «tipos de proceso» que no lo son.** Los mínimos (arts. 19, 31, 44, 48,
+  58, 60 y 61 bis) son una pantalla de consulta sin entrevista y sin cálculo.
+  Además son siete categorías, no cinco.
+- **Art. 21 descrito como «escala para juicios de conocimiento».** Es la escala
+  general de todo proceso susceptible de apreciación pecuniaria.
+- **Apoderado y procurador atribuidos al art. 21.** Son del art. 20. Y el
+  procurador es el 40 % *del honorario del patrocinante*, no de la base.
+- **Los incisos del exhorto, con etiquetas que no son las del art. 50**
+  («asistencia a audiencia», «trámites simples/complejos»). Son notificaciones,
+  actos registrales y diligencias de prueba. Además la entrevista no pregunta el
+  inciso: muestra los tres.
+- **«De qué otros módulos depende»**, con nombres de módulo inventados
+  (`escala_art21`, `patrocinante`, `valor_uma`) que no existen en el código y
+  que por lo tanto nadie podía verificar. Reemplazado por funciones y archivos
+  reales.
+
+**Criterio de la reescritura:** el lector es un abogado que lee código o que lo
+maneja con asistencia de IA, así que **todo se nombra dos veces** —la categoría
+jurídica y la clave del código—. `sumas_dinero` no es una categoría de la ley;
+la categoría es «juicio por cobro de sumas de dinero» y el artículo es el 22.
+Y cada afirmación quedó anclada a un lugar comprobable: `PROCESS_STEP_MAP` para
+qué se pregunta, `resolveReglas()` para qué hace con la respuesta.
+
+**Método, que conviene repetir:** el documento no se corrigió leyéndolo. Se
+leyeron `wizard-schema.ts` y `calculate.ts` enteros y se corrió
+`retroceso.validation.ts`, que imprime los recorridos por proceso. De ahí salen
+los 160 recorridos y su desglose, que ahora están en el documento porque son
+verificables corriendo una línea.
+
+### La landing decía mal lo que hace — 6/8
+
+«Barre los **25.600 recorridos posibles** de la entrevista» era una cifra
+correcta describiendo otra cosa. La entrevista tiene **160 recorridos**; 25.600
+es 160², los **cruces**: cada recorrido contra cada otro. Eso es lo que barre
+`retroceso.validation.ts`, y es el bug del 3/8 — volver atrás y cambiar el tipo
+de proceso dejaba pegada una respuesta que el recorrido nuevo ya no pregunta.
+
+Era peor que un error de redondeo: una cifra más impresionante que la real,
+describiendo algo distinto, en la sección que sostiene la credibilidad del
+sitio. Ante alguien del palo, no cerraba.
+
+Se corrigió también en `README.md`, que repetía la misma frase.
+
+**Y «casos conocidos» daba a entender una autoridad externa que no hay.** Cada
+caso es una entrada con su resultado esperado, escrito a mano en el archivo de
+validación: no hay jurisprudencia ni tabla oficial detrás. **Lo que garantizan
+las 11 validaciones es consistencia, no corrección** —que el número de hoy sea
+el de ayer salvo que alguien haya decidido cambiarlo y lo haya escrito—. Un
+usuario puede decir «esto está mal» y tener razón, y la app no lo contradice.
+Ahora la landing lo dice.
+
+De paso se sacó el registro de la columna: «suites, una por concern», «no conoce
+React ni el DOM», «función pura», «refactor». Si el que entra es abogado, esa
+columna no le decía nada.
 
 ### Las dos fuentes de días inhábiles — 5/8
 
@@ -369,6 +451,30 @@ registrado, con DNS, con certificado y con HTTPS forzado.
   mail» y «si crees», que es el imperativo de *tú*. La convención del
   repositorio es rioplatense. No se corrigió para no mezclarlo con la revisión
   visual.
+- **Los documentos de dominio 02 a 08, sin pasar por el motor.** El 6/8 se
+  reescribió el `01` contra `wizard-schema.ts` y `calculate.ts` y aparecieron
+  once afirmaciones falsas. Los otros siete salieron de la misma fuente y
+  arrastran los mismos errores: en `03_REGLAS_DE_NEGOCIO.md` ya se vio que la
+  tabla del exhorto (regla 17) tiene las etiquetas inventadas —«exhorto simple»,
+  «con trabas cautelares», «con ejecución»— en vez de las tres del art. 50, y
+  que la regla 16 dice que el 2-20 % aplica «cuando el incidente tramita bajo la
+  Ley 21.839», cuando el motor lo aplica a todos. **Revisarlos contra el código,
+  uno por uno, no leyéndolos.**
+
+### Dos cosas para llevar al repositorio de Honorio
+
+Encontradas el 6/8 al verificar el `01`. **No se tocaron: son de allá.**
+
+- **Las descripciones de la pregunta de medida cautelar están cruzadas.** En
+  `wizard-schema.ts`, `CAUTELAR_OPOSICION` le pone «25 % de la escala» a la
+  opción *con* oposición y «50 %» a la opción *sin*. El art. 37 dice lo
+  contrario —base 25 %, se eleva al 50 % con controversia— y **el motor calcula
+  bien**: `aplicarFactorCautelar()` hace `medidaOposicion ? 0.5 : 0.25`. O sea
+  que el número que sale es el correcto y el cartel que lo explica dice al revés.
+  No lo agarra ninguna validación porque no mueve ningún número.
+- **La transformación de la cautelar se atribuye al art. 29 inc. e.** Ese inciso
+  es el de los procesos penales. El artículo es el 37, que es el que la propia
+  pregunta cita en pantalla.
 
 ### Bugs conocidos
 
