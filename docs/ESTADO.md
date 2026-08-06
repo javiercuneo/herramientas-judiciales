@@ -62,9 +62,18 @@ En el repositorio de Honorio eran **4, no 2** como decía la versión anterior d
 este documento: la consolidación del 5/8 juntó tres en `lib/enlaces.ts` y queda
 una en su `AGENTS.md`. Ya está commiteado allá.
 
-**Falta un paso, y es de la interfaz de GitHub:** tildar **Enforce HTTPS**.
-Comprobado que `http://javiercuneo.com.ar/` devuelve 404, que es lo que pasa
-mientras esa opción está sin tildar.
+**Enforce HTTPS quedó tildado y anda.** `http://` redirige con 301 a `https://`
+conservando la ruta.
+
+**Trampa que costó un diagnóstico equivocado:** al verificarlo,
+`http://javiercuneo.com.ar/` devolvía 404 y se leyó como que la opción estaba
+sin tildar. Era **una respuesta cacheada en el borde de GitHub**, de cuando el
+dominio todavía no estaba configurado. Se ve en la cabecera `Age`: la raíz venía
+con `age=3502` —casi una hora— mientras que `/index.html`, que nunca se había
+pedido por HTTP, salía con `age=0` y el 301 correcto. Un parámetro de cache-bust
+en la query **no sirve**, porque la variante ya estaba cacheada igual.
+**Después de tocar la configuración de Pages, mirar `Age` antes de sacar
+conclusiones de un código de estado.**
 
 ---
 
@@ -324,10 +333,9 @@ repositorio, no en este.
 
 ## Pendientes
 
-Ninguno urgente y ninguno bloqueante.
+Ninguno urgente y ninguno bloqueante. El dominio está cerrado del todo:
+registrado, con DNS, con certificado y con HTTPS forzado.
 
-- **Tildar Enforce HTTPS** en Settings → Pages. Es el único paso abierto del
-  dominio.
 - **`mora.html` sobre `calendario-judicial.js`**, descrito arriba.
 - **`www.javiercuneo.com.ar`**, si se lo quiere.
 - **Tuteo suelto en el texto de las calculadoras.** Varias dicen «envíanos un
