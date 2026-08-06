@@ -1,344 +1,338 @@
-# 07 - Glosario de Conceptos Jurídicos
+# 07 - Glosario de conceptos jurídicos
 
-Glosario de todos los conceptos jurídicos y de dominio utilizados por el sistema de cálculo de honorarios bajo la Ley 27.423.
+Conceptos de la Ley 27.423 que el sistema de cálculo usa, con el nombre técnico
+que les da la ley y la clave con la que aparecen en el código.
 
----
+**Para quién está escrito:** para un abogado que va a leer el código. Por eso el
+término jurídico manda y es el correcto; donde el schema de la entrevista usa
+una clave (`sumas_dinero`, `familia_alimentos`), va identificada como tal y
+nunca como si fuera el nombre de la cosa.
 
-## UMA (Unidad Monetaria de Actualización)
-
-Unidad de cuenta utilizada para expresar los montos de los honorarios. Se actualiza periódicamente conforme a las resolaciones del Consejo de la Magistratura. Sirve como base de referencia para la determinación de los honorarios en la escala del art. 21. La UMA permite desacoplar los montos de los honorarios de la inflación, manteniendo su valor real.
-
----
-
-## Base Regulatoria / Cuantía del Asunto
-
-Valor monetario de referencia sobre el cual se aplica la escala de honorarios. Su correcta determinación es fundamental, ya que el coeficiente aplicable depende de ella. La base se calcula según las reglas de cada artículo (art. 23 en adelante) y puede incluir o excluir intereses, frutos y accesorios según corresponda. Una base mal determinada puede generar honorarios significativamente mayores o menores a los que corresponden.
-
----
-
-## Escala del Art. 21
-
-Escala progresiva con 7 tramos, cada uno con porcentajes mínimo y máximo, aplicable sobre la base expresada en UMA. Los tramos son:
-
-1. Hasta 100 UMA
-2. De 100 a 500 UMA
-3. De 500 a 1.000 UMA
-4. De 1.000 a 5.000 UMA
-5. De 5.000 a 10.000 UMA
-6. De 10.000 a 50.000 UMA
-7. Más de 50.000 UMA
-
-Cada tramo tiene un porcentaje mínimo y máximo. La interpretación literal del art. 21 establece que el honorario mínimo no puede ser inferior al máximo del tramo anterior más el porcentaje mínimo aplicado al excedente.
+> **Estado de verificación.** Este glosario se reescribió el 5/8/2026 después de
+> encontrar que varias entradas estaban inventadas —los siete tramos de la
+> escala del art. 21 tenían todos los límites errados, y por dos órdenes de
+> magnitud en el último—. Lo que ahora dice está contrastado contra el motor
+> (`asistente-honorarios-clasico/js/`) y contra los textos de artículo que el
+> propio motor cita. **Donde no pude verificar, está dicho.** Si vas a fundar
+> algo en esto, andá al texto de la ley.
 
 ---
 
-## Patrocinante
+## UMA — Unidad de Medida Arancelaria
 
-Abogado que brinda asesoramiento y consejo legal al cliente. Es el profesional que asiste jurídicamente a la parte, sin necesariamente actuar ante el tribunal. Corresponde el 60% del total que le correspondería a ambos profesionales cuando actúan conjuntamente patrocinante y apoderado. En algunos casos, el mismo abogado cumple funciones de patrocinante y apoderado simultáneamente.
+Unidad de cuenta en la que la ley expresa los honorarios, para que no los
+carcoma la inflación.
 
----
+**Su valor lo fija la Corte Suprema de Justicia de la Nación**, por resolución.
+La app toma el valor de la fuente oficial y lo deja versionado con su norma: al
+5/8/2026, `$102.076` según **Res. SGA n.° 1785/26** (`csjn.gov.ar`, ver
+`honorio/data/uma.json`).
 
-## Apoderado
+> **No confundir con el UMA de la Ciudad** (Ley 5134 CABA), que sí fija el
+> Consejo de la Magistratura porteño. Son dos unidades distintas, de dos
+> regímenes arancelarios distintos. La versión anterior de este glosario decía
+> «Unidad Monetaria de Actualización» y la atribuía al Consejo de la
+> Magistratura: las dos cosas eran falsas y venían de esa confusión.
 
-Abogado que representa al cliente en el proceso judicial. Es el profesional que actúa ante el tribunal en nombre de la parte. Cuando actúa sin patrocinio separado, recibe el total que correspondería a ambos profesionales (patrocinante y apoderado). Si hay patrocinante y apoderado, al apoderado le corresponde el 40% del total que le correspondería a ambos conjuntamente.
-
----
-
-## Procurador
-
-Representante judicial que gestiona las formalidades procesales. Actúa como mandatario judicial de la parte. Recibe el 40% de los honorarios del patrocinante. Su intervención es necesaria en determinados trámites y procedimientos.
-
----
-
-## Auxiliares de Justicia
-
-Profesionales designados por el tribunal para asistir al juzgado en tareas técnicas. Incluye peritos, martilleros, liquidadores, y otros profesionales que colaboran con la justicia en tareas específicas. Sus honorarios se determinan conforme a los arts. 60 y 61 bis de la ley.
+*Pendiente de verificar: el artículo de la Ley 27.423 que la define. No lo
+asiento acá hasta comprobarlo en el texto.*
 
 ---
 
-## Partidor
+## Escala del art. 21
 
-Abogado designado en juicios sucesorios para dividir la masa de bienes entre los herederos. Recibe entre el 2% y el 3% del valor de los bienes que integran la masa partible. Participa conjuntamente con el perito partidor en la confección de las cuentas particionales.
+Escala progresiva de **siete tramos**, aplicada sobre la base expresada en UMA.
+Estos son los valores que usa el motor (`calcularEscalaBase` en
+`asistente-honorarios-clasico/js/core.js`):
 
----
+| Tramo | Base en UMA | Mínimo | Máximo |
+|---|---|---|---|
+| 1.ª | hasta 15 | 22 % | 33 % |
+| 2.ª | 16 a 45 | 20 % | 26 % |
+| 3.ª | 46 a 90 | 18 % | 24 % |
+| 4.ª | 91 a 150 | 17 % | 22 % |
+| 5.ª | 151 a 450 | 15 % | 20 % |
+| 6.ª | 451 a 750 | 13 % | 17 % |
+| 7.ª | más de 750 | 12 % | 15 % |
 
-## Segunda Instancia
+**La escala no se aplica de corrido sobre toda la base.** Cada tramo arrastra el
+máximo acumulado del tramo anterior y el porcentaje corre solo sobre el
+excedente. Por ejemplo, en la 3.ª escala el mínimo es `(base − 45) × 0,18 +
+11,7`, donde `11,7` es lo acumulado hasta 45 UMA. Es lo que la app llama el
+**contrafáctico**: mucha gente lee la tabla y espera el resultado de multiplicar
+la base entera por el porcentaje del tramo, que da otro número.
 
-Etapa del proceso correspondiente al recurso de apelación. Los honorarios se calculan entre el 30% y el 35% de los honorarios de primera instancia. Si la sentencia es revocada totalmente, puede elevarse hasta el 40% de los honorarios de primera instancia.
-
----
-
-## Contingencias Procesales
-
-Circunstancias que afectan el cálculo de honorarios, como el modo en que concluyó el proceso, si se plantearon excepciones, si hubo apertura a prueba, etc. Las contingencias modifican los porcentajes aplicables sobre la escala base y pueden aumentar o reducir los honorarios según corresponda.
-
----
-
-## Modo de Terminación
-
-Forma en que concluyó el proceso. Puede ser:
-
-- **Sentencia**: Resolución judicial que resuelve el fondo del asunto. Es el modo regular de terminación.
-- **Modos anormales**: Allanamiento, transacción, desistimiento. Producen reducciones sobre la escala.
-- **Caducidad**: Extinción del proceso por inactividad procesal.
-- **Provisorios**: Cuando se fijan honorarios provisorios por retiro del profesional antes de la conclusión del proceso.
-
----
-
-## Apertura a Prueba
-
-Etapa del proceso en la que se admite la producción de prueba. Los honorarios pueden variar según si el proceso concluyó antes o después de esta etapa. En los modos anormales de terminación, la apertura a prueba es un factor determinante: si el proceso concluye después de la apertura a prueba, las reducciones por modo anormal son menores.
+**Tope general** (art. 21, antepenúltimo párrafo): el monto no puede ser
+inferior al 5 % ni superior al 10 % del monto del proceso. Ante labores
+altamente complejas o extensas el juez puede apartarse hacia arriba.
 
 ---
 
-## Excepciones
+## Roles profesionales y cómo se reparten
 
-Defensas procesales planteadas por el demandado. En los juicios ejecutivos y de ejecución de sentencia, la ausencia de excepciones genera una reducción adicional del 10% sobre los honorarios finales (art. 34). La existencia o inexistencia de excepciones es una contingencia procesal relevante.
+El art. 20 es el que gobierna esto, y conviene leerlo entero porque el reparto
+no es intuitivo:
 
----
+> **ARTÍCULO 20.-** Los honorarios de los procuradores se fijarán en un 40 % de
+> los que por esta ley corresponda fijar a los abogados patrocinantes. Si el
+> abogado actuare en carácter de apoderado sin patrocinio, percibirá la
+> asignación total que hubiere correspondido a ambos.
 
-## Desalojo
+De ahí salen los tres números que usa el motor:
 
-Juicio de desalojo o restitución de inmuebles. En contratos de vivienda, la base regulatoria se reduce en un 20% respecto del total de los alquileres. La base corresponde a la totalidad de los alquileres devengados o adeudados. Se aplica el art. 40 de la ley.
+| Rol | Cuánto | Clave en el código |
+|---|---|---|
+| **Patrocinante** | 100 % de la escala. Es la referencia de la que dependen los otros dos. | `patrocinante` |
+| **Procurador** | 40 % de lo del patrocinante. | `procurador` |
+| **Apoderado sin patrocinio separado** | Cobra los dos: patrocinante + procurador = **×1,4** sobre el patrocinante. | `apoderado` |
 
----
+> **Ojo con el sentido de la cuenta.** La versión anterior de este glosario
+> decía que al patrocinante le corresponde «el 60 % del total» y al apoderado
+> «el 40 % del total que correspondería a ambos». Eso es repartir 100 entre dos;
+> la ley hace otra cosa: el patrocinante es el 100 % y el resto se calcula
+> *sobre* él, de modo que el apoderado sin patrocinio llega a 140. Además de
+> estar mal, contradecía a la app, que multiplica por 1,4.
 
-## Homologación de Desocupación
-
-Trámite judicial de homologación de un acuerdo de desocupación. Se aplica una reducción del 50% sobre la escala de honorarios. Es un trámite simplificado comparado con el juicio de desalojo completo.
-
----
-
-## Medida Cautelar
-
-Medida precautoria solicitada al tribunal para asegurar la eficacia de la sentencia definitiva (embargo, secuestro, inhibición, medida innovativa, etc.). Los honorarios se calculan conforme al art. 37:
-
-- Sin oposición: 25% de la escala.
-- Con oposición: 50% de la escala.
-
----
-
-## Incidente
-
-Trámite incidental dentro de un juicio principal. Los honorarios se calculan entre el 2% y el 20% de la base del incidente, según su complejidad y monto (art. 33).
+**Auxiliares de justicia** (peritos, martilleros, liquidadores): el motor calcula
+entre el **5 % y el 10 % de la base en UMA**. Clave: `auxiliares`. Ver también
+arts. 60 y 61 bis para los mínimos.
 
 ---
 
-## Exhorto
+## Base regulatoria (cuantía del asunto)
 
-Oficio o comisión rogatoria dirigida a otro juzgado para que realice actos procesales específicos. Los honorarios se fijan en montos fijos en UMA según el tipo de acción, conforme al art. 50.
+Valor económico sobre el que se aplica la escala. **De su determinación depende
+todo lo demás**, porque define el tramo. Las reglas por tipo de bien están en el
+art. 23; los procesos con regla propia, más abajo.
 
----
-
-## Honorarios Provisorios
-
-Honorarios que se fijan cuando un profesional se retira del juicio antes de su conclusión. Solo se muestra el mínimo de la escala. Se aplican conforme al art. 12 de la ley.
-
----
-
-## Art. 22 - Rechazo Total de la Demanda
-
-Reduce la base regulatoria en un 30% cuando la demanda es rechazada íntegramente. Se aplica sobre la base antes de calcular los honorarios con la escala.
+Una base mal determinada no produce un error chico: mueve de tramo y con eso
+cambia el porcentaje.
 
 ---
 
-## Art. 25 - Terminación Anormal
+## Clases y objeto del proceso
 
-Reduce la escala en un 50% cuando el proceso termina por modo anormal (allanamiento, transacción, desistimiento) antes de la apertura a prueba. Si la terminación anormal ocurre después de la apertura a prueba, la reducción es menor.
+Dos cosas distintas que conviene no mezclar:
 
----
+- **Clase de proceso.** Es como lo llama el CPCCN: Libro Segundo, Título I,
+  Capítulo I «Clases», y el art. 319. Ordinario, sumarísimo, ejecutivo.
+- **Objeto del juicio.** Qué se reclama: sumas de dinero, desalojo, escrituración,
+  alimentos.
 
-## Art. 34 - Ejecutivo sin Excepciones
+**La app llama «tipo de proceso» a lo que combina las dos cosas**, y está bien
+así para el usuario: es lo que entiende alguien que no maneja la nomenclatura
+procesal. Pero en la documentación conviene mantener la distinción, porque los
+artículos de la ley se enganchan a una o a la otra.
 
-Reduce los honorarios finales en un 10% en juicios ejecutivos cuando no se plantean excepciones. Se aplica sobre los honorarios calculados conforme a la escala.
-
----
-
-## Art. 35 - Sucesión con Abogado Único
-
-Cuando en un juicio sucesorio interviene un solo abogado (sin distinción de patrocinante y apoderado), la escala se reduce en un 50%. El honorario del partidor es entre el 2% y el 3% del valor de los bienes.
-
----
-
-## Art. 37 - Medida Cautelar
-
-Establece los honorarios por medida cautelar:
-
-- Sin oposición de la contraparte: 25% de la escala.
-- Con oposición de la contraparte: 50% de la escala.
+Claves del schema, para que se pueda buscar en el código: `conocimiento`,
+`ejecutivo`, `ejecucion_sentencia`, `sucesion`, `medida_cautelar`,
+`homologacion_desocupacion`, `exhorto`, `incidente`. Y de objeto:
+`sumas_dinero`, `desalojo`, `escrituracion`, `familia_alimentos`,
+`familia_liquidacion`, `posesorias_interdictos`, `incidencia_colectiva`.
 
 ---
 
-## Art. 38 - Posesorias, Interdictos y División de Bienes Comunes
+## Modo de terminación
 
-Reduce los honorarios en un 20% cuando el juicio se realiza exclusivamente en beneficio del patrocinado (posesorias, interdictos, división de bienes comunes).
+Forma en que concluyó el proceso. Es una de las contingencias que más mueve el
+número.
 
----
-
-## Art. 40 - Desalojo y Homologación de Desocupación
-
-- **Desalojo**: La base es el total de los alquileres. Para vivienda, se reduce un 20%.
-- **Homologación de desocupación**: Se reduce un 50% sobre la escala.
-
----
-
-## Art. 41 - Ejecución de Sentencia
-
-Reduce la escala en un 50% para juicios de ejecución de sentencia. Cuando no se plantean excepciones, se aplica una reducción adicional del 10%.
+- **Sentencia.** Si la demanda se admite, honorarios completos; si se desestima
+  íntegramente, art. 22.
+- **Modos anormales.** Allanamiento, desistimiento y transacción. Art. 25.
+- **Caducidad de la instancia.** Ver la entrada propia: la ley no la contempla
+  como categoría separada.
+- **Honorarios provisorios.** Art. 12, cuando el profesional se retira antes de
+  la conclusión.
 
 ---
 
-## Art. 43 - Desalojo Laboral
+## Apertura a prueba
 
-Para desalojos laborales, la base se calcula como el 50% del último salario mensual multiplicado por 2 años.
-
----
-
-## Art. 45 - Liquidación del Régimen Patrimonial
-
-En liquidación del régimen patrimonial (divorcio, unión convivencial), la base es el valor del patrimonio adjudicado a cada parte.
+Momento que parte en dos el tratamiento de los modos anormales. **No es una
+graduación: es un interruptor.** Ver art. 25.
 
 ---
 
-## Art. 46 - Escrituración
+## Caducidad de la instancia
 
-En juicios de escrituración, la base es el mayor valor entre el valor del bien y el precio del boleto de compraventa.
+Extinción del proceso por inactividad (arts. 310 y ss. CPCCN).
 
----
+**La Ley 27.423 no la menciona como categoría separada**, así que la app te deja
+elegir cómo tratarla, y lo dice:
 
-## Art. 48 - Amparo, Hábeas Data y Hábeas Corpus
+1. Como **demanda desestimada** → la base se reduce 30 % (art. 22).
+2. Por el **art. 25** → la escala se reduce 50 % si fue antes de la apertura a
+   prueba.
 
-Establece un mínimo de 20 UMA para honorarios en acciones de amparo, hábeas data y hábeas corpus.
-
----
-
-## Art. 49 - Incidencia Colectiva
-
-Reduce los honorarios en un 25% para acciones de incidencia colectiva (daño ambiental, derechos colectivos, etc.).
-
----
-
-## Art. 50 - Exhortos
-
-Fija honorarios en montos fijos en UMA según el tipo de acción encomendada al exhortado.
+**Los dos criterios son alternativos**, no acumulables: elegido el art. 22, la
+instancia cae como demanda desestimada y el momento de la apertura a prueba ya
+no juega. Que se pudieran acumular fue un bug, corregido el 3/8/2026.
 
 ---
 
-## Art. 52 - Intereses, Frutos y Accesorios
+## Segunda instancia — art. 30
 
-Los intereses, frutos y accesorios integran la base regulatoria cuando corresponden.
-
----
-
-## Art. 58 - Honorarios Mínimos
-
-Establece honorarios mínimos para actuaciones no contempladas expresamente en otros artículos de la ley.
-
----
-
-## Art. 60 - Honorarios Mínimos de Peritos
-
-Fija un mínimo de 2 UMA para honorarios de peritos en juicios no patrimoniales.
+> Por las actuaciones correspondientes a la segunda o ulterior instancia, se
+> regularán en cada una de ellas **del 30 % al 35 %** de la cantidad que se fije
+> para honorarios en primera instancia. […] Si la sentencia recurrida fuera
+> revocada en todas sus partes en favor del apelante, los honorarios […] se
+> fijarán entre el **30 % y 40 %** de los correspondientes a la primera
+> instancia.
 
 ---
 
-## Art. 61 bis - Peritos en Controversias
+## Etapas del proceso — art. 29
 
-- Mínimo de 2 UMA para peritos en juicios controversiales.
-- Si el caso se resuelve antes de la realización de la pericia: 1/4 de UMA.
+El proceso se divide en etapas y los honorarios se fraccionan en consecuencia:
+**una etapa = 1/3**, **dos etapas = 2/3**, proceso completo = total. Es
+aritmética directa sobre el resultado de la escala.
 
----
-
-## Art. 12 - Honorarios Provisorios por Retiro
-
-Cuando un profesional se retira del juicio antes de su conclusión, se fijan honorarios provisorios tomando solo el mínimo de la escala.
+Los incidentes van aparte: según el art. 29 inc. g) se dividen en **dos** etapas
+—el planteo que lo origina y el desarrollo hasta su conclusión—.
 
 ---
 
-## Art. 16 - Pautas Valorativas Generales
+# Artículos que modifican el cálculo
 
-Conjunto de criterios generales que el juez debe considerar para determinar los honorarios dentro de la escala (art. 16). Incluyen: complejidad del asunto, monto involucrado, calidad de la labor profesional, resultado obtenido, etc.
+Ordenados por cómo pegan, que es lo que importa al leer el código: unos tocan la
+**base**, otros la **escala**, otros los **honorarios ya calculados**. El orden
+no es intercambiable.
+
+## Sobre la base
+
+**Art. 22 — demanda íntegramente desestimada.** La base se reduce **30 %**.
+
+> Si fuere íntegramente desestimada la demanda o la reconvención, se tendrá como
+> valor del pleito el importe de la misma, actualizado por intereses al momento
+> de la sentencia, si ello correspondiere, disminuido en un 30 %.
+
+**Art. 23 — determinación por tipo de bien.** Inmuebles (inc. a: tasación;
+valuación fiscal adecuada incrementada en 50 %), derechos crediticios (inc. d:
+valor de escrituras deducidas amortizaciones), títulos y acciones (inc. e:
+cotización en la Bolsa de Comercio de Buenos Aires, o informe bancario si no
+cotiza), establecimientos comerciales (inc. f: activo menos pasivo justificado).
+
+**Art. 24 — intereses.** Integran la base cuando corresponden.
+
+**Art. 39 — alimentos.** La base es el importe correspondiente a **2 años** de la
+cuota fijada judicialmente.
+
+**Art. 40 — desalojo.** Escala del art. 21 sobre el total del contrato. **Si el
+destino es vivienda, la base se reduce 20 %.**
+
+**Art. 43 — desalojo laboral.** Restitución de inmuebles concedidos a
+trabajadores en virtud del empleo: la base es el **50 % de la última
+remuneración mensual, por 2 años**.
+
+**Art. 46 — escrituración.** Se aplica el art. 23 inc. a), salvo que resulte
+mayor el monto del boleto.
+
+**Art. 45 — liquidación del régimen patrimonial.** *Sin verificar contra el
+texto: la versión anterior decía «el valor del patrimonio adjudicado a cada
+parte». Confirmar antes de citarlo.*
+
+## Sobre la escala
+
+**Art. 25 — allanamiento, desistimiento y transacción.**
+
+> En caso de allanamiento, desistimiento y transacción, **antes de decretarse la
+> apertura a prueba**, los honorarios serán del 50 % de la escala del artículo
+> 21. **En los demás casos, se aplica el 100 %.**
+
+> **Corrección importante.** La versión anterior decía que después de la apertura
+> a prueba «la reducción es menor». No hay reducción menor: **no hay reducción**.
+> Es 50 % o 100 %, sin escalones intermedios.
+
+**Art. 35 — sucesión con letrado único.** Si hay un solo abogado para todos los
+herederos, la escala se regula en **la mitad**.
+
+**Art. 37 — medida cautelar.** Sin oposición, **25 %** de la escala. Con
+oposición, **50 %**.
+
+**Art. 41 — ejecución de sentencia.** La escala se reduce al **50 %**.
+
+## Sobre los honorarios ya calculados
+
+**Art. 34 — ausencia de excepciones.** Reduce **10 %** el resultado, en ejecutivo
+y ejecución de sentencia.
+
+**Art. 38 — posesorias, interdictos y división de bienes comunes.** Reduce
+**20 %** cuando el juicio es en beneficio exclusivo del patrocinado.
+
+**Art. 49 — incidencia colectiva.** Reduce **25 %**.
+
+## Mínimos y regímenes propios
+
+**Art. 12 — honorarios provisorios.** Retiro del profesional antes de la
+conclusión: se toma **solo el mínimo** de la escala. En el sucesorio no se
+admiten provisorios salvo la excepción del letrado que renuncia con la sucesión
+sin terminar, y **en esa excepción la regulación es definitiva, con mínimo y
+máximo** —justo lo contrario de lo que hace el art. 12—.
+
+**Art. 16 — pautas valorativas.** Los criterios con los que el juez se mueve
+dentro de la banda: complejidad, monto, calidad de la labor, resultado.
+
+**Art. 19 — asuntos sin valor pecuniario apreciable.**
+
+> Cuando no fuere posible apreciar el valor pecuniario del asunto, los jueces
+> fijarán los honorarios teniendo en cuenta la naturaleza de las actuaciones y
+> la gestión profesional desarrollada […]
+
+**Art. 31 — recursos ante la CSJN.** Recursos extraordinarios, de
+inconstitucionalidad, revisión, casación, ordinarios y directos: **no menos de
+20 UMA**. *La versión anterior decía «entre 15 y 20 UMA»: es un piso de 20, no
+una banda.*
+
+**Art. 33 — incidentes.** Entre **2 % y 20 %** de la base del incidente.
+
+**Art. 44 — contencioso administrativo.** Acciones judiciales, mínimo 7 UMA;
+actuaciones administrativas, mínimo 5 UMA. *Sin verificar contra el texto.*
+
+**Art. 48 — amparo, hábeas data y hábeas corpus.** Mínimo de 20 UMA. *Sin
+verificar contra el texto.*
+
+**Art. 50 — exhortos y oficios (ley 22.172).** No son montos fijos sino escalas
+según la diligencia:
+
+- Notificaciones o actos semejantes: **no menos de 3 UMA**.
+- Inscripciones registrales (dominios, hijuelas, gravámenes, embargos,
+  inhibiciones, inventarios, remates, desalojos): **entre 10 y 20 UMA**.
+- Diligencias de prueba con intervención en su producción o contralor: **entre 7
+  y 30 UMA**, en proporción a la labor.
+
+**Art. 52 — intereses, frutos y accesorios.** Integran la base cuando
+corresponden.
+
+**Art. 58 — mínimo residual.** Para juicios **susceptibles de apreciación
+pecuniaria** no previstos en otros artículos. *El calificativo importa: no es un
+mínimo para cualquier actuación no contemplada.*
+
+**Art. 60 — peritos en procesos no pecuniarios** (texto según B.O. 06/03/2026).
+Pautas del art. 16 y mínimo de **2 UMA**.
+
+**Art. 61 bis — peritos en controversias judiciales** (B.O. 06/03/2026). Sus
+honorarios **no están vinculados a la cuantía del juicio** ni al porcentaje de
+incapacidad que se dictamine. Mínimo de 2 UMA; si el caso se resuelve antes de
+la pericia, 1/4 de UMA.
+
+**Art. 35, última parte — partidor.**
+
+> Los honorarios del abogado o abogados partidores en conjunto, se fijarán sobre
+> el valor del haber a dividirse, aplicando una escala del **2 % al 3 %** del
+> total. Si se trata del auxiliar de Justicia, los honorarios derivados de la
+> actuación como perito partidor […] será regulada en una escala del 2 % al 3 %
+> del valor de los bienes objeto de la partición.
 
 ---
 
-## Art. 19 - Honorarios cuando no es Determinable el Valor Pecuniario
+## Regla de proporcionalidad — art. 478 CPCCN
 
-Cuando no es posible determinar el valor pecuniario de la pretensión, se fijan honorarios mínimos conforme a las pautas del art. 19.
+El art. 478 CPCCN manda regular los honorarios de los **peritos** en proporción
+a los de los letrados, y habilita a bajar del mínimo arancelario cuando la
+aplicación estricta llevaría a una desproporción.
 
----
-
-## Art. 20 - Honorarios del Procurador
-
-El procurador recibe el 40% de los honorarios que corresponden al patrocinante.
-
----
-
-## Art. 23 - Determinación de la Base según Tipo de Bien
-
-Establece reglas para determinar la base regulatoria según el tipo de bien involucrado:
-
-- **Inmuebles**: Según la tasación o el monto de la demanda.
-- **Muebles**: Según el valor declarado o el precio de compra.
-- **Créditos**: Según el monto del crédito reclamado.
-- Otros tipos de bienes y derechos.
-
----
-
-## Art. 24 - Integración de la Base con Intereses
-
-Los intereses deben integrar la base regulatoria cuando correspondan. Esto es aplicable tanto en la demanda como en la sentencia.
-
----
-
-## Art. 29 - Etapas del Proceso
-
-Define las etapas del proceso para efectos de cálculo de honorarios. Cada tipo de proceso tiene sus propias etapas, que determinan qué porción de los honorarios corresponde según el avance del juicio.
-
----
-
-## Art. 31 - Recursos ante la CSJN
-
-Establece honorarios mínimos de entre 15 y 20 UMA para recursos ante la Corte Suprema de Justicia de la Nación.
-
----
-
-## Art. 33 - Incidentes
-
-Los honorarios por incidentes se calculan entre el 2% y el 20% de la base del incidente.
-
----
-
-## Art. 44 - Contencioso Administrativo
-
-- Acciones judiciales: 7 UMA como mínimo.
-- Actuaciones administrativas: 5 UMA como mínimo.
-
----
-
-## Etapas del Proceso
-
-Divisiones del proceso a efectos del cálculo de honorarios. Cada etapa corresponde a una porción de los honorarios totales:
-
-- **1/3 del proceso**: Honorarios por la primera etapa.
-- **2/3 del proceso**: Honorarios por la primera y segunda etapa.
-- **Proceso completo**: Honorarios totales.
-
-Las etapas varían según el tipo de proceso (ordinario, ejecutivo, conocimiento abreviado, etc.) y están definidas en el art. 29.
-
----
-
-## Interpretación Literal del Art. 21
-
-Principio de interpretación de la escala progresiva: el honorario mínimo de un tramo no puede ser inferior al máximo del tramo anterior más el porcentaje mínimo aplicado al excedente de base que excede dicho tramo anterior. Esto garantiza coherencia en la progresividad de la escala.
-
----
-
-## Perito Partidor
-
-Profesional contable o técnico designado en juicios sucesorios para elaborar las cuentas particionales y el proyecto de partición. Actúa conjuntamente con el abogado partidor. Sus honorarios se determinan conforme a la ley y las prácticas judiciales.
-
----
-
-## Regla de Proporcionalidad (Art. 478 CPCCN)
-
-Principio según el cual los honorarios de un profesional deben ser proporcionales a los de los demás profesionales intervinientes en el mismo juicio. Este principio puede justificar que los honorarios bajen del mínimo establecido en la escala cuando así lo requiere la proporcionalidad con otros profesionales. Es una excepción al carácter de mínimos e improrrogables de las escalas de honorarios.
+> **Alcance, porque la versión anterior lo estiraba.** Está redactado para los
+> auxiliares, no como un principio general de proporcionalidad entre todos los
+> profesionales del juicio. Que se lo invoque más ampliamente es otra discusión,
+> y no es lo que dice la norma.
