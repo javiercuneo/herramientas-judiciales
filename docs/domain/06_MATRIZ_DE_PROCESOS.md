@@ -1,4 +1,4 @@
-﻿# Matriz Comparativa de Procesos — Ley 27.423
+# Matriz Comparativa de Procesos — Ley 27.423
 
 ## Tabla de Características por Tipo de Proceso
 

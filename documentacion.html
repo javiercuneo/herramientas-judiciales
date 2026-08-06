@@ -370,17 +370,31 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
     Toma las coordenadas de la API GEOREF de
     <a href="https://datosgobar.github.io/georef-ar-api/" target="_blank" rel="noopener">datos.gob.ar</a>
     para localidades del país, y de Open-Meteo Geocoding para el exterior.
-    Calcula la distancia en línea recta con la fórmula del semiverseno.
+    Da <strong>dos medidas</strong>, y la diferencia entre ellas importa:
+    la distancia en línea recta con la fórmula del semiverseno, y la
+    distancia <strong>por ruta</strong>, que traza el recorrido real sobre la
+    red de caminos de OpenStreetMap.
   </p>
   <div class="aviso">
-    <span class="label">Diferencia con el criterio de la Corte</span>
+    <span class="label">Cuál de las dos usar</span>
     <p>
       La CSJN estableció que la distancia se mide <strong>por vía
       terrestre</strong>, no en línea recta (Fallos 304:1345; Acordada 5/2010,
       que fija las distancias a los asientos federales para las quejas del art.
-      282 CPCCN). Esta herramienta usa distancia lineal, que <strong>siempre es
-      menor o igual</strong> a la terrestre: el resultado puede quedar corto.
-      Tomalo como piso, no como número final.
+      282 CPCCN). <strong>La medida por ruta es la que se acerca a ese
+      criterio</strong> y es la que conviene usar.
+    </p>
+    <p>
+      La lineal <strong>siempre es menor o igual</strong> a la terrestre, así
+      que sirve como piso: si ya con ella corresponde ampliación, corresponde.
+      Pero si da que no corresponde, el resultado puede estar corto y hay que
+      confirmarlo por ruta.
+    </p>
+    <p>
+      Ninguna de las dos es el ferrocarril, que es lo que menciona el fallo. La
+      red vial y la ferroviaria no coinciden, así que el número sigue siendo
+      orientativo: donde la Acordada 5/2010 fija la distancia al asiento
+      federal, manda la Acordada.
     </p>
   </div>
   <a class="btn" href="calculadoras/distancia.html">Abrir calculadora</a>

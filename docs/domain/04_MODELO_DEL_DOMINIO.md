@@ -1,4 +1,4 @@
-﻿# 04 — Modelo del Dominio
+# 04 — Modelo del Dominio
 
 ## Descripción General
 

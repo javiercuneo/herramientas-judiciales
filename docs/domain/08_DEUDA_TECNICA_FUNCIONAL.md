@@ -1,4 +1,4 @@
-﻿# Deuda Técnica Funcional — Peculiaridades, Casos Borde y Decisiones de Implementación
+# Deuda Técnica Funcional — Peculiaridades, Casos Borde y Decisiones de Implementación
 
 Este documento identifica funcionalidades que funcionan correctamente pero cuya **finalidad no es inmediatamente evidente** o que representan decisiones de interpretación legal no trivial. Está orientado a quien mantenga o evolucione el sistema.
 

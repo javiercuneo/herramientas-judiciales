@@ -1,4 +1,4 @@
-﻿# Reglas de Negocio — Calculadora de Honorarios (Ley 27.423)
+# Reglas de Negocio — Calculadora de Honorarios (Ley 27.423)
 
 Inventario completo de todas las reglas legales/negocio implementadas en el sistema.
 Cada regla se documenta con su condicion de activacion, que modifica y con que otras reglas interactua.

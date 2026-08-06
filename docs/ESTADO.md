@@ -214,10 +214,19 @@ hace** por herramienta, que es lo que decide si el resultado se puede usar.
 
 Tres correcciones de fondo:
 
-- **La ampliación por distancia** decía que la Corte exige medir por vía
-  terrestre y que la herramienta usa línea recta, sin sacar la conclusión. Ahora
-  dice la consecuencia: la lineal **siempre es menor o igual**, así que el
-  resultado hay que tomarlo como piso.
+- **La ampliación por distancia.** La versión del 5/8 decía que la herramienta
+  mide en línea recta y que por eso el resultado hay que tomarlo como piso.
+  **Estaba mal, lo corrigió Javier el 5/8:** la calculadora tiene *dos* modos y
+  el segundo mide **por ruta** (OSRM, sobre la red de caminos de
+  OpenStreetMap), que es el que se acerca al criterio de la Corte. La guía
+  ahora explica cuál usar: la de ruta manda, la lineal sirve de piso —si ya con
+  ella corresponde ampliación, corresponde—, y ninguna de las dos es el
+  ferrocarril del fallo, así que donde la Acordada 5/2010 fija la distancia al
+  asiento federal, manda la Acordada.
+
+  **La lección:** al documentar una herramienta, leer lo que hace, no lo que
+  su nombre sugiere. `distancia.html` tiene dos pestañas y la advertencia se
+  escribió mirando una sola.
 - **El asistente clásico** dejó de figurar como «prototipo en desarrollo» y pasó
   a lo que es: el origen de Honorio, conservado como referencia de validación.
 - Se agregó **«Cómo se calculan los días»**, que estaba repetida a pedazos, con

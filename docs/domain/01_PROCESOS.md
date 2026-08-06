@@ -17,7 +17,7 @@ Cuando el usuario necesita calcular honorarios en un juicio civil o comercial de
 ### Qué inputs requiere
 - **Monto base del juicio**: Valor económico del litigio o pretensión.
 - **Sub-objeto del juicio**: Categoría específica dentro de los conocimientos:
-  - desalojo (con sub-opciones: ivienda, civil, laboral)
+  - desalojo (con sub-opciones: vivienda, civil, laboral)
   - sumas_dinero
   - inmuebles
   - derechos_crediticios
@@ -25,14 +25,14 @@ Cuando el usuario necesita calcular honorarios en un juicio civil o comercial de
   - establecimientos
   - uso_habitacion
   - escrituracion
-  - amilia_alimentos
-  - amilia_liquidacion
-  - posesorias_interdictos (con sub-opciones: eneficio, demas)
+  - familia_alimentos
+  - familia_liquidacion
+  - posesorias_interdictos (con sub-opciones: beneficio, demas)
   - incidencia_colectiva
 - **Modo de terminación del juicio**: Cómo concluyó el proceso:
-  - sentencia (con sub-opción: dmitida o echazada)
-  - modos_anormales (con sub-opción: ntes o después de apertura a prueba)
-  - caducidad (con sub-opción: rt22 o rt25; rt25 incluye pregunta sobre apertura a prueba)
+  - sentencia (con sub-opción: admitida o rechazada)
+  - modos_anormales (con sub-opción: antes o después de apertura a prueba)
+  - caducidad (con sub-opción: art22 o art25; art25 incluye pregunta sobre apertura a prueba)
   - provisorios
 
 ### Qué pasos del wizard aparecen
@@ -46,11 +46,11 @@ Cuando el usuario necesita calcular honorarios en un juicio civil o comercial de
 8. Resultado final con desglose
 
 ### Qué preguntas son condicionales
-- **Si sub-objeto = desalojo** → Pregunta si es ivienda (reduce base 20% art. 40), civil o laboral
-- **Si terminación = sentencia** → Pregunta si fue dmitida (honorarios completos) o echazada (reduce base 30% art. 22)
-- **Si terminación = modos_anormales** → Pregunta si ocurrió ntes o después de apertura a prueba
-- **Si terminación = caducidad** → Pregunta si es rt22 o rt25; si rt25, pregunta sobre apertura a prueba
-- **Si sub-objeto = posesorias_interdictos** → Pregunta si es eneficio exclusivo (reduce final 20% art. 38) o demas
+- **Si sub-objeto = desalojo** → Pregunta si es vivienda (reduce base 20% art. 40), civil o laboral
+- **Si terminación = sentencia** → Pregunta si fue admitida (honorarios completos) o rechazada (reduce base 30% art. 22)
+- **Si terminación = modos_anormales** → Pregunta si ocurrió antes o después de apertura a prueba
+- **Si terminación = caducidad** → Pregunta si es art22 o art25; si art25, pregunta sobre apertura a prueba
+- **Si sub-objeto = posesorias_interdictos** → Pregunta si es beneficio exclusivo (reduce final 20% art. 38) o demas
 - **Si sub-objeto = incidencia_colectiva** → Reduce honorarios finales 25% (art. 49)
 
 ### Qué datos ignora
@@ -77,9 +77,9 @@ Cuando el usuario necesita calcular honorarios en un juicio civil o comercial de
 ### De qué otros módulos depende
 - escala_art21 — Cálculo de la escala por monto
 - patrocinante — Cálculo de honorarios del patrocinante
-- poderado — Cálculo de honorarios del apoderado (+40%)
+- apoderado — Cálculo de honorarios del apoderado (+40%)
 - procurador — Cálculo de honorarios del procurador
-- uxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
 - segunda_instancia — Cálculo de honorarios de segunda instancia (art. 30)
 
 ---
@@ -110,8 +110,8 @@ o — Si el ejecutado planteó excepciones en la ejecución
 9. Resultado final
 
 ### Qué preguntas son condicionales
-- **Si terminación = modos_anormales** → Pregunta si fue ntes o después de apertura a prueba
-- **Si terminación = caducidad** → Pregunta si es rt22 o rt25
+- **Si terminación = modos_anormales** → Pregunta si fue antes o después de apertura a prueba
+- **Si terminación = caducidad** → Pregunta si es art22 o art25
 - **Si excepciones = 
 o** → Aplica reducción adicional del 10%
 
@@ -138,9 +138,9 @@ o** → Aplica reducción adicional del 10%
 ### De qué otros módulos depende
 - escala_art21 — Cálculo de la escala por monto
 - patrocinante — Cálculo de honorarios del patrocinante
-- poderado — Cálculo de honorarios del apoderado (+40%)
+- apoderado — Cálculo de honorarios del apoderado (+40%)
 - procurador — Cálculo de honorarios del procurador
-- uxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
 
 ---
 
@@ -170,8 +170,8 @@ o — Si el ejecutado planteó excepciones de previo y especial pronunciamiento
 9. Resultado final
 
 ### Qué preguntas son condicionales
-- **Si terminación = modos_anormales** → Pregunta si fue ntes o después de apertura a prueba
-- **Si terminación = caducidad** → Pregunta si es rt22 o rt25
+- **Si terminación = modos_anormales** → Pregunta si fue antes o después de apertura a prueba
+- **Si terminación = caducidad** → Pregunta si es art22 o art25
 - **Si excepciones = 
 o** → Aplica reducción del 10% (art. 34)
 
@@ -197,9 +197,9 @@ o** → Aplica reducción del 10% (art. 34)
 ### De qué otros módulos depende
 - escala_art21 — Cálculo de la escala por monto
 - patrocinante — Cálculo de honorarios del patrocinante
-- poderado — Cálculo de honorarios del apoderado (+40%)
+- apoderado — Cálculo de honorarios del apoderado (+40%)
 - procurador — Cálculo de honorarios del procurador
-- uxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
 
 ---
 
@@ -254,9 +254,9 @@ o — Indica si un solo abogado intervino en todo el proceso
 ### De qué otros módulos depende
 - escala_art21 — Cálculo de la escala por monto
 - patrocinante — Cálculo de honorarios del patrocinante
-- poderado — Cálculo de honorarios del apoderado (+40%)
+- apoderado — Cálculo de honorarios del apoderado (+40%)
 - procurador — Cálculo de honorarios del procurador
-- uxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
 - partidor — Cálculo de honorarios del partidor (2%-3%)
 
 ---
@@ -301,7 +301,7 @@ Cuando un abogado actúa en un exhorto emitido por un juez de otro distrito, y s
 - **Art. 50**: Honorarios por exhortos (incisos a, b, c)
 
 ### De qué otros módulos depende
-- alor_uma — Consulta del valor de la UMA vigente
+- valor_uma — Consulta del valor de la UMA vigente
 - exhorto_calc — Cálculo directo por inciso (sin escala)
 
 ---
@@ -350,9 +350,9 @@ Cuando se trabaja en un incidente (art. 157 y ss. del CPC) y se requiere calcula
 ### De qué otros módulos depende
 - escala_art29g — Cálculo de la escala por monto para incidentes
 - patrocinante — Cálculo de honorarios del patrocinante
-- poderado — Cálculo de honorarios del apoderado (+40%)
+- apoderado — Cálculo de honorarios del apoderado (+40%)
 - procurador — Cálculo de honorarios del procurador
-- uxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
 
 ---
 
@@ -407,9 +407,9 @@ o** → Aplica reducción del 25% sobre escala del art. 21 (art. 37)
 ### De qué otros módulos depende
 - escala_art21 — Cálculo de la escala por monto
 - patrocinante — Cálculo de honorarios del patrocinante
-- poderado — Cálculo de honorarios del apoderado (+40%)
+- apoderado — Cálculo de honorarios del apoderado (+40%)
 - procurador — Cálculo de honorarios del procurador
-- uxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
 
 ---
 
@@ -422,12 +422,12 @@ Calcular los honorarios en un juicio de homologación de un acuerdo de desocupac
 Cuando se trabaja en un juicio de homologación de un acuerdo de desocupación, ya sea de vivienda o de otro tipo de inmueble.
 
 ### Qué inputs requiere
-- **Tipo de inmueble**: ivienda o otros — Si el inmueble es vivienda habitada u otro tipo de inmueble
+- **Tipo de inmueble**: vivienda o otros — Si el inmueble es vivienda habitada u otro tipo de inmueble
 
 ### Qué pasos del wizard aparecen
 1. Selección del tipo de proceso (Homologación de Desocupación)
 2. Pregunta sobre tipo de inmueble
-3. Si es ivienda:
+3. Si es vivienda:
    - Reduce base un 20% (art. 40)
    - Calcula escala del art. 21 sobre base reducida
    - Aplica reducción del 50% sobre honorarios (art. 40 pár. 2)
@@ -438,7 +438,7 @@ Cuando se trabaja en un juicio de homologación de un acuerdo de desocupación, 
 6. Resultado final
 
 ### Qué preguntas son condicionales
-- **Si tipo = ivienda** → Reduce base un 20% ANTES de calcular la escala (art. 40)
+- **Si tipo = vivienda** → Reduce base un 20% ANTES de calcular la escala (art. 40)
 - **Siempre** → Aplica reducción del 50% sobre los honorarios calculados (art. 40 pár. 2)
 
 ### Qué datos ignora
@@ -465,9 +465,9 @@ Cuando se trabaja en un juicio de homologación de un acuerdo de desocupación, 
 ### De qué otros módulos depende
 - escala_art21 — Cálculo de la escala por monto
 - patrocinante — Cálculo de honorarios del patrocinante
-- poderado — Cálculo de honorarios del apoderado (+40%)
+- apoderado — Cálculo de honorarios del apoderado (+40%)
 - procurador — Cálculo de honorarios del procurador
-- uxiliares — Cálculo de honorarios de auxiliares (5%-10%)
+- auxiliares — Cálculo de honorarios de auxiliares (5%-10%)
 
 ---
 
@@ -509,7 +509,7 @@ Cuando se requiere determinar el honorario mínimo que corresponde a un profesio
 - **Art. 19 inc. a)**: Honorarios mínimos para asuntos judiciales sin apreciación económica
 
 ### De qué otros módulos depende
-- alor_uma — Consulta del valor de la UMA vigente
+- valor_uma — Consulta del valor de la UMA vigente
 - minimos_judiciales_calc — Consulta de tabla de valores fijos
 
 ---
@@ -552,7 +552,7 @@ Cuando se requiere determinar el honorario mínimo que corresponde a un profesio
 - **Art. 19 inc. b)**: Honorarios mínimos para asuntos extrajudiciales
 
 ### De qué otros módulos depende
-- alor_uma — Consulta del valor de la UMA vigente
+- valor_uma — Consulta del valor de la UMA vigente
 - minimos_extrajudiciales_calc — Consulta de tabla de valores fijos
 
 ---
@@ -595,7 +595,7 @@ Cuando se requiere determinar el honorario mínimo para un tipo de trabajo profe
 - **Art. 58**: Honorarios mínimos para asuntos con apreciación económica no contemplados en otras escalas
 
 ### De qué otros módulos depende
-- alor_uma — Consulta del valor de la UMA vigente
+- valor_uma — Consulta del valor de la UMA vigente
 - minimos_art58_calc — Consulta de tabla de valores fijos
 
 ---
@@ -638,7 +638,7 @@ Cuando se requiere determinar el honorario mínimo para un abogado que actúa en
 - **Disposiciones específicas de la CSJN**: Normativa propia del Máximo Tribunal sobre honorarios mínimos
 
 ### De qué otros módulos depende
-- alor_uma — Consulta del valor de la UMA vigente
+- valor_uma — Consulta del valor de la UMA vigente
 - minimos_csjn_calc — Consulta de tabla de valores fijos
 
 ---
@@ -681,7 +681,7 @@ Cuando se requiere determinar el honorario mínimo que corresponde a un auxiliar
 - **Disposiciones sobre auxiliares de justicia**: Normativa específica para honorarios de auxiliares (peritos, martilleros, etc.)
 
 ### De qué otros módulos depende
-- alor_uma — Consulta del valor de la UMA vigente
+- valor_uma — Consulta del valor de la UMA vigente
 - minimos_auxiliares_calc — Consulta de tabla de valores fijos
 
 ---

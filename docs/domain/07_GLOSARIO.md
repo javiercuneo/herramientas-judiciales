@@ -1,4 +1,4 @@
-﻿# 07 - Glosario de Conceptos Jurídicos
+# 07 - Glosario de Conceptos Jurídicos
 
 Glosario de todos los conceptos jurídicos y de dominio utilizados por el sistema de cálculo de honorarios bajo la Ley 27.423.
 

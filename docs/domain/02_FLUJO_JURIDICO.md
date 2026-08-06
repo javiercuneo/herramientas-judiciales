@@ -1,4 +1,4 @@
-﻿# Flujo Jurídico Completo del Asistente de Honorarios - Ley 27.423
+# Flujo Jurídico Completo del Asistente de Honorarios - Ley 27.423
 
 ## Diagrama Narrativo del Recorrido del Usuario
 

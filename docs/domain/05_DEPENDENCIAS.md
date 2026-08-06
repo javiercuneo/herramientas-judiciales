@@ -1,4 +1,4 @@
-﻿# 05 - Mapa de Dependencias por Tipo de Proceso
+# 05 - Mapa de Dependencias por Tipo de Proceso
 
 > Ley 27.423 y su decreto reglamentario 2642/2015.
 > Este documento describe que modulos y componentes invoca cada tipo de proceso durante el calculo de honorarios.
