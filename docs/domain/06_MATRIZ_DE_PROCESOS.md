@@ -1,5 +1,9 @@
 # Matriz Comparativa de Procesos — Ley 27.423
 
+
+> **Verificado el 5/8/2026 contra el texto de la ley**, que está en
+> [00_LEY_27423.md](00_LEY_27423.md). Se identificó de qué ley sale la escala de incidentes.
+
 ## Tabla de Características por Tipo de Proceso
 
 | Proceso | Base | Escala Art.21 | Reducciones Base | Reducciones Escala | Reducciones Finales | Patrocinante | Apoderado (+40%) | Procurador (40%) | Auxiliares | Segunda Instancia | Partidor | Artículos |
@@ -50,7 +54,7 @@ Honorario fijo sin cálculo porcentual. Se expresa directamente en UMA. No inter
 
 ### Incidente
 
-Honorario calculado con una escala propia de 2% al 20% según el monto (art.33). No se aplica la escala general del art.21. No interviene patrocinante, apoderado, procurador ni auxiliares en forma independiente.
+Honorario calculado con una escala propia de 2% al 20% según el monto (art. 33 de la **Ley 21.839**, no de la 27.423: su art. 47 está observado). No se aplica la escala general del art.21. No interviene patrocinante, apoderado, procurador ni auxiliares en forma independiente.
 
 ### Medida Cautelar
 

@@ -359,14 +359,15 @@ del principal, honorarios entre el **8 % y el 25 %** de lo que correspondiere al
 proceso principal, con un mínimo de 5 UMA. Nada de eso rige.
 
 **Los dos motores aplican 2 % a 20 % de la base del incidente**, que **no está
-en la Ley 27.423**: es la regla del arancel anterior. La versión previa de este
-glosario lo atribuía al «art. 33», pero el art. 33 de esta ley es **causas
-penales**.
+en la Ley 27.423**: sale del **art. 33 de la Ley 21.839**, el arancel anterior.
+La versión previa de este glosario lo atribuía a un «art. 33» a secas, y el art.
+33 de *esta* ley es **causas penales**.
 
-> **Esto es un criterio interpretativo, no una regla de la ley**, y por la regla
-> de contenido de la app —«los criterios que adopta se declaran, no se
-> esconden»— tiene que estar dicho. *Falta confirmar la norma exacta de la que
-> sale el 2-20 % antes de citarla.*
+> **Esto es un criterio interpretativo, no una regla de la ley vigente**, y por
+> la regla de contenido de la app —«los criterios que adopta se declaran, no se
+> esconden»— tiene que estar dicho. Es defendible: el artículo que la ley nueva
+> destinaba a incidentes quedó vetado, así que se sigue el arancel anterior. Pero
+> es una decisión, no una lectura obligada.
 
 Lo que sí rige para incidentes es el **art. 29 inc. g)**: se dividen en **dos**
 etapas, el planteo que los origina y el desarrollo hasta su conclusión.

@@ -1,7 +1,21 @@
 # 05 - Mapa de Dependencias por Tipo de Proceso
 
-> Ley 27.423 y su decreto reglamentario 2642/2015.
-> Este documento describe que modulos y componentes invoca cada tipo de proceso durante el calculo de honorarios.
+Qué módulos y componentes invoca cada tipo de proceso durante el cálculo de
+honorarios, bajo la **Ley 27.423**, de honorarios profesionales de la Justicia
+nacional y federal.
+
+> **Verificado el 5/8/2026 contra el texto de la ley**, que está en
+> [00_LEY_27423.md](00_LEY_27423.md). Este documento era el que más errores de
+> atribución tenía:
+>
+> - Citaba un **«decreto reglamentario 2642/2015»** que no existe, y que además
+>   sería anterior a la ley que dice reglamentar.
+> - Atribuía **siete veces** el 5 % al 10 % de los auxiliares al **art. 43**, que
+>   es el de causas laborales. Está en el art. 21.
+> - Daba la segunda instancia como **«50 % parcial / 100 % total»**. El art. 30
+>   dice del 30 % al 35 %, y hasta el 40 % si se revocó en todas sus partes. Los
+>   dos motores ya calculaban 30/35/40: el documento contradecía al código.
+> - Presentaba la escala de incidentes como del art. 33 sin decir de qué ley.
 
 ---
 
@@ -43,7 +57,7 @@ CALCULO BASE
   |     +-- apoderado           -> +40 % sobre patrocinante
   |     +-- procurador          -> 40 % sobre patrocinante
   |
-  +---> Auxiliares del art. 43   -> 5 % a 10 %
+  +---> Auxiliares del art. 21   -> 5 % a 10 %
   |
   +---> Segunda instancia (art. 30)
         +-- apelacion parcial   -> 50 %
@@ -83,7 +97,7 @@ CALCULO BASE
   |     +-- apoderado           -> +40 % sobre patrocinante
   |     +-- procurador          -> 40 % sobre patrocinante
   |
-  +---> Auxiliares del art. 43   -> 5 % a 10 %
+  +---> Auxiliares del art. 21   -> 5 % a 10 %
   |
   +---> Segunda instancia (art. 30)
         +-- apelacion parcial   -> 50 %
@@ -121,7 +135,7 @@ CALCULO BASE
   |     +-- apoderado           -> +40 % sobre patrocinante
   |     +-- procurador          -> 40 % sobre patrocinante
   |
-  +---> Auxiliares del art. 43   -> 5 % a 10 %
+  +---> Auxiliares del art. 21   -> 5 % a 10 %
   |
   +---> Segunda instancia (art. 30)
         +-- apelacion parcial   -> 50 %
@@ -159,7 +173,7 @@ CALCULO BASE
   |
   +---> Partidor                -> 2 % a 3 % (sobre la masa sucesoria)
   |
-  +---> Auxiliares del art. 43   -> 5 % a 10 %
+  +---> Auxiliares del art. 21   -> 5 % a 10 %
   |
   +---> Segunda instancia (art. 30)
         +-- apelacion parcial   -> 50 %
@@ -198,14 +212,15 @@ CALCULO BASE
 
 ---
 
-## 6. Incidente (art. 33)
+## 6. Incidente (art. 33 de la Ley 21.839)
 
 ```
 CALCULO BASE
   |
   +--X NO usa escala del art. 21
   |
-  +---> Porcentajes DIRECTOS sobre la base economica del incidente (art. 33)
+  +---> Porcentajes DIRECTOS sobre la base economica del incidente
+        (art. 33 de la Ley 21.839: el art. 47 de la 27.423 esta observado)
   |     +--  2 %  ->  monto hasta 10.000 UMA
   |     +--  5 %  ->  monto de 10.001 a 50.000 UMA
   |     +-- 10 %  ->  monto de 50.001 a 100.000 UMA
@@ -220,7 +235,7 @@ CALCULO BASE
 
 ### Notas
 
-- El art. 33 define una escala **propia y excluyente** para incidentes.
+- El art. 33 **de la Ley 21.839** define una escala propia y excluyente para incidentes. Se usa esa y no la 27.423 porque su art. 47, que regulaba incidentes y tercerias, **quedo observado por el Decreto 1077/2017**. Es un criterio interpretativo que la app adopta.
 - No se aplica el art. 21 ni ninguna reduccion de la ley general.
 - El porcentaje se aplica directamente sobre la base economica del incidente.
 
@@ -247,7 +262,7 @@ CALCULO BASE
   |     +-- apoderado           -> +40 % sobre patrocinante (con factor)
   |     +-- procurador          -> 40 % sobre patrocinante (con factor)
   |
-  +---> Auxiliares del art. 43   -> 5 % a 10 %
+  +---> Auxiliares del art. 21   -> 5 % a 10 %
   |
   +--X NO usa segunda instancia
 ```
@@ -281,7 +296,7 @@ CALCULO BASE
   |     +-- apoderado           -> +40 % sobre patrocinante
   |     +-- procurador          -> 40 % sobre patrocinante
   |
-  +---> Auxiliares del art. 43   -> 5 % a 10 %
+  +---> Auxiliares del art. 21   -> 5 % a 10 %
   |
   +--X NO usa segunda instancia
 ```
@@ -343,7 +358,8 @@ Para todos los procesos que usan escala del art. 21, el orden de aplicacion es:
 7. Auxiliares del art. 43  ->  5 % a 10 %
           |
           v
-8. Segunda instancia (art. 30)  ->  50 % parcial / 100 % total
+8. Segunda instancia (art. 30)  ->  30 % a 35 % de lo de primera
+                                    (30 % a 40 % si se revoco en todas sus partes)
 ```
 
 **Excepciones al orden:**

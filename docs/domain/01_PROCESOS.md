@@ -4,6 +4,10 @@
 
 Este documento describe cada tipo de proceso soportado por el sistema, detallando su finalidad, inputs requeridos, pasos del wizard, preguntas condicionales, datos que se ignoran, resultado que produce, artículos de la ley aplicables y módulos de cálculo que utiliza.
 
+
+> **Verificado el 5/8/2026 contra el texto de la ley**, que está en
+> [00_LEY_27423.md](00_LEY_27423.md). No tenía errores de atribución: está generado desde el schema de la entrevista. Lo que sí tenía era 47 palabras con la primera letra comida, ya restauradas.
+
 ---
 
 ## 1. Conocimiento (De Conocimiento)

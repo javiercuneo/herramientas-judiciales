@@ -3,6 +3,55 @@
 Inventario completo de todas las reglas legales/negocio implementadas en el sistema.
 Cada regla se documenta con su condicion de activacion, que modifica y con que otras reglas interactua.
 
+## Índice por número de regla
+
+> Los números son **identificadores, no un orden**: el documento agrupa por lo
+> que cada regla toca —primero la base, después escala y honorarios— así que
+> aparecen salteados. Esta tabla es para encontrarlos. Están las 45, con las 26
+> a 32 juntas bajo un mismo encabezado porque son los tramos de una sola tabla.
+
+| Regla | Qué hace |
+|---|---|
+| Regla 1 | Art. 40: Desalojo vivienda — Reduccion 20 % sobre base |
+| Regla 2 | Art. 22: Demanda rechazada — Reduccion 30 % sobre base |
+| Regla 3 | Art. 22: Caducidad como desestimada — Reduccion 30 % sobre base |
+| Regla 4 | Art. 35: Unico letrado en sucesion — Reduccion 50 % en escala |
+| Regla 5 | Art. 41: Ejecucion de sentencia — Reduccion 50 % en escala |
+| Regla 6 | Art. 25: Modos anormales antes de apertura a prueba — Reduccion 50 % en escala |
+| Regla 7 | Art. 25: Caducidad como modo anormal antes de prueba — Reduccion 50 % en escala |
+| Regla 8 | Art. 34: Ejecutivo sin excepciones — Reduccion 10 % sobre honorarios finales |
+| Regla 9 | Art. 41 + Art. 34: Ejecucion sentencia sin excepciones — Reduccion 10 % sobre honorarios finales |
+| Regla 10 | Art. 38: Posesorias/interdictos con beneficio exclusivo — Reduccion 20 % sobre honorarios finales |
+| Regla 11 | Art. 49: Incidencia colectiva — Reduccion 25 % sobre honorarios finales |
+| Regla 12 | Art. 37: Medida cautelar sin oposicion — 25 % de la escala |
+| Regla 13 | Art. 37: Medida cautelar con oposicion — 50 % de la escala |
+| Regla 14 | Art. 40 par. 2: Homologacion de desocupacion — Reduccion 50 % sobre honorarios |
+| Regla 15 | Art. 40: Homologacion desocupacion de vivienda — 20 % base + 50 % honorarios |
+| Regla 16 | Art. 33 (Ley 21.839): Incidente — 2 %-20 % de la base |
+| Regla 17 | Art. 50: Exhorto — Montos fijos en UMA |
+| Regla 18 | Art. 20: Apoderado — Multiplicador 1,4 x sobre patrocinante |
+| Regla 19 | Art. 20: Procurador — Multiplicador 0,4 x sobre patrocinante |
+| Regla 20 | Art. 30: Segunda instancia — 30 %-35 % de primera instancia |
+| Regla 21 | Art. 30: Sentencia revocada — Hasta 40 % de primera instancia |
+| Regla 22 | Art. 21, antepenultimo parrafo: Auxiliares generales — 5 %-10 % de la base |
+| Regla 23 | Art. 58: Minimos de auxiliares — 4 UMA en procesos pecuniarios |
+| Regla 24 | Art. 60: Minimos de peritos — 2 UMA en procesos no pecuniarios |
+| Regla 25 | Art. 61 bis: Peritos en controversias — 2 UMA por pericia; 1/4 UMA si se resuelve antes |
+| Reglas 26 a 32 | Tabla de porcentajes por tramo |
+| Regla 33 | Art. 12: Honorarios provisorios — Solo valores minimos |
+| Regla 34 | Art. 35, ultima parte: Partidor — 2 %-3 % de la base |
+| Regla 35 | Art. 19 inc. a: Judiciales no pecuniarios — Montos fijos por tipo de proceso |
+| Regla 36 | Art. 19 inc. b: Extrajudiciales — Montos fijos por tipo de labor |
+| Regla 37 | Sub-reglas del art. 23: Determinacion de base |
+| Regla 38 | Art. 24 y 52: Intereses integran la base |
+| Regla 39 | Art. 43: Desalojo laboral — Base = 50 % ultimo salario x 24 meses |
+| Regla 40 | Art. 45: Liquidacion regimen patrimonial — Base = patrimonio adjudicado |
+| Regla 41 | Art. 46: Escrituracion — Base = max(valor bien, boleto) |
+| Regla 42 | Art. 48: Amparo, habeas data, habeas corpus — Minimo 20 UMA |
+| Regla 43 | Art. 44: Contencioso administrativo — 7 UMA (acciones) / 5 UMA (procedimientos) |
+| Regla 44 | Art. 58: Minimos varios por tipo de proceso |
+| Regla 45 | Transparencia de escala (art. 21, interpretacion literal) |
+
 ---
 
 ## 1. Determinacion de la base (art. 23)

@@ -4,6 +4,10 @@
 
 Este documento describe las **entidades jurídicas** que componen el dominio de cálculo de honorarios bajo la **Ley 27.423** (Honorarios Profesionales, Procuradores y Auxiliares de Justicia de la Nación Argentina). Cada entidad representa un concepto del mundo legal, no una implementación técnica.
 
+
+> **Verificado el 5/8/2026 contra el texto de la ley**, que está en
+> [00_LEY_27423.md](00_LEY_27423.md). No tenía errores de fondo: se precisó el art. 30 —el 40 % exige revocación en todas sus partes en favor del apelante— y se agregó la adecuación de oficio de las regulaciones de primera instancia.
+
 ---
 
 ## 1. Base Regulatoria
@@ -163,7 +167,8 @@ Este documento describe las **entidades jurídicas** que componen el dominio de 
 **Attributes:**
 
 - **Porcentaje base:** Entre 30% y 35% de los honorarios de primera instancia.
-- **Sentencia revocada:** Si la sentencia de segunda instancia revoca la de primera, el porcentaje puede llegar hasta 40%.
+- **Sentencia revocada:** si la alzada revoca la de primera instancia **en todas sus partes y en favor del apelante**, el porcentaje va del 30% al 40%. El calificativo es del art. 30 y no es decorativo: una revocación parcial no habilita el 40%.
+- **Adecuación de oficio:** si la sentencia se revoca *o modifica*, el tribunal de alzada debe además **rehacer de oficio las regulaciones de primera instancia** según el nuevo resultado (art. 30, párrafo segundo).
 - **Art.30.**
 
 **Relaciones:**

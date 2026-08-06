@@ -2,7 +2,11 @@
 
 ## Diagrama Narrativo del Recorrido del Usuario
 
-Este documento describe, paso a paso, el recorrido completo que realiza el usuario al utilizar el asistente de cálculo de honorarios profesionales bajo la Ley 27.423 de Honorarios Profesionales de la Ciudad Autónoma de Buenos Aires. Cada decisión del usuario modifica el camino que sigue el wizard y los cálculos que se aplican al final.
+Este documento describe, paso a paso, el recorrido completo que realiza el usuario al utilizar el asistente de cálculo de honorarios profesionales bajo la Ley 27.423, que rige los honorarios de abogados, procuradores y auxiliares de la Justicia **nacional y federal** (art. 1°). No es una ley de la Ciudad: la versión anterior de este documento decía eso y era falso. Cada decisión del usuario modifica el camino que sigue el wizard y los cálculos que se aplican al final.
+
+
+> **Verificado el 5/8/2026 contra el texto de la ley**, que está en
+> [00_LEY_27423.md](00_LEY_27423.md). Se corrigió que la ley fuera «de la Ciudad Autónoma de Buenos Aires» —es nacional y federal, art. 1°—, la atribución del 5-10 % de auxiliares y la del régimen de incidentes.
 
 ---
 
@@ -100,7 +104,7 @@ Aparece un selector con las siguientes opciones:
 | Codigo en sistema | Proceso |
 |---|---|
 | `exhorto` | Exhorto / Oficio (art. 50) |
-| `incidente` | Incidente (art. 33) |
+| `incidente` | Incidente (art. 33 de la **Ley 21.839**, no de la 27.423) |
 | `medida_cautelar` | Medida cautelar (art. 37) |
 | `homologacion_desocupacion` | Homologacion de convenio de desocupacion (art. 40) |
 | `sucesion` | Sucesion (art. 35) |
@@ -377,13 +381,13 @@ No requiere base monetaria. Los honorarios se fijan directamente en UMA:
 | Inscripciones y actos registrales (inc. b) | 10-20 UMA |
 | Diligencias de prueba (inc. c) | 7-30 UMA |
 
-#### Incidente (art. 33)
+#### Incidente (art. 33 de la Ley 21.839)
 
 La base se convierte a UMA y se aplica una escala simplificada:
 - Minimo: 2% de la base en UMA
 - Maximo: 20% de la base en UMA
 
-Fundamento: art. 33, ley 21839. Los incidentes se dividen en 2 etapas: la primera comprende el planteo que lo origina y la segunda el desarrollo hasta su conclusion.
+Fundamento: art. 33 de la **Ley 21.839**, el arancel anterior, no la 27.423. La razón es que el art. 47 de la 27.423 —el que regulaba incidentes y tercerías, entre el 8 % y el 25 %— **está observado por el Decreto 1077/2017 y no rige**. Es un criterio interpretativo que la app adopta, no una regla de la ley vigente. Lo que sí rige es el art. 29 inc. g) de la 27.423: los incidentes se dividen en 2 etapas, la primera comprende el planteo que lo origina y la segunda el desarrollo hasta su conclusión.
 
 #### Medida Cautelar (art. 37)
 
@@ -391,7 +395,7 @@ Se calcula la escala del art. 21 sobre la base (monto a asegurar) y luego se apl
 - Sin oposicion: **x 0.25** (25% de la escala)
 - Con oposicion: **x 0.50** (50% de la escala)
 
-Fundamento: art. 37. Los auxiliares de justicia se calculan por separado (5%-10% de la base).
+Fundamento: art. 21, que acota a los auxiliares de la Justicia una banda del 5 % al 10 % del monto del proceso. (Antes este documento lo atribuía al art. 37, que es el de las medidas cautelares.)
 
 #### Homologacion de Desocupacion (art. 40)
 

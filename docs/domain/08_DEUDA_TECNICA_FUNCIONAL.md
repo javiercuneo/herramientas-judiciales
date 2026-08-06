@@ -2,6 +2,10 @@
 
 Este documento identifica funcionalidades que funcionan correctamente pero cuya **finalidad no es inmediatamente evidente** o que representan decisiones de interpretación legal no trivial. Está orientado a quien mantenga o evolucione el sistema.
 
+
+> **Verificado el 5/8/2026 contra el texto de la ley**, que está en
+> [00_LEY_27423.md](00_LEY_27423.md). No tenía errores de fondo.
+
 ---
 
 ### 1. Pregunta aparentemente redundante: "Demanda admitida o rechazada"
@@ -20,7 +24,7 @@ Este documento identifica funcionalidades que funcionan correctamente pero cuya 
 
 **Qué hace:** Cuando se selecciona "caducidad" como modo de terminación, el sistema ofrece dos caminos interpretativos:
 - **art.22** → la caducidad se trata como "demanda desestimada", reduciendo la base en 30%.
-- **art.25** → la caducidad se trata como "modo anormal" (asimilándola a allanamiento/desistimiento/transaction), reduciendo la escala en 50% si fue antes de la apertura a prueba.
+- **art.25** → la caducidad se trata como "modo anormal" (asimilándola a allanamiento/desistimiento/transacción), reduciendo la escala en 50% si fue antes de la apertura a prueba.
 
 **Base legal:** La caducidad de la instancia (arts. 310 y ss. CPCCN) no se menciona explícitamente como categoría separada en la Ley 27.423. Esto genera la ambigüedad interpretativa.
 
