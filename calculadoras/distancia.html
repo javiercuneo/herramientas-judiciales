@@ -140,9 +140,13 @@
             outline: none;
         }
 
+        /* --border es un color translucido de linea, no una superficie:
+           usado como fondo dejaba el boton casi transparente y con el
+           texto blanco que hereda de comun.css. Contraste medido: 1.00. */
         .input-group button {
-            background: var(--border);
-            border: none;
+            background: var(--sunk);
+            color: var(--fg);
+            border: 1px solid var(--border);
             padding: 0.6rem 1.2rem;
             border-radius: 8px;
             font-weight: 500;
@@ -198,7 +202,7 @@
 
         .btn-calcular:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102,126,234,0.4);
+            box-shadow: 0 10px 20px rgb(0 0 0 / 0.18);
         }
 
         .resultado-container, .trazabilidad-container {
@@ -286,15 +290,15 @@
     <p class="subtitle">Según Art. 158 CPCCN</p>
 
     <div class="tabs">
-        <button class="tab-btn active" data-tab="argentina">🇦🇷 Argentina</button>
-        <button class="tab-btn" data-tab="internacional">🌍 Internacional</button>
+        <button class="tab-btn active" data-tab="argentina">Argentina</button>
+        <button class="tab-btn" data-tab="internacional">Internacional</button>
     </div>
 
     <div id="argentina" class="tab-content active">
         <p class="info-api">Fuente: API GEOREF (Datos Argentina)</p>
         
         <div class="form-group">
-            <label>📍 Asiento del juzgado (Arg):</label>
+            <label>Asiento del juzgado (Arg):</label>
             <div class="input-group">
                 <input type="text" id="argJuzgado" placeholder="Buscar localidad argentina...">
                 <button id="btnLimpiarArg" title="Limpiar">Limpiar</button>
@@ -303,24 +307,24 @@
         </div>
 
         <div class="form-group">
-            <label>📍 Lugar de la diligencia (Arg):</label>
+            <label>Lugar de la diligencia (Arg):</label>
             <input type="text" id="argDiligencia" placeholder="Buscar localidad argentina...">
             <div id="sugArgDiligencia" class="sugerencias"></div>
         </div>
 
         <button id="btnCalcularArg" class="btn-calcular">Calcular (Argentina)</button>
-        <button id="btnOSRMArg" class="btn-calcular" style="background:#2c7fb8; margin-top:0.5rem;">Calcular por ruta (OSRM)</button>
+        <button id="btnOSRMArg" class="btn-calcular" style="margin-top:0.5rem">Calcular por ruta (OSRM)</button>
         
         <div id="resArg" class="resultado-container"></div>
         <div id="trazArg" class="trazabilidad-container"></div>
-        <div id="osrmArg" class="resultado-container" style="margin-top:0.5rem; border-left-color:#2c7fb8;"></div>
+        <div id="osrmArg" class="resultado-container" style="margin-top:0.5rem; border-left-color:var(--accent);"></div>
     </div>
 
     <div id="internacional" class="tab-content">
         <p class="info-api">Fuente: Open-Meteo Geocoding (Datos Mundiales)</p>
 
         <div class="form-group">
-            <label>📍 Asiento del juzgado / Origen:</label>
+            <label>Asiento del juzgado / Origen:</label>
             <div class="input-group">
                 <input type="text" id="intlJuzgado" placeholder="Ej: Buenos Aires, Madrid, Roma...">
                 <button id="btnLimpiarIntl" title="Limpiar">Limpiar</button>
@@ -329,21 +333,21 @@
         </div>
 
         <div class="form-group">
-            <label>📍 Lugar de la diligencia / Destino:</label>
+            <label>Lugar de la diligencia / Destino:</label>
             <input type="text" id="intlDiligencia" placeholder="Ej: París, Montevideo, New York...">
             <div id="sugIntlDiligencia" class="sugerencias"></div>
         </div>
 
         <button id="btnCalcularIntl" class="btn-calcular">Calcular (Internacional)</button>
-        <button id="btnOSRMIntl" class="btn-calcular" style="background:#2c7fb8; margin-top:0.5rem;">Calcular por ruta (OSRM)</button>
+        <button id="btnOSRMIntl" class="btn-calcular" style="margin-top:0.5rem">Calcular por ruta (OSRM)</button>
         
         <div id="resIntl" class="resultado-container"></div>
         <div id="trazIntl" class="trazabilidad-container"></div>
-        <div id="osrmIntl" class="resultado-container" style="margin-top:0.5rem; border-left-color:#2c7fb8;"></div>
+        <div id="osrmIntl" class="resultado-container" style="margin-top:0.5rem; border-left-color:var(--accent);"></div>
     </div>
 
     <div class="legal-warning">
-        <h3>⚠️ Advertencia Legal & Método de Cálculo</h3>
+        <h3>Advertencia Legal & Método de Cálculo</h3>
         <p>Esta calculadora de ampliación de plazo por distancia (art. 158 CPCCN) fue generada mediante Inteligencia Artificial. Es una herramienta complementaria y no sustituye el criterio profesional.</p>
         <p><strong>Método de Cálculo:</strong> el sistema obtiene la geolocalización (latitud y longitud) de los puntos geográficos indicados mediante la API GEOREF (<a href="https://datosgobar.github.io/georef-ar-api/" target="_blank">https://apis.datos.gob.ar/georef/api/</a>). Con esos datos, y mediante la fórmula de Haversine o del semiverseno procura obtener la distancia lineal en kilómetros, a la que aplica la lógica de 1 día por cada 200 km o fracción que no baje de 100 km. Para datos internacionales utiliza como fuente Open-Meteo Geocoding.</p>
         <p><strong>NOTA:</strong> la CSJN se atiene a las distancias por ferrocarril (Fallos, 304:1345) y ruta terrestre. Ver al respecto la <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/165000-169999/165599/norma.htm" target="_blank">Acordada 5/2010</a> que con fundamento en lo dispuesto por la Acordada Nº 50/86 establece las distancias a los asientos federales para considerar la ampliación de los plazos del art. 158 para interponer las quejas (art. 282 del CPCCN).</p>
@@ -420,11 +424,11 @@
         const mostrarResultado = (divRes, divTraz, d, dias, c1, c2, nombre1, nombre2) => {
             let msj = '', logica = '';
             if (dias === 0) {
-                msj = `<h3>✅ No corresponde ampliación.</h3>`;
+                msj = `<h3>No corresponde ampliación.</h3>`;
                 logica = `Distancia (${d.toFixed(2)} km) < 200 km.`;
             } else {
                 const s = dias > 1 ? 's' : '';
-                msj = `<h3>📆 Corresponde ampliación por ${dias} día${s}.</h3>`;
+                msj = `<h3>Corresponde ampliación por ${dias} día${s}.</h3>`;
                 const baseDias = Math.floor(d / 200);
                 const resto = d % 200;
                 logica = `1 día/200km (${baseDias} día${baseDias !== 1 ? 's' : ''}) + fracción ${resto >= 100 ? '≥' : '<'} 100km (${resto >= 100 ? '1 día adicional' : '0 días'}).`;
@@ -432,7 +436,7 @@
 
             divRes.innerHTML = msj;
             divTraz.innerHTML = `
-                <h4>📌 Trazabilidad del cálculo:</h4>
+                <h4>Trazabilidad del cálculo:</h4>
                 <p><strong>Origen:</strong> ${nombre1} (${c1.lat.toFixed(4)}, ${c1.lon.toFixed(4)})</p>
                 <p><strong>Destino:</strong> ${nombre2} (${c2.lat.toFixed(4)}, ${c2.lon.toFixed(4)})</p>
                 <p><strong>Distancia lineal (Haversine):</strong> ${d.toFixed(2)} km</p>
@@ -465,7 +469,7 @@
                         if (!d.localidades || d.localidades.length === 0) {
                             const noItem = document.createElement('div');
                             noItem.className = 'sugerencia-item';
-                            noItem.textContent = '⚠️ Sin resultados';
+                            noItem.textContent = 'Sin resultados';
                             contenedor.appendChild(noItem);
                             return;
                         }
@@ -512,7 +516,7 @@
             trazDiv.innerHTML = '';
 
             if(!argJuzgado.lat || !argDiligencia.lat) {
-                resDiv.innerHTML = `<h3>⚠️ Error: Debe seleccionar ambas localidades de la lista desplegable.</h3>`;
+                resDiv.innerHTML = `<h3>Error: Debe seleccionar ambas localidades de la lista desplegable.</h3>`;
                 return;
             }
 
@@ -549,7 +553,7 @@
                         if(!d.results || d.results.length === 0) {
                             const item = document.createElement('div');
                             item.className = 'sugerencia-item';
-                            item.textContent = '🌐 No se encontraron resultados';
+                            item.textContent = 'No se encontraron resultados';
                             contenedor.appendChild(item);
                             return;
                         }
@@ -559,7 +563,7 @@
                             item.className = 'sugerencia-item';
                             const partes = [loc.name, loc.admin1, loc.country].filter(Boolean);
                             const txt = partes.join(', ');
-                            item.textContent = `🌍 ${txt}`;
+                            item.textContent = `${txt}`;
                             item.onclick = () => {
                                 input.value = txt;
                                 storage.lat = loc.latitude;
@@ -598,7 +602,7 @@
             trazDiv.innerHTML = '';
 
             if(!intlJuzgado.lat || !intlDiligencia.lat) {
-                resDiv.innerHTML = `<h3>⚠️ Error: Debe seleccionar ambas ciudades de la lista de sugerencias.</h3>`;
+                resDiv.innerHTML = `<h3>Error: Debe seleccionar ambas ciudades de la lista de sugerencias.</h3>`;
                 return;
             }
 
@@ -654,7 +658,7 @@
         async function calcularOSRM(lat1, lon1, lat2, lon2, nombre1, nombre2, divResultado) {
             const contador = obtenerContadorDiario();
             if (contador >= OSRM_LIMITE_DIARIO) {
-                divResultado.innerHTML = `<p style="color:#b45f06;">⚠️ Límite diario de ${OSRM_LIMITE_DIARIO} consultas alcanzado. Intente mañana.</p>`;
+                divResultado.innerHTML = `<p style="color:var(--warn);">Límite diario de ${OSRM_LIMITE_DIARIO} consultas alcanzado. Intente mañana.</p>`;
                 return;
             }
 
@@ -685,24 +689,24 @@
                 incrementarContador();
                 mostrarResultadoOSRM(distancia, dias, nombre1, nombre2, divResultado, false);
             } catch (err) {
-                divResultado.innerHTML = `<p style="color:red;">❌ Error al consultar OSRM: ${err.message}. Intente de nuevo.</p>`;
+                divResultado.innerHTML = `<p style="color:var(--error);">Error al consultar OSRM: ${err.message}. Intente de nuevo.</p>`;
             }
         }
 
         function mostrarResultadoOSRM(distancia, dias, nombre1, nombre2, div, cacheado) {
-            let html = `<h3>🛣️ Distancia por ruta (OSRM)</h3><p><strong>Distancia:</strong> ${distancia.toFixed(2)} km</p>`;
+            let html = `<h3>Distancia por ruta (OSRM)</h3><p><strong>Distancia:</strong> ${distancia.toFixed(2)} km</p>`;
             let logica = '';
             if (dias === 0) {
-                html += `<p>✅ No corresponde ampliación.</p>`;
+                html += `<p>No corresponde ampliación.</p>`;
                 logica = `Distancia (${distancia.toFixed(2)} km) < 200 km.`;
             } else {
                 const s = dias > 1 ? 's' : '';
-                html += `<p>📆 Corresponde ampliación por ${dias} día${s}.</p>`;
+                html += `<p>Corresponde ampliación por ${dias} día${s}.</p>`;
                 const baseDias = Math.floor(distancia / 200);
                 const resto = distancia % 200;
                 logica = `1 día/200km (${baseDias} día${baseDias !== 1 ? 's' : ''}) + fracción ${resto >= 100 ? '≥' : '<'} 100km (${resto >= 100 ? '1 día adicional' : '0 días'}).`;
             }
-            html += `<p><small>🖥️ Método: OpenStreetMap (OSRM). ${cacheado ? '(cacheado)' : ''}</small></p>`;
+            html += `<p><small>Método: OpenStreetMap (OSRM). ${cacheado ? '(cacheado)' : ''}</small></p>`;
             html += `<p><small>© <a href="https://www.openstreetmap.org/fixmap" target="_blank">OpenStreetMap contributors</a></small></p>`;
             html += `<p><small>Lógica aplicada (Art. 158 CPCCN): ${logica}</small></p>`;
             div.innerHTML = html;
@@ -712,7 +716,7 @@
         document.getElementById('btnOSRMArg').addEventListener('click', () => {
             const div = document.getElementById('osrmArg');
             if (!argJuzgado.lat || !argDiligencia.lat) {
-                div.innerHTML = '<p style="color:red;">Debe seleccionar ambas localidades.</p>';
+                div.innerHTML = '<p style="color:var(--error);">Debe seleccionar ambas localidades.</p>';
                 return;
             }
             calcularOSRM(argJuzgado.lat, argJuzgado.lon, argDiligencia.lat, argDiligencia.lon, argJuzgado.nombre, argDiligencia.nombre, div);
@@ -721,7 +725,7 @@
         document.getElementById('btnOSRMIntl').addEventListener('click', () => {
             const div = document.getElementById('osrmIntl');
             if (!intlJuzgado.lat || !intlDiligencia.lat) {
-                div.innerHTML = '<p style="color:red;">Debe seleccionar ambas ciudades.</p>';
+                div.innerHTML = '<p style="color:var(--error);">Debe seleccionar ambas ciudades.</p>';
                 return;
             }
             calcularOSRM(intlJuzgado.lat, intlJuzgado.lon, intlDiligencia.lat, intlDiligencia.lon, intlJuzgado.nombre, intlDiligencia.nombre, div);

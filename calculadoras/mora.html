@@ -7,18 +7,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <style>
+        /* OJO: no redefinir aca --accent, --border, --bg ni --card.
+           Los define comun.css y siguen el tema. Escribir
+           `--accent: var(--accent)` es un ciclo: la propiedad queda
+           invalida en tiempo de computo y var(--accent) devuelve la
+           cadena vacia, no el cobalto. Asi estuvo esta calculadora hasta
+           el 5/8: el boton se quedaba sin fondo y conservaba su texto
+           blanco, o sea invisible sobre la tarjeta, en los dos temas. */
         :root {
-            --bg: var(--accent);
-            --card: #ffffff;
             --muted: var(--muted-fg);
             --text: var(--fg);
             --primary: var(--accent);
-            --accent: var(--accent);
-            --border: var(--border);
-            --period1: #e8e0ff;
-            --period2: #f0e6ff;
-            --period3: #fff0e0;
-            --shadow: 0 20px 60px rgba(0,0,0,0.3);
+            /* Los tres tramos son una secuencia, no tres categorias: el
+               mismo acento con mas peso. Translucidos sobre la tarjeta,
+               asi el texto sigue siendo --fg y se lee en claro y oscuro. */
+            --period1: color-mix(in srgb, var(--accent) 8%, transparent);
+            --period2: color-mix(in srgb, var(--accent) 17%, transparent);
+            --period3: color-mix(in srgb, var(--accent) 28%, transparent);
+            --shadow: 0 20px 60px rgb(0 0 0 / 0.3);
         }
 
         body {
@@ -78,7 +84,7 @@
         input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(11, 118, 244, 0.1);
+            box-shadow: 0 0 0 3px var(--accent-tint);
         }
 
         .small {
@@ -93,7 +99,7 @@
             border-radius: 10px;
             display: none;
             font-size: 0.9rem;
-            background: #f8fdf8;
+            background: var(--ok-tint);
             border: 1px solid var(--border);
         }
 
@@ -101,7 +107,7 @@
             margin-top: 20px;
             padding: 18px;
             border-radius: 12px;
-            background: linear-gradient(180deg, #fff, var(--sunk));
+            background: linear-gradient(180deg, var(--card), var(--sunk));
             border: 1px solid var(--border);
         }
 
@@ -127,27 +133,27 @@
         }
 button {
             background: var(--primary);
-            color: #fff;
+            color: var(--on-accent);
             border: none;
             padding: 11px 18px;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 500;
-            transition: background 0.15s;
+            transition: filter 0.15s;
         }
 
         button:hover {
-            background: #0960c4;
+            filter: brightness(1.08);
         }
 
         button.ghost {
             background: transparent;
             color: var(--primary);
-            border: 1px solid rgba(11, 118, 244, 0.15);
+            border: 1px solid var(--border);
         }
 
         button.ghost:hover {
-            background: rgba(11, 118, 244, 0.05);
+            background: var(--accent-tint);
         }
 
         .flex {
@@ -172,7 +178,7 @@ button {
             text-align: center;
             font-size: 0.9rem;
             font-weight: 500;
-            border: 1px solid rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--hair);
         }
 
         .legend {
@@ -189,11 +195,14 @@ button {
             font-size: 0.85rem;
         }
 
+        /* El borde no es decoracion: los tres tintes son translucidos y
+           a 14px, sin borde, el mas claro no se distingue del fondo. */
         .swatch {
             width: 14px;
             height: 14px;
             border-radius: 4px;
             display: inline-block;
+            border: 1px solid var(--border);
         }
 
         .input-group {
@@ -202,8 +211,12 @@ button {
         }
 
         @media (max-width: 720px) {
+            /* align-items: flex-end alinea al fondo mientras la fila es
+               fila; al pasar a columna pasa a ser el eje transversal y
+               empuja los campos contra el borde derecho. */
             .row {
                 flex-direction: column;
+                align-items: flex-start;
             }
 
             .flex {
@@ -442,7 +455,7 @@ button {
             let statusHTML = `<strong>Feriados nacionales cargados:</strong> ${loadedYears.sort().join(', ')} (vía API).`;
 
             if (failedYears.length > 0) {
-                statusHTML += `<br><span style="color:#c00;font-weight:600;">⚠️ Advertencia:</span> No se pudieron cargar los feriados nacionales (API) para el/los año(s): ${failedYears.sort().join(', ')}. Los días de <strong>Feria</strong> y feriados locales codificados (Enero, Julio, 16/11) SÍ fueron utilizados.`;
+                statusHTML += `<br><span style="color:var(--warn);font-weight:600;">Advertencia:</span> No se pudieron cargar los feriados nacionales (API) para el/los año(s): ${failedYears.sort().join(', ')}. Los días de <strong>Feria</strong> y feriados locales codificados (Enero, Julio, 16/11) SÍ fueron utilizados.`;
                 statusElem.style.borderColor = '#ff4d4f';
                 statusElem.style.background = '#fff0f0';
             } else {

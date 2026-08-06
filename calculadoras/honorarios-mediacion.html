@@ -7,15 +7,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
   <style>
+    /* OJO: no redefinir aca --accent, --bg, --card ni --error. Los define
+       comun.css y siguen el tema. `--accent: var(--accent)` es un ciclo:
+       la propiedad queda invalida en tiempo de computo y var(--accent)
+       devuelve la cadena vacia. Con eso .btn-primary se quedaba sin fondo
+       y conservaba su color --on-accent: blanco sobre blanco. */
     :root {
-      --bg: var(--accent);
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --accent: var(--accent);
-      --accent-weak: #e8e0ff;
+      --text: var(--fg);
+      --muted: var(--muted-fg);
+      --accent-weak: var(--accent-tint);
       --ring: var(--accent);
-      --error: #b91c1c;
     }
     html, body { height: 100%; }
     body {
@@ -27,8 +28,9 @@
       width: min(760px, 92vw);
       margin: 24px auto; padding: 20px;
       background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0,0,0,.08);
+      box-shadow: 0 8px 30px rgb(0 0 0 / .08);
       box-sizing: border-box;
     }
     h1 { color: var(--accent); margin-bottom: 10px; font-size: 28px; text-align: center; }
@@ -40,7 +42,7 @@
     .field { display: grid; gap: 8px; }
     label { font-weight: 600; }
     input[type="text"] {
-      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #e5e7eb;
+      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
       font-size: 1rem; background: var(--card); color: inherit;
       outline: none; transition: box-shadow .15s ease, border-color .15s ease;
       box-sizing: border-box;
@@ -54,17 +56,17 @@
       font-weight: 600; font-size: .95rem;
     }
     .btn-primary { background: var(--accent); color: var(--on-accent); }
-    .btn-secondary { background: #eef2ff; color: #3730a3; }
+    .btn-secondary { background: var(--accent-tint); color: var(--accent); }
 
     .result {
-      margin-top: 18px; padding: 14px; border: 1px dashed #e5e7eb; border-radius: 12px; background: #fafafa;
+      margin-top: 18px; padding: 14px; border: 1px dashed var(--border); border-radius: 12px; background: var(--sunk);
       display: grid; gap: 10px;
     }
     .row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
     .key { color: var(--muted); }
     .val { font-weight: 800; font-size: 1.15rem; }
 
-    .note { margin-top: 10px; color: var(--muted); font-size: .85rem; border-top: 1px solid #eee; padding-top: 8px; }
+    .note { margin-top: 10px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--hair); padding-top: 8px; }
     .error { color: var(--error); font-weight: 600; margin-top: 10px; }
   </style>
 </head>
@@ -146,7 +148,7 @@
             const valorB2 = columnas[1].replace(/"/g, '').trim();
             if (!isNaN(parseFlexibleNumber(valorB2))) {
               inputUhom.value = valorB2;
-              status.textContent = '✅ Valor actualizado.';
+              status.textContent = 'Valor actualizado.';
               if (document.getElementById('monto').value) calcular();
               return;
             }

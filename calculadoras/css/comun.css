@@ -28,7 +28,11 @@
   --fg: #12161c;
   --card: #ffffff;
   --muted-fg: #5a626e;
-  --faint: #8b93a0;
+  /* --faint es el gris mas claro que todavia se lee. No aclararlo: medido
+     el 5/8, #8b93a0 daba 3.10 sobre la tarjeta y 2.81 sobre --sunk, o sea
+     por debajo de AA (4.5) para texto chico, que es el unico texto que lo
+     usa —el pie del sitio y los subtitulos—. Ahora da 5.09 y 4.61. */
+  --faint: #666e7c;
 
   /* Un solo acento en todo el sitio: lo activo, lo enfocado, lo seleccionado */
   --accent: #1e45ce;
@@ -60,7 +64,7 @@
     --fg: #edeff3;
     --card: #16191f;
     --muted-fg: #99a1ae;
-    --faint: #6b7381;
+    --faint: #828a98;  /* 3.68 sobre la tarjeta antes del 5/8; ahora 5.08 */
 
     --accent: #7a99ff;
     --accent-tint: rgb(122 153 255 / 0.13);

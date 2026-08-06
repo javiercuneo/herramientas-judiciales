@@ -53,7 +53,7 @@
             font-weight: 700;
             font-size: 14px;
             border: 3px solid var(--border);
-            color: #bbb;
+            color: var(--muted-fg);
             background: var(--card);
             transition: all 0.3s;
         }
@@ -63,8 +63,8 @@
             color: var(--on-accent);
         }
         .step-dot.completed {
-            border-color: #48bb78;
-            background: #48bb78;
+            border-color: var(--ok);
+            background: var(--ok);
             color: var(--on-accent);
         }
         .step-line {
@@ -74,7 +74,7 @@
             transition: background 0.3s;
         }
         .step-line.completed {
-            background: #48bb78;
+            background: var(--ok);
         }
         /* Content */
         .content-area {
@@ -105,7 +105,7 @@
         .warning-box li { margin-bottom: 6px; }
         .warning-box strong { color: var(--warn); }
         .info-box {
-            background: #ebf4ff;
+            background: var(--accent-tint);
             border-left: 6px solid var(--accent);
             padding: 18px 22px;
             border-radius: 12px;
@@ -113,12 +113,12 @@
         }
         .info-box p, .info-box li {
             font-size: 13px;
-            color: #1e3a5f;
+            color: var(--fg);
             line-height: 1.7;
         }
         .info-box ul { margin: 10px 0 10px 20px; }
         .info-box li { margin-bottom: 6px; }
-        .info-box strong { color: #0b1a2a; }
+        .info-box strong { color: var(--fg); }
         .btn-start-wrapper {
             text-align: center;
             margin-top: 28px;
@@ -157,7 +157,7 @@
             border-color: var(--accent);
         }
         .date-inputs input.invalid {
-            border-color: #e74c3c;
+            border-color: var(--error);
         }
         .input-group {
             display: flex;
@@ -173,7 +173,7 @@
             text-align: center;
             margin-top: 20px;
             padding: 14px;
-            background: #f7f8fc;
+            background: var(--sunk);
             border-radius: 10px;
             font-size: 12px;
             color: var(--muted-fg);
@@ -183,7 +183,7 @@
             color: var(--accent);
         }
         .error-msg {
-            color: #e74c3c;
+            color: var(--error);
             font-size: 13px;
             text-align: center;
             margin-top: 10px;
@@ -230,14 +230,11 @@
         .binary-card:hover {
             border-color: var(--accent);
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102,126,234,0.2);
+            box-shadow: 0 8px 20px rgb(0 0 0 / 0.10);
         }
         .binary-card.selected {
             border-color: var(--accent);
-            background: #f0f2ff;
-        }
-        .binary-card-icon {
-            font-size: 32px;
+            background: var(--accent-tint);
         }
         .binary-card-label {
             font-size: 15px;
@@ -285,7 +282,7 @@
         }
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102,126,234,0.4);
+            box-shadow: 0 10px 20px rgb(0 0 0 / 0.18);
         }
         .btn-secondary {
             background: var(--border);
@@ -295,7 +292,7 @@
             background: var(--border);
         }
         .btn-success {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            background: linear-gradient(135deg, var(--ok), var(--ok));
             color: var(--on-accent);
         }
         .btn-success:hover:not(:disabled) {
@@ -369,8 +366,8 @@
             color: var(--warn);
         }
         .timeline-icon.success {
-            border-color: #48bb78;
-            background: #48bb78;
+            border-color: var(--ok);
+            background: var(--ok);
             color: var(--on-accent);
         }
         .timeline-content {
@@ -389,7 +386,7 @@
         }
         .timeline-bar-wrapper {
             margin-top: 8px;
-            background: #e8e8e8;
+            background: var(--sunk);
             border-radius: 10px;
             height: 8px;
             overflow: hidden;
@@ -400,14 +397,14 @@
             transition: width 0.8s ease;
         }
         .timeline-bar.blue { background: var(--accent); }
-        .timeline-bar.green { background: linear-gradient(90deg, #48bb78, #38a169); }
-        .timeline-bar.yellow { background: linear-gradient(90deg, #ecc94b, #d69e2e); }
+        .timeline-bar.green { background: linear-gradient(90deg, var(--ok), var(--ok)); }
+        .timeline-bar.yellow { background: linear-gradient(90deg, var(--warn), var(--warn)); }
         .timeline-bar.full { width: 100%; }
         .timeline-bar.half { width: 50%; }
         .timeline-bar.threequarters { width: 75%; }
         /* Legal explanation */
         .legal-explain {
-            background: #f7f8fc;
+            background: var(--sunk);
             border-left: 4px solid var(--accent);
             padding: 16px 20px;
             border-radius: 10px;
@@ -458,7 +455,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>⚖️ Ejecución de Sentencias contra el Estado</h1>
+        <h1>Ejecución de Sentencias contra el Estado</h1>
         <p class="subtitle">Ley 11.672 — Determinación de la fecha de ejecutabilidad</p>
 
         <!-- Step Indicator -->
@@ -695,13 +692,13 @@
                         <h2>Advertencia sobre el alcance de esta herramienta</h2>
 
                         <div class="warning-box">
-                            <p><strong>❌ Régimen NO contemplado: Consolidación de deudas (Ley 23.982)</strong></p>
+                            <p><strong>Régimen NO contemplado: Consolidación de deudas (Ley 23.982)</strong></p>
                             <p>Se aplica a obligaciones vencidas o de causa anterior al <strong>1 de abril de 1991</strong>. Implica que la obligación original se extingue y es reemplazada por derechos según un orden de prelación (prioridades) por categorías sociales. El pago puede ser en efectivo (según disponibilidad presupuestaria y orden cronológico) o mediante Bonos de Consolidación.</p>
                             <p style="margin-top:8px;"><strong>Esta herramienta no cubre este régimen.</strong></p>
                         </div>
 
                         <div class="info-box">
-                            <p><strong>✅ Régimen contemplado: Pasivo Corriente (Ley 11.672 — Art. 170)</strong></p>
+                            <p><strong>Régimen contemplado: Pasivo Corriente (Ley 11.672 — Art. 170)</strong></p>
                             <p>Para obligaciones de causa posterior al <strong>1 de abril de 1991</strong> (deudas post-consolidación). El sistema funciona así:</p>
                             <ul>
                                 <li>Las sentencias condenatorias contra el Estado tienen carácter <strong>meramente declarativo</strong>: el juez reconoce el derecho, pero el pago no es inmediato ni ejecutable por embargos comunes.</li>
@@ -743,7 +740,7 @@
                         </div>
                         <div class="error-msg" id="errorFecha"></div>
                         <div class="checkpoint-note">
-                            📌 <strong>Hito legal — 31 de julio:</strong> Si la notificación es <strong>ANTES</strong> del 31 de julio, la deuda se incluye en el presupuesto del año siguiente. Si es el <strong>31 de julio o después</strong>, se desplaza al año subsiguiente.
+                            <strong>Hito legal — 31 de julio:</strong> Si la notificación es <strong>ANTES</strong> del 31 de julio, la deuda se incluye en el presupuesto del año siguiente. Si es el <strong>31 de julio o después</strong>, se desplaza al año subsiguiente.
                         </div>
                     </div>
                 `;
@@ -780,12 +777,10 @@
                         <p>¿El Servicio Administrativo Financiero emitió certificación de agotamiento de la partida presupuestaria?</p>
                         <div class="binary-options">
                             <div class="binary-card ${state.tieneCertificacion === true ? 'selected' : ''}" data-cert="si">
-                                <div class="binary-card-icon">📄</div>
                                 <div class="binary-card-label">Sí, existe certificación</div>
                                 <div class="binary-card-desc">El Estado acreditó que se agotaron los fondos y cumplió con la comunicación al Congreso (Art. 22, Ley 23.982)</div>
                             </div>
                             <div class="binary-card ${state.tieneCertificacion === false ? 'selected' : ''}" data-cert="no">
-                                <div class="binary-card-icon">✅</div>
                                 <div class="binary-card-label">No existe certificación</div>
                                 <div class="binary-card-desc">No se emitió certificación, o el crédito presupuestario fue suficiente y se pagó en término</div>
                             </div>
@@ -818,7 +813,7 @@
                 var antes = result.antes;
 
                 var fechaNotifStr = formatFecha(d, m, a);
-                var checkpointStr = antes ? '✅ Antes del 31 de julio' : '❌ 31 de julio o después';
+                var checkpointStr = antes ? 'Antes del 31 de julio' : '31 de julio o después';
                 var checkpointColor = antes ? 'completed' : 'warning';
                 var presupuestoYear = antes ? (a + 1) : (a + 2);
                 var certYearExtra = cert ? (', +1 año por certificación') : '';
@@ -844,14 +839,14 @@
                         <h2>Resultado del Cálculo</h2>
 
                         <div class="result-date-box">
-                            <div class="label">🔓 Fecha de ejecutabilidad (embargo viable)</div>
+                            <div class="label">Fecha de ejecutabilidad (embargo viable)</div>
                             <div class="date">01/01/${resultYear}</div>
                             <div class="sub">A partir de esta fecha puede solicitarse la ejecución forzada</div>
                         </div>
 
                         <div class="timeline">
                             <div class="timeline-item">
-                                <div class="timeline-icon completed">📅</div>
+                                <div class="timeline-icon completed">1</div>
                                 <div class="timeline-content">
                                     <div class="step-label">Notificación judicial</div>
                                     <div class="step-value">${fechaNotifStr}</div>
@@ -859,7 +854,7 @@
                                 </div>
                             </div>
                             <div class="timeline-item">
-                                <div class="timeline-icon ${checkpointColor}">📌</div>
+                                <div class="timeline-icon ${checkpointColor}">2</div>
                                 <div class="timeline-content">
                                     <div class="step-label">Checkpoint presupuestario — 31 de julio</div>
                                     <div class="step-value">${checkpointStr}</div>
@@ -867,7 +862,7 @@
                                 </div>
                             </div>
                             <div class="timeline-item">
-                                <div class="timeline-icon completed">💰</div>
+                                <div class="timeline-icon completed">3</div>
                                 <div class="timeline-content">
                                     <div class="step-label">Ejercicio presupuestario</div>
                                     <div class="step-value">El Estado debe prever la partida para el ejercicio ${presupuestoYear}${cert ? ' (pero certificó agotamiento)' : ''}</div>
@@ -875,7 +870,7 @@
                                 </div>
                             </div>
                             <div class="timeline-item">
-                                <div class="timeline-icon success">🔓</div>
+                                <div class="timeline-icon success">4</div>
                                 <div class="timeline-content">
                                     <div class="step-label">Ejecutable desde</div>
                                     <div class="step-value">01/01/${resultYear} — Vía judicial habilitada para embargar</div>
@@ -885,11 +880,11 @@
                         </div>
 
                         <div class="legal-explain">
-                            <strong>📋 Resumen:</strong> ${explicacion}
+                            <strong>Resumen:</strong> ${explicacion}
                         </div>
 
                         <div style="text-align: center;">
-                            <button class="btn-success btn-block" id="btnReiniciarCalc">🔄 Nuevo cálculo</button>
+                            <button class="btn-success btn-block" id="btnReiniciarCalc">Nuevo cálculo</button>
                         </div>
                     </div>
                 `;
