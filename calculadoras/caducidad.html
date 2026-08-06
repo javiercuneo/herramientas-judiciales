@@ -307,29 +307,60 @@
             }
         }
 
-        let yr = startDate.getFullYear();
-        let endYr = ordDate.getFullYear();
-        while (yr <= endYr) {
-            let startJulio = CalendarioJudicial.getPenultimoLunesJulio(yr);
-            let endJulio = new Date(startJulio);
-            endJulio.setDate(startJulio.getDate() + 11);
-            
-            if (startJulio <= ordDate && endJulio >= startDate) {
-                let overlapStart = new Date(Math.max(startDate.getTime(), startJulio.getTime()));
-                let overlapEnd = new Date(Math.min(ordDate.getTime(), endJulio.getTime()));
-                let daysOverlap = Math.ceil((overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-                if (daysOverlap > 0) {
-                    ordDate.setDate(ordDate.getDate() + daysOverlap);
-                    ordObs.push(
-                        'Se atraveso la feria de julio ' + yr +
-                        ' (' + startJulio.toLocaleDateString('es-AR') + ' al ' + endJulio.toLocaleDateString('es-AR') + ') ' +
-                        'y se agregaron ' + daysOverlap + ' dias'
-                    );
-                    endYr = ordDate.getFullYear();
+        // Feria de julio: art. 311 CPCCN — el plazo corre durante los dias
+        // inhabiles "salvo los que correspondan a las ferias judiciales", asi
+        // que los dias de feria que caen dentro del plazo se descuentan y el
+        // vencimiento se corre otro tanto.
+        //
+        // Se itera a punto fijo porque correr el vencimiento puede meter mas
+        // dias de feria adentro del plazo, y esos tambien hay que descontarlos.
+        // Sin iterar, un vencimiento nominal que cayera DENTRO de la feria
+        // sumaba solo los dias solapados y quedaba igual adentro: con inicio
+        // 23/6/2026 y plazo de 1 mes daba 27/7/2026, que es un dia de feria.
+        // Fallaba en el 3,7 % de los cruces de fecha de inicio por plazo,
+        // siempre por lo mismo. Reportado por Javier el 5/8/2026.
+        const nominalDate = new Date(ordDate);
+
+        const feriaJulio = function(year) {
+            const inicio = CalendarioJudicial.getPenultimoLunesJulio(year);
+            const fin = new Date(inicio);
+            fin.setDate(inicio.getDate() + 11);
+            return { inicio: inicio, fin: fin };
+        };
+
+        // Dias de feria de julio comprendidos entre el inicio y una fecha dada.
+        const diasDeFeriaHasta = function(hasta) {
+            let dias = 0;
+            const detalle = [];
+            for (let año = startDate.getFullYear(); año <= hasta.getFullYear(); año++) {
+                const f = feriaJulio(año);
+                const desde = new Date(Math.max(startDate.getTime(), f.inicio.getTime()));
+                const hastaFeria = new Date(Math.min(hasta.getTime(), f.fin.getTime()));
+                if (hastaFeria >= desde) {
+                    const n = Math.round((hastaFeria.getTime() - desde.getTime()) / 86400000) + 1;
+                    dias += n;
+                    detalle.push({ año: año, feria: f, dias: n });
                 }
             }
-            yr++;
+            return { dias: dias, detalle: detalle };
+        };
+
+        let feria = diasDeFeriaHasta(ordDate);
+        for (let iter = 0; iter < 12; iter++) {
+            const propuesta = new Date(nominalDate);
+            propuesta.setDate(nominalDate.getDate() + feria.dias);
+            if (propuesta.getTime() === ordDate.getTime()) break;
+            ordDate = propuesta;
+            feria = diasDeFeriaHasta(ordDate);
         }
+
+        feria.detalle.forEach(function(f) {
+            ordObs.push(
+                'Se atraveso la feria de julio ' + f.año +
+                ' (' + f.feria.inicio.toLocaleDateString('es-AR') + ' al ' + f.feria.fin.toLocaleDateString('es-AR') + ') ' +
+                'y se agregaron ' + f.dias + ' dias'
+            );
+        });
 
         document.getElementById('resultDate').innerText = ordDate.toLocaleDateString('es-AR');
         document.getElementById('resultDetails').innerHTML = '<strong>Inicio:</strong> ' + startDate.toLocaleDateString('es-AR') + '<br><strong>Observaciones:</strong><br>' + ordObs.map(function(o) { return '- ' + o; }).join('<br>');

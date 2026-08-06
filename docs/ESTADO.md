@@ -354,7 +354,33 @@ registrado, con DNS, con certificado y con HTTPS forzado.
 
 ### Bugs conocidos
 
-Ninguno.
+Ninguno abierto. El último, cerrado el 5/8:
+
+**Caducidad contaba mal la feria de julio.** Lo reportó Javier con el caso:
+inicio 23/6/2026, plazo de 1 mes, resultado **27/7/2026** — una fecha que está
+dentro de la feria que el propio resultado decía haber atravesado.
+
+La causa: el código sumaba los días de feria **solapados con el vencimiento
+nominal**, no los de la feria entera, y no volvía a mirar si la fecha nueva
+seguía cayendo adentro. El bucle avanzaba de año y nunca reexaminaba la misma
+feria.
+
+El art. 311 CPCCN dice que los plazos corren durante los inhábiles «salvo los
+que correspondan a las ferias judiciales», así que los 12 días se descuentan
+enteros. El arreglo es una **iteración a punto fijo** —recalcular hasta que la
+fecha deje de moverse—, que es el mismo patrón que el cálculo «full» de ese
+archivo ya usaba unas líneas más abajo para los inhábiles.
+
+**Lo que importa del alcance:** el criterio no es «el resultado cae en feria»
+sino **«el vencimiento nominal cae en feria»**. De 8.760 combinaciones de fecha
+de inicio por plazo entre 2025 y 2028, cambian **298 (3,4 %)** y son
+exactamente esas, ninguna más. De ellas, solo una parte daba el absurdo visible
+que se reportó; **el resto daba una fecha equivocada pero verosímil**, que nadie
+habría mirado dos veces. Ejemplo: inicio 26/6/2026, 1 mes, daba 2/8 y
+corresponde 7/8, porque contaba 7 de los 12 días.
+
+Verificado además que ningún resultado nuevo cae dentro de la feria, que todos
+satisfacen el punto fijo y que ninguno es anterior al vencimiento nominal.
 
 ---
 
