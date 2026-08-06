@@ -676,7 +676,7 @@
                 const url = `${OSRM_BASE}/${lon1},${lat1};${lon2},${lat2}?overview=false`;
                 const respuesta = await fetch(url, {
                     headers: {
-                        'User-Agent': 'HerramientasJudicialesIA/1.0 (javiercuneo.github.io)'
+                        'User-Agent': 'HerramientasJudiciales/1.0 (javiercuneo.com.ar)'
                     }
                 });
                 if (!respuesta.ok) throw new Error('Error en OSRM');

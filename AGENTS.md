@@ -125,13 +125,24 @@ Lo que quedó acá y sigue relacionado:
 ## Las calculadoras
 
 Un archivo HTML cada una, con su CSS y su JS adentro. Sin build y sin bundler:
-se abren, se editan y se guardan. Esa simplicidad es deliberada —duran años sin
-mantenimiento— y el precio es que **no comparten nada de presentación**, así que
-un arreglo visual hay que hacerlo tantas veces como archivos haya.
+se abren, se editan y se guardan. Esa simplicidad es deliberada: duran años sin
+mantenimiento.
 
-Lo único compartido es `calculadoras/js/calendario-judicial.js`, del que depende
-todo lo que computa fechas. **Tocarlo afecta a varias herramientas a la vez:**
-un cambio ahí se verifica abriendo cada una de las que calculan plazos.
+Comparten dos cosas, y las dos afectan a varias herramientas a la vez:
+
+- **`calculadoras/js/calendario-judicial.js`**, del que depende todo lo que
+  computa fechas. Un cambio ahí se verifica abriendo cada una de las que
+  calculan plazos.
+- **`calculadoras/css/comun.css`**, que define los tokens del sistema visual y
+  una base mínima. Cada archivo lo carga *antes* de su propio `<style>`, así que
+  lo local sigue ganando y cada uno resuelve su layout. **No redefinas un token
+  del sistema dentro de un `<style>`:** `--accent: var(--accent)` es un ciclo,
+  deja la variable en la cadena vacía y no da ningún error visible. Ya dejó dos
+  calculadoras con el botón invisible; está en `ESTADO.md`.
+
+Un cambio visual se verifica midiendo, no mirando: contraste sobre estilos
+computados, en tema claro y oscuro, y ancho a 390 px. Un control estático
+—«tokens aplicados, sin colores planos»— ya dio verde sobre páginas ilegibles.
 
 Los feriados salen de una API externa con respaldo local en
 `data/dias-inhabiles.json`. Si la API no responde, la herramienta tiene que
@@ -143,9 +154,11 @@ seguir dando un resultado con el respaldo, no romperse.
 
 - **Español rioplatense, con tildes**, en interfaz, documentación y commits.
   No "tú", no "vosotros", no texto sin acentuar.
-- **Sin emojis en documentación técnica.** `ESTADO.md`, `README.md` y
+- **Sin emojis, ni en documentación ni en interfaz.** `ESTADO.md`, `README.md` y
   `CONTRIBUTING.md` marcan el registro: directo, con las razones dichas, sin
-  decoración. `documentacion.html` es la excepción que falta corregir.
+  decoración. Las calculadoras y `documentacion.html` quedaron limpias el 5/8;
+  donde un emoji hacía de semáforo, ahora está el token de estado de
+  `calculadoras/css/comun.css`.
 - **Commits en español**, con prefijo tipo `feat:`, `fix:`, `docs:`,
   `chore:`. Miralos con `git log --oneline` antes de escribir el tuyo.
 - **`git commit -m` con here-string falla** en este entorno. Usá
