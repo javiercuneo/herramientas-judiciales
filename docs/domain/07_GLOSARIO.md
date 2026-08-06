@@ -8,22 +8,34 @@ término jurídico manda y es el correcto; donde el schema de la entrevista usa
 una clave (`sumas_dinero`, `familia_alimentos`), va identificada como tal y
 nunca como si fuera el nombre de la cosa.
 
-> **Estado de verificación.** Este glosario se reescribió el 5/8/2026 después de
-> encontrar que varias entradas estaban inventadas —los siete tramos de la
-> escala del art. 21 tenían todos los límites errados, y por dos órdenes de
-> magnitud en el último—. Lo que ahora dice está contrastado contra el motor
-> (`asistente-honorarios-clasico/js/`) y contra los textos de artículo que el
-> propio motor cita. **Donde no pude verificar, está dicho.** Si vas a fundar
-> algo en esto, andá al texto de la ley.
+> **Estado de verificación.** Reescrito el 5/8/2026 después de encontrar que
+> varias entradas estaban inventadas —los siete tramos de la escala del art. 21
+> tenían todos los límites errados, y por dos órdenes de magnitud en el último—.
+> Todo lo que dice ahora está contrastado **contra el texto de la ley**, que está
+> en [`00_LEY_27423.md`](00_LEY_27423.md).
+>
+> **Esa verificación cambió cosas que ya se creían corregidas**, porque la
+> primera pasada usó como fuente el motor clásico y el motor clásico explica mal
+> lo que calcula bien: presenta la banda del 5-10 % como regla general del art.
+> 21 cuando está acotada a los auxiliares, y cita como art. 19 un texto que no
+> existe en esta ley. Es exactamente lo que advierte `AGENTS.md`. **Contra el
+> texto, no contra la implementación.**
 
 ---
 
-## UMA — Unidad de Medida Arancelaria
+## UMA — Unidad de Medida Arancelaria · art. 19
 
-Unidad de cuenta en la que la ley expresa los honorarios, para que no los
-carcoma la inflación.
+> **ARTÍCULO 19.-** Institúyese la Unidad de Medida Arancelaria (UMA) […] la que
+> equivaldrá al **tres por ciento (3 %) de la remuneración básica asignada al
+> cargo de juez federal de primera instancia**. La **Corte Suprema de Justicia
+> de la Nación** suministrará y publicará **mensualmente** […] el valor
+> resultante, **eliminando las fracciones decimales**, e informará a las
+> diferentes cámaras el valor de la UMA.
 
-**Su valor lo fija la Corte Suprema de Justicia de la Nación**, por resolución.
+De ahí se sigue lo que importa: la UMA **no se actualiza por inflación ni por
+índice alguno**, sino que sigue al sueldo de un juez federal de primera
+instancia. Es un anclaje a la remuneración judicial, no una indexación.
+
 La app toma el valor de la fuente oficial y lo deja versionado con su norma: al
 5/8/2026, `$102.076` según **Res. SGA n.° 1785/26** (`csjn.gov.ar`, ver
 `honorio/data/uma.json`).
@@ -34,8 +46,12 @@ La app toma el valor de la fuente oficial y lo deja versionado con su norma: al
 > «Unidad Monetaria de Actualización» y la atribuía al Consejo de la
 > Magistratura: las dos cosas eran falsas y venían de esa confusión.
 
-*Pendiente de verificar: el artículo de la Ley 27.423 que la define. No lo
-asiento acá hasta comprobarlo en el texto.*
+**El art. 19 hace además otra cosa**, que no se deduce de su encabezado: en su
+segundo párrafo fija **honorarios mínimos en UMA**, con dos tablas —a) asuntos
+judiciales no susceptibles de apreciación pecuniaria, b) labor extrajudicial—.
+Que la unidad de medida y la tabla de mínimos convivan en el mismo artículo es
+mala técnica legislativa, pero es lo que dice: al buscar un mínimo de divorcio,
+adopción o consulta verbal, el artículo es el 19.
 
 ---
 
@@ -62,9 +78,32 @@ excedente. Por ejemplo, en la 3.ª escala el mínimo es `(base − 45) × 0,18 +
 **contrafáctico**: mucha gente lee la tabla y espera el resultado de multiplicar
 la base entera por el porcentaje del tramo, que da otro número.
 
-**Tope general** (art. 21, antepenúltimo párrafo): el monto no puede ser
-inferior al 5 % ni superior al 10 % del monto del proceso. Ante labores
-altamente complejas o extensas el juez puede apartarse hacia arriba.
+**La regla de no retroceso**, que es lo que hace progresiva a la escala:
+
+> En ningún caso los honorarios podrán ser inferiores al máximo del grado
+> inmediato anterior de la escala, con más el incremento por aplicación al
+> excedente de la alícuota que corresponde al grado siguiente.
+
+**El piso y el techo del 5 % al 10 % son solo para los auxiliares de la
+Justicia:**
+
+> **En el caso de los auxiliares de la Justicia**, el monto de los honorarios a
+> regular no podrá ser inferior al cinco por ciento (5 %) ni superior al diez
+> por ciento (10 %) del monto del proceso. Ante la existencia de labores
+> altamente complejas o extensas, los jueces […] podrán por auto fundado,
+> aplicar un porcentaje mayor.
+
+> **Ojo, porque cuesta caro.** El motor clásico presenta esa banda como «la
+> regla general del art. 21», y una versión anterior de este glosario copió esa
+> lectura. **No es general: está acotada a los auxiliares.** El motor sí la
+> implementa bien —calcula 5-10 % solo para `auxiliares`—; lo que estaba mal era
+> el texto explicativo. Es el ejemplo de por qué `AGENTS.md` dice que el motor
+> clásico no es oráculo: puede calcular bien y explicar mal.
+
+Otras dos reglas del mismo artículo: con litisconsorcio se regula sobre el
+interés de **cada** litisconsorte, y en jurisdicción voluntaria se considera que
+hay **una sola parte**. Y si no hay susceptibilidad de apreciación pecuniaria,
+se aplican las pautas del **art. 16**.
 
 ---
 
@@ -173,12 +212,15 @@ no juega. Que se pudieran acumular fue un bug, corregido el 3/8/2026.
 
 ## Segunda instancia — art. 30
 
-> Por las actuaciones correspondientes a la segunda o ulterior instancia, se
-> regularán en cada una de ellas **del 30 % al 35 %** de la cantidad que se fije
-> para honorarios en primera instancia. […] Si la sentencia recurrida fuera
-> revocada en todas sus partes en favor del apelante, los honorarios […] se
-> fijarán entre el **30 % y 40 %** de los correspondientes a la primera
-> instancia.
+Tres párrafos, y el del medio suele pasarse por alto:
+
+1. Por la segunda o ulterior instancia se regula **del 30 % al 35 %** de lo
+   fijado en primera.
+2. **Si la sentencia se revoca *o modifica*, el tribunal de alzada debe adecuar
+   de oficio las regulaciones de primera instancia**, según el nuevo resultado
+   del pleito. No es solo regular la alzada: es rehacer lo de abajo.
+3. Si la sentencia se revoca **en todas sus partes en favor del apelante**, los
+   honorarios de la apelación van **del 30 % al 40 %**.
 
 ---
 
@@ -221,16 +263,22 @@ cuota fijada judicialmente.
 **Art. 40 — desalojo.** Escala del art. 21 sobre el total del contrato. **Si el
 destino es vivienda, la base se reduce 20 %.**
 
-**Art. 43 — desalojo laboral.** Restitución de inmuebles concedidos a
-trabajadores en virtud del empleo: la base es el **50 % de la última
-remuneración mensual, por 2 años**.
+**Art. 43 — causas laborales.** El artículo es más amplio de lo que sugiere el
+uso que le da la app: gobierna las causas laborales y complementarias ante los
+tribunales de trabajo, en procedimientos contradictorios, ejecuciones de
+resoluciones administrativas y actuación como alzada. **Lo que la app usa es una
+regla puntual de adentro:** en las demandas de desalojo por restitución de
+inmuebles concedidos a los trabajadores en virtud del empleo, la base es el
+**50 % de la última remuneración mensual, por 2 años**.
 
 **Art. 46 — escrituración.** Se aplica el art. 23 inc. a), salvo que resulte
-mayor el monto del boleto.
+mayor el monto del boleto de compraventa, en cuyo caso se aplica este último.
 
-**Art. 45 — liquidación del régimen patrimonial.** *Sin verificar contra el
-texto: la versión anterior decía «el valor del patrimonio adjudicado a cada
-parte». Confirmar antes de citarlo.*
+**Art. 45 — liquidación y disolución del régimen patrimonial del matrimonio.** Se
+regula al patrocinante o apoderado de cada parte con la escala del art. 21,
+**calculada sobre el patrimonio que se le adjudique a su patrocinado o
+representado** —no sobre la masa total—. *Verificado contra el texto: la versión
+anterior decía bien.*
 
 ## Sobre la escala
 
@@ -247,8 +295,10 @@ parte». Confirmar antes de citarlo.*
 **Art. 35 — sucesión con letrado único.** Si hay un solo abogado para todos los
 herederos, la escala se regula en **la mitad**.
 
-**Art. 37 — medida cautelar.** Sin oposición, **25 %** de la escala. Con
-oposición, **50 %**.
+**Art. 37 — medida cautelar.** Los honorarios se regulan **sobre el monto que se
+pretende asegurar**, aplicando como base el **25 %** de la escala del art. 21;
+en casos de controversia u oposición, el **50 %**. Vale tanto si la cautelar
+tramita autónomamente como si va incidental o dentro del proceso.
 
 **Art. 41 — ejecución de sentencia.** La escala se reduce al **50 %**.
 
@@ -260,7 +310,10 @@ y ejecución de sentencia.
 **Art. 38 — posesorias, interdictos y división de bienes comunes.** Reduce
 **20 %** cuando el juicio es en beneficio exclusivo del patrocinado.
 
-**Art. 49 — incidencia colectiva.** Reduce **25 %**.
+**Art. 49 — incidencia colectiva.** Acciones sobre derechos de incidencia
+colectiva **con contenido patrimonial**: el resultado del art. 21 reducido en un
+**25 %**. El calificativo no es adorno: sin contenido patrimonial no hay escala
+que reducir.
 
 ## Mínimos y regímenes propios
 
@@ -273,24 +326,59 @@ máximo** —justo lo contrario de lo que hace el art. 12—.
 **Art. 16 — pautas valorativas.** Los criterios con los que el juez se mueve
 dentro de la banda: complejidad, monto, calidad de la labor, resultado.
 
-**Art. 19 — asuntos sin valor pecuniario apreciable.**
+**Asuntos sin valor pecuniario apreciable.** Se aplican las **pautas del art.
+16** —lo dice el propio art. 21— y los **mínimos en UMA de la tabla a) del art.
+19**.
 
-> Cuando no fuere posible apreciar el valor pecuniario del asunto, los jueces
-> fijarán los honorarios teniendo en cuenta la naturaleza de las actuaciones y
-> la gestión profesional desarrollada […]
+> **Cuidado con una cita del motor clásico.** Su cuadro explicativo atribuye al
+> «ARTÍCULO 19» un texto que empieza «Cuando no fuere posible apreciar el valor
+> pecuniario del asunto, los jueces fijarán los honorarios teniendo en cuenta la
+> naturaleza de las actuaciones…». **Esa frase no existe en la Ley 27.423** —se
+> buscó en el texto completo—: es del arancel anterior, la Ley 21.839. El art.
+> 19 de esta ley instituye la UMA y fija mínimos. No copiar esa cita.
 
 **Art. 31 — recursos ante la CSJN.** Recursos extraordinarios, de
 inconstitucionalidad, revisión, casación, ordinarios y directos: **no menos de
-20 UMA**. *La versión anterior decía «entre 15 y 20 UMA»: es un piso de 20, no
-una banda.*
+20 UMA**. Las **quejas por denegación** de esos recursos: **no menos de 15
+UMA**. Si el recurso se concede y tramita, se está al art. 21.
 
-**Art. 33 — incidentes.** Entre **2 % y 20 %** de la base del incidente.
+*La versión anterior decía «entre 15 y 20 UMA», como si fuera una banda. Son dos
+pisos distintos para dos cosas distintas.*
 
-**Art. 44 — contencioso administrativo.** Acciones judiciales, mínimo 7 UMA;
-actuaciones administrativas, mínimo 5 UMA. *Sin verificar contra el texto.*
+**Art. 48 — inconstitucionalidad, amparo, hábeas data y hábeas corpus.** Cuando
+**no puedan regularse conforme la escala del art. 21**, se aplican las normas del
+art. 16 con un **mínimo de 20 UMA**. La condición importa: no es un mínimo que
+rija siempre, sino para cuando la escala no es aplicable. Y la acción de
+**inconstitucionalidad** entra acá, cosa que la versión anterior omitía.
 
-**Art. 48 — amparo, hábeas data y hábeas corpus.** Mínimo de 20 UMA. *Sin
-verificar contra el texto.*
+## Incidentes: un criterio que la app adopta y hay que declarar
+
+**El art. 47 —el que regulaba incidentes y tercerías— está observado**, o sea
+vetado por el Decreto 1077/2017 y no vigente. Decía: considerados por separado
+del principal, honorarios entre el **8 % y el 25 %** de lo que correspondiere al
+proceso principal, con un mínimo de 5 UMA. Nada de eso rige.
+
+**Los dos motores aplican 2 % a 20 % de la base del incidente**, que **no está
+en la Ley 27.423**: es la regla del arancel anterior. La versión previa de este
+glosario lo atribuía al «art. 33», pero el art. 33 de esta ley es **causas
+penales**.
+
+> **Esto es un criterio interpretativo, no una regla de la ley**, y por la regla
+> de contenido de la app —«los criterios que adopta se declaran, no se
+> esconden»— tiene que estar dicho. *Falta confirmar la norma exacta de la que
+> sale el 2-20 % antes de citarla.*
+
+Lo que sí rige para incidentes es el **art. 29 inc. g)**: se dividen en **dos**
+etapas, el planteo que los origina y el desarrollo hasta su conclusión.
+
+**Art. 33 — causas penales.** Reglas del art. 16 y las demás pautas que el
+artículo enumera. *No es el artículo de los incidentes.*
+
+**Art. 44 — acciones y peticiones de naturaleza administrativa.** Demandas
+contencioso administrativas: se aplican los arts. 21 y 23, y si la cuestión es
+susceptible de apreciación pecuniaria, la escala del 21. *Los mínimos de 7 y 5
+UMA que decía la versión anterior no se verificaron contra los incisos; leer el
+artículo antes de citarlos.*
 
 **Art. 50 — exhortos y oficios (ley 22.172).** No son montos fijos sino escalas
 según la diligencia:
@@ -304,9 +392,11 @@ según la diligencia:
 **Art. 52 — intereses, frutos y accesorios.** Integran la base cuando
 corresponden.
 
-**Art. 58 — mínimo residual.** Para juicios **susceptibles de apreciación
-pecuniaria** no previstos en otros artículos. *El calificativo importa: no es un
-mínimo para cualquier actuación no contemplada.*
+**Art. 58 — mínimos residuales.** Para juicios **susceptibles de apreciación
+pecuniaria** no previstos en otros artículos. **No es un mínimo único: el
+artículo abre incisos por tipo de proceso** —el primero, procesos de
+conocimiento, 10 UMA—. El calificativo importa: no cubre cualquier actuación no
+contemplada, solo las pecuniarias.
 
 **Art. 60 — peritos en procesos no pecuniarios** (texto según B.O. 06/03/2026).
 Pautas del art. 16 y mínimo de **2 UMA**.
