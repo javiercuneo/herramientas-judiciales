@@ -9,7 +9,8 @@
     <title>Calculadora de días entre fechas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/comun.css">
     <style>
         * {
             margin: 0;
@@ -18,8 +19,8 @@
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font-sans);
+            background: var(--bg);
             min-height: 100vh;
             padding: 20px;
             font-size: 14px;
@@ -28,14 +29,14 @@
         .container {
             max-width: 900px;
             margin: 0 auto;
-            background: white;
+            background: var(--card);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
             padding: 40px;
         }
 
         h1 {
-            color: #667eea;
+            color: var(--accent);
             text-align: center;
             margin-bottom: 10px;
             font-size: 28px;
@@ -44,11 +45,11 @@
 
         .available-years {
             text-align: center;
-            color: #333; /* Color cambiado para el texto principal */
+            color: var(--fg); /* Color cambiado para el texto principal */
             font-size: 13px; /* Tamaño ligeramente aumentado */
             margin-bottom: 30px;
             padding: 10px;
-            background: #f8f9fa;
+            background: var(--sunk);
             border-radius: 8px;
         }
         .available-years strong {
@@ -56,26 +57,26 @@
         }
 
         .warning {
-            background: #fff3cd;
-            color: #856404;
+            background: var(--warn-tint);
+            color: var(--warn);
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 20px;
             font-size: 11px;
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid var(--warn);
         }
 
         .section {
             margin-bottom: 30px;
             padding: 20px;
-            background: #f8f9fa;
+            background: var(--sunk);
             border-radius: 12px;
         }
 
         .section-title {
             font-size: 16px;
             font-weight: 600;
-            color: #333;
+            color: var(--fg);
             margin-bottom: 15px;
         }
 
@@ -95,11 +96,11 @@
         input[type="text"] {
             width: 50px;
             padding: 10px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border);
             border-radius: 8px;
             font-size: 13px;
             text-align: center;
-            font-family: 'Montserrat', sans-serif;
+            font-family: var(--font-sans);
             transition: border-color 0.3s;
         }
 
@@ -109,16 +110,16 @@
 
         input[type="text"]:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--accent);
         }
 
         input[type="text"].error {
-            border-color: #dc3545;
+            border-color: var(--error);
             background: #ffe6e6;
         }
 
         .input-separator {
-            color: #999;
+            color: var(--faint);
             font-weight: 600;
         }
 
@@ -143,7 +144,7 @@
         .checkbox-item label {
             cursor: pointer;
             font-size: 13px;
-            color: #555;
+            color: var(--muted-fg);
         }
 
         .buttons {
@@ -160,23 +161,23 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
+            font-family: var(--font-sans);
             transition: all 0.3s;
         }
 
         .btn-calculate {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--accent);
+            color: var(--on-accent);
         }
 
         .btn-calculate:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            border: 1px solid var(--border);
         }
 
         .btn-reset {
             background: #6c757d;
-            color: white;
+            color: var(--on-accent);
         }
 
         .btn-reset:hover {
@@ -187,7 +188,7 @@
         .results {
             margin-top: 30px;
             padding: 25px;
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            background: var(--accent-tint);
             border-radius: 12px;
             display: none;
         }
@@ -202,7 +203,7 @@
 
         .result-label {
             font-weight: 600;
-            color: #667eea;
+            color: var(--accent);
             font-size: 14px;
             margin-bottom: 5px;
         }
@@ -210,7 +211,7 @@
         .result-value {
             font-size: 24px;
             font-weight: 700;
-            color: #333;
+            color: var(--fg);
         }
 
         .excluded-days {
@@ -219,7 +220,7 @@
 
         .excluded-days-title {
             font-weight: 600;
-            color: #667eea;
+            color: var(--accent);
             font-size: 14px;
             margin-bottom: 10px;
         }
@@ -227,7 +228,7 @@
         .excluded-list {
             max-height: 300px;
             overflow-y: auto;
-            background: white;
+            background: var(--card);
             padding: 15px;
             border-radius: 8px;
         }
@@ -235,30 +236,30 @@
         .excluded-item {
             padding: 8px;
             margin-bottom: 8px;
-            background: #f8f9fa;
+            background: var(--sunk);
             border-radius: 6px;
             font-size: 11px;
-            border-left: 3px solid #667eea;
+            border-left: 3px solid var(--accent);
         }
 
         .excluded-date {
             font-weight: 600;
-            color: #333;
+            color: var(--fg);
         }
 
         .excluded-reason {
-            color: #666;
+            color: var(--muted-fg);
             margin-left: 10px;
         }
 
         .error-report {
             margin-top: 20px;
             padding: 15px;
-            background: #fff3cd;
+            background: var(--warn-tint);
             border-radius: 8px;
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid var(--warn);
             font-size: 11px;
-            color: #856404;
+            color: var(--warn);
         }
 
         .error-report strong {
@@ -268,7 +269,7 @@
 
         .loading {
             text-align: center;
-            color: #667eea;
+            color: var(--accent);
             font-weight: 600;
             padding: 20px;
             display: none;
@@ -369,7 +370,7 @@
         <div class="results" id="results">
             <div class="result-item">
                 <div class="result-label">Fecha de Inicio del Conteo:</div>
-                <div id="countStartDate" style="font-size: 16px; color: #333; margin-top: 5px;"></div>
+                <div id="countStartDate" style="font-size: 16px; color: var(--fg); margin-top: 5px;"></div>
             </div>
             <div class="result-item">
                 <div class="result-label">Total de días:</div>
@@ -384,12 +385,12 @@
                 Si crees que ha habido un error para permitir corregirlo por favor envíanos un mail a javiercuneol@hotmail.com describiendo qué salió mal.
             </div>
         </div>
-         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #6b7280; font-size: 12px; line-height: 1.8; font-family: 'Montserrat', sans-serif;">
+         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: #6b7280; font-size: 12px; line-height: 1.8; font-family: var(--font-sans);">
         <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
         <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">GitHub</a>
-          <a href="../index.html" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">LinkedIn</a>
+          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
+          <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
+          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
         </span>
       </div>
     </div>

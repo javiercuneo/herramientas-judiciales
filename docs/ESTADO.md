@@ -334,6 +334,42 @@ Antes de discutir paletas conviene arreglar esto, que no es opinable:
    son hermanos con variaciones a mano. **Pendiente**, y es parte de la
    unificación visual, no de lo roto.
 
+#### La unificación visual, hecha el 5/8
+
+Existe `calculadoras/css/comun.css`: tokens del sitio —cobalto `#1E45CE`,
+neutro frío, `radius 0.375rem`, Archivo para títulos— más una base mínima de
+controles, tablas y pie. **Las once lo cargan antes de su propio `<style>`**,
+así que lo local sigue ganando donde hace falta. Cada archivo conserva su
+layout: el informe ya había probado que no hay extracción mecánica segura.
+
+Se mapeó la paleta heredada a los tokens: **cero `#667eea` / `#764ba2` en el
+repositorio**, y el degradé violeta se aplanó al fondo neutro del sitio.
+
+**Las cuatro regresiones que introdujo la conversión automática**, porque son
+el tipo de cosa que un reemplazo masivo produce siempre:
+
+1. **`@media print` quedó tokenizado.** `background: white` pasó a
+   `var(--card)`, que en modo oscuro vale `#16191f`: el informe habría salido
+   impreso en negro. **El papel es blanco siempre** — las reglas de impresión
+   no llevan tokens de tema.
+2. **26 `color: white` sobre fondos que en oscuro se aclaran.** El acento, el
+   verde de «ok» y el óxido de error son claros en modo oscuro, así que texto
+   blanco encima quedaba ilegible. Pasaron a `var(--on-accent)`, que invierte
+   con el tema.
+3. **`.total-row` de prorrateo: contraste 1.68.** Ámbar pleno de fondo con
+   texto claro. Ahora es tinte con borde superior: el borde marca que es el
+   total, sin pelearse con la legibilidad.
+4. **Las solapas de `distancia` no envolvían**, y desbordaban por debajo de
+   370 px de ancho.
+
+**Lo que falta y hay que decir:** se verificaron en el navegador
+**tres de once** —`caducidad`, `prorrateo` y `distancia`—. Las otras ocho
+pasaron el control estático (tokens aplicados, sin violeta, sin texto
+invisible) pero **no la revisión visual**. Es exactamente el QA página por
+página que el informe del 31/7 anticipó como el costo de unificar. Ojo con
+los `background-color` planos que quedaron sobre tokens de estado: el patrón
+del punto 3 puede repetirse.
+
 **Ya arreglado el 5/8:** `prorrateo` tenía el subtítulo con la codificación
 rota —decía «el cA!lculo del prorrateo del art. 730 CA3digo Civil»— y así se
 veía en producción. Los bytes eran ASCII literal, no un problema de `charset`:

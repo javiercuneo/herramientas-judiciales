@@ -1,0 +1,172 @@
+/* ------------------------------------------------------------------
+   Sistema visual compartido de las calculadoras.
+
+   Es el mismo de la landing, de la guia de uso y de Honorio: quien
+   entra desde el indice no tiene que sentir que cambio de sitio al
+   primer clic. Antes cada calculadora traia su propio degrade violeta
+   (#667eea -> #764ba2) con Montserrat, heredado de una plantilla.
+
+   POR QUE SOLO TOKENS Y UNA BASE, Y NO UN RESET COMPLETO:
+   los <style> de cada archivo no son copias sino hermanos con
+   variaciones hechas a mano —11 variantes de `body`, `.container` con
+   max-width de 700 a 1000— asi que no existe una extraccion mecanica
+   segura. Este archivo define el vocabulario y lo minimo compartido;
+   cada calculadora sigue resolviendo su propio layout.
+
+   Se carga ANTES del <style> propio de cada archivo, para que lo local
+   siga ganando donde haga falta.
+
+   Los roles tipograficos son los mismos del resto del sitio:
+     --font-meter  Archivo      titulos y cifras: lo que se mide
+     --font-sans   sistema      interfaz y lectura
+   ------------------------------------------------------------------ */
+
+:root {
+  color-scheme: light;
+
+  --bg: #e9ebee;
+  --fg: #12161c;
+  --card: #ffffff;
+  --muted-fg: #5a626e;
+  --faint: #8b93a0;
+
+  /* Un solo acento en todo el sitio: lo activo, lo enfocado, lo seleccionado */
+  --accent: #1e45ce;
+  --accent-tint: rgb(30 69 206 / 0.09);
+  --on-accent: #ffffff;
+
+  --border: rgb(18 22 28 / 0.13);
+  --hair: rgb(18 22 28 / 0.07);
+  --sunk: #f2f4f6;
+
+  /* Estados. Reemplazan a los emojis que hacian de semaforo. */
+  --ok: #1f7a4d;
+  --ok-tint: rgb(31 122 77 / 0.09);
+  --warn: #9a6b12;
+  --warn-tint: rgb(154 107 18 / 0.08);
+  --error: #a8482b;
+  --error-tint: rgb(168 72 43 / 0.09);
+
+  --radius: 0.375rem;
+  --font-meter: 'Archivo', 'DIN Alternate', 'Segoe UI', sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --bg: #0d0f13;
+    --fg: #edeff3;
+    --card: #16191f;
+    --muted-fg: #99a1ae;
+    --faint: #6b7381;
+
+    --accent: #7a99ff;
+    --accent-tint: rgb(122 153 255 / 0.13);
+    --on-accent: #0d0f13;
+
+    --border: rgb(237 239 243 / 0.15);
+    --hair: rgb(237 239 243 / 0.08);
+    --sunk: #101318;
+
+    --ok: #5fc08a;
+    --ok-tint: rgb(95 192 138 / 0.13);
+    --warn: #e0b45c;
+    --warn-tint: rgb(224 180 92 / 0.1);
+    --error: #e09070;
+    --error-tint: rgb(224 144 112 / 0.12);
+  }
+}
+
+/* ---------- Base ---------- */
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-meter);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+}
+
+a { color: var(--accent); }
+
+/* Las cifras alineadas en columna: sin esto los importes bailan */
+td, th, output, .resultado, .result-date { font-variant-numeric: tabular-nums; }
+
+/* ---------- Controles ---------- */
+
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: 1rem;
+  border-radius: var(--radius);
+}
+
+input, select, textarea {
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+}
+
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-meter);
+  font-weight: 500;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 11px 20px;
+  transition: filter .15s, background .15s;
+}
+button:hover { filter: brightness(1.08); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Tablas ---------- */
+
+/* La tabla scrollea sola en pantalla chica; sin esto estira la pagina.
+   Ojo: no alcanza con esto si el contenedor es item de flex o grid —
+   ahi hace falta ademas min-width: 0. Ya paso en prorrateo. */
+.tabla-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ---------- Avisos ---------- */
+
+.aviso, .nota-legal {
+  background: var(--warn-tint);
+  border: 1px solid var(--warn);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  color: var(--fg);
+}
+
+/* ---------- Pie comun ---------- */
+
+.pie-sitio {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hair);
+  text-align: center;
+  font-size: .85rem;
+  color: var(--faint);
+  line-height: 1.9;
+}
+.pie-sitio a {
+  color: var(--muted-fg);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+}
+.pie-sitio a:hover { color: var(--accent); border-color: var(--accent); }
+.pie-sitio .enlaces { display: inline-flex; gap: 16px; flex-wrap: wrap; justify-content: center; }

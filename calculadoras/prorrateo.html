@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora Art. 730 - Prorrateo de Honorarios</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/comun.css">
     <style>
         /* Estilos CSS (se mantienen igual) */
         body {
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font-sans);
+            background: var(--bg);
             min-height: 100vh;
             padding: 20px;
-            color: #333;
+            color: var(--fg);
         }
 
         .header {
-            background-color: #004085;
-            color: white;
+            background-color: var(--accent);
+            color: var(--on-accent);
             padding: 25px;
             border-radius: 12px;
             margin-bottom: 40px;
@@ -44,7 +45,7 @@
         .header p {
             margin: 0;
             font-size: 15px;
-            color: #d1e7ff;
+            color: var(--on-accent);
             line-height: 1.6;
         }
 
@@ -58,9 +59,9 @@
                contenido, asi que la tabla estira toda la pagina aunque el
                contenedor de adentro tenga overflow-x. */
             min-width: 0;
-            background: white;
+            background: var(--card);
             border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
             padding: 30px;
             margin-bottom: 25px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -71,8 +72,8 @@
         }
         .table-container h3 {
             margin: 0 0 20px 0;
-            color: #004085;
-            border-bottom: 3px solid #007bff;
+            color: var(--accent);
+            border-bottom: 3px solid var(--accent);
             padding-bottom: 10px;
             font-size: 20px;
             font-weight: 600;
@@ -85,19 +86,19 @@
             font-size: 14px;
         }
         th, td {
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--border);
             padding: 12px;
             text-align: left;
             transition: background-color 0.3s ease;
         }
         th {
-            background-color: #e9f2ff;
-            color: #004085;
+            background-color: var(--sunk);
+            color: var(--accent);
             font-weight: 600;
             text-transform: uppercase;
         }
         tr:nth-child(even) td {
-            background-color: #f8f9fa;
+            background-color: var(--sunk);
         }
         th:first-child { border-top-left-radius: 8px; }
         th:last-child { border-top-right-radius: 8px; }
@@ -105,22 +106,22 @@
         tr:last-child td:last-child { border-bottom-right-radius: 8px; }
 
         .label-cell {
-            background-color: #e3f2fd;
+            background-color: var(--sunk);
             font-weight: bold;
             width: 180px;
-            color: #004085;
+            color: var(--accent);
         }
         input[type="text"], input[type="number"] {
             width: 100%;
             padding: 8px;
-            border: 1px solid #ced4da;
+            border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 14px;
             box-sizing: border-box;
             transition: border-color 0.3s, box-shadow 0.3s;
         }
         input[type="text"]:focus, input[type="number"]:focus {
-            border-color: #007bff;
+            border-color: var(--accent);
             outline: none;
             box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
         }
@@ -130,18 +131,22 @@
             cursor: pointer;
         }
         .calculated {
-            background-color: #e8f5e8;
+            background-color: var(--ok-tint);
             font-weight: bold;
             text-align: right;
-            color: #1a5319;
+            color: var(--ok);
         }
+        /* Tinte y no el color pleno: con el ambar de fondo y el texto claro
+           encima el contraste caia a 1.68, o sea ilegible en modo oscuro.
+           El borde superior es lo que marca que la fila es el total. */
         .total-row {
-            background-color: #ffc107;
-            color: #333;
+            background-color: var(--warn-tint);
+            color: var(--fg);
+            border-top: 2px solid var(--warn);
             font-weight: bold;
         }
         .percentage {
-            color: #27ae60;
+            color: var(--ok);
             font-weight: bold;
         }
         .description-input {
@@ -149,7 +154,7 @@
             border: none;
             padding: 0;
             font-weight: bold;
-            color: #004085;
+            color: var(--accent);
         }
         .description-input:focus {
             box-shadow: none;
@@ -173,38 +178,38 @@
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s;
         }
         .add-button {
-            background-color: #28a745;
-            color: white;
+            background-color: var(--ok);
+            color: var(--on-accent);
         }
         .add-button:hover {
-            background-color: #218838;
+            background-color: var(--ok);
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
         }
         .remove-button {
-            background-color: #dc3545;
-            color: white;
+            background-color: var(--error);
+            color: var(--on-accent);
             padding: 6px 10px;
             font-size: 13px;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
         .remove-button:hover {
-            background-color: #c82333;
+            background-color: var(--error);
             transform: scale(1.05);
         }
         .reset-button {
-            background-color: #17a2b8;
-            color: white;
+            background-color: var(--muted-fg);
+            color: var(--on-accent);
         }
         .reset-button:hover {
-            background-color: #138496;
+            background-color: var(--fg);
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(23, 162, 184, 0.4);
         }
         #errorMessage {
             display: none;
-            background-color: #dc3545;
-            color: white;
+            background-color: var(--error);
+            color: var(--on-accent);
             padding: 18px;
             border-radius: 8px;
             margin-top: 20px;
@@ -213,9 +218,9 @@
             animation: fadeIn 0.5s ease-in-out;
         }
         #instructions {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
+            background-color: var(--warn-tint);
+            color: var(--warn);
+            border: 1px solid var(--warn);
             padding: 15px;
             border-radius: 8px;
             margin-top: 20px;
@@ -227,11 +232,11 @@
             to { opacity: 1; }
         }
         .tooltip {
-            border-bottom: 1px dotted #004085;
+            border-bottom: 1px dotted var(--accent);
             cursor: help;
         }
         @media print {
-            body { background-color: white; padding: 0; }
+            body { background-color: var(--on-accent); padding: 0; }
             .header, .button-container, .reset-button, #errorMessage, #instructions { display: none; }
             .table-container { box-shadow: none; border: 1px solid #ccc; padding: 10px; }
             input[type="text"] { border: none; background: transparent; font-weight: bold; padding: 0; }
@@ -289,7 +294,7 @@
                     <td class="label-cell">VALOR UMA (pesos)</td>
                     <td>
                         <input type="text" id="umaInput" placeholder="Ingrese valor UMA" value="" oninput="calculate()">
-                        <div style="font-size: 12px; color: #666;">Si la carga automática falla, ingréselo manualmente (sin puntos, solo números)</div>
+                        <div style="font-size: 12px; color: var(--muted-fg);">Si la carga automática falla, ingréselo manualmente (sin puntos, solo números)</div>
                     </td>
                 </tr>
             </table></div>
@@ -350,12 +355,12 @@
         <button class="action-button reset-button" onclick="resetCalculator()">Reiniciar Calculadora</button>
         </div>
 </div>
- <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
+ <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
       <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
       <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-        <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">GitHub</a>
-        <a href="../index.html" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-        <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">LinkedIn</a>
+        <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
+        <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
+        <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
       </span>
     </div>
     <script>

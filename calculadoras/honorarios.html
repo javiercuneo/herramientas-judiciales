@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculadora de Honorarios Profesionales</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/comun.css">
   <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body {
-          font-family: 'Montserrat', sans-serif;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          font-family: var(--font-sans);
+          background: var(--bg);
           min-height: 100vh;
           padding: 20px;
           font-size: 14px;
@@ -17,69 +18,69 @@
       .container {
           max-width: 900px;
           margin: 0 auto;
-          background: white;
+          background: var(--card);
           border-radius: 20px;
           padding: 40px;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+          border: 1px solid var(--border);
       }
       h1 {
-          color: #667eea;
+          color: var(--accent);
           margin-bottom: 10px;
           font-size: 28px;
           text-align: center;
       }
       .warning {
-          background: #fef9e7;
-          border-left: 6px solid #e6b800;
+          background: var(--warn-tint);
+          border-left: 6px solid var(--warn);
           padding: 20px 24px;
           border-radius: 12px;
           margin-bottom: 20px;
           font-size: 13px;
-          color: #7a5c00;
+          color: var(--warn);
           line-height: 1.7;
       }
-      .warning p, .warning li { font-size: 13px; color: #7a5c00; line-height: 1.7; }
+      .warning p, .warning li { font-size: 13px; color: var(--warn); line-height: 1.7; }
       .warning ul { margin: 10px 0 10px 20px; }
       .warning li { margin-bottom: 6px; }
-      .warning strong { color: #5c4300; }
+      .warning strong { color: var(--warn); }
       .input-group { margin-bottom: 20px; }
       .input-group label {
           display: block;
           margin-bottom: 10px;
-          color: #333;
+          color: var(--fg);
           font-weight: 600;
           font-size: 14px;
       }
       .input-group input, .input-group select {
           width: 100%;
           padding: 12px;
-          border: 2px solid #e0e0e0;
+          border: 2px solid var(--border);
           border-radius: 8px;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-sans);
           font-size: 14px;
           transition: border-color 0.3s;
       }
       .input-group input:focus, .input-group select:focus {
           outline: none;
-          border-color: #667eea;
+          border-color: var(--accent);
       }
       .info-box {
           font-size: 0.9em;
           margin-top: 5px;
-          color: #666;
+          color: var(--muted-fg);
           padding: 10px;
-          border-left: 4px solid #667eea;
-          background: #f8f9fa;
+          border-left: 4px solid var(--accent);
+          background: var(--sunk);
           border-radius: 8px;
           line-height: 1.6;
       }
       .btn-calculate {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
+          background: var(--accent);
+          color: var(--on-accent);
           padding: 12px 24px;
           border: none;
           border-radius: 8px;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-sans);
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
@@ -91,26 +92,26 @@
       }
       .results-container {
           margin-top: 20px;
-          border-top: 2px solid #667eea;
+          border-top: 2px solid var(--accent);
           padding-top: 20px;
       }
       table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-      th, td { border: 1px solid #e0e0e0; padding: 12px; text-align: left; }
+      th, td { border: 1px solid var(--border); padding: 12px; text-align: left; }
       th {
-          background-color: #f0f0ff;
-          color: #667eea;
+          background-color: var(--sunk);
+          color: var(--accent);
           font-weight: 600;
       }
       h3 {
           margin-top: 20px;
-          color: #667eea;
-          border-bottom: 2px solid #667eea;
+          color: var(--accent);
+          border-bottom: 2px solid var(--accent);
           padding-bottom: 5px;
       }
       .note {
           font-size: 0.9em;
           font-style: italic;
-          color: #666;
+          color: var(--muted-fg);
           margin-top: -10px;
           margin-bottom: 15px;
       }
@@ -212,12 +213,12 @@
 
 
     <!-- FOOTER DE AUTORÍA -->
-    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
         <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
         <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-            <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">GitHub</a>
-            <a href="../index.html" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-            <a href="https://ar.linkedin.com/in/javier-cúneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">LinkedIn</a>
+            <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
+            <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
+            <a href="https://ar.linkedin.com/in/javier-cúneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
         </span>
     </div>
 </div>

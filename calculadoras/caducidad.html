@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Caducidad de Instancia - Art. 310 CPCCN</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/comun.css">
     <style>
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font-sans);
+            background: var(--bg);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -20,9 +21,9 @@
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: calc(var(--radius) * 2);
             max-width: 700px;
             width: 100%;
             padding: 40px;
@@ -37,7 +38,7 @@
         }
 
         h1 {
-            color: #2d3748;
+            color: var(--fg);
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 10px;
@@ -46,7 +47,7 @@
         }
 
         .subtitle {
-            color: #718096;
+            color: var(--muted-fg);
             font-size: 14px;
             text-align: center;
             margin-bottom: 15px;
@@ -58,15 +59,15 @@
             margin-bottom: 20px;
             padding: 8px;
             border-radius: 8px;
-            background: #f1f5f9;
-            color: #475569;
+            background: var(--sunk);
+            color: var(--muted-fg);
             font-weight: 600;
         }
 
         .form-group { margin-bottom: 25px; }
         label {
             display: block;
-            color: #2d3748;
+            color: var(--fg);
             font-weight: 600;
             font-size: 14px;
             margin-bottom: 10px;
@@ -75,12 +76,12 @@
         select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             font-family: inherit;
             font-size: 14px;
-            color: #2d3748;
-            background: white;
+            color: var(--fg);
+            background: var(--card);
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -90,8 +91,8 @@
         .custom-months input {
             width: 100px;
             padding: 10px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             text-align: center;
         }
 
@@ -99,25 +100,25 @@
         .date-input-group { flex: 1; }
         .date-input-group label {
             font-size: 12px;
-            color: #718096;
+            color: var(--muted-fg);
             margin-bottom: 5px;
         }
         .date-input-group input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             font-family: inherit;
             font-size: 16px;
             font-weight: 600;
             text-align: center;
-            color: #2d3748;
+            color: var(--fg);
         }
 
         .date-separator {
             font-size: 24px;
             font-weight: 700;
-            color: #cbd5e0;
+            color: var(--faint);
             padding-top: 20px;
         }
 
@@ -126,7 +127,7 @@
             flex: 1;
             padding: 15px;
             border: none;
-            border-radius: 10px;
+            border-radius: var(--radius);
             font-family: inherit;
             font-size: 16px;
             font-weight: 600;
@@ -135,27 +136,27 @@
         }
 
         .btn-calculate {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--accent);
+            color: var(--on-accent);
         }
         .btn-clear {
-            background: #f7fafc;
-            color: #4a5568;
-            border: 2px solid #e2e8f0;
+            background: var(--sunk);
+            color: var(--muted-fg);
+            border: 1px solid var(--border);
         }
 
         .result {
             display: none;
             margin-top: 30px;
             padding: 25px;
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-            border-radius: 15px;
-            border-left: 5px solid #667eea;
+            background: var(--accent-tint);
+            border-radius: var(--radius);
+            border-left: 3px solid var(--accent);
         }
         .result.show { display: block; }
 
         .result-title {
-            color: #2d3748;
+            color: var(--fg);
             font-size: 16px;
             font-weight: 700;
             margin-bottom: 10px;
@@ -163,11 +164,11 @@
         .result-date {
             font-size: 32px;
             font-weight: 700;
-            color: #667eea;
+            color: var(--accent);
             margin-bottom: 10px;
         }
         .result-details {
-            color: #4a5568;
+            color: var(--muted-fg);
             font-size: 14px;
             line-height: 1.6;
         }
@@ -175,7 +176,7 @@
         .hidden-computation { display: none; }
 
         .error-message {
-            color: #e53e3e;
+            color: var(--error);
             font-size: 13px;
             margin-top: 8px;
             display: none;
@@ -239,9 +240,9 @@
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
             <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
             <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-                <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">GitHub</a>
-                <a href="../index.html" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-                <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">LinkedIn</a>
+                <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
+                <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
+                <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
             </span>
         </div>
     </div>

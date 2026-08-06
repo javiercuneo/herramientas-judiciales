@@ -6,24 +6,25 @@
     <title>Calculadora de Tasa de Justicia</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/comun.css">
     <style>
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: var(--font-sans);
             min-height: 100vh; padding: 20px; font-size: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
+            background: var(--bg);
+            color: var(--fg);
         }
         .container {
             max-width: 900px;
             margin: auto;
-            background: #fff;
+            background: var(--card);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #124559;
+            color: var(--accent);
             text-align: center;
         }
         a {
@@ -60,7 +61,7 @@
         }
         th, td {
             padding: 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             text-align: left;
         }
         th {
@@ -77,7 +78,7 @@
             align-items: center;
             justify-content: flex-end;
             padding: 10px 0;
-            border-top: 2px solid #667eea;
+            border-top: 2px solid var(--accent);
         }
         .total-section label {
             margin-right: 10px;
@@ -93,7 +94,7 @@
         }
         .add-row button, .add-section button {
             background-color: #598392;
-            color: white;
+            color: var(--on-accent);
             border: none;
             padding: 8px 12px;
             border-radius: 4px;
@@ -102,7 +103,7 @@
             transition: background-color 0.3s ease;
         }
         .add-row button:hover, .add-section button:hover {
-            background-color: #124559;
+            background-color: var(--accent);
         }
         .info-text {
             margin-top: 15px;
@@ -113,7 +114,7 @@
             white-space: pre-line;
         }
         .sucesion-section {
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 8px;
@@ -122,23 +123,23 @@
         }
         .sucesion-section h3 {
             margin-top: 0;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border);
             padding-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #124559;
+            color: var(--accent);
         }
         .sucesion-section h3 button {
-            background-color: #dc3545;
-            color: white;
+            background-color: var(--error);
+            color: var(--on-accent);
             border: none;
             padding: 5px 10px;
             cursor: pointer;
         }
         .porcentaje-nota {
             font-size: 0.8em;
-            color: #666;
+            color: var(--muted-fg);
             display: block;
             margin-top: 5px;
         }
@@ -205,12 +206,12 @@
     <div id="calculadoraContainer" class="table-container">
         </div>
       <!-- FOOTER DE AUTORÍA -->
-      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
         <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
         <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">GitHub</a>
-          <a href="../index.html" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">LinkedIn</a>
+          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
+          <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
+          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
         </span>
       </div>
     </div>

@@ -4,21 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Calculadora para fijar honorarios de mediación</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/comun.css">
   <style>
     :root {
-      --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg: var(--accent);
       --card: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
-      --accent: #667eea;
+      --accent: var(--accent);
       --accent-weak: #e8e0ff;
-      --ring: #667eea;
+      --ring: var(--accent);
       --error: #b91c1c;
     }
     html, body { height: 100%; }
     body {
-      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      margin: 0; font-family: var(--font-sans);
       background: var(--bg); color: var(--text);
       display: grid; place-items: start center;
     }
@@ -30,8 +31,8 @@
       box-shadow: 0 8px 30px rgba(0,0,0,.08);
       box-sizing: border-box;
     }
-    h1 { color: #667eea; margin-bottom: 10px; font-size: 28px; text-align: center; }
-    p.sub { margin: 0 0 18px; color: #666; font-size: 13px; text-align: center; }
+    h1 { color: var(--accent); margin-bottom: 10px; font-size: 28px; text-align: center; }
+    p.sub { margin: 0 0 18px; color: var(--muted-fg); font-size: 13px; text-align: center; }
 
     .grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
     @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
@@ -40,7 +41,7 @@
     label { font-weight: 600; }
     input[type="text"] {
       width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #e5e7eb;
-      font-size: 1rem; background: #fff; color: inherit;
+      font-size: 1rem; background: var(--card); color: inherit;
       outline: none; transition: box-shadow .15s ease, border-color .15s ease;
       box-sizing: border-box;
     }
@@ -52,7 +53,7 @@
       appearance: none; border: none; cursor: pointer; border-radius: 999px; padding: 10px 20px;
       font-weight: 600; font-size: .95rem;
     }
-    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary { background: var(--accent); color: var(--on-accent); }
     .btn-secondary { background: #eef2ff; color: #3730a3; }
 
     .result {
@@ -99,12 +100,12 @@
 
     <p id="msg" class="error" role="alert"></p>
           <!-- FOOTER DE AUTORÍA -->
-      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
+      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
         <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
         <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">GitHub</a>
-          <a href="../index.html" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">LinkedIn</a>
+          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
+          <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
+          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
         </span>
       </div>
   </div>

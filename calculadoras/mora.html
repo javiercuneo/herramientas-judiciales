@@ -4,16 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Calculadora de inicio de mora (sentencia / honorarios)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/comun.css">
     <style>
         :root {
-            --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg: var(--accent);
             --card: #ffffff;
-            --muted: #5f6b7a;
-            --text: #0f172a;
-            --primary: #667eea;
-            --accent: #764ba2;
-            --border: #e0e0e0;
+            --muted: var(--muted-fg);
+            --text: var(--fg);
+            --primary: var(--accent);
+            --accent: var(--accent);
+            --border: var(--border);
             --period1: #e8e0ff;
             --period2: #f0e6ff;
             --period3: #fff0e0;
@@ -21,7 +22,7 @@
         }
 
         body {
-            font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-family: var(--font-sans);
             margin: 24px;
             background: var(--bg);
             color: var(--text);
@@ -67,9 +68,9 @@
         button {
             padding: 11px 12px;
             border-radius: 10px;
-            border: 1px solid #d9e2f0;
+            border: 1px solid var(--border);
             font-size: 0.95rem;
-            background: #fff;
+            background: var(--card);
             transition: border 0.15s, box-shadow 0.15s;
             font-family: inherit;
         }
@@ -100,13 +101,13 @@
             margin-top: 20px;
             padding: 18px;
             border-radius: 12px;
-            background: linear-gradient(180deg, #fff, #f8fbff);
+            background: linear-gradient(180deg, #fff, var(--sunk));
             border: 1px solid var(--border);
         }
 
         .trace {
             margin-top: 20px;
-            background: #fff;
+            background: var(--card);
             padding: 18px;
             border-radius: 12px;
             border: 1px solid var(--border);
@@ -115,13 +116,13 @@
         
         .footer {
             text-align: center;
-            color: #666;
+            color: var(--muted-fg);
             margin-top: 20px;
             font-size: 12px;
             line-height: 1.6;
         }
         .footer a {
-            color: #667eea;
+            color: var(--accent);
             text-decoration: none;
         }
 button {
@@ -264,12 +265,12 @@ button {
             <p>Los días hábiles excluyen fines de semana, feriados nacionales, ferias (enero y julio), 16 de noviembre (Ley 26.674) y <a href="../data/dias-inhabiles.json" target="_blank" rel="noopener">días inhábiles adicionales (ver)</a>.</p>
             <p style="margin-top: 10px;">Si creés que hay un error, envíanos un mail a <a href="mailto:javiercuneol@hotmail.com">javiercuneol@hotmail.com</a> describiendo qué salió mal.</p>
         </div>
-        <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 13px; line-height: 1.8;">
+        <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
         <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
         <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="GitHub personal">GitHub</a>
-          <a href="../index.html" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: #667eea; text-decoration: none;" title="LinkedIn">LinkedIn</a>
+          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
+          <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
+          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
         </span>
       </div>
         </div>
