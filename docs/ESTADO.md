@@ -318,6 +318,24 @@ seleccionado son siempre el mismo color—, neutro frío, `--radius: 0.375rem`, 
 **Archivo** (Omnibus-Type, Buenos Aires) para títulos y cifras, elegida por ser
 una tipografía argentina para una herramienta jurídica argentina.
 
+**El tema lo elige el usuario, desde el 5/8.** Antes el sitio seguía y punto a
+`prefers-color-scheme`, o sea al sistema operativo. Lo reportó Javier: en casa
+le abría oscuro y en la oficina claro, sin forma de decidir. Y Honorio ya tenía
+su interruptor, así que el sitio y la app se comportaban distinto.
+
+Ahora hay un botón en las trece páginas, que lo inyecta `assets/tema.js` —un
+archivo compartido, porque trece páginas sin build no pueden mantener trece
+copias del mismo comportamiento—. Sin elección guardada se sigue al sistema; con
+elección, manda la elección y persiste en `localStorage`.
+
+**Cómo está hecho, para no romperlo:** los tokens oscuros están **dos veces**,
+en `@media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) }` y en
+`:root[data-tema="oscuro"]`. Si tocás un valor, tocá los dos. Se evaluó
+`light-dark()`, que evitaría la duplicación, y se descartó: si un navegador no
+la soporta la declaración entera es inválida y el token queda vacío, que es
+exactamente el bug que dejó dos calculadoras con el botón invisible. Acá la
+predictibilidad vale más que la elegancia.
+
 Se descartó explícitamente el cluster «crema + serif display + terracota» por ser
 el look más reconocible de diseño generado por IA.
 

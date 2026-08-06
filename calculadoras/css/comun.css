@@ -56,8 +56,26 @@
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* ---------- Tema oscuro ----------
+
+   Dos selectores con los mismos valores, y la duplicación es a
+   propósito:
+
+     1. `@media (prefers-color-scheme: dark)` con `:not([data-tema="claro"])`
+        — el sistema manda mientras el usuario no haya elegido.
+     2. `:root[data-tema="oscuro"]` — el usuario eligió y gana siempre.
+
+   Se evaluó `light-dark()`, que define los dos valores en un solo lugar
+   y evita esto. Se descartó: si un navegador no la soporta, la
+   declaración entera es inválida y el token queda vacío, que es
+   exactamente el bug que dejó dos calculadoras con el botón invisible
+   en agosto de 2026. Acá la predictibilidad vale más que la elegancia.
+
+   Si tocás un valor, tocá los dos.
+   ------------------------------------------------------------------ */
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-tema="claro"]) {
     color-scheme: dark;
 
     --bg: #0d0f13;
@@ -82,6 +100,33 @@
     --error-tint: rgb(224 144 112 / 0.12);
   }
 }
+
+/* El mismo bloque, para cuando el usuario eligio oscuro a mano. */
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+
+  --bg: #0d0f13;
+  --fg: #edeff3;
+  --card: #16191f;
+  --muted-fg: #99a1ae;
+  --faint: #828a98;  /* 3.68 sobre la tarjeta antes del 5/8; ahora 5.08 */
+
+  --accent: #7a99ff;
+  --accent-tint: rgb(122 153 255 / 0.13);
+  --on-accent: #0d0f13;
+
+  --border: rgb(237 239 243 / 0.15);
+  --hair: rgb(237 239 243 / 0.08);
+  --sunk: #101318;
+
+  --ok: #5fc08a;
+  --ok-tint: rgb(95 192 138 / 0.13);
+  --warn: #e0b45c;
+  --warn-tint: rgb(224 180 92 / 0.1);
+  --error: #e09070;
+  --error-tint: rgb(224 144 112 / 0.12);
+}
+
 
 /* ---------- Base ---------- */
 
@@ -155,6 +200,51 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   padding: 14px 18px;
   color: var(--fg);
 }
+
+/* ---------- Interruptor de tema ----------
+
+   Lo inyecta assets/tema.js al final del <body>, así que no hay que
+   tocar el marcado de las trece páginas para tenerlo. Va fijo arriba a
+   la derecha: es el único lugar libre en las once calculadoras, que
+   tienen layouts distintos entre sí.
+
+   `!important` en background y color porque varias calculadoras
+   estilan `button` a secas —y ganan por orden, ya que su <style> va
+   después de este archivo—. Sin esto el interruptor se pinta como un
+   botón de calcular. */
+
+.tema-boton {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 999;
+  padding: 7px 14px !important;
+  font-size: .8rem !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 500;
+  line-height: 1.2;
+  background: var(--card) !important;
+  color: var(--muted-fg) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgb(0 0 0 / .06);
+  transition: color .15s, border-color .15s;
+}
+.tema-boton:hover {
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  filter: none;
+}
+.tema-boton:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* En pantalla chica el botón se le monta al título. Se achica y se
+   despega del borde lo justo para no tapar nada. */
+@media (max-width: 600px) {
+  .tema-boton { top: 8px; right: 8px; padding: 5px 10px !important; font-size: .72rem !important; }
+}
+
+@media print { .tema-boton { display: none; } }
 
 /* ---------- Pie comun ---------- */
 
