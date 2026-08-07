@@ -188,7 +188,7 @@ cambia el porcentaje.
 Dos cosas distintas que conviene no mezclar:
 
 - **Clase de proceso.** Es como lo llama el CPCCN: Libro Segundo, Título I,
-  Capítulo I «Clases», y el art. 319. Ordinario, sumarísimo, ejecutivo.
+  Capítulo I «Clases», y el art. 319 CPCCN. Ordinario, sumarísimo, ejecutivo.
 - **Objeto del juicio.** Qué se reclama: sumas de dinero, desalojo, escrituración,
   alimentos.
 

@@ -199,6 +199,81 @@ completado se queda:** es una marca tipográfica monocroma, no un emoji.
 
 ## Lo demás que se hizo, en orden
 
+### Por qué salieron mal los documentos, y qué se hizo — 7/8
+
+**El diagnóstico, porque la firma del error era clara.** Lo que estaba bien en
+los ocho era el relato general —hay una escala, hay reducciones en tres etapas,
+el procurador sale del patrocinante—. Lo que estaba mal era **todo lo que exigía
+mirar algo concreto**: el número del artículo, el nombre de una clave, el orden
+de los pasos, si un mecanismo existe. Y los artículos del `04` no estaban
+sueltos sino **corridos en bloque**.
+
+Esa firma es inconfundible: **se generaron a partir de una descripción del
+sistema, no del sistema**. Una descripción conserva la estructura y pierde los
+datos, y por eso sonaban plausibles.
+
+Hubo un segundo mecanismo, el de los inventos «útiles»: el control de mínimos
+del `03` no salió de la nada, salió de que un sistema de honorarios con mínimos
+legales **debería** verificarlos. Lo mismo el «total general» y el «25 % si la
+cautelar se despacha».
+
+**Y el más importante de todos, porque explica por qué los docs salieron peor
+que el código que describen:** el motor calcula bien y las once validaciones
+estuvieron en verde todo el tiempo. El código tiene compilador, tipos y 830
+afirmaciones que corren en cada push. **La prosa no tiene nada.** El mismo
+proceso produce código que funciona y prosa confiadamente falsa, porque uno
+tiene realimentación y la otra no.
+
+La pasada del 5/8 **funcionó** —por eso el `07` no hubo que reescribirlo— pero
+tuvo dos límites: se verificó contra la ley también las afirmaciones sobre el
+código, que la ley no puede contestar; y se corrigió la instancia señalada en
+vez de la clase, que es lo que dejó cuatro «50 % parcial / 100 % total» vivos en
+el `05` con el encabezado declarándolos arreglados.
+
+**Qué se hizo con eso.** Dos cosas, las dos baratas:
+
+1. **La regla de fuentes, en [`AGENTS.md`](../AGENTS.md).** Tres tipos de
+   afirmación y tres fuentes distintas: la ley se verifica contra el texto, la
+   app contra el código leído, y una interpretación no se verifica —se declara—.
+   Más las tres consecuencias: anclar cada afirmación a algo que se pueda abrir
+   o correr, no tratar ninguna descripción secundaria como oráculo, y no firmar
+   una nota de verificación que no sea cierta.
+2. **`npm run verificar-docs`**, descrito abajo.
+
+### El control mecánico de las citas — 7/8
+
+`scripts/verificar-docs.mjs`. **No verifica que los documentos sean ciertos
+—eso no se puede automatizar— pero caza la clase de error que salió más cara:
+la cita inventada.** Tres controles: normas (`Ley NN.NNN`, `Decreto NNN/AAAA`)
+contra el texto de la ley más una lista blanca con el motivo de cada una;
+artículos de la 27.423 contra los encabezados reales del texto; e
+identificadores y rutas entre backticks contra el código.
+
+**Corre en CI antes de armar el sitio**, así que una cita inventada no llega a
+producción.
+
+Probado contra los errores históricos reales: caza el «Decreto Reglamentario
+218/2015», `escala_art21`, `valor_uma`, `minimos_judiciales_calc`, `sucesión`
+con tilde, un archivo inexistente y un `art. 84` que la ley no tiene.
+
+**Tres cosas que costaron y conviene no volver a descubrir:**
+
+- **El script se auto-validaba.** `scripts/` está en el corpus, así que sus
+  propios comentarios —que citan `escala_art21` como ejemplo de lo que hay que
+  cazar— hacían que el control pasara. Pasó de verdad, en la primera corrida de
+  la prueba de regresión. Ahora se excluye a sí mismo.
+- **La sección «Qué decía este documento y no era así» cita normas falsas a
+  propósito.** El `04` nombra el decreto inexistente justamente para decir que
+  no existe. Esa sección se saltea, detectada por el encabezado.
+- **`honorio/` no está en CI.** Los identificadores del motor salen como no
+  verificables y no hacen fallar: un rojo que depende de si alguien clonó algo
+  no sirve. Lo que sí falla en CI son las normas y los artículos, que es la
+  clase de error más cara. `--sin-honorio` simula localmente lo que ve CI.
+
+**Lo que no caza, para no confiarse:** artículos que existen pero se citan para
+lo que no son —el `art. 51 inc. 8` del `05` pasa, porque el art. 51 existe—, y
+cualquier afirmación de fondo. Eso sigue siendo leer el motor.
+
 ### El 06, el 07 y el 08 — 7/8. Los ocho documentos, cerrados
 
 **`06_MATRIZ_DE_PROCESOS.md`, reescrito.** Tenía dos criterios inventados

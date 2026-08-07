@@ -29,6 +29,18 @@ jobs:
       - name: Install repo dependencies
         run: npm ci
 
+      # Corre antes de armar el sitio: si un documento de dominio cita una
+      # norma, un articulo o un identificador que no existe, no se publica.
+      # No verifica que lo que dicen sea cierto —eso se hace leyendo el
+      # motor— pero una cita inventada no llega a produccion.
+      #
+      # honorio/ no esta en el runner, asi que los identificadores del
+      # motor salen como no verificables y no hacen fallar. Lo que si
+      # falla aca son las citas de normas y articulos, que es la clase de
+      # error que costo mas cara.
+      - name: Verificar citas de la documentacion de dominio
+        run: npm run verificar-docs
+
       - name: Assemble Pages site
         run: |
           set -euo pipefail

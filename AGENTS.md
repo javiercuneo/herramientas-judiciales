@@ -49,6 +49,52 @@ tipos, estructura de archivos, documentación y cualquier cosa que no toque un
 resultado. No hace falta un plan aprobado para renombrar una variable. El
 riesgo acá no es el tamaño del cambio, es si un número se movió.
 
+---
+
+## Cada afirmación contra su fuente
+
+Regla escrita el 7/8/2026, después de encontrar que **los ocho documentos de
+`docs/domain/` describían mal el motor que documentaban**: un decreto
+reglamentario inventado, artículos citados corridos en bloque, un mecanismo de
+mínimos que no existe, y uno que aplicaba las reducciones en el orden
+equivocado —medio millón de diferencia en el caso que se probó—.
+
+Salieron así porque **se generaron a partir de una descripción del sistema y no
+del sistema**, y después se «verificaron» leyendo el propio documento. La
+estructura sobrevive a ese proceso; los datos no.
+
+Antes de afirmar algo, fijate **de qué tipo es la afirmación**, porque cada una
+tiene su fuente y son distintas:
+
+| La afirmación es sobre… | Se verifica contra… |
+|---|---|
+| **Qué dice la ley** | El texto: [`docs/domain/00_LEY_27423.md`](docs/domain/00_LEY_27423.md) |
+| **Qué hace la aplicación** | El código, leído. No un documento que lo describa |
+| **Una interpretación** | Nada la prueba: se declara como tal, con el razonamiento |
+
+Confundirlas fue el error. La ley no te puede decir si `calculate.ts` importa
+`minimos-data.ts`, y el código no te puede decir si una lectura es defendible.
+
+De ahí tres cosas que sí funcionan:
+
+- **Anclá cada afirmación a algo que se pueda abrir o correr.** No «el wizard
+  pregunta esto» sino «`PROCESS_STEP_MAP`, una constante». No «la escala
+  funciona así» sino un ejemplo con los números que la app muestra en pantalla.
+  Una afirmación anclada se puede desmentir; una general no.
+- **Ninguna descripción secundaria es oráculo.** Ni el motor clásico —ya está
+  dicho arriba—, ni un documento anterior, ni el documento que estás corrigiendo.
+  Si hay que arreglar una afirmación, buscá **la clase**, no la instancia que te
+  señalaron: en `05_DEPENDENCIAS.md` se corrigió una y quedaron cuatro iguales
+  en los diagramas, y el encabezado declaraba el arreglo como hecho.
+- **Una nota de verificación que no es cierta es peor que ninguna**, porque el
+  que la lee deja de mirar. Si decís «verificado contra X», tuvo que ser contra
+  X y entero.
+
+**`npm run verificar-docs`** controla lo que se puede controlar solo: que las
+normas, los artículos y los identificadores que los documentos nombran existan.
+Corre en CI antes de publicar. No dice que un documento sea cierto —eso se
+verifica leyendo el motor— pero una cita inventada no llega a producción.
+
 Orden de prioridades cuando entran en conflicto:
 **1) exactitud legal, 2) claridad, 3) mantenibilidad, 4) funcionalidad nueva,
 5) performance.** La performance va última en serio: son calculadoras que
