@@ -540,7 +540,20 @@ registrado, con DNS, con certificado y con HTTPS forzado.
 - **Chequeo que quedó pendiente en el `02`:** cada cifra de los mínimos se
   verificó contra `minimos-data.ts`, pero **`minimos-data.ts` no se verificó
   contra la ley**. Dice ser copia fiel del asistente clásico; que sea fiel a la
-  copia no prueba que sea fiel a la norma.
+  copia no prueba que sea fiel a la norma. Son unas cuarenta cifras.
+- **El hint de la base se perdió en la migración a Honorio, y es una
+  regresión.** El asistente clásico mostraba, arriba del campo de la base, un
+  cuadro que decía qué monto ingresar según lo contestado antes: quince
+  leyendas distintas en `asistente-honorarios-clasico/js/wizard.js`,
+  `renderBase()`. Parte se recuperó en las explicaciones de las tarjetas, parte
+  no. **Es lo de mayor valor y menor costo de todo lo pendiente**: el texto ya
+  está escrito, no mueve ningún número, y es lo que decide si la base que se
+  ingresa es la correcta —que es el error más caro de esta herramienta, porque
+  la escala está validada 300 veces y la base la pone una persona—.
+- **El plan completo de qué falta de la ley, qué hacer y qué solo declarar está
+  en [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md)**, con el orden
+  recomendado. Siete puntos: dos para hacer ya sin tocar números, dos que sí
+  mueven números, dos para declarar y no implementar, uno anotado sin fecha.
 
 ### Dos cosas para llevar al repositorio de Honorio
 
