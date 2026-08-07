@@ -67,6 +67,16 @@ jobs:
           # mueran en un 404.
           cp -r redirects/honorio site/honorio
 
+          # calculadoras/honorarios.html se retiro el 7/8: su "grupo 4"
+          # aplicaba la reduccion del art. 22 sobre la escala en vez de
+          # sobre la base, o sea devolvia un numero mas alto que el
+          # correcto. Se dio de baja en lugar de corregirse porque
+          # Honorio ya la reemplaza. El archivo queda en el repositorio
+          # como historia; lo que se publica en su URL es el aviso, para
+          # que ningun enlace viejo muera en un 404 ni entregue un
+          # numero equivocado.
+          cp redirects/honorarios-retirada/index.html site/calculadoras/honorarios.html
+
       # docs/domain/ renderizado a HTML. Va despues del ensamblado
       # porque escribe dentro de site/.
       - name: Build domain docs

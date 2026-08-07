@@ -12,57 +12,50 @@ Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 > trabajo hay un `honorio/`, es un clon de aquel repositorio: `git remote -v`
 > antes de commitear.
 
+**Lo que sí sigue compartido, y por eso se toca acá:**
+
+- **`asistente-honorarios-clasico/` es la FUENTE del motor legacy** que Honorio
+  todavía carga por `<script>`. Un arreglo a ese motor compartido **se hace acá**
+  y se propaga allá a propósito.
+- **`docs/domain/` documenta la Ley 27.423 para los dos.** Si algún día el
+  clásico se retira, esos ocho documentos se van con Honorio.
+- **Los planes de features de Honorio también viven acá**, junto al
+  [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md), porque la materia prima
+  —calculadoras, textos legales— está de este lado. Ver
+  [Planes abiertos](#planes-abiertos).
+
 ---
 
 ## Dónde estamos
 
 El sitio está publicado en **`javiercuneo.com.ar`**, dominio propio, desde el
-5/8. Las once calculadoras comparten el sistema visual del sitio y quedaron
-revisadas una por una. Las prioridades que se habían fijado el 4/8 están todas
-cerradas.
+5/8. Las once calculadoras comparten el sistema visual y quedaron revisadas una
+por una. Los **ocho documentos de dominio** quedaron cerrados el 7/8, después de
+descubrirse el 6/8 que la prosa que describe el motor nunca se había verificado
+contra el motor. Y el 7/8 se hizo entero el
+[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md), en dos tandas —una sin mover
+un número, otra con tres que sí—, casi todo trabajo en Honorio: salió como sus
+versiones **2.2.0** y **3.0.0** y el detalle está en el `ESTADO.md` de allá.
 
-Lo que queda es mantenimiento y las ideas anotadas más abajo, ninguna urgente.
+No queda nada urgente ni bloqueante. Lo que sigue abierto está en
+[Pendientes](#pendientes).
 
-Desde el 6/8 hay un frente abierto: **los textos que describen el motor no
-estaban verificados contra el motor**. Se corrigieron la sección «Cómo está
-hecho» de la landing y **los ocho documentos de dominio**, que quedaron
-cerrados el 7/8. Siete se reescribieron; el `07` solo necesitó retoques. El
-detalle de cada uno está abajo.
-
-De paso salieron dos errores en Honorio, ya arreglados allá: la tarjeta de la
-medida cautelar prometía el porcentaje contrario al que el motor aplicaba, y la
-transformación se atribuía al art. 29 inc. e en vez de al 37.
-
-Cerrados los documentos, el 7/8 se hizo **el
-[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) entero**, en dos tandas. La
-primera sin mover un número —el hint de la base, el litisconsorcio, las etapas
-que no pudieron existir y las dos previsiones declaradas en
-`documentacion.html`—, y la segunda con los tres que sí: las actuaciones
-posteriores a la ejecución, los mínimos de los auxiliares y la modificación de
-alimentos. Casi todo es trabajo en Honorio —salió como sus versiones **2.2.0** y
-**3.0.0**— y el detalle está en el `ESTADO.md` de aquel repositorio.
-
-**Lo que este repositorio tuvo que seguir**, porque son cifras suyas que salen
-de allá: la landing y el `README.md` decían 160 recorridos y 25.600 cruces, y
-son **168 y 28.224** desde que la modificación de alimentos agregó un sub-paso.
-Lo mismo la cuenta de validaciones, que pasó de 11 a 14, y la versión del chip.
-La tabla de recorridos de [`01_PROCESOS.md`](domain/01_PROCESOS.md) es la fuente
-de esas cifras: si vuelve a moverse, se mueven las cuatro.
-
-Y [`02_FLUJO_JURIDICO.md`](domain/02_FLUJO_JURIDICO.md) tenía una sección
-—«Lo que la ley dice y el motor no hace»— que quedó vieja el mismo día en que
-se completó el plan que salió de ella. **Es lo primero que envejece de un
-documento**: ahora cada entrada dice qué se hizo, o por qué se decidió no
-hacerlo.
+**Las cuatro cifras que este repositorio sigue de Honorio.** Son suyas pero
+salen de allá, y se movieron el 7/8 cuando la modificación de alimentos agregó
+un sub-paso: **168 recorridos** (eran 160), **28.224 cruces** (eran 25.600),
+**14 validaciones** (eran 11) y la versión del chip. Viven en `index.html` y en
+`README.md`. La fuente es la tabla de recorridos de
+[`01_PROCESOS.md`](domain/01_PROCESOS.md): **si vuelve a moverse, se mueven las
+cuatro.**
 
 ---
 
 ## El dominio, cerrado el 5/8
 
-`javiercuneo.com.ar` registrado en NIC —tomó unos días porque el nombre
-coincide con el de una persona y pidió DNI y revisión a mano—, DNS en
-Cloudflare **sin proxy** (nube gris, para que GitHub pueda emitir el
-certificado), y configurado como *custom domain* del repositorio.
+`javiercuneo.com.ar` registrado en NIC —tomó unos días porque el nombre coincide
+con el de una persona y pidió DNI y revisión a mano—, DNS en Cloudflare **sin
+proxy** (nube gris, para que GitHub pueda emitir el certificado), y configurado
+como *custom domain* del repositorio. Enforce HTTPS tildado y andando.
 
 Cosas que conviene tener escritas porque no son obvias:
 
@@ -76,183 +69,135 @@ Cosas que conviene tener escritas porque no son obvias:
   falta. El dominio vive en la configuración de Pages. Un `CNAME` en `site/`
   sería un archivo que no hace nada y que la próxima sesión tendría que
   averiguar por qué está.
-- **Esta vez los enlaces viejos no se rompieron**, a diferencia del renombre del
-  4/8. `javiercuneo.github.io/herramientas-judiciales/…` devuelve **301 al
-  dominio conservando la ruta** —comprobado—, así que el enlace de LinkedIn
-  siguió andando sin tocarlo.
+- **Los enlaces viejos no se rompieron**, a diferencia del renombre del 4/8.
+  `javiercuneo.github.io/herramientas-judiciales/…` devuelve **301 al dominio
+  conservando la ruta** —comprobado—, así que el enlace de LinkedIn siguió
+  andando sin tocarlo.
 - `www.javiercuneo.com.ar` **no resuelve**: no existe el registro. Si molesta,
   va un CNAME `www` → `javiercuneo.github.io` en Cloudflare, gris también.
 
-**El barrido de URL, hecho.** Eran 17 absolutas: 15 en `README.md`, el
-`og:image` de `index.html` —que no admite relativa— y una en
-`INFORME_REFACTOR_SHARED_CSS.md`. Comprobadas las 17 contra el destino nuevo:
-16 dan 200 y la restante es el `<archivo>.html` de plantilla del informe. Más
-la cadena de *User-Agent* de `distancia.html`, que decía
-`HerramientasJudicialesIA/1.0`.
-
-En el repositorio de Honorio eran **4, no 2** como decía la versión anterior de
-este documento: la consolidación del 5/8 juntó tres en `lib/enlaces.ts` y queda
-una en su `AGENTS.md`. Ya está commiteado allá.
-
-**Enforce HTTPS quedó tildado y anda.** `http://` redirige con 301 a `https://`
-conservando la ruta.
-
-**Trampa que costó un diagnóstico equivocado:** al verificarlo,
-`http://javiercuneo.com.ar/` devolvía 404 y se leyó como que la opción estaba
-sin tildar. Era **una respuesta cacheada en el borde de GitHub**, de cuando el
-dominio todavía no estaba configurado. Se ve en la cabecera `Age`: la raíz venía
-con `age=3502` —casi una hora— mientras que `/index.html`, que nunca se había
-pedido por HTTP, salía con `age=0` y el 301 correcto. Un parámetro de cache-bust
-en la query **no sirve**, porque la variante ya estaba cacheada igual.
-**Después de tocar la configuración de Pages, mirar `Age` antes de sacar
-conclusiones de un código de estado.**
+El barrido de URL absolutas está hecho: eran 17 acá —15 en `README.md`, el
+`og:image` de `index.html` y una en `INFORME_REFACTOR_SHARED_CSS.md`— más la
+cadena de *User-Agent* de `distancia.html`. Comprobadas contra el destino nuevo.
+En el repositorio de Honorio eran 4 y también están.
 
 ---
 
 ## Las calculadoras, cerradas el 5/8
 
 Cada una es un HTML con su CSS y su JS adentro, escritas en momentos distintos.
-El trabajo fue en tres tramos y hay dos análisis que conviene no rehacer:
-[`INFORME_REFACTOR_SHARED_CSS.md`](INFORME_REFACTOR_SHARED_CSS.md), del 31/7,
-con el inventario archivo por archivo, y lo que sigue.
+`calculadoras/css/comun.css` define los tokens del sitio —cobalto `#1E45CE`,
+neutro frío, `radius 0.375rem`, Archivo para títulos— más una base mínima de
+controles, tablas y pie. **Las once lo cargan antes de su propio `<style>`**,
+así que lo local sigue ganando y cada archivo conserva su layout.
 
-**Lo que el informe dejó probado**, y no hace falta rediscutir:
+**Lo que dejó probado [`INFORME_REFACTOR_SHARED_CSS.md`](INFORME_REFACTOR_SHARED_CSS.md)**
+(31/7), y no hace falta rediscutir:
 
 - La duplicación del 72 % es de **líneas de propiedad sueltas**, no de reglas.
   Reglas CSS completas idénticas en dos o más archivos: **9 %**.
 - Los `<style>` no son copias sino **hermanos con variaciones hechas a mano**.
   Por eso **no existe extracción mecánica segura**: cualquier CSS compartido
   real obliga a normalizar, y normalizar cambia el aspecto de las páginas.
-- Su plan proponía unificar sobre el degradé violeta `#667eea → #764ba2` con
-  Montserrat, «sin rediseñar». **Eso quedó viejo**: es anterior al rediseño de
-  la landing, y hoy dejaría a las calculadoras peleadas con el sitio desde el
-  que se entra. Del plan sirve todo lo procedimental.
+- Su plan de unificar sobre el degradé violeta `#667eea → #764ba2` con
+  Montserrat **quedó viejo**: es anterior al rediseño de la landing. Del plan
+  sirve todo lo procedimental.
 
-### Qué se hizo
+### Las tres lecciones que dejó el trabajo
 
-`calculadoras/css/comun.css` define los tokens del sitio —cobalto `#1E45CE`,
-neutro frío, `radius 0.375rem`, Archivo para títulos— más una base mínima de
-controles, tablas y pie. **Las once lo cargan antes de su propio `<style>`**,
-así que lo local sigue ganando. Cada archivo conserva su layout.
+Se conservan porque las tres se van a repetir:
 
-Antes de eso se arreglaron dos cosas que no eran opinables:
-
-1. **Las tablas estiraban la página.** Las once de `honorarios`, `prorrateo` y
-   `tasa` quedaron envueltas en `.tabla-scroll`. Medido en `prorrateo`: de 753
-   px de contenido en 406 de viewport a 406 = 406.
-
-   **La lección, porque se repite:** el contenedor con `overflow-x` **no
-   alcanza**. Un ítem de flex no baja de su contenido sin `min-width: 0`, y
+1. **Para que una tabla no estire la página, el contenedor con `overflow-x` no
+   alcanza.** Un ítem de flex no baja de su contenido sin `min-width: 0`, y
    `flex: 0 0 400px` significa «no encogerse nunca». Son tres arreglos:
-   envolver, `min-width: 0`, y permitir que encoja.
-2. **`caducidad` no tenía media query.** Medido, no desbordaba: lo real era que
-   40 px de padding por lado se comían un tercio del ancho en un teléfono. Con
-   una media query a 600 px el ancho útil pasó de 286 a 346 px.
+   envolver en `.tabla-scroll`, `min-width: 0`, y permitir que encoja. Medido en
+   `prorrateo`: de 753 px de contenido en 406 de viewport a 406 = 406.
+2. **Un control estático no sustituye una medición.** Ocho de las once habían
+   pasado un control de «tokens aplicados, sin violeta, sin texto invisible» y
+   daba verde. Un barrido de contraste sobre estilos computados encontró **27
+   fallas en oscuro y 9 en claro** —hoy cero—, incluidos dos botones principales
+   con **contraste 1.00**, blanco sobre blanco, en los dos temas y en
+   producción. La causa fue un ciclo de variables CSS; está en
+   [Trampas conocidas](#trampas-conocidas).
+3. **Medir con los paneles ocultos subestima.** Las pantallas 2 a 4 de
+   `ejecucion-estado` arrancan en `display:none` y la primera pasada no las vio.
+   Hay que forzarlas visibles. Ojo: eso mismo **inventa desbordes** —apila
+   pantallas que nunca conviven—, así que el ancho se mide en una pasada
+   aparte, sin tocar nada.
 
-### Lo que encontró la revisión final
+Y una de fondo: **el resto de las fallas vino de un reemplazo masivo, que no
+puede ver el contexto.** `--border` usado como fondo de botón, grises planos que
+la conversión no alcanzó, y el violeta `#667eea` que este documento daba por
+erradicado, escrito `rgba(102,126,234)` en seis lugares porque la conversión
+buscaba hex.
 
-De las once, tres se habían verificado en el navegador. Las otras ocho habían
-pasado un control estático —tokens aplicados, sin violeta, sin texto
-invisible— y eso resultó **no ser suficiente ni de cerca**. Un barrido de
-contraste sobre las once, en claro y en oscuro, dio **27 fallas en oscuro y 9
-en claro**. Ahora dan cero.
-
-Lo más grave, y no solo en modo oscuro: en `mora` y `honorarios-mediacion` el
-**botón principal tenía contraste 1.00** —blanco sobre blanco, invisible— en
-los dos temas y en producción.
-
-La causa: un **ciclo de variables CSS**. Son los dos únicos archivos que ya
-traían variables propias, y la conversión a tokens les mapeó los valores viejos
-a nombres que chocan con los suyos:
-
-```css
---accent: var(--accent);   /* se referencia a sí misma */
---border: var(--border);
-```
-
-Por especificación eso es una dependencia cíclica: la propiedad queda inválida
-en tiempo de cómputo y `var(--accent)` no devuelve el cobalto sino **la cadena
-vacía**. El botón se quedaba sin fondo y conservaba su texto «sobre acento»,
-que es blanco. Queda un comentario en cada archivo diciendo que ahí no se
-redefinen los tokens del sistema.
-
-El resto, todo del mismo origen —un reemplazo masivo no puede ver el contexto—:
-
-| Qué | Dónde |
-|---|---|
-| `--faint` no llegaba a AA en ningún tema: 3.10 sobre la tarjeta, 2.81 sobre `--sunk`, 3.68 en oscuro. Es el único token que usan el pie y los subtítulos, o sea siempre texto chico | `comun.css`, y por eso las once |
-| `--border` usado como **fondo** de botón. Es un color de línea translúcido, no una superficie: el botón quedaba casi transparente con el texto blanco heredado | `distancia` |
-| Número de paso en `#bbb`: 1.92. Y fondos claros fijos en las pantallas 2 a 4 | `ejecucion-estado` |
-| Grises y azules planos que la conversión no alcanzó | `regresiva`, `caducidad`, `entre-fechas` |
-| El violeta `#667eea` que este documento daba por erradicado, escrito `rgba(102,126,234)`: la conversión buscó hex | seis lugares |
-
-**Dos lecciones de método, porque las dos van a repetirse:**
-
-- **Un control estático no sustituye una medición.** «Tokens aplicados, sin
-  violeta» daba verde en dos archivos donde el botón era invisible. Lo que sirve
-  es calcular el contraste sobre estilos computados, en los dos temas.
-- **Medir con los paneles ocultos subestima.** Las pantallas 2 a 4 de
-  `ejecucion-estado` arrancan en `display:none` y la primera pasada no las vio.
-  Hay que forzarlas visibles. Ojo: eso mismo **inventa desbordes** —apila
-  pantallas que nunca conviven—, así que el ancho se mide en una pasada
-  aparte, sin tocar nada.
-
-### Emojis
-
-Salieron 39 de contenido, que es lo que ya pedía `AGENTS.md` y lo que
-`comun.css` dice que reemplazan sus tokens de estado. Los cuatro iconos del
-timeline de `ejecucion-estado` pasaron a números, igual que los pasos de arriba
-en esa misma página; las dos tarjetas binarias perdieron el icono y quedaron
-con su rótulo, que era lo que llevaba el significado. **El `✓` del paso
-completado se queda:** es una marca tipográfica monocroma, no un emoji.
-
-### Lo que quedó sin hacer
-
-- **`mora.html` todavía no usa `js/calendario-judicial.js`**: tiene su propia
-  copia de la lógica de feria y fin de semana. Es duplicación de código, no
-  divergencia de datos —la lista y la API ya son las mismas—, así que no cambia
-  ningún número. Es lo único de fondo que sigue abierto de las calculadoras.
-- Los `max-width` siguen yendo de 240 a 1000 px sin criterio.
-- **Ninguna calculadora se corrió de punta a punta.** Se midió contraste y
-  ancho en las once y se miraron capturas de dos. Un cálculo real, con su
-  pantalla de resultado, no se hizo.
+**Emojis:** salieron los 39 de contenido. Los iconos del timeline de
+`ejecucion-estado` pasaron a números. **El `✓` del paso completado se queda:** es
+una marca tipográfica monocroma, no un emoji.
 
 ---
 
-## Lo demás que se hizo, en orden
+## Los ocho documentos de dominio, cerrados el 7/8
 
-### Por qué salieron mal los documentos, y qué se hizo — 7/8
+Siete se reescribieron contra el motor; el `07` solo necesitó retoques.
+**El detalle de qué decía mal cada uno está en el propio documento**, en su
+sección final «Qué decía este documento y no era así». Acá va solo lo que no
+cabe en ninguno de los ocho.
 
-**El diagnóstico, porque la firma del error era clara.** Lo que estaba bien en
-los ocho era el relato general —hay una escala, hay reducciones en tres etapas,
-el procurador sale del patrocinante—. Lo que estaba mal era **todo lo que exigía
-mirar algo concreto**: el número del artículo, el nombre de una clave, el orden
-de los pasos, si un mecanismo existe. Y los artículos del `04` no estaban
-sueltos sino **corridos en bloque**.
+De paso salieron dos errores en Honorio, ya arreglados allá: la tarjeta de la
+medida cautelar prometía el porcentaje contrario al que el motor aplicaba, y la
+transformación se atribuía al art. 29 inc. e en vez de al 37.
 
-Esa firma es inconfundible: **se generaron a partir de una descripción del
-sistema, no del sistema**. Una descripción conserva la estructura y pierde los
-datos, y por eso sonaban plausibles.
+### Por qué salieron mal
+
+**La firma del error era clara.** Lo que estaba bien en los ocho era el relato
+general —hay una escala, hay reducciones en tres etapas, el procurador sale del
+patrocinante—. Lo que estaba mal era **todo lo que exigía mirar algo concreto**:
+el número del artículo, el nombre de una clave, el orden de los pasos, si un
+mecanismo existe. Y los artículos del `04` no estaban sueltos sino **corridos en
+bloque**. Esa firma es inconfundible: **se generaron a partir de una descripción
+del sistema, no del sistema.** Una descripción conserva la estructura y pierde
+los datos, y por eso sonaban plausibles.
 
 Hubo un segundo mecanismo, el de los inventos «útiles»: el control de mínimos
 del `03` no salió de la nada, salió de que un sistema de honorarios con mínimos
 legales **debería** verificarlos. Lo mismo el «total general» y el «25 % si la
 cautelar se despacha».
 
-**Y el más importante de todos, porque explica por qué los docs salieron peor
-que el código que describen:** el motor calcula bien y las once validaciones
-estuvieron en verde todo el tiempo. El código tiene compilador, tipos y 830
-afirmaciones que corren en cada push. **La prosa no tiene nada.** El mismo
-proceso produce código que funciona y prosa confiadamente falsa, porque uno
-tiene realimentación y la otra no.
+**Y el más importante, porque explica por qué los docs salieron peor que el
+código que describen:** el motor calcula bien y las validaciones estuvieron en
+verde todo el tiempo. El código tiene compilador, tipos y 830 afirmaciones que
+corren en cada push. **La prosa no tiene nada.** El mismo proceso produce código
+que funciona y prosa confiadamente falsa, porque uno tiene realimentación y la
+otra no.
 
 La pasada del 5/8 **funcionó** —por eso el `07` no hubo que reescribirlo— pero
 tuvo dos límites: se verificó contra la ley también las afirmaciones sobre el
 código, que la ley no puede contestar; y se corrigió la instancia señalada en
 vez de la clase, que es lo que dejó cuatro «50 % parcial / 100 % total» vivos en
-el `05` con el encabezado declarándolos arreglados.
+el `05` con el encabezado declarándolos arreglados. **Una nota de verificación
+que no es cierta es peor que ninguna**, porque el que la lee deja de mirar.
 
-**Qué se hizo con eso.** Dos cosas, las dos baratas:
+### El único error que cambiaba un número
+
+`05_DEPENDENCIAS.md` decía, en cinco lugares y en su diagrama de orden general,
+que las reducciones de los arts. 22 y 40 se aplican **sobre el monto de la
+escala**. Se aplican sobre la base, antes de la escala. Como la escala es
+progresiva, reducir la base puede hacerla caer a otro tramo:
+
+```
+demanda desestimada (-30 %, art. 22), base $50.000.000, UMA $102.076
+
+MOTOR   base × 0,7 y después la escala  →  5ª escala: 61,93 UMA = $6.321.798
+DOC 05  la escala y después × 0,7       →  6ª escala: 66,62 UMA = $6.800.776
+                                            $478.978 de más — 7,6 %
+```
+
+**Quien hubiera regulado siguiendo ese documento habría dado casi medio millón
+de más en ese caso.** Está anotado acá y no solo allá porque es la clase de cosa
+que se puede volver a introducir sin darse cuenta.
+
+### Qué se hizo para que no se repita
 
 1. **La regla de fuentes, en [`AGENTS.md`](../AGENTS.md).** Tres tipos de
    afirmación y tres fuentes distintas: la ley se verifica contra el texto, la
@@ -260,32 +205,23 @@ el `05` con el encabezado declarándolos arreglados.
    Más las tres consecuencias: anclar cada afirmación a algo que se pueda abrir
    o correr, no tratar ninguna descripción secundaria como oráculo, y no firmar
    una nota de verificación que no sea cierta.
-2. **`npm run verificar-docs`**, descrito abajo.
+2. **`npm run verificar-docs`** (`scripts/verificar-docs.mjs`). **No verifica que
+   los documentos sean ciertos —eso no se puede automatizar— pero caza la clase
+   de error que salió más cara: la cita inventada.** Tres controles: normas
+   (`Ley NN.NNN`, `Decreto NNN/AAAA`) contra el texto de la ley más una lista
+   blanca con el motivo de cada una; artículos de la 27.423 contra los
+   encabezados reales del texto; e identificadores y rutas entre backticks
+   contra el código. **Corre en CI antes de armar el sitio**, así que una cita
+   inventada no llega a producción.
 
-### El control mecánico de las citas — 7/8
+**Tres cosas del script que costaron y conviene no volver a descubrir:**
 
-`scripts/verificar-docs.mjs`. **No verifica que los documentos sean ciertos
-—eso no se puede automatizar— pero caza la clase de error que salió más cara:
-la cita inventada.** Tres controles: normas (`Ley NN.NNN`, `Decreto NNN/AAAA`)
-contra el texto de la ley más una lista blanca con el motivo de cada una;
-artículos de la 27.423 contra los encabezados reales del texto; e
-identificadores y rutas entre backticks contra el código.
-
-**Corre en CI antes de armar el sitio**, así que una cita inventada no llega a
-producción.
-
-Probado contra los errores históricos reales: caza el «Decreto Reglamentario
-218/2015», `escala_art21`, `valor_uma`, `minimos_judiciales_calc`, `sucesión`
-con tilde, un archivo inexistente y un `art. 84` que la ley no tiene.
-
-**Tres cosas que costaron y conviene no volver a descubrir:**
-
-- **El script se auto-validaba.** `scripts/` está en el corpus, así que sus
-  propios comentarios —que citan `escala_art21` como ejemplo de lo que hay que
-  cazar— hacían que el control pasara. Pasó de verdad, en la primera corrida de
-  la prueba de regresión. Ahora se excluye a sí mismo.
+- **Se auto-validaba.** `scripts/` está en el corpus, así que sus propios
+  comentarios —que citan `escala_art21` como ejemplo de lo que hay que cazar—
+  hacían que el control pasara. Pasó de verdad, en la primera corrida de la
+  prueba de regresión. Ahora se excluye a sí mismo.
 - **La sección «Qué decía este documento y no era así» cita normas falsas a
-  propósito.** El `04` nombra el decreto inexistente justamente para decir que
+  propósito.** El `04` nombra un decreto inexistente justamente para decir que
   no existe. Esa sección se saltea, detectada por el encabezado.
 - **`honorio/` no está en CI.** Los identificadores del motor salen como no
   verificables y no hacen fallar: un rojo que depende de si alguien clonó algo
@@ -296,485 +232,81 @@ con tilde, un archivo inexistente y un `art. 84` que la ley no tiene.
 lo que no son —el `art. 51 inc. 8` del `05` pasa, porque el art. 51 existe—, y
 cualquier afirmación de fondo. Eso sigue siendo leer el motor.
 
-### El 06, el 07 y el 08 — 7/8. Los ocho documentos, cerrados
+### Reparto entre documentos, para que no se dupliquen
 
-**`06_MATRIZ_DE_PROCESOS.md`, reescrito.** Tenía dos criterios inventados
-enteros:
+El `01` va proceso por proceso: qué pregunta cada uno y qué hace con la
+respuesta. El `02` va por lo que los ocho tienen en común: el recorrido y el
+orden del cálculo. El `04` va por las cosas —cada entidad jurídica contra su
+tipo real—. El `05` dice qué depende de cada pieza compartida y qué validación
+corre qué. El `06` es la tabla comparativa. Cada uno remite al otro en vez de
+repetirlo.
 
-- **«25 % si la cautelar se despacha, 50 % si se rechaza (art. 37).»** El art. 37
-  no mira si la cautelar prospera: toma el 25 % de la escala, elevado al 50 % en
-  casos de controversia u oposición. Tal como estaba, **hacía cobrar más por
-  perder**.
-- **«La reducción del art. 41 se aplica cuando no hubo ejecución de sentencia
-  previa.»** No existe esa condición, ni en la ley ni en el motor: el art. 41 se
-  aplica siempre.
+Dos aclaraciones que hubo que agregarles y conviene no borrar:
 
-Más lo que ya se sabía —ejecución de sentencia y ejecutivo figuraban sin
-reducciones de base, y sí las tienen—, «incidente: patrocinante No» cuando el
-motor sí lo devuelve, la base de la homologación como «alquileres adeudados» en
-vez de del contrato, y dos conceptos de la tabla de mínimos mal nombrados:
-«Efectos divorcio / **Registro Público**» y «Peritos (**daños no pecuniarios**)».
-Las notas justificaban cifras con razones inventadas —«son más altos por la
-jerarquía del tribunal»—. Se le agregó la columna de provisorios, que faltaba
-entera.
+- **`08_DEUDA_TECNICA_FUNCIONAL.md` no es una lista de trabajo pendiente**: eso
+  es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md). Y describe el motor
+  clásico: donde dice `calculations.js` o `core.js` se habla de
+  `asistente-honorarios-clasico/`. Está dicho en el encabezado en vez de
+  reescribir 28 entradas que como catálogo de decisiones siguen valiendo.
+- **La sección «Lo que la ley dice y el motor no hace» del `02` es lo primero
+  que envejece.** Quedó vieja el mismo día en que se completó el plan que salió
+  de ella. Ahora cada entrada dice qué se hizo, o por qué se decidió no hacerlo.
 
-**`07_GLOSARIO.md`: el único de los ocho que no hubo que reescribir.** Se hizo
-bien el 5/8 y se nota. Lo que le faltaba era la segunda mitad de la
-verificación: aquella fue contra la ley y no contra el código. Cuatro retoques:
+---
 
-- **La fórmula del piso de la escala.** Decía «máximo acumulado del tramo
-  anterior», que es otra cuenta. Es el límite del tramo anterior por su alícuota
-  máxima. Es el mismo error que tenía el `02`, acá en versión leve.
-- El puntero al motor apuntaba al clásico y no a Honorio.
-- La lista de objetos estaba incompleta: siete de doce, sin decir que era
-  parcial.
-- Los mínimos del art. 44 quedaban anotados como sin verificar. **Quedaron
-  verificados**: 7 UMA en acciones contencioso administrativas y 5 en
-  actuaciones administrativas, cuando el asunto no es susceptible de apreciación
-  pecuniaria.
-
-**`08_DEUDA_TECNICA_FUNCIONAL.md`: arreglos puntuales.** Su problema no era el
-contenido jurídico sino que **describe el motor clásico y nunca se le cambiaron
-los punteros después de la mudanza del 4/8**. Donde dice `calculations.js` o
-`core.js` se habla de `asistente-honorarios-clasico/`. Quedó dicho en el
-encabezado en vez de reescribir 28 entradas que como catálogo de decisiones
-siguen valiendo.
-
-Tres entradas habían dejado de ser ciertas:
-
-- **La 16 decía lo contrario de lo que dice la ley.** «Los jueces pueden fijar
-  honorarios de auxiliares **por debajo** de los mínimos, según el art. 21». Al
-  revés: el art. 21 habilita **superar el techo del 10 %** ante labores
-  altamente complejas. Bajar del mínimo es el art. 478 CPCCN, que es otra norma
-  de otro cuerpo legal y no está «incorporada» al art. 21.
-- La 19, la UMA desde Google Sheets. Se reescribió con las cuatro razones por
-  las que se cambió, que es lo que valía conservar.
-- La 20, que describía el helper de porcentajes del clásico. En Honorio es el
-  reparto entre dos profesionales, 60/40 ajustable, y **no sale de ningún
-  artículo**.
-
-Y se agregó la **entrada 29**, que es lo más importante que el catálogo no
-tenía: los mínimos no se comparan contra el resultado. No es una decisión
-tomada, es una ausencia que nadie había anotado.
-
-También se le puso al principio que **no es una lista de trabajo pendiente**: eso
-es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md). Son dos cosas distintas y
-mezclarlas hace que ninguna se pueda leer entera.
-
-### `05_DEPENDENCIAS.md`, reescrito contra el motor — 7/8
-
-**El único de los cinco cuyo error cambia un número.** Decía, en cinco lugares
-distintos y en su diagrama de orden general, que las reducciones de los arts. 22
-y 40 se aplican **sobre el monto de la escala**. Se aplican sobre la base, antes
-de la escala.
-
-No es una diferencia de redacción. Como la escala es progresiva, reducir la base
-puede hacerla caer a otro tramo. Corrido contra el motor, demanda desestimada
-(-30 %, art. 22), base $50.000.000, UMA $102.076:
-
-```
-MOTOR   base × 0,7 y después la escala  →  5ª escala: 61,93 UMA = $6.321.798
-DOC 05  la escala y después × 0,7       →  6ª escala: 66,62 UMA = $6.800.776
-                                            $478.978 de más — 7,6 %
-```
-
-Ni siquiera es el mismo tramo. **Quien hubiera regulado siguiendo ese documento
-habría dado casi medio millón de más en ese caso.**
-
-**Y su nota de verificación del 5/8 afirmaba correcciones que no se habían
-aplicado.** Decía haber arreglado la segunda instancia como «50 % parcial /
-100 % total» y siete atribuciones de los auxiliares al art. 43. Sobrevivían
-cuatro de la primera —una en cada proceso que la tiene— y una de la segunda.
-
-**Una nota de verificación que no es cierta es peor que ninguna**, porque el que
-la lee deja de mirar. Vale para todos estos documentos: la del 6/8 y la del 7/8
-se escribieron después de leer el motor entero, no después de corregir lo que
-saltaba a la vista.
-
-**Lo demás:**
-
-- **Una escala de incidentes por tramos, inventada entera**: «2 % hasta 10.000
-  UMA, 5 % de 10.001 a 50.000, 10 %, 15 %, 20 % superior a 500.000». No existe:
-  el motor aplica un rango plano del 2 % al 20 %.
-- **El partidor atribuido al «art. 51 inc. 8».** El art. 51 trata del contenido
-  de la resolución regulatoria y no tiene incisos. Es el art. 35, última parte.
-  Segunda cita fabricada en dos días, después del decreto inexistente del `04`.
-- **«Ejecución de sentencia y ejecutivo NO aplican reducciones base».** Sí las
-  aplican. El cuadro comparativo repetía el error, y el `06` también lo tiene.
-- El conocimiento no mencionaba los provisorios ni la reducción de base por
-  caducidad del art. 22; los modos anormales incluían la conciliación; la
-  cautelar y la homologación figuraban como «sin reducciones de escala» cuando
-  sus factores **son** de etapa `escala`.
-
-**Se le cambió el alcance, porque el que tenía estaba duplicado.** El título
-prometía «qué módulos y componentes invoca cada proceso» y el documento no
-nombraba un solo módulo: traía el flujo de reglas por proceso —que es el `01`—
-y una tabla comparativa —que es el `06`—. Ahora hace lo que el título dice, y
-además lo que faltaba en todo el repositorio: **qué depende de cada pieza
-compartida y qué validación corre qué**, para saber qué se rompe al tocar algo.
-
-### `04_MODELO_DEL_DOMINIO.md`, reescrito contra el motor — 7/8
-
-**Tenía una cita de autoridad inventada, y estaba en el renglón que más
-autoridad aparenta**: el pie decía «documento generado conforme a la Ley 27.423
-y su Decreto Reglamentario 218/2015». Ese decreto no existe, y no podría: es
-anterior a la ley, que es de 2017. Los decretos que sí tocan a la 27.423 son el
-**1077/2017** —que observó varios artículos al promulgarla, entre ellos el 47—
-y el **157/2018**, que derogó el art. 36.
-
-En un documento jurídico eso es lo peor que puede haber, y es el tipo de error
-que ninguna validación va a encontrar nunca.
-
-**Las citas de artículos estaban corridas de forma sistemática.** Seis de las
-ocho filas de la tabla de bases apuntaban a un artículo que trata otra cosa: la
-cautelar al 39 (alimentos), los alimentos al 43 (laboral), la homologación al 45
-(liquidación del régimen patrimonial), el exhorto al 46 (escrituración), el
-ejecutivo al 40 (desalojo). Y cinco de las seis filas de la tabla de mínimos,
-que además se contradecían entre sí: el art. 48 figuraba dos veces con
-significados distintos y el art. 31 aparecía como «segunda instancia», que es el
-30.
-
-**Una línea con tres errores en nueve palabras:** «si se rechaza, la base se
-reduce a 1/3 (art. 40)». Es × 0,70 y no a un tercio; es del art. 22 y no del 40;
-y no es solo en el ejecutivo.
-
-**Lo demás:**
-
-- **El diagrama terminaba en «HONORARIOS TOTALES: patrocinante + apoderado +
-  procurador + auxiliares».** Esa suma no existe y no significa nada.
-- **«Monto base × etapa completada × factorFinal».** El motor no multiplica por
-  ninguna etapa.
-- **Las contingencias tenían mal el efecto y mal los valores**: `aperturaPrueba`
-  «afecta la etapa completada» —afecta la escala—, `tuvoExcepciones` «puede
-  afectar las etapas» —es -10 % sobre el honorario—, `medidaOposicion` «cambia
-  la base» —cambia el porcentaje de la escala—. Y listaban `si`/`no` donde el
-  código usa `con`/`sin`, `unico`/`varios` o `vivienda`/`otros`.
-- **Confundía `desalojoVivienda` con `homologacionVivienda`.** Son dos campos
-  distintos en dos ramas distintas. Ninguno de los dos sub-pasos del objeto
-  aparecía en el documento.
-- **Las etapas del art. 29 estaban inventadas**: «instructiva, admisión de
-  pruebas, sentencia». El artículo dice otra cosa. Y agregaba que la cautelar
-  «generalmente tiene 1 etapa», que no está en el artículo.
-- **Repetía el mecanismo de pisos mínimos que no existe**, igual que el `03`.
-- **La UMA desde Google Sheets, y «$92.482 como valor inicial a la fecha de
-  sanción de la ley».** Era un valor de 2026 en una ley de 2017.
-- `sucesión` figuraba con tilde como clave del código, y los encabezados estaban
-  en inglés —«Attributes», «Types»—.
-
-**El documento nuevo mapea cada entidad jurídica contra su tipo real**
-—`ValorUMA`, `EscalaAplicada`, `EscaleraInfo`, `Transformacion`, `Rango`,
-`SegundaInstanciaRol`, `Partidor`, `MinimoCategoria`—, que es lo que lo hace
-verificable y lo que lo distingue del `01` al `03`: aquellos van por procesos,
-recorrido y reglas; este va por las cosas.
-
-### `03_REGLAS_DE_NEGOCIO.md`, reescrito contra el motor — 6/8
-
-El peor de los tres. **Afirmaba seis veces un mecanismo que no existe.**
-
-Las reglas 23, 24, 35, 42, 43 y 44 decían, cada una con sus palabras: «se aplica
-como piso; si el cálculo por escala arroja un valor inferior al mínimo, se usa
-el mínimo». Y el paso 9 del diagrama de la cadena decía «verificar mínimos».
-
-**`calculate.ts` no importa `minimos-data.ts` y no hay ninguna comparación de
-piso en ningún punto.** El cálculo termina en el partidor. Es decir que el
-documento hacía creer que la herramienta garantiza los mínimos legales, y no los
-garantiza: **el número que devuelve puede quedar por debajo de un mínimo del
-art. 58 o de los de peritos, y no lo dice.**
-
-No se cambió nada del motor al descubrirlo: implementar un piso mueve números.
-Quedó como punto 8 de [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md), y es el
-único de la lista que puede mover un número **hacia arriba**.
-
-**El error de fondo: mezclaba tres clases de regla y llamaba a las tres
-«implementadas en el sistema».** Las que aplica el motor, las que la ley pone a
-cargo del usuario para determinar la base, y las tablas de consulta. Doce de las
-45 «reglas» describían cosas que el motor no hace —determinar la base del
-art. 23, sumar los intereses, calcular la base del desalojo laboral, la de la
-liquidación patrimonial, la de la escrituración—. La regla 37 incluso decía
-«cuándo aplica: siempre, para todo proceso judicial».
-
-El documento nuevo está organizado por **quién aplica cada regla**, que era la
-distinción que faltaba, con una sección propia para los pisos que la ley fija y
-el motor no verifica.
-
-**Lo demás que se corrigió:**
-
-- **La homologación de desocupación estaba clasificada como reducción final.**
-  El motor la aplica sobre la escala. El número da igual, pero la etapa es
-  justamente lo que ese documento existe para decir. Y decía que el 50 % aplica
-  «cuando **no** es de vivienda»: aplica siempre.
-- **El incidente, «cuando tramita bajo la antigua Ley 21.839».** El motor lo
-  aplica a todos, y no por descuido: el art. 47 quedó observado y no hay otra
-  escala.
-- **La tabla del exhorto con los tres incisos inventados**, ya sabido.
-- **El art. 30 decía que el 40 % aplica si la sentencia se revoca «total o
-  parcialmente».** El artículo lo reserva a la revocación en todas sus partes a
-  favor del apelante.
-- **El partidor figuraba como condicional.** Se calcula siempre en la sucesión.
-- **El art. 43 descrito como «desalojo laboral (despido sin causa, etc.)».** No
-  tiene que ver con el despido: es la restitución de inmuebles dados al
-  trabajador por la relación de trabajo.
-- **Los modos anormales del art. 25 incluían la conciliación.** Son
-  allanamiento, desistimiento y transacción.
-- **El art. 23 inc. d resumido como «capital + intereses».** Es el valor de las
-  escrituras deducidas las amortizaciones.
-- **Se fueron los 45 números de regla.** Eran identificadores arbitrarios
-  —declarados como tales en el propio índice— y buena parte no correspondía a
-  ninguna regla del sistema. Ahora cada regla se identifica por la etapa en que
-  opera y el artículo que la funda. Nadie los referenciaba fuera del documento.
-- Sin tildes, y con dos palabras en inglés filtradas en la regla 25.
-
-### `02_FLUJO_JURIDICO.md`, reescrito contra el motor — 6/8
-
-Este estaba **mucho mejor que el 01**: el orden de operaciones, la acumulación
-de la escala, los auxiliares sobre la base y el procurador sobre el honorario
-del patrocinante estaban todos bien. Igual tenía errores, y uno de fondo.
-
-**El error de fondo: la explicación de la escala del art. 21.** Presentaba el
-piso de cada tramo como una **suma acumulada tramo por tramo**, y su propio
-ejemplo no cerraba: escribía «4,95 + 7,80 = 11,70», que da 12,75.
-
-El motor no acumula. El piso es **el límite del tramo anterior multiplicado por
-la alícuota máxima de ese tramo**:
-
-```
-15 × 33 % = 4,95      45 × 26 % = 11,70     90 × 24 % = 21,60
-150 × 22 % = 33       450 × 20 % = 90       750 × 17 % = 127,50
-```
-
-Son las seis constantes de `calcularEscala()`. La lectura acumulada da otro
-número —hasta 45 UMA daría 12,75, no 11,70— así que no es una diferencia de
-redacción: el documento explicaba una fórmula que el motor no usa.
-
-Se verificó contra una corrida real, no contra el código solamente: base
-$50.000.000 con la UMA a $102.076 son 489,83 UMA, tramo 6º. La app muestra
-«máximo hasta 450 UMA $9.186.840» —que es 450 × 20 % = 90 UMA— y «13 % del
-excedente de $4.065.800 → $528.554». Mínimo $9.715.394. Los tres números salen
-de la fórmula del piso y de ninguna otra. Ese ejemplo quedó en el documento
-porque cada cifra se puede volver a comprobar en pantalla.
-
-**Una decisión interpretativa que quedó declarada.** El párrafo del art. 21 está
-escrito como piso —«en ningún caso… inferiores»—, o sea que literalmente habla
-del mínimo. El motor aplica la misma fórmula al máximo. Algo así tiene que
-hacer: sin acumular, el máximo del tramo puede quedar por debajo del mínimo ya
-calculado, que es un absurdo. Pero es interpretación, no transcripción, y ahora
-está dicho.
-
-**Lo demás que se corrigió:**
-
-- **«El sistema carga la UMA desde Google Sheets; si falla usa 92.482.»** Dejó
-  de ser cierto el 5/8, cuando la UMA se sacó del navegador del visitante. La
-  planilla la lee el build y el valor vive versionado en `data/uma.json`.
-- **«El usuario selecciona entre 10 opciones» de tipo de proceso.** Son ocho.
-- **Un párrafo pegado en la sección equivocada.** El «fundamento» de la medida
-  cautelar decía que era el art. 21 «que acota a los auxiliares una banda del
-  5 % al 10 %», y aclaraba entre paréntesis que antes se lo atribuía al art. 37.
-  Es decir: una corrección del pase del 5/8 aterrizó en el bloque de al lado y
-  terminó **negando el artículo correcto**. La cautelar es el art. 37.
-- **Mínimos del art. 19 inc. a mal citados**: decía «hasta 25 UMA (divorcio,
-  adopción, hábeas corpus)». El divorcio son 10 y la adopción 20.
-- **El objeto del juicio, sin las claves del código** y sin decir que nueve de
-  las doce opciones no mueven ningún número.
-- **No decía en qué procesos hay segunda instancia.** Son cuatro de ocho: los
-  que pasan por `buildGeneral()`. La cautelar y la homologación no la devuelven.
-- **Faltaban el reparto por etapas y el reparto entre profesionales**, que son
-  dos de las tres cosas que muestra la pantalla del resultado. El segundo **no
-  sale de ningún artículo**: es una calculadora auxiliar con proporción
-  ajustable que arranca en 60/40, y ahora está dicho que es eso.
-- **Todo el documento estaba sin tildes**, contra la convención del repositorio.
-
-**Se agregó una sección que no existía: «Lo que la ley dice y el motor no
-hace».** Salió de leer la ley al lado del motor, y son seis: el art. 39 segundo
-párrafo (aumento o cesación de alimentos va por la escala de los incidentes, no
-por la del art. 21), el art. 41 última oración (actuaciones posteriores a la
-ejecución, al 40 %), el art. 42 (gestor, +4 %), la excepción del art. 21 para
-auxiliares por labores complejas, la división en etapas del art. 29 —que se
-muestra pero no se pregunta— y el litisconsorcio del art. 21.
-
-**Reparto entre el 01 y el 02, para que no se dupliquen.** El 01 va proceso por
-proceso: qué pregunta cada uno y qué hace con la respuesta. El 02 va por lo que
-los ocho tienen en común: el recorrido y el orden del cálculo. Cada uno remite
-al otro en vez de repetirlo.
-
-### `01_PROCESOS.md`, reescrito contra el motor — 6/8
-
-Estaba **generado a partir de una descripción del sistema, no del sistema**, y
-por eso sonaba plausible y era falso en varios puntos. Lo que se encontró:
-
-- **«No se utiliza el valor de la UMA para cálculo de escala».** Al revés: la
-  escala del art. 21 está escrita en tramos de UMA, así que lo primero que hace
-  el motor es dividir la base por la UMA para ubicar el tramo. Es el dato más
-  central del cálculo.
-- **Un «total general: suma de todos los honorarios» que no existe.** El motor
-  nunca devolvió esa suma y la app no la muestra, porque los roles son
-  alternativos entre sí: sumarlos no significa nada.
-- **La segunda instancia, descrita como «opcional» y «calculada aparte».** Se
-  calcula siempre, en la misma pasada, como porcentaje del honorario ya
-  reducido (art. 30). Es un bloque aparte en pantalla, no en el cálculo.
-- **Una reducción por «juicio abreviado» que no está en la ley.**
-- **Auxiliares «5-10 % según categoría».** El art. 21 no distingue categorías
-  ahí, y el motor tampoco: es un rango único.
-- **El orden de los pasos del wizard, inventado.** Decía objeto → base →
-  terminación; el orden real es terminación → objeto → base, y la UMA es
-  siempre el paso 0. Está en `PROCESS_STEP_MAP`, una sola constante.
-- **Cinco «tipos de proceso» que no lo son.** Los mínimos (arts. 19, 31, 44, 48,
-  58, 60 y 61 bis) son una pantalla de consulta sin entrevista y sin cálculo.
-  Además son siete categorías, no cinco.
-- **Art. 21 descrito como «escala para juicios de conocimiento».** Es la escala
-  general de todo proceso susceptible de apreciación pecuniaria.
-- **Apoderado y procurador atribuidos al art. 21.** Son del art. 20. Y el
-  procurador es el 40 % *del honorario del patrocinante*, no de la base.
-- **Los incisos del exhorto, con etiquetas que no son las del art. 50**
-  («asistencia a audiencia», «trámites simples/complejos»). Son notificaciones,
-  actos registrales y diligencias de prueba. Además la entrevista no pregunta el
-  inciso: muestra los tres.
-- **«De qué otros módulos depende»**, con nombres de módulo inventados
-  (`escala_art21`, `patrocinante`, `valor_uma`) que no existen en el código y
-  que por lo tanto nadie podía verificar. Reemplazado por funciones y archivos
-  reales.
-
-**Criterio de la reescritura:** el lector es un abogado que lee código o que lo
-maneja con asistencia de IA, así que **todo se nombra dos veces** —la categoría
-jurídica y la clave del código—. `sumas_dinero` no es una categoría de la ley;
-la categoría es «juicio por cobro de sumas de dinero» y el artículo es el 22.
-Y cada afirmación quedó anclada a un lugar comprobable: `PROCESS_STEP_MAP` para
-qué se pregunta, `resolveReglas()` para qué hace con la respuesta.
-
-**Método, que conviene repetir:** el documento no se corrigió leyéndolo. Se
-leyeron `wizard-schema.ts` y `calculate.ts` enteros y se corrió
-`retroceso.validation.ts`, que imprime los recorridos por proceso. De ahí salen
-los 160 recorridos y su desglose, que ahora están en el documento porque son
-verificables corriendo una línea.
+## Lo demás que se hizo, en orden
 
 ### La landing decía mal lo que hace — 6/8
 
 «Barre los **25.600 recorridos posibles** de la entrevista» era una cifra
-correcta describiendo otra cosa. La entrevista tiene **160 recorridos**; 25.600
-es 160², los **cruces**: cada recorrido contra cada otro. Eso es lo que barre
-`retroceso.validation.ts`, y es el bug del 3/8 — volver atrás y cambiar el tipo
-de proceso dejaba pegada una respuesta que el recorrido nuevo ya no pregunta.
-
-Era peor que un error de redondeo: una cifra más impresionante que la real,
+correcta describiendo otra cosa: 25.600 no son recorridos sino **cruces**, cada
+recorrido contra cada otro, que es lo que barre `retroceso.validation.ts`. Eso
+es el **flujo hacia atrás**, el bug del 3/8: volver atrás y cambiar el tipo de
+proceso dejaba pegada una respuesta que el recorrido nuevo ya no pregunta, y el
+motor clásico tenía el mismo agujero —por eso `AGENTS.md` dice que no sirve de
+oráculo—. Era peor que un error de redondeo: una cifra más impresionante que la real,
 describiendo algo distinto, en la sección que sostiene la credibilidad del
-sitio. Ante alguien del palo, no cerraba.
-
-Se corrigió también en `README.md`, que repetía la misma frase.
+sitio. Ante alguien del palo, no cerraba. Se corrigió también en `README.md`.
+(Los números de hoy son otros: ver [Dónde estamos](#dónde-estamos).)
 
 **Y «casos conocidos» daba a entender una autoridad externa que no hay.** Cada
 caso es una entrada con su resultado esperado, escrito a mano en el archivo de
 validación: no hay jurisprudencia ni tabla oficial detrás. **Lo que garantizan
-las 11 validaciones es consistencia, no corrección** —que el número de hoy sea
-el de ayer salvo que alguien haya decidido cambiarlo y lo haya escrito—. Un
-usuario puede decir «esto está mal» y tener razón, y la app no lo contradice.
-Ahora la landing lo dice.
+las validaciones es consistencia, no corrección** —que el número de hoy sea el
+de ayer salvo que alguien haya decidido cambiarlo y lo haya escrito—. Un usuario
+puede decir «esto está mal» y tener razón, y la app no lo contradice. Ahora la
+landing lo dice.
 
 De paso se sacó el registro de la columna: «suites, una por concern», «no conoce
 React ni el DOM», «función pura», «refactor». Si el que entra es abogado, esa
 columna no le decía nada.
-
-### Las dos fuentes de días inhábiles — 5/8
-
-`mora.html` no leía `data/dias-inhabiles.json` como el resto: apuntaba a
-`jnc-34.github.io/jnc34`, un repositorio del propio Javier creado antes y
-abandonado. Ahora apunta a la fuente única.
-
-**El cambio no perdió nada y corrigió un error.** De las 36 fechas que el
-externo tenía de más, **35 son feriados nacionales que la API de
-`argentinadatos.com` ya devuelve**. La única huérfana era `2026-06-17`, Güemes…
-que **está mal**: es trasladable, en 2026 el 17 cae miércoles y rige el lunes
-15/6, que la API sí trae. Era la fecha nominal, no la vigente.
-
-**Método que conviene repetir:** ante dos fuentes que difieren, no elegir la más
-larga. Comparar entrada por entrada contra la fuente autoritativa.
 
 ### La guía de uso — 5/8
 
 `documentacion.html` estaba enlazada desde el hero y contradecía a la landing.
 Reescrita entera sobre el sistema visual del sitio. **Lo que se conservó, porque
 era lo que valía:** todo el contenido normativo y sobre todo las advertencias de
-alcance, reorganizadas en cuatro grupos, con **un bloque explícito de qué NO
-hace** por herramienta, que es lo que decide si el resultado se puede usar.
+alcance, con **un bloque explícito de qué NO hace** por herramienta, que es lo
+que decide si el resultado se puede usar.
 
-Tres correcciones de fondo:
+De ahí sale una lección que se paga cara: **al documentar una herramienta, leer
+lo que hace, no lo que su nombre sugiere.** La advertencia sobre la ampliación
+por distancia se escribió mirando una sola de las dos pestañas de
+`distancia.html`, y decía que mide en línea recta. Lo corrigió Javier el 5/8: el
+segundo modo mide **por ruta** (OSRM, sobre la red de OpenStreetMap), que es el
+que se acerca al criterio de la Corte. La guía ahora explica cuál usar —la de
+ruta manda, la lineal sirve de piso— y que donde la Acordada 5/2010 fija la
+distancia al asiento federal, manda la Acordada.
 
-- **La ampliación por distancia.** La versión del 5/8 decía que la herramienta
-  mide en línea recta y que por eso el resultado hay que tomarlo como piso.
-  **Estaba mal, lo corrigió Javier el 5/8:** la calculadora tiene *dos* modos y
-  el segundo mide **por ruta** (OSRM, sobre la red de caminos de
-  OpenStreetMap), que es el que se acerca al criterio de la Corte. La guía
-  ahora explica cuál usar: la de ruta manda, la lineal sirve de piso —si ya con
-  ella corresponde ampliación, corresponde—, y ninguna de las dos es el
-  ferrocarril del fallo, así que donde la Acordada 5/2010 fija la distancia al
-  asiento federal, manda la Acordada.
-
-  **La lección:** al documentar una herramienta, leer lo que hace, no lo que
-  su nombre sugiere. `distancia.html` tiene dos pestañas y la advertencia se
-  escribió mirando una sola.
-- **El asistente clásico** dejó de figurar como «prototipo en desarrollo» y pasó
-  a lo que es: el origen de Honorio, conservado como referencia de validación.
-- Se agregó **«Cómo se calculan los días»**, que estaba repetida a pedazos, con
-  las dos advertencias que importan: el receso de invierno es estimado, y si la
-  API de feriados no responde el resultado puede quedar corrido.
-
-Ya no tiene emojis, así que la excepción que `AGENTS.md` anotaba está saldada.
-
-**El 7/8 se le agregaron dos declaraciones al bloque «qué no hace» de
-Honorio**, que son los puntos 5 y 7 del plan de cobertura: el 4 % del gestor y
-de la gestión útil del art. 42 —que no se calcula sobre la base ni sobre el
-honorario sino sobre los fondos disponibles en favor de terceros, un dato que
+El 7/8 se le agregaron al bloque «qué no hace» de Honorio las dos previsiones
+que el plan de cobertura decidió declarar y no implementar: el 4 % del art. 42
+—que se calcula sobre los fondos disponibles en favor de terceros, un dato que
 la entrevista no tiene— y el porcentaje mayor por labores altamente complejas
-del art. 21, que es una facultad del juez por auto fundado. Las dos van con el
-motivo, porque «no lo hace» sin el porqué se lee como una carencia y son
+del art. 21, que es una facultad del juez por auto fundado. **Las dos van con el
+motivo**, porque «no lo hace» sin el porqué se lee como una carencia y son
 decisiones.
 
-### Presentación del repositorio — 4/8
-
-El repositorio está en el LinkedIn de Javier y funciona como carta de
-presentación. Presentaba mal lo que tiene: Honorio era una tarjeta más bajo «En
-desarrollo», y el texto más visible era un descargo pidiendo disculpas por el
-código.
-
-**El criterio que ordenó todo:** hay dos descargos distintos y estaban
-mezclados. Uno es correcto y profesional —*no sustituye el criterio del juez, no
-es asesoramiento legal*— y se conserva. El otro es una disculpa preventiva y se
-reemplazó por lo contrario: **cómo se verifica**. Decir «11 validaciones impiden
-que un cambio de interfaz mueva un número» genera más confianza que pedir
-perdón, y encima es cierto.
-
-De ahí salieron: `AGENTS.md` como referencia canónica, `CLAUDE.md` reducido a un
-puntero, `PROJECT_CONTEXT.md` borrado por desactualizado, README e `index.html`
-reescritos, `scripts/validate.mjs` como runner único, CI en cada push y PR, y
-`docs/domain/` publicado como HTML.
-
-**Sobre las validaciones:** antes eran scripts sueltos que había que acordarse de
-correr, así que «ningún cambio puede mover un número sin que una validación
-falle» era un deseo. Ahora corre en CI y otra vez en `pages.yml` antes de
-publicar: **si una falla, el sitio no sale.** La frase pasó a ser verdad.
-
-**Sobre `npm run lint`:** se eliminó. Declaraba `eslint .` y `eslint` nunca
-estuvo instalado, así que era una promesa que fallaba.
-
-### La mudanza de Honorio — 4/8
-
-`honorio/` salió del repositorio con `git subtree split`, historia completa, y
-vive en `javiercuneo/honorio`, publicado en `honorio.ar`. `redirects/honorio/`
-deja una redirección para los enlaces que ya andaban dando vueltas.
-
-**Hallazgo que vale como método:** mirando la red de `honorio.ar` recién
-publicado apareció un 404 a `/_vercel/insights/script.js`. Era
-`@vercel/analytics`, resto de la plantilla de v0. Se sacó: la app declara que
-nada de lo que se escribe sale del navegador, y con ese paquete adentro la
-afirmación dependía de dónde estuviera alojada. **Una afirmación de privacidad
-no puede depender del hosting.** Después de publicar en un lugar nuevo, mirar la
-pestaña de red, no solo si la página carga.
-
-Lo que quedó acá y sigue relacionado:
-
-- **`asistente-honorarios-clasico/`** es la FUENTE del motor legacy que Honorio
-  todavía carga por `<script>`. Un arreglo a ese motor compartido **se hace acá**
-  y se propaga allá a propósito.
-- **`docs/domain/`** documenta la Ley 27.423 para los dos. Si algún día el
-  clásico se retira, esos ocho documentos se van con Honorio.
+Ya no tiene emojis, así que la excepción que `AGENTS.md` anotaba está saldada.
 
 ---
 
@@ -834,13 +366,33 @@ el look más reconocible de diseño generado por IA.
 `--faint` es el gris más claro que todavía se lee. **No aclararlo**: su único uso
 es texto chico, que es justo donde el piso de contraste es 4.5.
 
-### `calculadoras/honorarios.html` salió de la vista
+### `calculadoras/honorarios.html` se dio de baja — 7/8
 
-Decisión del 4/8: **se sacó de la landing y del README**, porque Honorio la
-reemplaza. **El archivo queda en el repositorio** —sigue publicada en su URL y
-los enlaces viejos andan— como referencia y porque podría volver con otra forma.
-Idea anotada, no comprometida: un modo «power user» de Honorio, cálculo directo
-sin entrevista, para quien ya sabe lo que quiere.
+El 4/8 se la había dejado publicada, con la tarjeta «retirada» en el grupo
+«Otras» de la landing. **Este documento decía que se había sacado de la landing
+y era falso**: seguía ahí, con una descripción que la ofrecía como estimación
+rápida.
+
+El 7/8 se le encontró el error del grupo 4 —la reducción del art. 22 sobre la
+escala en vez de sobre la base— y **se decidió darla de baja en vez de
+corregirla**. El motivo no es el costo del arreglo, que igual no era una línea:
+es que Honorio ya la reemplaza y el
+[`PLAN_CALCULO_DIRECTO.md`](PLAN_CALCULO_DIRECTO.md) la reemplaza mejor. Una
+herramienta superada dos veces no se parchea.
+
+**Cómo quedó, y por qué así:**
+
+- **El archivo sigue en el repositorio**, sin tocar. Es historia: fue el primer
+  intento de regulador, antes del clásico y de Honorio.
+- **La URL sigue viva.** `pages.yml` publica `redirects/honorarios-retirada/`
+  encima de `site/calculadoras/honorarios.html`, con el mismo patrón que
+  `redirects/honorio/`. Ningún enlace viejo muere en un 404 **y ninguno entrega
+  un número equivocado.** Las dos cosas juntas, que era el punto.
+- **La tarjeta de la landing lo dice**, con el motivo. El aviso también.
+
+**El criterio, porque se va a repetir:** una herramienta publicada tiene que
+estar bien o no estar publicada. Que esté «retirada» en la landing no la saca de
+internet, y el que llega por un enlace no ve la tarjeta.
 
 ### Licencia
 
@@ -855,16 +407,22 @@ repositorio, no en este.
 Ninguno urgente y ninguno bloqueante. El dominio está cerrado del todo:
 registrado, con DNS, con certificado y con HTTPS forzado.
 
-- **`mora.html` sobre `calendario-judicial.js`**, descrito arriba.
-- **`www.javiercuneo.com.ar`**, si se lo quiere.
-- **Tuteo suelto en el texto de las calculadoras.** Varias dicen «envíanos un
-  mail» y «si crees», que es el imperativo de *tú*. La convención del
-  repositorio es rioplatense. No se corrigió para no mezclarlo con la revisión
-  visual.
+- **`mora.html` todavía no usa `js/calendario-judicial.js`**: tiene su propia
+  copia de la lógica de feria y fin de semana. Es duplicación de código, no
+  divergencia de datos —la lista y la API ya son las mismas—, así que no cambia
+  ningún número. Es lo único de fondo que sigue abierto de las calculadoras.
 - **`lib/legal/minimos-data.ts` nunca se verificó contra la ley.** Las cifras de
   los mínimos que citan el `06` y el `07` están verificadas contra ese archivo,
   y el archivo dice ser copia fiel del asistente clásico. Que sea fiel a la copia
   no prueba que sea fiel a la norma. Son unas cuarenta cifras.
+- **Ninguna calculadora se corrió de punta a punta.** Se midió contraste y ancho
+  en las once y se miraron capturas de dos. Un cálculo real, con su pantalla de
+  resultado, no se hizo.
+- **Tuteo suelto en el texto de las calculadoras.** Varias dicen «envíanos un
+  mail» y «si crees», que es el imperativo de *tú*. La convención del
+  repositorio es rioplatense.
+- Los `max-width` de las calculadoras siguen yendo de 240 a 1000 px sin criterio.
+- **`www.javiercuneo.com.ar`**, si se lo quiere.
 - **El plan completo de qué falta de la ley, qué hacer y qué solo declarar está
   en [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md)**, con el orden
   recomendado. **Ocho puntos**, de los que el 7/8 se cerraron dos: el hint de la
@@ -872,50 +430,125 @@ registrado, con DNS, con certificado y con HTTPS forzado.
   tres que sí los mueven —uno hacia arriba: los pisos mínimos que el motor no
   verifica—, dos para declarar y no implementar, y uno anotado sin fecha.
 
-### Dos cosas para llevar al repositorio de Honorio
+### Planes abiertos
 
-Encontradas el 6/8 al verificar el `01`. **No se tocaron: son de allá.**
+Features pensadas y todavía no empezadas. Cada una tiene su documento **para que
+se puedan analizar en sesiones distintas**.
 
-- **Las descripciones de la pregunta de medida cautelar están cruzadas.** En
-  `wizard-schema.ts`, `CAUTELAR_OPOSICION` le pone «25 % de la escala» a la
-  opción *con* oposición y «50 %» a la opción *sin*. El art. 37 dice lo
-  contrario —base 25 %, se eleva al 50 % con controversia— y **el motor calcula
-  bien**: `aplicarFactorCautelar()` hace `medidaOposicion ? 0.5 : 0.25`. O sea
-  que el número que sale es el correcto y el cartel que lo explica dice al revés.
-  No lo agarra ninguna validación porque no mueve ningún número.
-- **La transformación de la cautelar se atribuye al art. 29 inc. e.** Ese inciso
-  es el de los procesos penales. El artículo es el 37, que es el que la propia
-  pregunta cita en pantalla.
+**El orden acordado el 7/8, para arrancar sin volver a decidirlo:**
+
+1. ~~**Los bugs.**~~ **Hechos el 7/8.** Ver [Bugs conocidos](#bugs-conocidos).
+   Queda solo el código muerto de `honorio/public/legacy/core.js`, que es del
+   otro repositorio.
+2. **Cálculo directo — es acá donde arranca la próxima sesión.** No está
+   bloqueado por nada y **prepara el terreno de los
+   otros dos**: fija la matriz de roles × etapas que la prosa va a tener que
+   redactar, crea el segundo consumidor de las funciones puras con su validación
+   cruzada, y produce el `CalculoResultado` más simple posible —sin
+   transformaciones—, que es el caso de prueba con el que conviene empezar el
+   generador de prosa.
+3. **Mediación**, antes que prosa **porque agrega una sección al resultado**. Al
+   revés habría que rehacer plantillas para meter al mediador.
+4. **Regulación en prosa**, última: la más riesgosa y la que más se beneficia de
+   que el resto esté firme.
+
+**En paralelo, y no espera a nadie:** cargar la ley de mediación, su decreto y la
+norma del UHOM, y los modelos de resolución. Con eso hecho antes de llegar al 3,
+el orden no tiene esperas.
+
+**La alternativa que se evaluó:** subir la prosa al segundo lugar, porque cambia
+más el uso diario que una calculadora más. Se defiende; el costo es rehacer las
+plantillas cuando entre el mediador. Se eligió el orden de arriba, pero la
+decisión es de valor y no técnica.
+
+- **[`PLAN_MEDIACION.md`](PLAN_MEDIACION.md)** — 7/8. Llevar el honorario del
+  mediador a Honorio. La decisión abierta es si mediación es un noveno tipo de
+  proceso o un bloque aparte del resultado; recomiendo lo segundo, **porque no
+  comparte la unidad**: va en UHOM y no en UMA, aunque las dos salgan de la misma
+  planilla. Bloqueado hasta cargar la ley de mediación y su decreto: la escala
+  que hoy aplica la calculadora **no cita ninguna norma**, así que no se puede
+  dar por buena.
+- **[`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md)** — 7/8. Que la
+  app devuelva el texto de la regulación para copiar y pegar. La decisión abierta
+  es **quién elige el número dentro de la banda**: el motor devuelve rangos a
+  propósito, porque elegir adentro es el acto jurisdiccional, y una resolución
+  fija un número. Bloqueado hasta cargar los modelos de resolución. Es la feature
+  más riesgosa del proyecto: produce prosa con forma de documento firmado, y
+  ninguna de las validaciones actuales mira prosa.
+- **[`PLAN_CALCULO_DIRECTO.md`](PLAN_CALCULO_DIRECTO.md)** — 7/8. El modo sin
+  entrevista: entra la base, sale la escala del art. 21 desnuda con los tres
+  roles, las tres etapas, los auxiliares y la segunda instancia. Es la idea que
+  estaba anotada desde el 4/8 al sacar `calculadoras/honorarios.html` de la
+  vista. **Es el plan más chico de los tres**, porque las cinco funciones que
+  hacen falta ya existen puras y exportadas en `calculate.ts`. La regla que lo
+  gobierna: **«sin reducciones» no es un caso, es la ausencia de caso**, así que
+  se componen las funciones puras y no se arma un `WizardState` con respuestas
+  por defecto —cada respuesta por defecto es una afirmación jurídica que nadie
+  hizo—. No está bloqueado por nada.
 
 ### Bugs conocidos
 
-Ninguno abierto. El último, cerrado el 5/8:
+Ninguno abierto. Los tres del 7/8 quedaron cerrados el mismo día:
 
-**Caducidad contaba mal la feria de julio.** Lo reportó Javier con el caso:
-inicio 23/6/2026, plazo de 1 mes, resultado **27/7/2026** — una fecha que está
-dentro de la feria que el propio resultado decía haber atravesado.
+**1. La lectura de la planilla por posición, en tres archivos.** `honorarios-mediacion.html`,
+`prorrateo.html` y `asistente-honorarios-clasico/js/core.js` tomaban la fila por
+número. Ahora los tres buscan **por clave**, respetando comillas —la fila
+`Acordada` tiene comas adentro— y detectando el HTML que Google devuelve con
+status 200 cuando la publicación se da de baja. Es el mismo criterio de
+`honorio/scripts/actualizar-uma.mjs`.
 
-La causa: el código sumaba los días de feria **solapados con el vencimiento
-nominal**, no los de la feria entera, y no volvía a mirar si la fecha nueva
-seguía cayendo adentro. El bucle avanzaba de año y nunca reexaminaba la misma
-feria.
+El peligroso era el de mediación: leía la celda B2, así que una fila insertada
+arriba le habría hecho tomar la UMA como si fuera el UHOM —$102.076 donde van
+$12.960—, un honorario **ocho veces más alto sin ningún error visible**.
+Verificado contra el CSV real y contra tres mutaciones —fila nueva arriba, filas
+reordenadas, clave ausente—: los tres devuelven el valor correcto en las
+primeras dos y `null` en la tercera, que es lo que activa la carga manual.
 
-El art. 311 CPCCN dice que los plazos corren durante los inhábiles «salvo los
-que correspondan a las ferias judiciales», así que los 12 días se descuentan
-enteros. El arreglo es una **iteración a punto fijo** —recalcular hasta que la
-fecha deje de moverse—, que es el mismo patrón que el cálculo «full» de ese
-archivo ya usaba unas líneas más abajo para los inhábiles.
+**El arreglo se propagó a `honorio/public/legacy/core.js`**, en el commit propio
+de aquel repositorio. Y ahí hubo una corrección de criterio que conviene tener
+escrita, porque la primera versión de este documento proponía lo contrario:
 
-**Lo que importa del alcance:** el criterio no es «el resultado cae en feria»
-sino **«el vencimiento nominal cae en feria»**. De 8.760 combinaciones de fecha
-de inicio por plazo entre 2025 y 2028, cambian **298 (3,4 %)** y son
-exactamente esas, ninguna más. De ellas, solo una parte daba el absurdo visible
-que se reportó; **el resto daba una fecha equivocada pero verosímil**, que nadie
-habría mirado dos veces. Ejemplo: inicio 26/6/2026, 1 mes, daba 2/8 y
-corresponde 7/8, porque contaba 7 de los 12 días.
+> Se había anotado «sacar `cargarUMA()` de la copia de Honorio, que es código
+> muerto». **Eso estaba mal.** `AGENTS.md` dice que el motor legacy se arregla en
+> su fuente y se propaga, y que **nunca se parchea una copia sola**; y
+> `adapters.ts:74` ya había decidido a propósito no tocar esa función por ese
+> mismo motivo. Lo correcto no era borrarla de la copia sino **propagarle el
+> arreglo**, que es lo que se hizo. La copia volvió a ser fiel a su fuente
+> —difieren solo en un `return` que ya estaba— y de paso dejó de leer por
+> posición.
+>
+> **La lección:** antes de proponer una limpieza en `public/legacy/`, mirar si la
+> decisión ya está tomada. Estaba, y con mejor razón.
 
-Verificado además que ningún resultado nuevo cae dentro de la feria, que todos
-satisfacen el punto fijo y que ninguno es anterior al vencimiento nominal.
+**2. El art. 22 sobre la escala en `calculadoras/honorarios.html`.** Su `grupo4`
+hacía `calcMinComp *= 0.7` sobre el resultado de la escala. **Es el mismo error
+que tenía `05_DEPENDENCIAS.md`**: el art. 22 reduce la **base**, antes de la
+escala (`aplicarReduccionesBase()`, `calculate.ts:270`). Con el ejemplo ya
+escrito acá daba **7,6 % de más** y ni siquiera caía en el mismo tramo. Los
+grupos 2, 3, 5 y 6 estaban bien: esos artículos sí reducen la escala.
+**Se resolvió dando de baja la herramienta**, no corrigiéndola; el porqué está
+arriba.
+
+**3. El redondeo en los bordes de tramo**, en ese mismo archivo: `baseEnUMA` se
+redondeaba si caía entre 15 y 16, 45 y 46, y así en los seis cortes. El motor no
+redondea nada, comprobado. Se fue con la baja de la herramienta.
+
+El último bug de fondo cerrado, el 5/8, dejó una lección de alcance que conviene
+tener:
+
+**Caducidad contaba mal la feria de julio.** El código sumaba los días de feria
+**solapados con el vencimiento nominal**, no los de la feria entera, y no volvía
+a mirar si la fecha nueva seguía cayendo adentro. El art. 311 CPCCN descuenta
+enteros los plazos que corresponden a ferias, así que el arreglo es una
+**iteración a punto fijo** —recalcular hasta que la fecha deje de moverse—, el
+mismo patrón que ese archivo ya usaba unas líneas más abajo para los inhábiles.
+
+**Lo que importa:** de 8.760 combinaciones de fecha de inicio por plazo entre
+2025 y 2028, cambiaban **298 (3,4 %)**. Solo una parte daba el absurdo visible
+que reportó Javier —una fecha de vencimiento dentro de la feria que el propio
+resultado decía haber atravesado—; **el resto daba una fecha equivocada pero
+verosímil**, que nadie habría mirado dos veces. Un bug de cálculo de plazos se
+busca con un barrido, no con el caso que lo destapó.
 
 ---
 
@@ -932,20 +565,33 @@ satisfacen el punto fijo y que ninguno es anterior al vencimiento nominal.
 - **Al leer un diff grande de un HTML, mirar primero si es de contenido.**
   `git diff --ignore-cr-at-eol` lo despeja en un segundo.
 - **No redefinir los tokens de `comun.css` dentro del `<style>` de una
-  calculadora.** `--accent: var(--accent)` es un ciclo y deja la variable en la
-  cadena vacía, sin ningún error visible. Ver arriba.
+  calculadora.** `--accent: var(--accent)` es una dependencia cíclica: por
+  especificación la propiedad queda inválida en tiempo de cómputo y `var()` no
+  devuelve el token sino **la cadena vacía**, sin ningún error visible. Así
+  quedaron `mora` y `honorarios-mediacion` con el botón principal blanco sobre
+  blanco, en los dos temas y en producción. Hay un comentario en cada archivo.
 - **`--border` y `--hair` son colores de línea translúcidos, no superficies.**
   Usados como `background` dan casi transparente. Para una superficie hundida va
   `--sunk`.
 - **Las reglas de `@media print` no llevan tokens de tema.** El papel es blanco
   siempre: `background: var(--card)` imprime negro en modo oscuro.
+- **Después de tocar la configuración de Pages, mirar `Age` antes de sacar
+  conclusiones de un código de estado.** Al verificar Enforce HTTPS,
+  `http://javiercuneo.com.ar/` devolvía 404 y se leyó como que la opción estaba
+  sin tildar. Era **una respuesta cacheada en el borde de GitHub**, de cuando el
+  dominio todavía no estaba configurado: la raíz venía con `age=3502` —casi una
+  hora— mientras que `/index.html`, que nunca se había pedido por HTTP, salía con
+  `age=0` y el 301 correcto. Un parámetro de cache-bust en la query **no sirve**,
+  porque la variante ya estaba cacheada igual.
 - **`git commit -m` con here-string falla** en este entorno (guardia de
   sandbox). Usar `git commit -F <archivo>`.
-- **`npm run lint` no existe.** Para verificar: `npm run check` y `npm run
-  build`.
-- **Los comandos de Honorio se corren desde `honorio/`**, que es un clon de otro
-  repositorio. Desde el 4/8 la raíz también tiene `package.json`, con `npm run
-  docs`. Son dos proyectos npm distintos: fijarse en cuál se está parado.
+- **`npm run lint` no existe.** Se eliminó el 4/8: declaraba `eslint .` y
+  `eslint` nunca estuvo instalado, así que era una promesa que fallaba.
+- **Son dos proyectos npm distintos: fijarse en cuál se está parado.** El de la
+  raíz tiene **dos scripts y nada más**: `docs` y `verificar-docs`. `check`,
+  `build`, `validate` y `typecheck` son de Honorio y **solo corren desde
+  `honorio/`**, que es un clon de otro repositorio. Pedirlos acá da «Missing
+  script», que se lee fácil como que algo está roto y no lo está.
 - **El panel del navegador no compone frames si no está a la vista.** Se anotó
   varias veces como si fuera una limitación del entorno y no lo es: con el panel
   oculto `document.hidden` es `true`, `requestAnimationFrame` no dispara,
@@ -956,3 +602,15 @@ satisfacen el punto fijo y que ninguno es anterior al vencimiento nominal.
 - **La landing publica lo que la allowlist de `pages.yml` nombra.** Si se agrega
   algo al sitio, va ahí *y* se enlaza desde `index.html`. Si no, no existe para
   nadie: ya pasó con PDF-studio, que estuvo meses publicado sin figurar.
+- **Después de publicar en un lugar nuevo, mirar la pestaña de red, no solo si
+  la página carga.** En `honorio.ar` recién publicado apareció un 404 a
+  `/_vercel/insights/script.js`: era `@vercel/analytics`, resto de la plantilla
+  de v0. La app declara que nada de lo que se escribe sale del navegador, y con
+  ese paquete adentro la afirmación dependía de dónde estuviera alojada. **Una
+  afirmación de privacidad no puede depender del hosting.**
+- **Los días inhábiles tienen una sola fuente: `data/dias-inhabiles.json` más la
+  API de `argentinadatos.com`.** Hasta el 5/8 `mora.html` leía un repositorio
+  viejo y abandonado con 36 fechas de más; 35 ya las daba la API y la única
+  huérfana estaba mal —era la fecha nominal de un feriado trasladable, no la
+  vigente—. **Ante dos fuentes que difieren, no elegir la más larga:** comparar
+  entrada por entrada contra la autoritativa.

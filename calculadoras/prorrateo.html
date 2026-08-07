@@ -484,33 +484,69 @@
             calculate();
         }
 
-        // --- Cargar UMA desde Google Sheets (celda B1) ---
+        /*
+          La planilla es una tabla de clave y valor:
+
+            UMA,102.076
+            UHOM,12.960
+            Acordada,"Expresado en UMAs: (valor = $ ... segun Res. ...)"
+            URL,https://...
+
+          Se busca POR CLAVE y no por posicion: agregar una fila o
+          cambiarlas de orden no puede romper el numero. Antes esto
+          leia la primera linea a ciegas. Es el mismo criterio que usa
+          scripts/actualizar-uma.mjs en el repositorio de Honorio.
+
+          Se respetan las comillas porque la fila Acordada tiene comas
+          adentro.
+        */
+        function valorDePlanilla(csv, clave) {
+            const campos = [];
+            let celda = '';
+            let entreComillas = false;
+
+            const cerrarFila = () => {
+                campos.push(celda);
+                celda = '';
+                const encontrada = campos[0].trim().toUpperCase() === clave;
+                const valor = encontrada && campos.length > 1 ? campos[1].trim() : null;
+                campos.length = 0;
+                return valor;
+            };
+
+            for (let i = 0; i < csv.length; i++) {
+                const c = csv[i];
+                if (entreComillas) {
+                    if (c === '"') {
+                        if (csv[i + 1] === '"') { celda += '"'; i++; }
+                        else entreComillas = false;
+                    } else celda += c;
+                    continue;
+                }
+                if (c === '"') entreComillas = true;
+                else if (c === ',') { campos.push(celda); celda = ''; }
+                else if (c === '\n') { const v = cerrarFila(); if (v) return v; }
+                else if (c !== '\r') celda += c;
+            }
+            return cerrarFila();
+        }
+
+        // --- Cargar UMA desde la planilla publicada ---
         async function cargarUMA() {
             const umaInput = document.getElementById('umaInput');
             try {
                 const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8tumvxptTGBCfScMwWxK7r6ATnGfMw061GKGdzfIVyThcSGzUqjI-vcpME1AtykPmjqTq0xdjgc7D/pub?output=csv');
                 const csvText = await response.text();
-                const lines = csvText.split('\n');
-                // La primera línea (fila 1 del sheet) contiene "UMA,89.875"
-                if (lines.length >= 1) {
-                    const firstLine = lines[0];
-                    const columns = firstLine.split(',');
-                    if (columns.length >= 2) {
-                        let rawValue = columns[1].trim().replace(/"/g, '');
-                        // Eliminar puntos (separador de miles) para obtener el número entero
-                        rawValue = rawValue.replace(/\./g, '');
-                        const umaValor = parseFloat(rawValue);
-                        if (!isNaN(umaValor) && umaValor > 0) {
-                            umaInput.value = umaValor; // asignar como número sin formato
-                        } else {
-                            umaInput.value = ''; // No válido, dejar vacío
-                        }
-                    } else {
-                        umaInput.value = '';
-                    }
-                } else {
-                    umaInput.value = '';
-                }
+
+                // Google devuelve el HTML de una pantalla de error con
+                // status 200 cuando la publicacion se dio de baja.
+                if (/^\s*</.test(csvText)) throw new Error('la planilla no esta publicada');
+
+                const bruto = valorDePlanilla(csvText, 'UMA');
+                // Los puntos son separador de miles en la planilla.
+                const umaValor = bruto ? parseFloat(bruto.replace(/\./g, '')) : NaN;
+
+                umaInput.value = !isNaN(umaValor) && umaValor > 0 ? umaValor : '';
             } catch (e) {
                 console.warn("Error al cargar UMA:", e);
                 umaInput.value = ''; // dejar vacío para ingreso manual

@@ -134,28 +134,76 @@
       return parseFloat(s.replace(/[^0-9.-]/g, ''));
     }
 
+    /*
+      La planilla es una tabla de clave y valor:
+
+        UMA,102.076
+        UHOM,12.960
+        Acordada,"Expresado en UMAs: (valor = $ ... segun Res. ...)"
+        URL,https://...
+
+      Se busca POR CLAVE y no por posicion. Antes esto leia la celda
+      B2 —fila 2, columna 2— y funcionaba solo mientras UHOM fuera la
+      segunda fila: el dia que se agregara una fila arriba habria
+      tomado la UMA como si fuera el UHOM, o sea un honorario ocho
+      veces mas alto sin ningun error visible. Es el mismo criterio
+      que usa scripts/actualizar-uma.mjs en el repositorio de Honorio.
+
+      Se respetan las comillas porque la fila Acordada tiene comas
+      adentro: partir por coma a secas funciona hasta que deja de
+      funcionar, en silencio y en el numero.
+    */
+    function valorDePlanilla(csv, clave) {
+      const campos = [];
+      let celda = '';
+      let entreComillas = false;
+
+      const cerrarFila = () => {
+        campos.push(celda);
+        celda = '';
+        const encontrada = campos[0].trim().toUpperCase() === clave;
+        const valor = encontrada && campos.length > 1 ? campos[1].trim() : null;
+        campos.length = 0;
+        return valor;
+      };
+
+      for (let i = 0; i < csv.length; i++) {
+        const c = csv[i];
+        if (entreComillas) {
+          if (c === '"') {
+            if (csv[i + 1] === '"') { celda += '"'; i++; }
+            else entreComillas = false;
+          } else celda += c;
+          continue;
+        }
+        if (c === '"') entreComillas = true;
+        else if (c === ',') { campos.push(celda); celda = ''; }
+        else if (c === '\n') { const v = cerrarFila(); if (v) return v; }
+        else if (c !== '\r') celda += c;
+      }
+      return cerrarFila();
+    }
+
     async function fetchUhom() {
       const inputUhom = document.getElementById('uhom');
       const status = document.getElementById('statusUhom');
       try {
         const response = await fetch(URL_SHEET + '&cache=' + new Date().getTime());
         const data = await response.text();
-        const filas = data.split('\n');
-        
-        // Celda B2 (Segunda fila, segunda columna)
-        if (filas.length >= 2) {
-          const columnas = filas[1].split(',');
-          if (columnas.length >= 2) {
-            const valorB2 = columnas[1].replace(/"/g, '').trim();
-            if (!isNaN(parseFlexibleNumber(valorB2))) {
-              inputUhom.value = valorB2;
-              status.textContent = 'Valor actualizado.';
-              if (document.getElementById('monto').value) calcular();
-              return;
-            }
-          }
+
+        // Google devuelve el HTML de una pantalla de error con status
+        // 200 cuando la publicacion se dio de baja. Sin esto, la fila
+        // "no aparece" y el usuario no sabe por que.
+        if (/^\s*</.test(data)) throw new Error('la planilla no esta publicada');
+
+        const valor = valorDePlanilla(data, 'UHOM');
+        if (valor && !isNaN(parseFlexibleNumber(valor))) {
+          inputUhom.value = valor;
+          status.textContent = 'Valor actualizado.';
+          if (document.getElementById('monto').value) calcular();
+          return;
         }
-        throw new Error();
+        throw new Error('la planilla no tiene una fila UHOM legible');
       } catch (e) {
         status.textContent = 'Ingrese el valor manualmente.';
       }
