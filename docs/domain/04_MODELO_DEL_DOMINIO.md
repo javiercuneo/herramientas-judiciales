@@ -1,446 +1,567 @@
-# 04 — Modelo del Dominio
+# El modelo del dominio
 
-## Descripción General
+> Documento de dominio — Ley 27.423
 
-Este documento describe las **entidades jurídicas** que componen el dominio de cálculo de honorarios bajo la **Ley 27.423** (Honorarios Profesionales, Procuradores y Auxiliares de Justicia de la Nación Argentina). Cada entidad representa un concepto del mundo legal, no una implementación técnica.
+Las entidades del dominio: qué es cada una en la ley y con qué tipo la
+representa el código. Es el documento donde los dos vocabularios se cruzan.
 
+El [01](01_PROCESOS.md) va proceso por proceso, el [02](02_FLUJO_JURIDICO.md)
+por el recorrido y el orden del cálculo, el [03](03_REGLAS_DE_NEGOCIO.md) por
+las reglas y quién aplica cada una. Este va por **las cosas**: la base, la
+escala, los roles, la UMA.
 
-> **Verificado el 5/8/2026 contra el texto de la ley**, que está en
-> [00_LEY_27423.md](00_LEY_27423.md). No tenía errores de fondo: se precisó el art. 30 —el 40 % exige revocación en todas sus partes en favor del apelante— y se agregó la adecuación de oficio de las regulaciones de primera instancia.
+Los tipos están en `lib/legal/types.ts`, salvo donde se indique otra cosa.
 
----
-
-## 1. Base Regulatoria
-
-**Qué es:** El valor monetario de referencia sobre el cual se aplican las escalas de honorarios. También denominada "cuantía del asunto".
-
-**Attributes:**
-
-- **Monto en pesos:** Valor numérico expresado en moneda nacional.
-- **Tipo de proceso:** Determina cómo se obtiene la base (art.22, art.23, art.35, art.39, art.40, art.43, art.45, art.46).
-- **Puede ser reducida antes de entrar a la escala:** En ciertos supuestos la base se reduce según art.22 o art.40 antes de calcular el porcentaje.
-
-**Reglas de obtención por tipo de proceso:**
-
-| Tipo de proceso | Fuente legal | Cálculo de la base |
-|---|---|---|
-| Conocimiento (sumas de dinero) | Art.22 | Monto reclamado |
-| Conocimiento (desalojo) | Art.22 | Total de alquileres adeudados + mejoras |
-| Sucesión | Art.35 | Valor del patrimonio sucesorio |
-| Ejecutivo | Art.40 | Monto del título + intereses |
-| Medida cautelar | Art.39 | Monto a asegurar |
-| Alimentos | Art.43 | 2 años de la cuota alimentaria |
-| Homologación desocupación | Art.45 | Total de alquileres |
-| Exhorto | Art.46 | Parte que corresponde |
-
-**Relaciones:**
-
-- Se expresa en **UMA** para entrar a la **Escala**.
-- Puede ser modificada por **Transformaciones** (reducciones) antes del cálculo.
+> **Verificado el 7/8/2026** contra el motor y contra el texto de la ley
+> ([00_LEY_27423.md](00_LEY_27423.md)). Lo que se corrigió está al final, y era
+> mucho: seis de las ocho citas de la tabla de bases apuntaban a un artículo que
+> trata otra cosa, y el pie del documento invocaba un decreto reglamentario
+> inexistente.
 
 ---
 
-## 2. UMA (Unidad Monetaria de Actualización)
+## 1. La UMA
 
-**Qué es:** La unidad de cuenta utilizada para expresar todos los montos en el marco de la Ley 27.423. Funciona como unidad de medida monetaria que permite uniformizar los cálculos.
+**Qué es.** La Unidad de Medida Arancelaria del art. 19: equivale al **3 % de la
+remuneración básica del cargo de juez federal de primera instancia**, y la Corte
+Suprema la publica mensualmente.
 
-**Attributes:**
+No es un detalle de actualización monetaria: **es la unidad en la que está
+escrita la ley**. La escala del art. 21 está definida en tramos de UMA y todos
+los mínimos se expresan en UMA. La base en pesos existe para convertirse a UMA.
 
-- **Valor en pesos:** Monto en pesos que equivale a 1 UMA. Se actualiza periódicamente.
-- **Fecha de vigencia:** Desde cuándo rige el valor cargado.
-- **Fuente:** Puede provenir de carga manual o de consulta a Google Sheets.
+**Cómo se representa.** `ValorUMA`, en `lib/legal/uma.ts`:
 
-**Valores de referencia:**
-
-- Valor inicial (fecha de sanción de la ley): **$92.482**
-- Se carga automáticamente desde Google Sheets o se ingresa manualmente.
-
-**Relaciones:**
-
-- Todas las **Bases Regulatorias** se convierten a UMA antes de entrar a la **Escala**.
-- Los **Mínimos Arancelarios** se expresan en UMA.
-- Los montos finales de honorarios se convierten de UMA a pesos.
-
----
-
-## 3. Escala (Art. 21)
-
-**Qué es:** Tabla progresiva de porcentajes que determina los honorarios según la cuantía expresada en UMA. Tiene **7 tramos**.
-
-**Attributes por tramo:**
-
-- **Nro. de tramo:** Del 1 al 7.
-- **Límite inferior en UMA:** Monto mínimo del tramo.
-- **Límite superior en UMA:** Monto máximo del tramo.
-- **Porcentaje mínimo (%):** Tasa mínima aplicable al excedente.
-- **Porcentaje máximo (%):** Tasa máxima aplicable al excedente.
-
-**Lógica de cálculo (progresiva):**
-
-1. Se identifica en qué tramo cae la base en UMA.
-2. El **mínimo** del tramo = máximo del tramo anterior + (porcentaje mínimo × excedente sobre tramo anterior).
-3. El **máximo** del tramo = máximo del tramo anterior + (porcentaje máximo × excedente sobre tramo anterior).
-4. Los honorarios están dentro del rango [mínimo, máximo] del tramo.
-
-**Relaciones:**
-
-- Recibe la **Base Regulatoria** ya expresada en **UMA**.
-- Produce un monto de honorarios (mínimo y máximo) que se aplica al **Patrocinante**.
-- Puede ser modificada por **Transformaciones** (factor de escala).
-
----
-
-## 4. Patrocinante (Abogado Patrocinante)
-
-**Qué es:** El abogado que asesora jurídicamente al cliente. Es el destinatario principal de los honorarios calculados desde la escala.
-
-**Attributes:**
-
-- **Honorarios de escala:** Monto resultante de aplicar la escala a la base.
-- **Etapas completadas:** Determina el porcentaje del total que le corresponde según las etapas del proceso (art.29):
-  - **Juicio completo (1 etapa):** 100% del total.
-  - **Una etapa (1/3):** 33,33% del total.
-  - **Dos etapas (2/3):** 66,66% del total.
-- **Transformaciones aplicables:** Puede recibir reducciones de escala (factorEscala) y reducciones finales (factorFinal).
-
-**Relaciones:**
-
-- Es el **base de cálculo** para el **Apoderado** y el **Procurador**.
-- Recibe el resultado de la **Escala**.
-- Sus honorarios pueden ser reducidos por **Transformaciones**.
-
----
-
-## 5. Apoderado
-
-**Qué es:** El abogado que representa judicialmente al cliente. Recibe una participación adicional sobre los honorarios del patrocinante.
-
-**Attributes:**
-
-- **Porcentaje adicional:** 40% sobre el monto del patrocinante (factor 1,4×).
-- **Art.20 — Caso especial:** Si el mismo abogado actúa como apoderado **sin** patrocinante, recibe la suma de ambos conceptos (100% patrocinante + 40% apoderado = 140% del patrocinante).
-
-**Relaciones:**
-
-- Se calcula sobre los honorarios del **Patrocinante**.
-- Si no hay patrocinante, el apoderado absorbe ambos roles.
-
----
-
-## 6. Procurador
-
-**Qué es:** El procurador es el representante técnico que actúa ante el tribunal en nombre del cliente. Es una figura distinta al abogado.
-
-**Attributes:**
-
-- **Porcentaje:** 40% sobre los honorarios del patrocinante (factor 0,4×).
-- **Art.20.**
-
-**Relaciones:**
-
-- Se calcula sobre los honorarios del **Patrocinante**.
-- Es independiente del **Apoderado**.
-
----
-
-## 7. Auxiliares de Justicia
-
-**Qué es:** Peritos, liquidadores, martilleros, y demás profesionales que colaboran con el tribunal. Sus honorarios se calculan de manera diferente a los del abogado.
-
-**Attributes:**
-
-- **Porcentaje sobre la base:** Entre 5% y 10% de la **Base Regulatoria** (NO de los honorarios del abogado).
-- **Mínimos especiales:** Art.58, art.60, art.61 bis — establecen montos mínimos fijos en UMA.
-
-**Relaciones:**
-
-- Se calculan sobre la **Base Regulatoria** (no sobre honorarios de patrocinante).
-- Pueden tener **Mínimos Arancelarios** aplicables (art.58).
-- Son independientes de patrocinante, apoderado y procurador.
-
----
-
-## 8. Segunda Instancia
-
-**Qué es:** Los honorarios correspondientes a la apelación o segunda instancia del proceso.
-
-**Attributes:**
-
-- **Porcentaje base:** Entre 30% y 35% de los honorarios de primera instancia.
-- **Sentencia revocada:** si la alzada revoca la de primera instancia **en todas sus partes y en favor del apelante**, el porcentaje va del 30% al 40%. El calificativo es del art. 30 y no es decorativo: una revocación parcial no habilita el 40%.
-- **Adecuación de oficio:** si la sentencia se revoca *o modifica*, el tribunal de alzada debe además **rehacer de oficio las regulaciones de primera instancia** según el nuevo resultado (art. 30, párrafo segundo).
-- **Art.30.**
-
-**Relaciones:**
-
-- Se calcula sobre los honorarios de **primera instancia** (Patrocinante + Apoderado + Procurador).
-- Es una instancia adicional, no reemplaza a la primera.
-
----
-
-## 9. Partidor
-
-**Qué es:** El profesional designado para dividir los bienes en un juicio sucesorio. Solo aplica en procesos de **sucesión**.
-
-**Attributes:**
-
-- **Porcentaje:** Entre 2% y 3% de la base.
-- **Art.35, última parte.**
-
-**Relaciones:**
-
-- Solo se aplica cuando el **Tipo de Proceso** es **sucesión**.
-- Se calcula sobre la **Base Regulatoria** (patrimonio sucesorio en UMA).
-
----
-
-## 10. Contingencias Procesales
-
-**Qué es:** Las circunstancias del caso concreto que modifican el resultado del cálculo de honorarios. Representan decisiones del usuario sobre hechos del proceso.
-
-**Attributes:**
-
-| Contingencia | Valores posibles | Efecto |
-|---|---|---|
-| **modoTerminacion** | `sentencia`, `modos_anormales`, `caducidad`, `provisorios` | Determina qué tabla de etapas se aplica y si hay reducción. |
-| **sentenciaResultado** | `admitida`, `rechazada` | En ejecutivo: si se rechaza, la base se reduce a 1/3 (art.40). |
-| **aperturaPrueba** | `antes`, `después` | En ejecutivo: afecta la etapa completada. |
-| **caducidadCriterio** | `art22`, `art25` | Determina la reducción aplicable por caducidad. |
-| **tuvoExcepciones** | `si`, `no` | Puede afectar las etapas del proceso. |
-| **sucesionUnicoLetrado** | `si`, `no` | En sucesión: si hay un solo letrado, se aplica regla especial. |
-| **medidaOposicion** | `si`, `no` | En medida cautelar: si hubo oposición, cambia la base. |
-| **homologacionVivienda** | `si`, `no` | En homologación desocupación: reduce base si vivienda habitual. |
-
-**Relaciones:**
-
-- Modifican la **Base Regulatoria** antes de entrar a la **Escala**.
-- Determinan qué **Etapas del Proceso** se aplican.
-- Pueden activar **Transformaciones** (reducciones).
-
----
-
-## 11. Transformaciones (Reducciones)
-
-**Qué es:** Los factores de reducción que se aplican en distintas etapas del cálculo para modificar los honorarios según las circunstancias del caso.
-
-**Types de transformaciones:**
-
-| Tipo | Valores | Cuándo se aplica |
-|---|---|---|
-| **Reducción de base** | 0,7 / 0,8 | Antes de entrar a la escala (art.22, art.40). |
-| **Factor de escala** | 0,5 | Modifica los porcentajes de la escala en ciertos casos. |
-| **Factor final** | 0,9 / 0,8 / 0,75 | Se aplica al total de honorarios después del cálculo. |
-
-**Relaciones:**
-
-- Las reducciones de base modifican la **Base Regulatoria**.
-- El factor de escala modifica la **Escala**.
-- El factor final modifica los honorarios de **Patrocinante**, **Apoderado** y **Procurador**.
-
----
-
-## 12. Tipo de Proceso
-
-**Qué es:** La clasificación del proceso judicial que determina qué reglas de cálculo aplican.
-
-**Types principales:**
-
-| Tipo | Descripción |
+| Campo | Qué guarda |
 |---|---|
-| `conocimiento` | Juicio ordinario de conocimiento. |
-| `ejecucion_sentencia` | Ejecución de sentencia firme. |
-| `ejecutivo` | Juicio ejecutivo (título ejecutivo). |
-| `sucesión` | Sucesión testamentaria o intestada. |
-| `exhorto` | Comisión rogatoria / exhorto. |
-| `incidente` | Incidente dentro de un proceso principal. |
-| `medida_cautelar` | Medida cautelar individual. |
-| `homologacion_desocupacion` | Homologación de desocupación (art.45). |
+| `valor` | El valor en pesos |
+| `fuente` | La norma que lo fijó, tal como la publica la Corte |
+| `url` | Enlace a esa norma |
+| `capturado` | Fecha en que el build lo tomó de la planilla (AAAA-MM-DD) |
 
-**Types para mínimos arancelarios:**
+**No es un solo número: es una lista.** `HISTORIA_UMA` guarda todos los valores
+del más viejo al más nuevo, y nunca se reescribe una entrada. Es lo que hace que
+un cálculo de hoy siga siendo reproducible dentro de dos años. `UMA_VIGENTE` es
+el último.
 
-| Tipo | Tabla de mínimos |
-|---|---|
-| `judicial` | Procesos judiciales con mínimos fijos. |
-| `extrajudicial` | Actuaciones extrajudiciales. |
-| `art58` | Auxiliares de justicia (art.58). |
-| `recursos_csjn` | Recursos ante la CSJN. |
-| `auxiliares` | Tabla específica de auxiliares. |
+**De dónde sale.** De `data/uma.json`, versionado en el repositorio. La planilla
+que el autor mantiene la lee el build (`scripts/actualizar-uma.mjs`), no el
+navegador del visitante.
 
-**Relaciones:**
-
-- Determina qué **Base Regulatoria** se utiliza.
-- Determina qué **Etapas del Proceso** aplican (art.29).
-- Determina si hay **Mínimos Arancelarios** aplicables.
-- Determina si corresponde **Partidor** (solo sucesión).
+**Relaciones.** La base se divide por ella para entrar a la escala. Todos los
+resultados se multiplican por ella para expresarse en pesos. Los mínimos se leen
+en UMA y se convierten con ella.
 
 ---
 
-## 13. Objeto del Juicio
+## 2. La base regulatoria
 
-**Qué es:** La naturaleza de lo que se reclama en un juicio de **conocimiento**. Solo aplica para este tipo de proceso.
+**Qué es.** El valor económico del asunto sobre el que se aplica la escala. La
+ley la llama «cuantía del asunto» o «valor del pleito».
 
-**Types:**
+**Quién la determina.** **El usuario, no el motor.** La ley trae una regla
+distinta según qué se reclame, y aplicarla es trabajo de una persona: el motor
+recibe un número ya calculado. El inventario completo de esas reglas está en el
+[03, sección B](03_REGLAS_DE_NEGOCIO.md#b-las-reglas-que-determinan-la-base-y-las-aplica-el-usuario).
 
-| Objeto | Descripción |
-|---|---|
-| `desalojo` | Desalojo / restitución de inmueble. |
-| `sumas_dinero` | Reclamo de sumas de dinero. |
-| `inmuebles` | Reclamo relacionado con inmuebles. |
-| `derechos_crediticios` | Derechos y créditos. |
-| `titulos_acciones` | Títulos valores y acciones. |
-| `establecimientos` | Establecimientos comerciales. |
-| `uso_habitacion` | Uso y habitación. |
-| `escrituracion` | Escrituración. |
-| `familia_alimentos` | Alimentos en derecho de familia. |
-| `familia_liquidacion` | Liquidación en derecho de familia. |
-| `posesorias_interdictos` | Interdictos posesorios. |
-| `incidencia_colectiva` | Incidencia colectiva. |
+Las principales, con el artículo correcto:
 
-**Relaciones:**
-
-- Solo se usa cuando el **Tipo de Proceso** es `conocimiento`.
-- Determina la regla para obtener la **Base Regulatoria** (art.22).
-- Puede activar **Contingencias Procesales** específicas (ej: `homologacionVivienda` para desalojo).
-
----
-
-## 14. Etapas del Proceso
-
-**Qué es:** Las etapas en que se divide un proceso judicial, que determinan qué porcentaje de los honorarios totales corresponde según cuántas etapas se completaron.
-
-**Attributes:**
-
-| Etapa | Porcentaje | Descripción |
+| Qué se reclama | Artículo | Base |
 |---|---|---|
-| **Juicio completo** | 100% | Se completaron todas las etapas del proceso. |
-| **Una etapa (1/3)** | 33,33% | Solo se completó una de las etapas. |
-| **Dos etapas (2/3)** | 66,66% | Se completaron dos de las tres etapas. |
+| Sumas de dinero | **22** | Monto de la demanda; la liquidación si hay sentencia; el monto de la transacción |
+| Bienes muebles e inmuebles | **23 inc. a y b** | Tasación; si no, valuación fiscal + 50 % |
+| Desalojo | **40** | El total de los alquileres **del contrato** |
+| Desalojo por restitución de inmueble dado al trabajador | **43** | 50 % de la última remuneración mensual, por dos años |
+| Sucesión | **35** | El patrimonio que se transmite, gananciales incluidos |
+| Alimentos | **39** | Dos años de la cuota que se fije |
+| Liquidación del régimen patrimonial | **45** | El patrimonio adjudicado |
+| Escrituración | **46** | El valor del bien o el del boleto, el mayor |
+| Medida cautelar | **37** | El monto que se pretende asegurar |
+| Homologación de convenio de desocupación | **40** | El total de los alquileres del contrato |
+| Exhorto | **50** | **No hay base**: el honorario está fijado en UMA |
 
-**Art.29 — Distribución de etapas por tipo de proceso:**
+**Cómo se representa.** `baseValor` en `WizardState` (lo que el usuario
+ingresó), y en el resultado dos campos distintos:
 
-Cada tipo de proceso define cuántas etapas tiene y cuáles son. Por ejemplo:
-- Juicio de conocimiento: generalmente 3 etapas (instructiva, admisión de pruebas, sentencia).
-- Juicio ejecutivo: generalmente 2 etapas.
-- Medida cautelar: generalmente 1 etapa.
+- `baseOriginal` — el monto tal como se ingresó.
+- `baseFinal` — el monto después de las reducciones del art. 22 y del art. 40.
 
-**Relaciones:**
+**Que sean dos y no uno es deliberado**: la cadena tiene que poder mostrar de
+dónde salió a dónde llegó.
 
-- Determinan el porcentaje que recibe el **Patrocinante**.
-- Se aplican según el **Tipo de Proceso**.
-- Pueden ser modificadas por **Contingencias Procesales** (ej: modo de terminación).
+**Relaciones.** Se reduce por transformaciones de etapa `base`. Se divide por la
+UMA para entrar a la escala. Los auxiliares y el partidor se calculan sobre ella
+—sobre `baseFinal`—, no sobre el honorario.
 
 ---
 
-## 15. Mínimos Arancelarios
+## 3. La escala del art. 21
 
-**Qué es:** Montos fijos en UMA que establecen un piso mínimo de honorarios para procesos sin cuantía pecuniaria o para actuaciones específicas.
+**Qué es.** Siete tramos definidos en UMA, cada uno con una alícuota mínima y
+una máxima. Es la regla general de todo proceso susceptible de apreciación
+pecuniaria, no solo del juicio de conocimiento.
 
-**Types de tablas de mínimos:**
-
-| Tabla | Fuente legal | Aplicación |
+| Tramo | Base en UMA | Alícuota |
 |---|---|---|
-| **Judicial** | Art.48 | Procesos judiciales sin cuantía. |
-| **Extrajudicial** | Art.44 | Actuaciones fuera del proceso judicial. |
-| **Art.58** | Art.58 | Auxiliares de justicia. |
-| **Art.48 (recursos)** | Art.48 | Recursos ante la CSJN. |
-| **Art.31** | Art.31 | Segunda instancia. |
-| **Art.44** | Art.44 | Casos especiales. |
+| 1ª | hasta 15 | 22 % a 33 % |
+| 2ª | 16 a 45 | 20 % a 26 % |
+| 3ª | 46 a 90 | 18 % a 24 % |
+| 4ª | 91 a 150 | 17 % a 22 % |
+| 5ª | 151 a 450 | 15 % a 20 % |
+| 6ª | 451 a 750 | 13 % a 17 % |
+| 7ª | más de 750 | 12 % a 15 % |
 
-**Attributes por mínimo:**
-
-- **Tipo de proceso o actuación:** Para qué se aplica.
-- **Monto en UMA:** Valor fijo mínimo.
-- **Fecha de vigencia:** Desde cuándo rige.
-
-**Relaciones:**
-
-- Se comparan con los honorarios calculados por la **Escala**.
-- Si los honorarios calculados son menores al mínimo, se aplica el mínimo.
-- Los mínimos se expresan en **UMA**.
-
----
-
-## Diagrama de Relaciones entre Entidades
+**Cómo se calcula.** A partir del segundo tramo la alícuota **no se aplica sobre
+el total**:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    TIPO DE PROCESO                      │
-│  (conocimiento, ejecutivo, sucesión, etc.)              │
-└──────────┬──────────────────────────┬───────────────────┘
-           │                          │
-           ▼                          ▼
-┌─────────────────────┐   ┌──────────────────────────────┐
-│  OBJETO DEL JUICIO  │   │   CONTINGENCIAS PROCESALES   │
-│  (solo conocimiento)│   │  (modoTerminacion, resultado, │
-└──────────┬──────────┘   │   aperturaPrueba, etc.)      │
-           │              └──────────┬───────────────────┘
-           │                         │
-           ▼                         ▼
-┌──────────────────────────────────────────────────────────┐
-│                  BASE REGULATORIA                        │
-│  (cuantía del asunto, expresada en pesos)               │
-└──────────┬───────────────────────────────────────────────┘
-           │
-           │  Se reduce según Transformaciones
-           ▼
-┌──────────────────────────────────────────────────────────┐
-│              TRANSFORMACIONES (Reducciones)              │
-│  (factorBase: 0.7, 0.8 — antes de la escala)           │
-└──────────┬───────────────────────────────────────────────┘
-           │
-           │  Se convierte a UMA
-           ▼
-┌──────────────────────────────────────────────────────────┐
-│                     UMA                                  │
-│  (Unidad Monetaria de Actualización)                    │
-└──────────┬───────────────────────────────────────────────┘
-           │
-           ▼
-┌──────────────────────────────────────────────────────────┐
-│                   ESCALA (Art.21)                        │
-│  7 tramos, porcentajes progresivos                      │
-│  Recibe: base en UMA + factorEscala                     │
-│  Produce: honorarios (mínimo y máximo)                  │
-└──────────┬───────────────────────────────────────────────┘
-           │
-           │  Se aplica según Etapas del Proceso
-           ▼
-┌──────────────────────────────────────────────────────────┐
-│              HONORARIOS DEL PATROCINANTE                 │
-│  (monto base × etapa completada × factorFinal)          │
-└───┬──────────────┬──────────────┬───────────────────────┘
-    │              │              │
-    ▼              ▼              ▼
-┌────────┐  ┌────────────┐  ┌────────────┐
-│APODERADO│  │ PROCURADOR │  │ AUX. JUST. │
-│ (+40%) │  │   (40%)    │  │ (5%-10%   │
-│        │  │            │  │  base)     │
-└───┬────┘  └─────┬──────┘  └─────┬──────┘
-    │             │               │
-    ▼             ▼               ▼
-┌──────────────────────────────────────────────────────────┐
-│              HONORARIOS TOTALES                          │
-│  Patrocinante + Apoderado + Procurador + Auxiliares     │
-└──────────┬───────────────────────────────────────────────┘
-           │
-           │  Si aplica segunda instancia
-           ▼
-┌──────────────────────────────────────────────────────────┐
-│              SEGUNDA INSTANCIA                           │
-│  30%-35% de primera instancia (hasta 40% si revocada)  │
-└──────────────────────────────────────────────────────────┘
+honorario = máximo del grado anterior + (excedente × alícuota del grado actual)
+
+máximo del grado anterior = límite superior de ese grado × su alícuota MÁXIMA
+excedente                 = base en UMA − límite superior del grado anterior
 ```
 
+El piso **no es la suma acumulada de los tramos previos**. Los seis valores:
+4,95 · 11,70 · 21,60 · 33 · 90 · 127,50 UMA, que salen de 15 × 33 %, 45 × 26 %,
+90 × 24 %, 150 × 22 %, 450 × 20 % y 750 × 17 %. El detalle, con un ejemplo
+comprobado contra la app, está en el
+[02](02_FLUJO_JURIDICO.md#la-escala-del-art-21-cómo-funciona-de-verdad).
+
+**Cómo se representa.** `EscalaAplicada` en el resultado:
+
+| Campo | Qué guarda |
+|---|---|
+| `titulo` | El tramo, en texto: «6ª escala (451-750 UMA): 13% a 17%» |
+| `baseEnUMA` | La base ya convertida |
+| `porcentajeMin` / `porcentajeMax` | Las alícuotas del tramo, sin reducciones |
+| `porcentajeMinAplicado` / `porcentajeMaxAplicado` | Las mismas, ya multiplicadas por todos los factores |
+| `escalera` | El piso, el límite anterior y el excedente. `EscaleraInfo` |
+
+**`escalera` existe para poder mostrar la cuenta, no para hacerla.** Es lo que
+permite que la pantalla diga «máximo hasta 450 UMA: $9.186.840» y «13 % del
+excedente: $528.554» en vez de un número sin origen. Va vacío en el primer
+tramo, donde no hay grado anterior.
+
 ---
 
-## Notas Finales
+## 4. Los tres roles profesionales
 
-- **Mínimos Arancelarios** actúan como piso: si los honorarios calculados son inferiores al mínimo, se aplica el mínimo.
-- Las **Transformaciones** pueden aplicarse en distintos momentos: antes de la escala (reducción de base), sobre la escala (factor de escala), o al total (factor final).
-- El **Partidor** es una figura exclusiva de la sucesión y se calcula independientemente del patrocinante.
-- Los **Auxiliares de Justicia** se calculan sobre la base, no sobre los honorarios del abogado.
-- La **Segunda Instancia** es acumulativa: se suma a los honorarios de primera instancia.
+**Qué son.** Patrocinante, apoderado y procurador. **Son alternativos entre sí,
+no acumulativos**: quien cobra es una persona distinta en cada caso, y un mismo
+abogado es patrocinante o apoderado, no los dos.
+
+| Rol | Qué es | Cómo se calcula | Artículo |
+|---|---|---|---|
+| **Patrocinante** | El abogado que asiste jurídicamente a la parte | Lo que sale de la escala, con todas las reducciones | 21 |
+| **Apoderado** | El abogado que además ejerce la representación con poder | Patrocinante **× 1,40** | 20 |
+| **Procurador** | Quien ejerce la representación sin ser el letrado patrocinante | Patrocinante **× 0,40** | 20 |
+
+**De dónde sale el 1,40.** El art. 20 no lo dice con ese número: dice que el
+abogado que actúa como apoderado **sin patrocinio** «percibirá la asignación
+total que hubiere correspondido a ambos». O sea el 100 % del patrocinante más el
+40 % del procurador.
+
+Los dos multiplicadores se aplican **al final de la cadena**, sobre el honorario
+ya reducido, no sobre la escala pura.
+
+**Cómo se representa.** `Honorarios`, con los tres como `HonorariosRol`, cada
+uno con un `Rango`:
+
+| Campo de `Rango` | Qué guarda |
+|---|---|
+| `minUMA` / `maxUMA` | El honorario en UMA |
+| `minPesos` / `maxPesos` | El mismo, en pesos |
+
+**Los tres se calculan siempre.** La pantalla deja elegir cuál mirar; el motor
+no decide cuál corresponde, porque eso depende de cómo actuó el profesional y no
+de ningún dato del expediente.
 
 ---
 
-*Documento generado conforme a la Ley 27.423 y su Decreto Reglamentario 218/2015.*
+## 5. Los auxiliares de la Justicia
+
+**Qué son.** Peritos, martilleros, contadores, traductores, liquidadores: los
+profesionales que colaboran con el tribunal sin ser los letrados de las partes.
+
+**Cómo se calculan.** Del **5 % al 10 % de la base en UMA** (art. 21). No sobre
+el honorario del abogado: sobre la cuantía del proceso, y sobre `baseFinal`, o
+sea la base ya reducida.
+
+**Es un rango único, sin categorías.** El art. 21 no distingue entre tipos de
+auxiliar en este punto, y el motor tampoco.
+
+**Cómo se representa.** El campo `auxiliares` del resultado, un `Rango`.
+
+**La excepción que el motor no contempla.** El mismo párrafo prevé que ante
+labores «altamente complejas o extensas» el juez pueda, por auto fundado,
+superar el 10 %. Es una facultad discrecional y no hay dato que la determine: la
+app muestra la banda.
+
+**Los mínimos de los arts. 58, 60 y 61 bis existen y el motor no los verifica.**
+Ver la entidad 12.
+
+---
+
+## 6. La segunda instancia
+
+**Qué es.** La regulación por las actuaciones de la alzada. **No es un
+suplemento del honorario de primera: es una regulación distinta sobre la misma
+base**, igual que el partidor.
+
+**Cómo se calcula.** Como porcentaje del honorario de primera instancia del rol
+elegido (art. 30):
+
+| Supuesto | Porcentaje |
+|---|---|
+| Mínimo | 30 % |
+| Máximo | 35 % |
+| Máximo si la sentencia fue revocada **en todas sus partes y en favor del apelante** | 40 % |
+
+El calificativo no es decorativo: **una revocación parcial no habilita el 40 %.**
+
+**Lo que la ley manda además y el motor no hace.** Si la sentencia se revoca *o
+modifica*, el tribunal de alzada debe **rehacer de oficio las regulaciones de
+primera instancia** según el nuevo resultado del pleito (art. 30, párrafo
+segundo). Eso no es un cálculo que la app pueda ofrecer sola: implica volver a
+correr el caso con otro resultado.
+
+**Cómo se representa.** `SegundaInstancia`, con un `SegundaInstanciaRol` por
+cada rol, y cada uno con tres `Rango`: `minimo`, `maximo` y `revocada`.
+
+**Se calcula siempre, en la misma pasada, y solo en cuatro procesos**:
+`conocimiento`, `ejecucion_sentencia`, `ejecutivo` y `sucesion`. La cautelar, la
+homologación, el exhorto y el incidente no la devuelven.
+
+---
+
+## 7. El partidor
+
+**Qué es.** El abogado o los abogados que realizan y suscriben las cuentas
+particionarias en la sucesión.
+
+**Cómo se calcula.** Del **2 % al 3 %** del valor del haber a dividirse
+(art. 35, última parte). Sobre `baseFinal`.
+
+**Cómo se representa.** `Partidor`, con `minPorcentaje`, `maxPorcentaje`, y el
+resultado en UMA y en pesos.
+
+**Solo en `sucesion`, y siempre**: no se pregunta nada. Es independiente del
+honorario del letrado y coexiste con la reducción del art. 35 por único letrado
+—esa afecta al abogado, esta no—.
+
+El mismo artículo prevé una regulación análoga, también del 2 % al 3 %, para el
+**auxiliar de Justicia que actúa como perito partidor** junto al letrado. El
+motor calcula una sola.
+
+---
+
+## 8. El tipo de proceso
+
+**Qué es.** La clasificación que decide qué se pregunta después y qué reglas
+aplican. Es la respuesta más determinante de la entrevista.
+
+**Cómo se representa.** `tipoProceso` en `WizardState`, del tipo `ProcesoTipo`.
+Los ocho valores que la entrevista ofrece:
+
+| Clave | Proceso | Artículo |
+|---|---|---|
+| `conocimiento` | Juicio de conocimiento, ordinario o sumarísimo | 21 y ss. |
+| `ejecucion_sentencia` | Ejecución de sentencia, de honorarios o de acuerdos | 41 |
+| `ejecutivo` | Juicio ejecutivo y ejecuciones especiales | 34 |
+| `sucesion` | Proceso sucesorio | 35 |
+| `medida_cautelar` | Medidas cautelares, autónomas o incidentales | 37 |
+| `homologacion_desocupacion` | Homologación de convenio de desocupación | 40 |
+| `exhorto` | Diligenciamiento de exhortos de la Ley 22.172 | 50 |
+| `incidente` | Incidentes, incluidos los beneficios de litigar sin gastos | 29 inc. g |
+
+Sin tilde en `sucesion` y sin espacios: son identificadores, no rótulos.
+
+`ProcesoTipo` admite además valores `minimos_*`, que **no son procesos**: son
+restos de cuando la pantalla de mínimos se modelaba como una rama del wizard.
+Los pasos de cada proceso están en `PROCESS_STEP_MAP`, que tiene ocho entradas.
+
+**Relaciones.** Decide qué contingencias se preguntan, qué reglas aplica
+`resolveReglas()`, qué función de `PROCESS_REGISTRY` construye el resultado, y
+si hay partidor y segunda instancia.
+
+---
+
+## 9. El objeto del juicio
+
+**Qué es.** Qué se reclama. **Solo se pregunta en `conocimiento`.**
+
+**Cómo se representa.** `objeto` en la entrevista, `objetoBase` en
+`WizardState`. Doce valores:
+
+`sumas_dinero` · `desalojo` · `inmuebles` · `derechos_crediticios` ·
+`titulos_acciones` · `establecimientos` · `uso_habitacion` · `escrituracion` ·
+`familia_alimentos` · `familia_liquidacion` · `posesorias_interdictos` ·
+`incidencia_colectiva`
+
+**Para qué sirve realmente.** Para saber **qué monto ingresar como base**: cada
+opción corresponde a una regla distinta de la entidad 2. Solo tres de las doce
+mueven el número por sí mismas —`desalojo` con vivienda,
+`posesorias_interdictos` con beneficio exclusivo, e `incidencia_colectiva`—.
+
+**Dos objetos abren una sub-pregunta**, y son campos distintos, no el mismo:
+
+| Objeto | Sub-pregunta | Valores |
+|---|---|---|
+| `desalojo` | `desalojoVivienda` | `vivienda` · `civil` · `laboral` |
+| `posesorias_interdictos` | `posesoriasTipo` | `beneficio` · `demas` |
+
+`desalojoVivienda` y `homologacionVivienda` **no son lo mismo**: el primero es
+un sub-paso del objeto en `conocimiento`, el segundo es el paso propio del
+proceso `homologacion_desocupacion`. Los dos aplican el -20 % del art. 40, pero
+en ramas distintas de la entrevista.
+
+---
+
+## 10. Las contingencias procesales
+
+**Qué son.** Los hechos del caso que modifican el cálculo. Son respuestas del
+usuario sobre lo que pasó en el expediente.
+
+| Clave | Pregunta | Valores | Qué mueve |
+|---|---|---|---|
+| `modoTerminacion` | ¿Cómo terminó el proceso? | `sentencia` · `modos_anormales` · `caducidad` · `provisorios` | Abre las tres siguientes; `provisorios` no mueve ningún número |
+| `sentenciaResultado` | ¿Cómo se resolvió la demanda? | `admitida` · `rechazada` | `rechazada`: **la base × 0,70** (art. 22) |
+| `caducidadCriterio` | ¿Con qué criterio se trata la caducidad? | `art22` · `art25` | `art22`: **la base × 0,70**. `art25`: abre `aperturaPrueba` |
+| `aperturaPrueba` | ¿Antes o después de la apertura a prueba? | `antes` · `despues` | `antes`: **la escala × 0,50** (art. 25) |
+| `tuvoExcepciones` | ¿Se dedujeron excepciones? | `si` · `no` | `no`: **el honorario × 0,90** (arts. 34 / 41) |
+| `sucesionUnicoLetrado` | ¿Un solo letrado por todos los herederos? | `unico` · `varios` | `unico`: **la escala × 0,50** (art. 35) |
+| `medidaOposicion` | ¿Existió oposición? | `con` · `sin` | Qué porcentaje **de la escala** se toma: 50 % con, 25 % sin (art. 37) |
+| `homologacionVivienda` | ¿Qué tipo de convenio es? | `vivienda` · `otros` | `vivienda`: **la base × 0,80** (art. 40) |
+
+**Los valores de la entrevista y los del motor no siempre coinciden.** El puente
+lo hace `hooks/useWizard.ts`: `aperturaPrueba` llega como `'antes'`/`'despues'`
+y se guarda como `false`/`true`; `tuvoExcepciones` como `'si'`/`'no'` y se
+guarda como booleano; lo mismo `sucesionUnicoLetrado`, `medidaOposicion` y
+`homologacionVivienda`. En `WizardState` son booleanos o `null`.
+
+**Cada contingencia mueve una etapa distinta de la cadena**, y ahí está lo que
+más importa: no es lo mismo tocar la base que tocar la escala.
+
+---
+
+## 11. Las transformaciones
+
+**Qué son.** El registro de cada operación que el motor aplicó. **No son un
+detalle de presentación: son parte del resultado**, y lo que la app muestra como
+«por qué».
+
+**Cómo se representan.** `Transformacion`:
+
+| Campo | Qué guarda |
+|---|---|
+| `id` | Identificador, p. ej. `base-demanda-rechazada` |
+| `etapa` | `'base'` · `'escala'` · `'honorarios'` |
+| `concepto` | La frase que se muestra |
+| `articulo` | El artículo que la funda |
+| `visible` | Si se muestra en la cadena |
+| `valorPrevio` / `factor` / `valorPosterior` | La cuenta: de cuánto, por cuánto, a cuánto |
+
+**`etapa` es el campo que importa.** Determina sobre qué opera, y por lo tanto
+qué resultado da:
+
+| Etapa | Sobre qué opera | Artículos |
+|---|---|---|
+| `base` | La base regulatoria, antes de la escala | 22, 40 |
+| `escala` | Los valores que salen de la escala | 25, 35, 41, y los factores propios de la cautelar (37) y la homologación (40) |
+| `honorarios` | El honorario ya calculado | 34, 38, 49, y los cálculos propios del exhorto (50) y el incidente |
+
+Dentro de cada etapa **se multiplican, no se suman**. «-50 % y -10 %» es × 0,45,
+o sea -55 %.
+
+---
+
+## 12. Los mínimos arancelarios
+
+**Qué son.** Montos fijos en UMA que la ley establece como piso para asuntos sin
+cuantía o para actuaciones determinadas.
+
+**Cómo se representan.** `MinimoCategoria` en `lib/legal/minimos-data.ts`, con
+`titulo`, `articulo`, `textoLegal` completo y sus `grupos` de `MinimoItem`
+(`label`, `uma`, y `alias` para buscar por el nombre de tribunal cuando difiere
+del legal). Siete categorías:
+
+| Clave | Artículo | Alcance |
+|---|---|---|
+| `judicial` | **19 inc. a** | Asuntos judiciales sin apreciación pecuniaria |
+| `extrajudicial` | **19 inc. b** | Labor extrajudicial |
+| `recursos_csjn` | **31** | Recursos ante la Corte Suprema |
+| `contencioso_44` | **44** | Acciones y actuaciones administrativas |
+| `acciones_48` | **48** | Amparo, hábeas corpus, hábeas data, inconstitucionalidad |
+| `art58` | **58** | Juicios pecuniarios no previstos en otros artículos |
+| `auxiliares_justicia` | **58, 60 y 61 bis** | Peritos y auxiliares |
+
+**No son una entidad del cálculo: son una pantalla de consulta.** No hay base,
+no hay escala, no hay reducciones.
+
+**Y el motor no los compara contra el resultado.** `calculate.ts` no importa
+`minimos-data.ts` y no hay ninguna verificación de piso en toda la cadena, así
+que **un resultado puede quedar por debajo de un mínimo legal sin que la app lo
+diga**. Está en [`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), punto 8.
+
+---
+
+## 13. Las etapas del art. 29
+
+**Qué son.** La división del proceso en tercios, a los efectos de regular cuando
+la actuación no fue completa (art. 29 incs. a, b y c):
+
+| Tercio | Qué comprende |
+|---|---|
+| Primero | La demanda y la contestación; el escrito inicial en sucesiones |
+| Segundo | Las actuaciones de prueba; hasta la declaratoria de herederos en el sucesorio |
+| Tercero | Las demás diligencias hasta la terminación en primera instancia |
+
+El ejecutivo tiene su propia división (inc. f): **una sola etapa hasta la
+sentencia si no hubo excepciones, tres si las hubo**. El incidente, dos
+(inc. g). Los procesos penales, dos (inc. e).
+
+**Qué hace el motor con esto: casi nada.** No pregunta en qué etapa quedó el
+proceso ni la decide. La pantalla muestra el honorario completo, en 2/3 y en
+1/3, y el usuario elige. Las etapas del ejecutivo y del incidente no están
+modeladas.
+
+**Y hay una inconsistencia conocida:** si la entrevista ya contestó que el
+proceso terminó **antes de la apertura a prueba**, la etapa de prueba no
+existió, y la app igual muestra las tres fracciones. Está en el
+[`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), punto 3a.
+
+**El reparto entre dos profesionales** que la pantalla ofrece al lado no sale de
+ningún artículo: es una calculadora auxiliar, con proporción ajustable que
+arranca en 60/40.
+
+---
+
+## 14. La regulación provisoria
+
+**Qué es.** La del art. 12: cuando el profesional se aparta del proceso antes de
+su conclusión normal, puede pedir que se le regulen honorarios **«en el mínimo
+que le hubiere podido corresponder conforme a las actuaciones cumplidas»**.
+
+**Qué hace el motor.** **No cambia ningún factor.** Cambia qué se puede
+afirmar: el resultado se marca `esProvisorio` y la app deja de enunciar el
+máximo —banda de honorarios, alícuota, auxiliares, segunda instancia— y oculta
+el reparto por etapas.
+
+No es prudencia: enunciar el máximo sería afirmar un tope que este cálculo no
+está afirmando. Lo que el art. 12 fija es un piso.
+
+**Cómo se decide.** `esRegulacionProvisoria()` la deriva de `modoTerminacion`, y
+**el tipo de proceso manda**: solo existe en `conocimiento`,
+`ejecucion_sentencia` y `ejecutivo`. En el sucesorio no se admiten regulaciones
+provisorias salvo excepción, y en esa excepción la regulación es definitiva, con
+mínimo y máximo.
+
+---
+
+## Cómo se relacionan
+
+```
+        TIPO DE PROCESO ────┬──────────────┬─────────────────┐
+        (8 valores)         │              │                 │
+                            ▼              ▼                 ▼
+                  OBJETO DEL JUICIO   CONTINGENCIAS    qué builder
+                  (solo conocimiento)  PROCESALES      construye el
+                            │              │            resultado
+                            └──────┬───────┘                 │
+                                   │                         │
+        el USUARIO determina        │  activan                │
+        e ingresa la BASE ◄─────────┘  transformaciones       │
+                │                                             │
+                ▼                                             │
+        transformaciones de etapa «base»        arts. 22, 40  │
+                │                                             │
+                ▼                                             │
+        base ÷ UMA  ──►  ESCALA DEL ART. 21                   │
+                                   │                          │
+                                   ▼                          │
+        transformaciones de etapa «escala»   arts. 25, 35, 41 │
+                                   │         37 y 40 propios  │
+                                   ▼                          │
+        transformaciones de etapa «honorarios» arts. 34,38,49 │
+                                   │                          │
+                                   ▼                          ▼
+                      HONORARIO DEL PATROCINANTE ◄────────────┘
+                                   │
+        ┌──────────┬───────────────┼──────────────┬────────────┐
+        ▼          ▼               ▼              ▼            ▼
+    APODERADO  PROCURADOR   2ª INSTANCIA    AUXILIARES     PARTIDOR
+     × 1,40      × 0,40      30/35/40 %     5-10 % de     2-3 % de
+                              art. 30       la base       la base
+     art. 20     art. 20                     art. 21    art. 35, solo
+                                                          sucesión
+    └── alternativos ──┘     └── otras regulaciones sobre la misma base ──┘
+
+    si es PROVISORIO: la cadena es la misma, solo se enuncia el mínimo
+    los MÍNIMOS del art. 19 y ss. NO se comparan contra este resultado
+```
+
+**Los tres roles son alternativos entre sí. La segunda instancia, los auxiliares
+y el partidor son regulaciones distintas, para actuaciones o profesionales
+distintos.** Nada de esto se suma: **no hay un total general**, ni en el motor
+ni en la pantalla.
+
+---
+
+## Qué decía este documento y no era así
+
+Corregido el 7/8/2026.
+
+- **El pie invocaba un «Decreto Reglamentario 218/2015».** No existe, y no
+  podría: es anterior a la ley, que es de 2017. Los decretos que sí tocan a la
+  Ley 27.423 son el **1077/2017**, que observó varios artículos al promulgarla
+  —entre ellos el 47, el de los incidentes—, y el **157/2018**, que derogó el
+  art. 36. Una cita de autoridad inventada en un documento jurídico es el peor
+  error posible, y estaba en el renglón que más autoridad aparenta.
+- **Seis de las ocho filas de la tabla de bases citaban un artículo que trata
+  otra cosa**, con las citas corridas de forma sistemática: la medida cautelar
+  al art. 39 (que es alimentos), los alimentos al 43 (que es laboral), la
+  homologación al 45 (que es liquidación del régimen patrimonial), el exhorto al
+  46 (que es escrituración), el ejecutivo al 40 (que es desalojo). Y el desalojo
+  decía «total de alquileres **adeudados + mejoras**»: es el total de los
+  alquileres **del contrato**, y las mejoras no aparecen en ninguna parte de la
+  ley.
+- **«Si se rechaza, la base se reduce a 1/3 (art. 40)».** Son tres errores en
+  nueve palabras: es **× 0,70**, no a un tercio; es del **art. 22**, no del 40;
+  y no es solo en el ejecutivo, también en conocimiento y en ejecución de
+  sentencia.
+- **Cinco de las seis filas de la tabla de mínimos citaban mal el artículo**, y
+  se contradecían entre sí: los mínimos judiciales al art. 48 (son del 19
+  inc. a), los extrajudiciales al 44 (son del 19 inc. b), los recursos ante la
+  CSJN al 48 (son del 31), y el art. 31 aparecía además como «segunda
+  instancia», que es el art. 30.
+- **Repetía el mecanismo de pisos que no existe**: «si los honorarios calculados
+  son menores al mínimo, se aplica el mínimo». El motor no compara. Es el mismo
+  error que tenía el `03`.
+- **El diagrama terminaba en «HONORARIOS TOTALES: patrocinante + apoderado +
+  procurador + auxiliares».** Esa suma no existe y no significa nada: los tres
+  roles son alternativos entre sí.
+- **La caja del patrocinante decía «monto base × etapa completada ×
+  factorFinal».** El motor no multiplica por ninguna etapa: muestra las
+  fracciones y el usuario elige.
+- **Las contingencias tenían mal el efecto y mal los valores.**
+  `aperturaPrueba` «afecta la etapa completada» —afecta la escala, art. 25—;
+  `tuvoExcepciones` «puede afectar las etapas» —es -10 % sobre el honorario—;
+  `medidaOposicion` «cambia la base» —cambia el porcentaje de la escala—. Y
+  varias listaban `si`/`no` donde el código usa `con`/`sin`, `unico`/`varios` o
+  `vivienda`/`otros`.
+- **Confundía `desalojoVivienda` con `homologacionVivienda`**: decía que el
+  objeto `desalojo` activa la contingencia de la homologación. Son dos campos
+  distintos, en dos ramas distintas de la entrevista. Ni `desalojoVivienda` ni
+  `posesoriasTipo` aparecían en el documento.
+- **Las etapas del art. 29 estaban inventadas**: «instructiva, admisión de
+  pruebas, sentencia». El artículo dice demanda y contestación; actuaciones de
+  prueba; demás diligencias hasta la terminación. Y agregaba que la medida
+  cautelar «generalmente tiene 1 etapa», que no está en el art. 29.
+- **La UMA: «puede provenir de carga manual o de consulta a Google Sheets»** y
+  «valor inicial (fecha de sanción de la ley): $92.482». Las dos cosas mal: la
+  planilla la lee el build desde el 5/8, y 92.482 era un valor reciente de 2026,
+  no el inicial de una ley de 2017.
+- **`sucesión` figuraba con tilde como clave del código.** La clave es
+  `sucesion`.
+- **Los encabezados estaban en inglés** —«Attributes», «Types», «Types de
+  transformaciones»— en un documento en castellano.

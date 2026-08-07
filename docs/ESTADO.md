@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-06 · rama `main`
+Última actualización: 2026-08-07 · rama `main`
 
 > **Este documento es solo de este repositorio.** Honorio se mudó el 4/8 a
 > [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) y se llevó su
@@ -25,8 +25,8 @@ Lo que queda es mantenimiento y las ideas anotadas más abajo, ninguna urgente.
 
 Desde el 6/8 hay un frente abierto: **los textos que describen el motor no
 estaban verificados contra el motor**. Se corrigieron la sección «Cómo está
-hecho» de la landing, `01_PROCESOS.md` y `02_FLUJO_JURIDICO.md`; los documentos
-de dominio 03 a 08 salieron de la misma fuente y hay que pasarlos por el mismo
+hecho» de la landing y los documentos de dominio `01` a `04`; los documentos
+`05` a `08` salieron de la misma fuente y hay que pasarlos por el mismo
 tamiz. Está detallado abajo, en Pendientes.
 
 De paso salieron dos errores en Honorio, ya arreglados allá: la tarjeta de la
@@ -198,6 +198,60 @@ completado se queda:** es una marca tipográfica monocroma, no un emoji.
 ---
 
 ## Lo demás que se hizo, en orden
+
+### `04_MODELO_DEL_DOMINIO.md`, reescrito contra el motor — 7/8
+
+**Tenía una cita de autoridad inventada, y estaba en el renglón que más
+autoridad aparenta**: el pie decía «documento generado conforme a la Ley 27.423
+y su Decreto Reglamentario 218/2015». Ese decreto no existe, y no podría: es
+anterior a la ley, que es de 2017. Los decretos que sí tocan a la 27.423 son el
+**1077/2017** —que observó varios artículos al promulgarla, entre ellos el 47—
+y el **157/2018**, que derogó el art. 36.
+
+En un documento jurídico eso es lo peor que puede haber, y es el tipo de error
+que ninguna validación va a encontrar nunca.
+
+**Las citas de artículos estaban corridas de forma sistemática.** Seis de las
+ocho filas de la tabla de bases apuntaban a un artículo que trata otra cosa: la
+cautelar al 39 (alimentos), los alimentos al 43 (laboral), la homologación al 45
+(liquidación del régimen patrimonial), el exhorto al 46 (escrituración), el
+ejecutivo al 40 (desalojo). Y cinco de las seis filas de la tabla de mínimos,
+que además se contradecían entre sí: el art. 48 figuraba dos veces con
+significados distintos y el art. 31 aparecía como «segunda instancia», que es el
+30.
+
+**Una línea con tres errores en nueve palabras:** «si se rechaza, la base se
+reduce a 1/3 (art. 40)». Es × 0,70 y no a un tercio; es del art. 22 y no del 40;
+y no es solo en el ejecutivo.
+
+**Lo demás:**
+
+- **El diagrama terminaba en «HONORARIOS TOTALES: patrocinante + apoderado +
+  procurador + auxiliares».** Esa suma no existe y no significa nada.
+- **«Monto base × etapa completada × factorFinal».** El motor no multiplica por
+  ninguna etapa.
+- **Las contingencias tenían mal el efecto y mal los valores**: `aperturaPrueba`
+  «afecta la etapa completada» —afecta la escala—, `tuvoExcepciones` «puede
+  afectar las etapas» —es -10 % sobre el honorario—, `medidaOposicion` «cambia
+  la base» —cambia el porcentaje de la escala—. Y listaban `si`/`no` donde el
+  código usa `con`/`sin`, `unico`/`varios` o `vivienda`/`otros`.
+- **Confundía `desalojoVivienda` con `homologacionVivienda`.** Son dos campos
+  distintos en dos ramas distintas. Ninguno de los dos sub-pasos del objeto
+  aparecía en el documento.
+- **Las etapas del art. 29 estaban inventadas**: «instructiva, admisión de
+  pruebas, sentencia». El artículo dice otra cosa. Y agregaba que la cautelar
+  «generalmente tiene 1 etapa», que no está en el artículo.
+- **Repetía el mecanismo de pisos mínimos que no existe**, igual que el `03`.
+- **La UMA desde Google Sheets, y «$92.482 como valor inicial a la fecha de
+  sanción de la ley».** Era un valor de 2026 en una ley de 2017.
+- `sucesión` figuraba con tilde como clave del código, y los encabezados estaban
+  en inglés —«Attributes», «Types»—.
+
+**El documento nuevo mapea cada entidad jurídica contra su tipo real**
+—`ValorUMA`, `EscalaAplicada`, `EscaleraInfo`, `Transformacion`, `Rango`,
+`SegundaInstanciaRol`, `Partidor`, `MinimoCategoria`—, que es lo que lo hace
+verificable y lo que lo distingue del `01` al `03`: aquellos van por procesos,
+recorrido y reglas; este va por las cosas.
 
 ### `03_REGLAS_DE_NEGOCIO.md`, reescrito contra el motor — 6/8
 
@@ -584,7 +638,7 @@ registrado, con DNS, con certificado y con HTTPS forzado.
   mail» y «si crees», que es el imperativo de *tú*. La convención del
   repositorio es rioplatense. No se corrigió para no mezclarlo con la revisión
   visual.
-- **Los documentos de dominio 04 a 08, sin pasar por el motor.** El `01`, el
+- **Los documentos de dominio 05 a 08, sin pasar por el motor.** El `01`, el
   `02` y el `03` se reescribieron el 6/8 contra `wizard-schema.ts` y
   `calculate.ts`: once afirmaciones falsas en el primero, ocho en el segundo
   —incluida una fórmula de la escala que el motor no usa— y en el tercero un
