@@ -25,9 +25,13 @@ Lo que queda es mantenimiento y las ideas anotadas más abajo, ninguna urgente.
 
 Desde el 6/8 hay un frente abierto: **los textos que describen el motor no
 estaban verificados contra el motor**. Se corrigieron la sección «Cómo está
-hecho» de la landing y `docs/domain/01_PROCESOS.md`; los documentos de dominio
-02 a 08 salieron de la misma fuente y hay que pasarlos por el mismo tamiz.
-Está detallado abajo, en Pendientes.
+hecho» de la landing, `01_PROCESOS.md` y `02_FLUJO_JURIDICO.md`; los documentos
+de dominio 03 a 08 salieron de la misma fuente y hay que pasarlos por el mismo
+tamiz. Está detallado abajo, en Pendientes.
+
+De paso salieron dos errores en Honorio, ya arreglados allá: la tarjeta de la
+medida cautelar prometía el porcentaje contrario al que el motor aplicaba, y la
+transformación se atribuía al art. 29 inc. e en vez de al 37.
 
 ---
 
@@ -194,6 +198,78 @@ completado se queda:** es una marca tipográfica monocroma, no un emoji.
 ---
 
 ## Lo demás que se hizo, en orden
+
+### `02_FLUJO_JURIDICO.md`, reescrito contra el motor — 6/8
+
+Este estaba **mucho mejor que el 01**: el orden de operaciones, la acumulación
+de la escala, los auxiliares sobre la base y el procurador sobre el honorario
+del patrocinante estaban todos bien. Igual tenía errores, y uno de fondo.
+
+**El error de fondo: la explicación de la escala del art. 21.** Presentaba el
+piso de cada tramo como una **suma acumulada tramo por tramo**, y su propio
+ejemplo no cerraba: escribía «4,95 + 7,80 = 11,70», que da 12,75.
+
+El motor no acumula. El piso es **el límite del tramo anterior multiplicado por
+la alícuota máxima de ese tramo**:
+
+```
+15 × 33 % = 4,95      45 × 26 % = 11,70     90 × 24 % = 21,60
+150 × 22 % = 33       450 × 20 % = 90       750 × 17 % = 127,50
+```
+
+Son las seis constantes de `calcularEscala()`. La lectura acumulada da otro
+número —hasta 45 UMA daría 12,75, no 11,70— así que no es una diferencia de
+redacción: el documento explicaba una fórmula que el motor no usa.
+
+Se verificó contra una corrida real, no contra el código solamente: base
+$50.000.000 con la UMA a $102.076 son 489,83 UMA, tramo 6º. La app muestra
+«máximo hasta 450 UMA $9.186.840» —que es 450 × 20 % = 90 UMA— y «13 % del
+excedente de $4.065.800 → $528.554». Mínimo $9.715.394. Los tres números salen
+de la fórmula del piso y de ninguna otra. Ese ejemplo quedó en el documento
+porque cada cifra se puede volver a comprobar en pantalla.
+
+**Una decisión interpretativa que quedó declarada.** El párrafo del art. 21 está
+escrito como piso —«en ningún caso… inferiores»—, o sea que literalmente habla
+del mínimo. El motor aplica la misma fórmula al máximo. Algo así tiene que
+hacer: sin acumular, el máximo del tramo puede quedar por debajo del mínimo ya
+calculado, que es un absurdo. Pero es interpretación, no transcripción, y ahora
+está dicho.
+
+**Lo demás que se corrigió:**
+
+- **«El sistema carga la UMA desde Google Sheets; si falla usa 92.482.»** Dejó
+  de ser cierto el 5/8, cuando la UMA se sacó del navegador del visitante. La
+  planilla la lee el build y el valor vive versionado en `data/uma.json`.
+- **«El usuario selecciona entre 10 opciones» de tipo de proceso.** Son ocho.
+- **Un párrafo pegado en la sección equivocada.** El «fundamento» de la medida
+  cautelar decía que era el art. 21 «que acota a los auxiliares una banda del
+  5 % al 10 %», y aclaraba entre paréntesis que antes se lo atribuía al art. 37.
+  Es decir: una corrección del pase del 5/8 aterrizó en el bloque de al lado y
+  terminó **negando el artículo correcto**. La cautelar es el art. 37.
+- **Mínimos del art. 19 inc. a mal citados**: decía «hasta 25 UMA (divorcio,
+  adopción, hábeas corpus)». El divorcio son 10 y la adopción 20.
+- **El objeto del juicio, sin las claves del código** y sin decir que nueve de
+  las doce opciones no mueven ningún número.
+- **No decía en qué procesos hay segunda instancia.** Son cuatro de ocho: los
+  que pasan por `buildGeneral()`. La cautelar y la homologación no la devuelven.
+- **Faltaban el reparto por etapas y el reparto entre profesionales**, que son
+  dos de las tres cosas que muestra la pantalla del resultado. El segundo **no
+  sale de ningún artículo**: es una calculadora auxiliar con proporción
+  ajustable que arranca en 60/40, y ahora está dicho que es eso.
+- **Todo el documento estaba sin tildes**, contra la convención del repositorio.
+
+**Se agregó una sección que no existía: «Lo que la ley dice y el motor no
+hace».** Salió de leer la ley al lado del motor, y son seis: el art. 39 segundo
+párrafo (aumento o cesación de alimentos va por la escala de los incidentes, no
+por la del art. 21), el art. 41 última oración (actuaciones posteriores a la
+ejecución, al 40 %), el art. 42 (gestor, +4 %), la excepción del art. 21 para
+auxiliares por labores complejas, la división en etapas del art. 29 —que se
+muestra pero no se pregunta— y el litisconsorcio del art. 21.
+
+**Reparto entre el 01 y el 02, para que no se dupliquen.** El 01 va proceso por
+proceso: qué pregunta cada uno y qué hace con la respuesta. El 02 va por lo que
+los ocho tienen en común: el recorrido y el orden del cálculo. Cada uno remite
+al otro en vez de repetirlo.
 
 ### `01_PROCESOS.md`, reescrito contra el motor — 6/8
 
@@ -451,15 +527,20 @@ registrado, con DNS, con certificado y con HTTPS forzado.
   mail» y «si crees», que es el imperativo de *tú*. La convención del
   repositorio es rioplatense. No se corrigió para no mezclarlo con la revisión
   visual.
-- **Los documentos de dominio 02 a 08, sin pasar por el motor.** El 6/8 se
-  reescribió el `01` contra `wizard-schema.ts` y `calculate.ts` y aparecieron
-  once afirmaciones falsas. Los otros siete salieron de la misma fuente y
-  arrastran los mismos errores: en `03_REGLAS_DE_NEGOCIO.md` ya se vio que la
+- **Los documentos de dominio 03 a 08, sin pasar por el motor.** El `01` y el
+  `02` se reescribieron el 6/8 contra `wizard-schema.ts` y `calculate.ts`, y
+  aparecieron once afirmaciones falsas en el primero y ocho en el segundo,
+  incluida una fórmula de la escala que el motor no usa. Los seis restantes
+  salieron de la misma fuente. En `03_REGLAS_DE_NEGOCIO.md` ya se vio que la
   tabla del exhorto (regla 17) tiene las etiquetas inventadas —«exhorto simple»,
   «con trabas cautelares», «con ejecución»— en vez de las tres del art. 50, y
   que la regla 16 dice que el 2-20 % aplica «cuando el incidente tramita bajo la
   Ley 21.839», cuando el motor lo aplica a todos. **Revisarlos contra el código,
   uno por uno, no leyéndolos.**
+- **Chequeo que quedó pendiente en el `02`:** cada cifra de los mínimos se
+  verificó contra `minimos-data.ts`, pero **`minimos-data.ts` no se verificó
+  contra la ley**. Dice ser copia fiel del asistente clásico; que sea fiel a la
+  copia no prueba que sea fiel a la norma.
 
 ### Dos cosas para llevar al repositorio de Honorio
 
