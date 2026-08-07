@@ -240,6 +240,43 @@ Va al mismo lugar que el punto 5. Ya figura como observación 16 en
 
 ---
 
+### 8. Los mínimos legales no se verifican contra el resultado
+
+Apareció el 6/8 al revisar `03_REGLAS_DE_NEGOCIO.md`, y es de otra clase que los
+siete anteriores: **no es un artículo que falta implementar, es un piso que la
+ley fija y el motor no comprueba.**
+
+`calculate.ts` no importa `minimos-data.ts` y no hay ninguna comparación de piso
+en toda la cadena: el cálculo termina en el partidor. **El número que la app
+devuelve puede quedar por debajo de un mínimo legal y la app no lo dice.**
+
+Los pisos: art. 48 (20 UMA), art. 44 (7 y 5 UMA), art. 58 (10, 6, 2 y 4 UMA),
+art. 31 (20 y 15 UMA), art. 60 (2 UMA), art. 61 bis (2 UMA) y los del art. 19.
+
+**Hay que separar dos grupos, porque no tienen el mismo problema:**
+
+- **Los que rigen cuando el asunto no es susceptible de apreciación pecuniaria**
+  —arts. 19, 44 y 48—. Ahí la entrevista directamente no corre: no hay base que
+  ingresar. Que sean una pantalla de consulta es correcto y no hay nada que
+  arreglar.
+- **Los que conviven con un cálculo por escala** —art. 58 y los de peritos—.
+  Estos sí deberían comprobarse contra el resultado, y hoy no se comprueban.
+
+**Cómo se compensa hoy:** con el botón que va del resultado a la pantalla de
+mínimos «para contrastar». El contraste lo hace el usuario.
+
+**Recomendación.** Implementarlo, pero con cuidado y no primero, por dos
+motivos. Uno: **mueve números**, y hacia arriba, en los casos de base chica.
+Dos: hay que decidir qué se muestra cuando el piso se activa —el número
+elevado, o los dos con la explicación—, y me inclino fuerte por lo segundo,
+porque el resultado deja de salir de la escala y eso hay que poder verlo en la
+cadena, como cualquier otra transformación.
+
+**Costo:** medio. Una comparación al final de `buildGeneral()`, una
+transformación nueva en la cadena, y validaciones nuevas para cada piso.
+
+---
+
 ## El orden
 
 **Primero, todo lo que no toca un número.** Son cambios de lo que la pantalla
@@ -253,13 +290,16 @@ afirma, se verifican mirando, y las once validaciones siguen valiendo tal cual.
 el `ESTADO.md` de Honorio.
 
 4. **Art. 41, actuaciones posteriores** (punto 2). El más fácil.
-5. **Art. 39, segundo párrafo** (punto 4). Cambia la cuenta de recorridos, así
+5. **Los pisos del art. 58 y de peritos** (punto 8). Es el único que puede
+   cambiar un número **hacia arriba**, y el único que hoy puede estar devolviendo
+   un resultado por debajo de lo que la ley permite.
+6. **Art. 39, segundo párrafo** (punto 4). Cambia la cuenta de recorridos, así
    que arrastra la landing.
 
 **Anotado, sin fecha.**
 
-6. **Nombrar las etapas por tipo de proceso** (punto 3b).
-7. **Calculadora del art. 42** (punto 5), si alguna vez hace falta.
+7. **Nombrar las etapas por tipo de proceso** (punto 3b).
+8. **Calculadora del art. 42** (punto 5), si alguna vez hace falta.
 
 ---
 

@@ -199,6 +199,63 @@ completado se queda:** es una marca tipográfica monocroma, no un emoji.
 
 ## Lo demás que se hizo, en orden
 
+### `03_REGLAS_DE_NEGOCIO.md`, reescrito contra el motor — 6/8
+
+El peor de los tres. **Afirmaba seis veces un mecanismo que no existe.**
+
+Las reglas 23, 24, 35, 42, 43 y 44 decían, cada una con sus palabras: «se aplica
+como piso; si el cálculo por escala arroja un valor inferior al mínimo, se usa
+el mínimo». Y el paso 9 del diagrama de la cadena decía «verificar mínimos».
+
+**`calculate.ts` no importa `minimos-data.ts` y no hay ninguna comparación de
+piso en ningún punto.** El cálculo termina en el partidor. Es decir que el
+documento hacía creer que la herramienta garantiza los mínimos legales, y no los
+garantiza: **el número que devuelve puede quedar por debajo de un mínimo del
+art. 58 o de los de peritos, y no lo dice.**
+
+No se cambió nada del motor al descubrirlo: implementar un piso mueve números.
+Quedó como punto 8 de [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md), y es el
+único de la lista que puede mover un número **hacia arriba**.
+
+**El error de fondo: mezclaba tres clases de regla y llamaba a las tres
+«implementadas en el sistema».** Las que aplica el motor, las que la ley pone a
+cargo del usuario para determinar la base, y las tablas de consulta. Doce de las
+45 «reglas» describían cosas que el motor no hace —determinar la base del
+art. 23, sumar los intereses, calcular la base del desalojo laboral, la de la
+liquidación patrimonial, la de la escrituración—. La regla 37 incluso decía
+«cuándo aplica: siempre, para todo proceso judicial».
+
+El documento nuevo está organizado por **quién aplica cada regla**, que era la
+distinción que faltaba, con una sección propia para los pisos que la ley fija y
+el motor no verifica.
+
+**Lo demás que se corrigió:**
+
+- **La homologación de desocupación estaba clasificada como reducción final.**
+  El motor la aplica sobre la escala. El número da igual, pero la etapa es
+  justamente lo que ese documento existe para decir. Y decía que el 50 % aplica
+  «cuando **no** es de vivienda»: aplica siempre.
+- **El incidente, «cuando tramita bajo la antigua Ley 21.839».** El motor lo
+  aplica a todos, y no por descuido: el art. 47 quedó observado y no hay otra
+  escala.
+- **La tabla del exhorto con los tres incisos inventados**, ya sabido.
+- **El art. 30 decía que el 40 % aplica si la sentencia se revoca «total o
+  parcialmente».** El artículo lo reserva a la revocación en todas sus partes a
+  favor del apelante.
+- **El partidor figuraba como condicional.** Se calcula siempre en la sucesión.
+- **El art. 43 descrito como «desalojo laboral (despido sin causa, etc.)».** No
+  tiene que ver con el despido: es la restitución de inmuebles dados al
+  trabajador por la relación de trabajo.
+- **Los modos anormales del art. 25 incluían la conciliación.** Son
+  allanamiento, desistimiento y transacción.
+- **El art. 23 inc. d resumido como «capital + intereses».** Es el valor de las
+  escrituras deducidas las amortizaciones.
+- **Se fueron los 45 números de regla.** Eran identificadores arbitrarios
+  —declarados como tales en el propio índice— y buena parte no correspondía a
+  ninguna regla del sistema. Ahora cada regla se identifica por la etapa en que
+  opera y el artículo que la funda. Nadie los referenciaba fuera del documento.
+- Sin tildes, y con dos palabras en inglés filtradas en la regla 25.
+
 ### `02_FLUJO_JURIDICO.md`, reescrito contra el motor — 6/8
 
 Este estaba **mucho mejor que el 01**: el orden de operaciones, la acumulación
@@ -527,16 +584,16 @@ registrado, con DNS, con certificado y con HTTPS forzado.
   mail» y «si crees», que es el imperativo de *tú*. La convención del
   repositorio es rioplatense. No se corrigió para no mezclarlo con la revisión
   visual.
-- **Los documentos de dominio 03 a 08, sin pasar por el motor.** El `01` y el
-  `02` se reescribieron el 6/8 contra `wizard-schema.ts` y `calculate.ts`, y
-  aparecieron once afirmaciones falsas en el primero y ocho en el segundo,
-  incluida una fórmula de la escala que el motor no usa. Los seis restantes
-  salieron de la misma fuente. En `03_REGLAS_DE_NEGOCIO.md` ya se vio que la
-  tabla del exhorto (regla 17) tiene las etiquetas inventadas —«exhorto simple»,
-  «con trabas cautelares», «con ejecución»— en vez de las tres del art. 50, y
-  que la regla 16 dice que el 2-20 % aplica «cuando el incidente tramita bajo la
-  Ley 21.839», cuando el motor lo aplica a todos. **Revisarlos contra el código,
-  uno por uno, no leyéndolos.**
+- **Los documentos de dominio 04 a 08, sin pasar por el motor.** El `01`, el
+  `02` y el `03` se reescribieron el 6/8 contra `wizard-schema.ts` y
+  `calculate.ts`: once afirmaciones falsas en el primero, ocho en el segundo
+  —incluida una fórmula de la escala que el motor no usa— y en el tercero un
+  mecanismo entero de pisos mínimos que no existe. Los cinco restantes salieron
+  de la misma fuente. **Revisarlos contra el código, uno por uno, no
+  leyéndolos.** El `04_MODELO_DEL_DOMINIO.md` y el `05_DEPENDENCIAS.md` son los
+  más expuestos: describen estructura, que es lo más fácil de inventar de forma
+  verosímil, y el `05` ya se sabe que nombra módulos que no existen —fue el
+  mismo problema del `01`—.
 - **Chequeo que quedó pendiente en el `02`:** cada cifra de los mínimos se
   verificó contra `minimos-data.ts`, pero **`minimos-data.ts` no se verificó
   contra la ley**. Dice ser copia fiel del asistente clásico; que sea fiel a la

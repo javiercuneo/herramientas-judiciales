@@ -1,463 +1,374 @@
-# Reglas de Negocio — Calculadora de Honorarios (Ley 27.423)
+# Las reglas, y quién aplica cada una
 
-Inventario completo de todas las reglas legales/negocio implementadas en el sistema.
-Cada regla se documenta con su condicion de activacion, que modifica y con que otras reglas interactua.
+> Documento de dominio — Ley 27.423
 
-## Índice por número de regla
+Inventario de las reglas de la Ley 27.423 que intervienen en el cálculo,
+**separadas según quién las aplica**. Esa separación es lo primero porque es lo
+que la versión anterior de este documento no hacía, y de ahí salían casi todos
+sus errores: presentaba como «reglas implementadas en el sistema» cosas que el
+motor no hace y no puede hacer.
 
-> Los números son **identificadores, no un orden**: el documento agrupa por lo
-> que cada regla toca —primero la base, después escala y honorarios— así que
-> aparecen salteados. Esta tabla es para encontrarlos. Están las 45, con las 26
-> a 32 juntas bajo un mismo encabezado porque son los tramos de una sola tabla.
+Hay tres clases, y confundirlas lleva a creer que la herramienta garantiza cosas
+que no garantiza:
 
-| Regla | Qué hace |
-|---|---|
-| Regla 1 | Art. 40: Desalojo vivienda — Reduccion 20 % sobre base |
-| Regla 2 | Art. 22: Demanda rechazada — Reduccion 30 % sobre base |
-| Regla 3 | Art. 22: Caducidad como desestimada — Reduccion 30 % sobre base |
-| Regla 4 | Art. 35: Unico letrado en sucesion — Reduccion 50 % en escala |
-| Regla 5 | Art. 41: Ejecucion de sentencia — Reduccion 50 % en escala |
-| Regla 6 | Art. 25: Modos anormales antes de apertura a prueba — Reduccion 50 % en escala |
-| Regla 7 | Art. 25: Caducidad como modo anormal antes de prueba — Reduccion 50 % en escala |
-| Regla 8 | Art. 34: Ejecutivo sin excepciones — Reduccion 10 % sobre honorarios finales |
-| Regla 9 | Art. 41 + Art. 34: Ejecucion sentencia sin excepciones — Reduccion 10 % sobre honorarios finales |
-| Regla 10 | Art. 38: Posesorias/interdictos con beneficio exclusivo — Reduccion 20 % sobre honorarios finales |
-| Regla 11 | Art. 49: Incidencia colectiva — Reduccion 25 % sobre honorarios finales |
-| Regla 12 | Art. 37: Medida cautelar sin oposicion — 25 % de la escala |
-| Regla 13 | Art. 37: Medida cautelar con oposicion — 50 % de la escala |
-| Regla 14 | Art. 40 par. 2: Homologacion de desocupacion — Reduccion 50 % sobre honorarios |
-| Regla 15 | Art. 40: Homologacion desocupacion de vivienda — 20 % base + 50 % honorarios |
-| Regla 16 | Art. 33 (Ley 21.839): Incidente — 2 %-20 % de la base |
-| Regla 17 | Art. 50: Exhorto — Montos fijos en UMA |
-| Regla 18 | Art. 20: Apoderado — Multiplicador 1,4 x sobre patrocinante |
-| Regla 19 | Art. 20: Procurador — Multiplicador 0,4 x sobre patrocinante |
-| Regla 20 | Art. 30: Segunda instancia — 30 %-35 % de primera instancia |
-| Regla 21 | Art. 30: Sentencia revocada — Hasta 40 % de primera instancia |
-| Regla 22 | Art. 21, antepenultimo parrafo: Auxiliares generales — 5 %-10 % de la base |
-| Regla 23 | Art. 58: Minimos de auxiliares — 4 UMA en procesos pecuniarios |
-| Regla 24 | Art. 60: Minimos de peritos — 2 UMA en procesos no pecuniarios |
-| Regla 25 | Art. 61 bis: Peritos en controversias — 2 UMA por pericia; 1/4 UMA si se resuelve antes |
-| Reglas 26 a 32 | Tabla de porcentajes por tramo |
-| Regla 33 | Art. 12: Honorarios provisorios — Solo valores minimos |
-| Regla 34 | Art. 35, ultima parte: Partidor — 2 %-3 % de la base |
-| Regla 35 | Art. 19 inc. a: Judiciales no pecuniarios — Montos fijos por tipo de proceso |
-| Regla 36 | Art. 19 inc. b: Extrajudiciales — Montos fijos por tipo de labor |
-| Regla 37 | Sub-reglas del art. 23: Determinacion de base |
-| Regla 38 | Art. 24 y 52: Intereses integran la base |
-| Regla 39 | Art. 43: Desalojo laboral — Base = 50 % ultimo salario x 24 meses |
-| Regla 40 | Art. 45: Liquidacion regimen patrimonial — Base = patrimonio adjudicado |
-| Regla 41 | Art. 46: Escrituracion — Base = max(valor bien, boleto) |
-| Regla 42 | Art. 48: Amparo, habeas data, habeas corpus — Minimo 20 UMA |
-| Regla 43 | Art. 44: Contencioso administrativo — 7 UMA (acciones) / 5 UMA (procedimientos) |
-| Regla 44 | Art. 58: Minimos varios por tipo de proceso |
-| Regla 45 | Transparencia de escala (art. 21, interpretacion literal) |
+| Clase | Quién la aplica | Ejemplo |
+|---|---|---|
+| **Reglas del motor** | El código, solo | El -30 % del art. 22 sobre la base |
+| **Reglas de la base** | **El usuario**, antes de ingresar el monto | El valor del inmueble según el art. 23 inc. a |
+| **Tablas de consulta** | Nadie: se leen | Los mínimos del art. 19 |
+
+Y una cuarta categoría que la versión anterior no tenía y hacía falta: **los
+pisos que la ley fija y el motor no verifica**. Están al final.
+
+**Cómo se nombran las cosas acá.** Igual que en el
+[01](01_PROCESOS.md) y el [02](02_FLUJO_JURIDICO.md): cada cosa con su categoría
+jurídica y con la clave del código. Lo verificable está en
+`lib/legal/calculate.ts` —y dentro de él, en una sola función,
+`resolveReglas()`, que es donde las respuestas se traducen a reglas—.
+
+**Se fueron los números de regla.** Eran 45 identificadores arbitrarios
+—declarados como tales— de los que buena parte no correspondía a ninguna regla
+del sistema. Ahora cada regla se identifica por la etapa en la que opera y el
+artículo que la funda, que es información y no un rótulo.
+
+> **Verificado el 6/8/2026** contra el motor y contra el texto de la ley
+> ([00_LEY_27423.md](00_LEY_27423.md)). Lo que se corrigió está al final.
 
 ---
 
-## 1. Determinacion de la base (art. 23)
+## A. Las reglas que aplica el motor
 
-### Regla 37 — Sub-reglas del art. 23: Determinacion de base
+Son estas y ninguna más. Están en el orden en que se aplican, que es parte de la
+regla: una quita sobre la base no da lo mismo que la misma quita sobre la escala.
 
-- **Cuando aplica**: Siempre, para todo proceso judicial.
-- **Sobre que opera**: El monto economico sobre el cual se aplica la escala.
-- **Que modifica**: Determina el valor numerico de la base segun la naturaleza del bien o derecho en disputa.
-- **Interacciones**: Se aplica **antes** de cualquier regla de reduccion (arts. 40, 22), antes de la escala (art. 21) y antes de cualquier otro calculo posterior.
+### A.1 — Sobre la base regulatoria
 
-Sub-reglas especificas:
+Las tres se multiplican entre sí si concurren. `aplicarReduccionesBase()`.
 
-| Sub-regla | Condicion | Base |
-|-----------|-----------|------|
-| Inmuebles | Bien inmueble en disputa | Valor declarado o pericial del inmueble |
-| Muebles | Bien mueble en disputa | Valor del mueble |
-| Derechos crediticios | Credito reclamado | Monto del capital + intereses adeudados |
-| Intereses | Se reclaman intereses | Los intereses se suman a la base |
+| Artículo | Qué | Factor | Cuándo |
+|---|---|---|---|
+| **40** | Locación para vivienda o habitación | × 0,80 | `conocimiento` con `objeto` = `desalojo` y `desalojoVivienda` = `vivienda`; o `homologacion_desocupacion` con `homologacionVivienda` = `vivienda` |
+| **22** | Demanda o reconvención íntegramente desestimada | × 0,70 | `sentenciaResultado` = `rechazada`, en `conocimiento`, `ejecucion_sentencia` o `ejecutivo` |
+| **22** | Caducidad tratada como demanda desestimada | × 0,70 | `modoTerminacion` = `caducidad` y `caducidadCriterio` = `art22`, en los mismos tres |
 
-### Regla 38 — Art. 24 y 52: Intereses integran la base
+Las dos del art. 22 son la misma quita con distinto fundamento: la primera sale
+del texto directo, la segunda de asimilar la caducidad a la desestimación, que
+es una interpretación declarada —ver A.2, art. 25—.
 
-- **Cuando aplica**: Siempre que se reclamen intereses en la demanda.
-- **Sobre que opera**: La base de calculo.
-- **Que modifica**: Los intereses adeudados se suman a la base antes de aplicar la escala del art. 21.
-- **Interacciones**: Opera conjuntamente con la regla 37 (determinacion de base del art. 23).
+### A.2 — La escala del art. 21, y lo que la reduce
 
-### Regla 39 — Art. 43: Desalojo laboral — Base = 50 % ultimo salario x 24 meses
-
-- **Cuando aplica**: Cuando el proceso es de desalojo laboral (despido sin causa, etc.).
-- **Sobre que opera**: La base de calculo.
-- **Que modifica**: La base se calcula como **50 % del ultimo salario mensual del trabajador multiplicado por 24 meses** (2 anios).
-- **Interacciones**: Determina una base especial que luego se somete a la escala del art. 21. No aplica reduccion por art. 22 o 40 (son para otros tipos de proceso).
-
-### Regla 40 — Art. 45: Liquidacion regimen patrimonial — Base = patrimonio adjudicado
-
-- **Cuando aplica**: Cuando se trata de la liquidacion del regimen patrimonial (sociedad conyugal o union convivencial).
-- **Sobre que opera**: La base de calculo.
-- **Que modifica**: La base es el **valor total del patrimonio adjudicado**.
-- **Interacciones**: Determina una base especial que luego se somete a la escala del art. 21.
-
-### Regla 41 — Art. 46: Escrituracion — Base = max(valor bien, boleto)
-
-- **Cuando aplica**: Cuando se trata de un juicio de escrituracion (obligacion de otorgar escritura publica).
-- **Sobre que opera**: La base de calculo.
-- **Que modifica**: La base es el **mayor valor** entre el valor del bien y el valor del boleto de compraventa.
-- **Interacciones**: Determina una base especial que luego se somete a la escala del art. 21.
-
-### Regla 42 — Art. 48: Amparo, habeas data, habeas corpus — Minimo 20 UMA
-
-- **Cuando aplica**: Cuando se trata de un proceso de amparo, habeas data o habeas corpus.
-- **Sobre que opera**: El honorario minimo del patrocinante.
-- **Que modifica**: Establece un piso minimo de **20 UMA** para estos procesos, sin importar la cuantia.
-- **Interacciones**: Se aplica como piso. Si el calculo por escala arroja un valor inferior a 20 UMA, se usa 20 UMA.
-
-### Regla 43 — Art. 44: Contencioso administrativo — 7 UMA (acciones) / 5 UMA (procedimientos)
-
-- **Cuando aplica**: Cuando se trata de procesos contencioso administrativos.
-- **Sobre que opera**: El honorario minimo del patrocinante.
-- **Que modifica**:
-  - Para **acciones judiciales** contencioso administrativas: minimo **7 UMA**.
-  - Para **procedimientos administrativos** (no judiciales): minimo **5 UMA**.
-- **Interacciones**: Se aplica como piso. Si el calculo por escala arroja un valor inferior, se usa el minimo correspondiente.
-
----
-
-## 2. Reducciones sobre BASE (previas a la escala)
-
-### Regla 1 — Art. 40: Desalojo vivienda — Reduccion 20 % sobre base
-
-- **Cuando aplica**: Cuando el proceso es de desalojo y recae sobre **vivienda**.
-- **Sobre que opera**: La base de calculo (antes de aplicar la escala).
-- **Que modifica**: Reduce la base en un **20 %** antes de calcular el porcentaje de escala.
-- **Interacciones**: Puede combinarse con la regla 15 (homologacion desocupacion vivienda), que aplica una reduccion adicional del 50 % sobre los honorarios resultantes.
-
-### Regla 2 — Art. 22: Demanda rechazada — Reduccion 30 % sobre base
-
-- **Cuando aplica**: Cuando la demanda es **rechazada en su totalidad** (segun art. 22 de la ley).
-- **Sobre que opera**: La base de calculo (antes de aplicar la escala).
-- **Que modifica**: Reduce la base en un **30 %** antes de calcular el porcentaje de escala.
-- **Interacciones**: Se aplica antes de la escala. Es la version general de la regla 3 (variante para caducidad).
-
-### Regla 3 — Art. 22: Caducidad como desestimada — Reduccion 30 % sobre base
-
-- **Cuando aplica**: Cuando la caducidad se trata como si fuera un rechazo de demanda (desestimacion), aplicando el art. 22.
-- **Sobre que opera**: La base de calculo (antes de aplicar la escala).
-- **Que modifica**: Reduce la base en un **30 %** antes de calcular el porcentaje de escala.
-- **Interacciones**: Variante de la regla 2. Misma reduccion (30 %), misma base, diferente fundamento legal.
-
----
-
-## 3. Reducciones sobre ESCALA (factorEscala)
-
-### Regla 4 — Art. 35: Unico letrado en sucesion — Reduccion 50 % en escala
-
-- **Cuando aplica**: Cuando en un juicio sucesorio interviene un **unico letrado** (abogado patrocinante).
-- **Sobre que opera**: Los porcentajes de la escala del art. 21.
-- **Que modifica**: Reduce el porcentaje de escala en un **50 %**. Por ejemplo, si la escala indica 22 %-33 %, pasaria a 11 %-16,5 %.
-- **Interacciones**: Se aplica sobre los porcentajes de la escala (reglas 26-32). Puede combinarse con la regla 34 (partidor), que es un calculo independiente sobre la base.
-
-### Regla 5 — Art. 41: Ejecucion de sentencia — Reduccion 50 % en escala
-
-- **Cuando aplica**: Siempre que se trate de ejecucion de sentencia (fase de ejecucion de una sentencia firme).
-- **Sobre que opera**: Los porcentajes de la escala del art. 21.
-- **Que modifica**: Reduce el porcentaje de escala en un **50 %**.
-- **Interacciones**: Se aplica sobre la escala. Puede combinarse con la regla 9 (reduccion adicional del 10 % sobre honorarios finales cuando no hay excepciones).
-
-### Regla 6 — Art. 25: Modos anormales antes de apertura a prueba — Reduccion 50 % en escala
-
-- **Cuando aplica**: Cuando el juicio se extingue por un **modo anormal** (conciliacion, desistimiento, allanamiento,etc.) **antes** de la apertura a prueba.
-- **Sobre que opera**: Los porcentajes de la escala del art. 21.
-- **Que modifica**: Reduce el porcentaje de escala en un **50 %**.
-- **Interacciones**: Se aplica sobre la escala. Es la version general de la regla 7 (variante para caducidad).
-
-### Regla 7 — Art. 25: Caducidad como modo anormal antes de prueba — Reduccion 50 % en escala
-
-- **Cuando aplica**: Cuando la caducidad se trata como modo anormal de extincion del proceso **antes** de la apertura a prueba.
-- **Sobre que opera**: Los porcentajes de la escala del art. 21.
-- **Que modifica**: Reduce el porcentaje de escala en un **50 %**.
-- **Interacciones**: Variante de la regla 6. Misma reduccion (50 %), mismo efecto sobre escala, diferente causa (caducidad vs. otro modo anormal).
-
----
-
-## 4. Reducciones sobre HONORARIOS FINALES (factorFinal)
-
-### Regla 8 — Art. 34: Ejecutivo sin excepciones — Reduccion 10 % sobre honorarios finales
-
-- **Cuando aplica**: Cuando se trata de un juicio ejecutivo y el ejecutado **no formula excepciones**.
-- **Sobre que opera**: Los honorarios calculados despues de aplicar la escala.
-- **Que modifica**: Reduce los honorarios finales en un **10 %**.
-- **Interacciones**: Se aplica despues de la escala. Es la version para juicios ejecutivos; la regla 9 es la version para ejecucion de sentencia.
-
-### Regla 9 — Art. 41 + Art. 34: Ejecucion sentencia sin excepciones — Reduccion 10 % sobre honorarios finales
-
-- **Cuando aplica**: Cuando se trata de ejecucion de sentencia y el ejecutado **no formula excepciones**.
-- **Sobre que opera**: Los honorarios calculados despues de aplicar la escala.
-- **Que modifica**: Reduce los honorarios finales en un **10 %**.
-- **Interacciones**: Se combina con la regla 5 (reduccion del 50 % en escala por ejecucion de sentencia). El orden de aplicacion es: primero se reduce la escala 50 %, despues se aplica la reduccion del 10 % sobre los honorarios resultantes.
-
-### Regla 10 — Art. 38: Posesorias/interdictos con beneficio exclusivo — Reduccion 20 % sobre honorarios finales
-
-- **Cuando aplica**: Cuando se trata de acciones posesorias o interdictos y el beneficiario tiene **beneficio exclusivo**.
-- **Sobre que opera**: Los honorarios calculados despues de aplicar la escala.
-- **Que modifica**: Reduce los honorarios finales en un **20 %**.
-- **Interacciones**: Se aplica despues de la escala. No se combina con las reglas 8 o 9 (son para procesos ejecutivos).
-
-### Regla 11 — Art. 49: Incidencia colectiva — Reduccion 25 % sobre honorarios finales
-
-- **Cuando aplica**: Cuando se trata de una accion de incidencia colectiva.
-- **Sobre que opera**: Los honorarios calculados despues de aplicar la escala.
-- **Que modifica**: Reduce los honorarios finales en un **25 %**.
-- **Interacciones**: Se aplica despues de la escala. No se combina con las reglas 8, 9 o 10 (son para otros tipos de proceso).
-
----
-
-## 5. Reglas especiales por tipo de proceso
-
-### Regla 12 — Art. 37: Medida cautelar sin oposicion — 25 % de la escala
-
-- **Cuando aplica**: Cuando se solicita una medida cautelar y el demandado **no formula oposicion**.
-- **Sobre que opera**: La escala del art. 21.
-- **Que modifica**: Los honorarios se fijan en el **25 %** del porcentaje de escala correspondiente a la cuantia.
-- **Interacciones**: Es un calculo independiente que reemplaza la aplicacion normal de la escala. No se acumula con reducciones de arts. 40 o 22.
-
-### Regla 13 — Art. 37: Medida cautelar con oposicion — 50 % de la escala
-
-- **Cuando aplica**: Cuando se solicita una medida cautelar y el demandado **formula oposicion**.
-- **Sobre que opera**: La escala del art. 21.
-- **Que modifica**: Los honorarios se fijan en el **50 %** del porcentaje de escala correspondiente a la cuantia.
-- **Interacciones**: Es un calculo independiente que reemplaza la aplicacion normal de la escala. No se acumula con reducciones de arts. 40 o 22.
-
-### Regla 14 — Art. 40 par. 2: Homologacion de desocupacion — Reduccion 50 % sobre honorarios
-
-- **Cuando aplica**: Cuando se trata de homologacion de desocupacion que **no** es de vivienda.
-- **Sobre que opera**: Los honorarios calculados despues de aplicar la escala.
-- **Que modifica**: Reduce los honorarios en un **50 %**.
-- **Interacciones**: Variante de la regla 15. No se aplica la reduccion del 20 % sobre base (regla 1) porque no es vivienda.
-
-### Regla 15 — Art. 40: Homologacion desocupacion de vivienda — 20 % base + 50 % honorarios
-
-- **Cuando aplica**: Cuando se trata de homologacion de desocupacion de **vivienda**.
-- **Sobre que opera**: Primero la base, luego los honorarios.
-- **Que modifica**: **Primero** reduce la base en un **20 %** (igual que la regla 1), **despues** reduce los honorarios resultantes en un **50 %**. Es la combinacion de dos reducciones en cadena.
-- **Interacciones**: Combina la regla 1 (reduccion 20 % sobre base por tratarse de vivienda) con una reduccion del 50 % sobre los honorarios finales. El orden es critico: primero base, luego escala, luego reduccion 50 %.
-
-### Regla 16 — Art. 33 (Ley 21.839): Incidente — 2 %-20 % de la base
-
-- **Cuando aplica**: Cuando se trata de un incidente tramitado bajo la antigua Ley 21.839.
-- **Sobre que opera**: La base de calculo.
-- **Que modifica**: Los honorarios se fijan en un porcentaje comprendido entre el **2 % y el 20 %** de la base, segun la complejidad del asunto.
-- **Interacciones**: Calculo independiente que reemplaza la escala del art. 21. No interactua con reducciones de arts. 22, 25, 34, 40 o 41.
-
-### Regla 17 — Art. 50: Exhorto — Montos fijos en UMA
-
-- **Cuando aplica**: Cuando se trata de un exhorto (comision rogatoria a otro juzgado).
-- **Sobre que opera**: Base fija expresada en UMA (no depende de la cuantia del proceso principal).
-- **Que modifica**: Establece montos fijos segun la complejidad del exhorto:
-
-| Tipo de exhorto | Monto |
-|-----------------|-------|
-| Exhorto simple (sin trabas) | 3 UMA |
-| Exhorto con trabas cautelares | 10 - 20 UMA |
-| Exhorto con ejecucion | 7 - 30 UMA |
-
-- **Interacciones**: Calculo independiente que reemplaza la escala del art. 21. No interactua con otras reglas de reduccion.
-
----
-
-## 6. Reglas de Apoderado y Procurador (art. 20)
-
-### Regla 18 — Art. 20: Apoderado — Multiplicador 1,4 x sobre patrocinante
-
-- **Cuando aplica**: Cuando interviene un apoderado (representante legal con poder) ademas del abogado patrocinante.
-- **Sobre que opera**: Los honorarios ya calculados del patrocinante.
-- **Que modifica**: Los honorarios del apoderado se calculan como **1,4 veces** los honorarios del patrocinante (es decir, el patrocinante cobra 100 % y el apoderado cobra un **40 % adicional** sobre ese monto).
-- **Interacciones**: Se calcula **despues** de determinar los honorarios del patrocinante (incluyendo todas sus reducciones y escala). No se aplica a auxiliares de la justicia ni a peritos.
-
-### Regla 19 — Art. 20: Procurador — Multiplicador 0,4 x sobre patrocinante
-
-- **Cuando aplica**: Cuando interviene un procurador (agente habilitado con matricula) ademas del abogado patrocinante.
-- **Sobre que opera**: Los honorarios ya calculados del patrocinante.
-- **Que modifica**: Los honorarios del procurador se calculan como **0,4 veces** (el **40 %**) los honorarios del patrocinante.
-- **Interacciones**: Se calcula **despues** de determinar los honorarios del patrocinante (incluyendo todas sus reducciones y escala). No se aplica a auxiliares de la justicia ni a peritos. Puede coexistir con la regla 18 (apoderado + procurador en el mismo proceso).
-
----
-
-## 7. Segunda instancia (art. 30)
-
-### Regla 20 — Art. 30: Segunda instancia — 30 %-35 % de primera instancia
-
-- **Cuando aplica**: Cuando se calculan honorarios por segunda instancia (apelacion) sin que la sentencia sea revocada.
-- **Sobre que opera**: Los honorarios ya liquidados de primera instancia.
-- **Que modifica**: Los honorarios de segunda instancia son entre el **30 % y el 35 %** de los honorarios de primera instancia.
-- **Interacciones**: Se aplica sobre los honorarios de primera instancia, que ya incluyen todas las reducciones aplicables (arts. 22, 25, 40, 41, etc.). No se aplica el art. 21 (escala) a segunda instancia; se toma como base el monto de primera.
-
-### Regla 21 — Art. 30: Sentencia revocada — Hasta 40 % de primera instancia
-
-- **Cuando aplica**: Cuando la sentencia de segunda instancia **revoca total o parcialmente** la sentencia de primera instancia.
-- **Sobre que opera**: Los honorarios ya liquidados de primera instancia.
-- **Que modifica**: Los honorarios de segunda instancia pueden llegar hasta el **40 %** de los honorarios de primera instancia (tope maximo mayor al 35 % de la regla 20).
-- **Interacciones**: Variante de la regla 20. El tope sube de 35 % a 40 % por la revocacion. Se aplica sobre los honorarios de primera instancia con todas sus reducciones.
-
----
-
-## 8. Auxiliares de la justicia
-
-### Regla 22 — Art. 21, antepenultimo parrafo: Auxiliares generales — 5 %-10 % de la base
-
-- **Cuando aplica**: Cuando interviene un auxiliar de la justicia (traductor publico, martillero, depositario, etc.) en un proceso judicial general.
-- **Sobre que opera**: La base de calculo del proceso.
-- **Que modifica**: Los honorarios del auxiliar se fijan entre el **5 % y el 10 %** de la base, segun la complejidad y responsabilidad.
-- **Interacciones**: Calculo independiente del patrocinante. No participa de las reducciones de arts. 22, 25, 34, 40 o 41. Tiene minimo propio establecido en la regla 23.
-
-### Regla 23 — Art. 58: Minimos de auxiliares — 4 UMA en procesos pecuniarios
-
-- **Cuando aplica**: Cuando se calculan honorarios de auxiliares de la justicia en procesos de cuantia determinada (pecuniarios).
-- **Sobre que opera**: El honorario minimo del auxiliar.
-- **Que modifica**: Establece un piso absoluto de **4 UMA** para auxiliares en procesos pecuniarios.
-- **Interacciones**: Se verifica despues de calcular el porcentaje sobre la base (regla 22). Si el resultado es menor a 4 UMA, se eleva a 4 UMA. No interactua con reducciones del patrocinante.
-
-### Regla 24 — Art. 60: Minimos de peritos — 2 UMA en procesos no pecuniarios
-
-- **Cuando aplica**: Cuando se calculan honorarios de peritos (perito medico, contador, etc.) en procesos de cuantia indeterminada (no pecuniarios).
-- **Sobre que opera**: El honorario minimo del perito.
-- **Que modifica**: Establece un piso minimo de **2 UMA** para peritos en procesos no pecuniarios.
-- **Interacciones**: Se aplica como piso absoluto despues de cualquier calculo porcentual sobre la base.
-
-### Regla 25 — Art. 61 bis: Peritos en controversias — 2 UMA por pericia; 1/4 UMA si se resuelve antes
-
-- **Cuando aplica**: Cuando un perito interviene en un proceso controversial (juicio ordinario, etc.).
-- **Sobre que opera**: Los honorarios del perito por pericia rendida.
-- **Que modifica**:
-  - Si la pericia se presentations y se incorpora al debate: **2 UMA** por pericia.
-  - Si el caso se resuelve **antes** de que la pericia sea presentada: **1/4 (0,25) UMA** como minimos.
-- **Interacciones**: Calculo independiente. La reduccion a 0,25 UMA se aplica por resolucion prematura del caso (el pericio no llego a ser utilizado).
-
----
-
-## 9. Honorarios provisorios (art. 12)
-
-### Regla 33 — Art. 12: Honorarios provisorios — Solo valores minimos
-
-- **Cuando aplica**: Cuando se selecciona el modo "provisorio" en el calculo de honorarios.
-- **Sobre que opera**: Los honorarios que resultarian de la aplicacion normal de la escala.
-- **Que modifica**: Se toma **unicamente el valor minimo** del tramo de escala correspondiente (el porcentaje inferior del rango). Por ejemplo, si la escala indica 22 %-33 %, se usa 22 %.
-- **Interacciones**: Afecta la presentacion de resultados de todas las reglas de escala (reglas 26-32). No modifica la logica interna del calculo; solo que valor final se exhibe al usuario.
-
----
-
-## 10. Partidor en sucesiones (art. 35, ultima parte)
-
-### Regla 34 — Art. 35, ultima parte: Partidor — 2 %-3 % de la base
-
-- **Cuando aplica**: Cuando en un juicio sucesorio interviene un partidor (profesional que realiza la particion y adjudicacion de bienes).
-- **Sobre que opera**: La base de calculo del proceso sucesorio.
-- **Que modifica**: Los honorarios del partidor se fijan entre el **2 % y el 3 %** de la base del juicio sucesorio.
-- **Interacciones**: Aplica exclusivamente a procesos sucesorios. Es un calculo **independiente** del honorario del patrocinante (el abogado cobra segun la escala y posibles reducciones, y el partidor cobra aparte segun esta regla). Puede coexistir con la regla 4 (unico letrado en sucesion), ya que la reduccion del 50 % afecta al abogado y la regla 34 afecta al partidor.
-
----
-
-## 11. Minimos del art. 19 — Tablas de honorarios minimos
-
-### Regla 35 — Art. 19 inc. a: Judiciales no pecuniarios — Montos fijos por tipo de proceso
-
-- **Cuando aplica**: Cuando el proceso es no pecuniario (cuantia indeterminada) y se requiere determinar el honorario minimo del patrocinante.
-- **Sobre que opera**: El honorario minimo del patrocinante.
-- **Que modifica**: Establece montos fijos en UMA segun el tipo de proceso:
-
-| Tipo de proceso | Minimo (UMA) |
-|-----------------|--------------|
-| Divorcio | 10 |
-| Adopcion | 20 |
-| Otros no pecuniarios | Variable segun la tabla de la ley |
-
-- **Interacciones**: Se aplica como piso absoluto. Si el calculo por escala (art. 21) arroja un valor inferior al minimo de esta tabla, se usa el valor de la tabla.
-
-### Regla 36 — Art. 19 inc. b: Extrajudiciales — Montos fijos por tipo de labor
-
-- **Cuando aplica**: Cuando se calculan honorarios por labores extrajudiciales (asesoramiento legal fuera de un proceso judicial).
-- **Sobre que opera**: El honorario minimo por labor extrajudicial.
-- **Que modifica**: Establece montos fijos en UMA segun el tipo de labor realizada (dictamen, consulta, asesoramiento, etc.).
-- **Interacciones**: Calculo completamente independiente del proceso judicial. No se aplica la escala del art. 21 ni las reducciones propias del proceso.
-
----
-
-## 12. Minimos del art. 58 — Montos fijos varios
-
-### Regla 44 — Art. 58: Minimos varios por tipo de proceso
-
-| Tipo de proceso | Minimo (UMA) |
-|-----------------|--------------|
-| Conocimiento (ordinario) | 10 |
-| Ejecutivos | 6 |
-| Mediacion | 2 |
-| Auxiliares de la justicia | 4 |
-
-- **Cuando aplica**: Segun el tipo de proceso indicado, como piso absoluto.
-- **Sobre que opera**: El honorario minimo del profesional o auxiliar interviniente.
-- **Que modifica**: Establece pisos minimos en UMA que no pueden ser inferiores en ningun caso.
-- **Interacciones**: Se aplica como verificacion final despues de cualquier calculo porcentual. Complementa las reglas 23 (auxiliares en pecuniarios), 24 (peritos en no pecuniarios) y 35 (judiciales no pecuniarios).
-
----
-
-## 13. Escala del art. 21 — Los 7 tramos
-
-### Reglas 26 a 32 — Tabla de porcentajes por tramo
-
-| Regla | Tramo | Rango (UMA) | Porcentaje minimo | Porcentaje maximo |
-|-------|-------|-------------|-------------------|-------------------|
-| 26 | 1ra escala | Hasta 15 UMA | 22 % | 33 % |
-| 27 | 2da escala | 16 a 45 UMA | 20 % | 26 % |
-| 28 | 3ra escala | 46 a 90 UMA | 18 % | 24 % |
-| 29 | 4ta escala | 91 a 150 UMA | 17 % | 22 % |
-| 30 | 5ta escala | 151 a 450 UMA | 15 % | 20 % |
-| 31 | 6ta escala | 451 a 750 UMA | 13 % | 17 % |
-| 32 | 7ma escala | Mas de 750 UMA | 12 % | 15 % |
-
-- **Cuando aplica**: Siempre que se calculan honorarios del patrocinante en un proceso judicial (regla general).
-- **Sobre que opera**: La base de calculo expresada en UMA.
-- **Que modifica**: Determina el rango de porcentajes que se aplica a la base para obtener los honorarios.
-- **Interacciones**: Es la regla central sobre la cual operan las reducciones de escala (reglas 4, 5, 6, 7) y las reducciones de honorarios finales (reglas 8, 9, 10, 11).
-
-### Regla 45 — Transparencia de escala (art. 21, interpretacion literal)
-
-- **Cuando aplica**: Cuando la cuantia expresada en UMA cae dentro de un tramo intermedio de la escala (no en el inicio del tramo).
-- **Sobre que opera**: El calculo del honorario minimo del tramo.
-- **Que modifica**: El honorario minimo del tramo se calcula como: **maximo del tramo anterior** (en pesos) **+ porcentaje minimo del tramo actual sobre el exceso**. Esto garantiza continuidad y transparencia en la escala, evitando saltos abruptos al pasar de un tramo a otro.
-- **Interacciones**: Se aplica a las reglas 26-32 (los 7 tramos de la escala). Afecta unicamente al calculo del valor minimo; el valor maximo se calcula de forma anologa con el porcentaje maximo.
-
----
-
-## Resumen de orden de aplicacion (cadena de calculo tipica)
+**La escala.** Siete tramos definidos en UMA. A partir del segundo, la alícuota
+**no se aplica sobre el total**:
 
 ```
-1. Determinar BASE (reglas 37-43)
-       |
-2. Aplicar reducciones sobre BASE si corresponden (reglas 1, 2, 3)
-       |
-3. Expresar base en UMA y aplicar ESCALA del art. 21 (reglas 26-32 + regla 45)
-       |
-4. Aplicar reducciones sobre ESCALA si corresponden — factorEscala (reglas 4, 5, 6, 7)
-       |
-5. Verificar honorarios provisorios si corresponde (regla 33)
-       |
-6. Aplicar reducciones sobre HONORARIOS FINALES si corresponden — factorFinal (reglas 8, 9, 10, 11, 14, 15)
-       |
-7. Calcular SEGUNDA INSTANCIA si corresponde (reglas 20, 21)
-       |
-8. Calcular APODERADO / PROCURADOR si corresponden (reglas 18, 19)
-       |
-9. Verificar MINIMOS (reglas 23, 24, 35, 44)
+honorario = máximo del grado anterior + (excedente × alícuota del grado actual)
+
+máximo del grado anterior = límite superior de ese grado × su alícuota MÁXIMA
 ```
 
-## Combinaciones frecuentes de reglas
+| Tramo | Base en UMA | Alícuota | Piso que aporta al siguiente |
+|---|---|---|---|
+| 1ª | hasta 15 | 22 % a 33 % | 15 × 33 % = 4,95 UMA |
+| 2ª | 16 a 45 | 20 % a 26 % | 45 × 26 % = 11,70 UMA |
+| 3ª | 46 a 90 | 18 % a 24 % | 90 × 24 % = 21,60 UMA |
+| 4ª | 91 a 150 | 17 % a 22 % | 150 × 22 % = 33,00 UMA |
+| 5ª | 151 a 450 | 15 % a 20 % | 450 × 20 % = 90,00 UMA |
+| 6ª | 451 a 750 | 13 % a 17 % | 750 × 17 % = 127,50 UMA |
+| 7ª | más de 750 | 12 % a 15 % | — |
 
-| Escenario | Reglas que interactuan | Efecto combinado |
-|-----------|------------------------|------------------|
-| Ejecucion de sentencia + sin excepciones | 5 + 9 | -50 % escala y -10 % honorarios finales |
-| Desalojo vivienda + homologacion desocupacion | 1 + 15 | -20 % base y -50 % honorarios finales |
-| Sucesion con unico letrado | 4 | -50 % sobre escala |
-| Sucesion con partidor | 34 (+ 4 si aplica) | 2 %-3 % base para partidor; -50 % escala para abogado |
-| Modo anormal antes de prueba | 6 o 7 | -50 % sobre escala |
-| Medida cautelar con oposicion | 13 | 50 % de la escala (reemplaza calculo normal) |
-| Segunda instancia + sentencia revocada | 21 | Hasta 40 % de primera instancia |
-| Ejecutivo sin excepciones | 8 | -10 % sobre honorarios finales |
+**El piso no es la suma acumulada de los tramos anteriores**, sino el límite del
+tramo anterior por su alícuota máxima. Son cosas distintas y dan números
+distintos. El detalle, con un ejemplo verificado contra la app, está en el
+[02](02_FLUJO_JURIDICO.md#la-escala-del-art-21-cómo-funciona-de-verdad).
+
+**Interpretación declarada:** el párrafo del art. 21 que fija ese piso está
+escrito como mínimo —«en ningún caso… inferiores»—. El motor aplica la misma
+fórmula al máximo, porque sin acumular el máximo del tramo podría quedar por
+debajo del mínimo ya calculado. Es interpretación, no transcripción.
+
+**Lo que reduce la escala.** Multiplicativas entre sí.
+`aplicarReduccionesEscala()`.
+
+| Artículo | Qué | Factor | Cuándo |
+|---|---|---|---|
+| **35** | Un solo abogado por todos los herederos | × 0,50 | `sucesion` con `sucesionUnicoLetrado` = `unico` |
+| **41** | Ejecución de sentencia | × 0,50 | `ejecucion_sentencia`, **siempre**, sin preguntar nada |
+| **25** | Terminación anormal, o caducidad por criterio del art. 25, antes de la apertura a prueba | × 0,50 | `modos_anormales` + `aperturaPrueba` = `antes`; o `caducidad` + `art25` + `antes` |
+
+**Los dos criterios de la caducidad son alternativos.** Elegido el art. 22 la
+quita es de base y el momento de la apertura a prueba deja de jugar; por eso esa
+pregunta ni aparece. Hasta el 3/8/2026 el motor aplicaba también el -50 % al
+criterio del art. 22, acumulando dos quitas sobre el mismo hecho.
+
+**Dos procesos reemplazan la escala por un porcentaje propio**, en esta misma
+etapa:
+
+| Artículo | Proceso | Factor |
+|---|---|---|
+| **37** | `medida_cautelar` | × 0,25 sin oposición · × 0,50 con oposición o controversia |
+| **40** | `homologacion_desocupacion` | × 0,50, **siempre** |
+
+El art. 37 **no establece una reducción**: dice qué porcentaje de la escala se
+toma como base. Reducir un 25 % dejaría el 75 %; acá se aplica el 25 %.
+
+### A.3 — Sobre el honorario ya calculado
+
+Multiplicativas entre sí. `aplicarReduccionesFinales()`.
+
+| Artículo | Qué | Factor | Cuándo |
+|---|---|---|---|
+| **34** / **41** | No se dedujeron excepciones | × 0,90 | `ejecutivo` o `ejecucion_sentencia` con `tuvoExcepciones` = `no` |
+| **38** | Acciones posesorias, interdictos o división de bienes comunes en beneficio exclusivo del patrocinado | × 0,80 | `conocimiento` con `posesoriasTipo` = `beneficio` |
+| **49** | Acciones sobre derechos de incidencia colectiva con contenido patrimonial | × 0,75 | `conocimiento` con `objeto` = `incidencia_colectiva` |
+
+El art. 38 reduce **el monto de los honorarios**, no la base: la ley lo dice
+expresamente.
+
+### A.4 — Lo que se deriva del honorario, o de la base
+
+| Artículo | Qué | Cómo | Sobre qué |
+|---|---|---|---|
+| **20** | Apoderado | × 1,40 | El honorario del patrocinante **ya reducido** |
+| **20** | Procurador | × 0,40 | El honorario del patrocinante **ya reducido** |
+| **30** | Segunda instancia | × 0,30 el mínimo · × 0,35 el máximo · × 0,40 si la sentencia fue revocada en todas sus partes a favor del apelante | El honorario de primera instancia del rol elegido |
+| **21** | Auxiliares de la Justicia | 5 % a 10 % | La **base en UMA**, ya reducida por A.1 |
+| **35** | Partidor | 2 % a 3 % | La **base ya reducida**. Solo `sucesion`, y **siempre**: no se pregunta |
+
+**El 1,4 del apoderado sale del art. 20** aunque el artículo no lo diga con ese
+número: el abogado que actúa como apoderado sin patrocinio «percibirá la
+asignación total que hubiere correspondido a ambos», o sea el 100 % del
+patrocinante más el 40 % del procurador.
+
+**Los tres roles se calculan siempre y son alternativos entre sí.** La pantalla
+deja elegir cuál mirar. No se suman: un mismo abogado es patrocinante o
+apoderado, no los dos.
+
+**La segunda instancia solo sale en los cuatro procesos de `buildGeneral()`**
+—`conocimiento`, `ejecucion_sentencia`, `ejecutivo`, `sucesion`—. La cautelar,
+la homologación, el exhorto y el incidente no la devuelven.
+
+### A.5 — Los dos procesos con cálculo propio
+
+**Exhorto — art. 50.** Sin base y sin escala. La entrevista no pregunta el
+inciso: devuelve los tres.
+
+| Inciso | Qué comprende | UMA |
+|---|---|---|
+| a) | Notificaciones o actos semejantes | no menos de 3 |
+| b) | Inscripciones y actos registrales: dominios, hijuelas, testamentos, gravámenes, secuestros, embargos, inhibiciones, inventarios, remates, desalojos | 10 a 20 |
+| c) | Diligencias de prueba en las que se intervino produciéndolas o controlándolas | 7 a 30 |
+
+**Incidente — 2 % a 20 % de la base**, directo, sin escala y sin reducciones.
+
+> **Ese porcentaje no está en la Ley 27.423, y aplica a todos los incidentes.**
+> El art. 29 inc. g divide el incidente en dos etapas pero no fija ninguna
+> alícuota. El artículo que sí lo hacía, el **47** —del 8 % al 25 % de lo que
+> correspondiera al principal, con piso de 5 UMA—, **fue observado por el
+> Decreto 1077/2017 y nunca entró en vigencia**. El 2 %-20 % viene del art. 33
+> de la Ley 21.839 y se conserva a falta de norma vigente que lo reemplace.
+>
+> Es un criterio interpretativo declarado. **No es «para los incidentes que
+> tramitan bajo la ley vieja»**: es el criterio que la app usa para todos,
+> porque la ley nueva no tiene otro.
+
+### A.6 — Lo que cambia sin cambiar ningún número
+
+**Art. 12 — regulación provisoria.** Si `modoTerminacion` = `provisorios`, **no
+se modifica ningún factor**. Lo que cambia es qué se puede afirmar: la ley manda
+fijarla «en el mínimo que le hubiere podido corresponder», así que el resultado
+se marca `esProvisorio` y la app **deja de enunciar el máximo** —banda de
+honorarios, alícuota, auxiliares, segunda instancia— y oculta el reparto por
+etapas. Enunciar el máximo sería afirmar un tope que este cálculo no afirma.
+
+Solo existe en `conocimiento`, `ejecucion_sentencia` y `ejecutivo`. En el
+sucesorio no se admiten regulaciones provisorias salvo excepción, y en esa
+excepción la regulación es definitiva, con mínimo y máximo.
 
 ---
 
-> **Nota**: Este documento refleja el estado de las reglas implementadas en el codigo fuente. Toda modificacion a la logica de calculo debe reflejarse aqui para mantener la trazabilidad entre norma, codigo y documentacion.
+## B. Las reglas que determinan la base, y las aplica el usuario
+
+**El motor no calcula la base regulatoria.** La ingresa el usuario, ya
+determinada. Estas reglas son de la ley y son obligatorias, pero **quien las
+aplica es una persona**, no el código.
+
+Están acá porque son parte del dominio y porque decidir bien la base es lo que
+más pesa en el resultado: la escala está validada trescientas veces; la base la
+pone alguien.
+
+| Artículo | Qué se reclama | Cómo se determina la base |
+|---|---|---|
+| **22** | Cobro de sumas de dinero | El monto de la demanda o reconvención; la liquidación si hay sentencia, actualizada por intereses; el monto de la transacción si la hubo |
+| **23 inc. a y b** | Inmuebles, muebles o semovientes | Tasación en autos. Si no la hay, valuación fiscal al momento de la regulación **incrementada en un 50 %**. Si esa valuación se reputa inadecuada, el profesional puede estimar el valor, con traslado y eventual pericia |
+| **23 inc. c** | Obligaciones de tracto sucesivo | El total de lo reclamado más accesorios hasta el efectivo pago |
+| **23 inc. d** | Derechos crediticios | El valor consignado en las escrituras o documentos, **deducidas las amortizaciones** |
+| **23 inc. e** | Títulos de renta o acciones | Cotización de la Bolsa de Comercio de Buenos Aires; si no cotiza, informe de entidad bancaria oficial |
+| **23 inc. f** | Establecimientos comerciales, industriales o mineros | Activo **menos** pasivo justificado, y al líquido se le suma un **10 % como valor llave** |
+| **23 inc. h** | Uso y habitación | 10 % anual del valor del bien × los años del derecho, **sin exceder el 100 %** del valor |
+| **24 y 52** | Cualquiera con intereses | Los intereses de la condena **integran la base, bajo pena de nulidad** |
+| **39** | Alimentos | Dos años de la cuota que se fije judicialmente |
+| **40** | Desalojo | El total de los alquileres del contrato. Si el alquiler es inadecuado, no puede determinarse, o hay intrusión o tenencia precaria: el valor locativo actualizado del inmueble |
+| **43** | Desalojo por restitución de inmuebles dados al trabajador en virtud de la relación de trabajo | El **50 % de la última remuneración mensual normal y habitual** según su categoría, **por dos años** |
+| **45** | Liquidación del régimen patrimonial del matrimonio | El valor del patrimonio adjudicado |
+| **46** | Escrituración | El valor del bien o el monto del boleto, **el mayor** |
+| **35** | Sucesión | El valor del patrimonio que se transmite, gananciales incluidos y bienes en otras jurisdicciones del país |
+| **37** | Medida cautelar | El monto que se pretende asegurar |
+| **21** | Cualquiera con litisconsorcio | La regulación se hace **con relación al interés de cada litisconsorte**, no sobre el total del pleito |
+
+**Esto explica para qué sirven las doce opciones de objeto del juicio.** No
+mueven el número —salvo `desalojo` con vivienda, `posesorias_interdictos` con
+beneficio exclusivo e `incidencia_colectiva`—: sirven para saber qué monto
+ingresar. En el asistente clásico cada opción mostraba la regla completa arriba
+del campo; **eso se perdió en parte al migrar y es la primera cosa a recuperar**
+(ver [`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), punto 1).
+
+---
+
+## C. Las tablas de mínimos: consulta, no cálculo
+
+Siete categorías en una pantalla aparte, sin entrevista y sin cálculo. Se busca
+el concepto y se lee el valor en UMA, convertido a pesos con la UMA vigente.
+
+| Clave | Artículo | Alcance |
+|---|---|---|
+| `judicial` | 19 inc. a | Asuntos judiciales sin apreciación pecuniaria: de 2 UMA (información sumaria) a 25 UMA (acciones de estado y familia, filiación, restricciones a la capacidad, incidencia colectiva, hábeas corpus, hábeas data). Divorcio 10, adopción y tutela 20 |
+| `extrajudicial` | 19 inc. b | Labor extrajudicial: de 0,5 UMA (consulta verbal) a 5 UMA (contratos o estatutos de sociedades y constitución de personas jurídicas) |
+| `recursos_csjn` | 31 | Queja por denegación 15 UMA; interposición de recurso extraordinario y similares 20 UMA |
+| `contencioso_44` | 44 | Acciones contencioso administrativas 7 UMA; actuaciones administrativas 5 UMA |
+| `acciones_48` | 48 | Inconstitucionalidad, amparo, hábeas data, hábeas corpus: 20 UMA, **cuando no puedan regularse por la escala del art. 21** |
+| `art58` | 58 | Juicios con apreciación pecuniaria no previstos en otros artículos: conocimiento 10, ejecutivos 6, mediación 2, auxiliares 4 UMA |
+| `auxiliares_justicia` | 58, 60 y 61 bis | Peritos y liquidadores de averías 2 UMA; 2 UMA por cada pericia; 1/4 de UMA si el perito aceptó el cargo y el proceso terminó por transacción, avenimiento o conciliación antes del dictamen |
+
+Los arts. 60 y 61 bis son texto con **reforma publicada el 6/3/2026**: el 61 bis
+desvincula el honorario del perito de la cuantía del juicio y del porcentaje de
+incapacidad que dictamine.
+
+Los valores están en `lib/legal/minimos-data.ts`, cada categoría con su texto
+legal completo.
+
+---
+
+## D. Los pisos que la ley fija y el motor no verifica
+
+**Esta es la sección más importante del documento, y la anterior no la tenía.**
+Decía lo contrario: afirmaba seis veces que el sistema comprueba los mínimos y
+eleva el resultado si queda por debajo. **No lo hace.**
+
+`calculate.ts` no importa `minimos-data.ts` y no hay ninguna comparación de piso
+en ningún punto de la cadena. El cálculo termina en el partidor.
+
+O sea que **el número que la app devuelve puede quedar por debajo de un mínimo
+legal, y la app no lo va a decir.** Los casos:
+
+| Artículo | Piso que la ley fija | El motor |
+|---|---|---|
+| **48** | 20 UMA para amparo, hábeas corpus, hábeas data e inconstitucionalidad cuando no se pueda regular por la escala | No compara |
+| **44** | 7 UMA para acciones contencioso administrativas, 5 UMA para actuaciones administrativas | No compara |
+| **58** | 10 UMA en conocimiento, 6 en ejecutivos, 2 en mediación, 4 para auxiliares | No compara |
+| **31** | 20 UMA para recursos ante la CSJN, 15 para la queja | No compara |
+| **60** | 2 UMA para peritos y liquidadores de averías en procesos no pecuniarios | No compara |
+| **61 bis** | 2 UMA por pericia | No compara |
+| **19** | Los mínimos por tipo de asunto sin apreciación pecuniaria | No compara |
+
+**Por qué está así, y no es del todo un descuido.** Los mínimos de los arts. 19,
+44 y 48 rigen cuando el asunto **no es susceptible de apreciación pecuniaria**,
+que es justamente el caso en que la entrevista no corre: no hay base que
+ingresar. Por eso son una pantalla de consulta. Pero los del art. 58 y los de
+peritos **sí conviven con un cálculo por escala**, y ahí el piso debería
+comprobarse.
+
+**Cómo se compensa hoy:** con un botón. Desde el resultado se puede saltar a la
+pantalla de mínimos «para contrastar». El contraste lo hace el usuario.
+
+Está anotado como pendiente. No se cambió nada al descubrirlo, porque
+implementar un piso **mueve números** y eso no se hace sin pedido explícito.
+
+---
+
+## La cadena completa
+
+```
+BASE que determina e ingresa el USUARIO            sección B
+   │                                               (arts. 22, 23, 24, 35, 37,
+   │                                                39, 40, 43, 45, 46, 52)
+   ▼
+ A.1  reducciones sobre la base                    arts. 40, 22
+   ▼
+ A.2  la escala del art. 21 sobre la base ya reducida
+      × reducciones de escala                      arts. 35, 41, 25
+      o el porcentaje propio del proceso           arts. 37, 40
+   ▼
+ A.3  reducciones sobre el honorario               arts. 34/41, 38, 49
+   ▼
+ A.4  apoderado ×1,40 · procurador ×0,40           art. 20
+      segunda instancia 30/35/40 %                 art. 30
+      auxiliares 5-10 % de la base                 art. 21
+      partidor 2-3 % de la base (solo sucesión)    art. 35
+   ▼
+ A.6  si es provisorio, solo se enuncia el mínimo  art. 12
+   ▼
+      [ los pisos de la sección D NO se verifican ]
+```
+
+---
+
+## Combinaciones que se dan seguido
+
+| Escenario | Reglas | Efecto |
+|---|---|---|
+| Ejecución de sentencia sin excepciones | art. 41 escala + art. 34 final | × 0,50 × 0,90 = **0,45** de la escala |
+| Ejecución de sentencia por caducidad art. 22, sin excepciones | art. 22 base + art. 41 escala + art. 34 final | base × 0,70, después escala × 0,45 |
+| Desalojo de vivienda con sentencia rechazada | art. 40 base + art. 22 base | base × 0,80 × 0,70 = **0,56** |
+| Homologación de convenio de vivienda | art. 40 base + art. 40 escala | base × 0,80, escala × 0,50 |
+| Sucesión con único letrado | art. 35 escala + art. 35 partidor | escala × 0,50 para el abogado; el partidor va aparte, sobre la base |
+| Proceso colectivo terminado por transacción antes de la prueba | art. 25 escala + art. 49 final | escala × 0,50, honorario × 0,75 |
+
+**Se multiplican, no se suman.** «-50 % y -10 %» no es -60 %: es × 0,45, o sea
+-55 %.
+
+---
+
+## Qué decía este documento y no era así
+
+Corregido el 6/8/2026 leyendo el motor.
+
+- **Afirmaba seis veces un mecanismo de pisos mínimos que no existe.** Las
+  reglas 23, 24, 35, 42, 43 y 44 decían «se aplica como piso; si el cálculo por
+  escala arroja un valor inferior, se usa el mínimo», y el paso 9 de la cadena
+  decía «verificar mínimos». `calculate.ts` no importa `minimos-data.ts` y no
+  hace ninguna comparación. **Es el error más grave que tenía**: hacía creer que
+  la herramienta garantiza los mínimos legales.
+- **Se anunciaba como «inventario completo de todas las reglas implementadas en
+  el sistema» y mezclaba tres cosas distintas.** Las del motor, las que la ley
+  pone a cargo del usuario para determinar la base, y las tablas de consulta.
+  Doce de las 45 «reglas» describían cosas que el motor no hace: determinar la
+  base según el art. 23 (regla 37, que además decía «siempre, para todo proceso
+  judicial»), sumar los intereses (38), calcular la base del desalojo laboral
+  (39), la de la liquidación patrimonial (40) o la de la escrituración (41).
+- **La homologación de desocupación estaba clasificada como reducción sobre
+  honorarios finales.** El motor la aplica sobre la escala. El número da igual,
+  pero la etapa es justamente lo que este documento existe para decir. Y la
+  regla 14 decía que el 50 % aplica «cuando **no** es de vivienda»: aplica
+  siempre.
+- **La regla del incidente decía «cuando se trata de un incidente tramitado bajo
+  la antigua Ley 21.839».** El motor lo aplica a todos los incidentes, y no por
+  descuido: el art. 47 de la ley nueva quedó observado y no hay otra escala.
+- **La tabla del exhorto tenía los tres incisos inventados** —«exhorto simple
+  sin trabas», «con trabas cautelares», «con ejecución»—. El art. 50 distingue
+  notificaciones, actos registrales y diligencias de prueba.
+- **El art. 30 decía que el 40 % aplica si la sentencia se revoca «total o
+  parcialmente».** El artículo lo reserva a la revocación **en todas sus partes
+  en favor del apelante**.
+- **El partidor figuraba como condicional** —«cuando interviene un partidor»—.
+  El motor lo calcula siempre en la sucesión, sin preguntar.
+- **El art. 43 se describía como «desalojo laboral (despido sin causa, etc.)».**
+  No tiene que ver con el despido: es el desalojo por restitución de inmuebles
+  dados al trabajador en virtud de la relación de trabajo.
+- **Los modos anormales del art. 25 incluían la conciliación.** El artículo
+  enumera allanamiento, desistimiento y transacción.
+- **El art. 23 inc. d se resumía como «capital + intereses adeudados».** Es el
+  valor de las escrituras o documentos **deducidas las amortizaciones**.
+- **Los 45 números de regla eran identificadores arbitrarios**, declarados como
+  tales, y buena parte no correspondía a ninguna regla del sistema.
+- **El documento entero estaba sin tildes**, y tenía dos palabras en inglés
+  filtradas en la regla 25.
