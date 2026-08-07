@@ -574,20 +574,45 @@ Anotado acá para que no se confunda «no está implementado» con «no correspo
 El detalle y las prioridades están en
 [08_DEUDA_TECNICA_FUNCIONAL.md](08_DEUDA_TECNICA_FUNCIONAL.md).
 
-- **Art. 39, segundo párrafo.** En aumento, disminución, cesación o
-  coparticipación de alimentos, la base es la diferencia por dos años **y se
-  aplica la escala de los incidentes**, no la del art. 21. La app trata todo
-  `familia_alimentos` por la escala general.
-- **Art. 41, última oración.** Las actuaciones posteriores a la ejecución
-  propiamente dicha se regulan en el 40 % de la escala. No está implementado.
+**Tres de esta lista se cerraron el 7/8/2026** y quedan anotados abajo con lo
+que se hizo, porque el «no lo hace» es lo primero que envejece de un documento.
+
 - **Art. 42.** El gestor del art. 48 CPCCN y la gestión útil incrementan un 4 %
-  sobre los fondos que resulten disponibles. No está implementado.
+  sobre los fondos que resulten disponibles. **No se implementa a propósito**:
+  ese monto no se deriva de ninguna respuesta de la entrevista ni guarda
+  relación con la base. Declarado en el bloque «qué no hace» de la guía de uso.
 - **Art. 21, párrafo de auxiliares.** El juez puede superar el 10 % por auto
-  fundado ante labores altamente complejas o extensas. La app muestra la banda.
+  fundado ante labores altamente complejas o extensas. **No se implementa a
+  propósito**: es una facultad sobre el mérito de la labor y no hay dato que la
+  determine. Declarado en el mismo lugar.
 - **Art. 29.** La división en etapas se muestra como fracciones (1/3, 2/3) pero
-  el motor no pregunta en qué etapa quedó el proceso ni la decide.
-- **Art. 21, litisconsorcio.** «Si hubiera litisconsorcio la regulación se hará
-  con relación al interés de cada litisconsorte.» No se pregunta.
+  el motor no pregunta en qué etapa quedó el proceso ni la decide. Desde el
+  7/8/2026 **sí deja de ofrecer el 2/3 cuando el proceso terminó antes de la
+  apertura a prueba**, porque esa etapa no existió; nombrar las etapas según el
+  tipo de proceso sigue pendiente.
+- **Art. 21, litisconsorcio.** Desde el 7/8/2026 **está dicho, no calculado**:
+  la ley no pide una cuenta nueva sino que dice cuál es la base, y la base la
+  ingresa el usuario. El paso de la base lo explica, con la advertencia de que
+  el 5 %-10 % de los auxiliares se calcula sobre el monto del proceso y no sobre
+  el interés de un litisconsorte.
+- ~~**Art. 39, segundo párrafo.**~~ **Hecho el 7/8/2026.** El aumento, la
+  disminución, la cesación y la coparticipación van por la escala de los
+  incidentes, y la base es la diferencia por dos años. Es un sub-paso de
+  `familia_alimentos` en la entrevista.
+- ~~**Art. 41, última oración.**~~ **Hecho el 7/8/2026.** Las actuaciones
+  posteriores a la ejecución propiamente dicha se regulan en el 40 % de la
+  escala del art. 21 —de la completa, no de la mitad del propio art. 41— y
+  tienen bloque propio en el resultado.
+
+Y una que no estaba en esta lista porque no es un artículo sin implementar sino
+un piso que no se comprueba:
+
+- **Los mínimos legales no se comparan contra el resultado.** Desde el 7/8/2026
+  los de los auxiliares **se muestran al lado** de su 5 %-10 %, sin aplicarse.
+  No es pereza: el art. 21 deja a salvo el art. 478 CPCCN, que manda adecuar los
+  honorarios de los peritos «por debajo de sus topes mínimos inclusive» a lo que
+  se regule a los demás profesionales. El piso se puede perforar, así que
+  aplicarlo automáticamente sería decidir por el juez.
 
 ---
 

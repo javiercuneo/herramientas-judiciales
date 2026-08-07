@@ -33,16 +33,27 @@ De paso salieron dos errores en Honorio, ya arreglados allá: la tarjeta de la
 medida cautelar prometía el porcentaje contrario al que el motor aplicaba, y la
 transformación se atribuía al art. 29 inc. e en vez de al 37.
 
-Cerrados los documentos, el 7/8 se hizo **todo lo del
-[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) que no toca un número**: los
-puntos 1, 6, 3a, 5 y 7. Volvió el hint de la base, quedó dicho el
-litisconsorcio, dejaron de ofrecerse las etapas que no pudieron existir y se
-declararon en `documentacion.html` las dos previsiones de la ley que la app no
-calcula. Casi todo es trabajo en Honorio —salió como su versión **2.2.0**, que
-es la que ahora declara `index.html`— y el detalle está en el `ESTADO.md` de
-aquel repositorio.
+Cerrados los documentos, el 7/8 se hizo **el
+[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) entero**, en dos tandas. La
+primera sin mover un número —el hint de la base, el litisconsorcio, las etapas
+que no pudieron existir y las dos previsiones declaradas en
+`documentacion.html`—, y la segunda con los tres que sí: las actuaciones
+posteriores a la ejecución, los mínimos de los auxiliares y la modificación de
+alimentos. Casi todo es trabajo en Honorio —salió como sus versiones **2.2.0** y
+**3.0.0**— y el detalle está en el `ESTADO.md` de aquel repositorio.
 
-Lo que queda del plan son los tres puntos que sí mueven números.
+**Lo que este repositorio tuvo que seguir**, porque son cifras suyas que salen
+de allá: la landing y el `README.md` decían 160 recorridos y 25.600 cruces, y
+son **168 y 28.224** desde que la modificación de alimentos agregó un sub-paso.
+Lo mismo la cuenta de validaciones, que pasó de 11 a 14, y la versión del chip.
+La tabla de recorridos de [`01_PROCESOS.md`](domain/01_PROCESOS.md) es la fuente
+de esas cifras: si vuelve a moverse, se mueven las cuatro.
+
+Y [`02_FLUJO_JURIDICO.md`](domain/02_FLUJO_JURIDICO.md) tenía una sección
+—«Lo que la ley dice y el motor no hace»— que quedó vieja el mismo día en que
+se completó el plan que salió de ella. **Es lo primero que envejece de un
+documento**: ahora cada entrada dice qué se hizo, o por qué se decidió no
+hacerlo.
 
 ---
 

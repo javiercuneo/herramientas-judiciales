@@ -16,13 +16,18 @@ mezclarlas hace que ninguna de las dos se pueda leer entera.
 **La implementación es en [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio).**
 Acá va la decisión; allá el código y su `ESTADO.md`.
 
-**Estado al 7/8/2026: cerrado todo lo que no toca un número.** Los puntos
-**1**, **6**, **3a**, **5** y **7**. Salió como la versión 2.2.0 de Honorio,
-más las declaraciones en `documentacion.html`, y ningún número se movió.
+**Estado al 7/8/2026: el plan está hecho.** Los ocho puntos, en dos tandas.
+Primero los que no tocan un número —1, 6, 3a, 5 y 7—, que salieron como la
+versión 2.2.0 de Honorio. Después los tres que sí —2, 8 y 4—, como la 3.0.0,
+que es MAYOR porque un caso da distinto: la modificación de una cuota
+alimentaria pasó de la escala del art. 21 a la de los incidentes.
 
-**Lo que queda son los tres que sí los mueven** —art. 41 última oración, los
-pisos del art. 58 y de peritos, y el segundo párrafo del art. 39— más lo
-anotado sin fecha al final.
+**El punto 8 se resolvió distinto de como estaba escrito acá**, por decisión de
+Javier, y la razón está en su lugar: el art. 478 CPCCN permite perforar los
+mínimos de los peritos, así que aplicarlos automáticamente sería decidir por el
+juez.
+
+Lo único que queda es lo anotado sin fecha al final.
 
 ---
 
@@ -107,6 +112,16 @@ ya usan las `condition`, así que no hay concepto nuevo.
 > «Las actuaciones posteriores a la ejecución propiamente dicha se regularán en
 > un cuarenta por ciento (40 %) de la escala del citado artículo.»
 
+> **Hecho el 7/8/2026.** Bloque propio en el resultado, al 40 % de la escala
+> del art. 21, con `actuacionesPosteriores.validation.ts` detrás. Se probó que
+> la validación caza el error que este punto advertía —tomar el 40 % de la
+> escala ya partida al medio—: forzándolo, 13 afirmaciones fallan.
+>
+> **Y sí necesitó una interpretación**, contra lo que este punto decía: si el
+> −10 % por no haber excepciones alcanza también a las posteriores. Se resolvió
+> que no —esa quita se refiere al honorario de la ejecución— y quedó declarado
+> en pantalla.
+
 **Hacerlo. Es el más fácil de los seis y no necesita ninguna interpretación.**
 Un factor sobre la escala del art. 21, solo para `ejecucion_sentencia`.
 
@@ -182,6 +197,14 @@ anotado.
 > incidentes.»
 
 Hoy la app manda todo `familia_alimentos` por la escala del art. 21.
+
+> **Hecho el 7/8/2026.** Sub-paso nuevo bajo `familia_alimentos` con los dos
+> supuestos del art. 39. Lo que este punto anticipaba se cumplió tal cual: es
+> un solo criterio interpretativo aplicado en dos lugares —y
+> `alimentosArt39.validation.ts` comprueba que los dos números coincidan—, la
+> base es la diferencia y el hint lo dice con un ejemplo, y la cuenta de
+> recorridos se movió: 160 a 168, y los cruces de 25.600 a 28.224, actualizados
+> en la landing en el mismo commit.
 
 **Hacerlo, y es menos problemático de lo que parece.** La objeción era: la
 escala de los incidentes no existe en la ley vigente, así que habría que
@@ -321,6 +344,21 @@ art. 31 (20 y 15 UMA), art. 60 (2 UMA), art. 61 bis (2 UMA) y los del art. 19.
 **Cómo se compensa hoy:** con el botón que va del resultado a la pantalla de
 mínimos «para contrastar». El contraste lo hace el usuario.
 
+> **Resuelto el 7/8/2026, y no como decía este punto.** Los mínimos de los
+> auxiliares **se muestran al lado de su 5 %-10 %, no se aplican.** Decisión de
+> Javier, con el fundamento que faltaba acá: el art. 21 deja a salvo el
+> **art. 478 CPCCN**, que manda adecuar los honorarios de los peritos «por
+> debajo de sus topes mínimos inclusive» a lo que se regule a los demás
+> profesionales. El piso se puede perforar, así que aplicarlo automáticamente
+> sería decidir por el juez.
+>
+> Eso además resuelve las dos objeciones de abajo sin pagar su costo: **no
+> mueve ningún número**, y la pregunta de qué mostrar cuando el piso se activa
+> se contesta sola —los dos números, siempre, con una insignia cuando el 5 %
+> queda por debajo—.
+>
+> Sigue abierto para los pisos que no son de auxiliares.
+
 **Recomendación.** Implementarlo, pero con cuidado y no primero, por dos
 motivos. Uno: **mueve números**, y hacia arriba, en los casos de base chica.
 Dos: hay que decidir qué se muestra cuando el piso se activa —el número
@@ -347,12 +385,12 @@ afirma, se verifican mirando, y las once validaciones siguen valiendo tal cual.
 **Después, lo que sí mueve números.** Cada uno con su validación y su entrada en
 el `ESTADO.md` de Honorio.
 
-4. **Art. 41, actuaciones posteriores** (punto 2). El más fácil.
-5. **Los pisos del art. 58 y de peritos** (punto 8). Es el único que puede
-   cambiar un número **hacia arriba**, y el único que hoy puede estar devolviendo
-   un resultado por debajo de lo que la ley permite.
-6. **Art. 39, segundo párrafo** (punto 4). Cambia la cuenta de recorridos, así
-   que arrastra la landing.
+4. ~~**Art. 41, actuaciones posteriores** (punto 2).~~ Hecho el 7/8/2026.
+5. ~~**Los pisos del art. 58 y de peritos** (punto 8).~~ Resuelto el 7/8/2026
+   mostrándolos en vez de aplicarlos. Sigue abierto para los pisos que no son
+   de auxiliares.
+6. ~~**Art. 39, segundo párrafo** (punto 4).~~ Hecho el 7/8/2026. Arrastró la
+   landing, como estaba previsto.
 
 **Anotado, sin fecha.**
 

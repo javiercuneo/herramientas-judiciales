@@ -119,10 +119,12 @@ Por eso el trabajo está en dos lugares que no son el código:
 ## Cómo se verifica
 
 El motor de Honorio —hoy en [su repositorio](https://github.com/javiercuneo/honorio)— tiene
-**11 suites de validación**, una por concern: escala del art. 21, reducciones de
+**14 suites de validación**, una por concern: escala del art. 21, reducciones de
 base, de escala y finales, segunda instancia, partidor, provisorios, procesos
-generales, especiales, exhorto e incidente, y un barrido exhaustivo de los
-**25.600 cruces** de la entrevista —cada uno de los 160 recorridos posibles
+generales, especiales, exhorto e incidente, actuaciones posteriores a la
+ejecución, modificación de alimentos, mínimos de auxiliares, y un barrido
+exhaustivo de los
+**28.224 cruces** de la entrevista —cada uno de los 168 recorridos posibles
 contra cada uno de los otros—, que prueba que volver atrás y cambiar el tipo de
 proceso no deja pegada ninguna respuesta que ya no se preguntó.
 

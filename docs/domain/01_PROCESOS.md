@@ -608,7 +608,7 @@ la entrevista y es lo que barre la validación del flujo hacia atrás.
 
 | Proceso | Recorridos | De dónde salen |
 |---|---|---|
-| Conocimiento | 120 | 8 caminos de terminación × 15 de objeto |
+| Conocimiento | 128 | 8 caminos de terminación × 16 de objeto |
 | Ejecución de sentencia | 16 | 8 de terminación × 2 de excepciones |
 | Ejecutivo | 16 | idem |
 | Sucesión | 2 | único letrado: sí o no |
@@ -616,17 +616,22 @@ la entrevista y es lo que barre la validación del flujo hacia atrás.
 | Homologación de desocupación | 2 | vivienda o demás casos |
 | Exhorto | 1 | no pregunta nada más |
 | Incidente | 1 | idem |
-| **Total** | **160** | |
+| **Total** | **168** | |
 
 Los 8 caminos de terminación: sentencia admitida, sentencia rechazada, modos
 anormales antes de prueba, modos anormales después, caducidad art. 22,
 caducidad art. 25 antes de prueba, caducidad art. 25 después, y provisorios.
 
-Los 15 de objeto: las nueve opciones sin sub-pregunta, más las tres del
-desalojo, más las dos de las posesorias, más incidencia colectiva.
+Los 16 de objeto: las nueve opciones sin sub-pregunta, más las tres del
+desalojo, más las dos de las posesorias, más las dos de alimentos.
+
+**Eran 160 hasta el 7/8/2026**, cuando `familia_alimentos` pasó a tener
+sub-pregunta —los dos supuestos del art. 39— y sumó 8 recorridos al
+conocimiento. Si vuelve a moverse, se mueven también la cifra de la landing y
+la del `README.md`, que salen de acá.
 
 `lib/legal/__tests__/retroceso.validation.ts` los enumera y cruza cada uno
-contra cada uno —25.600 pares— para verificar que volver atrás en la entrevista
+contra cada uno —28.224 pares— para verificar que volver atrás en la entrevista
 y cambiar el tipo de proceso no deje pegada ninguna respuesta que el nuevo
 recorrido ya no pregunta.
 

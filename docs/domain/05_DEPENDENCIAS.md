@@ -197,8 +197,8 @@ Declaran qué se pregunta en cada proceso y en qué orden. **No tocan ningún
 número**, pero deciden qué respuestas llegan al motor: quitar un paso de un
 proceso es equivalente a dejar esa respuesta en su valor nulo.
 
-**Cómo se verifica:** `retroceso.validation.ts`, que enumera los 160 recorridos
-y cruza cada uno contra cada otro —25.600 pares— para comprobar que volver atrás
+**Cómo se verifica:** `retroceso.validation.ts`, que enumera los 168 recorridos
+y cruza cada uno contra cada otro —28.224 pares— para comprobar que volver atrás
 en la entrevista no deja pegada ninguna respuesta que el recorrido nuevo ya no
 pregunta.
 
