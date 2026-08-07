@@ -33,6 +33,17 @@ De paso salieron dos errores en Honorio, ya arreglados allá: la tarjeta de la
 medida cautelar prometía el porcentaje contrario al que el motor aplicaba, y la
 transformación se atribuía al art. 29 inc. e en vez de al 37.
 
+Cerrados los documentos, el 7/8 se hizo **todo lo del
+[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) que no toca un número**: los
+puntos 1, 6, 3a, 5 y 7. Volvió el hint de la base, quedó dicho el
+litisconsorcio, dejaron de ofrecerse las etapas que no pudieron existir y se
+declararon en `documentacion.html` las dos previsiones de la ley que la app no
+calcula. Casi todo es trabajo en Honorio —salió como su versión **2.2.0**, que
+es la que ahora declara `index.html`— y el detalle está en el `ESTADO.md` de
+aquel repositorio.
+
+Lo que queda del plan son los tres puntos que sí mueven números.
+
 ---
 
 ## El dominio, cerrado el 5/8
@@ -696,6 +707,15 @@ Tres correcciones de fondo:
 
 Ya no tiene emojis, así que la excepción que `AGENTS.md` anotaba está saldada.
 
+**El 7/8 se le agregaron dos declaraciones al bloque «qué no hace» de
+Honorio**, que son los puntos 5 y 7 del plan de cobertura: el 4 % del gestor y
+de la gestión útil del art. 42 —que no se calcula sobre la base ni sobre el
+honorario sino sobre los fondos disponibles en favor de terceros, un dato que
+la entrevista no tiene— y el porcentaje mayor por labores altamente complejas
+del art. 21, que es una facultad del juez por auto fundado. Las dos van con el
+motivo, porque «no lo hace» sin el porqué se lee como una carencia y son
+decisiones.
+
 ### Presentación del repositorio — 4/8
 
 El repositorio está en el LinkedIn de Javier y funciona como carta de
@@ -834,19 +854,11 @@ registrado, con DNS, con certificado y con HTTPS forzado.
   los mínimos que citan el `06` y el `07` están verificadas contra ese archivo,
   y el archivo dice ser copia fiel del asistente clásico. Que sea fiel a la copia
   no prueba que sea fiel a la norma. Son unas cuarenta cifras.
-- **El hint de la base se perdió en la migración a Honorio, y es una
-  regresión.** El asistente clásico mostraba, arriba del campo de la base, un
-  cuadro que decía qué monto ingresar según lo contestado antes: quince
-  leyendas distintas en `asistente-honorarios-clasico/js/wizard.js`,
-  `renderBase()`. Parte se recuperó en las explicaciones de las tarjetas, parte
-  no. **Es lo de mayor valor y menor costo de todo lo pendiente**: el texto ya
-  está escrito, no mueve ningún número, y es lo que decide si la base que se
-  ingresa es la correcta —que es el error más caro de esta herramienta, porque
-  la escala está validada 300 veces y la base la pone una persona—.
 - **El plan completo de qué falta de la ley, qué hacer y qué solo declarar está
   en [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md)**, con el orden
-  recomendado. **Ocho puntos:** dos para hacer ya sin tocar números, tres que sí
-  mueven números —uno de ellos hacia arriba: los pisos mínimos que el motor no
+  recomendado. **Ocho puntos**, de los que el 7/8 se cerraron dos: el hint de la
+  base y el litisconsorcio. Quedan seis: uno para hacer ya sin tocar números,
+  tres que sí los mueven —uno hacia arriba: los pisos mínimos que el motor no
   verifica—, dos para declarar y no implementar, y uno anotado sin fecha.
 
 ### Dos cosas para llevar al repositorio de Honorio

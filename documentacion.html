@@ -143,6 +143,10 @@ h3 { font-size: .95rem; margin: 22px 0 8px; }
 .aviso .label { display: block; margin-bottom: 6px; color: var(--warn); }
 .aviso p { margin: 0; font-size: .95rem; }
 .aviso p + p { margin-top: 8px; }
+/* La regla general de article ul deja 14px abajo, que dentro del
+   recuadro se ve como un margen suelto al pie. */
+.aviso ul { margin: 8px 0 0; font-size: .95rem; }
+.aviso li + li { margin-top: 6px; }
 
 .fuente { font-size: .85rem; color: var(--faint); border-top: 1px solid var(--hair); padding-top: 12px; margin: 16px 0 0; }
 
@@ -273,6 +277,28 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
       CCyCN), ejecución hipotecaria especial (art. 60, Ley 24.441) ni régimen
       de vivienda (art. 254 CCyCN). No está pensado para fuero penal.
     </p>
+    <p>
+      <strong>Y hay dos previsiones de la propia Ley 27.423 que no calcula</strong>,
+      no por omisión sino porque no tiene con qué:
+    </p>
+    <ul>
+      <li>
+        <strong>El 4 % del gestor y de la gestión útil (art. 42).</strong> Ese
+        porcentaje no se calcula sobre la base regulatoria ni sobre el
+        honorario, sino sobre los fondos que resulten disponibles en favor de
+        los terceros acreedores o embargantes que concurran. Es un dato que no
+        se deriva de ninguna respuesta y que no tiene por qué guardar relación
+        con el monto del pleito: el cálculo se hace aparte y se suma.
+      </li>
+      <li>
+        <strong>El porcentaje mayor por labores altamente complejas o extensas
+        (art. 21).</strong> Es una facultad del juez, que la ejerce por auto
+        fundado considerando el mérito y la significación excepcional de los
+        trabajos. No hay ningún dato que la determine: un campo para cargarla
+        sería el usuario escribiendo el número que ya decidió, y entonces la
+        herramienta no estaría calculando nada.
+      </li>
+    </ul>
   </div>
   <p class="fuente">
     Donde la ley admite más de una lectura, la app declara el criterio que

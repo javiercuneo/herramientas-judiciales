@@ -16,11 +16,37 @@ mezclarlas hace que ninguna de las dos se pueda leer entera.
 **La implementación es en [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio).**
 Acá va la decisión; allá el código y su `ESTADO.md`.
 
+**Estado al 7/8/2026: cerrado todo lo que no toca un número.** Los puntos
+**1**, **6**, **3a**, **5** y **7**. Salió como la versión 2.2.0 de Honorio,
+más las declaraciones en `documentacion.html`, y ningún número se movió.
+
+**Lo que queda son los tres que sí los mueven** —art. 41 última oración, los
+pisos del art. 58 y de peritos, y el segundo párrafo del art. 39— más lo
+anotado sin fecha al final.
+
 ---
 
 ## Lo primero, y no es un hueco de la ley
 
 ### 1. El hint de la base se perdió, y era la mitad del valor de la entrevista
+
+> **Hecho el 7/8/2026.** `lib/wizard/indicacion-base.ts` en Honorio, con las
+> 24 ramas. `ayuda` y `explicacion` de un paso pueden derivarse de las
+> respuestas —el tipo es `Derivable<T>`—, que es lo que este punto proponía.
+> Ningún número se movió y las 11 validaciones siguen en verde. El detalle, en
+> el `ESTADO.md` de aquel repositorio.
+>
+> Dos cosas salieron distintas de como estaban acá previstas, y las dos por
+> haber leído el motor en vez de copiar el texto del clásico:
+>
+> - **El aviso de «no ingreses el monto reducido» quedó condicional.** Sale
+>   solo cuando alguna de las cuatro quitas de base rige de verdad. Puesto en
+>   las 24 ramas se volvía invisible justo donde importa.
+> - **Las leyendas dicen también qué no hace la app**: el segundo párrafo del
+>   art. 39 en alimentos, el tope del 100 % del art. 23 inc. h), y de dónde
+>   sale el 2 %-20 % del incidente. El clásico no lo decía porque no tenía por
+>   qué: eran huecos que aparecieron al verificar cada afirmación contra
+>   `calculate.ts`.
 
 **Esto no es una funcionalidad nueva: es una regresión.** El asistente clásico
 mostraba, justo arriba del campo de la base, un cuadro que decía **qué monto
@@ -109,6 +135,22 @@ hay que inventar nada: el patrón ya está y el usuario ya lo entiende.
 
 Acá hay dos cosas de tamaño muy distinto, y conviene separarlas.
 
+> **3a, hecho el 7/8/2026.** Cuando el proceso terminó antes de la apertura a
+> prueba, el 2/3 ya no se ofrece —ni como tarjeta ni como opción del reparto—
+> y en su lugar hay un «por qué» que dice cuál es la etapa que falta. Se
+> detecta por la transformación del art. 25, que el motor emite exactamente en
+> ese caso: no se reimplementó la condición.
+>
+> **Quedó una pregunta abierta, y es jurídica.** Si terminó antes de la
+> apertura a prueba, el «completo» tampoco es la suma de tres etapas que
+> ocurrieron. Se dejó como está porque el «completo» es la regulación del
+> proceso tal como ocurrió —el art. 25 ya le aplicó la mitad de la escala por
+> haber terminado temprano— mientras que las fracciones sirven para el
+> profesional que intervino en parte. Si la lectura correcta es otra, es un
+> cambio de una línea.
+>
+> **3b sigue anotado sin fecha.**
+
 **3a. El defecto (barato, y hay que arreglarlo).** La app muestra siempre las
 tres fracciones —completo, 2/3, 1/3— incluso cuando la entrevista ya contestó
 que el proceso terminó **antes de la apertura a prueba**. Si terminó antes,
@@ -175,6 +217,11 @@ verde.
 > ciento (4 %) calculados sobre los fondos que resulten disponibles en favor de
 > aquéllos como consecuencia de su tarea.»
 
+> **Declarado el 7/8/2026** en el bloque «qué no hace» de
+> `documentacion.html`, junto al punto 7 y al lado del prorrateo del art. 730
+> y la ejecución hipotecaria de la Ley 24.441, que es donde este punto decía
+> que iba. La calculadora aparte sigue anotada sin fecha.
+
 **No implementarlo como paso de la entrevista. Declararlo.** Coincido, y creo
 que vale precisar por qué, porque el motivo real no es que la ley esté mal
 redactada —que lo está— sino algo más simple y más definitivo:
@@ -202,6 +249,13 @@ hipotecaria de la Ley 24.441 — en el bloque de «qué no hace» de
 
 ### 6. Art. 21 — litisconsorcio
 
+> **Hecho el 7/8/2026**, junto con el punto 1 y por la razón que este punto
+> anticipaba: no había nada que programar. Es una línea del `ayuda` en las 18
+> ramas donde puede haber litisconsorcio, más el párrafo del artículo en el
+> fundamento. No va en la sucesión —el art. 35 tiene su propia regla— ni en la
+> liquidación del régimen patrimonial, donde el art. 45 ya manda tomar el
+> patrimonio adjudicado a la parte.
+
 > «Si hubiera litisconsorcio la regulación se hará con relación al interés de
 > cada litisconsorte.»
 
@@ -228,6 +282,8 @@ error caro, porque quien no lo sabe ingresa el total y se regula de más.
 > «Ante la existencia de labores altamente complejas o extensas, los jueces…
 > podrán por auto fundado, aplicar un porcentaje mayor al fijado
 > precedentemente.»
+
+> **Declarado el 7/8/2026** en el mismo bloque que el punto 5.
 
 **Declararlo y no implementarlo. De acuerdo, sin matices.** No hay ningún dato
 que la determine: es una facultad del juez, fundada, sobre el mérito de la
@@ -282,9 +338,11 @@ transformación nueva en la cadena, y validaciones nuevas para cada piso.
 **Primero, todo lo que no toca un número.** Son cambios de lo que la pantalla
 afirma, se verifican mirando, y las once validaciones siguen valiendo tal cual.
 
-1. **El hint de la base** (punto 1), con el litisconsorcio adentro (punto 6).
-2. **Las etapas que no pudieron existir** (punto 3a).
-3. **Declarar lo que no se hace** (puntos 5 y 7) en `documentacion.html`.
+1. ~~**El hint de la base** (punto 1), con el litisconsorcio adentro (punto 6).~~
+   Hecho el 7/8/2026.
+2. ~~**Las etapas que no pudieron existir** (punto 3a).~~ Hecho el 7/8/2026.
+3. ~~**Declarar lo que no se hace** (puntos 5 y 7) en `documentacion.html`.~~
+   Hecho el 7/8/2026. **Con esto se cerró todo lo que no toca un número.**
 
 **Después, lo que sí mueve números.** Cada uno con su validación y su entrada en
 el `ESTADO.md` de Honorio.
@@ -300,6 +358,16 @@ el `ESTADO.md` de Honorio.
 
 7. **Nombrar las etapas por tipo de proceso** (punto 3b).
 8. **Calculadora del art. 42** (punto 5), si alguna vez hace falta.
+9. **El proceso mal encarrilado.** Anotado el 7/8/2026 y **sin decisión
+   tomada**: qué debería decir la app cuando se ejecuta —por la vía de la
+   ejecución de sentencia— un acuerdo de mediación cuya obligación no es de dar
+   sumas de dinero sino, por ejemplo, de escriturar. El juez debió
+   ordinarizarlo; si no se dio cuenta y siguió adelante, la entrevista devuelve
+   un número sobre una base que no es la del art. 22. Se dejó sin resolver
+   porque no está claro si vale una advertencia o si es ruido para el 99 % de
+   los casos. Lo planteó Javier al revisar los textos de la base.
+10. **Si el «completo» sigue siendo el completo** cuando el proceso terminó
+    antes de la apertura a prueba. Ver el punto 3a.
 
 ---
 
