@@ -25,9 +25,9 @@ Lo que queda es mantenimiento y las ideas anotadas más abajo, ninguna urgente.
 
 Desde el 6/8 hay un frente abierto: **los textos que describen el motor no
 estaban verificados contra el motor**. Se corrigieron la sección «Cómo está
-hecho» de la landing y los documentos de dominio `01` a `05`; los documentos
-`06` a `08` salieron de la misma fuente y hay que pasarlos por el mismo
-tamiz. Está detallado abajo, en Pendientes.
+hecho» de la landing y **los ocho documentos de dominio**, que quedaron
+cerrados el 7/8. Siete se reescribieron; el `07` solo necesitó retoques. El
+detalle de cada uno está abajo.
 
 De paso salieron dos errores en Honorio, ya arreglados allá: la tarjeta de la
 medida cautelar prometía el porcentaje contrario al que el motor aplicaba, y la
@@ -198,6 +198,71 @@ completado se queda:** es una marca tipográfica monocroma, no un emoji.
 ---
 
 ## Lo demás que se hizo, en orden
+
+### El 06, el 07 y el 08 — 7/8. Los ocho documentos, cerrados
+
+**`06_MATRIZ_DE_PROCESOS.md`, reescrito.** Tenía dos criterios inventados
+enteros:
+
+- **«25 % si la cautelar se despacha, 50 % si se rechaza (art. 37).»** El art. 37
+  no mira si la cautelar prospera: toma el 25 % de la escala, elevado al 50 % en
+  casos de controversia u oposición. Tal como estaba, **hacía cobrar más por
+  perder**.
+- **«La reducción del art. 41 se aplica cuando no hubo ejecución de sentencia
+  previa.»** No existe esa condición, ni en la ley ni en el motor: el art. 41 se
+  aplica siempre.
+
+Más lo que ya se sabía —ejecución de sentencia y ejecutivo figuraban sin
+reducciones de base, y sí las tienen—, «incidente: patrocinante No» cuando el
+motor sí lo devuelve, la base de la homologación como «alquileres adeudados» en
+vez de del contrato, y dos conceptos de la tabla de mínimos mal nombrados:
+«Efectos divorcio / **Registro Público**» y «Peritos (**daños no pecuniarios**)».
+Las notas justificaban cifras con razones inventadas —«son más altos por la
+jerarquía del tribunal»—. Se le agregó la columna de provisorios, que faltaba
+entera.
+
+**`07_GLOSARIO.md`: el único de los ocho que no hubo que reescribir.** Se hizo
+bien el 5/8 y se nota. Lo que le faltaba era la segunda mitad de la
+verificación: aquella fue contra la ley y no contra el código. Cuatro retoques:
+
+- **La fórmula del piso de la escala.** Decía «máximo acumulado del tramo
+  anterior», que es otra cuenta. Es el límite del tramo anterior por su alícuota
+  máxima. Es el mismo error que tenía el `02`, acá en versión leve.
+- El puntero al motor apuntaba al clásico y no a Honorio.
+- La lista de objetos estaba incompleta: siete de doce, sin decir que era
+  parcial.
+- Los mínimos del art. 44 quedaban anotados como sin verificar. **Quedaron
+  verificados**: 7 UMA en acciones contencioso administrativas y 5 en
+  actuaciones administrativas, cuando el asunto no es susceptible de apreciación
+  pecuniaria.
+
+**`08_DEUDA_TECNICA_FUNCIONAL.md`: arreglos puntuales.** Su problema no era el
+contenido jurídico sino que **describe el motor clásico y nunca se le cambiaron
+los punteros después de la mudanza del 4/8**. Donde dice `calculations.js` o
+`core.js` se habla de `asistente-honorarios-clasico/`. Quedó dicho en el
+encabezado en vez de reescribir 28 entradas que como catálogo de decisiones
+siguen valiendo.
+
+Tres entradas habían dejado de ser ciertas:
+
+- **La 16 decía lo contrario de lo que dice la ley.** «Los jueces pueden fijar
+  honorarios de auxiliares **por debajo** de los mínimos, según el art. 21». Al
+  revés: el art. 21 habilita **superar el techo del 10 %** ante labores
+  altamente complejas. Bajar del mínimo es el art. 478 CPCCN, que es otra norma
+  de otro cuerpo legal y no está «incorporada» al art. 21.
+- La 19, la UMA desde Google Sheets. Se reescribió con las cuatro razones por
+  las que se cambió, que es lo que valía conservar.
+- La 20, que describía el helper de porcentajes del clásico. En Honorio es el
+  reparto entre dos profesionales, 60/40 ajustable, y **no sale de ningún
+  artículo**.
+
+Y se agregó la **entrada 29**, que es lo más importante que el catálogo no
+tenía: los mínimos no se comparan contra el resultado. No es una decisión
+tomada, es una ausencia que nadie había anotado.
+
+También se le puso al principio que **no es una lista de trabajo pendiente**: eso
+es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md). Son dos cosas distintas y
+mezclarlas hace que ninguna se pueda leer entera.
 
 ### `05_DEPENDENCIAS.md`, reescrito contra el motor — 7/8
 
@@ -690,20 +755,10 @@ registrado, con DNS, con certificado y con HTTPS forzado.
   mail» y «si crees», que es el imperativo de *tú*. La convención del
   repositorio es rioplatense. No se corrigió para no mezclarlo con la revisión
   visual.
-- **Los documentos de dominio 06 a 08, sin pasar por el motor.** El `01`, el
-  `02` y el `03` se reescribieron el 6/8 contra `wizard-schema.ts` y
-  `calculate.ts`: once afirmaciones falsas en el primero, ocho en el segundo
-  —incluida una fórmula de la escala que el motor no usa— y en el tercero un
-  mecanismo entero de pisos mínimos que no existe. Los cinco restantes salieron
-  de la misma fuente. **Revisarlos contra el código, uno por uno, no
-  leyéndolos.** El `04_MODELO_DEL_DOMINIO.md` y el `05_DEPENDENCIAS.md` son los
-  más expuestos: describen estructura, que es lo más fácil de inventar de forma
-  verosímil, y el `05` ya se sabe que nombra módulos que no existen —fue el
-  mismo problema del `01`—.
-- **Chequeo que quedó pendiente en el `02`:** cada cifra de los mínimos se
-  verificó contra `minimos-data.ts`, pero **`minimos-data.ts` no se verificó
-  contra la ley**. Dice ser copia fiel del asistente clásico; que sea fiel a la
-  copia no prueba que sea fiel a la norma. Son unas cuarenta cifras.
+- **`lib/legal/minimos-data.ts` nunca se verificó contra la ley.** Las cifras de
+  los mínimos que citan el `06` y el `07` están verificadas contra ese archivo,
+  y el archivo dice ser copia fiel del asistente clásico. Que sea fiel a la copia
+  no prueba que sea fiel a la norma. Son unas cuarenta cifras.
 - **El hint de la base se perdió en la migración a Honorio, y es una
   regresión.** El asistente clásico mostraba, arriba del campo de la base, un
   cuadro que decía qué monto ingresar según lo contestado antes: quince
@@ -715,8 +770,9 @@ registrado, con DNS, con certificado y con HTTPS forzado.
   la escala está validada 300 veces y la base la pone una persona—.
 - **El plan completo de qué falta de la ley, qué hacer y qué solo declarar está
   en [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md)**, con el orden
-  recomendado. Siete puntos: dos para hacer ya sin tocar números, dos que sí
-  mueven números, dos para declarar y no implementar, uno anotado sin fecha.
+  recomendado. **Ocho puntos:** dos para hacer ya sin tocar números, tres que sí
+  mueven números —uno de ellos hacia arriba: los pisos mínimos que el motor no
+  verifica—, dos para declarar y no implementar, y uno anotado sin fecha.
 
 ### Dos cosas para llevar al repositorio de Honorio
 

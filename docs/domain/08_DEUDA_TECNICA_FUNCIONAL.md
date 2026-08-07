@@ -1,10 +1,28 @@
 # Deuda Técnica Funcional — Peculiaridades, Casos Borde y Decisiones de Implementación
 
-Este documento identifica funcionalidades que funcionan correctamente pero cuya **finalidad no es inmediatamente evidente** o que representan decisiones de interpretación legal no trivial. Está orientado a quien mantenga o evolucione el sistema.
+Catálogo de decisiones ya tomadas: funcionalidades que andan bien pero cuya
+**finalidad no es evidente**, y lecturas de la ley que no son triviales. Está
+orientado a quien mantenga o evolucione el sistema.
 
+**Esto no es una lista de trabajo pendiente.** Lo que falta hacer —qué de la ley
+la herramienta todavía no cubre, qué conviene implementar y qué conviene solo
+declarar— está en [`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), con el
+orden recomendado. Son dos cosas distintas y mezclarlas hace que ninguna de las
+dos se pueda leer entera.
 
-> **Verificado el 5/8/2026 contra el texto de la ley**, que está en
-> [00_LEY_27423.md](00_LEY_27423.md). No tenía errores de fondo.
+> **Verificado el 5/8/2026 contra el texto de la ley** y el **7/8/2026 contra el
+> motor**, que era lo que faltaba.
+>
+> La nota anterior decía «no tenía errores de fondo». Contra la ley, casi; contra
+> el código, no: **buena parte de este documento describe el motor clásico, no
+> Honorio**, y nunca se le cambiaron los punteros después de la mudanza del
+> 4/8/2026. Donde dice `calculations.js` o `core.js` se está hablando de
+> `asistente-honorarios-clasico/`, que es la referencia histórica; el motor vivo
+> es `lib/legal/calculate.ts` en el repositorio de Honorio.
+>
+> Se corrigieron además tres entradas cuyo contenido había dejado de ser cierto
+> —la 16, la 19 y la 20— y se agregó la 29, que es lo que la revisión del 6 y 7
+> de agosto encontró y nadie había anotado.
 
 ---
 
@@ -197,15 +215,32 @@ Este documento identifica funcionalidades que funcionan correctamente pero cuya 
 
 ---
 
-### 16. Art. 21 antepenúltimo párrafo: auxiliares pueden perforar mínimos
+### 16. Auxiliares: la excepción del art. 21 va hacia arriba, no hacia abajo
 
-**Qué hace:** El sistema muestra un texto informativo indicando que, según art. 21 (referenciando art. 478 CPCCN), los jueces pueden fijar honorarios de auxiliares por debajo de los mínimos en circunstancias especiales.
+**Corregido el 7/8/2026. Esta entrada decía lo contrario de lo que dice la ley,
+y mezclaba dos normas distintas.**
 
-**Base legal:** Art. 21 antepenúltimo párrafo, que incorpora el principio de proporcionalidad del art. 478 del CPCCN.
+Decía: «según art. 21 (referenciando art. 478 CPCCN), los jueces pueden fijar
+honorarios de auxiliares **por debajo** de los mínimos». Son dos errores.
 
-**Impacto:** No hay impacto en el cálculo. Es solo información contextual. El sistema no implementa ni valida esta posibilidad.
+**Qué dice el art. 21.** Que los honorarios de los auxiliares no pueden ser
+inferiores al 5 % ni superiores al 10 % del monto del proceso, y que **ante
+labores altamente complejas o extensas** los jueces podrán, por auto fundado,
+**aplicar un porcentaje mayor**. Es una excepción **hacia arriba**, que perfora
+el techo del 10 %, no el piso del 5 %.
 
-**Consideraciones:** Regla detectada. Finalidad no determinada. Se muestra como texto informativo sin efecto computacional.
+**Qué dice el art. 478 CPCCN.** Ese sí habilita a bajar del mínimo arancelario,
+por desproporción con los honorarios de los letrados. **Pero es otra norma, de
+otro cuerpo legal**, y no está «incorporada» al art. 21. Ver la entrada de
+proporcionalidad en [`07_GLOSARIO.md`](07_GLOSARIO.md), que advierte sobre
+estirar su alcance.
+
+**Impacto en el cálculo:** ninguno, y ahí la entrada original acertaba. La app
+muestra la banda del 5-10 % y no implementa la excepción, en ninguna de las dos
+direcciones. **No hay dato que la determine**: es una facultad discrecional del
+juez, fundada en el mérito de la labor. Una herramienta que calcula no tiene con
+qué, así que corresponde declararlo y no implementarlo
+([`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), punto 7).
 
 ---
 
@@ -233,27 +268,59 @@ Este documento identifica funcionalidades que funcionan correctamente pero cuya 
 
 ---
 
-### 19. UMA: carga automática desde Google Sheets
+### 19. UMA: versionada en el repositorio, no pedida por el navegador
 
-**Qué hace:** El valor de la UMA se carga automáticamente desde un CSV público de Google Sheets. Si el usuario modifica manualmente el input, se marca como "dirty" y no se sobreescribe.
+**Corregido el 7/8/2026. Esta entrada describía el comportamiento anterior al
+5/8 y quedó vieja.**
 
-**Base legal:** El valor de la UMA es fijado periódicamente por la CSJN.
+Decía que el valor se carga desde un CSV público de Google Sheets, con
+`92.482` de reserva si falla la conexión y una marca `dirty` para no pisar lo
+que el usuario editó.
 
-**Impacto:** El valor inicial de fallback es 92.482 (92.482 pesos). La carga se produce al inicio de la sesión. Si falla la conexión, se usa el valor de fallback.
+**Qué hace hoy.** El valor vive en `data/uma.json`, versionado. La planilla la
+lee **el build** (`scripts/actualizar-uma.mjs`), que agrega una entrada cuando
+el valor cambia. El navegador del visitante no le pide nada a nadie.
 
-**Consideraciones:** La marca `dirty` en el dataset del input previene que actualizaciones automáticas sobreescriban ediciones del usuario. Si el usuario quiere volver al valor automático, debe reiniciar la aplicación.
+**Por qué se cambió**, que es lo que vale conservar:
+
+1. La app declara que nada de lo que se escribe sale del navegador, y cada
+   visitante le mandaba su IP a Google.
+2. Si el pedido fallaba, el motor seguía con un valor viejo escrito a mano y
+   solo avisaba por `console.warn`. **Un número equivocado en silencio**, que es
+   lo único que este proyecto no se puede permitir.
+3. El valor llegaba sin norma y sin fecha, así que el informe no podía citar de
+   dónde salió.
+4. El mismo caso calculado con dos meses de diferencia daba distinto sin que
+   quedara registro de por qué.
+
+**Que sea una lista y no un solo número es deliberado:** es lo que hace que un
+cálculo de hoy siga siendo reproducible dentro de dos años. Nunca se reescribe
+una entrada; un valor que ya se usó para calcular es historia.
+
+Cada entrada guarda el valor, la norma que lo fijó, el enlace y la fecha de
+captura. El usuario sigue pudiendo pisarlo a mano en el primer paso.
 
 ---
 
-### 20. Cálculo de porcentaje personalizado de etapa
+### 20. El reparto entre dos profesionales
 
-**Qué hace:** Después de ver los resultados, el usuario puede calcular cualquier porcentaje (1% a 100%) de una etapa específica para patrocinante, apoderado y procurador.
+**Actualizado el 7/8/2026: en Honorio esta herramienta cambió de forma.** En el
+motor clásico era «calculá cualquier porcentaje de una etapa». Hoy es un reparto
+entre **dos** profesionales.
 
-**Base legal:** No es una regla legal. Es una herramienta auxiliar de conveniencia.
+**Qué hace:** se elige el importe a repartir —completo, 2/3 o 1/3— y se lo
+divide entre dos, con una proporción ajustable que arranca en **60/40**.
+Los controles no se imprimen; las dos cifras que producen, sí.
 
-**Impacto:** Permite al usuario calcular montos intermedios entre las etapas predefinidas (1/3, 2/3, completo). Por ejemplo, calcular el 15% de la etapa de un patrocinante.
+**Base legal:** ninguna. **No sale de ningún artículo**, y conviene que quede
+dicho porque está en la misma pantalla que los números que sí salen de la ley.
+Es una cuenta que en el juzgado se hace igual, hecha acá para no hacerla aparte.
 
-**Consideraciones:** Este es un helper que resuelve la limitación de que la ley define 3 etapas fijas (1/3, 2/3, completo) pero en la práctica los jueces pueden regular porcentajes intermedios.
+**Impacto en el cálculo:** ninguno. Opera sobre el resultado ya calculado.
+
+**Consideraciones:** no se muestra en regulaciones provisorias, por la misma
+razón por la que no se muestra el máximo: el art. 12 fija un piso y repartir un
+piso entre dos no significa nada.
 
 ---
 
@@ -373,6 +440,36 @@ Donde `minFinal` y `maxFinal` ya incluyen todas las reducciones.
 
 ---
 
+### 29. Los mínimos legales no se comparan contra el resultado
+
+**Agregado el 7/8/2026.** Es lo más importante que este catálogo no tenía, y no
+es una decisión tomada: es una ausencia que nadie había anotado.
+
+**Qué pasa:** `calculate.ts` **no importa `minimos-data.ts`**, y no hay ninguna
+comparación de piso en ningún punto de la cadena. El cálculo termina en el
+partidor.
+
+**Consecuencia:** el número que la app devuelve **puede quedar por debajo de un
+mínimo legal, y la app no lo dice.** Los pisos del art. 58 —10 UMA en
+conocimiento, 6 en ejecutivos— y los de peritos de los arts. 60 y 61 bis
+conviven con un cálculo por escala y deberían comprobarse.
+
+**Lo que sí está bien así:** los mínimos de los arts. 19, 44 y 48 rigen cuando
+el asunto **no es susceptible de apreciación pecuniaria**, o sea cuando la
+entrevista directamente no corre porque no hay base que ingresar. Que sean una
+pantalla de consulta es correcto.
+
+**Cómo se compensa hoy:** con el botón que va del resultado a la pantalla de
+mínimos «para contrastar» —la entrada 21 de este documento—. El contraste lo
+hace el usuario.
+
+**No se cambió nada al descubrirlo**, porque implementar un piso mueve números y
+eso no se hace sin pedido explícito. Es el punto 8 de
+[`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), y el único de esa lista que
+puede mover un número **hacia arriba**.
+
+---
+
 ## Resumen de decisiones de interpretación
 
 | # | Decisión | Alternativa no adoptada | Razón |
@@ -381,4 +478,13 @@ Donde `minFinal` y `maxFinal` ya incluyen todas las reducciones.
 | 9 | Interpretación literal del mínimo (máx. anterior + mín. actual) | Acumulación de máximos previos | Texto expreso de la ley |
 | 11 | No validar regla del "mayor" en escrituración | Comparar y sugerir el mayor | El sistema no tiene ambos valores |
 | 15 | Reducción automática en incidencia colectiva | Dejar a elección del usuario | La ley no presenta alternativa |
+| 16 | Mostrar la banda del 5-10 % sin la excepción del art. 21 | Ofrecer un campo para superarla | Es facultad discrecional del juez: no hay dato que la determine |
+| 19 | UMA versionada, leída por el build | Pedirla del navegador en cada carga | Privacidad, reproducibilidad, y no fallar en silencio |
+| 29 | No comparar los mínimos contra el resultado | Elevar al mínimo cuando el cálculo queda por debajo | **No es una decisión: está sin hacer.** Ver el plan de cobertura |
+
+**La fila 9 conviene leerla dos veces**, porque es la que otros documentos de
+esta serie tenían mal: el piso de cada tramo de la escala es **el máximo del
+grado inmediato anterior** —el límite de ese grado por su alícuota máxima: 45 ×
+26 % = 11,70— y **no la acumulación de los máximos previos**, que daría 12,75.
+Acá estaba bien desde el principio.
 | 28 | Procurador hereda reducciones del patrocinante | Calcular procurador sobre base original | Texto del art. 20 |

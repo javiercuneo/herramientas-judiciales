@@ -20,6 +20,15 @@ nunca como si fuera el nombre de la cosa.
 > 21 cuando está acotada a los auxiliares, y cita como art. 19 un texto que no
 > existe en esta ley. Es exactamente lo que advierte `AGENTS.md`. **Contra el
 > texto, no contra la implementación.**
+>
+> **Segunda pasada el 7/8/2026, esta vez contra el motor**, que era lo que
+> faltaba: aquella verificación fue contra la ley y no contra el código. De los
+> ocho documentos de dominio, **este fue el único que no hubo que reescribir**.
+> Se corrigieron cuatro cosas puntuales: la fórmula del piso de cada tramo de la
+> escala —decía «máximo acumulado», que es otra cuenta—, el puntero al motor
+> —apuntaba al clásico y no a Honorio—, la lista de objetos, que estaba
+> incompleta, y los mínimos del art. 44, que quedaban anotados como sin
+> verificar.
 
 ---
 
@@ -58,8 +67,9 @@ adopción o consulta verbal, el artículo es el 19.
 ## Escala del art. 21
 
 Escala progresiva de **siete tramos**, aplicada sobre la base expresada en UMA.
-Estos son los valores que usa el motor (`calcularEscalaBase` en
-`asistente-honorarios-clasico/js/core.js`):
+Los valores están en `calcularEscala()`, en `lib/legal/calculate.ts` del
+repositorio de Honorio —y en `calcularEscalaBase()` de
+`asistente-honorarios-clasico/js/core.js`, que es el motor clásico—:
 
 | Tramo | Base en UMA | Mínimo | Máximo |
 |---|---|---|---|
@@ -71,12 +81,36 @@ Estos son los valores que usa el motor (`calcularEscalaBase` en
 | 6.ª | 451 a 750 | 13 % | 17 % |
 | 7.ª | más de 750 | 12 % | 15 % |
 
-**La escala no se aplica de corrido sobre toda la base.** Cada tramo arrastra el
-máximo acumulado del tramo anterior y el porcentaje corre solo sobre el
-excedente. Por ejemplo, en la 3.ª escala el mínimo es `(base − 45) × 0,18 +
-11,7`, donde `11,7` es lo acumulado hasta 45 UMA. Es lo que la app llama el
-**contrafáctico**: mucha gente lee la tabla y espera el resultado de multiplicar
-la base entera por el porcentaje del tramo, que da otro número.
+**La escala no se aplica de corrido sobre toda la base.** Cada tramo arranca de
+un piso y el porcentaje corre solo sobre el excedente. Por ejemplo, en la
+3.ª escala el mínimo es `(base − 45) × 0,18 + 11,7`.
+
+**De dónde sale ese 11,7, que es la parte que más se lee mal:** es el **límite
+superior del tramo anterior por su alícuota máxima**, o sea `45 × 26 %`. **No es
+la suma acumulada de los tramos previos**, que daría `4,95 + (45 − 15) × 26 % =
+12,75`. Los seis pisos, todos construidos igual:
+
+| A partir de | Piso | Cuenta |
+|---|---|---|
+| 16 UMA | 4,95 | 15 × 33 % |
+| 46 UMA | 11,70 | 45 × 26 % |
+| 91 UMA | 21,60 | 90 × 24 % |
+| 151 UMA | 33,00 | 150 × 22 % |
+| 451 UMA | 90,00 | 450 × 20 % |
+| 751 UMA | 127,50 | 750 × 17 % |
+
+Es lo que la app llama el **contrafáctico** —el término está en el código, en
+`components/dashboard/HonorariosBand.tsx`—: mucha gente lee la tabla y espera el
+resultado de multiplicar la base entera por el porcentaje del tramo, que da otro
+número. La pantalla lo muestra al lado cuando difiere, y no lo muestra en el
+primer tramo, donde los dos coinciden y la comparación mentiría.
+
+> **Interpretación declarada.** El párrafo del art. 21 que fija esto está
+> redactado como **piso** —«en ningún caso… inferiores»—, o sea que literalmente
+> habla del mínimo. El motor aplica la misma fórmula al máximo. Algo así hay que
+> hacer: sin acumular, el máximo del tramo puede quedar por debajo del mínimo ya
+> calculado, que es un absurdo. Pero es una interpretación, no una
+> transcripción.
 
 **La regla de no retroceso**, que es lo que hace progresiva a la escala:
 
@@ -163,11 +197,20 @@ así para el usuario: es lo que entiende alguien que no maneja la nomenclatura
 procesal. Pero en la documentación conviene mantener la distinción, porque los
 artículos de la ley se enganchan a una o a la otra.
 
-Claves del schema, para que se pueda buscar en el código: `conocimiento`,
-`ejecutivo`, `ejecucion_sentencia`, `sucesion`, `medida_cautelar`,
-`homologacion_desocupacion`, `exhorto`, `incidente`. Y de objeto:
-`sumas_dinero`, `desalojo`, `escrituracion`, `familia_alimentos`,
+Claves del schema, para que se pueda buscar en el código. Los ocho tipos de
+proceso: `conocimiento`, `ejecutivo`, `ejecucion_sentencia`, `sucesion`,
+`medida_cautelar`, `homologacion_desocupacion`, `exhorto`, `incidente`.
+
+Y los doce objetos, que solo se preguntan en `conocimiento`: `sumas_dinero`,
+`desalojo`, `inmuebles`, `derechos_crediticios`, `titulos_acciones`,
+`establecimientos`, `uso_habitacion`, `escrituracion`, `familia_alimentos`,
 `familia_liquidacion`, `posesorias_interdictos`, `incidencia_colectiva`.
+
+Dos de ellos abren una sub-pregunta, y son campos distintos: `desalojo` abre
+`desalojoVivienda` (`vivienda` · `civil` · `laboral`) y
+`posesorias_interdictos` abre `posesoriasTipo` (`beneficio` · `demas`).
+`desalojoVivienda` **no es** `homologacionVivienda`: el segundo es el paso
+propio del proceso `homologacion_desocupacion`.
 
 ---
 
@@ -377,9 +420,11 @@ artículo enumera. *No es el artículo de los incidentes.*
 
 **Art. 44 — acciones y peticiones de naturaleza administrativa.** Demandas
 contencioso administrativas: se aplican los arts. 21 y 23, y si la cuestión es
-susceptible de apreciación pecuniaria, la escala del 21. *Los mínimos de 7 y 5
-UMA que decía la versión anterior no se verificaron contra los incisos; leer el
-artículo antes de citarlos.*
+susceptible de apreciación pecuniaria, la escala del 21. **Cuando el asunto no
+es susceptible de apreciación pecuniaria**, la regulación no puede ser inferior
+a **7 UMA** en acciones contencioso administrativas y a **5 UMA** en actuaciones
+administrativas. *Los dos pisos quedaron verificados el 7/8/2026 contra el texto
+del artículo; el glosario los daba por controlar.*
 
 **Art. 50 — exhortos y oficios (ley 22.172).** No son montos fijos sino escalas
 según la diligencia:
