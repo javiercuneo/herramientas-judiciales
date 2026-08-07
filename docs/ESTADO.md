@@ -25,8 +25,8 @@ Lo que queda es mantenimiento y las ideas anotadas más abajo, ninguna urgente.
 
 Desde el 6/8 hay un frente abierto: **los textos que describen el motor no
 estaban verificados contra el motor**. Se corrigieron la sección «Cómo está
-hecho» de la landing y los documentos de dominio `01` a `04`; los documentos
-`05` a `08` salieron de la misma fuente y hay que pasarlos por el mismo
+hecho» de la landing y los documentos de dominio `01` a `05`; los documentos
+`06` a `08` salieron de la misma fuente y hay que pasarlos por el mismo
 tamiz. Está detallado abajo, en Pendientes.
 
 De paso salieron dos errores en Honorio, ya arreglados allá: la tarjeta de la
@@ -198,6 +198,58 @@ completado se queda:** es una marca tipográfica monocroma, no un emoji.
 ---
 
 ## Lo demás que se hizo, en orden
+
+### `05_DEPENDENCIAS.md`, reescrito contra el motor — 7/8
+
+**El único de los cinco cuyo error cambia un número.** Decía, en cinco lugares
+distintos y en su diagrama de orden general, que las reducciones de los arts. 22
+y 40 se aplican **sobre el monto de la escala**. Se aplican sobre la base, antes
+de la escala.
+
+No es una diferencia de redacción. Como la escala es progresiva, reducir la base
+puede hacerla caer a otro tramo. Corrido contra el motor, demanda desestimada
+(-30 %, art. 22), base $50.000.000, UMA $102.076:
+
+```
+MOTOR   base × 0,7 y después la escala  →  5ª escala: 61,93 UMA = $6.321.798
+DOC 05  la escala y después × 0,7       →  6ª escala: 66,62 UMA = $6.800.776
+                                            $478.978 de más — 7,6 %
+```
+
+Ni siquiera es el mismo tramo. **Quien hubiera regulado siguiendo ese documento
+habría dado casi medio millón de más en ese caso.**
+
+**Y su nota de verificación del 5/8 afirmaba correcciones que no se habían
+aplicado.** Decía haber arreglado la segunda instancia como «50 % parcial /
+100 % total» y siete atribuciones de los auxiliares al art. 43. Sobrevivían
+cuatro de la primera —una en cada proceso que la tiene— y una de la segunda.
+
+**Una nota de verificación que no es cierta es peor que ninguna**, porque el que
+la lee deja de mirar. Vale para todos estos documentos: la del 6/8 y la del 7/8
+se escribieron después de leer el motor entero, no después de corregir lo que
+saltaba a la vista.
+
+**Lo demás:**
+
+- **Una escala de incidentes por tramos, inventada entera**: «2 % hasta 10.000
+  UMA, 5 % de 10.001 a 50.000, 10 %, 15 %, 20 % superior a 500.000». No existe:
+  el motor aplica un rango plano del 2 % al 20 %.
+- **El partidor atribuido al «art. 51 inc. 8».** El art. 51 trata del contenido
+  de la resolución regulatoria y no tiene incisos. Es el art. 35, última parte.
+  Segunda cita fabricada en dos días, después del decreto inexistente del `04`.
+- **«Ejecución de sentencia y ejecutivo NO aplican reducciones base».** Sí las
+  aplican. El cuadro comparativo repetía el error, y el `06` también lo tiene.
+- El conocimiento no mencionaba los provisorios ni la reducción de base por
+  caducidad del art. 22; los modos anormales incluían la conciliación; la
+  cautelar y la homologación figuraban como «sin reducciones de escala» cuando
+  sus factores **son** de etapa `escala`.
+
+**Se le cambió el alcance, porque el que tenía estaba duplicado.** El título
+prometía «qué módulos y componentes invoca cada proceso» y el documento no
+nombraba un solo módulo: traía el flujo de reglas por proceso —que es el `01`—
+y una tabla comparativa —que es el `06`—. Ahora hace lo que el título dice, y
+además lo que faltaba en todo el repositorio: **qué depende de cada pieza
+compartida y qué validación corre qué**, para saber qué se rompe al tocar algo.
 
 ### `04_MODELO_DEL_DOMINIO.md`, reescrito contra el motor — 7/8
 
@@ -638,7 +690,7 @@ registrado, con DNS, con certificado y con HTTPS forzado.
   mail» y «si crees», que es el imperativo de *tú*. La convención del
   repositorio es rioplatense. No se corrigió para no mezclarlo con la revisión
   visual.
-- **Los documentos de dominio 05 a 08, sin pasar por el motor.** El `01`, el
+- **Los documentos de dominio 06 a 08, sin pasar por el motor.** El `01`, el
   `02` y el `03` se reescribieron el 6/8 contra `wizard-schema.ts` y
   `calculate.ts`: once afirmaciones falsas en el primero, ocho en el segundo
   —incluida una fórmula de la escala que el motor no usa— y en el tercero un
