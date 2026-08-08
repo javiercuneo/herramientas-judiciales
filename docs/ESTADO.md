@@ -48,12 +48,16 @@ No queda nada urgente ni bloqueante. Lo que sigue abierto está en
 [Pendientes](#pendientes).
 
 **Las cuatro cifras que este repositorio sigue de Honorio.** Son suyas pero
-salen de allá, y se movieron el 7/8 cuando la modificación de alimentos agregó
-un sub-paso: **168 recorridos** (eran 160), **28.224 cruces** (eran 25.600),
-**15 validaciones** (eran 11) y la versión del chip. Viven en `index.html` y en
-`README.md`. La fuente es la tabla de recorridos de
-[`01_PROCESOS.md`](domain/01_PROCESOS.md): **si vuelve a moverse, se mueven las
-cuatro.**
+salen de allá: **168 recorridos**, **28.224 cruces**, **16 validaciones** y la
+versión del chip. Viven en `index.html`, en `README.md` y —la de validaciones—
+también en `documentacion.html`. La fuente de las dos primeras es la tabla de
+recorridos de [`01_PROCESOS.md`](domain/01_PROCESOS.md): **si vuelve a moverse,
+se mueven las cuatro.**
+
+Se movieron el 7/8 con la modificación de alimentos —168 desde 160 y 28.224
+desde 25.600— y el 8/8 subió solo la de validaciones, de 15 a 16, con la suite
+de mediación. **Los recorridos y los cruces no se movieron, y eso es el
+resultado buscado**: mediación no agrega ninguna pregunta a la entrevista.
 
 ---
 
@@ -421,6 +425,27 @@ indistinguible de una buena, `verificar-docs` **no la caza** —controla normas 
 artículos, no fallos— y termina adentro de un documento que produce resoluciones
 judiciales. Un fallo se transcribe de la sentencia leída o no se escribe.
 
+### El material de `docs/modelos/` deja de versionarse — 8/8
+
+`.gitignore` cubre `docs/modelos/jurisprudencia/` y todo `.pdf` o `.docx`
+bajo `docs/modelos/`.
+
+
+
+índice con `git rm --cached`: **siguen en disco y dejaron de estar en el árbol**.
+
+
+
+
+
+
+alguna vez cambia el criterio, la herramienta es `git filter-repo` y conviene
+sacar un bundle de respaldo antes.
+
+**Las plantillas limpias en `.md` sí se versionan a propósito:** son la materia
+prima de [`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md) y están sin
+datos de nadie.
+
 ### Licencia
 
 **MIT** para todo lo que hay acá (`LICENSE` en la raíz). La excepción —Honorio,
@@ -501,12 +526,14 @@ decisión es de valor y no técnica.
     del abogado.
   - **La base es una sola, la del expediente**, con las reducciones de los
     arts. 22 y 40 ya aplicadas. Es una interpretación y va fundada: la doctrina
-    de que «un juicio es una unidad jurídica… no puede haber dos bases
-    regulatorias diferentes» sale del **plenario `Murguía` (CNCiv. en pleno,
-    2/10/2001)** y la respalda la Corte. **Y hay un fallo que decide el caso
-    exacto** —CNCiv., Sala K, expte. 8451/2022, 9/5/2025—: reduce la base un 30 %
-    por el art. 22 y regula a la mediadora sobre esa base, en la misma
-    resolución. No es analogía.
+    de que «el juicio es una unidad jurídica… no pueden existir dos bases
+    regulatorias diferentes, según sea letrado o auxiliar de la justicia» sale
+    del **plenario `Murguía` (CNCiv. en pleno, 2/10/2001)**. **Y hay un fallo que
+    resuelve el planteo exacto** —CNCiv., Sala K, expte. 2896/2021, 22/6/2026—:
+    el apelante era un perito que sostenía que el −30 % del art. 22 no lo
+    alcanzaba por ser auxiliar de la Justicia y no letrado, y la Sala lo rechazó
+    porque «la ley arancelaria no contempla excepción ni distinción alguna» según
+    el profesional. No es analogía.
   - **No se agrega ninguna regla ni ninguna pregunta por el mediador**: ni
     adicionales por audiencia, ni descuento del provisional, ni desistimiento, ni
     reconvención. Todo el cálculo es una función pura de siete ramas sobre una

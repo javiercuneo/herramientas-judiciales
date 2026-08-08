@@ -145,11 +145,35 @@ interpretación **se funda en jurisprudencia o no se afirma** (ver
 **Todo lo transcripto acá se leyó de la sentencia**, en los PDF que están en el
 repositorio. Lo que no se pudo leer está marcado como tal.
 
-### El fallo que decide el punto exacto
+### El fallo que decide el punto, y no por analogía
 
-No es una analogía: es el mismo caso. La Cámara reduce la base un 30 % por el
-art. 22 **y regula a la mediadora sobre esa base**, en la misma resolución y
-apoyándose en la doctrina de la unidad jurídica.
+El apelante era un **perito ingeniero** que planteó exactamente lo que estamos
+discutiendo: que la reducción del 30 % del art. 22 no le alcanzaba **por ser
+auxiliar de la Justicia y no letrado**. La Sala K se lo rechazó.
+
+> «El artículo 22 de la ley 27.423 establece que, cuando la demanda fuere
+> íntegramente desestimada, se tendrá como valor del pleito su importe […]
+> disminuido en un treinta por ciento (30%). Por otro lado, a los efectos
+> regulatorios debe ponderarse que **el juicio es una unidad jurídica, de modo
+> tal que tiene un solo monto pecuniario y no pueden existir dos bases
+> regulatorias diferentes, según sea letrado o auxiliar de la justicia** (conf.
+> plenario del 2/10/01, “Murguía, Elena Josefina c/ Green, Ernesto Bernardo s/
+> cumplimiento de contrato”). Cabe destacar —además— que **la ley arancelaria no
+> contempla excepción ni distinción alguna que altere la reducción del 30 %
+> indicada en dicha norma de acuerdo al profesional de que se trate.**»
+>
+> CNCiv., Sala K, expte. 2896/2021, «MARCHAND, HUGO ALBERTO Y OTRO c/ FREYRE
+> PENABAD, NELLY MARIA FLORINDA s/ PRESCRIPCION ADQUISITIVA», 22/06/2026.
+> Juezas Maggio y Bermejo.
+
+No hay que estirarlo hasta el mediador: **ya está dicho para la clase entera**
+—«auxiliar de la justicia»— y con la aclaración de que la ley no distingue por
+profesional.
+
+### El mismo criterio, aplicado a un mediador
+
+La misma Sala reduce la base un 30 % por el art. 22 **y regula a la mediadora
+sobre esa base**, en la misma resolución.
 
 > «cabe tomar la suma reclamada al deducirse la demanda, con más los réditos […]
 > y, al monto que arroje tal cálculo, reducirlo en un 30 % (conf. arts. 22 y 24
@@ -201,21 +225,28 @@ Sala M—.
 > JAVIER Y OTRO s/ NULIDAD DE ACTO JURIDICO», 08/07/2025. Jueces Picasso y Calvo
 > Costa.
 
-### Una cita pendiente de verificar
+### Lo que dejó la primera aplicación de la regla
 
-Se manejó también **CNCiv., Sala K, CIV 002896/2021, «MARCHAND, HUGO ALBERTO Y
-OTRO c/ FREYRE PENABAD, NELLY MARIA FLORINDA s/ PRESCRIPCION ADQUISITIVA»,
-22/06/2026**, con la misma frase del fallo de la Sala K transcripto arriba.
-**Esa sentencia no está en el repositorio y no se leyó.** Es verosímil que la
-contenga —la Sala K dice usar su propia fórmula «entre otros» y remite a dos
-expedientes más—, pero verosímil no alcanza: hasta que se lea, no se cita.
+La regla de fundar en jurisprudencia se estrenó sobre estos mismos fallos y
+sirvió, aunque no como se esperaba.
+
+En la primera pasada, MARCHAND todavía no estaba cargado y la frase apareció en
+otro expediente de la misma Sala K, así que quedó anotada como **pendiente de
+verificar**: verosímil no alcanza. Al cargarse la sentencia se confirmó que
+MARCHAND sí la contiene —la Sala K usa su propia fórmula en varios
+expedientes— y además resultó ser **el mejor de los cuatro**, porque discute la
+extensión de la reducción a un auxiliar de la Justicia y no a otro letrado.
+
+**Lo que hay que quedarse de esto:** marcar una cita como no verificada no
+costó nada y no rompió nada, y el criterio se sostenía igual sin ella. Es
+exactamente lo que la regla busca, y es barato.
 
 ### Cómo se guardan
 
-Van a `honorio/lib/legal/jurisprudencia.ts` como un `Criterio` nuevo —al lado de
-`INCIDENTE_ESCALA`, que es el mismo patrón— y la sección del dashboard los
-muestra, como hace `IncidenteResult.tsx`. El de la Sala K va primero: es el único
-que regula a un mediador.
+Están en `honorio/lib/legal/jurisprudencia.ts` como `MEDIACION_BASE_UNICA` —al
+lado de `INCIDENTE_ESCALA`, que es el mismo patrón— y la sección del dashboard
+los muestra, como hace `IncidenteResult.tsx`. **MARCHAND va primero**: es el que
+resuelve la extensión de la reducción a un auxiliar de la Justicia.
 
 **Los PDF de las sentencias están en `docs/modelos/jurisprudencia/` y NO se
 versionan.** Se ignoran desde el 8/8 junto con el resto del material de
@@ -424,13 +455,41 @@ ese documento sí entra al control y el plan que estás leyendo no:
 ### Paso 4 — La presentación
 
 Sección del dashboard sobre el patrón de `AuxiliaresSection.tsx`, con la norma
-citada al lado del número, la cadena de cálculo visible y **los dos fallos de la
-base única**, como hace `IncidenteResult.tsx`.
+citada al lado del número. Y el bloque de «qué no hace» en `documentacion.html`:
+los ítems H e I, la mediación familiar, los adicionales por audiencia, el
+descuento del provisional, el desistimiento y la reconvención. **Los seis con su
+motivo**, porque «no lo hace» sin el porqué se lee como una carencia y son
+decisiones.
 
-Y el bloque de «qué no hace» en `documentacion.html`: los ítems H e I, la
-mediación familiar, los adicionales por audiencia, el descuento del provisional,
-el desistimiento y la reconvención. **Los seis con su motivo**, porque «no lo
-hace» sin el porqué se lee como una carencia y son decisiones.
+#### Qué prosa va en el dashboard y qué prosa va en la guía
+
+La primera versión metió todo en el dashboard: tres desplegables con la escala
+entera, todo lo que el número no incluye y la discusión del número de artículo.
+**Era demasiado**, y no por gusto: el informe imprimible con fundamentos salía de
+diez hojas.
+
+La regla que quedó, y que sirve para las secciones que vengan:
+
+> **En el dashboard va lo que solo se puede decir al lado de este número.** Todo
+> lo que describe la herramienta —la escala completa, el catálogo de lo que no
+> hace, las discusiones de cita— es documentación y va a
+> `documentacion.html`, donde se lee una vez.
+
+Aplicada a mediación, en el dashboard quedaron dos cosas:
+
+- **Que la base es una interpretación, con sus fallos.** Es lo único que **mueve
+  la cifra que está en pantalla**, y la regla de [`AGENTS.md`](../AGENTS.md) es
+  que una interpretación se funda o no se afirma. Sacarla dejaría a la app
+  aplicando un criterio sin decir que es criterio.
+- **Por qué el 2 % dejó de ser 2 %**, y solo cuando el tope efectivamente mordió.
+  Si no mordió, decir que existe es describir la escala.
+
+**Un dato para no sobrecorregir:** los desplegables son `<details>` y un
+`<details>` cerrado **no imprime su contenido**. `imprimir.tsx` los abre o los
+cierra según el interruptor de «con fundamentos», así que el informe desnudo
+nunca creció. El problema del largo era real solo en el informe fundado —y el
+argumento de fondo, que el dashboard no es el lugar para explicar la
+herramienta, vale igual.
 
 ### Paso 5 — Qué pasa con la calculadora vieja
 
