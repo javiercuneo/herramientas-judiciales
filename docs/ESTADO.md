@@ -599,6 +599,13 @@ busca con un barrido, no con el caso que lo destapó.
   displayed»*. **La solución es abrir el panel.** Si no se puede, el JavaScript
   sí funciona: estilos computados y mediciones son más confiables que mirar una
   captura.
+- **La consola de Next acumula errores viejos y no los limpia al recargar.**
+  Pasó el 7/8: un guardado intermedio con el JSX roto dejó cinco errores de
+  sintaxis en el buffer, y siguieron apareciendo después de arreglarlo, con
+  números de línea de código que ya no existía. Se perdió un rato leyendo
+  fantasmas. **Lo que lo resuelve es una compilación fresca:**
+  `rm -rf .next && npm run build`. Si `tsc --noEmit` está limpio y el build de
+  cero pasa, la consola miente.
 - **La landing publica lo que la allowlist de `pages.yml` nombra.** Si se agrega
   algo al sitio, va ahí *y* se enlaza desde `index.html`. Si no, no existe para
   nadie: ya pasó con PDF-studio, que estuvo meses publicado sin figurar.
