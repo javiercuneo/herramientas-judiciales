@@ -35,3 +35,18 @@ build/
 # .next/ y out/. Entraron 2200 archivos y un cache de Turbopack de 210 MB,
 # que GitHub rechaza por superar el limite de 100 MB por archivo.
 /honorio/
+
+#
+#
+#
+#
+#
+#
+#
+#
+# Las plantillas limpias en .md si se versionan a proposito: son la materia
+# prima de PLAN_REGULACION_EN_PROSA.md y estan sin datos de nadie.
+docs/modelos/origen/
+docs/modelos/jurisprudencia/
+docs/modelos/**/*.pdf
+docs/modelos/**/*.docx

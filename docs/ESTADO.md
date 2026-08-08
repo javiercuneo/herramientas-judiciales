@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-07 · rama `main`
+Última actualización: 2026-08-08 · rama `main`
 
 > **Este documento es solo de este repositorio.** Honorio se mudó el 4/8 a
 > [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) y se llevó su
@@ -36,6 +36,13 @@ contra el motor. Y el 7/8 se hizo entero el
 [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md), en dos tandas —una sin mover
 un número, otra con tres que sí—, casi todo trabajo en Honorio: salió como sus
 versiones **2.2.0** y **3.0.0** y el detalle está en el `ESTADO.md` de allá.
+
+El 8/8 llegaron las normas de mediación y con eso se destrabó el
+[`PLAN_MEDIACION.md`](PLAN_MEDIACION.md), que quedó revisado entero: la escala
+está verificada, las decisiones tomadas y no queda nada por resolver antes de
+implementar. De esa sesión salió además **una regla nueva de
+[`AGENTS.md`](../AGENTS.md)**: una interpretación se funda en jurisprudencia o no
+se afirma. Está abajo, en [Decisiones tomadas](#decisiones-tomadas-y-por-qué).
 
 No queda nada urgente ni bloqueante. Lo que sigue abierto está en
 [Pendientes](#pendientes).
@@ -394,6 +401,26 @@ herramienta superada dos veces no se parchea.
 estar bien o no estar publicada. Que esté «retirada» en la landing no la saca de
 internet, y el que llega por un enlace no ve la tarjeta.
 
+### Una interpretación se funda en jurisprudencia — 8/8
+
+La regla de fuentes de [`AGENTS.md`](../AGENTS.md) decía que una interpretación
+«se declara como tal, con el razonamiento». **Ahora dice que se funda en un fallo
+o no se afirma.** El motivo, en una línea: un razonamiento propio deja a la app
+diciendo «esto lo decidimos nosotros», y al que lee sólo le queda creer o no
+creer; **un fallo cambia quién lo sostiene.**
+
+No es un invento de esa sesión: es lo que `honorio/lib/legal/jurisprudencia.ts`
+ya hacía para el 2 %-20 % de los incidentes —criterio que sale de una ley
+derogada porque el art. 47 quedó observado— y que funcionó. La regla nueva lo
+generaliza y reusa el mecanismo: un `Criterio` con su frase y sus `Fallo[]`,
+consumido por la sección que corresponda.
+
+**Y una advertencia que quedó escrita en `AGENTS.md` porque vale más que la
+regla:** una cita de jurisprudencia inventada es el peor error posible acá. Es
+indistinguible de una buena, `verificar-docs` **no la caza** —controla normas y
+artículos, no fallos— y termina adentro de un documento que produce resoluciones
+judiciales. Un fallo se transcribe de la sentencia leída o no se escribe.
+
 ### Licencia
 
 **MIT** para todo lo que hay acá (`LICENSE` en la raíz). La excepción —Honorio,
@@ -452,22 +479,45 @@ se puedan analizar en sesiones distintas**.
 4. **Regulación en prosa**, última: la más riesgosa y la que más se beneficia de
    que el resto esté firme.
 
-**En paralelo, y no espera a nadie:** cargar la ley de mediación, su decreto y la
-norma del UHOM, y los modelos de resolución. Con eso hecho antes de llegar al 3,
-el orden no tiene esperas.
+**En paralelo, y no espera a nadie:** cargar los modelos de resolución, que es lo
+que sigue faltando para el punto 4. **Lo de mediación ya está**: la Ley 26.589,
+el Decreto 1467/2011, el 2536/2011, el 696/2025 y la tabla oficial de valores
+están en [`docs/mediacion/`](mediacion/), en PDF y en MD, desde el 8/8.
 
 **La alternativa que se evaluó:** subir la prosa al segundo lugar, porque cambia
 más el uso diario que una calculadora más. Se defiende; el costo es rehacer las
 plantillas cuando entre el mediador. Se eligió el orden de arriba, pero la
 decisión es de valor y no técnica.
 
-- **[`PLAN_MEDIACION.md`](PLAN_MEDIACION.md)** — 7/8. Llevar el honorario del
-  mediador a Honorio. La decisión abierta es si mediación es un noveno tipo de
-  proceso o un bloque aparte del resultado; recomiendo lo segundo, **porque no
-  comparte la unidad**: va en UHOM y no en UMA, aunque las dos salgan de la misma
-  planilla. Bloqueado hasta cargar la ley de mediación y su decreto: la escala
-  que hoy aplica la calculadora **no cita ninguna norma**, así que no se puede
-  dar por buena.
+- **[`PLAN_MEDIACION.md`](PLAN_MEDIACION.md)** — 7/8, **revisado entero el 8/8 y
+  ya no está bloqueado.** Llegaron las normas, están en `docs/mediacion/`, y con
+  eso quedó resuelto todo lo que el plan tenía abierto:
+  - **La escala está verificada** contra el Decreto 2536/2011 y contra la tabla
+    oficial del Ministerio. Los siete tramos de la calculadora son correctos. El
+    Decreto 696/2025 sustituyó el Anexo I entero pero **no tocó el Anexo III**:
+    cambiaron los artículos —el régimen pasó del 28 al 31— y no la escala.
+  - **Va como bloque del resultado, al lado de auxiliares**, no como noveno
+    proceso. El parentesco es real: los dos salen de la base y no del honorario
+    del abogado.
+  - **La base es una sola, la del expediente**, con las reducciones de los
+    arts. 22 y 40 ya aplicadas. Es una interpretación y va fundada: la doctrina
+    de que «un juicio es una unidad jurídica… no puede haber dos bases
+    regulatorias diferentes» sale del **plenario `Murguía` (CNCiv. en pleno,
+    2/10/2001)** y la respalda la Corte. **Y hay un fallo que decide el caso
+    exacto** —CNCiv., Sala K, expte. 8451/2022, 9/5/2025—: reduce la base un 30 %
+    por el art. 22 y regula a la mediadora sobre esa base, en la misma
+    resolución. No es analogía.
+  - **No se agrega ninguna regla ni ninguna pregunta por el mediador**: ni
+    adicionales por audiencia, ni descuento del provisional, ni desistimiento, ni
+    reconvención. Todo el cálculo es una función pura de siete ramas sobre una
+    cifra que Honorio ya tiene.
+  - **Lo único que sigue abierto** es la numeración del Anexo III, que no cierra
+    entre las tres fuentes. No afecta ningún número: afecta la cita.
+
+  Y un dato que cambia el Paso 2: **el UHOM se mueve todos los meses** —es la
+  UR-SINEP × 12, redondeada a la decena superior—, así que el `SALTO_MAXIMO` del
+  60 % calibrado para la UMA no sirve. A cambio, ser derivable le da una
+  validación cruzada que la UMA no tiene.
 - **[`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md)** — 7/8. Que la
   app devuelva el texto de la regulación para copiar y pegar. La decisión abierta
   es **quién elige el número dentro de la banda**: el motor devuelve rangos a

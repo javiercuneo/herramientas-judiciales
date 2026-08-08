@@ -1,10 +1,12 @@
 # Plan: los honorarios del mediador dentro de Honorio
 
 Cómo llevar lo que hoy calcula `calculadoras/honorarios-mediacion.html` al
-resultado de Honorio, y qué hay que resolver antes de escribir una línea.
+resultado de Honorio.
 
-Escrito el 7/8/2026. **Nada de esto está implementado.** Es una sesión de
-análisis previa, para que la de implementación no empiece desde cero.
+Escrito el 7/8/2026 como análisis previo, cuando las normas todavía no estaban
+cargadas. **Revisado entero el 8/8**, con los cuatro textos leídos y las
+decisiones tomadas. **Sigue sin implementarse nada**, pero ya no queda nada por
+decidir salvo lo que está en [Lo que no está resuelto](#lo-que-no-está-resuelto).
 
 **La implementación es en [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio).**
 Acá va la decisión; allá el código y su `ESTADO.md`. Este plan vive de este lado
@@ -13,313 +15,430 @@ prima —la calculadora y los textos legales— está acá.
 
 ---
 
-## Lo que hay hoy, leído
+## Las normas, cargadas y leídas
 
-`calculadoras/honorarios-mediacion.html`, 222 líneas, todo adentro. Pide dos
-datos —el valor del UHOM y el monto del asunto— y aplica una escala de tramos:
+En [`docs/mediacion/`](mediacion/), en PDF y en MD:
 
-| Monto del asunto | Honorario |
-|---|---|
-| ≤ 30 × UHOM | 3 UHOM |
-| ≤ 60 × UHOM | 6 UHOM |
-| ≤ 150 × UHOM | 9 UHOM |
-| ≤ 300 × UHOM | 12 UHOM |
-| ≤ 600 × UHOM | 16 UHOM |
-| ≤ 1000 × UHOM | 20 UHOM |
-| > 1000 × UHOM | 2 % del monto |
-
-Más un tope: si el resultado supera **120 UHOM**, se corta ahí.
-
-Eso es todo lo que hace. Está en `calcular()`, líneas 183 a 196, y no tiene
-ninguna otra rama.
-
-### Tres problemas que hay que resolver sí o sí, y son anteriores al diseño
-
-**1. La calculadora no cita ninguna norma. Ni una.** No hay un artículo, una
-ley, un decreto ni una resolución en las 222 líneas. La escala de arriba puede
-ser exactamente la de la norma vigente, pero **hoy nadie puede comprobarlo sin
-salir de la app**, y esta es la clase de afirmación que la regla de fuentes de
-[`AGENTS.md`](../AGENTS.md) prohíbe. Un número de honorarios sin su norma al lado
-es precisamente lo que el proyecto entero se pasó el 6 y el 7 de agosto sacando
-de los documentos de dominio.
-
-**Consecuencia para el plan: la escala de arriba está sin verificar.** No la doy
-por buena. Es un dato de entrada a revisar contra el texto, no una fuente.
-
-**2. Lee la planilla desde el navegador del visitante.** Línea 141:
-`fetch(URL_SHEET + '&cache=' + ...)`, en `DOMContentLoaded`. Eso es exactamente
-lo que se le sacó a la UMA el 5/8, y los cuatro motivos están escritos en
-`honorio/lib/legal/uma.ts`: la IP del visitante viaja a Google contra lo que la
-app declara; si el pedido falla el número queda viejo en silencio; el valor
-llega sin norma y sin fecha, así que el informe no puede citarlo; y el mismo
-caso calculado con dos meses de diferencia da distinto sin registro de por qué.
-
-Los cuatro valen igual para el UHOM.
-
-**Y no es solo esta calculadora: son cuatro consumidores.** Al buscar la URL de
-la planilla en el repositorio aparece en `asistente-honorarios-clasico/js/core.js:19`,
-`calculadoras/honorarios.html:229`, `calculadoras/prorrateo.html:491` y esta.
-Los cuatro la piden desde el navegador. **El único que la lee bien es el build
-de Honorio.**
-
-**3. La lee por posición, y la planilla no se lee por posición.** Este es el más
-urgente porque **es un bug latente, no una deuda de diseño**, y porque no está
-en un solo archivo.
-
-`honorio/scripts/actualizar-uma.mjs` documenta la planilla —es la misma URL,
-carácter por carácter— y dice que es una tabla de clave y valor:
-
-```
-UMA,102.076
-UHOM,12.960
-Acordada,Expresado en UMAs: (valor = $ 102.076 segun Res. SGA n° 1785/26)
-URL,https://www.csjn.gov.ar/documentos/descargar?ID=160573
-```
-
-Ese script la lee **como diccionario**, y el comentario dice por qué: «agregar
-una fila o cambiarlas de orden no puede romper el numero». También dice, textual,
-que «la fila UHOM la usa otra calculadora y aca se ignora».
-
-Los otros cuatro hacen lo contrario, y con distinta gravedad:
-
-| Archivo | Qué toma | Qué pasa si se inserta una fila arriba |
+| Archivo | Qué es | Qué aporta |
 |---|---|---|
-| `core.js:19` | `filas[0]`, col 1 → UMA | Queda con el valor escrito a mano y avisa por `console.warn` |
-| `honorarios.html:234` | `filas[0]`, col 1 → UMA. La variable se llama `valorB1` | El campo queda vacío o con texto |
-| `prorrateo.html:496` | `lines[0]`, col 1 → UMA | Ídem. El comentario tiene fijada la suposición: «La primera línea contiene "UMA,89.875"», con un valor que ya ni siquiera es el vigente |
-| `honorarios-mediacion.html:147` | **`filas[1]`, col 1 → UHOM** | **Toma la UMA como si fuera el UHOM** |
+| `ley mediacion..md` | Ley 26.589 | El art. 31 define la mediación familiar y sus incisos |
+| `Decreto 1467-2011.md` | La reglamentación original | Es el decreto que crea los tres anexos |
+| `decreto 2536-11.md` | Decreto 2536/2011 | **Sustituyó el Anexo III: es la escala vigente** |
+| `Decreto 696-2025.md` | Decreto 696/2025 | Sustituyó el Anexo I entero. El régimen de honorarios pasó del art. 28 al **art. 31** |
+| `39_tabla_...2026v2.pdf` | Tabla oficial del Ministerio | Valores jun–ago 2026, con la escala en pesos |
 
-**La última fila es la peligrosa.** Los tres primeros leen la fila 0: si algo se
-corre, se rompen de forma más o menos visible —campo vacío, valor viejo—. El de
-mediación lee la fila 1, así que una fila insertada arriba le hace tomar
-$102.076 donde va $12.960 y mostrar un honorario **ocho veces más alto sin
-ningún error visible**. No hay validación que lo agarre porque esa calculadora
-no tiene ninguna.
+### Lo primero que había que despejar: qué está vigente
 
-Además parte el CSV con `split(',')` a secas, y la fila `Acordada` de esa misma
-planilla tiene comas adentro. Hoy ninguno la toca; el día que la toquen, leen
-mal.
+El Decreto 696/2025 es de 2025 y reemplaza toda la reglamentación, así que la
+pregunta obvia era si se llevó puesta la escala. **No.** Su art. 1° sustituye
+únicamente el **Anexo I**; al Anexo III no lo toca y, al contrario, lo cita seis
+veces como derecho vigente —«el ítem H de la escala del artículo 2° del ANEXO
+III del Decreto N° 1467 del 22 de septiembre de 2011 y sus modificatorios»—.
 
-> **Esto conviene arreglarlo aunque el resto del plan no se haga nunca**, y en
-> los cuatro, no solo en el de mediación: leer el CSV como diccionario y buscar
-> la clave. Anotado también en [`docs/ESTADO.md`](ESTADO.md).
+O sea: **cambiaron los artículos, no la escala.** Lo que antes era el art. 28
+del Anexo I es hoy el art. 31, y los criterios de monto indeterminado que
+estaban en el mismo artículo salieron a un art. 32 propio.
 
-### Lo que sí está bien, para no arreglar lo que no está roto
+### La escala, verificada contra dos fuentes independientes
 
-**Honorio no pide la planilla.** Su copia del motor legacy
-—`honorio/public/legacy/core.js`— trae la función `cargarUMA()` y hasta la
-expone como `window.cargarUMA`, pero **nadie la llama**: el único punto de
-llamada es `asistente-honorarios-clasico/index.html:41`, que es la app clásica.
-`LegacyLoader.tsx` hace `adapters.setUMA(UMA_VIGENTE.valor)`, o sea el archivo
-versionado. Comprobado. **La afirmación de privacidad de `uma.ts` se sostiene.**
+El 7/8 este plan decía que la escala de la calculadora estaba **sin verificar**
+y que no se daba por buena. **Ya está verificada** contra el texto del Decreto
+2536/2011 y contra la tabla oficial del Ministerio, que es texto limpio y sirvió
+para leer lo que el OCR del decreto dejó ilegible:
 
-Lo que queda es código muerto con un `fetch` adentro, colgado de `window`. No es
-un bug, pero es una función que si alguien alguna vez llama reabre en silencio
-un agujero que está documentado como cerrado. Conviene sacarla de la copia de
-Honorio cuando se toque ese archivo por otra razón.
+| Ítem | Monto del asunto | Honorario |
+|---|---|---|
+| A | ≤ 30 UHOM | 3 UHOM |
+| B | > A y ≤ 60 UHOM | 6 UHOM |
+| C | > B y ≤ 150 UHOM | 9 UHOM |
+| D | > C y ≤ 300 UHOM | 12 UHOM |
+| E | > D y ≤ 600 UHOM | 16 UHOM |
+| F | > E y ≤ 1000 UHOM | 20 UHOM |
+| G | > 1000 UHOM | 2 % del monto, **hasta 120 UHOM** |
+| H | Monto indeterminable | 20 UHOM |
+| I | Sin valor pecuniario | 12 UHOM |
+| — | Familiar: art. 31 incs. b) y c) de la Ley 26.589 | 9 UHOM |
 
----
+**Los siete tramos que la calculadora implementa son correctos.** Lo que le
+falta son los ítems H e I, el familiar, el honorario provisional de 2 UHOM y los
+adicionales por audiencia.
 
-## Lo que no sé, y hay que cargar antes de seguir
-
-**No leí la ley de mediación ni su decreto reglamentario.** No están en el
-repositorio y no los voy a citar de memoria: es el error exacto que produjo los
-ocho documentos de dominio que hubo que reescribir. La firma de ese error
-—estructura plausible, datos corridos— es indistinguible de un trabajo bien
-hecho hasta que alguien abre el texto.
-
-Lo que hace falta, en `docs/mediacion/` (o donde se decida):
-
-1. **La ley de mediación vigente**, texto completo en MD, igual que
-   [`00_LEY_27423.md`](domain/00_LEY_27423.md).
-2. **El decreto reglamentario**, texto completo en MD, sobre todo el anexo o los
-   artículos de honorarios del mediador.
-3. **La norma que crea y actualiza el UHOM**, con su valor vigente y la
-   resolución que lo fijó. Es lo que va a citar el informe.
-
-**Hipótesis mía, declarada como hipótesis y no como dato:** creo que el régimen
-aplicable es el de la Ley 26.589 y su decreto reglamentario, y que la escala en
-UHOM sale de un anexo de ese decreto o de una resolución del Ministerio de
-Justicia posterior. **No lo verifiqué y puede estar mal.** Sirve para saber qué
-buscar, no para escribirlo en ningún lado.
-
-Cuando estén cargados, la pasada es la misma que se le hizo a los ocho
-documentos: leer el texto al lado de la escala implementada y anotar
-**diferencia por diferencia**, sin corregir sobre la marcha.
-
-### Las preguntas que ese texto tiene que contestar
-
-Las anoto ahora porque son las que la calculadora actual no puede ni plantear, y
-porque son las «reglas especiales» que mencionaste. Cada una es una rama de
-entrevista o una declaración de «esto no lo hace»:
-
-- **¿La escala depende de si hubo acuerdo?** Un mediación que cierra con
-  acuerdo y una que fracasa muy probablemente no pagan igual. Hoy la calculadora
-  no lo pregunta.
-- **¿Y del número de audiencias?** Misma pregunta.
-- **¿Y de la cantidad de partes o de reclamos acumulados?**
-- **Asuntos de monto indeterminado.** La calculadora exige un monto y sin él no
-  calcula. Si la norma prevé un honorario para monto indeterminado, hoy es un
-  agujero, no una limitación declarada.
-- **Materias con régimen propio** —familia, consumo, daños— si las hay.
-- **¿Qué es el tope de 120 UHOM?** ¿Es tope del honorario, tope por parte, tope
-  por audiencia? El código lo aplica al honorario total y no dice de dónde sale.
-- **¿Quién paga y en qué proporción?** No es el cálculo, pero es lo primero que
-  pregunta el que lee el resultado, y si la norma lo dice conviene decirlo.
-- **¿Hay actualización o intereses del honorario impago?**
-- **La relación con los honorarios de la Ley 27.423.** Esta es la que más me
-  importa para el diseño: **¿el honorario del mediador es un ítem del mismo
-  expediente que el del abogado, o son dos regulaciones independientes que
-  simplemente conviven?** De la respuesta sale la decisión de arquitectura de
-  abajo.
+**Un error de rótulo que sí hay que corregir:** la calculadora aplica el tope de
+120 UHOM como si fuera general y así lo dice la nota. **Pertenece al ítem G.**
+Da el mismo número siempre —A a F topean en 20 UHOM, muy por debajo—, así que
+ninguna validación numérica lo va a cazar nunca. Es exactamente lo que advierte
+[`05_DEPENDENCIAS.md`](domain/05_DEPENDENCIAS.md): un rótulo puede mentir con
+todo en verde.
 
 ---
 
-## La decisión de arquitectura, que es la única realmente abierta
+## Las decisiones, tomadas el 8/8
 
-Dijiste «incorporar el resultado de ese HTML a Honorio y mostrarlo en el
-resultado final». Eso admite dos lecturas y llevan a productos distintos.
+Las cinco son de Javier y están tomadas. Se anotan con su motivo porque el
+motivo es lo que hay que poder discutir después.
 
-### Opción A — Un noveno tipo de proceso
+### 1. Arquitectura: un bloque del resultado, al lado de auxiliares
 
-`mediacion` entra como una novena opción de `ProcesoTipo` en
-`honorio/lib/legal/types.ts`, con su propio recorrido de entrevista y su propio
-resultado.
+Se descartó la Opción A —mediación como noveno `ProcesoTipo`—. Va como una
+sección del dashboard, siguiendo el patrón de `AuxiliaresSection.tsx`.
 
-- **A favor:** encaja sin fricción en todo lo que ya existe. `PROCESS_STEP_MAP`,
-  `resolveReglas()`, el dashboard y las validaciones ya saben tratar un proceso
-  nuevo. Es el camino de menos invención.
-- **En contra:** los ocho procesos actuales comparten la escala del art. 21 y la
-  UMA. Mediación no comparte ninguna de las dos: otra ley, otra unidad, otra
-  escala. Meterlo como «uno más» sugiere un parentesco que no existe, y hace que
-  `CalculoResultado` cargue campos que solo tienen sentido para uno de los nueve.
+El parentesco con auxiliares es real y más profundo que el trato parecido: **los
+dos salen de la base y no del honorario del abogado.** `calcularAuxiliares()`
+recibe `escala.baseEnUMA` y el mediador va a recibir la misma cifra.
 
-### Opción B — Un bloque adicional del resultado
+> **Ojo con lo que la vecindad afirma.** `calcularAuxiliares()` recibe la base
+> **ya reducida** —lo dice su docstring en `calculate.ts:526`— y con la decisión
+> 2 el mediador también. Están bien juntos. Pero si algún día uno de los dos
+> cambia de base, la cercanía visual va a seguir diciendo que son lo mismo.
 
-El cálculo del mediador se muestra **junto** al de honorarios, como ya se
-muestran la segunda instancia, el partidor o los auxiliares: una sección más del
-dashboard, alimentada por su propio módulo.
+### 2. La base es una sola: la del expediente
 
-- **A favor:** es lo que el documento de prueba tiene. En un juicio que pasó por
-  mediación previa hay honorarios del abogado *y* del mediador, y quien regula
-  los mira juntos. Y no contamina el modelo de los ocho procesos.
-- **En contra:** hay que decidir cuándo aparece —¿una pregunta «¿hubo mediación
-  previa?» en la entrevista?— y qué pasa cuando alguien quiere el honorario del
-  mediador **solo**, sin ningún juicio detrás, que es el caso que la calculadora
-  actual sirve hoy.
+**El honorario del mediador se calcula sobre la misma base regulatoria que el
+del abogado, con las reducciones de los arts. 22 y 40 de la Ley 27.423 ya
+aplicadas.** Si la demanda se desestima y la base baja 30 %, baja para todos.
 
-### Lo que recomiendo
+Está fundada abajo, en [La base única](#la-base-única-la-interpretación-y-su-jurisprudencia),
+porque es una interpretación y le corresponde el tratamiento de una.
 
-**B, con una puerta de entrada propia.** Es decir: el módulo de cálculo es uno
-solo y puro; se lo consume desde dos lugares —una sección del resultado cuando
-la entrevista dice que hubo mediación, y una pantalla de consulta directa como
-la de mínimos, que ya existe y es exactamente este patrón—.
+### 3. Sin adicionales por audiencia
 
-El motivo es el del punto anterior: **mediación no comparte la unidad**. La
-Opción A obliga a que `CalculoResultado.valorUMA` conviva con un valor en UHOM,
-y ahí es donde se cuelan los errores caros. Mantenerlos separados hace que la
-confusión sea un error de tipos y no un número mal calculado.
+El Anexo III prevé adicionales desde la cuarta audiencia —½ UHOM en los ítems A
+y B, 1 UHOM en los demás— y desde la segunda en los supuestos familiares. **No
+entran.** Son el único punto que obligaría a agregar una pregunta a la
+entrevista, y el universo que cubren no lo justifica.
 
-**Esta decisión hay que tomarla antes de escribir código**, y probablemente
-después de leer la ley: si resulta que el honorario del mediador se regula en la
-misma resolución que el del abogado, B se vuelve todavía más claro; si son
-trámites completamente separados, A gana simplicidad.
+### 4. El resultado muestra lo que da la tabla, sin sumar ni restar
+
+El art. 31 inc. g) del Decreto 696/2025 dice que el juez, al regular, descuenta
+del básico el honorario provisional de 2 UHOM si fue percibido. **Honorio no lo
+descuenta.** Muestra el honorario básico de la escala y nada más.
+
+El motivo es el mismo que el de la decisión 5: descontarlo exige preguntar si se
+percibió, y eso es una pregunta que existe solo por el mediador.
+
+### 5. Ninguna regla nueva por la existencia del mediador
+
+Quedan afuera, por esa sola razón:
+
+- **Mediación desistida antes de la primera audiencia** → básico a la mitad, con
+  piso en el provisional (art. 31 inc. h).
+- **Reconvención** → se considera reclamo autónomo y el resultado se reduce a la
+  mitad (art. 32 inc. k).
+
+**El motivo es de sistema y no de esfuerzo.** El art. 1°, segundo párrafo, de la
+Ley 27.423 —[`00_LEY_27423.md:38`](domain/00_LEY_27423.md:38)— aplica el arancel
+supletoriamente a **todos** los auxiliares de la Justicia, «excepto lo que con
+relación a ello dispongan las leyes especiales». Abrir la puerta a las reglas
+propias del mediador obliga a abrirla para cada auxiliar con régimen especial, y
+lo que sale de ahí no es una app más grande: es un expediente con tantas bases
+como profesionales, cada una con su método de valuación, cada una apelable por
+separado y además de la apelación del honorario.
 
 ---
 
-## El orden de trabajo propuesto
+## La base única: la interpretación y su jurisprudencia
 
-### Paso 0 — Arreglar la lectura de la planilla en los cuatro
+Esto es una interpretación, y desde el 8/8 la regla del repositorio es que una
+interpretación **se funda en jurisprudencia o no se afirma** (ver
+[`AGENTS.md`](../AGENTS.md)).
 
-Independiente de todo lo demás, y explicado arriba. Leer el CSV como diccionario
-y buscar la clave —`UHOM` o `UMA` según el archivo— en vez de la posición. Se
-hace en este repositorio, en `honorarios-mediacion.html`, `honorarios.html`,
-`prorrateo.html` y `asistente-honorarios-clasico/js/core.js`.
+**Todo lo transcripto acá se leyó de la sentencia**, en los PDF que están en el
+repositorio. Lo que no se pudo leer está marcado como tal.
 
-**Empezar por el de mediación**, que es el único cuyo modo de fallar es un número
-plausible y equivocado en vez de un campo vacío.
+### El fallo que decide el punto exacto
 
-### Paso 1 — Cargar y barrer las normas
+No es una analogía: es el mismo caso. La Cámara reduce la base un 30 % por el
+art. 22 **y regula a la mediadora sobre esa base**, en la misma resolución y
+apoyándose en la doctrina de la unidad jurídica.
 
-Los tres MD de arriba. Después, la pasada de verificación de la escala
-implementada contra el texto, anotando cada diferencia sin corregirla todavía.
-**Salida esperada:** un documento de dominio de mediación, del mismo tipo que
-los ocho que ya hay, con la escala real y sus condiciones.
+> «cabe tomar la suma reclamada al deducirse la demanda, con más los réditos […]
+> y, al monto que arroje tal cálculo, reducirlo en un 30 % (conf. arts. 22 y 24
+> de la Ley 27.423). […] Igual criterio corresponde adoptar en relación a la
+> regulación de fecha 19 de marzo de 2024 —también recurrida—, puesto que, a los
+> efectos regulatorios, debe ponderarse que **un juicio es una unidad jurídica,
+> de modo tal que tiene un solo monto pecuniario y no pueden existir dos bases
+> regulatorias diferentes** (conf. esta Sala, exptes. N° 63.590/18 y
+> N° 70.529/19, entre otros). […] se fijan los honorarios de la mediadora señora
+> S. P. en la suma de $1.160.400»
+>
+> CNCiv., Sala K, expte. 8451/2022, «OBRA SOCIAL DE LA INDUSTRIA DEL FOSFORO
+> ENCENDIDO Y AFINES c/ VARELA, CARLOS ALBERTO s/ DAÑOS Y PERJUICIOS -
+> RESP. PROF. ABOGADOS», 09/05/2025. Jueces Bermejo y Maggio.
+
+### La doctrina y su origen
+
+No nace en las salas: viene de un plenario de la propia Cámara, transcripto acá
+por la Sala M.
+
+> «la mayoría en forma impersonal señaló la necesidad de contar con una única
+> base regulatoria para la determinación de los honorarios en los casos en que se
+> llega a una conciliación o transacción **para todos los profesionales a pesar
+> que algunos no hayan participado del mismo**: “Es que a los efectos
+> regulatorios un juicio es una unidad jurídica, lo que equivale a decir que
+> tiene, en definitiva, un solo monto pecuniario y por ende no puede haber dos
+> bases regulatorias diferentes según sea que el letrado haya o no intervenido en
+> el acto jurisdiccional”»
+>
+> CNCiv. en pleno, «MURGUIA, ELENA JOSEFINA c/ GREEN, ERNESTO BERNARDO s/
+> CUMPLIMIENTO DE CONTRATO», 02/10/2001, citado por CNCiv., Sala M,
+> expte. 55198/2020, «RODRIGUEZ, ARIEL LUCIANO c/ URBIETA, CRISTIAN ARIEL Y OTRO
+> s/ DAÑOS Y PERJUICIOS», 16/09/2024.
+
+Y la Corte la respalda por dos vías, las dos citadas dentro de los fallos leídos:
+**CSJN, Fallos 329:1191** —invocado por la Sala A— y **CSJN, «De Souza, Daniel O.
+c/ Empresa de Obras Sanitarias de la Nación», 27/10/1992** —invocado por la
+Sala M—.
+
+### El tercer fallo, aplicando la doctrina entre profesionales distintos
+
+> «a los efectos regulatorios un juicio es una unidad jurídica y procesal, lo que
+> equivale a decir que tiene, en definitiva, un solo monto, sin que
+> consiguientemente pueda haber dos bases regulatorias diferentes según que el
+> letrado haya o no intervenido en el acto transaccional (conf. CSJN
+> Fallos 329:1191)»
+>
+> CNCiv., Sala A, expte. 74879/2018, «ZOLZINSKY, ESTHER c/ POCHINKI, EDUARDO
+> JAVIER Y OTRO s/ NULIDAD DE ACTO JURIDICO», 08/07/2025. Jueces Picasso y Calvo
+> Costa.
+
+### Una cita pendiente de verificar
+
+Se manejó también **CNCiv., Sala K, CIV 002896/2021, «MARCHAND, HUGO ALBERTO Y
+OTRO c/ FREYRE PENABAD, NELLY MARIA FLORINDA s/ PRESCRIPCION ADQUISITIVA»,
+22/06/2026**, con la misma frase del fallo de la Sala K transcripto arriba.
+**Esa sentencia no está en el repositorio y no se leyó.** Es verosímil que la
+contenga —la Sala K dice usar su propia fórmula «entre otros» y remite a dos
+expedientes más—, pero verosímil no alcanza: hasta que se lea, no se cita.
+
+### Cómo se guardan
+
+Van a `honorio/lib/legal/jurisprudencia.ts` como un `Criterio` nuevo —al lado de
+`INCIDENTE_ESCALA`, que es el mismo patrón— y la sección del dashboard los
+muestra, como hace `IncidenteResult.tsx`. El de la Sala K va primero: es el único
+que regula a un mediador.
+
+**Los PDF de las sentencias están en `docs/modelos/jurisprudencia/` y NO se
+versionan.** Se ignoran desde el 8/8 junto con el resto del material de
+`docs/modelos/`: son públicos, pero traen nombres de partes y de profesionales
+que no le aportan nada al repositorio.
+
+**Eso tiene un costo y hay que pagarlo, no taparlo.** Un `Fallo` sin la sentencia
+al lado vuelve a ser una cita que hay que creer, que es exactamente lo que la
+regla nueva quiere evitar. **La forma de pagarlo es el campo `url`**, que
+`jurisprudencia.ts` ya tiene y que los tres fallos de `INCIDENTE_ESCALA` ya usan
+—dos al CIJ y uno al visor de la PJN—. Los cuatro de acá se leyeron del PDF pero
+**todavía no tienen URL pública asociada**: conseguirla es parte del Paso 4, y
+hasta entonces la verificación vive en la máquina de Javier y en ningún lado más.
+
+### En qué se aparta del decreto, exactamente
+
+La declaración no sirve si no dice esto. El Decreto 696/2025 define una base
+propia para el mediador y reglas de valuación propias:
+
+| Supuesto | El decreto | Honorio, con la base única |
+|---|---|---|
+| Demanda desestimada | Monto reclamado, sin reducir (art. 31 inc. d, último supuesto) | Base con el −30 % del art. 22 |
+| Desalojo | Un año de alquiler (art. 32 inc. b) | Base del expediente, con el −20 % del art. 40 si es vivienda |
+| Alimentos | Cuota × **un** año (art. 32 inc. j) | Cuota × **dos** años (art. 39; `types.ts:83`) |
+| Reconvención | Reclamo autónomo, resultado a la mitad (art. 32 inc. k) | No se modela |
+
+**La regla no favorece sistemáticamente a nadie, y conviene decirlo.** En demanda
+desestimada perjudica al mediador. En alimentos lo beneficia, porque Honorio toma
+el doble de cuotas que el decreto. En desalojo también, porque la base del
+expediente supera al año de alquiler. Una interpretación que perdiera siempre
+para el mismo lado sería sospechosa de estar elegida por el resultado; ésta no lo
+está.
+
+---
+
+## Lo que queda afuera por construcción, y no hubo que decidirlo
+
+`honorio/lib/legal/types.ts` declara `baseValor: number`, y **`ObjetoBase` no
+tiene ninguna opción sin monto**: `desalojo`, `sumas_dinero`, `inmuebles`,
+`derechos_crediticios`, `titulos_acciones`, `establecimientos`, `uso_habitacion`,
+`escrituracion`, `familia_alimentos`, `familia_liquidacion`,
+`posesorias_interdictos`, `incidencia_colectiva`. Honorio siempre tiene una
+cifra.
+
+De ahí sale que tres ítems de la escala son **inalcanzables desde la entrevista**,
+sin que haya que resolver nada sobre ellos:
+
+- **Ítem H** (monto indeterminable, 20 UHOM) — no hay recorrido que llegue.
+- **Ítem I** (sin valor pecuniario, 12 UHOM) — ídem.
+- **Mediación familiar** (9 UHOM) — el art. 31 incs. b) y c) de la Ley 26.589 son
+  cuidado personal, comunicación y plan de parentalidad: cuestiones no
+  pecuniarias, que Honorio no modela porque necesita una base.
+
+Los tres van al bloque de «qué no hace» de `documentacion.html` **con ese
+motivo**, que es el verdadero. La calculadora vieja tampoco los hace, así que no
+se pierde nada al retirarla.
+
+Dos reglas más del decreto que no se implementan y conviene declarar, porque son
+lo primero que pregunta quien lee el resultado:
+
+- **Notoria diferencia** (art. 31 inc. e): si el monto se determina judicialmente
+  y varía más del 20 % respecto del honorario ya abonado, el condenado en costas
+  integra la diferencia.
+- **Honorario del profesional asistente** (art. 34): no puede ser inferior al
+  50 % del honorario básico del mediador.
+
+---
+
+## El módulo, que es más chico de lo que este plan suponía
+
+Con las cinco decisiones, todo el cálculo es **una función pura de siete ramas**:
+
+```
+baseFinal (la misma que ya reciben la escala y los auxiliares)
+  ÷ UHOM vigente          →  el monto del asunto, en UHOM
+  →  tramo A–G            →  N UHOM  (o 2 % con tope de 120 en G)
+  →  × UHOM               →  pesos
+```
+
+**Cero preguntas nuevas en la entrevista.** No hay rama de recorrido, no hay
+sub-paso, no hay campo nuevo en `WizardState`. Es el mismo criterio que gobierna
+el [`PLAN_CALCULO_DIRECTO.md`](PLAN_CALCULO_DIRECTO.md): cada respuesta por
+defecto es una afirmación jurídica que nadie hizo, y acá directamente no hace
+falta ninguna.
+
+Va en `honorio/lib/legal/mediacion.ts`, función pura sin React ni DOM, como todo
+`lib/legal/`. **Con su suite de validación desde el primer commit**, en
+`lib/legal/__tests__/`: sería la número 16. Lo mínimo son los dos bordes de cada
+uno de los siete tramos, el tope del ítem G y el caso donde la reducción del
+art. 22 hace caer la base a otro tramo —que es el único lugar donde la decisión 2
+cambia un número—.
+
+Ese último caso, para tenerlo escrito con números:
+
+```
+UHOM $12.450 (junio 2026) · base $8.000.000
+
+sin reducir      643 UHOM  →  ítem F  →  20 UHOM = $249.000
+con −30 % (22)   450 UHOM  →  ítem E  →  16 UHOM = $199.200
+```
+
+---
+
+## El UHOM: no se comporta como la UMA
+
+El Paso 2 del plan original decía «espejo exacto de lo que ya funciona para la
+UMA, no inventar nada, copiar la forma». **Eso sigue valiendo para la forma y no
+para los umbrales**, porque las dos unidades se mueven distinto.
+
+**El UHOM cambia todos los meses.** La tabla oficial lo muestra: junio 2026
+$12.450, julio $12.720, y el $12.960 que hoy trae la planilla es agosto. La
+fórmula está declarada en la propia tabla —**valor UR-SINEP × 12, redondeado a
+la decena próxima superior**— y cierra en los dos meses que se pudieron
+comprobar: 1036,67 × 12 = 12.440,04 → 12.450; 1059,48 × 12 = 12.713,76 → 12.720.
+
+Tres consecuencias:
+
+- **Un valor versionado se desactualiza cada mes**, no dos veces al año. Si pasa
+  un mes sin push, el número miente en silencio. Es el mismo problema que la UMA
+  tiene una vez por semestre, doce veces por año.
+- **El `SALTO_MAXIMO` de 60 % de `actualizar-uma.mjs` no sirve acá.** Está
+  calibrado para la UMA; los saltos del UHOM son de ~2 %, así que ese umbral no
+  cazaría ni un error de tipeo de un orden de magnitud hacia abajo. Necesita uno
+  propio.
+- **A cambio, hay una validación que la UMA no tiene:** el UHOM es derivable. El
+  script puede recalcularlo desde la UR-SINEP y comparar contra lo que dice la
+  planilla. Dos fuentes que tienen que coincidir valen más que un umbral.
+
+Y algo que juega a favor: el art. 31 inc. g) manda usar los valores vigentes **al
+momento de regular**, no los de la fecha de la mediación. La app siempre usa el
+UHOM de hoy; el histórico sirve para auditar, no para calcular.
+
+**Sigue en pie lo demás del Paso 2:** extender `scripts/actualizar-uma.mjs` en
+vez de escribir uno nuevo —ya parsea la misma planilla por clave, ya detecta el
+HTML de «planilla despublicada», ya está escrito para abortar antes que
+inventar—, y que `ValorUMA` y `ValorUHOM` sean **tipos distintos aunque tengan la
+misma forma**. Confundirlos es un factor de ocho, y con tipos separados el error
+es un rojo de `npm run check` en vez de un número plausible.
+
+---
+
+## Lo que no está resuelto
+
+**La numeración del Anexo III no cierra entre las tres fuentes.** La escala está
+en el «artículo 2°» según el Decreto 696/2025 y según el propio texto del Anexo
+III; pero el art. 28 inc. b) del Decreto 2536/2011 la ubica en los «artículos 4°
+y 5°», y la tabla oficial de 2026 dice cinco veces «artículo 4° del presente
+Anexo». **Los números del honorario son idénticos en las tres**, así que no
+afecta ningún cálculo: afecta la cita. Hace falta el texto consolidado del Anexo
+III vigente antes de escribir un número de artículo en una tarjeta.
+
+**Si el honorario del mediador tiene un piso que Honorio debería controlar.** El
+art. 31 inc. a) dice que los honorarios pueden pactarse pero no por debajo de los
+de la reglamentación. Es el mismo debate del punto 8 del
+[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md), que se resolvió por no aplicar
+mínimos automáticamente para no decidir por el juez. El criterio ya está fijado y
+conviene seguirlo.
+
+**La puerta de entrada propia.** El plan del 7/8 recomendaba una pantalla de
+consulta directa además de la sección del dashboard. **Ya existe y es
+`calculadoras/honorarios-mediacion.html`**, así que la decisión se puede
+posponer: no hay que construir nada para tener ese caso cubierto.
+
+**La ampliación a otras jurisdicciones.** Todo esto es el régimen nacional. Si
+alguna provincia tiene el suyo, es otro trabajo y conviene decir que no está.
+
+---
+
+## El orden de trabajo
+
+### Paso 0 — Ya hecho
+
+El bug de la lectura de la planilla por posición se cerró el 7/8 en los cuatro
+archivos. `honorarios-mediacion.html` busca por clave, respeta comillas y detecta
+el HTML de la planilla despublicada. Ver [`ESTADO.md`](ESTADO.md).
+
+### Paso 1 — El documento de dominio de mediación
+
+Del mismo tipo que los ocho de [`docs/domain/`](domain/), con la escala real, sus
+condiciones y lo que queda afuera.
+
+**Tres cosas de `verificar-docs` que hay que saber antes de escribirlo**, porque
+ese documento sí entra al control y el plan que estás leyendo no:
+
+1. El script barre **solo `docs/domain/`**. Las citas de este plan no las controla
+   nadie.
+2. `NORMAS_ESPERADAS` necesita tres entradas nuevas con su motivo:
+   **`decreto 2536/11`**, **`decreto 696/2025`** y el `decreto 1467/2011` escrito
+   con año de cuatro cifras —hoy la lista tiene `decreto 1467/11`, y la clave es
+   literal—.
+3. **Los artículos del decreto van a disparar avisos** del control 2, que los
+   compara contra el texto de la Ley 27.423. El script los saltea si encuentra
+   `DECRETO` o `LEY N` en los 24 caracteres siguientes, así que la forma segura es
+   `art. 31 inc. d) del Decreto 696/2025`, sin comas intermedias. Con
+   `art. 31, inciso d), del Decreto…` queda al borde del límite.
 
 ### Paso 2 — El UHOM versionado
 
-Espejo exacto de lo que ya funciona para la UMA. **No inventar nada acá: copiar
-la forma.**
+`honorio/data/uhom.json` y `honorio/lib/legal/uhom.ts`, con la extensión de
+`actualizar-uma.mjs` y el umbral propio. Detalle arriba.
 
-- `honorio/data/uhom.json`, con la misma estructura que `uma.json`: una lista
-  histórica de `{ valor, fuente, url, capturado }`, que se agrega al final y no
-  se reescribe nunca.
-- `honorio/lib/legal/uhom.ts`, espejo de `uma.ts`, con `UHOM_VIGENTE` y la
-  historia.
-- **La bajada: extender `scripts/actualizar-uma.mjs`, no escribir uno nuevo.**
-  Ya lee la misma planilla, ya la parsea como diccionario, ya tiene el parser de
-  CSV con comillas, ya detecta el HTML de «planilla despublicada», ya tiene el
-  control de salto máximo y ya está escrito para abortar antes que inventar.
-  Duplicar todo eso para el UHOM es garantizar que dentro de seis meses uno de
-  los dos tenga un arreglo que el otro no.
+### Paso 3 — El módulo y su validación
 
-  Lo que sí hay que revisar al extenderlo: `SALTO_MAXIMO` está calibrado en
-  60 % pensando en cómo se mueve la UMA. Si el UHOM se actualiza con otra
-  frecuencia o en otros saltos, el umbral tiene que ser propio.
-
-- **Un tipo distinto, a propósito.** `ValorUMA` y `ValorUHOM` tienen la misma
-  forma pero no son intercambiables. Si son el mismo tipo, el día que alguien
-  pase uno donde va el otro el compilador no dice nada y el número sale mal por
-  un factor de ocho. Que sean tipos separados —aunque sea con una marca nominal—
-  convierte ese error en un rojo de `npm run check`.
-
-### Paso 3 — El módulo de cálculo
-
-`honorio/lib/legal/mediacion.ts`. Función pura, sin React y sin DOM, que es como
-está escrito todo `lib/legal/`. Entra un caso, sale un resultado estructurado
-con sus transformaciones, igual que `CalculoResultado`.
-
-**Con su suite de validación desde el primer commit**, en
-`lib/legal/__tests__/`. Sería la número 15. Lo mínimo: cada tramo de la escala,
-los dos bordes de cada tramo, el tramo del porcentaje, el tope, y un caso por
-cada regla especial que aparezca en el paso 1.
-
-Ojo con lo que ya sabemos que estas validaciones **no** cubren, porque está
-escrito en [`05_DEPENDENCIAS.md`](domain/05_DEPENDENCIAS.md): comparan números.
-Un rótulo que promete un porcentaje puede mentir con las quince en verde. Ya
-pasó dos veces. Los textos de las tarjetas de mediación hay que leerlos contra
-el módulo y contra la norma, porque nada más lo hace.
+`honorio/lib/legal/mediacion.ts` más la suite 16. Detalle arriba.
 
 ### Paso 4 — La presentación
 
-Una sección del dashboard, siguiendo el patrón de `AuxiliaresSection.tsx` o
-`PartidorSection.tsx`, que son las dos más chicas y hacen justo esto. Con la
-norma citada al lado del número —que es lo que la calculadora actual no tiene— y
-con la cadena de cálculo visible, como el resto de la app.
+Sección del dashboard sobre el patrón de `AuxiliaresSection.tsx`, con la norma
+citada al lado del número, la cadena de cálculo visible y **los dos fallos de la
+base única**, como hace `IncidenteResult.tsx`.
 
-Y el bloque de «qué no hace» correspondiente en `documentacion.html`, con el
-motivo de cada ausencia. La convención está fijada: «no lo hace» sin el porqué
-se lee como una carencia, y son decisiones.
+Y el bloque de «qué no hace» en `documentacion.html`: los ítems H e I, la
+mediación familiar, los adicionales por audiencia, el descuento del provisional,
+el desistimiento y la reconvención. **Los seis con su motivo**, porque «no lo
+hace» sin el porqué se lee como una carencia y son decisiones.
 
 ### Paso 5 — Qué pasa con la calculadora vieja
 
-Una vez que Honorio lo haga completo, `honorarios-mediacion.html` queda
-duplicando lógica con menos reglas y sin citar normas. La decisión es la misma
-que se tomó con `calculadoras/honorarios.html` el 4/8 y conviene resolverla
-igual: **sacarla de la landing y del README, dejar el archivo publicado** para
-que los enlaces viejos no se rompan, y que apunte a Honorio.
+La misma decisión que se tomó con `calculadoras/honorarios.html` el 7/8: sacarla
+de la landing y del README, **dejar el archivo publicado** para que los enlaces
+viejos no se rompan, y que apunte a Honorio.
 
-**No borrarla.** Está en el sitio publicado y puede estar enlazada desde
-cualquier lado.
-
----
-
-## Lo que este plan no resuelve
-
-- **Si el honorario del mediador tiene mínimos legales**, y si Honorio debería
-  compararlos contra el resultado. Es la misma discusión del punto 8 del
-  [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md), que se resolvió por no
-  aplicarlos automáticamente para no decidir por el juez. Si acá aparece un piso,
-  el criterio ya está fijado y conviene seguirlo.
-- **La ampliación a otras jurisdicciones.** Todo esto es el régimen nacional. Si
-  alguna provincia tiene el suyo, es otro trabajo y conviene decir que no está.
+**Con una diferencia importante.** Aquella se dio de baja porque calculaba mal.
+Ésta calcula bien los siete tramos, así que no hay urgencia, y además cubre el
+caso que Honorio no va a cubrir: el honorario del mediador sin ningún juicio
+detrás. Conviene decidirlo recién cuando la sección del dashboard esté andando.

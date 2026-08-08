@@ -70,10 +70,48 @@ tiene su fuente y son distintas:
 |---|---|
 | **Qué dice la ley** | El texto: [`docs/domain/00_LEY_27423.md`](docs/domain/00_LEY_27423.md) |
 | **Qué hace la aplicación** | El código, leído. No un documento que lo describa |
-| **Una interpretación** | Nada la prueba: se declara como tal, con el razonamiento |
+| **Una interpretación** | La jurisprudencia que la sostiene. Sin un fallo detrás, no se afirma |
 
 Confundirlas fue el error. La ley no te puede decir si `calculate.ts` importa
 `minimos-data.ts`, y el código no te puede decir si una lectura es defendible.
+
+### Una interpretación se funda, no se declara — 8/8/2026
+
+Hasta el 8/8 la tercera fila decía «nada la prueba: se declara como tal, con el
+razonamiento». **No alcanza.** Un razonamiento propio, por bueno que sea, deja a
+la app diciendo «esto lo decidimos nosotros», y al que lee no le queda más que
+creer o no creer. **Un fallo cambia quién lo sostiene:** ya no es Honorio, es un
+tribunal que resolvió el punto en un documento de prueba, con carátula y fecha, y
+que se puede leer y discutir.
+
+Ya estaba hecho una vez y funcionó. El 2 %-20 % de los incidentes sale del
+art. 33 de la Ley 21.839, **derogada**, porque el art. 47 de la 27.423 quedó
+observado por el Decreto 1077/2017 y nunca entró en vigencia. Declarado solo,
+eso es indistinguible de un invento cómodo. Con los tres fallos de
+`honorio/lib/legal/jurisprudencia.ts` es un criterio discutible, que es otra
+cosa.
+
+**Cómo se hace, en concreto:**
+
+- El fallo va en `honorio/lib/legal/jurisprudencia.ts`, dentro de un `Criterio`
+  con su frase y sus `Fallo[]`. Son datos puros: la presentación decide cómo se
+  ven.
+- La cita lleva **tribunal y sala, expediente, carátula y fecha**, y `url` a la
+  sentencia publicada cuando exista. Sin expediente no es una cita: es una
+  referencia.
+- **Si no hay fallo, la interpretación no se afirma.** Se declara abierta, en el
+  bloque de «qué no hace» y con el motivo.
+
+**Y una advertencia que vale más que la regla.** Una cita de jurisprudencia
+inventada es el peor error que este proyecto puede cometer, por tres razones
+juntas: es indistinguible de una buena —tribunal, sala, expediente, carátula y
+fecha, todo plausible—; `verificar-docs` no la caza, porque controla normas y
+artículos y no fallos; y termina adentro de un documento que produce
+resoluciones judiciales. Es exactamente la firma del error de los ocho
+documentos de dominio, pero en el único lugar donde nadie lo va a notar.
+
+**Un fallo se transcribe de la sentencia leída, o no se escribe.** Nunca de
+memoria, nunca reconstruido, nunca «debe existir uno que diga esto».
 
 De ahí tres cosas que sí funcionan:
 
