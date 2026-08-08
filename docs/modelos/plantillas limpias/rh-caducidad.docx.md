@@ -1,0 +1,21 @@
+  
+LEY VIEJA  
+Este juicio terminó por caducidad de la instancia, de modo que habré de seguir los lineamientos del plenario Multiflex (CNCiv., en Pleno, 30/9/1975, “Multiflex S.A. c/ Cons. de Prop. De Bartolomé Mitre 2257/59”, [ver](https://old.pjn.gov.ar/02_Central/ViewDoc.Asp?Doc=72896&CI=INDEX100)) y tomo el monto reclamado en la demanda de $ \*\*\*\*.   
+A su vez, corresponde adicionar los intereses dado que fueron reclamados, desde la fecha del hecho \*\*/\*\*\*/\*\*\*\* a la tasa activa (CNCiv., en pleno, 20/02/2009, “Samudio de Martínez, Ladislaa c/ Transportes Doscientos Setenta S.A s/daños y perjuicios”, [ver](https://old.pjn.gov.ar/02_Central/ViewDoc.Asp?Doc=41937&CI=INDEX100)).  
+\*\*IMAGEN\*\*  
+Obtengo: $ 
+
+LEY NUEVA:
+
+**)** Base:  
+Este juicio terminó por caducidad de la instancia, supuesto que no se encuentra específicamente previsto por la ley [27423](http://servicios.infoleg.gob.ar/infolegInternet/anexos/305000-309999/305057/texact.htm).  
+En función de ello es posible aplicar el art. 22 en cuanto establece para los juicios por cobro de sumas de dinero que “la cuantía del asunto será el monto de la demanda o reconvención”.  
+Se entiende en estos casos como íntegramente desestimada la demanda y por tanto se reduce la base en un 30 %.   
+Este criterio sigue los lineamientos del plenario Multiflex ( CNCiv., en Pleno, 30/9/1975, “Multiflex S.A. c/ Cons. de Prop. De Bartolomé Mitre 2257/59”, [ver](https://old.pjn.gov.ar/02_Central/ViewDoc.Asp?Doc=72896&CI=INDEX100)) y es utilizado por las Salas C, D, K y L (CNCiv., Sala C, 37239/2018, “GOMEZ, ANIBAL LEANDRO SEBASTIAN c/ LA PRIMERA DE GRAND BOURG s/DAÑOS Y PERJUICIOS (ACC.TRAN. C/LES. O MUERTE)”, 21/09/2021; CNCiv., Sala D, 40458/2013, “MAGNI MARCELO MARIANO c/ DIAZ CARLOS ALBERTO Y OTROS s/DAÑOS Y PERJUICIOS(ACC. TRAN. SIN LESIONES)”, 14/09/2021; CNCiv., Sala K, 3756/2014, “FERRAND, NORA BEATRIZ c/ UNIDAD DE GESTION OPERATIVA FERROVIARIA DE EMERGENCIA S Y OTRO s/DAÑOS Y PERJUICIOS(ACC.TRAN. C/LES. O MUERTE)”, 20/11/2020; CNCiv., Sala L, 42399/2016 “CORZO, ROXANA HAYDEE c/ DE LUCA, JULIAN DAVID s/FIJACION DE COMPENSACION ARTS. 524, 525 CCCN”, 17/09/2018).  
+Otra corriente postula recurrir al art. 25, por analogía, en vista a que la caducidad es también un modo anormal de terminación del proceso como los que dicha norma prevé (allanamiento, desistimiento y transacción) y en consecuencia si la caducidad se produce antes de decretarse la apertura a prueba, los honorarios corresponden al 50 % de la escala del art. 21\. Si ocurre luego, se aplica el 100 % de la escala.  
+Por esta postura se inclinan las Salas A, F, I, J y M y Pesaresi (CNCiv., Sala A, 35386/2006, “PAROLA ERNESTO MARIO Y OTRO c/ GRUPO CLARIN SA s/DAÑOS Y PERJUICIOS”, 15/04/2021; CNCiv., Sala F, 18375/2019, “PEREZ AMALIA ADELA C/ CONSORCIO DE PROPIETARIOS MATHEU 1050 Y OTRO S/ DILIGENCIAS PRELIMINARES’, 15/06/2021; CNCiv., Sala I, 98434/2009, “FERREIRA VILLALBA SAUL AUGUSTO Y OTRO c/ LA VECINAL DE MATANZA S.A.C.I. DE MICRO OMNIBUS Y OTROS s/DAÑOS Y PERJUICIOS(ACC.TRAN. C/LES. O MUERTE)”, 24/11/2020; CNCiv., Sala J, 10087/2009, “RUIZ DIZNA c/ RODRIGUEZ OLINDA BEATRIZ s/IMPUGNACION/NULIDAD DE TESTAMENTO”, 27/09/2021; CNCiv., Sala J, 10087/2009, “RUIZ DIZNA c/ RODRIGUEZ OLINDA BEATRIZ s/IMPUGNACION/NULIDAD DE TESTAMENTO”, 27/09/2021; CNCiv., Sala M, 80461/2012, “REINOSO AUGUSTO EMILIANO Y OTROS c/ SALVETTI, PABLO ARIEL Y OTRO s/DAÑOS Y PERJUICIOS(ACC.TRAN. C/LES. O MUERTE)”, 27/09/2021; Pesaresi, Guillermo M., Honorarios en la Justicia Nacional y Federal: Ley 27.423 Anotada, Comentada y Concordada, Buenos Aires, Cathedra Jurídica, 2018).  
+A mi modo de ver la \*\*\*\* segunda solución es la que –en el caso- preserva mejor el valor de las retribuciones judiciales, que tienen carácter alimentario (art. 3).  
+En la demanda se reclamaron $ \*\*\* a lo que corresponde adicionar los intereses reclamados, que por imperio legal conforman la base regulatoria (arts. 22, 24 y 52), desde la fecha del hecho \*\*\* a la tasa activa (CNCiv., en pleno, 20/02/2009, “Samudio de Martínez, Ladislaa c/ Transportes Doscientos Setenta S.A s/daños y perjuicios”, [ver](https://old.pjn.gov.ar/02_Central/ViewDoc.Asp?Doc=41937&CI=INDEX100)).  
+En consecuencia fijo la base en $.   
+Expresado en UMA\*\*\*
+

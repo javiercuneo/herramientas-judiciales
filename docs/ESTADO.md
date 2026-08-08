@@ -43,7 +43,7 @@ No queda nada urgente ni bloqueante. Lo que sigue abierto está en
 **Las cuatro cifras que este repositorio sigue de Honorio.** Son suyas pero
 salen de allá, y se movieron el 7/8 cuando la modificación de alimentos agregó
 un sub-paso: **168 recorridos** (eran 160), **28.224 cruces** (eran 25.600),
-**14 validaciones** (eran 11) y la versión del chip. Viven en `index.html` y en
+**15 validaciones** (eran 11) y la versión del chip. Viven en `index.html` y en
 `README.md`. La fuente es la tabla de recorridos de
 [`01_PROCESOS.md`](domain/01_PROCESOS.md): **si vuelve a moverse, se mueven las
 cuatro.**

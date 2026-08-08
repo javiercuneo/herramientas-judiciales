@@ -156,29 +156,146 @@ transformación, hay un error.
 
 ---
 
-## La pregunta que hay que contestar antes de dibujar nada
+## Qué muestra, decidido el 7/8
 
-Dijiste «las tres etapas, o sea, patrocinante, procurador y apoderado». **En el
-motor esos son dos ejes distintos**, y conviene despejarlo porque cambia la
-tabla:
+La especificación no salió de un diseño: **salió de la hoja de Sheets que Javier
+ya usa**. Es lo que hay que reproducir, y es más preciso que cualquier boceto.
 
-- **Los tres roles** son patrocinante, apoderado y procurador (arts. 20 y 21).
-- **Las tres etapas** son el reparto del art. 29: completo, 2/3 y 1/3. Están en
-  `RolResult { full, uno, dos }` y el dashboard las rotula «Completo», «2/3» y
-  «1/3» (`HonorariosBand.tsx:34`).
+Pone la base y ve, de un golpe de vista:
 
-O sea que hay **tres roles × tres etapas = nueve celdas**, más auxiliares y
-segunda instancia.
+| Qué | Nota |
+|---|---|
+| **La base en UMA** | El primer dato, no un detalle |
+| **La escala aplicable** | Cuál de las siete y sus porcentajes |
+| **Patrocinante y apoderado**, mínimo y máximo | Los dos que usa |
+| **Las etapas**, desplegables | No en la primera pantalla |
+| **5 % a 10 % de auxiliares** | Aparte, no dentro de la tabla |
 
-**Lo que recomiendo: mostrar la matriz completa.** Nueve celdas es exactamente lo
-que entra en una tabla y es lo que alguien que pide «una hoja de cálculo» quiere
-ver de un vistazo. Además, ocultar las etapas obligaría a decidir cuál mostrar, y
-esa decisión depende del caso, que es justo lo que este modo no pregunta.
+### La decisión de fondo: **la unidad principal es la UMA, no el peso**
 
-Ojo con un detalle que el dashboard ya resuelve y acá no aplica:
+Textual: «solo en UMA porque regulo en UMA, y al lado pongo el número en pesos».
+
+**Eso invierte lo que hace hoy el resto de Honorio**, que lidera con pesos y trata
+la UMA como dato de transparencia. Y tiene sentido que lo invierta: quien usa
+este modo está escribiendo una regulación, y una regulación se escribe en UMA. El
+peso es la traducción para el que la lee.
+
+Va **la UMA primero y el peso al lado**, en menor jerarquía. Los dos siempre: el
+peso queda porque no todo el que entra regula en UMA.
+
+> **Queda una pregunta más grande, y no es de este plan:** si la UMA tiene que
+> pasar a primer plano **en toda la app**. Hoy hay una incoherencia —el modo
+> directo diría UMA y el dashboard pesos—. Recomiendo **no** tocar el dashboard
+> ahora: son dos públicos distintos y el modo directo es el que declara para quién
+> es. Pero conviene mirarlo cuando se haga el
+> [`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md), porque el texto de
+> una resolución tiene el mismo problema y **ahí la respuesta puede ser otra**.
+
+### El procurador se muestra igual
+
+Javier no lo usa —«ni siquiera tiene el procurador, si soy honesto»— pero el modo
+no es solo para él, y el procurador es una línea derivada del patrocinante
+(× 0,4, art. 20). Sacarlo no simplifica nada y le saca utilidad a otro.
+
+**Que esté no quiere decir que pese lo mismo:** patrocinante y apoderado primero.
+
+### El rango: las dos cosas
+
+Se muestra la banda **y** se puede fijar un punto adentro. La idea es un panel:
+tocás y tenés todo.
+
+Esto **resuelve por adelantado la decisión abierta del
+[`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md)**, que es quién elige
+el número dentro de la banda. La respuesta es: lo elige el usuario, con un
+control explícito, y la app nunca por defecto. Hacerlo acá primero deja el
+mecanismo probado antes de que lo use algo que produce texto para un expediente.
+
+### Los dos ejes, para que no se vuelvan a mezclar
+
+Se habló de «las tres etapas, o sea, patrocinante, procurador y apoderado». **Son
+dos ejes distintos**, y conviene tenerlo escrito:
+
+- **Los roles** —patrocinante, apoderado, procurador— son **quién cobra**, y son
+  alternativos entre sí: no se suman.
+- **Las etapas** —completo, 2/3, 1/3— son **cuánto del proceso se cubrió**
+  (art. 29). Están en `RolResult { full, uno, dos }` y el dashboard las rotula así
+  en `HonorariosBand.tsx:34`.
+
+`calcularEscala()` ya devuelve las etapas adentro de cada rol, así que la
+estructura existe: la decisión es solo cuál se muestra primero.
+
+Ojo con un detalle que el dashboard resuelve y acá no aplica:
 `HonorariosBand.tsx:150` **deja de ofrecer el 2/3 cuando el proceso terminó antes
 de la prueba**. En el modo directo no hay proceso ni terminación, así que van las
 tres siempre.
+
+### La hoja, leída y verificada contra el motor
+
+Se miró la hoja real (base $21.368.714,99, UMA $102.076) y **todos sus números
+coinciden con el motor, hasta el tercer decimal**: base 209,341 UMA, 5ª escala,
+patrocinante 41,901–44,868, apoderado 58,662–62,816, las etapas, el cuarto de
+etapa y los auxiliares 10,467–20,934. **La hoja y Honorio ya calculan lo mismo**,
+así que este modo es presentación, no aritmética nueva.
+
+Lo que la hoja tiene y el dashboard hoy no:
+
+- **El excedente sobre el tramo anterior**, a la vista. El motor ya lo trae en
+  `EscaleraInfo.excedente`.
+- **El promedio entre el mínimo y el máximo de los auxiliares** (15,70 UMA en el
+  ejemplo). Es una cifra sola, no un rango, y aparentemente es la que se usa.
+- **Un mínimo de referencia para los auxiliares**, al lado del 5–10 %. Encaja con
+  lo que ya se decidió en el [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md):
+  los mínimos **no se aplican solos** —el art. 478 CPCCN permite perforarlos y
+  aplicarlos sería decidir por el juez— pero **mostrarlos al lado es
+  información**, no una decisión. La hoja ya lo resuelve así.
+- **El honorario del mediador en la misma pantalla**, calculado sobre la misma
+  base. Confirma que el mediador pertenece acá, y de paso que la regla del 2 %
+  por encima de 1000 UHOM es la que se usa en la práctica —lo que **no** la
+  convierte en verificada: sigue faltando la norma, ver
+  [`PLAN_MEDIACION.md`](PLAN_MEDIACION.md)—.
+
+Y dos diferencias de forma que conviene respetar, porque son de uso y no de
+gusto:
+
+- **Cuenta etapas, no fracciones.** La hoja dice «1 ETAPA» y «2 ETAPAS» donde el
+  dashboard dice «1/3» y «2/3». Es el mismo número y **la formulación de la hoja
+  está más cerca del art. 29**, que divide el proceso en etapas: se cuenta cuántas
+  se trabajaron.
+- **Lee el máximo primero.** Las columnas van MÁXIMO y después MÍNIMO, y las
+  alícuotas están escritas «33 % a 22 %». El dashboard hace lo contrario.
+
+**El redondeo, para no repetir el error de la calculadora vieja.** La hoja muestra
+«Redondeo UMA 209» pero **calcula con 209,341** —se comprueba en que da 41,901 y
+no 41,85—. O sea que el redondeo es de presentación. `honorarios.html` hacía lo
+contrario: redondeaba y calculaba con el redondeo. Si el modo directo muestra una
+base redondeada, **que no calcule con ella.**
+
+### «El porcentaje de una etapa» no es lo que Honorio tiene hoy
+
+Quedó aclarado así: «a este tipo le corresponde el 30 % de una etapa en función de
+lo que trabajó en ella». Y se dijo que eso ya está en Honorio. **La aritmética sí;
+el concepto no.**
+
+Lo que hay en `HonorariosBand.tsx:348` es **«Reparto entre dos profesionales»**:
+un deslizador que parte un importe entre un «Primero» y un «Segundo», 60/40 por
+defecto, cuyas dos porciones **suman 100 %**.
+
+Lo descrito es otra cosa: **un solo profesional se lleva el 30 % de una etapa
+porque hizo el 30 % del trabajo de esa etapa.** El 70 % restante no es de nadie en
+particular —puede no regularse, o ir a otro que no está en pantalla—.
+
+Da el mismo número y significa distinto. Esa distancia entre el rótulo y el
+concepto es exactamente la clase de error que este repositorio ya pagó dos veces
+—«un rótulo que promete un porcentaje puede mentir con las validaciones en
+verde», [`05_DEPENDENCIAS.md`](domain/05_DEPENDENCIAS.md)—.
+
+**Entonces, en el modo directo: se reusa el mecanismo, no el rótulo.** Un solo
+control —qué fracción de la etapa se trabajó— y no un reparto entre dos. La hoja
+ya lo hace a mano, con una fila fija de «1/4 etapa».
+
+> **Y queda una pregunta para el dashboard, que no es de este plan:** si ese
+> control debería ofrecer las dos cosas, porque son dos necesidades reales y hoy
+> solo está una. Anotado, no decidido.
 
 ---
 
@@ -204,22 +321,30 @@ el resto.
 
 ## El orden de trabajo propuesto
 
-1. **Decidir la matriz** —roles × etapas— y si el UMA se puede pisar a mano como
-   en la entrevista. (Debería: es el paso 0 de todo el resto.)
-2. **El módulo**, en `lib/legal/`. Una función que toma base y UMA y devuelve un
-   `CalculoResultado` con `transformaciones: []`. Pura, componiendo las cinco de
-   arriba.
-3. **La validación**, en el mismo commit. Dos cosas:
-   - Los siete tramos de la escala y sus bordes.
-   - **El control cruzado, que es el que importa**: para una base cualquiera, el
-     modo directo tiene que dar **exactamente lo mismo** que la entrevista
-     recorrida por un caso sin ninguna reducción. Si los dos caminos alguna vez
-     difieren, uno de los dos está mal, y este control lo dice sin que nadie
-     tenga que acordarse de comparar.
-4. **La interfaz**: una pantalla con dos campos y una tabla. El patrón más
-   parecido que ya existe es la pantalla de mínimos —consulta directa, sin
-   entrevista, sin cálculo de caso—, y conviene mirarla antes de inventar otra
-   forma.
+1. ~~**Decidir qué muestra.**~~ **Hecho el 7/8**, arriba. Queda una sola cosa
+   abierta —qué es «el porcentaje de una etapa»— que se resuelve mirando la hoja
+   de Sheets. Y confirmar que el valor de la UMA se pueda pisar a mano, como en
+   la entrevista: debería, es el paso 0 de todo el resto.
+2. ~~**El módulo**~~ y 3. ~~**la validación**~~. **Hechos el 7/8**, en el mismo
+   commit: `lib/legal/calculo-directo.ts` y `calculoDirecto.validation.ts`, que
+   es la número 15. 171 afirmaciones.
+
+   Salió como estaba previsto salvo en una cosa: **no devuelve un
+   `CalculoResultado`**. Ese tipo no lleva las etapas por rol —las tiene
+   `EscalaResult`, que es lo que devuelve `calcularEscala()`—, así que forzarlo
+   habría perdido justo lo que esta pantalla muestra. Devuelve un
+   `CalculoDirecto` propio, y el control cruzado compara los dos contra
+   `buildGeneral()` igual.
+
+   El control cruzado **está y muerde**: mutando el patrocinante un 0,1 % fallan
+   los cinco casos. Y ancla contra la hoja de cálculo real, cuyos números
+   coinciden con el motor hasta el tercer decimal.
+
+4. **La interfaz — es acá donde sigue.** Una pantalla con dos campos y una
+   tabla. El patrón a copiar es `components/interview/minimos-view.tsx`:
+   consulta directa, sin entrevista, que se prende con un booleano en
+   `interview-experience.tsx` y tiene entrada en la barra y en la intro. La
+   unidad principal es la UMA, con el peso al lado.
 5. **Qué pasa con `calculadoras/honorarios.html`.** Igual que en el plan de
    mediación: cuando esto exista, la vieja queda duplicando con menos y con el
    bug del grupo 4. **Arreglar el grupo 4 no espera a este plan**; lo demás sí.
