@@ -405,10 +405,17 @@ de la reglamentación. Es el mismo debate del punto 8 del
 mínimos automáticamente para no decidir por el juez. El criterio ya está fijado y
 conviene seguirlo.
 
-**La puerta de entrada propia.** El plan del 7/8 recomendaba una pantalla de
-consulta directa además de la sección del dashboard. **Ya existe y es
-`calculadoras/honorarios-mediacion.html`**, así que la decisión se puede
-posponer: no hay que construir nada para tener ese caso cubierto.
+**La puerta de entrada propia: resuelta sin construir nada.** El plan del 7/8
+recomendaba una pantalla de consulta directa además de la sección del dashboard.
+Terminaron siendo dos, y ninguna hubo que inventarla: **el cálculo directo de
+Honorio**, que ya era la pantalla «entra un monto, sale la escala» y ahora
+también trae al mediador, y `calculadoras/honorarios-mediacion.html`, que sigue
+publicada.
+
+Eso cambia el Paso 5 y conviene tenerlo en cuenta cuando se lo decida: el caso
+que la calculadora vieja servía en exclusiva —el honorario del mediador sin
+juicio detrás— **ya está cubierto adentro de Honorio**, con la norma citada y el
+UHOM versionado.
 
 **La ampliación a otras jurisdicciones.** Todo esto es el régimen nacional. Si
 alguna provincia tiene el suyo, es otro trabajo y conviene decir que no está.
