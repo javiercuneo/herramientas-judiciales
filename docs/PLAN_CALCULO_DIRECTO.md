@@ -3,8 +3,12 @@
 Un modo para el que ya sabe lo que quiere: pone la base regulatoria y le sale el
 cálculo, como una hoja de cálculo. Sin pasos, sin preguntas, sin reducciones.
 
-Escrito el 7/8/2026. **Nada de esto está implementado.** Es una sesión de
-análisis previa.
+Escrito el 7/8/2026 como sesión de análisis previa. **Implementado entero el 7
+y el 8/8/2026: este plan está cerrado.** Motor, validación, pantalla y el bloque
+del mediador. El detalle de cómo quedó está en el
+[`ESTADO.md` de Honorio](https://github.com/javiercuneo/honorio/blob/main/docs/ESTADO.md);
+acá abajo, en [El orden de trabajo](#el-orden-de-trabajo-propuesto), qué se hizo
+de cada paso y qué se apartó de lo previsto.
 
 **La implementación es en [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio).**
 Acá va la decisión; allá el código y su `ESTADO.md`.
@@ -340,14 +344,33 @@ el resto.
    los cinco casos. Y ancla contra la hoja de cálculo real, cuyos números
    coinciden con el motor hasta el tercer decimal.
 
-4. **La interfaz — es acá donde sigue.** Una pantalla con dos campos y una
-   tabla. El patrón a copiar es `components/interview/minimos-view.tsx`:
-   consulta directa, sin entrevista, que se prende con un booleano en
-   `interview-experience.tsx` y tiene entrada en la barra y en la intro. La
-   unidad principal es la UMA, con el peso al lado.
-5. **Qué pasa con `calculadoras/honorarios.html`.** Igual que en el plan de
-   mediación: cuando esto exista, la vieja queda duplicando con menos y con el
-   bug del grupo 4. **Arreglar el grupo 4 no espera a este plan**; lo demás sí.
+4. ~~**La interfaz.**~~ **Hecha el 7/8**:
+   `components/interview/calculo-directo-view.tsx`, sobre el patrón de
+   `minimos-view.tsx` como estaba previsto —booleano `showDirecto` en
+   `interview-experience.tsx`, entrada en la barra y en la intro—. La unidad
+   principal es la UMA con el peso al lado. Verificada en el navegador con la
+   base de la hoja ($21.368.714,99): 209,34 UMA, 5ª escala, patrocinante
+   41,90–44,87, apoderado 58,66–62,82, auxiliares 10,47–20,93.
+
+   **El 8/8 se le agregó una fila que este plan daba por fuera de alcance: el
+   mediador.** Está abajo, en [Lo que este plan no resuelve](#lo-que-este-plan-no-resuelve),
+   como dependiente del [`PLAN_MEDIACION.md`](PLAN_MEDIACION.md). Ese plan
+   avanzó el mismo día, así que entró: `LedgerRow` con el UHOM primero y el peso
+   al lado, y **sin la jurisprudencia de la base única**, porque acá no se
+   aplica ninguna reducción y la discusión no se plantea.
+5. ~~**Qué pasa con `calculadoras/honorarios.html`.**~~ **Resuelto el 7/8, antes
+   que este plan y por otro motivo:** se le encontró el bug del grupo 4 —el
+   art. 22 sobre la escala en vez de sobre la base— y **se dio de baja la
+   herramienta en vez de corregirla**, con la URL viva por `redirects/`. El
+   porqué está en [`ESTADO.md`](ESTADO.md). O sea que la duplicación que este
+   paso anticipaba no llegó a existir.
+
+**Lo único que este plan dejó abierto**, y es una pregunta de producto y no de
+código: si el control de fracción de etapa del dashboard debería ofrecer las dos
+cosas —el reparto entre dos profesionales y la fracción de una etapa—, que son
+dos necesidades reales y hoy solo está una. Está arriba, en
+[«El porcentaje de una etapa»](#el-porcentaje-de-una-etapa-no-es-lo-que-honorio-tiene-hoy).
+Anotado, no decidido, y no bloquea nada.
 
 ---
 

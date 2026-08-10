@@ -51,6 +51,11 @@ const NORMAS_ESPERADAS = new Map([
   ['decreto 1077/2017', 'observo varios articulos al promulgar la ley'],
   ['decreto 157/2018', 'derogo el art. 36'],
   ['decreto 1467/11', 'reglamenta la mediacion de la Ley 26.589'],
+  ['decreto 1467/2011', 'lo mismo, escrito con el año de cuatro cifras'],
+  ['decreto 2536/2011', 'sustituyo el Anexo III: es la escala del mediador'],
+  ['decreto 2536/15', 'como lo citan los modelos del juzgado; el año no esta resuelto'],
+  ['decreto 696/2025', 'sustituyo el Anexo I; el regimen paso del art. 28 al 31'],
+  ['decreto 202/2015', 'reglamenta la Ley 26.993 (COPREC), citado por un modelo'],
 ])
 
 // Directorios donde puede vivir un identificador del codigo.

@@ -5,8 +5,21 @@ resultado de Honorio.
 
 Escrito el 7/8/2026 como análisis previo, cuando las normas todavía no estaban
 cargadas. **Revisado entero el 8/8**, con los cuatro textos leídos y las
-decisiones tomadas. **Sigue sin implementarse nada**, pero ya no queda nada por
-decidir salvo lo que está en [Lo que no está resuelto](#lo-que-no-está-resuelto).
+decisiones tomadas, **e implementado el mismo día.** El motor, el UHOM
+versionado, la validación 16 y las dos pantallas están hechos; el detalle de
+cómo quedó está en el
+[`ESTADO.md` de Honorio](https://github.com/javiercuneo/honorio/blob/main/docs/ESTADO.md).
+
+**El 10/8 se cerró el Paso 1** —el documento de dominio es
+[`09_MEDIACION.md`](domain/09_MEDIACION.md)— **y se resolvió la numeración del
+Anexo III**, que era lo único de fondo que quedaba abierto. **De este plan queda
+una sola cosa, decidida y no urgente:** `calculadoras/honorarios-mediacion.html`
+sigue viva por ahora, decisión de Javier del 10/8. Ver el
+[Paso 5](#paso-5--qué-pasa-con-la-calculadora-vieja).
+
+Sigue anotado en [Lo que no está resuelto](#lo-que-no-está-resuelto) el año del
+Decreto 2536 —un dígito de una cita— y el ajuste de los nombres de las filas de
+la planilla, que es lo que falta para que el UHOM entre con procedencia.
 
 **La implementación es en [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio).**
 Acá va la decisión; allá el código y su `ESTADO.md`. Este plan vive de este lado
@@ -398,6 +411,69 @@ Anexo». **Los números del honorario son idénticos en las tres**, así que no
 afecta ningún cálculo: afecta la cita. Hace falta el texto consolidado del Anexo
 III vigente antes de escribir un número de artículo en una tarjeta.
 
+### Resuelto el 10/8: la escala está en el artículo 2°, y las otras dos citas son referencias muertas
+
+Lo destrabó una observación de Javier sobre los modelos del juzgado, que citan el
+**«Anexo I del Decreto 2536»**: esa cita, que parecía una cuarta variante, es la
+que explica las otras tres.
+
+**El art. 5° del Decreto 2536 dice:** «Sustitúyese el Anexo III del Decreto
+N° 1467 del 22 de septiembre de 2011 **por el que como ANEXO I forma parte
+integrante del presente**». O sea que **el Anexo I del 2536 es el Anexo III
+vigente**: son el mismo texto nombrado por su origen o por su destino, y las dos
+citas son exactas.
+
+Y ese texto, leído entero, se numera solo: su **art. 1°** fija el honorario
+provisional en 2 UHOM y su **art. 2°** trae la escala de los diez ítems. Coincide
+con las seis citas del Decreto 696/2025, que dicen «el ítem H de la escala del
+artículo 2° del ANEXO III». **Dos fuentes independientes, el mismo número.**
+
+**Las otras dos numeraciones son referencias que el propio 2536 dejó muertas.**
+El art. 28 inc. b) que él mismo sustituye manda al «artículo 3°» y a los
+«artículos 4° y 5° del Anexo III» —la numeración anterior—, mientras que en el
+mismo acto reemplaza el Anexo III por uno renumerado. La tabla oficial de 2026
+arrastra ese «artículo 4°». **No es una discrepancia entre fuentes sobre qué dice
+la norma: es una remisión interna que quedó vieja adentro del decreto que la
+produjo.**
+
+Lo que se sigue: **la escala se cita como el art. 2° del Anexo III del Decreto
+1467/2011, sustituido por el Anexo I del Decreto 2536.** Va al documento de
+dominio del [Paso 1](#paso-1--el-documento-de-dominio-de-mediación) y recién ahí
+a una tarjeta.
+
+**Queda una cosa chica y conviene no darla por buena:** el año del 2536. Este
+plan lo verificó como **2011** contra el texto, los modelos del juzgado escriben
+**«2536/15»** y el enlace de infoleg que usan tiene un identificador del rango de
+2015. No cambia ningún número ni el razonamiento de arriba, pero **es un dígito
+de una cita** y se resuelve mirando el encabezado del decreto en infoleg, que el
+PDF que tenemos trae cortado por el OCR.
+
+**La procedencia del UHOM: Javier cargó las filas el 10/8, y hay que ajustar los
+nombres antes de que el cron corra.** La planilla quedó con cinco filas —
+`UMA_FUENTE`, `UHOM_FUENTE`, `Acordada`, `UMA_URL`, `UHOM_URL`— y **tres no son
+las que `actualizar-uma.mjs` lee**:
+
+| Fila de la planilla | Qué tiene | Qué hace el script |
+|---|---|---|
+| `UMA_FUENTE` = 102.076 | El **valor** de la UMA | No lee esa clave. Busca `UMA` y no la encuentra |
+| `UHOM_FUENTE` = 12.960 | El **valor** del UHOM | Lee esa clave esperando **el texto de la norma**, y busca el valor en `UHOM` |
+| `UMA_URL` | La URL de la Res. SGA | No lee esa clave: la URL de la UMA la busca en `URL` |
+| `Acordada` | La norma de la UMA | Correcto |
+| `UHOM_URL` | La URL de la tabla oficial | Correcto |
+
+**El caso peor no es que falle: es que `UHOM_FUENTE` entre como procedencia.** El
+script tomaría la cadena `12.960` y la escribiría como la norma del UHOM, que es
+exactamente el error que el arreglo de «la procedencia solo se completa, nunca se
+borra» **no** cubre —ese protege contra el vacío, no contra un valor plausible en
+el campo equivocado—.
+
+**Dos salidas, y conviene la segunda.** Renombrar las filas de la planilla a
+`UMA`, `UHOM`, `URL`; o **aceptar los dos nombres en el script**, porque
+`UMA_URL`/`UHOM_URL` es más parejo que `URL`/`UHOM_URL` y la planilla es la
+superficie que Javier edita todos los días. En cualquier caso **el valor va en
+`UMA` y `UHOM`**: una fila que se llama `_FUENTE` y trae un número es la clase de
+rótulo que miente sin que nada falle.
+
 **Si el honorario del mediador tiene un piso que Honorio debería controlar.** El
 art. 31 inc. a) dice que los honorarios pueden pactarse pero no por debajo de los
 de la reglamentación. Es el mismo debate del punto 8 del
@@ -430,10 +506,22 @@ El bug de la lectura de la planilla por posición se cerró el 7/8 en los cuatro
 archivos. `honorarios-mediacion.html` busca por clave, respeta comillas y detecta
 el HTML de la planilla despublicada. Ver [`ESTADO.md`](ESTADO.md).
 
-### Paso 1 — El documento de dominio de mediación
+### Paso 1 — El documento de dominio de mediación — **HECHO el 10/8**
 
-Del mismo tipo que los ocho de [`docs/domain/`](domain/), con la escala real, sus
-condiciones y lo que queda afuera.
+[`docs/domain/09_MEDIACION.md`](domain/09_MEDIACION.md). Se implementó el módulo
+antes que su documento, al revés de lo previsto: durante dos días la escala del
+mediador fue **la única regla del motor sin documento de dominio detrás**, y eso
+quedó dicho en el propio documento.
+
+Es el noveno y **el único que no documenta la Ley 27.423**. Las tres cosas del
+control mecánico que este plan anticipaba se cumplieron: `NORMAS_ESPERADAS` pidió
+las entradas nuevas —quedaron cinco, contando la variante `decreto 2536/15` de
+los modelos y el `decreto 202/2015` del COPREC—, y los artículos del decreto
+pasan sin avisos porque van escritos como `art. 31 inc. g) del Decreto 696/2025`.
+
+**Una que el plan no anticipó y conviene saber:** el nombre de un fallo entre
+backticks **hace fallar el control**. `` `Murguía` `` se lee como identificador
+de código y ninguno lleva tilde. Los fallos van en comillas, no en backticks.
 
 **Tres cosas de `verificar-docs` que hay que saber antes de escribirlo**, porque
 ese documento sí entra al control y el plan que estás leyendo no:
@@ -450,16 +538,43 @@ ese documento sí entra al control y el plan que estás leyendo no:
    `art. 31 inc. d) del Decreto 696/2025`, sin comas intermedias. Con
    `art. 31, inciso d), del Decreto…` queda al borde del límite.
 
-### Paso 2 — El UHOM versionado
+### Paso 2 — El UHOM versionado — **HECHO el 8/8**
 
 `honorio/data/uhom.json` y `honorio/lib/legal/uhom.ts`, con la extensión de
 `actualizar-uma.mjs` y el umbral propio. Detalle arriba.
 
-### Paso 3 — El módulo y su validación
+**Un bug que apareció corriendo el script de verdad, y por eso conviene
+correrlo.** La primera versión completaba la procedencia con `previo.fuente =
+fuente` a secas y en la primera pasada real **le borró al UHOM la norma cargada a
+mano**, porque la planilla no la trae y `fuente` llegaba en `null`. Ahora la
+procedencia solo se completa, nunca se borra: que la planilla no diga nada no es
+que diga que no hay norma. El mismo arreglo protege a la UMA.
+
+### Paso 3 — El módulo y su validación — **HECHO el 8/8**
 
 `honorio/lib/legal/mediacion.ts` más la suite 16. Detalle arriba.
 
-### Paso 4 — La presentación
+**Salió como estaba previsto**, con una decisión de tipos que conviene no
+deshacer: `calcularMediacion()` recibe el `ValorUHOM` entero y no el número.
+`calcularDirecto()` recibe la UMA suelta; acá no, a propósito. Con dos `number`
+nada impediría pasarle la UMA —$102.076 donde van $12.960, un factor de ocho sin
+ningún error visible— y el campo `unidad` del tipo existe para eso y nada más.
+
+### Paso 4 — La presentación — **HECHO el 8/8**
+
+Quedó en **dos** pantallas y no en una: `MediacionSection.tsx` en el dashboard
+—con la jurisprudencia de la base única— y una fila en el cálculo directo, sin
+la jurisprudencia, porque ahí no se aplica ninguna reducción y la discusión no se
+plantea. El bloque de «qué no hace» está en `documentacion.html`, con los seis
+motivos.
+
+La diferencia entre las dos se ve con la misma cifra, y conviene tenerla a mano
+porque parece un error y no lo es: base $8.000.000 da **$259.200** en el cálculo
+directo —617,28 UHOM, ítem F— y **$207.360** en el dashboard si la demanda se
+desestimó, porque ahí el art. 22 baja la base a $5.600.000 y la hace caer al
+ítem E. Es exactamente lo que produce la decisión de la base única.
+
+**Lo que sigue vale como criterio para las secciones que vengan:**
 
 Sección del dashboard sobre el patrón de `AuxiliaresSection.tsx`, con la norma
 citada al lado del número. Y el bloque de «qué no hace» en `documentacion.html`:
@@ -498,7 +613,26 @@ nunca creció. El problema del largo era real solo en el informe fundado —y el
 argumento de fondo, que el dashboard no es el lugar para explicar la
 herramienta, vale igual.
 
-### Paso 5 — Qué pasa con la calculadora vieja
+### Paso 5 — Qué pasa con la calculadora vieja — **PENDIENTE, y ahora se puede decidir**
+
+El plan decía «conviene decidirlo recién cuando la sección del dashboard esté
+andando». Ya está andando, así que la decisión está madura. **Y el argumento que
+sostenía dejarla se debilitó**: el caso que la calculadora suelta servía en
+exclusiva —el honorario del mediador sin juicio detrás— lo cubre hoy el cálculo
+directo de Honorio, con la norma citada y el UHOM versionado.
+
+Lo que queda a favor de dejarla: calcula bien los siete tramos, no hay urgencia,
+y es una URL que alguien puede tener guardada. Lo que queda en contra: duplica
+con menos —un UHOM que se carga a mano contra uno versionado— y **dice mal el
+tope**, que es del ítem G y no de la escala.
+
+**Decidido el 10/8: se deja viva por ahora.** Decisión de Javier. Lo que conviene
+tener escrito para el día que se retome: el que la use se lleva un número
+correcto, así que no es el caso de `calculadoras/honorarios.html` —que se dio de
+baja por dar un número mal—. Lo que sí queda pendiente y es barato es
+**corregirle el rótulo del tope**, que hoy lo presenta como de la escala.
+
+
 
 La misma decisión que se tomó con `calculadoras/honorarios.html` el 7/8: sacarla
 de la landing y del README, **dejar el archivo publicado** para que los enlaces

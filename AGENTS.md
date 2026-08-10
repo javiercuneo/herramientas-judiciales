@@ -169,8 +169,10 @@ calculadoras/                   Herramientas de un solo archivo HTML con JS embe
 data/dias-inhabiles.json        Feriados locales, respaldo de la API externa.
 PDF-studio/                     Express + JS vanilla, PWA de herramientas PDF.
                                   App aparte, package.json propio. No toca honorarios.
-docs/domain/                    Documentación del dominio (01 a 08): tipos de proceso,
-                                  reglas de negocio, modelo, glosario, deuda técnica.
+docs/domain/                    Documentación del dominio (01 a 09): tipos de proceso,
+                                  reglas de negocio, modelo, glosario, deuda técnica,
+                                  y el honorario del mediador, que es el único que
+                                  no sale de la Ley 27.423.
                                   El "por qué" de las reglas de la Ley 27.423. Lo
                                   comparten el clásico y Honorio; por eso quedó acá.
 assets/                         Capturas y material de la landing.

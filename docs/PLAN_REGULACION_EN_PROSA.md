@@ -4,8 +4,11 @@ Que además del número, la app devuelva el texto de la regulación —redactado
 para copiar y pegar en un `.docx` o en el editor del PJN— y que quien lo pegue
 solo tenga que revisarlo.
 
-Escrito el 7/8/2026. **Nada de esto está implementado.** Es una sesión de
-análisis previa.
+Escrito el 7/8/2026. **Nada de esto está implementado todavía.** El 10/8 se
+levantó el bloqueo —llegaron los modelos— y se hizo la pasada de lectura, que
+está en [Los once modelos, leídos](#los-once-modelos-leídos-el-108). **La
+decisión del punto dentro de la banda sigue abierta y sigue bloqueando el
+código.**
 
 **La implementación es en [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio).**
 Acá va la decisión; allá el código y su `ESTADO.md`.
@@ -104,37 +107,275 @@ La primera tiene además una propiedad que las otras no: **el punto elegido qued
 registrado**, y puede salir en el texto o en la firma. «Se fijó en el 60 % de la
 banda» es información que sostiene la resolución.
 
-> **Esta es la decisión que hay que tomar antes que ninguna otra**, porque
-> cambia la interfaz, el tipo de salida y lo que el texto puede afirmar.
+### Decidido el 10/8: lo elige el usuario, con un control
+
+**Javier eligió la primera.** El texto sale con un número, y ese número lo fija
+una persona en la pantalla, rol por rol.
+
+Lo que se sigue de eso, y conviene tenerlo escrito antes de programar:
+
+- **El punto es una entrada, no un resultado.** No vive en `CalculoResultado`
+  —que es lo que el motor calcula— sino al lado, como lo que el usuario decidió.
+  El generador recibe las dos cosas.
+- **El control no puede tener un valor inicial adentro de la banda**, por el
+  mismo argumento con que se descartó la tercera salida. Arranca sin elegir, y
+  hasta que se elija el texto no se ofrece o se ofrece con el hueco.
+- **El texto tiene que decir de quién es esa decisión.** Es la única cifra del
+  documento que no sale ni de la ley ni del cálculo, y ya está anotado abajo, en
+  [Lo que hay que decir explícitamente](#lo-que-hay-que-decir-explícitamente-en-la-interfaz).
+- **La banda no desaparece de la pantalla.** «Los números no se ocultan nunca»:
+  el mínimo y el máximo se siguen viendo al lado del punto elegido, que es lo que
+  permite ver si quedó cerca de un borde.
+
+**Lo que esto no decide todavía**, y se resuelve al hacer la interfaz: si el
+control es un deslizador sobre el porcentaje de la banda o un campo con el
+importe. El deslizador registra el «60 % de la banda» sin cuentas; el campo deja
+escribir la cifra redonda que se quiere firmar. Probablemente convivan.
 
 ---
 
-## Lo que necesito de tu lado
+## Lo que hacían falta eran los modelos, y ya están
 
 **Los diez modelos de resolución, en MD, en el repositorio.** Sin eso, lo que
 salga va a ser una imitación de resolución escrita de memoria, que es
 exactamente el error que costó los ocho documentos de dominio: estructura
 plausible, todo lo concreto corrido.
 
-Dijiste que son diez como máximo y que cubren los casos más simples y más
-usados. Eso alcanza y sobra: **de diez modelos reales sale la estructura**, y la
-estructura es lo que no se puede inventar.
+**Llegaron el 8 y el 10/8, y son trece**, en
+[`docs/modelos/plantillas limpias/`](modelos/). Son plantillas de trabajo del
+juzgado, sin datos de nadie —los huecos ya vienen como `***` y `$`—, y por eso
+se versionan, a diferencia del resto de `docs/modelos/`, que quedó fuera del
+árbol el 8/8.
 
-Sugerencia sobre cómo cargarlos, para que rindan:
+---
 
-- Uno por archivo, en `docs/modelos/`, con el texto **tal cual**, sin limpiar.
-  Las fórmulas de estilo, el orden de los párrafos y hasta las muletillas son el
-  dato. Si los normalizás antes, me estás pasando tu resumen y no la fuente.
-- Con los datos reales reemplazados por marcas visibles —`[CARÁTULA]`,
-  `[EXPEDIENTE]`, `[NOMBRE]`— pero **dejando los montos y los porcentajes**, que
-  son los que permiten comprobar contra qué cuenta se corresponde cada frase.
-- Anotá arriba de cada uno, en una línea, de qué tipo de proceso es y cómo
-  terminó. Con eso se cruzan contra los ocho procesos que Honorio ya conoce y se
-  ve cuáles quedan sin modelo.
+## Los trece modelos, leídos — el 10/8
 
-Cuando estén, la primera pasada es de lectura, no de código: **qué párrafos son
-fijos, cuáles cambian con el caso, y cuáles dependen de un dato que Honorio no
-tiene**. Esa tercera categoría es la importante y la trato abajo.
+La pasada de lectura que este plan pedía antes de escribir código: qué párrafos
+son fijos, cuáles cambian con el caso, y cuáles dependen de un dato que Honorio
+no tiene.
+
+### Lo primero: es un solo documento con cinco secciones
+
+Los trece son el mismo esqueleto, con las secciones rotuladas `)` y en el mismo
+orden. Ninguno los reordena y ninguno inventa una sección propia:
+
+| Sección | Qué lleva | Categoría |
+|---|---|---|
+| **Ley aplicable** | Si rige la 21.839, la 27.423 o las dos por etapa | **Ausente** — ver abajo |
+| **Base** | El monto, de dónde sale, y la escala tramo por tramo | **Derivado**, casi entero |
+| **Carácter y extensión de la intervención** | Quién intervino, en qué carácter y qué hizo | **Ausente**, casi entero |
+| **Regulación** | La fórmula de valoración y una línea por profesional | Fijo + **derivado** |
+| **IVA y plazo** | Dos párrafos, idénticos en los trece | **Fijo, verbatim** |
+
+**Y no hay encabezado.** Los trece empiezan en `AUTOS Y VISTOS:` — la carátula, el
+expediente y el juzgado los pone el sistema del PJN. **El bloque 1 de la
+[estructura propuesta](#estructura-propuesta), «Encabezado, casi todo huecos», no
+existe.** El problema de los huecos no está donde se lo esperaba.
+
+### Tres secciones más que los modelos traen y que quedan fuera de alcance
+
+**Decisión de Javier, el 10/8.** Ocho de los trece modelos siguen con
+**Notificación**, **Elevación** y **Apertura de cuenta en el BNA**. Son texto fijo
+y verbatim, así que era tentador incluirlas: es la parte más barata de generar.
+**No van, y el motivo es que no son de la ley sino de su juzgado.** Un generador
+que las escriba estaría produciendo la práctica de un juzgado con la autoridad de
+una herramienta general.
+
+Se nota en los dos modelos más nuevos —`RH - SUCESION` y
+`rh-homologacion convenio desocupacion`—, que ya terminan en «IVA y plazo». **Lo
+que queda del texto fijo es esa sección, y nada más.**
+
+### Una frase que los modelos traen y que el generador no escribe
+
+**No se genera nunca**, en ningún proceso:
+
+> «La regulación abarcará la totalidad de las incidencias planteadas […] así como
+> también la asistencia a la audiencia de mediación (art. 19 punto b de la ley
+> 27423).»
+
+Está en `rh-desalojo` y en variantes en `RH-ejecución-expensas-alquileres-otros`.
+**El motivo no es que la cita esté mal**: el art. 19 de la Ley 27.423 instituye
+la UMA **y trae dos tablas de mínimos**, el inciso a) para los asuntos judiciales
+no susceptibles de apreciación pecuniaria y el **inciso b) para la labor
+extrajudicial**, que es donde cae la asistencia a una audiencia de mediación. Las
+dos están en [`00_LEY_27423.md`](domain/00_LEY_27423.md) y **las dos las muestra
+la pantalla de mínimos de Honorio**.
+
+El motivo es el otro: **son honorarios que Honorio no calcula.** Los mínimos del
+art. 19 se muestran en una pantalla de consulta y no entran en el resultado de la
+entrevista; las incidencias van por el 2 %-20 % del art. 33 de la Ley 21.839, que
+el motor calcula como un bloque aparte. Un párrafo que diga que la regulación
+«abarca» esas dos cosas estaría afirmando algo que la cifra de al lado no
+contiene.
+
+> **Anotado como error de método, y es mío.** La primera versión de esta sección
+> decía que la cita no existía, porque se buscó «ARTÍCULO 19» en el texto de la
+> ley y se leyó el primer párrafo sin seguir las dos tablas que vienen abajo. Es
+> exactamente la firma del error de los ocho documentos de dominio —afirmar sobre
+> algo concreto sin haberlo abierto entero— y sobrevivió a que
+> `verificar-docs` diera verde, porque el art. 19 existe y el control comprueba
+> que exista, no lo que dice. **Lo corrigió Javier el 10/8.**
+
+### Dónde sí está el problema de los huecos
+
+**En «Carácter y extensión», que es la sección del medio y la que le da sentido a
+la cifra.** Es prosa narrativa del expediente y Honorio no tiene nada de eso:
+
+> «La Dra. actuó como letrada patrocinante del actor desde el inicio. Fue
+> designado perito quien aceptó el cargo, presentó su dictamen en pág. \*/ y
+> contestó a las impugnaciones de las partes en pág. \*/\*.»
+
+Nombres, roles, fojas, qué hizo cada uno, si el perito presentó o no la pericia,
+si a alguien le revocaron el patrocinio a fojas tantas. **Nada de eso es
+derivable de `CalculoResultado` ni de ninguna respuesta de la entrevista**, y
+nada de eso puede aparecer inventado.
+
+Lo único de esa sección que sí es derivado son dos líneas: **cuántas etapas**
+(«tengo en cuenta que tuvieron lugar 1/2 etapas de tres posibles») y **el
+incremento del art. 20 para los apoderados**, que es exactamente el eje de rol
+del motor.
+
+### El bloque más rico, y es el que Honorio hace mejor que nadie
+
+**La escala tramo por tramo, con el factor de correlación explícito.** Aparece en
+ocho de los trece y es siempre el mismo párrafo:
+
+> «Aplico la segunda escala de 16 a 45 UMA y alícuotas de 26 % a 20 % teniendo en
+> consideración además el factor de correlación […]. En el caso, el máximo de la
+> escala anterior son 4,95 UMA (33 % de 15 UMA). El porcentaje 26 % a 20 % se
+> aplica sobre el excedente de \*\* UMA.»
+
+Eso es, línea por línea, **el contrafáctico y la barra de excedente del
+dashboard**. `EscalaAplicada` tiene el título del tramo, las alícuotas, el máximo
+del grado anterior y el excedente. **Este párrafo se escribe entero desde el
+motor, sin un solo hueco**, y es el que más trabajo manual ahorra.
+
+Lo mismo el bloque del incidente: los tres fallos del 2 %-20 % que citan
+`rh-incidente`, `RH - ORDINARIO` y `RH-BLSG` **son los tres de
+`lib/legal/jurisprudencia.ts`**, con las mismas carátulas y las mismas fechas. La
+sección se genera desde el dato que ya existe.
+
+### Lo que los modelos hacen y el motor no
+
+Cuatro cosas. Las cuatro son párrafos que un generador honesto tiene que dejar en
+hueco, y conviene tenerlas escritas antes de que alguien las dé por resueltas:
+
+1. **La ley aplicable por etapa.** `RH - ORDINARIO`, `RH-BLSG` y `RH - SUCESION`
+   aplican la **Ley 21.839 a las dos primeras etapas y la 27.423 a la tercera**,
+   con la doctrina de la CSJN en `Establecimiento Las Marías` y tres fallos que
+   la refrendan; el de sucesión trae además la variante de aplicar la 21.839
+   entera. **Honorio calcula solo por la 27.423.** Es la primera sección del
+   documento y no se deriva de nada que la entrevista pregunte hoy.
+
+   **Es el hueco más incómodo de los cuatro**, porque no es un dato que falta
+   sino un régimen distinto: el modelo de sucesión cita el art. 24 de la 21.839
+   —11 % a 20 % reducido en un 25 %— al lado del art. 35 de la 27.423. Un texto
+   que salga con la escala de la 27.423 y el párrafo de ley aplicable en blanco
+   es coherente; uno que complete ese párrafo sin calcular por la ley que nombra,
+   no.
+2. **La base con intereses.** Todos los modelos con base de daños suman los
+   intereses a tasa activa desde la fecha del hecho, citando el plenario
+   `Samudio`; y varios toman «el monto de la liquidación aprobada». Honorio
+   **recibe la base ya hecha** —está dicho en el hint de la base— así que el
+   párrafo de cómo se llegó a ella es del usuario.
+3. **La elección entre dos corrientes.** `rh-caducidad` expone las dos lecturas
+   —art. 22 contra art. 25—, con las salas que sostienen cada una, y elige. La
+   entrevista **sí** pregunta cuál se aplica, así que el párrafo es derivable de
+   la respuesta; lo que no es derivable es la enumeración de salas.
+4. **El valor locativo del art. 40 en el desalojo por intrusión.**
+   `rh-desalojo` fija la base multiplicando el valor locativo por 36 meses, por
+   el plazo mínimo del art. 1198 CCyC. Es un cálculo previo a la base, no
+   posterior: entra a Honorio ya hecho.
+
+### Y una advertencia que vale por sí sola: los modelos no son oráculo
+
+Es la regla de [`AGENTS.md`](../AGENTS.md), y el 10/8 se aplicó en las dos
+direcciones: de los tres casos que esta sección listaba, **dos eran errores míos
+y no de los modelos.** Quedan escritos porque la lección está justamente ahí.
+
+- **`rh-desalojo` trae el UHOM en $10.800 y una tabla oficial de 2022.** El de
+  agosto de 2026 es $12.960. **Este sí:** un valor viejo hardcodeado en una
+  plantilla es exactamente lo que `data/uhom.json` vino a resolver, y es el único
+  de los tres que mueve una cifra.
+- ~~**Citan el «Anexo I» del Decreto 2536/15** cuando la escala está en el
+  Anexo III.~~ **Los modelos tienen razón y la cita es exacta.** El art. 5° del
+  2536 dice: «Sustitúyese el Anexo III del Decreto N° 1467 del 22 de septiembre
+  de 2011 **por el que como ANEXO I forma parte integrante del presente**». O sea
+  que el Anexo I del 2536 **es** el Anexo III vigente: las dos citas nombran el
+  mismo texto, una por su origen y la otra por su destino. Corregido en
+  [`PLAN_MEDIACION.md`](PLAN_MEDIACION.md), donde además **cierra la numeración
+  del artículo**, que estaba anotada como sin resolver.
+- ~~**`RH - ORDINARIO` dice «art. 61 prevé un mínimo de 6 UMA»** contra las 2 UMA
+  de `minimos-data.ts`.~~ **No es una discrepancia: es la ley anterior.** El
+  art. 61 fue **sustituido por el art. 96 de la Ley 27.802, B.O. 6/3/2026**, y es
+  esa versión la que fija las 2 UMA. Un modelo escrito antes de marzo dice 6, y
+  para un expediente cuya etapa de prueba se abrió antes de esa fecha **sigue
+  siendo el número correcto**. Es el mismo problema de la
+  [ley aplicable por etapa](#lo-que-los-modelos-hacen-y-el-motor-no), visto desde
+  otro lado.
+
+**La lección, y es la que más vale de la pasada:** de los tres «errores de los
+modelos», el único real era un número desactualizado. Los otros dos salieron de
+leer el texto legal por encima —el art. 5° del decreto, la nota de vigencia del
+art. 61— con la hipótesis ya formada de que el modelo estaba mal. **Un modelo de
+trabajo de un juzgado no es oráculo, pero tampoco es sospechoso por defecto:** es
+otra fuente, y se lee con el mismo cuidado que las demás.
+
+**De los modelos se toma la estructura y la prosa fija. Los números y las citas
+siguen saliendo del motor y de la ley.**
+
+### Cobertura contra los ocho procesos: completa
+
+`PROCESS_STEP_MAP` tiene ocho entradas. **Las ocho tienen modelo**, y eso hace
+que **el punto 6 del [orden de trabajo](#el-orden-de-trabajo-propuesto) no haya
+que decidirlo**: no hay proceso al que ofrecerle un texto adaptado ni al que
+negárselo.
+
+| Proceso de Honorio | Modelo |
+|---|---|
+| `conocimiento` | `RH - ORDINARIO`, más `rh-demanda desestimada rechazada`, `rh-caducidad`, `rh provisional` y `rh-desalojo` como sub-casos del `objeto` |
+| `ejecutivo` | `RH-ejecución-expensas-alquileres-otros` |
+| `ejecucion_sentencia` | `RH - ej sentencia ley nueva` |
+| `incidente` | `rh-incidente`, más `RH-BLSG` |
+| `exhorto` | `rh-exhorto generico` |
+| `medida_cautelar` | `RH - MEDIDA CAUTELAR NUEVA LEY` |
+| `sucesion` | `RH - SUCESION` |
+| `homologacion_desocupacion` | `rh-homologacion convenio desocupacion` |
+
+**Los dos últimos llegaron el 10/8 y no son del mismo tipo.** El de sucesión es
+una plantilla de trabajo como las once primeras. El de homologación **no
+existía** —es un supuesto poco frecuente— y Javier lo escribió desde el texto del
+art. 40 para este plan.
+
+**Se leyó contra el motor y coincide**, que era lo que había que comprobar antes
+de tratarlo como modelo: el art. 40 regula la homologación de convenio de
+desocupación «en un cincuenta por ciento (50 %) del establecido en el párrafo
+primero», y el motor emite exactamente esa transformación —`escala-homologacion`,
+`calculate.ts:879`— más la reducción de base del 20 % si es vivienda, que la
+plantilla también prevé.
+
+**Y el de sucesión trae la sección más difícil de todo el corpus.** Su «Base» no
+es un monto sino una discusión: cómo se valúan los bienes —con el criterio de la
+CSJN en `Cambrea` de que la ley no exige formalidad para valuar—, qué se hace con
+la moneda extranjera —cotización oficial del BNA, tipo vendedor, con cuatro
+fallos— y qué bienes entran. Nada de eso es derivable: Honorio recibe la base ya
+hecha. **Es el mejor ejemplo de que el hueco grande está en el medio del
+documento y no en el encabezado.**
+
+### Lo que la lectura confirma sobre la decisión abierta
+
+**Ninguno de los trece escribe una banda.** Los trece dicen la misma fórmula:
+
+> «regulo los honorarios del Dr. \*\*\* en **UMA ()**, equivalente al día de la
+> fecha a **$**.»
+
+Un número en UMA, con el peso al lado, **en ese orden**. O sea: la decisión de
+[quién elige el punto](#las-tres-salidas-posibles) es ineludible y no hay una
+cuarta salida escondida en los modelos. Y de paso queda resuelta una cosa que el
+[`PLAN_CALCULO_DIRECTO.md`](PLAN_CALCULO_DIRECTO.md) había dejado para este plan:
+**la unidad principal del texto es la UMA**, como en el cálculo directo y al
+revés que el dashboard.
 
 ---
 
@@ -162,16 +403,49 @@ fecha de la resolución, ni si hubo allanamiento a fojas tantas. Nada de eso pue
 aparecer inventado, ni siquiera como ejemplo plausible: un `Juzgado Nacional en
 lo Civil N° 1` de relleno es el tipo de cosa que se pega y no se corrige.
 
-**Los huecos tienen que ser imposibles de no ver.** Corchetes, mayúsculas, y que
-el texto sea inutilizable hasta completarlos. Un placeholder discreto es peor
-que ninguno.
+### Lo ausente no lleva hueco: no se escribe — decidido el 10/8
+
+**Decisión de Javier, y cambia la categoría entera.** Un hueco visible es lo
+correcto para un dato que le falta a una frase que sí corresponde. **No lo es
+para una sección que no corresponde**, y casi todo lo ausente es de la segunda
+clase.
+
+> **La prosa es minimalista: dice únicamente lo que Honorio atrapa.** Lo demás lo
+> agrega el usuario según su caso, y no aparece ni como hueco.
+
+El argumento no es de prolijidad, es de qué clase de herramienta es Honorio:
+
+**Honorio supone que el expediente está en condiciones de regularse, y no podría
+suponer otra cosa.** No tendría sentido que la entrevista pregunte «¿está
+terminado?» para contestar «volvé cuando lo esté». Salvo los provisorios y la
+sucesión con renuncia del profesional, **solo se regula cuando el procedimiento
+correspondiente terminó** —el art. 24 dice que «la sentencia que pone fin al
+pleito deberá contener la regulación de los profesionales intervinientes», y el
+art. 52 que «aun sin petición del interesado, al dictarse sentencia se regularán
+los honorarios»—. Por eso el wizard tiene una sección dedicada al modo de
+terminación, y por eso pide la base como un dato que existe.
+
+De ahí que un hueco donde va la valuación de los bienes de una sucesión no sea
+honesto sino al revés: **estaría afirmando que ese párrafo forma parte de lo que
+Honorio produce, y no lo es.** Todo el procedimiento de valuación, la discusión
+sobre la clasificación de tareas, la ley aplicable por etapa y la narración de
+qué hizo cada profesional son otro producto.
+
+**Los huecos que sí quedan son pocos y de la primera clase:** los que completan
+una frase que el generador sí escribe —el nombre del profesional al lado de una
+cifra que el motor calculó, la fecha—. Para esos vale la regla de siempre:
+**imposibles de no ver.** Corchetes, mayúsculas, y que el texto sea inutilizable
+hasta completarlos. Un placeholder discreto es peor que ninguno.
 
 ### Estructura propuesta
 
 Plantilla por bloques, no por caso. De los diez modelos van a salir cuatro o
 cinco bloques que se repiten:
 
-1. **Encabezado** — casi todo ausente, casi todo huecos.
+1. ~~**Encabezado** — casi todo ausente, casi todo huecos.~~ **No existe.** Los
+   once modelos empiezan en `AUTOS Y VISTOS:`; la carátula la pone el sistema del
+   PJN. En su lugar va, cuando corresponda, la sección **«Ley aplicable»**, que
+   es un hueco entero porque el motor calcula solo por la 27.423.
 2. **La base regulatoria** — derivado: `baseOriginal`, y si hubo reducciones, la
    cadena hasta `baseFinal` con el artículo de cada una. Sale casi entero de
    `transformaciones`.
@@ -224,9 +498,15 @@ resto.
 
 ## El orden de trabajo propuesto
 
-1. **Decidir cómo se elige el punto dentro del rango.** Bloquea todo lo demás.
-2. **Cargar los diez modelos** y hacer la pasada de lectura: bloques fijos,
-   derivados y ausentes.
+1. ~~**Decidir cómo se elige el punto dentro del rango.**~~ **Decidido el 10/8:
+   lo elige el usuario, con un control.** Arriba, con las cuatro consecuencias
+   que se siguen. La lectura de los modelos no lo resolvió, lo confirmó: ninguno
+   de los trece escribe una banda.
+2. ~~**Cargar los diez modelos** y hacer la pasada de lectura: bloques fijos,
+   derivados y ausentes.~~ **Hecho el 10/8**, arriba, con once modelos. De ahí
+   salió una corrección a la estructura —no hay encabezado, y el bloque de huecos
+   grande está en el medio— y dos procesos sin modelo: `sucesion` y
+   `homologacion_desocupacion`.
 3. **El generador**, función pura en `lib/legal/`, que toma `CalculoResultado`
    más el punto elegido y devuelve texto plano. Sin React, sin DOM, como todo
    `lib/legal/`.
@@ -234,9 +514,11 @@ resto.
    después: la prosa sin realimentación es el problema que esta feature crea.
 5. **La interfaz**: un panel con el texto y un botón de copiar. Texto plano, que
    es lo que pediste y además lo que sobrevive al pegado en cualquier editor.
-6. **Cobertura**: qué procesos tienen modelo y cuáles no. Los que no, o no
-   ofrecen el texto, o lo ofrecen diciendo que es una adaptación. No hay tercera
-   opción honesta.
+6. ~~**Cobertura**: qué procesos tienen modelo y cuáles no.~~ **No hay que
+   decidirla: los ocho procesos tienen modelo.** Ver
+   [Cobertura](#cobertura-contra-los-ocho-procesos-completa). Si algún día se
+   agrega un proceso al motor, el criterio que este punto fijaba sigue valiendo:
+   o no ofrece texto, o lo ofrece diciendo que es una adaptación.
 
 ---
 
@@ -245,8 +527,14 @@ resto.
 - **Generar el `.docx` directamente.** Dijiste texto plano para pegar, y eso es
   lo correcto: un `.docx` generado trae su propio formato y pelea con la
   plantilla del destino. Si más adelante hace falta, es otro trabajo.
-- **Los casos que no están en los diez modelos.** Va a haber varios. La decisión
-  del punto 6 es la que evita que el generador improvise justo donde menos sabe.
+- **La ley aplicable por etapa.** El motor calcula solo por la 27.423 y tres
+  modelos aplican también la 21.839. Mientras eso sea así, la sección va en
+  hueco. Implementar la 21.839 es otro plan y bastante más grande que este.
+- ~~**Los casos que no están en los diez modelos.**~~ Ya no hay: los ocho
+  procesos tienen modelo. Lo que sigue sin cubrir son las **variantes adentro de
+  un proceso** —el desalojo por intrusión, la ejecución de acuerdo de mediación,
+  la del COPREC— que los modelos traen como bloques alternativos marcados con
+  `***`. Cuáles de esas ramas ofrece el generador es una decisión del paso 3.
 - **Si esto va en Honorio o es una herramienta aparte.** Lo doy por hecho en
   Honorio porque se alimenta de `CalculoResultado`, pero si la idea es que
   también sirva para regulaciones calculadas a mano, es otra discusión.

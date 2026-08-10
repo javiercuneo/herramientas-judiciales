@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-08 · rama `main`
+Última actualización: 2026-08-10 · rama `main`
 
 > **Este documento es solo de este repositorio.** Honorio se mudó el 4/8 a
 > [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) y se llevó su
@@ -18,7 +18,9 @@ Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
   todavía carga por `<script>`. Un arreglo a ese motor compartido **se hace acá**
   y se propaga allá a propósito.
 - **`docs/domain/` documenta la Ley 27.423 para los dos.** Si algún día el
-  clásico se retira, esos ocho documentos se van con Honorio.
+  clásico se retira, esos nueve documentos se van con Honorio. **El 09 es el
+  único que no documenta la 27.423**: es el honorario del mediador, que sale de
+  la Ley 26.589 y su reglamentación, y se escribió el 10/8.
 - **Los planes de features de Honorio también viven acá**, junto al
   [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md), porque la materia prima
   —calculadoras, textos legales— está de este lado. Ver
@@ -37,12 +39,23 @@ contra el motor. Y el 7/8 se hizo entero el
 un número, otra con tres que sí—, casi todo trabajo en Honorio: salió como sus
 versiones **2.2.0** y **3.0.0** y el detalle está en el `ESTADO.md` de allá.
 
-El 8/8 llegaron las normas de mediación y con eso se destrabó el
-[`PLAN_MEDIACION.md`](PLAN_MEDIACION.md), que quedó revisado entero: la escala
-está verificada, las decisiones tomadas y no queda nada por resolver antes de
-implementar. De esa sesión salió además **una regla nueva de
-[`AGENTS.md`](../AGENTS.md)**: una interpretación se funda en jurisprudencia o no
-se afirma. Está abajo, en [Decisiones tomadas](#decisiones-tomadas-y-por-qué).
+**Dos de los tres planes abiertos se hicieron el 7 y el 8/8, y los dos están
+cerrados**: el [cálculo directo](PLAN_CALCULO_DIRECTO.md) entero, y
+[mediación](PLAN_MEDIACION.md) salvo su documento de dominio. El código es todo
+de Honorio y el detalle está en su `ESTADO.md`; de este lado quedaron los planes
+con qué se hizo de cada paso y qué se apartó de lo previsto. De la sesión de
+mediación salió además **una regla nueva de [`AGENTS.md`](../AGENTS.md)**: una
+interpretación se funda en jurisprudencia o no se afirma. Está abajo, en
+[Decisiones tomadas](#decisiones-tomadas-y-por-qué).
+
+**Queda el tercero, [`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md),
+que es el que se empezó el 10/8** y el que el orden acordado dejaba último por
+ser el más riesgoso. **Se destrabó entero ese día**, sin escribir código todavía:
+los trece modelos de resolución están en
+[`docs/modelos/plantillas limpias/`](modelos/) —los ocho procesos cubiertos—, la
+pasada de lectura está hecha en el propio plan, y **la decisión que bloqueaba
+todo lo demás está tomada: el punto dentro de la banda lo elige el usuario, con
+un control.** Lo que sigue es el generador y sus dos controles.
 
 No queda nada urgente ni bloqueante. Lo que sigue abierto está en
 [Pendientes](#pendientes).
@@ -484,39 +497,44 @@ registrado, con DNS, con certificado y con HTTPS forzado.
 
 ### Planes abiertos
 
-Features pensadas y todavía no empezadas. Cada una tiene su documento **para que
-se puedan analizar en sesiones distintas**.
+Cada uno tiene su documento **para que se puedan analizar en sesiones
+distintas**.
 
-**El orden acordado el 7/8, para arrancar sin volver a decidirlo:**
+**El orden acordado el 7/8 se cumplió tal cual, y ya sobró:**
 
 1. ~~**Los bugs.**~~ **Hechos el 7/8.** Ver [Bugs conocidos](#bugs-conocidos).
    Queda solo el código muerto de `honorio/public/legacy/core.js`, que es del
    otro repositorio.
-2. **Cálculo directo — es acá donde arranca la próxima sesión.** No está
-   bloqueado por nada y **prepara el terreno de los
-   otros dos**: fija la matriz de roles × etapas que la prosa va a tener que
-   redactar, crea el segundo consumidor de las funciones puras con su validación
-   cruzada, y produce el `CalculoResultado` más simple posible —sin
-   transformaciones—, que es el caso de prueba con el que conviene empezar el
-   generador de prosa.
-3. **Mediación**, antes que prosa **porque agrega una sección al resultado**. Al
-   revés habría que rehacer plantillas para meter al mediador.
-4. **Regulación en prosa**, última: la más riesgosa y la que más se beneficia de
-   que el resto esté firme.
+2. ~~**Cálculo directo.**~~ **Hecho el 7/8.** Y **el argumento con que se lo puso
+   segundo se confirmó**: fijó la matriz de roles × etapas, creó el segundo
+   consumidor de las funciones puras con su validación cruzada de 171
+   afirmaciones, y de yapa terminó siendo la puerta de entrada propia que
+   mediación necesitaba y que no hubo que construir.
+3. ~~**Mediación.**~~ **Hecha el 8/8**, y el motivo de ponerla antes que prosa
+   también se confirmó: agregó una sección al resultado y una fila al cálculo
+   directo. Al revés habría que rehacer plantillas para meter al mediador.
+4. **Regulación en prosa — es acá donde estamos, desde el 10/8.** La más riesgosa
+   y la que más se beneficia de que el resto esté firme.
 
-**En paralelo, y no espera a nadie:** cargar los modelos de resolución, que es lo
-que sigue faltando para el punto 4. **Lo de mediación ya está**: la Ley 26.589,
-el Decreto 1467/2011, el 2536/2011, el 696/2025 y la tabla oficial de valores
-están en [`docs/mediacion/`](mediacion/), en PDF y en MD, desde el 8/8.
+**Lo que estaba anotado como paralelo ya no lo es:** los modelos de resolución
+—que era lo que faltaba para el punto 4— están cargados. Once archivos en
+[`docs/modelos/plantillas limpias/`](modelos/), sin datos de nadie y por eso
+versionados. Los de mediación estaban desde el 8/8 en
+[`docs/mediacion/`](mediacion/).
 
 **La alternativa que se evaluó:** subir la prosa al segundo lugar, porque cambia
-más el uso diario que una calculadora más. Se defiende; el costo es rehacer las
-plantillas cuando entre el mediador. Se eligió el orden de arriba, pero la
-decisión es de valor y no técnica.
+más el uso diario que una calculadora más. Se defiende; el costo era rehacer las
+plantillas cuando entrara el mediador. Se eligió el orden de arriba y salió bien,
+pero la decisión era de valor y no técnica.
 
-- **[`PLAN_MEDIACION.md`](PLAN_MEDIACION.md)** — 7/8, **revisado entero el 8/8 y
-  ya no está bloqueado.** Llegaron las normas, están en `docs/mediacion/`, y con
-  eso quedó resuelto todo lo que el plan tenía abierto:
+- **[`PLAN_MEDIACION.md`](PLAN_MEDIACION.md)** — 7/8, revisado el 8/8,
+  **implementado el mismo día y cerrado el 10/8**. Motor, UHOM versionado,
+  validación 16, las dos pantallas y el documento de dominio
+  [`09_MEDIACION.md`](domain/09_MEDIACION.md), que es el noveno y el único que no
+  documenta la Ley 27.423. **`calculadoras/honorarios-mediacion.html` se deja
+  viva por ahora**, decisión de Javier: da un número correcto, así que no es el
+  caso de `honorarios.html`. Queda barato corregirle el rótulo del tope. Lo que
+  el plan resolvió y sigue valiendo:
   - **La escala está verificada** contra el Decreto 2536/2011 y contra la tabla
     oficial del Ministerio. Los siete tramos de la calculadora son correctos. El
     Decreto 696/2025 sustituyó el Anexo I entero pero **no tocó el Anexo III**:
@@ -538,30 +556,65 @@ decisión es de valor y no técnica.
     adicionales por audiencia, ni descuento del provisional, ni desistimiento, ni
     reconvención. Todo el cálculo es una función pura de siete ramas sobre una
     cifra que Honorio ya tiene.
-  - **Lo único que sigue abierto** es la numeración del Anexo III, que no cierra
-    entre las tres fuentes. No afecta ningún número: afecta la cita.
+  - **La numeración del Anexo III cerró el 10/8**, y la destrabó una observación
+    de Javier sobre los modelos del juzgado, que citan el «Anexo I del 2536». Esa
+    cita, que parecía una cuarta variante, **es exacta y explica las otras
+    tres**: el art. 5° del 2536 sustituye el Anexo III «por el que como ANEXO I
+    forma parte integrante del presente», así que son el mismo texto nombrado por
+    su origen o por su destino. Ese texto numera la escala en su **art. 2°**,
+    igual que las seis citas del 696/2025; el «4° y 5°» es una remisión que el
+    propio decreto dejó vieja. Queda un dígito sin resolver: si el 2536 es de
+    2011 o de 2015.
 
-  Y un dato que cambia el Paso 2: **el UHOM se mueve todos los meses** —es la
-  UR-SINEP × 12, redondeada a la decena superior—, así que el `SALTO_MAXIMO` del
-  60 % calibrado para la UMA no sirve. A cambio, ser derivable le da una
-  validación cruzada que la UMA no tiene.
-- **[`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md)** — 7/8. Que la
-  app devuelva el texto de la regulación para copiar y pegar. La decisión abierta
-  es **quién elige el número dentro de la banda**: el motor devuelve rangos a
-  propósito, porque elegir adentro es el acto jurisdiccional, y una resolución
-  fija un número. Bloqueado hasta cargar los modelos de resolución. Es la feature
-  más riesgosa del proyecto: produce prosa con forma de documento firmado, y
-  ninguna de las validaciones actuales mira prosa.
-- **[`PLAN_CALCULO_DIRECTO.md`](PLAN_CALCULO_DIRECTO.md)** — 7/8. El modo sin
-  entrevista: entra la base, sale la escala del art. 21 desnuda con los tres
-  roles, las tres etapas, los auxiliares y la segunda instancia. Es la idea que
-  estaba anotada desde el 4/8 al sacar `calculadoras/honorarios.html` de la
-  vista. **Es el plan más chico de los tres**, porque las cinco funciones que
-  hacen falta ya existen puras y exportadas en `calculate.ts`. La regla que lo
-  gobierna: **«sin reducciones» no es un caso, es la ausencia de caso**, así que
-  se componen las funciones puras y no se arma un `WizardState` con respuestas
-  por defecto —cada respuesta por defecto es una afirmación jurídica que nadie
-  hizo—. No está bloqueado por nada.
+  Y un dato del Paso 2 que se confirmó: **el UHOM se mueve todos los meses** —es
+  la UR-SINEP × 12, redondeada a la decena superior—, así que el `SALTO_MAXIMO`
+  del 60 % calibrado para la UMA no sirve; el módulo usa 15 % y un control de
+  forma —termina siempre en cero— que la UMA no puede tener.
+
+  **La procedencia del UHOM se cargó el 10/8 y hay que ajustar los nombres antes
+  de que corra el cron.** La planilla quedó con `UMA_FUENTE` y `UHOM_FUENTE`
+  llevando los **valores**, y `actualizar-uma.mjs` busca los valores en `UMA` y
+  `UHOM` y lee `UHOM_FUENTE` esperando **el texto de la norma**. El caso peor no
+  es que falle: es que escriba la cadena `12.960` como la procedencia del UHOM.
+  El detalle y las dos salidas están en el plan.
+- **[`PLAN_CALCULO_DIRECTO.md`](PLAN_CALCULO_DIRECTO.md)** — 7/8, **hecho entero
+  el mismo día.** Motor, validación 15 con 171 afirmaciones y pantalla; el 8/8 se
+  le sumó la fila del mediador. La regla que lo gobierna y que conviene no
+  deshacer: **«sin reducciones» no es un caso, es la ausencia de caso**, así que
+  compone las funciones puras y **no arma un `WizardState` con respuestas por
+  defecto** —cada respuesta por defecto es una afirmación jurídica que nadie
+  hizo—. **Cerrado**, salvo una pregunta de producto anotada y no decidida: si el
+  control de fracción de etapa del dashboard debería ofrecer las dos cosas.
+- **[`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md)** — 7/8,
+  **empezado el 10/8 y es donde está el trabajo**. Que la app devuelva el texto
+  de la regulación para copiar y pegar. Sigue siendo la feature más riesgosa del
+  proyecto: **produce prosa con forma de documento firmado, y ninguna de las
+  validaciones actuales mira prosa.** Lo que se resolvió el 10/8:
+  - **El punto dentro de la banda lo elige el usuario, con un control**, rol por
+    rol. Era la decisión que bloqueaba todo lo demás. Se descartó el valor por
+    defecto en el medio de la banda: es una decisión jurisdiccional disfrazada de
+    conveniencia. **El control arranca sin elegir**, por el mismo argumento.
+  - **Los ocho procesos tienen modelo**, así que la decisión de cobertura no hay
+    que tomarla. Los dos últimos llegaron ese día: el de sucesión es una
+    plantilla de trabajo, y el de homologación de convenio de desocupación **no
+    existía y se escribió desde el art. 40** —leído contra el motor: el 50 % y la
+    reducción del 20 % coinciden—.
+  - **La estructura no es la que el plan suponía.** No hay encabezado —los trece
+    empiezan en «AUTOS Y VISTOS»— así que lo que Honorio no tiene no está al
+    principio sino **en el medio**, en la sección que narra quién intervino y qué
+    hizo.
+  - **Y eso no va como hueco: no se escribe.** Decisión de Javier, y cambia la
+    categoría entera del plan. **La prosa es minimalista, dice únicamente lo que
+    Honorio atrapa**, y el usuario agrega el resto según su caso. El motivo es
+    qué clase de herramienta es Honorio: **supone que el expediente está en
+    condiciones de regularse**, porque salvo los provisorios y la sucesión con
+    renuncia solo se regula cuando el procedimiento terminó —de ahí que el wizard
+    tenga una sección dedicada al modo de terminación y pida la base como un dato
+    que existe—. Un hueco donde va la valuación de los bienes de una sucesión
+    afirmaría que ese párrafo es parte de lo que Honorio produce, y no lo es.
+  - **Notificación, elevación y apertura de cuenta quedan afuera.** Son texto
+    fijo y por eso eran lo más barato de generar, pero **son prácticas del
+    juzgado y no de la ley.** Decisión de Javier.
 
 ### Bugs conocidos
 
@@ -631,6 +684,23 @@ busca con un barrido, no con el caso que lo destapó.
 
 ## Trampas conocidas
 
+- **Un artículo de la ley no termina donde termina su primer párrafo, y
+  `verificar-docs` no lo nota.** El 10/8 se afirmó dos veces que «el art. 19 de
+  la 27.423 instituye la UMA y no tiene incisos», y tiene dos tablas de mínimos
+  —inciso a) asuntos no susceptibles de apreciación pecuniaria, inciso b) labor
+  extrajudicial— que **la propia pantalla de mínimos de Honorio muestra**. El
+  control mecánico dio verde en las dos pasadas porque el art. 19 existe: lo que
+  comprueba es que la cita exista, no lo que el artículo dice. Lo mismo con el
+  art. 61, que se leyó sin la nota de vigencia de abajo —fue sustituido por el
+  art. 96 de la Ley 27.802, B.O. 6/3/2026, y las 2 UMA son de esa versión—.
+  **`grep` de un encabezado devuelve una línea; un artículo se lee hasta el
+  siguiente encabezado.**
+- **Una fuente que contradice al motor no es por eso una fuente equivocada.** Las
+  dos correcciones de arriba salieron de leer los modelos del juzgado con la
+  hipótesis ya formada de que estaban mal, porque `AGENTS.md` dice que no son
+  oráculo. **No serlo no los hace sospechosos por defecto**: la observación de
+  Javier de que citan bien el «Anexo I del 2536» es la que cerró la numeración
+  del Anexo III, que llevaba dos días anotada como sin resolver.
 - **`.gitattributes` estuvo en UTF-16 hasta el 5/8 y git nunca lo leyó.** Lo
   parsea como bytes, veía un nulo entre cada carácter y ninguna de sus reglas
   rigió. Por eso los HTML quedaron guardados con CRLF y `entre-fechas.html` con
