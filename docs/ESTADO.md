@@ -706,6 +706,11 @@ busca con un barrido, no con el caso que lo destapó.
 
 ## Trampas conocidas
 
+- **Abrir el panel del navegador al empezar la sesión.** Está más abajo por qué,
+  pero conviene como primer paso y no como diagnóstico: con el panel cerrado no
+  hay capturas, y en Honorio el paso del wizard **directamente no se monta**, así
+  que verificar en pantalla es imposible. Javier lo anotó como rutina propia el
+  10/8.
 - **Un artículo de la ley no termina donde termina su primer párrafo, y
   `verificar-docs` no lo nota.** El 10/8 se afirmó dos veces que «el art. 19 de
   la 27.423 instituye la UMA y no tiene incisos», y tiene dos tablas de mínimos
