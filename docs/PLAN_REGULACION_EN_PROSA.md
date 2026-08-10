@@ -531,11 +531,25 @@ resto.
    trae `partidor`, no hay banda y no hay párrafo. Es la contracara de «un bloque
    por sección del dashboard»: agregar una regla al motor no se puede olvidar en
    la prosa, porque la banda aparece sola y el barrido de la validación la toma.
-5. **La interfaz — es acá donde sigue.** Un panel con el texto y un botón de
-   copiar, más el control del punto dentro de cada banda. Texto plano, que es lo
-   que sobrevive al pegado en cualquier editor. Lo que ya está decidido y no hay
-   que rediscutir: el control **arranca sin elegir**, la banda se sigue viendo al
-   lado del punto, y el texto no se ofrece mientras `huecos` no esté vacío.
+5. ~~**La interfaz.**~~ **Hecha el 10/8:** `ProsaSection.tsx`, última sección
+   del dashboard. Va ahí y no en una pantalla propia —a diferencia del cálculo
+   directo y de los mínimos— porque se alimenta del mismo `CalculoResultado`.
+
+   **Y salió con la mini-entrevista que propuso Javier**, que no estaba en este
+   plan y es lo que la vuelve usable: la sección **pide los profesionales**,
+   porque es lo único que el motor no sabe y no debería saber. La entrevista no
+   pregunta cuántos intervinieron ni en qué carácter, y hace bien: la banda del
+   art. 21 es la misma haya un letrado o cuatro. Un texto de regulación, en
+   cambio, lleva una línea por cada uno.
+
+   **Los atajos —«+ perito médico», «+ apoderado»— escriben un rótulo y no eligen
+   una escala.** Un perito médico, uno calígrafo y uno ingeniero cobran el mismo
+   5 %-10 %; el atajo ahorra tipeo y por eso el rótulo queda editable. Si el tipo
+   cambiara la cuenta, no podría ser un campo de texto libre.
+
+   Lo decidido en el punto 1 se sostiene entero: el campo **arranca vacío**, la
+   banda se ve al lado, y un punto fuera de ella deja el campo en rojo, vacía el
+   texto y apaga el botón de copiar, las tres cosas a la vez.
 6. ~~**Cobertura**: qué procesos tienen modelo y cuáles no.~~ **No hay que
    decidirla: los ocho procesos tienen modelo.** Ver
    [Cobertura](#cobertura-contra-los-ocho-procesos-completa). Si algún día se

@@ -57,9 +57,13 @@ pasada de lectura está hecha en el propio plan, y **la decisión que bloqueaba
 todo lo demás está tomada: el punto dentro de la banda lo elige el usuario, con
 un control.**
 
-Y ese mismo día entró **el generador con sus controles**, en Honorio:
-`lib/legal/regulacion-prosa.ts` y la validación 17, en el mismo commit. **Falta
-la pantalla**, que es lo único que queda del plan.
+Y ese mismo día entró todo el resto, en Honorio: el generador con sus tres
+controles y **la pantalla**, `ProsaSection.tsx`, última sección del dashboard.
+**El plan quedó hecho entero**, con una vuelta de tuerca que no estaba escrita en
+él: la sección **pide los profesionales**, porque es lo único que el motor no
+sabe y no debería saber —la banda del art. 21 es la misma haya un letrado o
+cuatro, pero un texto de regulación lleva una línea por cada uno—. Idea de
+Javier.
 
 No queda nada urgente ni bloqueante. Lo que sigue abierto está en
 [Pendientes](#pendientes).
