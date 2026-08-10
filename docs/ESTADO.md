@@ -706,6 +706,13 @@ busca con un barrido, no con el caso que lo destapó.
 
 ## Trampas conocidas
 
+- **El repositorio vive en `C:\IA\herramientas-judiciales`, en disco local, y no
+  hay nada sincronizado.** Javier lo movió ahí el 10/8 desde el escritorio, que
+  colgaba de OneDrive: la ruta hacía que todos los agentes dieran por hecho que
+  los archivos se subían solos a la nube, y había que desmentirlo en cada
+  sesión. **Lo único que sale del disco sale por `git push`.** El segundo
+  repositorio está anidado en `honorio/`, con su propio `.git` —el de arriba lo
+  ignora—, así que cada uno se commitea por separado.
 - **Abrir el panel del navegador al empezar la sesión.** Está más abajo por qué,
   pero conviene como primer paso y no como diagnóstico: con el panel cerrado no
   hay capturas, y en Honorio el paso del wizard **directamente no se monta**, así
