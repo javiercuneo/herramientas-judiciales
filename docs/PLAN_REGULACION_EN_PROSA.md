@@ -4,11 +4,16 @@ Que además del número, la app devuelva el texto de la regulación —redactado
 para copiar y pegar en un `.docx` o en el editor del PJN— y que quien lo pegue
 solo tenga que revisarlo.
 
-Escrito el 7/8/2026. **Nada de esto está implementado todavía.** El 10/8 se
-levantó el bloqueo —llegaron los modelos— y se hizo la pasada de lectura, que
-está en [Los once modelos, leídos](#los-once-modelos-leídos-el-108). **La
-decisión del punto dentro de la banda sigue abierta y sigue bloqueando el
-código.**
+Escrito el 7/8/2026 como sesión de análisis previa. **Hecho entero el 10/8:
+este plan está cerrado.** Ese día llegaron los modelos, se hizo la
+[pasada de lectura](#los-trece-modelos-leídos--el-108), se tomó la decisión que
+bloqueaba todo —[el punto dentro de la banda](#decidido-el-108-lo-elige-el-usuario-con-un-control)—
+y salieron el generador, sus tres controles y la pantalla.
+
+**Lo que quedó fuera de alcance, con su motivo, está en
+[Lo que este plan no resuelve](#lo-que-este-plan-no-resuelve).** Lo más grande es
+la ley aplicable por etapa: el motor calcula solo por la 27.423 y tres modelos
+aplican también la 21.839, así que esa sección no se escribe.
 
 **La implementación es en [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio).**
 Acá va la decisión; allá el código y su `ESTADO.md`.
