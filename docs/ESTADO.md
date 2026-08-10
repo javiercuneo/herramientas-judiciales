@@ -55,7 +55,11 @@ los trece modelos de resolución están en
 [`docs/modelos/plantillas limpias/`](modelos/) —los ocho procesos cubiertos—, la
 pasada de lectura está hecha en el propio plan, y **la decisión que bloqueaba
 todo lo demás está tomada: el punto dentro de la banda lo elige el usuario, con
-un control.** Lo que sigue es el generador y sus dos controles.
+un control.**
+
+Y ese mismo día entró **el generador con sus controles**, en Honorio:
+`lib/legal/regulacion-prosa.ts` y la validación 17, en el mismo commit. **Falta
+la pantalla**, que es lo único que queda del plan.
 
 No queda nada urgente ni bloqueante. Lo que sigue abierto está en
 [Pendientes](#pendientes).
@@ -615,6 +619,14 @@ pero la decisión era de valor y no técnica.
   - **Notificación, elevación y apertura de cuenta quedan afuera.** Son texto
     fijo y por eso eran lo más barato de generar, pero **son prácticas del
     juzgado y no de la ley.** Decisión de Javier.
+  - **El generador está hecho y sus controles entraron con él**, no después: las
+    dieciséis validaciones anteriores comparan números y **ninguna miraba prosa**,
+    así que la prosa sin realimentación era el problema que esta feature creaba.
+    Salieron tres controles y no dos —el tercero es que un punto fuera de la
+    banda no se redacta— y **el de números encontró un error de sí mismo en la
+    primera corrida**: `Decreto 2536` salía como importe inventado. Ahora lee solo
+    números con dos decimales, que es como se escribe una cifra y como nunca se
+    escribe un identificador.
 
 ### Bugs conocidos
 

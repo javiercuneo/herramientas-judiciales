@@ -507,13 +507,35 @@ resto.
    salió una corrección a la estructura —no hay encabezado, y el bloque de huecos
    grande está en el medio— y dos procesos sin modelo: `sucesion` y
    `homologacion_desocupacion`.
-3. **El generador**, función pura en `lib/legal/`, que toma `CalculoResultado`
-   más el punto elegido y devuelve texto plano. Sin React, sin DOM, como todo
-   `lib/legal/`.
-4. **Los dos controles** de arriba, en el mismo commit que el generador. No
-   después: la prosa sin realimentación es el problema que esta feature crea.
-5. **La interfaz**: un panel con el texto y un botón de copiar. Texto plano, que
-   es lo que pediste y además lo que sobrevive al pegado en cualquier editor.
+3. ~~**El generador**~~ y 4. ~~**los controles**~~. **Hechos el 10/8**, en el
+   mismo commit: `honorio/lib/legal/regulacion-prosa.ts` y
+   `regulacionProsa.validation.ts`, que es la número 17.
+
+   **Salieron tres controles y no dos.** El tercero es que un punto fuera de la
+   banda **no se redacta**: devuelve error y texto vacío. No estaba previsto y es
+   el que sostiene la decisión del punto 1 —si la app deja escribir un número que
+   perfora la escala, la banda deja de significar algo—.
+
+   **Y el control de números encontró un error de sí mismo en la primera
+   corrida**, que es exactamente para lo que se escribió: leía todos los enteros
+   y salteaba los menores a 2100 como heurística de «esto es un artículo o un
+   año», así que **`Decreto 2536` salió como importe inventado**. Subir el umbral
+   habría movido el problema. La regla que quedó es de formato: **el lector solo
+   lee números con dos decimales**, que es como el generador escribe toda cifra y
+   como nunca se escribe un identificador. Hay un control propio que comprueba
+   las dos mitades —que lea los importes y que **no** lea los números de artículo,
+   de decreto ni los años—.
+
+   Una decisión de diseño que conviene no deshacer: **`bandasDe()` deriva las
+   bandas del resultado y no de una lista escrita a mano.** Si el resultado no
+   trae `partidor`, no hay banda y no hay párrafo. Es la contracara de «un bloque
+   por sección del dashboard»: agregar una regla al motor no se puede olvidar en
+   la prosa, porque la banda aparece sola y el barrido de la validación la toma.
+5. **La interfaz — es acá donde sigue.** Un panel con el texto y un botón de
+   copiar, más el control del punto dentro de cada banda. Texto plano, que es lo
+   que sobrevive al pegado en cualquier editor. Lo que ya está decidido y no hay
+   que rediscutir: el control **arranca sin elegir**, la banda se sigue viendo al
+   lado del punto, y el texto no se ofrece mientras `huecos` no esté vacío.
 6. ~~**Cobertura**: qué procesos tienen modelo y cuáles no.~~ **No hay que
    decidirla: los ocho procesos tienen modelo.** Ver
    [Cobertura](#cobertura-contra-los-ocho-procesos-completa). Si algún día se
