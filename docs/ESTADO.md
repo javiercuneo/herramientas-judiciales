@@ -65,7 +65,7 @@ No queda nada urgente ni bloqueante. Lo que sigue abierto está en
 [Pendientes](#pendientes).
 
 **Las cuatro cifras que este repositorio sigue de Honorio.** Son suyas pero
-salen de allá: **168 recorridos**, **28.224 cruces**, **16 validaciones** y la
+salen de allá: **168 recorridos**, **28.224 cruces**, **17 validaciones** y la
 versión del chip. Viven en `index.html`, en `README.md` y —la de validaciones—
 también en `documentacion.html`. La fuente de las dos primeras es la tabla de
 recorridos de [`01_PROCESOS.md`](domain/01_PROCESOS.md): **si vuelve a moverse,
@@ -73,8 +73,10 @@ se mueven las cuatro.**
 
 Se movieron el 7/8 con la modificación de alimentos —168 desde 160 y 28.224
 desde 25.600— y el 8/8 subió solo la de validaciones, de 15 a 16, con la suite
-de mediación. **Los recorridos y los cruces no se movieron, y eso es el
-resultado buscado**: mediación no agrega ninguna pregunta a la entrevista.
+de mediación. El 10/8 subió otra vez, de 16 a 17, con la del generador de prosa.
+**Los recorridos y los cruces no se movieron en ninguna de las dos, y eso es el
+resultado buscado**: ni el mediador ni la prosa agregan una pregunta a la
+entrevista.
 
 ---
 
@@ -626,7 +628,11 @@ pero la decisión era de valor y no técnica.
     banda no se redacta— y **el de números encontró un error de sí mismo en la
     primera corrida**: `Decreto 2536` salía como importe inventado. Ahora lee solo
     números con dos decimales, que es como se escribe una cifra y como nunca se
-    escribe un identificador.
+    escribe un identificador. **Y una tercera cosa que se perdió y hoy tiene
+    control propio: las tildes.** Los comentarios de `lib/legal/` se escriben sin
+    ellas —convención del código— y la primera versión arrastró la costumbre a
+    las cadenas de salida. Una resolución sin acentos no se puede pegar en un
+    expediente.
 
 ### Bugs conocidos
 
