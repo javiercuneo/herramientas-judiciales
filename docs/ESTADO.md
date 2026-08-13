@@ -290,6 +290,48 @@ Dos aclaraciones que hubo que agregarles y conviene no borrar:
 
 ## Lo demás que se hizo, en orden
 
+### `quien-soy.html` — 12/8
+
+Página nueva, enlazada desde la sección «Autor» del index y desde los dos
+colofones, y agregada a la allowlist de `pages.yml`. Sin ella en esa lista la
+página existe en el repositorio y no en producción, que es lo que ya pasó con
+PDF-studio.
+
+**Por qué una página y no más texto en el index.** La sección `#autor` sostiene
+la tesis del sitio —el código lo escribe un modelo, el criterio no— en tres
+párrafos, y ese largo es el correcto ahí: quien entra a la landing viene a
+buscar una calculadora. Pero esa tesis es también lo único que distingue este
+trabajo de cualquier otro repositorio de calculadoras, y en tres párrafos no
+entra lo que la sostiene: qué parte del trabajo es propia y cuál no, y cómo se
+decide cuando la ley admite más de una lectura. El index quedó como estaba y
+ahora enlaza a la versión larga.
+
+**Lo que la página afirma de más que el index**, y que es el motivo de que
+exista: que no se escribió el código, que no se eligió la arquitectura, y que
+las decisiones técnicas se adoptaron preguntando. Declarado así, «hecho con IA»
+deja de ser una frase que tapa y pasa a delimitar dónde está el aporte:
+elegir el problema, decidir los puntos ambiguos, dejarlos escritos y darse
+cuenta cuando el número está mal.
+
+**No repite ninguna cifra.** Ni versiones, ni cantidad de validaciones, ni
+cruces de la entrevista. Todas esas viven en el index y en Honorio, y una cifra
+duplicada en una página sin build es una cifra que se desincroniza. Donde haría
+falta un número, hay un enlace.
+
+**Verificación.** Contraste sobre estilos computados, en los dos temas, con las
+transiciones desactivadas —sin eso `getComputedStyle` devuelve el color a mitad
+de la animación y da números inventados: la primera medición dio 1,15 en un
+elemento que está en 18,15—. Todo pasa AA salvo `--faint`, que es del sistema
+visual y no de esta página (ver abajo). A 390 px no hay scroll horizontal ni
+elementos desbordados, y la línea de tiempo del recorrido colapsa a una columna.
+
+**Un bug propio, encontrado midiendo.** `.btn-solid` había quedado con
+`color: #fff`, que en tema oscuro es blanco sobre el acento aclarado: **2,68:1**,
+reprueba AA. `index.html` ya lo tenía resuelto con `color: var(--bg)`, que se
+invierte solo con el tema. Copiada esa solución, queda en 6,28 claro y 7,15
+oscuro. Es exactamente la clase de error que un control «tokens aplicados, sin
+colores planos» deja pasar.
+
 ### La landing decía mal lo que hace — 6/8
 
 «Barre los **25.600 recorridos posibles** de la entrevista» era una cifra
@@ -640,7 +682,19 @@ pero la decisión era de valor y no técnica.
 
 ### Bugs conocidos
 
-Ninguno abierto. Los tres del 7/8 quedaron cerrados el mismo día:
+**Abierto: `--faint` reprueba AA en tema claro — 12/8.** `#666e7c` sobre el
+fondo `#e9ebee` da **4,30:1**, contra los 4,5 que pide AA para texto chico. Y el
+token se usa justamente en texto chico: `.label` a 11,2 px en mayúsculas, el
+colofón, y las fechas de las páginas que las tienen. En oscuro está bien
+(`#828a98`, 5,51).
+
+Medido en `index.html` y en `quien-soy.html`, con el mismo resultado: **es del
+sistema visual, no de una página.** Por eso no se tocó al pasar — el token está
+duplicado en `index.html`, en `documentacion.html` y en
+`calculadoras/css/comun.css`, así que arreglarlo es un cambio en las trece
+páginas y se verifica en las trece. Bajarlo a `#5f6774` alcanza para pasar.
+
+Los tres del 7/8 quedaron cerrados el mismo día:
 
 **1. La lectura de la planilla por posición, en tres archivos.** `honorarios-mediacion.html`,
 `prorrateo.html` y `asistente-honorarios-clasico/js/core.js` tomaban la fila por

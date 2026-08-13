@@ -51,6 +51,7 @@ jobs:
           # index.html o no va a existir para nadie.
           cp index.html site/
           cp documentacion.html site/
+          cp quien-soy.html site/
           cp -r assets site/
           cp -r calculadoras site/
           cp -r data site/

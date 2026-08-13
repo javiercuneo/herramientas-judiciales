@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quién soy · L. Javier Cúneo Libarona</title>
+<meta name="description" content="Abogado, prosecretario administrativo en un juzgado civil. Qué hago, por qué hago estas herramientas, y qué parte del trabajo es mía y qué parte no.">
+
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Quién soy · L. Javier Cúneo Libarona">
+<meta property="og:description" content="Abogado en el fuero civil desde 2010. Qué hago, por qué hago estas herramientas, y qué parte del trabajo es mía y qué parte no.">
+<meta property="og:locale" content="es_AR">
+<meta property="og:image" content="https://javiercuneo.com.ar/assets/honorio-resultado.png">
+<meta property="og:image:alt" content="Pantalla de resultado de Honorio, con el honorario y cada paso del calculo a la vista.">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet">
+
+<style>
+/* ------------------------------------------------------------------
+   Mismo sistema visual que la landing, la guia de uso y Honorio.
+     --font-meter  Archivo      titulos y cifras
+     --font-sans   sistema      interfaz y lectura
+     --font-law    Source Serif la norma
+   Un solo acento: cobalto.
+   Si tocas un token aca, esta duplicado en index.html y en
+   documentacion.html: son paginas sin build y cada una lleva el suyo.
+   ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+  --bg: #e9ebee;
+  --fg: #12161c;
+  --card: #ffffff;
+  --muted-fg: #5a626e;
+  --faint: #666e7c;
+  --accent: #1e45ce;
+  --accent-tint: rgb(30 69 206 / 0.09);
+  --border: rgb(18 22 28 / 0.13);
+  --hair: rgb(18 22 28 / 0.07);
+  --sunk: #f2f4f6;
+  --radius: 0.375rem;
+  --font-meter: 'Archivo', 'DIN Alternate', 'Segoe UI', sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-law: 'Source Serif 4', ui-serif, Georgia, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    color-scheme: dark;
+    --bg: #0d0f13;
+    --fg: #edeff3;
+    --card: #16191f;
+    --muted-fg: #99a1ae;
+    --faint: #828a98;
+    --accent: #7a99ff;
+    --accent-tint: rgb(122 153 255 / 0.13);
+    --border: rgb(237 239 243 / 0.15);
+    --hair: rgb(237 239 243 / 0.08);
+    --sunk: #101318;
+  }
+}
+/* El mismo bloque, para cuando el usuario eligio oscuro a mano.
+   Si tocas un valor arriba, tocalo aca. */
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+  --bg: #0d0f13;
+  --fg: #edeff3;
+  --card: #16191f;
+  --muted-fg: #99a1ae;
+  --faint: #828a98;
+  --accent: #7a99ff;
+  --accent-tint: rgb(122 153 255 / 0.13);
+  --border: rgb(237 239 243 / 0.15);
+  --hair: rgb(237 239 243 / 0.08);
+  --sunk: #101318;
+}
+
+/* ---------- Interruptor de tema ----------
+   Lo inyecta assets/tema.js; el marcado no lo declara. */
+.tema-boton {
+  position: fixed; top: 12px; right: 12px; z-index: 999;
+  padding: 7px 14px; font-size: .8rem; font-family: var(--font-sans);
+  font-weight: 500; line-height: 1.2;
+  background: var(--card); color: var(--muted-fg);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; box-shadow: 0 1px 3px rgb(0 0 0 / .06);
+  transition: color .15s, border-color .15s;
+}
+.tema-boton:hover { color: var(--accent); border-color: var(--accent); }
+.tema-boton:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 600px) { .tema-boton { top: 8px; right: 8px; padding: 5px 10px; font-size: .72rem; } }
+@media print { .tema-boton { display: none; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+h1, h2, h3 { font-family: var(--font-meter); font-weight: 600; letter-spacing: -0.015em; }
+
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+.label { font-family: var(--font-meter); font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+.volver { display: inline-block; font-family: var(--font-meter); font-size: .88rem; text-decoration: none; margin-bottom: 28px; }
+
+hr.rule { border: 0; border-top: 1px solid var(--hair); margin: 0; }
+
+/* ---------- Portada ---------- */
+header.intro { padding-block: 44px 40px; }
+header.intro h1 { font-size: clamp(2rem, 4.5vw, 2.9rem); margin: 10px 0 20px; line-height: 1.12; }
+header.intro .lede { font-family: var(--font-law); font-size: 1.14rem; line-height: 1.6; color: var(--fg); margin: 0 0 16px; }
+header.intro .who { color: var(--muted-fg); margin: 0; }
+
+/* ---------- Secciones ---------- */
+section { padding-block: 40px; }
+section > h2 { font-size: 1.5rem; margin: 8px 0 18px; }
+section p { color: var(--muted-fg); margin: 0 0 15px; text-align: justify; hyphens: auto; }
+section strong { color: var(--fg); font-weight: 600; }
+section ul { margin: 0 0 15px; padding-left: 20px; color: var(--muted-fg); }
+section li { margin-bottom: 7px; }
+
+/* Cita destacada: el criterio, en la tipografia de la norma. */
+blockquote {
+  margin: 22px 0; padding: 18px 22px;
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); border-radius: var(--radius);
+  font-family: var(--font-law); font-size: 1.06rem; line-height: 1.55; color: var(--fg);
+}
+blockquote p { color: var(--fg); text-align: left; margin: 0; }
+
+/* ---------- Recorrido ---------- */
+.recorrido { list-style: none; padding: 0; margin: 0; }
+.recorrido li { display: grid; grid-template-columns: 128px 1fr; gap: 18px; padding: 13px 0; border-top: 1px solid var(--hair); margin: 0; }
+.recorrido li:first-child { border-top: 0; }
+.recorrido .cuando { font-family: var(--font-meter); font-size: .82rem; color: var(--faint); padding-top: 3px; }
+.recorrido .que { color: var(--muted-fg); }
+.recorrido .que b { color: var(--fg); font-weight: 600; display: block; }
+@media (max-width: 560px) {
+  .recorrido li { grid-template-columns: 1fr; gap: 3px; }
+}
+
+/* ---------- Acciones ---------- */
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.btn {
+  display: inline-block; padding: 10px 18px; border-radius: var(--radius);
+  font-family: var(--font-meter); font-size: .9rem; font-weight: 500; text-decoration: none;
+  border: 1px solid var(--border); color: var(--fg); background: var(--card);
+  transition: color .15s, border-color .15s;
+}
+.btn:hover { color: var(--accent); border-color: var(--accent); }
+/* El texto va en --bg, no en blanco fijo: en tema oscuro el acento aclara
+   y el blanco cae a 2.7:1. Misma solucion que en index.html. */
+.btn-solid { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.btn-solid:hover { color: var(--bg); filter: brightness(1.08); }
+
+/* ---------- Colofon ---------- */
+.colofon {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  padding-block: 28px 44px; font-size: .86rem; color: var(--faint);
+}
+.colofon a { text-decoration: none; }
+.colofon a:hover { text-decoration: underline; }
+.colofon .sep { opacity: .5; }
+</style>
+<script src="assets/tema.js"></script>
+</head>
+<body>
+
+<header class="intro wrap">
+  <a class="volver" href="index.html">← Herramientas</a>
+  <span class="label">Quién soy</span>
+  <h1>L. Javier Cúneo Libarona</h1>
+  <p class="lede">
+    Trabajo en el fuero civil desde 2010. Entré como escribiente auxiliar en un
+    juzgado nacional de primera instancia y hoy soy prosecretario administrativo
+    en el mismo juzgado.
+  </p>
+  <p class="who">
+    Estas herramientas salieron de resolver, durante años, los mismos cálculos
+    que ahora hacen ellas.
+  </p>
+</header>
+
+<hr class="rule">
+
+<section class="wrap" id="trabajo">
+  <span class="label">El trabajo</span>
+  <h2>A qué me dedico</h2>
+  <p>
+    Reviso el despacho diario, proyecto resoluciones interlocutorias y
+    regulaciones de honorarios, y coordino el trabajo del personal. El juzgado
+    recibe alrededor de mil causas nuevas por año y produce unas dos mil trescientas actuaciones procesales al mes. Entre 2015 y 2019, como jefe de despacho,
+    redacté más de cien sentencias definitivas por año.
+  </p>
+  <p>
+    Eso explica un poco lo que construí acá. No llegué a estas herramientas desde el
+    software: llegué desde el problema: computando plazos, regulando honorarios
+    y verificando el pago de la tasa de justicia, ejemplos de tres cosas que hice a mano miles de veces antes de
+    que existiera nada de esto.
+  </p>
+</section>
+
+<hr class="rule">
+
+<section class="wrap" id="por-que">
+  <span class="label">El origen</span>
+  <h2>Por qué hago estas herramientas</h2>
+  <p>
+    Cada una salió de un problema concreto de trabajo, no de una idea de
+    producto. Ninguna se pensó para un mercado: se pensó para el día a día. Por eso son gratuitas, por eso el código está abierto y por eso las
+    calculadoras corren enteramente en el navegador, sin servidor ni base de
+    datos. Nada de lo que alguien escribe en ellas sale de su máquina.
+  </p>
+  <p>
+    La principal es <a href="https://honorio.ar">Honorio</a>, un asistente para
+    la regulación de honorarios bajo la Ley 27.423. Hace una entrevista sobre el
+    expediente y devuelve el honorario mostrando cada paso del cálculo: la base,
+    las posibles reducciones aplicadas, la escala del art. 21, eventuales ajustes por rol, etc.
+  </p>
+  <p>
+    Busca transparencia y comportarse distinto a una caja negra. Donde la aplicación adopta un criterio
+    interpretativo lo declara junto al número, detrás de un «por qué». Quien no
+    quiere leerlo no lo lee; quien quiere entender cómo se llega al número lo tiene ahí.
+  </p>
+</section>
+
+<hr class="rule">
+
+<section class="wrap" id="ia">
+  <span class="label">La parte incómoda</span>
+  <h2>Qué es mío y qué no</h2>
+  <p>
+    El código de estas herramientas está escrito con asistencia de modelos de
+    lenguaje. Conviene ser preciso sobre qué significa eso, porque «lo hice con
+    IA» tapa más de lo que explica, y en las dos direcciones.
+  </p>
+  <p>
+    <strong>No escribí el código.</strong> No sé TypeScript y no elegí la
+    arquitectura. Cuando hubo que decidir cómo separar las capas, cómo organizar
+    las validaciones o bajo qué licencia publicar, pregunté y adopté la
+    respuesta que me pareció mejor fundada, que no es lo mismo que haberla
+    diseñado. Si alguien abre el repositorio esperando encontrar a un
+    desarrollador, no lo va a encontrar.
+  </p>
+  <p>
+    <strong>Lo que sí es mío</strong> es elegir el problema, decidir qué hace la
+    herramienta en cada punto donde la ley admite más de una lectura, dejar esas
+    decisiones escritas, y darme cuenta cuando el número está mal. Eso último es
+    la parte que no se puede delegar, y es la que sostiene todo el resto.
+  </p>
+  <p>
+    Un ejemplo es cómo tratar jurídicamente la caducidad de instancia. Mi idea cuando arranqué en el inicio fue dar una alternativa. 
+  </p>
+  <blockquote>
+    <p>
+      Tomar esa decisión no nació en el vacío, sino de haber tenido que resolver en casos concretos.
+    </p>
+  </blockquote>
+  <p>
+    Hoy es fácil generar código. Lo que un modelo no
+    genera es el criterio para decidir cómo encarar problemas con los que te encontrás en la práctica.
+  </p>
+</section>
+
+<hr class="rule">
+
+<section class="wrap" id="metodo">
+  <span class="label">El método</span>
+  <h2>Cómo decidir cuando hay varios caminos</h2>
+  <p>
+    Un cálculo de honorarios mal hecho puede generar una expectativa errónea. Una fecha de vencimiento mal computada puede poner en peligro un derecho. Ahí se define una regla y varias cosas se derivan de ella:
+  </p>
+  <blockquote>
+    <p>
+      Ningún cambio en el código puede mover un número si no es a raíz de una decisión humana consciente y deliberada, y para eso se justifica en una norma o criterio jurisprudencial que queda escrito.
+    </p>
+  </blockquote>
+  <p>
+    En concreto, eso significa cuatro cosas. Que los resultados vigentes se
+    consideran correctos y son la referencia a preservar: un cambio que mejora
+    el código y mueve un número no es una mejora, es un error. Que cada cambio
+    de resultado se documenta con el caso concreto y el argumento que lo funda,
+    aunque toque una sola línea. Que las reglas jurídicas viven en una sola capa
+    del código, separadas de la interfaz. Y que
+    <strong>una interpretación se apoya en fundamentos, no se declara sin razones</strong>: sin una norma o jurisprudencia que la sostenga, no la afirma; la deja declarada como abierta y dice por qué.
+  </p>
+  <p>
+    Los criterios adoptados están escritos y son públicos en la
+    <a href="docs/">documentación de dominio</a>. No están ahí para que se me
+    crea: están para que se me pueda discutir y para que se pueda auditar.
+  </p>
+</section>
+
+<hr class="rule">
+
+<section class="wrap" id="recorrido">
+  <span class="label">Antecedentes</span>
+  <h2>Recorrido</h2>
+  <ul class="recorrido">
+    <li>
+      <span class="cuando">2020 – hoy</span>
+      <span class="que"><b>Prosecretario administrativo</b>Justicia Nacional en lo Civil. Designado interinamente como secretario de juzgado en 2022 por un breve período de tiempo.</span>
+    </li>
+    <li>
+      <span class="cuando">2015 – 2019</span>
+      <span class="que"><b>Jefe de despacho — secretario privado</b>Redacción de sentencias definitivas en materia civil patrimonial.</span>
+    </li>
+    <li>
+      <span class="cuando">2010 – 2015</span>
+      <span class="que"><b>Escribiente y escribiente auxiliar</b>Mesa de entradas primero, despacho de expedientes y resoluciones luego.</span>
+    </li>
+    <li>
+      <span class="cuando">2015 – 2019</span>
+      <span class="que"><b>Docencia universitaria</b>Ayudante de segunda por concurso en Derecho del Consumidor (UBA). Profesor adjunto en Derecho del Consumidor, Derecho Procesal Civil y Comercial y del seminario de práctica procesal (UdeMM).</span>
+    </li>
+    <li>
+      <span class="cuando">2011</span>
+      <span class="que"><b>Abogado</b>Universidad del Museo Social Argentino, con el mejor promedio de la promoción. Distinción a la excelencia del Colegio de Abogados de la Ciudad de Buenos Aires.</span>
+    </li>
+  </ul>
+  <p style="margin-top:22px">
+    Posgrado en Derecho de Daños (UCA) y diplomatura en Derecho del Consumidor
+    (UCES). Doctorado en Derecho Privado en UCES: cursada completa y plan de
+    tesis aprobado. Tres artículos publicados en revistas jurídicas, sobre
+    contratos de consumo, subrogación en los derechos del consumidor y
+    prescripción liberatoria.
+  </p>
+</section>
+
+<hr class="rule">
+
+<section class="wrap" id="contacto">
+  <span class="label">Contacto</span>
+  <h2>Escribime</h2>
+  <p>
+    Si usás alguna de estas herramientas y encontrás un número que no cierra,
+    escribime con el caso: qué cargaste, qué te dio y qué debería haber dado.
+    Es la clase de mensaje que más sirve. Lo mismo si querés integrar el motor
+    de Honorio en algo propio bajo otros términos, o si trabajás en un juzgado y
+    querés ver cómo está armado esto por dentro.
+  </p>
+  <div class="actions">
+    <a class="btn btn-solid" href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a>
+    <a class="btn" href="https://github.com/javiercuneo">GitHub</a>
+    <a class="btn" href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934">LinkedIn</a>
+  </div>
+</section>
+
+<hr class="rule">
+
+<div class="wrap colofon">
+  <span>L. Javier Cúneo Libarona</span>
+  <span class="sep">·</span>
+  <a href="index.html">Herramientas</a>
+  <a href="documentacion.html">Guía de uso</a>
+  <a href="docs/">Documentación de dominio</a>
+  <a href="https://honorio.ar">Honorio</a>
+</div>
+
+</body>
+</html>
