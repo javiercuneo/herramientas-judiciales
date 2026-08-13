@@ -199,4 +199,4 @@ Si querés aportar, leé [CONTRIBUTING.md](CONTRIBUTING.md) primero.
 
 [GitHub](https://github.com/javiercuneo) ·
 [LinkedIn](https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934) ·
-[javiercuneol@hotmail.com](mailto:javiercuneol@hotmail.com)
+[javier@javiercuneo.com.ar](mailto:javier@javiercuneo.com.ar)
