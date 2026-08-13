@@ -653,14 +653,21 @@ do npx tsx "$f"; done</pre>
       una calculadora.
     </p>
     <p>
-      Lo que un modelo no genera es el criterio. Un ejemplo real, de agosto de
-      2026: el motor aplicaba la reducción del art. 25 también cuando la
-      caducidad se resolvía por art. 22, acumulando dos quitas sobre el mismo
-      hecho. Nada en el código lo delataba y el resultado parecía razonable.
-      Está mal porque los dos criterios de la caducidad son alternativos:
-      elegido el art. 22, la instancia cae como demanda desestimada y el momento
-      de la apertura a prueba deja de jugar. Esa corrección no sale de leer la
-      ley con más atención; sale de haber resuelto el caso.
+      Lo que un modelo no genera es el criterio. Mis interpretaciones de esta
+      ley estaban resueltas antes de que existiera la aplicación: el asistente
+      clásico, que sigue publicado, ya distinguía por ejemplo los dos criterios
+      alternativos para la caducidad de instancia —art. 22 como demanda
+      desestimada, o art. 25 como los demás modos anormales— y explicaba cuándo
+      se reduce cada cosa.
+    </p>
+    <p>
+      Durante la reescritura del código, el paso de una versión HTML pura al
+      sitio actual, se produjo una regresión sobre ese punto ya decidido: el
+      motor pasó a acumular las dos quitas sobre el mismo hecho, una rama que el
+      clásico nunca tuvo. Ocurrió en un nivel que mi ojo de abogado no ve, el del
+      lenguaje de programación, y estuvo tres días en una versión publicada hasta
+      que se corrigió el 3 de agosto de 2026. Tener el criterio escrito de
+      antemano es lo que permitió detectarla.
     </p>
     <p>
       Por eso el trabajo está en dos lugares que no son el código: decidir qué
