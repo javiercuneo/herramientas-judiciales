@@ -524,10 +524,22 @@ repositorio, no en este.
 Ninguno urgente y ninguno bloqueante. El dominio está cerrado del todo:
 registrado, con DNS, con certificado y con HTTPS forzado.
 
+- **`data/feriados.json` se actualiza a mano, con `npm run feriados`.** Hoy llega
+  hasta 2027, así que no apura, pero **nadie avisa cuando se queda corto**: si un
+  día alguien computa un plazo de 2028 y el archivo no lo tiene, la calculadora
+  no calcula y dice qué año falta —eso ya está resuelto— pero el que tiene que
+  correr el script sos vos.
+  Falta el cron que lo haga solo. Es un workflow de GitHub Actions con
+  `schedule:` mensual que corre `npm run feriados` y commitea si el diff no está
+  vacío; el de la UMA en el repositorio de Honorio ya hace exactamente eso y
+  sirve de modelo. **No se armó todavía porque es un workflow que escribe en el
+  repositorio**, y eso pide `permissions: contents: write` y una revisión con más
+  calma que la que había esa tarde.
 - **`mora.html` todavía no usa `js/calendario-judicial.js`**: tiene su propia
   copia de la lógica de feria y fin de semana. Es duplicación de código, no
-  divergencia de datos —la lista y la API ya son las mismas—, así que no cambia
-  ningún número. Es lo único de fondo que sigue abierto de las calculadoras.
+  divergencia de datos —la lista de asuetos y los feriados ya son los mismos—,
+  así que no cambia ningún número. Es lo único de fondo que sigue abierto de las
+  calculadoras.
 - **`lib/legal/minimos-data.ts` nunca se verificó contra la ley.** Las cifras de
   los mínimos que citan el `06` y el `07` están verificadas contra ese archivo,
   y el archivo dice ser copia fiel del asistente clásico. Que sea fiel a la copia
