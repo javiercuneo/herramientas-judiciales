@@ -682,6 +682,42 @@ pero la decisión era de valor y no técnica.
 
 ### Bugs conocidos
 
+**Abierto, y es el más grave: si la API de feriados no responde, el cálculo
+sigue sin feriados — 13/8.** Reportado como errores de CORS intermitentes en
+`vencimientos.html`. El CORS es del lado del servidor y no se arregla desde acá,
+pero lo que importa no es la causa: es qué hace la herramienta cuando pasa.
+
+`calendario-judicial.js:126` recorre los años pedidos y por cada uno hace un
+`fetch` a `api.argentinadatos.com`. **El `catch` está vacío** (línea 140): un año
+que falla no deja rastro. Después `init()` hace
+`_dataLoaded = _loadedYears.length > 0`, así que **alcanza con que cargue un solo
+año para que la herramienta se declare disponible**, aunque falten los demás.
+
+Y el respaldo que se suponía que cubría esto **no cubre esto**.
+`data/dias-inhabiles.json` tiene solo `dias_inhabiles_adicionales`: asuetos por
+Acordada. No tiene un solo feriado nacional. Si la API no contesta, quedan los
+fines de semana, la feria, el 16 de noviembre y los asuetos —que están
+hardcodeados o en el JSON—, y **el 25 de mayo, el 9 de julio y el carnaval pasan
+a contarse como hábiles**.
+
+Un feriado contado como hábil **adelanta el vencimiento**: el plazo parece
+cumplirse antes de lo que se cumple. Del lado de quien controla si una
+presentación fue tempestiva, ese es el sentido peligroso del error.
+
+Dos cosas más, menores al lado de eso:
+
+- `caducidad.html:268` informa el rango como `loadedYears[0]` a
+  `loadedYears[last]`. Si el agujero está en el medio —2021, 2022 y 2024
+  cargados, 2023 no— dice «2021 a 2024» y el usuario no se entera.
+- **El `README.md` afirma que hay «un respaldo local en `data/`».** No es cierto
+  para los feriados: el archivo suplementa, no sustituye. Es la clase de
+  afirmación que `AGENTS.md` pide verificar contra el código y no contra otro
+  documento.
+
+Lo que hay que decidir antes de arreglar está en [`IDEAS.md`](../IDEAS.md): el
+problema no es técnico sino de criterio, porque dos fuentes que discrepan en un
+feriado dan dos vencimientos distintos.
+
 **Abierto: `--faint` reprueba AA en tema claro — 12/8.** `#666e7c` sobre el
 fondo `#e9ebee` da **4,30:1**, contra los 4,5 que pide AA para texto chico. Y el
 token se usa justamente en texto chico: `.label` a 11,2 px en mayúsculas, el

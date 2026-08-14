@@ -265,10 +265,17 @@
             
             if (initResult.dataLoaded) {
                 datosCargados = true;
-                apiStatus.innerText = 'Calculadora disponible (Datos: ' + initResult.loadedYears[0] + ' a ' + initResult.loadedYears[initResult.loadedYears.length - 1] + ' cargados)';
+                // Primero y ultimo y no el rango: decir "2021 a 2027" cuando
+                // falta 2023 en el medio es peor que no decir nada. Si falta
+                // alguno, dataLoaded ya viene en false.
+                apiStatus.innerText = 'Calculadora disponible (feriados ' + initResult.loadedYears[0] + '-' + initResult.loadedYears[initResult.loadedYears.length - 1] + ', ' + initResult.loadedYears.length + ' años)';
                 apiStatus.style.color = "#059669";
             } else {
-                apiStatus.innerText = "Error cargando feriados. Revise la consola.";
+                datosCargados = false;
+                var faltan = (initResult.missingYears || []);
+                apiStatus.innerText = faltan.length
+                    ? 'No se puede calcular: faltan los feriados de ' + faltan.join(', ') + '.'
+                    : 'No se puede calcular: no se pudieron cargar los feriados.';
                 apiStatus.style.color = "#dc2626";
             }
         } catch (err) {

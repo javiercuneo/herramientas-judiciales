@@ -60,8 +60,13 @@ en el navegador: nada de lo que escribís sale de tu máquina.
 | [Mora](https://javiercuneo.com.ar/calculadoras/mora.html) | Inicio de la mora según el plazo de la resolución y la fecha en que quedó firme. |
 | [Ejecución de sentencias contra el Estado](https://javiercuneo.com.ar/calculadoras/ejecucion-estado.html) | Desde cuándo una sentencia contra el Estado Nacional es ejecutable y embargable (art. 170, Ley 11.672). |
 
-Las que dependen de fechas usan un calendario judicial compartido, con feriados
-de una API externa y un respaldo local en [`data/`](data/).
+Las que dependen de fechas usan un calendario judicial compartido, y **todo lo
+que necesitan está en el repositorio**: los feriados nacionales en
+[`data/feriados.json`](data/feriados.json) y los asuetos por Acordada en
+[`data/dias-inhabiles.json`](data/dias-inhabiles.json). En tiempo de uso no se
+le pide nada a nadie. Los feriados se actualizan con `npm run feriados`, que los
+baja de una API, los controla y los escribe; si la API no contesta, el script
+falla y deja el archivo como estaba.
 
 ### Honorarios y tributos
 

@@ -1,8 +1,17 @@
 ﻿(function () {
     'use strict';
 
+    // Los feriados nacionales salen del repositorio, no de una API en vivo.
+    // Hasta el 13/8/2026 se le pedian a api.argentinadatos.com en cada carga
+    // de cada calculadora, y el catch estaba vacio: si un anio no contestaba
+    // —CORS intermitente, caida— el calculo seguia adelante sin esos feriados.
+    // Un feriado contado como habil ADELANTA el vencimiento, o sea que el
+    // plazo parece cumplirse antes de lo que se cumple.
+    //
+    // data/feriados.json lo genera scripts/actualizar-feriados.mjs contra la
+    // misma API, pero en el build y no en el navegador del visitante.
     var CONFIG = {
-        API_FERIADOS_URL: 'https://api.argentinadatos.com/v1/feriados',
+        JSON_FERIADOS_URL: '../data/feriados.json',
         JSON_CUSTOM_URL: '../data/dias-inhabiles.json',
         DEFAULT_MIN_YEAR: 2021
     };
@@ -12,6 +21,7 @@
     var _dataLoaded = false;
     var _loadError = false;
     var _loadedYears = [];
+    var _missingYears = [];
 
     function toYMD(date) {
         var y = date.getFullYear();
@@ -123,22 +133,28 @@
         return null;
     }
 
-    async function loadFeriadosFromAPI(yearsArray) {
+    // Devuelve los anios pedidos que el archivo cubre. Un anio que no esta
+    // NO se completa ni se aproxima: se informa como faltante y el llamador
+    // decide. Antes esto se tragaba el error y devolvia la lista corta, que
+    // es como un anio sin feriados terminaba pareciendo un anio cargado.
+    async function loadFeriados(yearsArray) {
+        var resp = await fetch(CONFIG.JSON_FERIADOS_URL + '?v=' + Date.now());
+        if (!resp.ok) throw new Error('feriados.json: HTTP ' + resp.status);
+
+        var data = await resp.json();
+        var porAnio = data.feriados || {};
         var loaded = [];
+
         for (var i = 0; i < yearsArray.length; i++) {
             var year = yearsArray[i];
-            try {
-                var resp = await fetch(CONFIG.API_FERIADOS_URL + '/' + year);
-                if (resp.ok) {
-                    var data = await resp.json();
-                    for (var j = 0; j < data.length; j++) {
-                        var item = data[j];
-                        feriadosMap.set(item.fecha, { motivo: item.nombre || item.motivo || 'Feriado nacional' });
-                    }
-                    loaded.push(year);
-                }
-            } catch (e) {
+            var lista = porAnio[String(year)];
+            if (!Array.isArray(lista) || !lista.length) continue;
+
+            for (var j = 0; j < lista.length; j++) {
+                var item = lista[j];
+                feriadosMap.set(item.fecha, { motivo: item.motivo || item.nombre || 'Feriado nacional' });
             }
+            loaded.push(year);
         }
         return loaded;
     }
@@ -180,20 +196,32 @@
 
         try {
             var results = await Promise.all([
-                loadFeriadosFromAPI(yearsArray),
+                loadFeriados(yearsArray),
                 loadCustomHolidaysJSON()
             ]);
 
             _loadedYears = results[0];
-            _dataLoaded = _loadedYears.length > 0;
+
+            // Falta un anio = no esta cargado. No alcanza con que haya
+            // cargado alguno: si falta 2026 y alguien computa un plazo de
+            // 2026, el resultado sale mal y nada lo delata.
+            _missingYears = yearsArray.filter(function (y) {
+                return _loadedYears.indexOf(y) === -1;
+            });
+            _dataLoaded = _missingYears.length === 0;
+            _loadError = !_dataLoaded;
         } catch (e) {
             _loadError = true;
+            _dataLoaded = false;
+            _loadedYears = [];
+            _missingYears = yearsArray.slice();
         }
 
         return {
             dataLoaded: _dataLoaded,
             loadError: _loadError,
-            loadedYears: _loadedYears.slice()
+            loadedYears: _loadedYears.slice(),
+            missingYears: _missingYears.slice()
         };
     }
 
@@ -203,6 +231,7 @@
         get dataLoaded() { return _dataLoaded; },
         get loadError() { return _loadError; },
         get loadedYears() { return _loadedYears.slice(); },
+        get missingYears() { return _missingYears.slice(); },
 
         init: init,
 

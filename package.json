@@ -5,7 +5,8 @@
   "description": "Scripts a nivel repositorio. Cada proyecto (honorio/, PDF-studio/) tiene su propio package.json.",
   "scripts": {
     "docs": "node scripts/build-docs.mjs site/docs",
-    "verificar-docs": "node scripts/verificar-docs.mjs"
+    "verificar-docs": "node scripts/verificar-docs.mjs",
+    "feriados": "node scripts/actualizar-feriados.mjs"
   },
   "devDependencies": {
     "marked": "^15.0.7"

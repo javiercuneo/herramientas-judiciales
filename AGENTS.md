@@ -100,7 +100,20 @@ cosa.
   sentencia publicada cuando exista. Sin expediente no es una cita: es una
   referencia.
 - **Si no hay fallo, la interpretación no se afirma.** Se declara abierta, en el
-  bloque de «qué no hace» y con el motivo.
+  bloque de «qué no hace» y con el motivo. Si hay **doctrina** —un autor, una
+  obra, una página— vale como fundamento de segunda mejor calidad, y se cita
+  como lo que es: no se disfraza de jurisprudencia.
+
+**Esta regla todavía no se cumple en todas partes, y conviene saberlo antes de
+apoyarse en ella.** `honorio/lib/legal/jurisprudencia.ts` tiene fallos para
+algunos criterios y no para otros: la elección entre el art. 22 y el art. 25
+para la caducidad, por ejemplo, no tiene ninguno cargado y sin embargo la
+aplicación adopta un criterio. El barrido pendiente —listar cada punto donde se
+decide algo que la ley no resuelve sola, y con qué está fundado hoy— está
+anotado en [`IDEAS.md`](IDEAS.md). Hasta que se haga, **esta sección describe a
+dónde va el proyecto y no dónde está**, y no hay que citarla como si fuera lo
+segundo. Una regla que se anuncia y no se cumple es peor que una más modesta que
+sí.
 
 **Y una advertencia que vale más que la regla.** Una cita de jurisprudencia
 inventada es el peor error que este proyecto puede cometer, por tres razones
