@@ -189,9 +189,18 @@ tenía, y el alto queda clavado donde arrancó. Se anula por CSS inyectado, y el
 alto se mide sobre el rect del `<body>` y no con `scrollHeight`, que nunca baja
 del alto del propio marco.
 
-**Antes de mergear:** enlazarlo desde `index.html` —si no, no existe para
-nadie—, y decidir si `honorarios-mediacion`, `prorrateo` y `tasa` entran como
-pestañas o quedan sueltas.
+**Prorrateo y tasa entran, y van agrupadas aparte.** No son plazos, y entran
+igual porque **el flujo es el mismo**: en un expediente mirás un plazo y en el
+siguiente un prorrateo —criterio de Javier, 17/8—. Pero la barra lleva rótulos
+de grupo, «Plazos» y «Honorarios y tasa»: que compartan ventana no las hace la
+misma materia, y una pestaña de honorarios pegada a una de plazos invita a leer
+un número como si fuera del otro grupo. `honorarios-mediacion` **no** entró:
+tiene mal el rótulo del tope (ver arriba) y no conviene darle más superficie
+hasta arreglarlo.
+
+Ya está enlazado desde `index.html`, en la bajada de la sección de calculadoras.
+
+**Antes de mergear:** nada bloqueante. Falta que Javier lo use unos días.
 
 ---
 

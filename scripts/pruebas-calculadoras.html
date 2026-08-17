@@ -468,7 +468,7 @@ function seccion(titulo, bajada) {
 // ---------------------------------------------------------------------------
 async function correrEnTablero(cuerpo) {
     const marco = document.createElement('iframe');
-    marco.src = '../calculadoras/tablero.html';
+    marco.src = '../calculadoras/tablero.html?v=' + Date.now();
     document.body.appendChild(marco);
     await new Promise((r) => { marco.onload = r; });
 

@@ -81,6 +81,25 @@
 
     .pestania:hover { color: var(--fg); background: var(--hair); }
 
+    /* El rótulo de grupo separa plazos de honorarios. Sin él, una pestaña de
+       honorarios pegada a una de plazos invita a leer un número como si fuera
+       del otro grupo. */
+    .grupo {
+        flex: 0 0 auto;
+        align-self: center;
+        color: var(--faint);
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0 10px 0 18px;
+        border-left: 1px solid var(--border);
+        margin-left: 6px;
+        white-space: nowrap;
+    }
+
+    .grupo.primero { padding-left: 0; margin-left: 0; border-left: 0; }
+
     .pestania[aria-selected="true"] {
         color: var(--accent);
         border-bottom-color: var(--accent);
@@ -162,7 +181,8 @@
     <h1>Tablero de plazos</h1>
     <p class="bajada">
         Las mismas calculadoras de siempre, en una sola ventana. Cada pestaña
-        conserva lo que cargaste mientras no cierres la página.
+        conserva lo que cargaste mientras no cierres la página. Las de
+        honorarios y tasa van aparte: comparten la ventana, no la materia.
     </p>
 </div>
 
@@ -203,14 +223,37 @@
 // por iframe desde el 17/8 y las cinco responden bien.
 // ---------------------------------------------------------------------------
 
-var HERRAMIENTAS = [
-    { id: 'vencimientos',  rotulo: 'Vencimientos',   archivo: 'vencimientos.html' },
-    { id: 'distancia',     rotulo: 'Por distancia',  archivo: 'distancia.html' },
-    { id: 'caducidad',     rotulo: 'Caducidad',      archivo: 'caducidad.html' },
-    { id: 'entre-fechas',  rotulo: 'Entre fechas',   archivo: 'entre-fechas.html' },
-    { id: 'regresiva',     rotulo: 'Regresiva',      archivo: 'regresiva.html' },
-    { id: 'mora',          rotulo: 'Mora',           archivo: 'mora.html' }
+// Prorrateo y tasa no son plazos, y entran igual: el flujo es el mismo —en un
+// expediente mirás un plazo y en el siguiente un prorrateo—, que es el criterio
+// que decidio Javier el 17/8. Pero entran SEPARADAS y con un rotulo de grupo:
+// que compartan ventana no las hace la misma cosa, y una pestania de honorarios
+// pegada a una de plazos invita a leer un numero como si fuera del otro.
+var GRUPOS = [
+    {
+        titulo: 'Plazos',
+        items: [
+            { id: 'vencimientos',  rotulo: 'Vencimientos',   archivo: 'vencimientos.html' },
+            { id: 'distancia',     rotulo: 'Por distancia',  archivo: 'distancia.html' },
+            { id: 'caducidad',     rotulo: 'Caducidad',      archivo: 'caducidad.html' },
+            { id: 'entre-fechas',  rotulo: 'Entre fechas',   archivo: 'entre-fechas.html' },
+            { id: 'regresiva',     rotulo: 'Regresiva',      archivo: 'regresiva.html' },
+            { id: 'mora',          rotulo: 'Mora',           archivo: 'mora.html' }
+        ]
+    },
+    {
+        titulo: 'Honorarios y tasa',
+        items: [
+            { id: 'prorrateo',     rotulo: 'Prorrateo',      archivo: 'prorrateo.html' },
+            { id: 'tasa',          rotulo: 'Tasa de justicia', archivo: 'tasa.html' }
+        ]
+    }
 ];
+
+var HERRAMIENTAS = GRUPOS.reduce(function (acc, g) {
+    return acc.concat(g.items.map(function (h) {
+        return { id: h.id, rotulo: h.rotulo, archivo: h.archivo, grupo: g.titulo };
+    }));
+}, []);
 
 var listaTabs = document.querySelector('[role="tablist"]');
 var contenedor = document.getElementById('paneles');
@@ -235,7 +278,21 @@ var CSS_EMBEBIDO =
     'html, body { height: auto !important; min-height: 0 !important; }';
 
 function construir() {
+    var grupoAnterior = null;
+
     HERRAMIENTAS.forEach(function (h, i) {
+        // Separador de grupo. Es decorativo, asi que sale del arbol de
+        // accesibilidad: para el que navega con teclado, el tablist tiene que
+        // tener pestanias y nada mas.
+        if (h.grupo !== grupoAnterior) {
+            grupoAnterior = h.grupo;
+            var sep = document.createElement('span');
+            sep.className = 'grupo' + (i === 0 ? ' primero' : '');
+            sep.textContent = h.grupo;
+            sep.setAttribute('aria-hidden', 'true');
+            listaTabs.appendChild(sep);
+        }
+
         var tab = document.createElement('button');
         tab.className = 'pestania';
         tab.type = 'button';
