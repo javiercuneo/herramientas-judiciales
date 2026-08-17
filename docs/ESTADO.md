@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-14 · rama `main`
+Última actualización: 2026-08-17 · rama `main`
 
 Lleva sólo lo que sigue vivo: dónde está el trabajo, qué está abierto, qué se
 sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas ya
@@ -309,6 +309,21 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   configuración, `Set-Content -Encoding utf8` o un editor. Un archivo así queda
   inerte —git lo parsea como bytes y ve un nulo entre cada carácter— y se
   manifiesta como diffs enormes por finales de línea, no como un error.
+- **`node-version` de `pages.yml` no es la versión de Node de las acciones.**
+  Cuando Actions anuncia que «estas acciones apuntan a Node 20 y se fuerzan a
+  Node 24», habla del `runs.using` que cada action declara en su propio
+  `action.yml`, y eso sólo se mueve subiendo la versión del action. El
+  `node-version` del `setup-node` es otra cosa: el Node con el que corren
+  `npm ci` y los scripts. Subir uno no apaga el aviso del otro. El 17/8 se
+  subieron las dos: `node-version: 24`, `checkout@v7`, `setup-node@v7`,
+  `upload-pages-artifact@v5` y `deploy-pages@v5`. Y una que confunde: el
+  `upload-artifact@v4` que nombraba el aviso no está en el workflow —lo trae
+  adentro `upload-pages-artifact`, que es composite—, así que se busca en vano
+  hasta que uno abre el `action.yml` de la otra.
+- **`upload-pages-artifact` deja fuera del artefacto los archivos que empiezan
+  con punto**, desde v4 y salvo `include-hidden-files: true`. Hoy no hay
+  ninguno en lo que se publica, pero el día que entre uno **no falla nada**:
+  simplemente no llega al sitio.
 - **Al leer un diff grande de un HTML, mirar primero si es de contenido.**
   `git diff --ignore-cr-at-eol` lo despeja en un segundo.
 - **La consola de Next acumula errores viejos y no los limpia al recargar.**
