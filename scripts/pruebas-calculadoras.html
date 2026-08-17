@@ -458,6 +458,53 @@ function seccion(titulo, bajada) {
     return t.querySelector('tbody');
 }
 
+// ---------------------------------------------------------------------------
+// El tablero corre los mismos casos, pero adentro de tablero.html.
+//
+// Toda la apuesta del tablero es que embeber no cambia ningun numero. Esto lo
+// comprueba en vez de suponerlo: se abre el tablero en un iframe, se activa
+// cada pestania y se corren los mismos VERIFICADOS contra las calculadoras
+// embebidas. Si el tablero moviera un resultado, aparece aca.
+// ---------------------------------------------------------------------------
+async function correrEnTablero(cuerpo) {
+    const marco = document.createElement('iframe');
+    marco.src = '../calculadoras/tablero.html?v=' + Date.now();
+    document.body.appendChild(marco);
+    await new Promise((r) => { marco.onload = r; });
+
+    const vt = marco.contentWindow;
+    const dt = marco.contentDocument;
+    let pasan = 0, fallan = 0;
+
+    for (const c of VERIFICADOS) {
+        try {
+            const tab = dt.getElementById('tab-' + c.calc);
+            if (!tab) throw new Error(`el tablero no tiene la pestaña ${c.calc}`);
+            tab.click();
+            const panel = dt.getElementById('panel-' + c.calc);
+            const ok = await esperar(() => {
+                const f = panel.querySelector('iframe');
+                return f && f.contentDocument && DRIVERS[c.calc].lista(f.contentDocument);
+            }, 15000);
+            if (!ok) throw new Error(`${c.calc}: no cargó dentro del tablero`);
+
+            const d = panel.querySelector('iframe').contentDocument;
+            const got = await DRIVERS[c.calc].correr(d, c.campos);
+            const bien = got === c.esperado;
+            bien ? pasan++ : fallan++;
+            cuerpo.appendChild(fila(bien ? 'pasa' : 'FALLA', bien ? 'ok' : 'mal',
+                c.rotulo, 'tablero → ' + c.calc,
+                bien ? got : `suelta ${c.esperado} · en el tablero ${got}`, null));
+        } catch (e) {
+            fallan++;
+            cuerpo.appendChild(fila('ERROR', 'mal', c.rotulo, 'tablero → ' + c.calc, e.message, null));
+        }
+    }
+
+    marco.remove();
+    return { pasan, fallan };
+}
+
 document.getElementById('correr').addEventListener('click', async () => {
     const btn = document.getElementById('correr');
     btn.disabled = true;
@@ -522,6 +569,17 @@ document.getElementById('correr').addEventListener('click', async () => {
             fallan++;
             cuerpoF.appendChild(fila('ERROR', 'mal', c.rotulo, c.calc, e.message, null));
         }
+    }
+
+    const cuerpoT = seccion('Los mismos casos, adentro del tablero',
+        'Toda la apuesta de tablero.html es que embeber no cambia ningún número. Esto lo comprueba en vez de suponerlo.');
+    try {
+        const t = await correrEnTablero(cuerpoT);
+        pasan += t.pasan;
+        fallan += t.fallan;
+    } catch (e) {
+        fallan++;
+        cuerpoT.appendChild(fila('ERROR', 'mal', 'No se pudo abrir el tablero', 'tablero', e.message, null));
     }
 
     const r = document.getElementById('resumen');

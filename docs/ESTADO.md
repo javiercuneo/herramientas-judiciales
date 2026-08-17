@@ -166,12 +166,41 @@ Cómo se construye, decidido:
   de las calculadoras. Si el flujo resulta bueno, se fusiona después.
 
 Orden: (1) ampliación por distancia en `vencimientos` —hecho el 17/8—; (2) banco
-de pruebas de las pantallas —hecho el 17/8—; (3) el marco; (4) el calendario con
-el plazo dibujado. Después, la tasa de justicia.
+de pruebas de las pantallas —hecho el 17/8—; (3) el marco —**en la rama
+`tablero-plazos`, sin mergear**—; (4) el calendario con el plazo dibujado.
+Después, la tasa de justicia.
 
-**El paso 2 ya validó la técnica del paso 3:** `pruebas-calculadoras.html` maneja
-las cinco calculadoras por iframe y las cinco responden bien, así que el marco
-con iframes no es una apuesta.
+### El marco, en `tablero-plazos`
+
+`calculadoras/tablero.html`: seis pestañas —vencimientos, distancia, caducidad,
+entre fechas, regresiva y mora—, cada una un iframe de la calculadora publicada,
+**sin una línea modificada de ninguna**. Carga perezosa, estado vivo al volver,
+enlace directo por `#pestania`, teclas 1-6 y flechas.
+
+**Lo que lo hace verificable:** `pruebas-calculadoras.html` corre los 16 casos
+verificados **dos veces**, contra las páginas sueltas y contra las embebidas, y
+exige que den lo mismo. Toda la apuesta del tablero es que embeber no cambie un
+número, y eso se comprueba en vez de suponerse.
+
+**La trampa que costó encontrar:** la mitad de las calculadoras tiene
+`body { min-height: 100vh }`, y adentro de un iframe **`100vh` es el alto del
+iframe**. El contenido siempre llena el marco, medirlo devuelve el alto que ya
+tenía, y el alto queda clavado donde arrancó. Se anula por CSS inyectado, y el
+alto se mide sobre el rect del `<body>` y no con `scrollHeight`, que nunca baja
+del alto del propio marco.
+
+**Prorrateo y tasa entran, y van agrupadas aparte.** No son plazos, y entran
+igual porque **el flujo es el mismo**: en un expediente mirás un plazo y en el
+siguiente un prorrateo —criterio de Javier, 17/8—. Pero la barra lleva rótulos
+de grupo, «Plazos» y «Honorarios y tasa»: que compartan ventana no las hace la
+misma materia, y una pestaña de honorarios pegada a una de plazos invita a leer
+un número como si fuera del otro grupo. `honorarios-mediacion` **no** entró:
+tiene mal el rótulo del tope (ver arriba) y no conviene darle más superficie
+hasta arreglarlo.
+
+Ya está enlazado desde `index.html`, en la bajada de la sección de calculadoras.
+
+**Antes de mergear:** nada bloqueante. Falta que Javier lo use unos días.
 
 ---
 
