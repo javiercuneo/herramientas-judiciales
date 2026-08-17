@@ -97,23 +97,23 @@ const VERIFICADOS = [
     {
         calc: 'vencimientos',
         rotulo: 'Cédula hábil 18/07/2025, plazo 5',
-        campos: { modalidad: 'cedula-habitual', dia: '18', mes: '07', anio: '2025', plazo: '5' },
+        campos: { modalidad: 'cedula', dia: '18', mes: '07', anio: '2025', plazo: '5' },
         esperado: '11 de agosto de 2025',
         porque: 'Feria 21/7 al 1/8 (Ac. 9/2025). Primer hábil: lunes 4/8. Cinco hábiles: 4, 5, 6, 7, 8 → viernes 8/8. Gracia art. 124 → lunes 11/8.'
     },
     {
         calc: 'vencimientos',
-        rotulo: 'Cédula hábil 18/07/2024, plazo 5',
-        campos: { modalidad: 'cedula-habitual', dia: '18', mes: '07', anio: '2024', plazo: '5' },
-        esperado: '5 de agosto de 2024',
-        porque: 'Feria 15/7 al 26/7 (Ac. 16/2024). Primer hábil: lunes 29/7. Cinco hábiles: 29, 30, 31, 1, 2 → viernes 2/8. Gracia → lunes 5/8. Con la heurística vieja la feria caía 22/7 al 2/8 y esto daba otra fecha.'
+        rotulo: 'Cédula el 18/07/2024, que cae DENTRO de la feria, plazo 5',
+        campos: { modalidad: 'cedula', dia: '18', mes: '07', anio: '2024', plazo: '5' },
+        esperado: '6 de agosto de 2024',
+        porque: 'El 18/7/2024 es inhábil: está dentro de la feria 15/7 al 26/7 (Ac. 16/2024). La cédula se tiene por practicada el lunes 29/7 y el plazo corre desde el martes 30. Cinco hábiles: 30, 31, 1, 2, 5 → lunes 5/8. Gracia → martes 6/8. OJO: este caso estuvo esperando el 5/8 hasta el 17/8/2026, y estaba mal. La aritmética estaba bien derivada, pero el caso elegía la modalidad «día y hora hábil» sobre un día de feria. El desplegable dejaba hacerlo y nadie lo notaba: es la misma trampa que llevó a rehacer la modalidad.'
     },
     {
         calc: 'vencimientos',
-        rotulo: 'Cédula hábil 10/07/2026, plazo 5',
-        campos: { modalidad: 'cedula-habitual', dia: '10', mes: '07', anio: '2026', plazo: '5' },
-        esperado: '3 de agosto de 2026',
-        porque: 'Feria 20/7 al 31/7 (Ac. 11/2026). Inicio de conteo: lunes 13/7. Cinco hábiles: 13, 14, 15, 16, 17 → viernes 17/7. La gracia cae en feria, así que va al primer hábil siguiente: lunes 3/8.'
+        rotulo: 'Cédula el 10/07/2026, que es puente turístico, plazo 5',
+        campos: { modalidad: 'cedula', dia: '10', mes: '07', anio: '2026', plazo: '5' },
+        esperado: '4 de agosto de 2026',
+        porque: 'El 10/7/2026 es inhábil: puente turístico pegado al 9 de julio. Se tiene por practicada el lunes 13 y el plazo corre desde el martes 14. Cinco hábiles: 14, 15, 16, 17, y la feria 20/7 al 31/7 (Ac. 11/2026) se come el resto, así que el quinto es el lunes 3/8. Gracia → martes 4/8. Este caso también esperaba un día menos: mismo error que el anterior, y encima con un inhábil que no salta a la vista.'
     },
     {
         calc: 'caducidad',
@@ -160,16 +160,37 @@ const VERIFICADOS = [
     {
         calc: 'vencimientos',
         rotulo: 'Cédula hábil 03/03/2026, plazo 10',
-        campos: { modalidad: 'cedula-habitual', dia: '03', mes: '03', anio: '2026', plazo: '10' },
+        campos: { modalidad: 'cedula', dia: '03', mes: '03', anio: '2026', plazo: '10' },
         esperado: '18 de marzo de 2026',
         porque: 'Inicio de conteo 4/3. Diez hábiles: 4, 5, 6, 9, 10, 11, 12, 13, 16, 17 → martes 17/3. Gracia art. 124 → miércoles 18/3.'
     },
     {
         calc: 'vencimientos',
         rotulo: 'Cédula en día inhábil 08/03/2026 (domingo), plazo 5',
-        campos: { modalidad: 'cedula-inhabitual', dia: '08', mes: '03', anio: '2026', plazo: '5' },
+        campos: { modalidad: 'cedula', dia: '08', mes: '03', anio: '2026', plazo: '5' },
         esperado: '17 de marzo de 2026',
-        porque: 'Domingo: dos saltos de día hábil, a lunes 9 y después a martes 10, que es el primer día contado. Cinco hábiles: 10, 11, 12, 13, 16 → lunes 16/3. Gracia → martes 17/3.'
+        porque: 'Domingo: la cédula se tiene por practicada el lunes 9 y el plazo corre desde el martes 10. Cinco hábiles: 10, 11, 12, 13, 16 → lunes 16/3. Gracia → martes 17/3.'
+    },
+    {
+        calc: 'vencimientos',
+        rotulo: 'Cédula el sábado 15/08/2026, plazo 1 — el caso que estaba mal',
+        campos: { modalidad: 'cedula', dia: '15', mes: '08', anio: '2026', plazo: '1' },
+        esperado: '20 de agosto de 2026',
+        porque: 'Sábado inhábil. El domingo 16 tampoco cuenta y el lunes 17 es feriado (Paso a la Inmortalidad de San Martín), así que se tiene por practicada el martes 18 y el plazo corre desde el miércoles 19. Un hábil: 19/8. Gracia → jueves 20/8. Hasta el 17/8/2026 el usuario podía elegir «día y hora hábil» sobre este sábado y la calculadora devolvía el 19: un día antes.'
+    },
+    {
+        calc: 'vencimientos',
+        rotulo: 'Cédula el martes 12/05/2026 en horario, plazo 5',
+        campos: { modalidad: 'cedula', dia: '12', mes: '05', anio: '2026', plazo: '5' },
+        esperado: '20 de mayo de 2026',
+        porque: 'Día hábil y hora hábil: practicada el mismo 12/5, el plazo corre desde el miércoles 13. Cinco hábiles: 13, 14, 15, 18, 19 → martes 19/5. Gracia → miércoles 20/5.'
+    },
+    {
+        calc: 'vencimientos',
+        rotulo: 'Cédula el martes 12/05/2026 fuera de horario, plazo 5',
+        campos: { modalidad: 'cedula', dia: '12', mes: '05', anio: '2026', plazo: '5', fueraDeHorario: true },
+        esperado: '21 de mayo de 2026',
+        porque: 'Mismo día hábil pero después de las 20: se tiene por practicada el miércoles 13 y el plazo corre desde el jueves 14. Cinco hábiles: 14, 15, 18, 19, 20 → miércoles 20/5. Gracia → jueves 21/5. Exactamente un día más que el caso anterior.'
     },
     {
         calc: 'vencimientos',
@@ -181,7 +202,7 @@ const VERIFICADOS = [
     {
         calc: 'vencimientos',
         rotulo: 'Cruza la feria de enero: 15/12/2025, plazo 20',
-        campos: { modalidad: 'cedula-habitual', dia: '15', mes: '12', anio: '2025', plazo: '20' },
+        campos: { modalidad: 'cedula', dia: '15', mes: '12', anio: '2025', plazo: '20' },
         esperado: '19 de febrero de 2026',
         porque: 'Inicio 16/12. Diciembre da 9 hábiles: 16, 17, 18, 19, 22, 23, 26, 29, 30 —el 24 y el 31 son asueto (Ac. 38/2025) y el 25 es Navidad—. Enero entero es feria. Febrero: 2 al 6 (14), 9 al 13 (19), el 16 y 17 son Carnaval, y el 18 es el vigésimo. Gracia → jueves 19/2.'
     },
@@ -229,17 +250,28 @@ const FIJADOS = [
 // suma a la fecha en lugar de al plazo, serian dias corridos y esto lo delata.
 const INVARIANTES = [
     { calc: 'vencimientos', rotulo: 'Ampliación art. 158 ≡ plazo más largo — 12/05/2026, 5+4 vs 9',
-      a: { modalidad: 'cedula-habitual', dia: '12', mes: '05', anio: '2026', plazo: '5', ampliacion: '4' },
-      b: { modalidad: 'cedula-habitual', dia: '12', mes: '05', anio: '2026', plazo: '9' } },
+      a: { modalidad: 'cedula', dia: '12', mes: '05', anio: '2026', plazo: '5', ampliacion: '4' },
+      b: { modalidad: 'cedula', dia: '12', mes: '05', anio: '2026', plazo: '9' } },
     { calc: 'vencimientos', rotulo: 'Ampliación art. 158 ≡ plazo más largo — 10/07/2026, 5+4 vs 9 (cruza feria)',
-      a: { modalidad: 'cedula-habitual', dia: '10', mes: '07', anio: '2026', plazo: '5', ampliacion: '4' },
-      b: { modalidad: 'cedula-habitual', dia: '10', mes: '07', anio: '2026', plazo: '9' } },
+      a: { modalidad: 'cedula', dia: '10', mes: '07', anio: '2026', plazo: '5', ampliacion: '4' },
+      b: { modalidad: 'cedula', dia: '10', mes: '07', anio: '2026', plazo: '9' } },
     { calc: 'vencimientos', rotulo: 'Ampliación art. 158 ≡ plazo más largo — 15/12/2025, 10+7 vs 17 (cruza enero)',
-      a: { modalidad: 'cedula-habitual', dia: '15', mes: '12', anio: '2025', plazo: '10', ampliacion: '7' },
-      b: { modalidad: 'cedula-habitual', dia: '15', mes: '12', anio: '2025', plazo: '17' } },
+      a: { modalidad: 'cedula', dia: '15', mes: '12', anio: '2025', plazo: '10', ampliacion: '7' },
+      b: { modalidad: 'cedula', dia: '15', mes: '12', anio: '2025', plazo: '17' } },
     { calc: 'vencimientos', rotulo: 'Ampliación vacía ≡ ampliación 0 — 12/05/2026, plazo 15',
-      a: { modalidad: 'cedula-habitual', dia: '12', mes: '05', anio: '2026', plazo: '15', ampliacion: '0' },
-      b: { modalidad: 'cedula-habitual', dia: '12', mes: '05', anio: '2026', plazo: '15' } }
+      a: { modalidad: 'cedula', dia: '12', mes: '05', anio: '2026', plazo: '15', ampliacion: '0' },
+      b: { modalidad: 'cedula', dia: '12', mes: '05', anio: '2026', plazo: '15' } },
+
+    // El que pidió Javier explícitamente: los dos supuestos NO se acumulan.
+    // Un sábado a las 23 hs. suma un día, no dos. La pantalla ya esconde el
+    // casillero cuando el día es inhábil, pero esto prueba el CÁLCULO: se lo
+    // fuerza a true igual y tiene que dar lo mismo.
+    { calc: 'vencimientos', rotulo: 'Día inhábil: fuera de horario no suma un segundo día — sábado 15/08/2026',
+      a: { modalidad: 'cedula', dia: '15', mes: '08', anio: '2026', plazo: '5', fueraDeHorario: true },
+      b: { modalidad: 'cedula', dia: '15', mes: '08', anio: '2026', plazo: '5' } },
+    { calc: 'vencimientos', rotulo: 'Día inhábil: fuera de horario no suma un segundo día — domingo 08/03/2026',
+      a: { modalidad: 'cedula', dia: '08', mes: '03', anio: '2026', plazo: '5', fueraDeHorario: true },
+      b: { modalidad: 'cedula', dia: '08', mes: '03', anio: '2026', plazo: '5' } }
 ];
 
 // ---------------------------------------------------------------------------
@@ -263,6 +295,13 @@ const DRIVERS = {
             set('modalidad', campos.modalidad);
             d.getElementById('modalidad').dispatchEvent(new d.defaultView.Event('change', { bubbles: true }));
             set('dia', campos.dia); set('mes', campos.mes); set('anio', campos.anio);
+            // La sección del horario aparece o se esconde según si el día es
+            // hábil, y eso lo decide un listener de `input`. Hay que
+            // dispararlo, si no el checkbox puede quedar visible sobre una
+            // fecha inhábil y el caso no prueba lo que dice probar.
+            ['dia', 'mes', 'anio'].forEach((id) =>
+                d.getElementById(id).dispatchEvent(new d.defaultView.Event('input', { bubbles: true })));
+            d.getElementById('fueraDeHorario').checked = !!campos.fueraDeHorario;
             set('plazo', campos.plazo);
             d.getElementById('ampliacion').value = campos.ampliacion || '';
             d.getElementById('btnCalcular').click();
@@ -375,7 +414,12 @@ async function marco(calc) {
     if (marcos.has(calc)) return marcos.get(calc);
     const drv = DRIVERS[calc];
     const f = document.createElement('iframe');
-    f.src = drv.archivo;
+    // Rompe-cache: sin esto el iframe puede servir la version anterior de la
+    // calculadora y las pruebas corren contra codigo viejo. Paso al cambiar
+    // la modalidad de vencimientos: dieciseis casos fallaron con "Cannot set
+    // properties of null" porque el campo nuevo no existia en la copia
+    // cacheada. Es la peor forma de falla: parece un bug del cambio.
+    f.src = drv.archivo + '?v=' + Date.now();
     document.body.appendChild(f);
     await new Promise((r) => { f.onload = r; });
     const ok = await esperar(() => drv.lista(f.contentDocument), 12000);

@@ -145,6 +145,63 @@ exactamente lo que ya había pasado con las cuatro cifras de Honorio.
 
 ---
 
+## El desplegable de modalidad preguntaba algo que el programa ya sabía — cerrado el 17/8
+
+`vencimientos.html` ofrecía tres opciones, y las dos primeras eran:
+
+- «Por cédula (art. 152) — **Día y hora hábil** (entre las 7 y las 20 hs.)»
+- «Por cédula (art. 152) — **Día y hora inhábil** (después de las 20 hs.)»
+
+El rótulo dice «día **y** hora», pero el que lo lee está pensando en la hora:
+diligenció la cédula a las 15, elige «hábil», y sigue. **El programa, en
+cambio, usaba esa elección también para el día** —que es un dato que ya tiene—,
+así que elegir «hábil» un sábado devolvía el vencimiento **un día antes**.
+
+Lo planteó Javier el 17/8, con el ejemplo del día: era lunes 17 de agosto,
+feriado por el Paso a la Inmortalidad de San Martín.
+
+### La regla, que resulta ser una sola
+
+Los dos supuestos que el desplegable presentaba como distintos son el mismo: la
+cédula **se tiene por practicada el primer día hábil a partir del momento en que
+se diligenció**, y el plazo corre desde el hábil siguiente a ese.
+
+| día | hora | practicada |
+|---|---|---|
+| hábil | en horario | ese mismo día |
+| hábil | fuera de horario | el hábil siguiente |
+| inhábil | cualquiera | el hábil siguiente |
+
+**Los dos últimos no se acumulan**, y eso lo marcó Javier expresamente: un
+sábado a las 23 suma un día, no dos. Por eso la condición es una sola —
+`esDiaHabil(fecha) && horaHabil` — y no dos sumandos. Hay dos invariantes que lo
+comprueban forzando el casillero a verdadero sobre un sábado y un domingo.
+
+Quedó una sola opción de cédula, y el casillero de la hora **aparece sólo cuando
+el día es hábil**, que es cuando la hora decide algo. Si el día es inhábil, en
+vez de una pregunta inútil la pantalla explica por qué ese día no cuenta —
+citando el motivo: fin de semana, feria con su Acordada, puente turístico—.
+Obligar a cargar la hora se descartó por fricción: es un dato que casi siempre
+es «en horario».
+
+### Y agarró dos errores en las pruebas del día anterior
+
+Dos casos del banco marcados **«verificados a mano»** empezaron a fallar, y
+tenían razón:
+
+- `18/07/2024`, que yo había rotulado «Cédula hábil», **cae dentro de la feria**
+  (Ac. 16/2024).
+- `10/07/2026`, ídem, es **puente turístico** pegado al 9 de julio.
+
+La aritmética estaba bien derivada desde el inicio del conteo; lo que nunca se
+comprobó fue si el día de la notificación era hábil, **porque el desplegable
+obligaba a elegirlo y se lo dio por sentado**. Es exactamente la trampa que el
+cambio elimina, y alcanzó para meterse en un archivo cuyo propósito declarado es
+no dar nada por sentado. Los dos casos quedaron corregidos, con el error escrito
+al lado.
+
+---
+
 ## El dominio, cerrado el 5/8
 
 `javiercuneo.com.ar` registrado en NIC —tomó unos días porque el nombre coincide
