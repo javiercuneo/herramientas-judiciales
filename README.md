@@ -83,7 +83,9 @@ falla y deja el archivo como estaba.
 | [PDF Studio](https://javiercuneo.com.ar/PDF-studio/) | Unir, separar, rotar y comprimir PDF sin subirlos a ningún lado. |
 | [Asistente de honorarios clásico](https://javiercuneo.com.ar/asistente-honorarios-clasico/) | La versión original de la que salió Honorio. Se conserva funcionando como referencia. |
 
-### Bandejito
+---
+
+## Bandejito
 
 Aplicación en Google Apps Script que automatizaba la distribución de los
 escritos que ingresaban al juzgado: leía el PDF del listado diario, extraía cada
@@ -128,16 +130,26 @@ Por eso el trabajo está en dos lugares que no son el código:
 
 ## Cómo se verifica
 
-El motor de Honorio —hoy en [su repositorio](https://github.com/javiercuneo/honorio)— tiene
-**16 suites de validación**, una por concern: escala del art. 21, reducciones de
-base, de escala y finales, segunda instancia, partidor, provisorios, procesos
-generales, especiales, exhorto e incidente, actuaciones posteriores a la
-ejecución, modificación de alimentos, mínimos de auxiliares, honorarios del
-mediador, y un barrido
-exhaustivo de los
-**28.224 cruces** de la entrevista —cada uno de los 168 recorridos posibles
-contra cada uno de los otros—, que prueba que volver atrás y cambiar el tipo de
-proceso no deja pegada ninguna respuesta que ya no se preguntó.
+El motor de Honorio —hoy en [su repositorio](https://github.com/javiercuneo/honorio)—
+tiene **17 suites de validación**, una por concern:
+
+- **El cálculo:** escala del art. 21, reducciones sobre la base, sobre la escala
+  y sobre el honorario ya calculado, segunda instancia y partidor, provisorios,
+  y las funciones de apoderado, procurador y auxiliares contra la aritmética
+  original de la que salieron.
+- **Los procesos:** generales, especiales, exhorto e incidente, actuaciones
+  posteriores a la ejecución, modificación de alimentos, mínimos de auxiliares y
+  honorarios del mediador.
+- **Los dos caminos de entrada:** que el cálculo directo dé exactamente lo mismo
+  que la entrevista recorrida por un caso sin ninguna reducción. Si alguna vez
+  difieren, uno de los dos está mal.
+- **El texto de la regulación en prosa**, que es la única que no compara
+  números: produce un documento con forma de resolución, y hasta que existió
+  ninguna validación miraba prosa.
+- **Un barrido exhaustivo de los 28.224 cruces** de la entrevista —cada uno de
+  los 168 recorridos posibles contra cada uno de los otros—, que prueba que
+  volver atrás y cambiar el tipo de proceso no deja pegada ninguna respuesta que
+  ya no se preguntó.
 
 Cada caso es una entrada con su resultado esperado, escrito a mano en el archivo
 de validación: **no hay autoridad externa detrás**, ni jurisprudencia ni tabla
@@ -146,8 +158,9 @@ sea el mismo que el de ayer salvo que alguien haya decidido cambiarlo y lo haya
 escrito.
 
 Con esa limitación, no son opcionales ni decorativas: son lo que impide que un
-cambio de interfaz mueva un número. Corren solas en cada push y en cada pull request, y el sitio
-**no se publica si alguna falla**.
+cambio de interfaz mueva un número. Corren solas en cada push y en cada pull
+request, y el sitio **no se publica si alguna falla**. Desde el repositorio de
+Honorio:
 
 ```bash
 npm run check
@@ -167,7 +180,9 @@ Sobre eso hay tres reglas que sostienen al resto:
 
 La continuidad del trabajo —decisiones tomadas, lo que se sabe roto, las
 trampas que ya costaron tiempo— está en [`docs/ESTADO.md`](docs/ESTADO.md), que
-se actualiza en el mismo commit que el trabajo que describe.
+se actualiza en el mismo commit que el trabajo que describe. Lo que ya se cerró
+—cómo se llegó hasta acá y por qué cada cosa quedó como quedó— está en
+[`docs/HISTORIA.md`](docs/HISTORIA.md).
 
 ---
 
