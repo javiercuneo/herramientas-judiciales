@@ -94,6 +94,16 @@
             font-size: 11px;
         }
         
+        /* --muted-fg y no --faint: este texto lleva un enlace y es la unica
+           explicacion del campo de ampliacion. --faint es para etiquetas, y
+           en tema claro todavia no llega a AA (ver docs/ESTADO.md). */
+        .hint {
+            color: var(--muted-fg);
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 0;
+        }
+
         .error {
             color: #e74c3c;
             font-size: 12px;
@@ -353,7 +363,19 @@
             <input type="text" id="plazo" placeholder="Ej: 5" pattern="[0-9]*" inputmode="numeric">
             <div class="error" id="errorPlazo">Por favor, ingrese un número válido de días.</div>
         </div>
-        
+
+        <div class="form-section">
+            <label for="ampliacion">Ampliación por distancia, en días (art. 158 CPCCN) — opcional</label>
+            <input type="text" id="ampliacion" placeholder="0" pattern="[0-9]*" inputmode="numeric">
+            <div class="error" id="errorAmpliacion">La ampliación tiene que ser un número de días de 0 en adelante.</div>
+            <p class="hint" style="margin-top:6px">
+                Un día por cada 200 km, más uno si la fracción restante llega a 100.
+                Si no sabés cuántos días son, la
+                <a href="distancia.html">calculadora de ampliación por distancia</a>
+                los calcula a partir de las dos localidades.
+            </p>
+        </div>
+
         <div class="buttons">
             <button class="btn-calculate" id="btnCalcular">Calcular Plazo</button>
             <button class="btn-reset" id="btnResetear">Resetear</button>
@@ -384,11 +406,28 @@
         const result = await CalendarioJudicial.init(YEARS);
         datosCargados = result.dataLoaded;
         const div = document.getElementById('yearsAvailable');
-        if (result.dataLoaded) {
-            div.textContent = 'Calculadora disponible para los años ' + MIN_YEAR + ' - ' + MAX_YEAR;
-        } else {
-            div.innerHTML = 'No se pudieron cargar los feriados. Se usan reglas fijas.';
+
+        if (!result.dataLoaded) {
+            // Antes decia "se usan reglas fijas", que sonaba a que calculaba
+            // igual. No calcula: datosCargados queda en false y el boton no
+            // hace nada. Ahora dice que falta y cual.
+            div.textContent = result.missingYears.length
+                ? 'No se puede calcular: faltan los feriados de ' + result.missingYears.join(', ') + '.'
+                : 'No se puede calcular: no se pudieron cargar los feriados.';
+            return;
         }
+
+        // El anuncio de anios disponibles no puede prometer mas de lo que hay.
+        // Los feriados llegan hasta MAX_YEAR, pero la feria de invierno la fija
+        // la CSJN por Acordada dentro del mismo anio: mientras falte, un plazo
+        // que caiga en julio de ese anio no devuelve fecha. Decirlo aca evita
+        // que el "no se puede calcular" del resultado parezca un error.
+        const sinFeria = result.missingFeriaYears;
+        div.textContent = sinFeria.length
+            ? 'Calculadora disponible para los años ' + MIN_YEAR + ' - ' + MAX_YEAR +
+              ', salvo los plazos que caigan en la feria de invierno de ' + sinFeria.join(', ') +
+              ': esa Acordada de la CSJN todavía no se dictó.'
+            : 'Calculadora disponible para los años ' + MIN_YEAR + ' - ' + MAX_YEAR;
     })();
 
     // --- FUNCIONES PARA NOTA DE ASISTENCIA ---
@@ -536,6 +575,17 @@
         const anio = document.getElementById('anio').value;
         const plazo = parseInt(document.getElementById('plazo').value);
 
+        // Ampliacion por distancia (art. 158 CPCCN). Se suma al PLAZO, no a la
+        // fecha de vencimiento: son dias habiles mas de plazo, asi que los
+        // cuenta el mismo bucle y saltan feria y feriados como los demas.
+        // Sumarlos al final, sobre la fecha ya calculada, daria dias corridos.
+        //
+        // El campo recibe dias y no kilometros a proposito: los km ya los
+        // convierte distancia.html, que ademas resuelve la distancia por ruta.
+        // Duplicar esa conversion aca serian dos lugares donde arreglarla.
+        const ampliacionRaw = document.getElementById('ampliacion').value.trim();
+        const ampliacion = ampliacionRaw === '' ? 0 : parseInt(ampliacionRaw, 10);
+
         let hayError = false;
 
         if (!validarFecha(dia, mes, anio)) {
@@ -552,7 +602,15 @@
             hayError = true;
         }
 
+        if (isNaN(ampliacion) || ampliacion < 0) {
+            document.getElementById('errorAmpliacion').classList.add('show');
+            document.getElementById('ampliacion').classList.add('invalid');
+            hayError = true;
+        }
+
         if (hayError) return;
+
+        const plazoTotal = plazo + ampliacion;
 
         // El motor anota los anios cuya feria de invierno no este cargada y
         // que este calculo llegue a tocar. Se consulta antes de mostrar el
@@ -592,7 +650,7 @@
         let fechaActual = new Date(fechaInicioConteo);
         fechaActual.setDate(fechaActual.getDate() - 1);
 
-        while (diasContados < plazo) {
+        while (diasContados < plazoTotal) {
             fechaActual.setDate(fechaActual.getDate() + 1);
             if (CalendarioJudicial.esDiaHabil(fechaActual)) {
                 diasContados++;
@@ -625,6 +683,8 @@
             fechaNotificacion: fechaNotificacion,
             fechaInicioConteo: fechaInicioConteo,
             plazo: plazo,
+            ampliacion: ampliacion,
+            plazoTotal: plazoTotal,
             fechaVencimientoConGracia: fechaVencimientoConGracia,
             fechaVencimientoSinGracia: fechaVencimientoSinGracia,
             diasIgnorados: diasIgnorados
@@ -655,7 +715,16 @@
             html += '<p><strong>Fecha de notificación:</strong> ' + formatearFecha(datos.fechaNotificacion) + '</p>';
         }
         html += '<p><strong>Fecha de inicio del conteo:</strong> ' + formatearFecha(datos.fechaInicioConteo) + '</p>';
-        html += '<p><strong>Plazo:</strong> ' + datos.plazo + ' días hábiles</p>';
+        // Si hubo ampliacion, se muestran los tres numeros. Un plazo de 15 dias
+        // presentado como "15" cuando en realidad se contaron 20 es la clase de
+        // resultado que no se puede auditar mirandolo.
+        if (datos.ampliacion > 0) {
+            html += '<p><strong>Plazo:</strong> ' + datos.plazo + ' días hábiles + ' +
+                datos.ampliacion + ' de ampliación por distancia (art. 158 CPCCN) = <strong>' +
+                datos.plazoTotal + ' días hábiles</strong></p>';
+        } else {
+            html += '<p><strong>Plazo:</strong> ' + datos.plazo + ' días hábiles</p>';
+        }
         html += '</div>';
 
         if (datos.diasIgnorados.length > 0) {
@@ -706,6 +775,7 @@
         document.getElementById('mes').value = '';
         document.getElementById('anio').value = '';
         document.getElementById('plazo').value = '';
+        document.getElementById('ampliacion').value = '';
         document.querySelectorAll('.error').forEach(function(e) { e.classList.remove('show'); });
         document.querySelectorAll('input').forEach(function(i) { i.classList.remove('invalid'); });
         document.getElementById('results').classList.remove('show');

@@ -108,11 +108,16 @@ Ninguno urgente y ninguno bloqueante.
   los mínimos que citan el `06` y el `07` están verificadas contra ese archivo, y
   el archivo dice ser copia fiel del asistente clásico. Que sea fiel a la copia
   no prueba que sea fiel a la norma. Son unas cuarenta cifras.
-- **Ninguna calculadora se corrió de punta a punta.** Se midió contraste y ancho
-  en las once y se miraron capturas de dos. Un cálculo real, con su pantalla de
-  resultado, no se hizo. Desde el 16/8 hay `npm run verificar-calculos`, que
-  cubre el motor de días hábiles —507 comprobaciones— pero **no** las pantallas
-  ni la aritmética propia de cada calculadora.
+- **`npm run verificar-calculos` cubre el motor, no las pantallas.** 664
+  comprobaciones sobre días hábiles, feria y feriados. **Nada cubre la
+  aritmética propia de cada calculadora**: el plazo de gracia del art. 124, la
+  nota de asistencia del art. 133, la ampliación del art. 158, el prorrateo. Eso
+  se sigue verificando a mano en el navegador, un cálculo por vez. Es el
+  siguiente paso del banco de pruebas y lo que falta para poder tocar una
+  calculadora sin abrirla.
+- **Las cinco de plazos ya se corrieron de punta a punta** (17/8), con cálculo
+  real y pantalla de resultado. Las otras seis no: de esas se midió contraste y
+  ancho, y se miraron capturas de dos.
 - **Tuteo suelto en el texto de las calculadoras.** Varias dicen «envíanos un
   mail» y «si crees», que es el imperativo de *tú*. La convención del repositorio
   es rioplatense.
@@ -132,6 +137,34 @@ Ninguno urgente y ninguno bloqueante.
 
 Lo que todavía no existe va en `IDEAS.md`, que es cuaderno interno y no se
 versiona: acá van sólo los pendientes de lo que ya está construido.
+
+---
+
+## El tablero de plazos
+
+Se decidió hacerlo el 17/8, después de descartarlo y revisar la decisión. **El
+argumento que lo sostiene no es la comodidad: es que once herramientas separadas
+pueden discrepar en silencio durante años y dos pestañas del mismo marco no.** El
+bug de la feria vivió porque nada obligaba a que dos calculadoras se miraran.
+
+Cómo se construye, decidido:
+
+- **En este repositorio, no en uno aparte.** Un repositorio aparte duplicaría
+  `calendario-judicial.js`, que es exactamente lo que produjo el bug de `mora`.
+- **El marco va en un branch**, porque publicar algo a medio hacer contradice la
+  decisión de que una herramienta publicada tiene que estar bien —y esa decisión
+  rechaza el argumento de «si no está enlazado no está publicado»—. Lo que
+  mejora las calculadoras existentes va directo a `main`: el uso diario de
+  Javier es el test.
+- **Primera iteración con iframes, no fusionando el markup.** Fusionar cinco HTML
+  tiene colisiones de `id` reales —`plazo` está en `caducidad` y en
+  `vencimientos`; `dia`/`day`, `mes`/`month`— y cada una es una oportunidad de
+  mover un número. Con iframes hay ventana única y pestañas sin tocar una línea
+  de las calculadoras. Si el flujo resulta bueno, se fusiona después.
+
+Orden: (1) ampliación por distancia en `vencimientos` —hecho el 17/8—; (2)
+extender el banco de pruebas a la aritmética de cada calculadora; (3) el marco;
+(4) el calendario con el plazo dibujado. Después, la tasa de justicia.
 
 ---
 
