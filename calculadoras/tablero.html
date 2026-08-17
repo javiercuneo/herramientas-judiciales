@@ -46,6 +46,22 @@
 
     /* La barra queda pegada arriba: la gracia del tablero es cambiar de
        herramienta sin buscar la barra, y algunas calculadoras son largas. */
+    /* --warn y no --accent: es una advertencia, y el cobalto es el único acento
+       del sistema visual —lo activo, lo enfocado y lo seleccionado—. Usarlo acá
+       le quitaría significado a las dos cosas. */
+    .aviso-prueba {
+        background: var(--warn-tint);
+        border-left: 3px solid var(--warn);
+        border-radius: 0 var(--radius) var(--radius) 0;
+        padding: 12px 14px;
+        margin: 0 0 20px;
+        max-width: 70ch;
+        font-size: 13px;
+        color: var(--fg);
+    }
+
+    .aviso-prueba a { color: var(--accent); }
+
     .barra {
         position: sticky;
         top: 0;
@@ -183,6 +199,22 @@
         Las mismas calculadoras de siempre, en una sola ventana. Cada pestaña
         conserva lo que cargaste mientras no cierres la página. Las de
         honorarios y tasa van aparte: comparten la ventana, no la materia.
+    </p>
+
+    <!-- Se publica antes de estar probado en uso, y por eso lo dice. La
+         alternativa era no publicarlo, y no sirve: no hay forma de probarlo en
+         la oficina, donde no se puede levantar un servidor local. El aviso es
+         lo que hace honesta la publicación: el que llega acá de casualidad se
+         entera de que esto es nuevo y de dónde está la referencia. Se saca
+         cuando el uso diario lo confirme. -->
+    <p class="aviso-prueba">
+        <strong>Recién estrenado.</strong> Cada pestaña es la calculadora
+        publicada, sin ninguna modificación, y hay
+        <a href="https://github.com/javiercuneo/herramientas-judiciales/blob/main/scripts/pruebas-calculadoras.html">pruebas
+        automáticas</a> que verifican que acá los números den lo mismo que en las
+        páginas sueltas. Lo que todavía no tiene es rodaje: si algo no cuadra, la
+        referencia son las calculadoras por separado, y te agradezco el aviso a
+        <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a>.
     </p>
 </div>
 
