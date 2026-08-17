@@ -317,10 +317,25 @@
         <div class="form-section">
             <label for="modalidad">Modalidad de Notificación</label>
             <select id="modalidad">
-                <option value="cedula-habitual">Por cédula (art. 152 CPCCN) - Día y hora hábil (entre las 7 y las 20 hs.)</option>
-                <option value="cedula-inhabitual">Por cédula (art. 152 CPCCN) - Día y hora inhábil (después de las 20hs. hasta las 6.59 hs.)</option>
+                <option value="cedula">Por cédula (art. 152 CPCCN)</option>
                 <option value="automatica">Notificación automática (art. 133 CPCCN)</option>
             </select>
+        </div>
+
+        <!-- Si el día es inhábil, la hora no cambia nada y no se pregunta: la
+             cédula se tiene por practicada el hábil siguiente igual. Sólo se
+             pregunta cuando el día es hábil, que es cuando la hora decide. -->
+        <div class="form-section" id="seccionHorario" style="display: none;">
+            <div class="input-group" style="flex-direction: row; align-items: center;">
+                <input type="checkbox" id="fueraDeHorario" style="width: auto; margin-right: 10px; height: 16px;">
+                <label for="fueraDeHorario" style="margin-bottom: 0;">
+                    Se diligenció fuera del horario hábil (después de las 20 o antes de las 7)
+                </label>
+            </div>
+        </div>
+
+        <div class="form-section" id="avisoDiaInhabil" style="display: none;">
+            <p class="hint" id="textoDiaInhabil"></p>
         </div>
         
         <div class="form-section" id="notaAsistenciaSection" style="display: none; border: 1px solid var(--border); padding: 15px; border-radius: 8px;">
@@ -428,6 +443,10 @@
               ', salvo los plazos que caigan en la feria de invierno de ' + sinFeria.join(', ') +
               ': esa Acordada de la CSJN todavía no se dictó.'
             : 'Calculadora disponible para los años ' + MIN_YEAR + ' - ' + MAX_YEAR;
+
+        // Recién ahora se puede saber si una fecha es hábil, así que se
+        // reevalúa por si el usuario ya escribió mientras cargaban los datos.
+        actualizarSeccionHorario();
     })();
 
     // --- FUNCIONES PARA NOTA DE ASISTENCIA ---
@@ -622,13 +641,32 @@
         let fechaInicioConteo;
         let fechaNotificacion;
 
-        if (modalidad === 'cedula-habitual') {
-            fechaNotificacion = fechaIngresada;
-            fechaInicioConteo = CalendarioJudicial.siguienteDiaHabil(fechaIngresada);
-        } else if (modalidad === 'cedula-inhabitual') {
-            fechaNotificacion = fechaIngresada;
-            fechaInicioConteo = CalendarioJudicial.siguienteDiaHabil(fechaIngresada);
-            fechaInicioConteo = CalendarioJudicial.siguienteDiaHabil(fechaInicioConteo);
+        if (modalidad === 'cedula') {
+            // Una sola regla, y sale de que los dos supuestos son el mismo: la
+            // cedula se tiene por practicada el primer dia habil a partir del
+            // momento en que se diligencio, y el plazo corre desde el habil
+            // siguiente a ese.
+            //
+            //   dia habil + hora habil    -> practicada ese dia   (un salto)
+            //   dia habil + fuera de hora -> practicada el habil siguiente
+            //   dia INHABIL, a cualquier hora -> idem
+            //
+            // Los dos ultimos NO se acumulan: un sabado a las 23 hs. suma un
+            // dia, no dos. Por eso la condicion es una sola y no dos sumandos.
+            //
+            // Hasta el 17/8/2026 el desplegable ofrecia "dia y hora habil" y
+            // "dia y hora inhabil", y el usuario elegia las dos cosas juntas
+            // sin manera de saber que el dia tambien contaba: elegir "habil"
+            // un sabado devolvia el vencimiento UN DIA ANTES. Que el dia sea
+            // habil lo sabe el programa; la hora es lo unico que hay que
+            // preguntar, y solo cuando el dia es habil.
+            var horaHabil = !document.getElementById('fueraDeHorario').checked;
+            var practicada = (CalendarioJudicial.esDiaHabil(fechaIngresada) && horaHabil)
+                ? fechaIngresada
+                : CalendarioJudicial.siguienteDiaHabil(fechaIngresada);
+
+            fechaNotificacion = practicada;
+            fechaInicioConteo = CalendarioJudicial.siguienteDiaHabil(practicada);
         } else {
             fechaNotificacion = calcularNotificacionAutomatica(fechaIngresada);
 
@@ -685,6 +723,9 @@
             plazo: plazo,
             ampliacion: ampliacion,
             plazoTotal: plazoTotal,
+            diaEraHabil: CalendarioJudicial.esDiaHabil(fechaIngresada),
+            motivoInhabil: CalendarioJudicial.obtenerMotivoInhabil(fechaIngresada),
+            fueraDeHorario: document.getElementById('fueraDeHorario').checked,
             fechaVencimientoConGracia: fechaVencimientoConGracia,
             fechaVencimientoSinGracia: fechaVencimientoSinGracia,
             diasIgnorados: diasIgnorados
@@ -707,7 +748,11 @@
 
         html += '<div class="result-item">';
         html += '<h3>Información del Cálculo</h3>';
-        html += '<p><strong>Modalidad:</strong> ' + obtenerTextoModalidad(datos.modalidad) + '</p>';
+        html += '<p><strong>Modalidad:</strong> ' + obtenerTextoModalidad(datos) + '</p>';
+        if (datos.modalidad === 'cedula' && !datos.diaEraHabil) {
+            html += '<p><strong>Día de la diligencia:</strong> ' + formatearFecha(datos.fechaIngresada) +
+                ' — ' + datos.motivoInhabil + '. La cédula se tiene por practicada el primer día hábil siguiente.</p>';
+        }
         if (datos.modalidad === 'automatica') {
             html += '<p><strong>Fecha de firma:</strong> ' + formatearFecha(datos.fechaIngresada) + '</p>';
             html += '<p><strong>Fecha de notificación:</strong> ' + formatearFecha(datos.fechaNotificacion) + '</p>';
@@ -760,17 +805,20 @@
         resultsDiv.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function obtenerTextoModalidad(modalidad) {
-        const textos = {
-            'cedula-habitual': 'Por cédula - Día y hora hábil (art. 152 CPCCN)',
-            'cedula-inhabitual': 'Por cédula - Día y hora inhábil (art. 152 CPCCN)',
-            'automatica': 'Notificación automática (art. 133 CPCCN)'
-        };
-        return textos[modalidad] || modalidad;
+    // El resultado dice cómo quedó resuelto el día y la hora, porque son lo
+    // que explica la diferencia de un día y ya no se eligen a mano.
+    function obtenerTextoModalidad(datos) {
+        if (datos.modalidad === 'automatica') return 'Notificación automática (art. 133 CPCCN)';
+
+        var t = 'Por cédula (art. 152 CPCCN), diligenciada en día ';
+        t += datos.diaEraHabil ? 'hábil' : 'inhábil';
+        if (datos.diaEraHabil) t += datos.fueraDeHorario ? ' y fuera del horario' : ' y en horario';
+        return t;
     }
 
     function resetear() {
-        document.getElementById('modalidad').value = 'cedula-habitual';
+        document.getElementById('modalidad').value = 'cedula';
+        document.getElementById('fueraDeHorario').checked = false;
         document.getElementById('dia').value = '';
         document.getElementById('mes').value = '';
         document.getElementById('anio').value = '';
@@ -781,6 +829,7 @@
         document.getElementById('results').classList.remove('show');
         actualizarLabelFecha();
         mostrarDiasDeNota();
+        actualizarSeccionHorario();
     }
 
     function actualizarLabelFecha() {
@@ -793,13 +842,57 @@
         }
     }
 
+    // Se pregunta por la hora sólo cuando puede cambiar algo. Si el día es
+    // inhábil la cédula se tiene por practicada el hábil siguiente sin
+    // importar la hora, así que en vez de una pregunta inútil se dice por qué
+    // ese día no cuenta. Corre con cada tecla de la fecha.
+    function actualizarSeccionHorario() {
+        const esCedula = document.getElementById('modalidad').value === 'cedula';
+        const seccion = document.getElementById('seccionHorario');
+        const aviso = document.getElementById('avisoDiaInhabil');
+        const dia = document.getElementById('dia').value;
+        const mes = document.getElementById('mes').value;
+        const anio = document.getElementById('anio').value;
+
+        if (!esCedula) {
+            seccion.style.display = 'none';
+            aviso.style.display = 'none';
+            return;
+        }
+
+        // Sin fecha válida todavía no se sabe si el día es hábil: se muestra
+        // la pregunta, que es el caso más común, y se corrige al completarla.
+        if (!datosCargados || !validarFecha(dia, mes, anio)) {
+            seccion.style.display = 'block';
+            aviso.style.display = 'none';
+            return;
+        }
+
+        const fecha = new Date(parseInt(anio), parseInt(mes) - 1, parseInt(dia));
+        if (CalendarioJudicial.esDiaHabil(fecha)) {
+            seccion.style.display = 'block';
+            aviso.style.display = 'none';
+            return;
+        }
+
+        seccion.style.display = 'none';
+        document.getElementById('fueraDeHorario').checked = false;
+        aviso.style.display = 'block';
+        document.getElementById('textoDiaInhabil').textContent =
+            'Ese día es inhábil (' + (CalendarioJudicial.obtenerMotivoInhabil(fecha) || 'inhábil') +
+            '), así que la cédula se tiene por practicada el primer día hábil siguiente y la hora ' +
+            'no cambia el cómputo.';
+    }
+
     // Event listeners
     document.getElementById('modalidad').addEventListener('change', actualizarLabelFecha);
     document.getElementById('modalidad').addEventListener('change', mostrarDiasDeNota);
+    document.getElementById('modalidad').addEventListener('change', actualizarSeccionHorario);
     document.getElementById('checkNotaAsistencia').addEventListener('change', mostrarDiasDeNota);
-    document.getElementById('dia').addEventListener('input', mostrarDiasDeNota);
-    document.getElementById('mes').addEventListener('input', mostrarDiasDeNota);
-    document.getElementById('anio').addEventListener('input', mostrarDiasDeNota);
+    ['dia', 'mes', 'anio'].forEach(function(id) {
+        document.getElementById(id).addEventListener('input', mostrarDiasDeNota);
+        document.getElementById(id).addEventListener('input', actualizarSeccionHorario);
+    });
     document.getElementById('btnAddDiasNota').addEventListener('click', function(e) {
         e.preventDefault();
         generarNuevoParNotas();

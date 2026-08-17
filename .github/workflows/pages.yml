@@ -18,13 +18,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Las versiones de las acciones no son cosmetica: cada action declara
+      # con que Node corre su propio codigo (`runs.using`), y eso es
+      # independiente del `node-version` de abajo. checkout@v4, setup-node@v4
+      # y deploy-pages@v4 declaran node20, que Actions ya no ejecuta: los
+      # forzaba a node24 y anotaba la corrida. De v5 en adelante declaran
+      # node24 y la anotacion desaparece.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
+      # node-version es otra cosa: el Node con el que corren npm ci y los
+      # scripts del repositorio. Node 20 salio de soporte en abril de 2026.
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install repo dependencies
         run: npm ci
@@ -83,8 +91,17 @@ jobs:
       - name: Build domain docs
         run: npm run docs -- site/docs
 
+      # Esta es composite: el node20 que anotaba Actions venia del
+      # actions/upload-artifact que usa adentro, no de ella. Hasta v4 pinea
+      # upload-artifact@v4 (node20); v5 pasa a v7 (node24).
+      #
+      # Desde v4 excluye del artefacto los archivos y carpetas que empiezan
+      # con punto, salvo que se le pase include-hidden-files: true. Hoy no
+      # se publica ninguno —el ensamblado de arriba es una allowlist y no
+      # nombra ninguno—, pero si algun dia entra uno, va a faltar en el
+      # sitio sin que nada falle.
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
@@ -95,6 +112,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # v4 tambien declara node20; la anotacion que se leyo era la del job
+      # de build y no lo nombraba, pero es el mismo caso.
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
