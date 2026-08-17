@@ -108,13 +108,14 @@ Ninguno urgente y ninguno bloqueante.
   los mínimos que citan el `06` y el `07` están verificadas contra ese archivo, y
   el archivo dice ser copia fiel del asistente clásico. Que sea fiel a la copia
   no prueba que sea fiel a la norma. Son unas cuarenta cifras.
-- **`npm run verificar-calculos` cubre el motor, no las pantallas.** 664
-  comprobaciones sobre días hábiles, feria y feriados. **Nada cubre la
-  aritmética propia de cada calculadora**: el plazo de gracia del art. 124, la
-  nota de asistencia del art. 133, la ampliación del art. 158, el prorrateo. Eso
-  se sigue verificando a mano en el navegador, un cálculo por vez. Es el
-  siguiente paso del banco de pruebas y lo que falta para poder tocar una
-  calculadora sin abrirla.
+- **Hay dos bancos de pruebas y cubren cosas distintas.** `npm run
+  verificar-calculos` (664 comprobaciones) cubre **el motor**: días hábiles,
+  feria, feriados, cobertura. `scripts/pruebas-calculadoras.html` (23 casos)
+  cubre **las pantallas**: maneja las cinco calculadoras por iframe y compara
+  el resultado que muestran. Se abre con el sitio servido —no con `file://`— y
+  tarda seis segundos.
+  **Falta cubrir el prorrateo, la tasa y las demás no-de-plazos**, que hoy no
+  tienen ni una comprobación.
 - **Las cinco de plazos ya se corrieron de punta a punta** (17/8), con cálculo
   real y pantalla de resultado. Las otras seis no: de esas se midió contraste y
   ancho, y se miraron capturas de dos.
@@ -162,9 +163,13 @@ Cómo se construye, decidido:
   mover un número. Con iframes hay ventana única y pestañas sin tocar una línea
   de las calculadoras. Si el flujo resulta bueno, se fusiona después.
 
-Orden: (1) ampliación por distancia en `vencimientos` —hecho el 17/8—; (2)
-extender el banco de pruebas a la aritmética de cada calculadora; (3) el marco;
-(4) el calendario con el plazo dibujado. Después, la tasa de justicia.
+Orden: (1) ampliación por distancia en `vencimientos` —hecho el 17/8—; (2) banco
+de pruebas de las pantallas —hecho el 17/8—; (3) el marco; (4) el calendario con
+el plazo dibujado. Después, la tasa de justicia.
+
+**El paso 2 ya validó la técnica del paso 3:** `pruebas-calculadoras.html` maneja
+las cinco calculadoras por iframe y las cinco responden bien, así que el marco
+con iframes no es una apuesta.
 
 ---
 
@@ -288,6 +293,18 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   `build`, `validate` y `typecheck` son de Honorio y **solo corren desde
   `honorio/`**, que es un clon de otro repositorio. Pedirlos acá da «Missing
   script», que se lee fácil como que algo está roto y no lo está.
+- **Un predicado de «página lista» que matchea el cartel de *cargando* es peor
+  que no tener predicado.** `pruebas-calculadoras.html` esperaba a que el cartel
+  dijera «disponible», y el texto inicial de varias calculadoras es «Cargando
+  información de años **disponibles**…»: daba verde antes de que cargaran los
+  datos y se calculaba sobre una página vacía. El síntoma era engañoso —fallaba
+  sólo el **primer** caso de cada página, porque para el segundo ya había
+  cargado—. Hay que exigir el texto del estado final, que es distinto del de
+  carga.
+- **`gh` está instalado pero los shells de una sesión ya empezada no lo ven.**
+  El ejecutable está en `C:\Program Files\GitHub CLI`. Si `gh: command not
+  found`, no falta: sobra `PATH` viejo. `export PATH="$PATH:/c/Program Files/GitHub CLI"`
+  en Bash y anda.
 - **El `>` de PowerShell escribe UTF-16.** Para editar un archivo de
   configuración, `Set-Content -Encoding utf8` o un editor. Un archivo así queda
   inerte —git lo parsea como bytes y ve un nulo entre cada carácter— y se

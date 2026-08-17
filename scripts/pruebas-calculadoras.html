@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pruebas de las calculadoras de plazos</title>
+<style>
+    :root {
+        color-scheme: light dark;
+        --bg: #f4f5f7; --card: #ffffff; --fg: #14161a; --muted: #5f6774;
+        --line: #d8dce3; --ok: #0a7d3f; --mal: #c0271d; --pend: #8a6d1f;
+        --sunk: #eceef2;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg: #0d0f13; --card: #16191f; --fg: #e8eaee; --muted: #99a1ae;
+            --line: #2a2f38; --ok: #4ec97f; --mal: #ff7a6e; --pend: #e0bd5c;
+            --sunk: #1c2027;
+        }
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0; padding: 24px; background: var(--bg); color: var(--fg);
+        font: 15px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1000px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    h2 { font-size: 1.05rem; margin: 32px 0 4px; }
+    p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+    .aviso {
+        background: var(--sunk); border: 1px solid var(--line);
+        border-radius: 6px; padding: 12px 14px; margin: 16px 0 24px;
+        font-size: 14px; color: var(--fg);
+    }
+    button {
+        font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 6px;
+        border: 1px solid var(--line); background: var(--card); color: var(--fg);
+        cursor: pointer;
+    }
+    #resumen { font-weight: 600; margin: 20px 0; font-size: 1.1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td {
+        text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line);
+        font-size: 13px; vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    td.est { white-space: nowrap; font-weight: 600; }
+    .ok { color: var(--ok); } .mal { color: var(--mal); } .pend { color: var(--pend); }
+    code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+    .porque { color: var(--muted); font-size: 12px; display: block; margin-top: 2px; }
+    iframe { position: fixed; left: -9999px; width: 1100px; height: 900px; border: 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>Pruebas de las calculadoras de plazos</h1>
+<p>Abrir con el sitio servido, no con <code>file://</code>: las calculadoras piden
+los JSON de <code>data/</code> con <code>fetch</code>.</p>
+
+<div class="aviso">
+    <strong>Por qué esto es una página y no un script de Node.</strong>
+    La aritmética propia de cada calculadora —el plazo de gracia del art. 124, la
+    nota de asistencia del art. 133, la ampliación del art. 158— vive en un
+    <code>&lt;script&gt;</code> inline atado al DOM. Node no la alcanza sin
+    extraerla a un módulo, y extraerla es exactamente lo que no conviene hacer
+    sin una red que avise si un número se movió. Así que la red se construye
+    primero, manejando las páginas reales por iframe. Si algún día la aritmética
+    se extrae, estos mismos casos sirven para comprobar que la extracción no
+    movió nada.
+    <br><br>
+    <strong>Esto vive en <code>scripts/</code> a propósito:</strong> el workflow
+    de Pages publica por lista explícita y <code>scripts/</code> no está en ella,
+    así que no llega a producción. <code>npm run verificar-calculos</code> sigue
+    cubriendo el motor de días hábiles; esto cubre las pantallas.
+</div>
+
+<button id="correr">Correr las pruebas</button>
+<div id="resumen"></div>
+<div id="salida"></div>
+</main>
+
+<script>
+// ---------------------------------------------------------------------------
+// Los casos se dividen en dos, y la diferencia importa.
+//
+//   VERIFICADOS: la fecha esperada se dedujo a mano, contando los dias contra
+//   las Acordadas y los feriados. Cada uno lleva escrito el porque. Si uno de
+//   estos falla, la calculadora esta mal.
+//
+//   FIJADOS: la fecha esperada es lo que la calculadora devuelve HOY. No dice
+//   que este bien: dice que es lo que hay. Sirve para que un refactor que mueva
+//   un numero se vea. Un caso con esperado en null todavia no se fijo: la
+//   corrida lo reporta y hay que pegarlo aca a mano, despues de mirarlo.
+// ---------------------------------------------------------------------------
+
+const VERIFICADOS = [
+    {
+        calc: 'vencimientos',
+        rotulo: 'Cédula hábil 18/07/2025, plazo 5',
+        campos: { modalidad: 'cedula-habitual', dia: '18', mes: '07', anio: '2025', plazo: '5' },
+        esperado: '11 de agosto de 2025',
+        porque: 'Feria 21/7 al 1/8 (Ac. 9/2025). Primer hábil: lunes 4/8. Cinco hábiles: 4, 5, 6, 7, 8 → viernes 8/8. Gracia art. 124 → lunes 11/8.'
+    },
+    {
+        calc: 'vencimientos',
+        rotulo: 'Cédula hábil 18/07/2024, plazo 5',
+        campos: { modalidad: 'cedula-habitual', dia: '18', mes: '07', anio: '2024', plazo: '5' },
+        esperado: '5 de agosto de 2024',
+        porque: 'Feria 15/7 al 26/7 (Ac. 16/2024). Primer hábil: lunes 29/7. Cinco hábiles: 29, 30, 31, 1, 2 → viernes 2/8. Gracia → lunes 5/8. Con la heurística vieja la feria caía 22/7 al 2/8 y esto daba otra fecha.'
+    },
+    {
+        calc: 'vencimientos',
+        rotulo: 'Cédula hábil 10/07/2026, plazo 5',
+        campos: { modalidad: 'cedula-habitual', dia: '10', mes: '07', anio: '2026', plazo: '5' },
+        esperado: '3 de agosto de 2026',
+        porque: 'Feria 20/7 al 31/7 (Ac. 11/2026). Inicio de conteo: lunes 13/7. Cinco hábiles: 13, 14, 15, 16, 17 → viernes 17/7. La gracia cae en feria, así que va al primer hábil siguiente: lunes 3/8.'
+    },
+    {
+        calc: 'caducidad',
+        rotulo: 'Último acto 25/01/2025, 6 meses',
+        campos: { plazo: '6', day: '25', month: '01', year: '2025' },
+        esperado: '20/8/2025',
+        porque: 'Vencimiento nominal 25/7/2025, dentro de la feria 21/7 al 1/8. La iteración a punto fijo suma los 12 días de feria → 6/8, y después los 14 inhábiles del período → 20/8. Es el caso donde el bug de setDate retrocedía al 2 de julio.'
+    },
+    {
+        calc: 'entre-fechas',
+        rotulo: '14/07/2024 al 31/07/2024, hábiles',
+        campos: { startDay: '14', startMonth: '07', startYear: '2024', endDay: '31', endMonth: '07', endYear: '2024', businessDays: true },
+        esperado: '3',
+        porque: 'Feria 15/7 al 26/7. Quedan hábiles el 29, 30 y 31 de julio. El 14 es domingo.'
+    },
+    {
+        calc: 'regresiva',
+        rotulo: 'Objetivo 30/07/2024, 5 días de antelación',
+        campos: { fechaObjetivo: '30/07/2024', diasAntelacion: '5' },
+        esperado: '08/07/2024',
+        porque: 'Hacia atrás desde el 30/7: 29/7 es el primero. Feria 15 al 26/7. Siguen 12/7, 11/7, 10/7, y el 9/7 es feriado (Independencia), así que el quinto es el lunes 8/7.'
+    },
+    {
+        calc: 'mora',
+        rotulo: 'Notificación 10/07/2024, 10 hábiles + 10 corridos',
+        campos: { d_dia: '10', d_mes: '07', d_anio: '2024', diasHabiles: '10', plazoDias: '10' },
+        esperado: '17/8/2024',
+        porque: 'Notificación hábil (miércoles), arranca el 11/7. Diez hábiles: 11, 12 (2), feria 15 al 26, 29, 30, 31 (5), 1, 2 (7), 5, 6, 7 (10) → miércoles 7/8. Los corridos arrancan el 8/8 y son 10 inclusive → 17/8.'
+    },
+    {
+        calc: 'mora',
+        rotulo: 'Notificación 20/12/2025 (sábado), 10 hábiles + 30 corridos',
+        campos: { d_dia: '20', d_mes: '12', d_anio: '2025', diasHabiles: '10', plazoDias: '30' },
+        esperado: '11/3/2026',
+        porque: 'Sábado: la notificación se tiene por hecha el lunes 22/12 y el plazo arranca el 23. Hábiles: 23 (1), el 24 y el 31 son asueto (Ac. 38/2025), el 25 Navidad; 26 (2), 29 (3), 30 (4); enero entero es feria; 2, 3, 4, 5, 6 de febrero (9) y 9/2 (10). Corridos desde el 10/2, 30 inclusive → 11/3/2026.'
+    },
+    {
+        calc: 'mora',
+        rotulo: 'Notificación 03/03/2026, 10 hábiles + 10 corridos',
+        campos: { d_dia: '03', d_mes: '03', d_anio: '2026', diasHabiles: '10', plazoDias: '10' },
+        esperado: '27/3/2026',
+        porque: 'Martes hábil, arranca el 4/3. Diez hábiles sin feriados de por medio: 4, 5, 6, 9, 10, 11, 12, 13, 16, 17 → martes 17/3. Corridos desde el 18/3, 10 inclusive → 27/3.'
+    },
+    {
+        calc: 'vencimientos',
+        rotulo: 'Cédula hábil 03/03/2026, plazo 10',
+        campos: { modalidad: 'cedula-habitual', dia: '03', mes: '03', anio: '2026', plazo: '10' },
+        esperado: '18 de marzo de 2026',
+        porque: 'Inicio de conteo 4/3. Diez hábiles: 4, 5, 6, 9, 10, 11, 12, 13, 16, 17 → martes 17/3. Gracia art. 124 → miércoles 18/3.'
+    },
+    {
+        calc: 'vencimientos',
+        rotulo: 'Cédula en día inhábil 08/03/2026 (domingo), plazo 5',
+        campos: { modalidad: 'cedula-inhabitual', dia: '08', mes: '03', anio: '2026', plazo: '5' },
+        esperado: '17 de marzo de 2026',
+        porque: 'Domingo: dos saltos de día hábil, a lunes 9 y después a martes 10, que es el primer día contado. Cinco hábiles: 10, 11, 12, 13, 16 → lunes 16/3. Gracia → martes 17/3.'
+    },
+    {
+        calc: 'vencimientos',
+        rotulo: 'Notificación automática (art. 133) 03/03/2026, plazo 5',
+        campos: { modalidad: 'automatica', dia: '03', mes: '03', anio: '2026', plazo: '5' },
+        esperado: '16 de marzo de 2026',
+        porque: 'Firma el martes 3/3. El primer día de nota siguiente es el viernes 6/3, y ahí queda notificada. Inicio de conteo lunes 9/3. Cinco hábiles: 9, 10, 11, 12, 13 → viernes 13/3. Gracia → lunes 16/3.'
+    },
+    {
+        calc: 'vencimientos',
+        rotulo: 'Cruza la feria de enero: 15/12/2025, plazo 20',
+        campos: { modalidad: 'cedula-habitual', dia: '15', mes: '12', anio: '2025', plazo: '20' },
+        esperado: '19 de febrero de 2026',
+        porque: 'Inicio 16/12. Diciembre da 9 hábiles: 16, 17, 18, 19, 22, 23, 26, 29, 30 —el 24 y el 31 son asueto (Ac. 38/2025) y el 25 es Navidad—. Enero entero es feria. Febrero: 2 al 6 (14), 9 al 13 (19), el 16 y 17 son Carnaval, y el 18 es el vigésimo. Gracia → jueves 19/2.'
+    },
+    {
+        calc: 'entre-fechas',
+        rotulo: '02/01/2026 al 28/02/2026, hábiles',
+        campos: { startDay: '02', startMonth: '01', startYear: '2026', endDay: '28', endMonth: '02', endYear: '2026', businessDays: true },
+        esperado: '18',
+        porque: 'Enero entero es feria, así que no aporta ninguno. Febrero de 2026 empieza domingo y tiene 28 días: 20 días de semana exactos, menos el 16 y el 17 de Carnaval → 18.'
+    },
+    {
+        calc: 'entre-fechas',
+        rotulo: '02/01/2026 al 28/02/2026, corridos',
+        campos: { startDay: '02', startMonth: '01', startYear: '2026', endDay: '28', endMonth: '02', endYear: '2026', businessDays: false },
+        esperado: '58',
+        porque: 'Del 2 al 31 de enero son 30 días, más los 28 de febrero → 58. Cuenta las dos puntas.'
+    },
+    {
+        calc: 'regresiva',
+        rotulo: 'Objetivo 10/03/2026, 15 días de antelación',
+        campos: { fechaObjetivo: '10/03/2026', diasAntelacion: '15' },
+        esperado: '13/02/2026',
+        porque: 'Hacia atrás desde el 10/3: 9, 6, 5, 4, 3, 2 de marzo (6), 27, 26, 25, 24, 23, 20, 19, 18 de febrero (14); el 17 y el 16 son Carnaval, así que el decimoquinto es el viernes 13/2.'
+    }
+];
+
+// Los tres que quedan son de caducidad, y quedan fijados y no verificados por
+// una razon concreta: su algoritmo suma los inhabiles del periodo entero con
+// una iteracion a punto fijo, asi que verificarlos a mano exige listar cada
+// feriado de tres a seis meses y despues repetir la cuenta hasta que converja.
+// Se puede hacer, pero no se hizo: decir "esto es lo que devuelve hoy" es
+// honesto, y decir "verifique esto" sin haberlo hecho, no.
+const FIJADOS = [
+    { calc: 'caducidad', rotulo: 'Último acto 25/01/2024, 6 meses',
+      campos: { plazo: '6', day: '25', month: '01', year: '2024' }, esperado: '20/8/2024' },
+    { calc: 'caducidad', rotulo: 'Último acto 10/09/2025, 3 meses',
+      campos: { plazo: '3', day: '10', month: '09', year: '2025' }, esperado: '16/12/2025' },
+    { calc: 'caducidad', rotulo: 'Último acto 10/09/2025, 1 mes',
+      campos: { plazo: '1', day: '10', month: '09', year: '2025' }, esperado: '13/10/2025' }
+];
+
+// Invariantes: no comparan contra una fecha, comparan dos caminos entre si.
+// Este es el que sostiene el campo de ampliacion del art. 158: ampliar N dias
+// tiene que ser indistinguible de un plazo N dias mas largo. Si alguna vez se
+// suma a la fecha en lugar de al plazo, serian dias corridos y esto lo delata.
+const INVARIANTES = [
+    { calc: 'vencimientos', rotulo: 'Ampliación art. 158 ≡ plazo más largo — 12/05/2026, 5+4 vs 9',
+      a: { modalidad: 'cedula-habitual', dia: '12', mes: '05', anio: '2026', plazo: '5', ampliacion: '4' },
+      b: { modalidad: 'cedula-habitual', dia: '12', mes: '05', anio: '2026', plazo: '9' } },
+    { calc: 'vencimientos', rotulo: 'Ampliación art. 158 ≡ plazo más largo — 10/07/2026, 5+4 vs 9 (cruza feria)',
+      a: { modalidad: 'cedula-habitual', dia: '10', mes: '07', anio: '2026', plazo: '5', ampliacion: '4' },
+      b: { modalidad: 'cedula-habitual', dia: '10', mes: '07', anio: '2026', plazo: '9' } },
+    { calc: 'vencimientos', rotulo: 'Ampliación art. 158 ≡ plazo más largo — 15/12/2025, 10+7 vs 17 (cruza enero)',
+      a: { modalidad: 'cedula-habitual', dia: '15', mes: '12', anio: '2025', plazo: '10', ampliacion: '7' },
+      b: { modalidad: 'cedula-habitual', dia: '15', mes: '12', anio: '2025', plazo: '17' } },
+    { calc: 'vencimientos', rotulo: 'Ampliación vacía ≡ ampliación 0 — 12/05/2026, plazo 15',
+      a: { modalidad: 'cedula-habitual', dia: '12', mes: '05', anio: '2026', plazo: '15', ampliacion: '0' },
+      b: { modalidad: 'cedula-habitual', dia: '12', mes: '05', anio: '2026', plazo: '15' } }
+];
+
+// ---------------------------------------------------------------------------
+// Un driver por calculadora: sabe llenar sus campos, apretar su boton y leer
+// su resultado. Es lo unico que hay que tocar si una pantalla cambia.
+// ---------------------------------------------------------------------------
+const DRIVERS = {
+    // OJO con los predicados de "pagina lista": el cartel inicial de varias
+    // dice "Cargando informacion de anios disponibles...", que contiene la
+    // palabra "disponibles". Un predicado que busque "disponible" da true
+    // ANTES de que carguen los datos, y entonces se calcula sobre una pagina
+    // vacia. Paso, y el sintoma fue enganioso: fallaba solo el primer caso de
+    // cada pagina, porque para el segundo ya habia cargado. Hay que exigir el
+    // texto del estado FINAL, que es distinto del de carga.
+    vencimientos: {
+        archivo: '../calculadoras/vencimientos.html',
+        lista: (d) => /disponible para los años|No se puede calcular/i.test(
+            d.getElementById('yearsAvailable').textContent),
+        correr: async (d, campos) => {
+            const set = (id, v) => { if (v !== undefined) d.getElementById(id).value = v; };
+            set('modalidad', campos.modalidad);
+            d.getElementById('modalidad').dispatchEvent(new d.defaultView.Event('change', { bubbles: true }));
+            set('dia', campos.dia); set('mes', campos.mes); set('anio', campos.anio);
+            set('plazo', campos.plazo);
+            d.getElementById('ampliacion').value = campos.ampliacion || '';
+            d.getElementById('btnCalcular').click();
+            await pausa(120);
+            const t = d.getElementById('results').innerText.replace(/\s+/g, ' ');
+            if (/No se puede calcular/.test(t)) return 'no calcula: ' + t.slice(0, 80);
+            // El dia de la semana se descarta hasta la coma. Con \w+ se comia
+            // la tilde —"Miercoles" quedaba en "ercoles"— porque \w no incluye
+            // acentuadas: la fecha salia mutilada y encima de forma consistente,
+            // que es peor, porque las comparaciones seguian pasando.
+            const m = t.match(/Vencimiento del Plazo\s+(?:[^,]+,\s*)?(.+?)\s*Hora/);
+            return m ? m[1].trim() : '(no se pudo leer) ' + t.slice(0, 70);
+        }
+    },
+    caducidad: {
+        archivo: '../calculadoras/caducidad.html',
+        lista: (d) => /disponible|No se puede/.test(d.getElementById('apiStatus').textContent),
+        correr: async (d, campos) => {
+            d.getElementById('plazo').value = campos.plazo;
+            d.getElementById('plazo').dispatchEvent(new d.defaultView.Event('change', { bubbles: true }));
+            if (campos.customValue) d.getElementById('customValue').value = campos.customValue;
+            d.getElementById('day').value = campos.day;
+            d.getElementById('month').value = campos.month;
+            d.getElementById('year').value = campos.year;
+            d.getElementById('calculatorForm').dispatchEvent(
+                new d.defaultView.Event('submit', { bubbles: true, cancelable: true }));
+            await pausa(120);
+            return d.getElementById('resultDateFull').innerText.trim();
+        }
+    },
+    'entre-fechas': {
+        archivo: '../calculadoras/entre-fechas.html',
+        // "disponible para" y no "disponible": ver la advertencia de arriba.
+        lista: (d) => /disponible para/i.test(
+            d.getElementById('availableYears').textContent),
+        correr: async (d, campos) => {
+            let alerta = null;
+            d.defaultView.alert = (m) => { alerta = m; };
+            ['startDay', 'startMonth', 'startYear', 'endDay', 'endMonth', 'endYear']
+                .forEach((k) => { if (campos[k] !== undefined) d.getElementById(k).value = campos[k]; });
+            d.getElementById('businessDays').checked = !!campos.businessDays;
+            boton(d, /calcul/i).click();
+            await pausa(500);
+            if (alerta) return 'no calcula: ' + String(alerta).replace(/\s+/g, ' ').slice(0, 80);
+            return d.getElementById('totalDays').textContent.trim();
+        }
+    },
+    regresiva: {
+        archivo: '../calculadoras/regresiva.html',
+        lista: (d) => /Años disponibles|Error al cargar/i.test(
+            d.getElementById('infoAnios').textContent),
+        correr: async (d, campos) => {
+            let alerta = null;
+            d.defaultView.alert = (m) => { alerta = m; };
+            d.getElementById('fechaObjetivo').value = campos.fechaObjetivo;
+            d.getElementById('diasAntelacion').value = campos.diasAntelacion;
+            boton(d, /calcul/i).click();
+            await pausa(150);
+            if (alerta) return 'no calcula: ' + String(alerta).replace(/\s+/g, ' ').slice(0, 80);
+            const t = d.getElementById('resultadoPanel').innerText.replace(/\s+/g, ' ');
+            const m = t.match(/(\d{2}\/\d{2}\/\d{4})/);
+            return m ? m[1] : '(no se pudo leer) ' + t.slice(0, 70);
+        }
+    },
+    mora: {
+        archivo: '../calculadoras/mora.html',
+        lista: (d) => !!d.getElementById('calcular'),
+        correr: async (d, campos) => {
+            let alerta = null;
+            d.defaultView.alert = (m) => { alerta = m; };
+            ['d_dia', 'd_mes', 'd_anio', 'diasHabiles', 'plazoDias']
+                .forEach((k) => { if (campos[k] !== undefined) d.getElementById(k).value = campos[k]; });
+            // mora calcula asincronico y el iframe se reusa entre casos: si no
+            // se borra el resultado anterior, esperar() lo encuentra ya visible
+            // y se lee el numero del caso previo. Paso: dos casos distintos
+            // dieron los dos 17/8/2024, que era la respuesta del caso anterior.
+            d.getElementById('output').style.display = 'none';
+            d.getElementById('vencimiento').textContent = '';
+            d.getElementById('statusMessage').textContent = '';
+            d.getElementById('calcular').click();
+            await esperar(() => (d.getElementById('output').style.display === 'block'
+                && d.getElementById('vencimiento').textContent.trim() !== '')
+                || /No se puede/.test(d.getElementById('statusMessage').textContent), 8000);
+            if (alerta) return 'no calcula: ' + String(alerta).replace(/\s+/g, ' ').slice(0, 80);
+            const est = d.getElementById('statusMessage').textContent;
+            if (/No se puede/.test(est)) return 'no calcula: ' + est.replace(/\s+/g, ' ').slice(0, 80);
+            const m = d.getElementById('vencimiento').innerText.match(/:\s*([\d/]+)/);
+            return m ? m[1].trim() : '(no se pudo leer)';
+        }
+    }
+};
+
+const pausa = (ms) => new Promise((r) => setTimeout(r, ms));
+const boton = (d, re) => Array.from(d.querySelectorAll('button')).find((b) => re.test(b.textContent));
+
+async function esperar(cond, ms) {
+    const hasta = Date.now() + ms;
+    while (Date.now() < hasta) {
+        try { if (cond()) return true; } catch (e) { /* el iframe todavia carga */ }
+        await pausa(80);
+    }
+    return false;
+}
+
+// Un iframe por calculadora, reutilizado para todos sus casos: cada carga
+// vuelve a pedir los JSON, y son cinco paginas por decenas de casos.
+const marcos = new Map();
+
+async function marco(calc) {
+    if (marcos.has(calc)) return marcos.get(calc);
+    const drv = DRIVERS[calc];
+    const f = document.createElement('iframe');
+    f.src = drv.archivo;
+    document.body.appendChild(f);
+    await new Promise((r) => { f.onload = r; });
+    const ok = await esperar(() => drv.lista(f.contentDocument), 12000);
+    if (!ok) throw new Error(`${calc}: no terminó de cargar en 12 s`);
+    marcos.set(calc, f);
+    return f;
+}
+
+function fila(estado, clase, rotulo, calc, detalle, porque) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td class="est"></td><td></td><td><code></code></td><td></td>';
+    const td = tr.children;
+    td[0].textContent = estado;
+    td[0].className = 'est ' + clase;
+    td[1].textContent = rotulo;
+    if (porque) {
+        const s = document.createElement('span');
+        s.className = 'porque';
+        s.textContent = porque;
+        td[1].appendChild(s);
+    }
+    td[2].firstChild.textContent = calc;
+    td[3].textContent = detalle;
+    return tr;
+}
+
+function seccion(titulo, bajada) {
+    const h = document.createElement('h2');
+    h.textContent = titulo;
+    const p = document.createElement('p');
+    p.textContent = bajada;
+    const t = document.createElement('table');
+    t.innerHTML = '<thead><tr><th>Estado</th><th>Caso</th><th>Página</th><th>Resultado</th></tr></thead><tbody></tbody>';
+    const salida = document.getElementById('salida');
+    salida.append(h, p, t);
+    return t.querySelector('tbody');
+}
+
+document.getElementById('correr').addEventListener('click', async () => {
+    const btn = document.getElementById('correr');
+    btn.disabled = true;
+    btn.textContent = 'Corriendo…';
+    document.getElementById('salida').innerHTML = '';
+    document.getElementById('resumen').textContent = '';
+    marcos.forEach((f) => f.remove());
+    marcos.clear();
+
+    let pasan = 0, fallan = 0, sinFijar = 0;
+
+    const cuerpoV = seccion('Verificados a mano',
+        'La fecha esperada se dedujo contando los días contra las Acordadas y los feriados. Si uno falla, la calculadora está mal.');
+    for (const c of VERIFICADOS) {
+        try {
+            const d = (await marco(c.calc)).contentDocument;
+            const got = await DRIVERS[c.calc].correr(d, c.campos);
+            const bien = got === c.esperado;
+            bien ? pasan++ : fallan++;
+            cuerpoV.appendChild(fila(bien ? 'pasa' : 'FALLA', bien ? 'ok' : 'mal', c.rotulo, c.calc,
+                bien ? got : `esperado ${c.esperado} · obtenido ${got}`, c.porque));
+        } catch (e) {
+            fallan++;
+            cuerpoV.appendChild(fila('ERROR', 'mal', c.rotulo, c.calc, e.message, c.porque));
+        }
+    }
+
+    const cuerpoI = seccion('Invariantes',
+        'No comparan contra una fecha: comparan dos caminos entre sí y exigen que den lo mismo.');
+    for (const c of INVARIANTES) {
+        try {
+            const d = (await marco(c.calc)).contentDocument;
+            const a = await DRIVERS[c.calc].correr(d, c.a);
+            const b = await DRIVERS[c.calc].correr(d, c.b);
+            const bien = a === b;
+            bien ? pasan++ : fallan++;
+            cuerpoI.appendChild(fila(bien ? 'pasa' : 'FALLA', bien ? 'ok' : 'mal', c.rotulo, c.calc,
+                bien ? `los dos caminos dan ${a}` : `camino A ${a} · camino B ${b}`, null));
+        } catch (e) {
+            fallan++;
+            cuerpoI.appendChild(fila('ERROR', 'mal', c.rotulo, c.calc, e.message, null));
+        }
+    }
+
+    const cuerpoF = seccion('Fijados',
+        'Lo que las calculadoras devuelven hoy. No dice que esté bien: dice que es lo que hay, para que un refactor que mueva un número se vea.');
+    for (const c of FIJADOS) {
+        try {
+            const d = (await marco(c.calc)).contentDocument;
+            const got = await DRIVERS[c.calc].correr(d, c.campos);
+            if (c.esperado === null) {
+                sinFijar++;
+                cuerpoF.appendChild(fila('sin fijar', 'pend', c.rotulo, c.calc,
+                    `valor actual: ${got}  ← pegarlo en FIJADOS`, null));
+            } else {
+                const bien = got === c.esperado;
+                bien ? pasan++ : fallan++;
+                cuerpoF.appendChild(fila(bien ? 'pasa' : 'CAMBIÓ', bien ? 'ok' : 'mal', c.rotulo, c.calc,
+                    bien ? got : `fijado ${c.esperado} · ahora ${got}`, null));
+            }
+        } catch (e) {
+            fallan++;
+            cuerpoF.appendChild(fila('ERROR', 'mal', c.rotulo, c.calc, e.message, null));
+        }
+    }
+
+    const r = document.getElementById('resumen');
+    r.innerHTML = '';
+    const partes = [[`${pasan} pasan`, 'ok']];
+    if (fallan) partes.push([`${fallan} fallan`, 'mal']);
+    if (sinFijar) partes.push([`${sinFijar} sin fijar`, 'pend']);
+    partes.forEach(([txt, cls], i) => {
+        if (i) r.append(document.createTextNode(' · '));
+        const s = document.createElement('span');
+        s.className = cls;
+        s.textContent = txt;
+        r.appendChild(s);
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Correr las pruebas';
+});
+</script>
+</body>
+</html>
