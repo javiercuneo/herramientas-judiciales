@@ -1,14 +1,19 @@
 # Instrucciones para agentes
 
-Este archivo es la referencia canónica para cualquier agente que trabaje en
-este repositorio: Claude Code, Codex, Cursor, opencode o el que venga.
-`CLAUDE.md` apunta acá y no repite nada.
+Referencia canónica para cualquier agente que trabaje en este repositorio:
+Claude Code, Codex, Cursor, opencode o el que venga. `CLAUDE.md` apunta acá y no
+repite nada.
 
-**Antes de tocar código, leé [`docs/ESTADO.md`](docs/ESTADO.md).** Lleva lo que
-el código no puede llevar: en qué punto está el trabajo, qué decisiones de
-diseño e interpretación ya se tomaron y por qué, qué se sabe roto y qué trampas
-ya costaron tiempo. Se actualiza en el mismo commit que el trabajo que
-describe, así que no miente. Si vas a cerrar una sesión, actualizalo.
+**Antes de tocar código, leé [`docs/ESTADO.md`](docs/ESTADO.md):** en qué punto
+está el trabajo, qué está abierto, qué se sabe roto y qué trampas ya costaron
+tiempo. Se actualiza en el mismo commit que el trabajo que describe, así que no
+miente. Si cerrás una sesión, actualizalo.
+
+**Con este archivo y ése alcanza para empezar.** Lo que ya se cerró vive en
+[`docs/HISTORIA.md`](docs/HISTORIA.md), que **no se lee al arrancar**: se abre
+cuando hace falta saber por qué algo quedó como quedó, si algo ya se probó, o de
+dónde salió una regla. Cuando cierres algo en `ESTADO.md`, movelo ahí en vez de
+borrarlo.
 
 ---
 
@@ -41,27 +46,22 @@ Lo que se sigue de eso:
 - **No elimines validaciones** porque parezcan defensivas de más.
 - **No confíes en el motor clásico como oráculo.** Es la referencia histórica,
   no la verdad. Ya se encontró un caso donde el clásico y Honorio compartían el
-  mismo agujero (ver `ESTADO.md`, flujo hacia atrás). Que dos implementaciones
-  coincidan prueba que son consistentes, no que están bien.
+  mismo agujero. Que dos implementaciones coincidan prueba que son consistentes,
+  no que están bien.
 
 **Lo que sí podés hacer sin preguntar:** cambios de interfaz, texto, estilos,
 tipos, estructura de archivos, documentación y cualquier cosa que no toque un
 resultado. No hace falta un plan aprobado para renombrar una variable. El
 riesgo acá no es el tamaño del cambio, es si un número se movió.
 
+Orden de prioridades cuando entran en conflicto:
+**1) exactitud legal, 2) claridad, 3) mantenibilidad, 4) funcionalidad nueva,
+5) performance.** La performance va última en serio: son calculadoras que
+corren en milisegundos.
+
 ---
 
 ## Cada afirmación contra su fuente
-
-Regla escrita el 7/8/2026, después de encontrar que **los ocho documentos de
-`docs/domain/` describían mal el motor que documentaban**: un decreto
-reglamentario inventado, artículos citados corridos en bloque, un mecanismo de
-mínimos que no existe, y uno que aplicaba las reducciones en el orden
-equivocado —medio millón de diferencia en el caso que se probó—.
-
-Salieron así porque **se generaron a partir de una descripción del sistema y no
-del sistema**, y después se «verificaron» leyendo el propio documento. La
-estructura sobrevive a ese proceso; los datos no.
 
 Antes de afirmar algo, fijate **de qué tipo es la afirmación**, porque cada una
 tiene su fuente y son distintas:
@@ -72,26 +72,41 @@ tiene su fuente y son distintas:
 | **Qué hace la aplicación** | El código, leído. No un documento que lo describa |
 | **Una interpretación** | La jurisprudencia que la sostiene. Sin un fallo detrás, no se afirma |
 
-Confundirlas fue el error. La ley no te puede decir si `calculate.ts` importa
-`minimos-data.ts`, y el código no te puede decir si una lectura es defendible.
+Confundirlas fue el error que dejó los ocho documentos de `docs/domain/`
+describiendo mal el motor que documentaban —un decreto inventado, artículos
+corridos en bloque, y uno que aplicaba las reducciones en el orden equivocado:
+medio millón de diferencia en el caso que se probó—. Salieron así porque **se
+generaron a partir de una descripción del sistema y no del sistema**, y después
+se «verificaron» leyendo el propio documento. La estructura sobrevive a ese
+proceso; los datos no. El detalle está en [`docs/HISTORIA.md`](docs/HISTORIA.md).
 
-### Una interpretación se funda, no se declara — 8/8/2026
+De ahí tres cosas que sí funcionan:
 
-Hasta el 8/8 la tercera fila decía «nada la prueba: se declara como tal, con el
-razonamiento». **No alcanza.** Un razonamiento propio, por bueno que sea, deja a
-la app diciendo «esto lo decidimos nosotros», y al que lee no le queda más que
-creer o no creer. **Un fallo cambia quién lo sostiene:** ya no es Honorio, es un
-tribunal que resolvió el punto en un documento de prueba, con carátula y fecha, y
-que se puede leer y discutir.
+- **Anclá cada afirmación a algo que se pueda abrir o correr.** No «el wizard
+  pregunta esto» sino «`PROCESS_STEP_MAP`, una constante». No «la escala
+  funciona así» sino un ejemplo con los números que la app muestra en pantalla.
+  Una afirmación anclada se puede desmentir; una general no.
+- **Ninguna descripción secundaria es oráculo.** Ni el motor clásico, ni un
+  documento anterior, ni el documento que estás corrigiendo. Si hay que arreglar
+  una afirmación, buscá **la clase**, no la instancia que te señalaron: en
+  `05_DEPENDENCIAS.md` se corrigió una y quedaron cuatro iguales en los
+  diagramas, con el encabezado declarando el arreglo como hecho.
+- **Una nota de verificación que no es cierta es peor que ninguna**, porque el
+  que la lee deja de mirar. Si decís «verificado contra X», tuvo que ser contra
+  X y entero.
 
-Ya estaba hecho una vez y funcionó. El 2 %-20 % de los incidentes sale del
-art. 33 de la Ley 21.839, **derogada**, porque el art. 47 de la 27.423 quedó
-observado por el Decreto 1077/2017 y nunca entró en vigencia. Declarado solo,
-eso es indistinguible de un invento cómodo. Con los tres fallos de
-`honorio/lib/legal/jurisprudencia.ts` es un criterio discutible, que es otra
-cosa.
+**`npm run verificar-docs`** controla lo que se puede controlar solo: que las
+normas, los artículos y los identificadores que los documentos nombran existan.
+Corre en CI antes de publicar. No dice que un documento sea cierto —eso se
+verifica leyendo el motor— pero una cita inventada no llega a producción.
 
-**Cómo se hace, en concreto:**
+### Una interpretación se funda en un fallo, no se declara
+
+Un razonamiento propio, por bueno que sea, deja a la app diciendo «esto lo
+decidimos nosotros», y al que lee no le queda más que creer o no creer. **Un
+fallo cambia quién lo sostiene:** ya no es Honorio, es un tribunal que resolvió
+el punto en un documento de prueba, con carátula y fecha, que se puede leer y
+discutir.
 
 - El fallo va en `honorio/lib/legal/jurisprudencia.ts`, dentro de un `Criterio`
   con su frase y sus `Fallo[]`. Son datos puros: la presentación decide cómo se
@@ -105,51 +120,20 @@ cosa.
   como lo que es: no se disfraza de jurisprudencia.
 
 **Esta regla todavía no se cumple en todas partes, y conviene saberlo antes de
-apoyarse en ella.** `honorio/lib/legal/jurisprudencia.ts` tiene fallos para
-algunos criterios y no para otros: la elección entre el art. 22 y el art. 25
-para la caducidad, por ejemplo, no tiene ninguno cargado y sin embargo la
-aplicación adopta un criterio. El barrido pendiente —listar cada punto donde se
-decide algo que la ley no resuelve sola, y con qué está fundado hoy— está
-anotado en [`IDEAS.md`](IDEAS.md). Hasta que se haga, **esta sección describe a
-dónde va el proyecto y no dónde está**, y no hay que citarla como si fuera lo
-segundo. Una regla que se anuncia y no se cumple es peor que una más modesta que
-sí.
+apoyarse en ella.** `jurisprudencia.ts` tiene fallos para algunos criterios y no
+para otros: la elección entre el art. 22 y el art. 25 para la caducidad, por
+ejemplo, no tiene ninguno cargado y sin embargo la aplicación adopta un
+criterio. El barrido completo —listar cada punto donde Honorio decide algo que
+la ley no resuelve sola y anotar con qué está fundado— está pendiente. Hasta que
+se haga, **esta sección describe a dónde va el proyecto y no dónde está**, y no
+hay que citarla como si fuera lo segundo.
 
 **Y una advertencia que vale más que la regla.** Una cita de jurisprudencia
-inventada es el peor error que este proyecto puede cometer, por tres razones
-juntas: es indistinguible de una buena —tribunal, sala, expediente, carátula y
-fecha, todo plausible—; `verificar-docs` no la caza, porque controla normas y
-artículos y no fallos; y termina adentro de un documento que produce
-resoluciones judiciales. Es exactamente la firma del error de los ocho
-documentos de dominio, pero en el único lugar donde nadie lo va a notar.
-
+inventada es el peor error que este proyecto puede cometer: es indistinguible de
+una buena, `verificar-docs` **no la caza** —controla normas y artículos, no
+fallos— y termina adentro de un documento que produce resoluciones judiciales.
 **Un fallo se transcribe de la sentencia leída, o no se escribe.** Nunca de
 memoria, nunca reconstruido, nunca «debe existir uno que diga esto».
-
-De ahí tres cosas que sí funcionan:
-
-- **Anclá cada afirmación a algo que se pueda abrir o correr.** No «el wizard
-  pregunta esto» sino «`PROCESS_STEP_MAP`, una constante». No «la escala
-  funciona así» sino un ejemplo con los números que la app muestra en pantalla.
-  Una afirmación anclada se puede desmentir; una general no.
-- **Ninguna descripción secundaria es oráculo.** Ni el motor clásico —ya está
-  dicho arriba—, ni un documento anterior, ni el documento que estás corrigiendo.
-  Si hay que arreglar una afirmación, buscá **la clase**, no la instancia que te
-  señalaron: en `05_DEPENDENCIAS.md` se corrigió una y quedaron cuatro iguales
-  en los diagramas, y el encabezado declaraba el arreglo como hecho.
-- **Una nota de verificación que no es cierta es peor que ninguna**, porque el
-  que la lee deja de mirar. Si decís «verificado contra X», tuvo que ser contra
-  X y entero.
-
-**`npm run verificar-docs`** controla lo que se puede controlar solo: que las
-normas, los artículos y los identificadores que los documentos nombran existan.
-Corre en CI antes de publicar. No dice que un documento sea cierto —eso se
-verifica leyendo el motor— pero una cita inventada no llega a producción.
-
-Orden de prioridades cuando entran en conflicto:
-**1) exactitud legal, 2) claridad, 3) mantenibilidad, 4) funcionalidad nueva,
-5) performance.** La performance va última en serio: son calculadoras que
-corren en milisegundos.
 
 ---
 
@@ -158,17 +142,6 @@ corren en milisegundos.
 No es una aplicación: son varios proyectos independientes, en distinto grado
 de madurez, conviviendo en un repositorio. Tratalos como tales — un cambio en
 `calculadoras/` no tiene por qué mirar `PDF-studio/`.
-
-> **Honorio ya no está acá.** Desde el 4/8/2026 vive en
-> [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) y se publica
-> en [honorio.ar](https://honorio.ar). Se llevó su historia completa. Si hay que
-> tocar el asistente de honorarios, **es en ese repositorio**, no en este.
->
-> En la copia de trabajo hay un `honorio/`, ignorado por `.gitignore`. Desde
-> el 5/8/2026 **es un clon del repositorio nuevo**, no la basura que quedó de
-> la mudanza: se trabaja ahí y se commitea contra `javiercuneo/honorio`.
-> Antes de tocarlo, `git remote -v` para confirmar contra qué se está
-> parado.
 
 ```
 asistente-honorarios-clasico/   El motor original en JS vanilla del que salió Honorio.
@@ -179,45 +152,53 @@ calculadoras/                   Herramientas de un solo archivo HTML con JS embe
                                   Sin build, sin bundler: se editan directo.
                                   js/calendario-judicial.js es la dependencia compartida
                                   de todo lo que calcula fechas.
-data/dias-inhabiles.json        Feriados locales, respaldo de la API externa.
+data/feriados.json              Feriados nacionales, versionados. Los genera
+                                  scripts/actualizar-feriados.mjs (npm run feriados).
+data/feria-judicial.json        Feria de invierno, una linea por anio con su
+                                  Acordada de la CSJN. Se carga a mano: no hay API.
+data/dias-inhabiles.json        Asuetos por Acordada. Este sí se edita a mano.
 PDF-studio/                     Express + JS vanilla, PWA de herramientas PDF.
                                   App aparte, package.json propio. No toca honorarios.
 docs/domain/                    Documentación del dominio (01 a 09): tipos de proceso,
                                   reglas de negocio, modelo, glosario, deuda técnica,
                                   y el honorario del mediador, que es el único que
-                                  no sale de la Ley 27.423.
-                                  El "por qué" de las reglas de la Ley 27.423. Lo
-                                  comparten el clásico y Honorio; por eso quedó acá.
+                                  no sale de la Ley 27.423. El "por qué" de las reglas.
+                                  Lo comparten el clásico y Honorio; por eso quedó acá.
 assets/                         Capturas y material de la landing.
-redirects/honorio/              Redirección de /honorio/ a honorio.ar.
+redirects/                      Redirecciones de URL viejas que no pueden morir en 404.
 scripts/build-docs.mjs          Renderiza docs/domain/ a HTML para publicarlo.
 index.html, documentacion.html  Landing y guía de uso, publicadas en GitHub Pages.
 proyectos finalizados/          Trabajos cerrados, conservados como muestra.
 ```
 
 Antes de tocar lógica legal en cualquier lado, pasá por
-[`docs/domain/03_REGLAS_DE_NEGOCIO.md`](docs/domain/03_REGLAS_DE_NEGOCIO.md) y
+[`03_REGLAS_DE_NEGOCIO.md`](docs/domain/03_REGLAS_DE_NEGOCIO.md) y
 [`07_GLOSARIO.md`](docs/domain/07_GLOSARIO.md) para el razonamiento normativo, y
 por [`08_DEUDA_TECNICA_FUNCIONAL.md`](docs/domain/08_DEUDA_TECNICA_FUNCIONAL.md)
 por si el problema ya está anotado.
 
----
+### Honorio no vive acá
 
-## Honorio, que ya no vive acá
-
-El asistente de honorarios se mudó a
-[`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) el 4/8/2026, con
-su historia completa. **Cualquier cambio al motor de honorarios va allá.** Ese
+Se mudó el 4/8/2026 a [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio),
+con su historia completa, y se publica en [honorio.ar](https://honorio.ar). Ese
 repositorio tiene su propio `AGENTS.md`, su `ESTADO.md` y sus validaciones.
+**Cualquier cambio al motor de honorarios va allá.**
 
-Lo que quedó acá y sigue relacionado:
+En la copia de trabajo hay un `honorio/`, ignorado por `.gitignore`: es un clon
+del repositorio nuevo, con su propio `.git`. `git remote -v` antes de commitear,
+y cada uno se commitea por separado.
+
+Lo que quedó acá y sigue compartido:
 
 - **`asistente-honorarios-clasico/`** es la FUENTE del motor legacy que Honorio
   todavía carga por `<script>` (`public/legacy/*.js` allá). Si hay que arreglar
-  algo de ese motor compartido, **se arregla acá** —que es la fuente— y se
-  propaga al otro repositorio a propósito. Nunca se parchea una copia sola.
-- **`docs/domain/`** documenta la Ley 27.423 para los dos.
-- **`redirects/honorio/`** hace que los enlaces viejos a `/honorio/` no mueran.
+  algo de ese motor, **se arregla acá** y se propaga al otro repositorio a
+  propósito. **Nunca se parchea una copia sola.**
+- **`docs/domain/`** documenta la Ley 27.423 para los dos. Si algún día el
+  clásico se retira, esos nueve documentos se van con Honorio.
+- **Los planes de features de Honorio** —`PLAN_COBERTURA_LEY.md` y los tres que
+  salieron de él— viven en `docs/` de este lado, porque la materia prima
+  —calculadoras, textos legales— está acá. Acá va la decisión; allá el código.
 
 ---
 
@@ -230,8 +211,14 @@ mantenimiento.
 Comparten dos cosas, y las dos afectan a varias herramientas a la vez:
 
 - **`calculadoras/js/calendario-judicial.js`**, del que depende todo lo que
-  computa fechas. Un cambio ahí se verifica abriendo cada una de las que
-  calculan plazos.
+  computa fechas. Lo usan las **cinco** de plazos: `caducidad`, `entre-fechas`,
+  `mora`, `regresiva` y `vencimientos`. Un cambio ahí se verifica con
+  `npm run verificar-calculos` **y** abriendo las cinco: el script cubre el
+  motor, no las pantallas.
+
+  Ahí vive también `problemaDeDatos()`, la frase que explica por qué una
+  herramienta no calcula. **No se reescribe en cada calculadora**: cinco copias
+  de la misma prosa en cinco archivos sin build se desincronizan.
 - **`calculadoras/css/comun.css`**, que define los tokens del sistema visual y
   una base mínima. Cada archivo lo carga *antes* de su propio `<style>`, así que
   lo local sigue ganando y cada uno resuelve su layout. **No redefinas un token
@@ -243,9 +230,28 @@ Un cambio visual se verifica midiendo, no mirando: contraste sobre estilos
 computados, en tema claro y oscuro, y ancho a 390 px. Un control estático
 —«tokens aplicados, sin colores planos»— ya dio verde sobre páginas ilegibles.
 
-Los feriados salen de una API externa con respaldo local en
-`data/dias-inhabiles.json`. Si la API no responde, la herramienta tiene que
-seguir dando un resultado con el respaldo, no romperse.
+**Los feriados no se le piden a nadie en tiempo de uso.** Salen de
+`data/feriados.json`, versionado. Si falta un año, la herramienta **no calcula y
+dice cuál falta**: no hay medio resultado. El archivo se regenera con
+`npm run feriados`, que consulta la API en el build y aborta entero si un año
+viene incompleto.
+
+**Y un día inhábil tampoco se deduce con una fórmula.** La feria judicial de
+invierno la fija la CSJN por Acordada cada año, y hasta el 17/8/2026 el código
+la calculaba —el penúltimo lunes de julio—. Contra las 21 Acordadas cargadas esa
+fórmula acierta 12 veces, y no puede producir 2020, cuando la feria se
+**suspendió**: habría inventado doce días inhábiles que no existieron. Ahora sale
+de `data/feria-judicial.json`, con la Acordada citada al lado de cada año.
+
+De ahí la regla general: **una regla que la ley fija por acto, va en datos con la
+cita del acto; una que la ley fija por criterio, va en código.** Si dudás de cuál
+es, la pregunta que decide es si alguien puede cambiarla sin cambiar la ley.
+
+**El único control automático sobre resultados de cálculo es
+`npm run verificar-calculos`.** Cubre el motor de días hábiles, no las pantallas
+ni la aritmética propia de cada calculadora. Correlo antes y después de tocar
+cualquier cosa que mueva fechas, y si un número cambia, que sea porque decidiste
+cambiarlo.
 
 ---
 
@@ -255,9 +261,7 @@ seguir dando un resultado con el respaldo, no romperse.
   No "tú", no "vosotros", no texto sin acentuar.
 - **Sin emojis, ni en documentación ni en interfaz.** `ESTADO.md`, `README.md` y
   `CONTRIBUTING.md` marcan el registro: directo, con las razones dichas, sin
-  decoración. Las calculadoras y `documentacion.html` quedaron limpias el 5/8;
-  donde un emoji hacía de semáforo, ahora está el token de estado de
-  `calculadoras/css/comun.css`.
+  decoración.
 - **Commits en español**, con prefijo tipo `feat:`, `fix:`, `docs:`,
   `chore:`. Miralos con `git log --oneline` antes de escribir el tuyo.
 - **`git commit -m` con here-string falla** en este entorno. Usá
@@ -273,6 +277,7 @@ seguir dando un resultado con el respaldo, no romperse.
 
 ## Trampas conocidas
 
-Están todas en la sección final de [`docs/ESTADO.md`](docs/ESTADO.md), con el
+Las vivas están en la sección final de [`docs/ESTADO.md`](docs/ESTADO.md), con el
 detalle de qué pasa y por qué. No se duplican acá para que no se desincronicen.
-Si te chocaste con una nueva, agregala ahí.
+Si te chocaste con una nueva, agregala ahí; si una dejó de aplicar, mandala a
+[`docs/HISTORIA.md`](docs/HISTORIA.md) en vez de borrarla.

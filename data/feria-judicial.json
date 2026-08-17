@@ -1,0 +1,68 @@
+{
+  "_comentario": "Periodos de feria judicial de los tribunales nacionales y federales de la Capital Federal, tal como los fija la CSJN por Acordada. Incluye la feria ordinaria de invierno y las extraordinarias cuando las hubo. Se carga a mano contra el texto de cada Acordada: no hay API. Las fechas son inclusive, como dicen las Acordadas ('ambas fechas inclusive'). La feria de enero no esta aca: la fija el art. 257 CPCCN, no una Acordada, y por eso vive en el codigo.",
+
+  "_por_que_no_es_una_formula": "Hasta el 17/8/2026 la feria se deducia con una heuristica (calculadoras/js/calendario-judicial.js usaba el penultimo lunes de julio; calculadoras/mora.html el tercer lunes). Contra las Acordadas de 2004 a 2026 el penultimo lunes acierta 12 veces y el tercer lunes 16. Ninguna acierta 2005, 2006 ni 2008, y ninguna puede producir 2009 —rectificada y ampliada tres veces— ni 2020 —la ordinaria suspendida y once extraordinarias encadenadas—. La feria es un acto normativo, no aritmetica.",
+
+  "_invariante": "En los anios ordinarios la feria dura 12 dias y va de lunes a viernes: son dos semanas de vacaciones escolares (14 dias corridos) menos el ultimo sabado y domingo, que quedan inhabiles igual por fin de semana. Vale para los rangos ordinarios y NO para los extraordinarios, que no siguen el calendario escolar. scripts/verificar-calculos.mjs lo comprueba solo sobre los ordinarios: sirve para detectar un error de carga, no para deducir el anio que falta.",
+
+  "cobertura": {
+    "desde": 2021,
+    "por_que": "Desde 2021 estan completos los tres insumos que hacen falta para computar un plazo: feria (este archivo), feriados nacionales (feriados.json) y asuetos por Acordada (dias-inhabiles.json). Los anios anteriores tienen la feria cargada pero NO los feriados nacionales ni los asuetos, asi que un calculo sobre ellos contaria como habiles dias que no lo fueron. El motor se niega a calcular fuera de esta ventana en vez de dar un numero incompleto. Los anios previos se conservan como evidencia documental: son los que probaron que la heuristica estaba mal."
+  },
+
+  "fuente": "https://www.csjn.gov.ar/documentos/descargar?ID=",
+  "actualizado": "2026-08-17",
+
+  "ferias": {
+    "2004": { "rangos": [{ "inicio": "2004-07-19", "fin": "2004-07-30", "acordada": "17/2004", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=132" }] },
+    "2005": { "rangos": [{ "inicio": "2005-07-11", "fin": "2005-07-22", "acordada": "11/2005", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=3577" }] },
+    "2006": { "rangos": [{ "inicio": "2006-07-10", "fin": "2006-07-21", "acordada": "6/2006", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=4590" }] },
+    "2007": { "rangos": [{ "inicio": "2007-07-23", "fin": "2007-08-03", "acordada": "11/2007", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=11901" }] },
+    "2008": { "rangos": [{ "inicio": "2008-07-28", "fin": "2008-08-08", "acordada": "7/2008", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=21011" }] },
+
+    "2009": {
+      "nota": "Anio anomalo por la gripe A (H1N1). La Acordada 8/2009 fijo la feria del 20 al 31 de julio; la 21/2009 la RECTIFICO al 6 al 17, la 23/2009 la amplio del 20 al 24, y la 27/2009 dispuso el cese, retomandose la actividad el lunes 27. El resultado son dos rangos, no uno, y el 18 y 19 de julio caen fin de semana en el medio: en los hechos no hubo actividad del 6 al 24 de julio. La Acordada 8/2009 quedo sin efecto y por eso no figura como rango.",
+      "no_ordinaria": true,
+      "rangos": [
+        { "inicio": "2009-07-06", "fin": "2009-07-17", "acordada": "21/2009", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=34919" },
+        { "inicio": "2009-07-20", "fin": "2009-07-24", "acordada": "23/2009", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=35058" }
+      ]
+    },
+
+    "2010": { "rangos": [{ "inicio": "2010-07-19", "fin": "2010-07-30", "acordada": "4/2010", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=41600" }] },
+    "2011": { "rangos": [{ "inicio": "2011-07-18", "fin": "2011-07-29", "acordada": "3/2011", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=49387" }] },
+    "2012": { "rangos": [{ "inicio": "2012-07-16", "fin": "2012-07-27", "acordada": "2/2012", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=59220" }] },
+    "2013": { "rangos": [{ "inicio": "2013-07-15", "fin": "2013-07-26", "acordada": "5/2013", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=74444" }] },
+    "2014": { "rangos": [{ "inicio": "2014-07-21", "fin": "2014-08-01", "acordada": "13/2014", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=87140" }] },
+    "2015": { "rangos": [{ "inicio": "2015-07-20", "fin": "2015-07-31", "acordada": "10/2015", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=92459" }] },
+    "2016": { "rangos": [{ "inicio": "2016-07-18", "fin": "2016-07-29", "acordada": "15/2016", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=97908" }] },
+    "2017": { "rangos": [{ "inicio": "2017-07-17", "fin": "2017-07-28", "acordada": "14/2017", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=104127" }] },
+    "2018": { "rangos": [{ "inicio": "2018-07-16", "fin": "2018-07-27", "acordada": "16/2018", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=110543" }] },
+    "2019": { "rangos": [{ "inicio": "2019-07-22", "fin": "2019-08-02", "acordada": "10/2019", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=116120" }] },
+
+    "2020": {
+      "nota": "Pandemia de COVID-19. La Acordada 21/2020 suspendio la feria ORDINARIA de julio, y eso NO significa que julio haya sido habil: once Acordadas encadenadas declararon feria judicial extraordinaria desde el 16 de marzo hasta el 3 de agosto sin interrupcion. Confundir una cosa con la otra es el error que este archivo ya cometio una vez: 'se suspendio la feria' se leyo como 'hubo actividad'.",
+      "no_ordinaria": true,
+      "rangos": [
+        { "inicio": "2020-03-16", "fin": "2020-03-19", "acordada": "4/2020", "detalle": "dias inhabiles" },
+        { "inicio": "2020-03-20", "fin": "2020-03-31", "acordada": "6/2020" },
+        { "inicio": "2020-04-01", "fin": "2020-04-12", "acordada": "8/2020" },
+        { "inicio": "2020-04-13", "fin": "2020-04-26", "acordada": "10/2020" },
+        { "inicio": "2020-04-27", "fin": "2020-05-10", "acordada": "13/2020" },
+        { "inicio": "2020-05-11", "fin": "2020-05-24", "acordada": "14/2020" },
+        { "inicio": "2020-05-25", "fin": "2020-06-07", "acordada": "16/2020" },
+        { "inicio": "2020-06-08", "fin": "2020-06-28", "acordada": "18/2020" },
+        { "inicio": "2020-06-29", "fin": "2020-07-17", "acordada": "25/2020" },
+        { "inicio": "2020-07-18", "fin": "2020-07-26", "acordada": "27/2020" },
+        { "inicio": "2020-07-27", "fin": "2020-08-03", "acordada": "31/2020" }
+      ]
+    },
+
+    "2021": { "rangos": [{ "inicio": "2021-07-19", "fin": "2021-07-30", "acordada": "10/2021", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=128688" }] },
+    "2022": { "rangos": [{ "inicio": "2022-07-18", "fin": "2022-07-29", "acordada": "16/2022", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=133885" }] },
+    "2023": { "rangos": [{ "inicio": "2023-07-17", "fin": "2023-07-28", "acordada": "17/2023", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=138166" }] },
+    "2024": { "rangos": [{ "inicio": "2024-07-15", "fin": "2024-07-26", "acordada": "16/2024", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=142514" }] },
+    "2025": { "rangos": [{ "inicio": "2025-07-21", "fin": "2025-08-01", "acordada": "9/2025", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=148633" }] },
+    "2026": { "rangos": [{ "inicio": "2026-07-20", "fin": "2026-07-31", "acordada": "11/2026", "url": "https://www.csjn.gov.ar/documentos/descargar?ID=159534" }] }
+  }
+}

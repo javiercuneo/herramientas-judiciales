@@ -3,412 +3,159 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-10 · rama `main`
+Última actualización: 2026-08-14 · rama `main`
 
-> **Este documento es solo de este repositorio.** Honorio se mudó el 4/8 a
-> [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) y se llevó su
-> propio `ESTADO.md`, que es donde va todo lo del motor de honorarios, el
-> wizard y el dashboard. Acá no queda nada suyo que tocar. Si en la copia de
-> trabajo hay un `honorio/`, es un clon de aquel repositorio: `git remote -v`
-> antes de commitear.
+Lleva sólo lo que sigue vivo: dónde está el trabajo, qué está abierto, qué se
+sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas ya
+costaron tiempo. **Lo que se cerró está en [`HISTORIA.md`](HISTORIA.md)** —cómo
+se llegó hasta acá, qué se rompió y ya se arregló, qué se discutió y se
+decidió—. No hace falta leerlo para trabajar: se abre cuando aparece la pregunta
+«¿por qué esto quedó así?».
 
-**Lo que sí sigue compartido, y por eso se toca acá:**
-
-- **`asistente-honorarios-clasico/` es la FUENTE del motor legacy** que Honorio
-  todavía carga por `<script>`. Un arreglo a ese motor compartido **se hace acá**
-  y se propaga allá a propósito.
-- **`docs/domain/` documenta la Ley 27.423 para los dos.** Si algún día el
-  clásico se retira, esos nueve documentos se van con Honorio. **El 09 es el
-  único que no documenta la 27.423**: es el honorario del mediador, que sale de
-  la Ley 26.589 y su reglamentación, y se escribió el 10/8.
-- **Los planes de features de Honorio también viven acá**, junto al
-  [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md), porque la materia prima
-  —calculadoras, textos legales— está de este lado. Ver
-  [Planes abiertos](#planes-abiertos).
+> **Honorio no vive acá.** Se mudó el 4/8 a
+> [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) con su propio
+> `ESTADO.md`, que es donde va todo lo del motor, el wizard y el dashboard. Qué
+> sigue compartido —el motor legacy, `docs/domain/`, los planes— está en
+> [`AGENTS.md`](../AGENTS.md). Si en la copia de trabajo hay un `honorio/`, es un
+> clon de aquel repositorio: `git remote -v` antes de commitear.
 
 ---
 
 ## Dónde estamos
 
 El sitio está publicado en **`javiercuneo.com.ar`**, dominio propio, desde el
-5/8. Las once calculadoras comparten el sistema visual y quedaron revisadas una
-por una. Los **ocho documentos de dominio** quedaron cerrados el 7/8, después de
-descubrirse el 6/8 que la prosa que describe el motor nunca se había verificado
-contra el motor. Y el 7/8 se hizo entero el
-[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md), en dos tandas —una sin mover
-un número, otra con tres que sí—, casi todo trabajo en Honorio: salió como sus
-versiones **2.2.0** y **3.0.0** y el detalle está en el `ESTADO.md` de allá.
+5/8. Once calculadoras sobre el mismo sistema visual y revisadas una por una;
+nueve documentos de dominio cerrados y verificados contra el motor;
+[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) hecho entero.
 
-**Dos de los tres planes abiertos se hicieron el 7 y el 8/8, y los dos están
-cerrados**: el [cálculo directo](PLAN_CALCULO_DIRECTO.md) entero, y
-[mediación](PLAN_MEDIACION.md) salvo su documento de dominio. El código es todo
-de Honorio y el detalle está en su `ESTADO.md`; de este lado quedaron los planes
-con qué se hizo de cada paso y qué se apartó de lo previsto. De la sesión de
-mediación salió además **una regla nueva de [`AGENTS.md`](../AGENTS.md)**: una
-interpretación se funda en jurisprudencia o no se afirma. Está abajo, en
-[Decisiones tomadas](#decisiones-tomadas-y-por-qué).
+**Los cuatro planes están cerrados.** Bugs y cálculo directo el 7/8, mediación el
+8/8, y [regulación en prosa](PLAN_REGULACION_EN_PROSA.md) —la más riesgosa, la
+que se dejó última— entera el 10/8: el generador con sus tres controles y
+`ProsaSection.tsx`, la última sección del dashboard. Casi todo el código es de
+Honorio y el detalle está en su `ESTADO.md`; de este lado quedan los planes con
+qué se hizo de cada paso y qué se apartó de lo previsto.
 
-**Queda el tercero, [`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md),
-que es el que se empezó el 10/8** y el que el orden acordado dejaba último por
-ser el más riesgoso. **Se destrabó entero ese día**, sin escribir código todavía:
-los trece modelos de resolución están en
-[`docs/modelos/plantillas limpias/`](modelos/) —los ocho procesos cubiertos—, la
-pasada de lectura está hecha en el propio plan, y **la decisión que bloqueaba
-todo lo demás está tomada: el punto dentro de la banda lo elige el usuario, con
-un control.**
+**No queda nada urgente ni bloqueante.** Lo abierto está en
+[Pendientes](#pendientes) y [Bugs abiertos](#bugs-abiertos).
 
-Y ese mismo día entró todo el resto, en Honorio: el generador con sus tres
-controles y **la pantalla**, `ProsaSection.tsx`, última sección del dashboard.
-**El plan quedó hecho entero**, con una vuelta de tuerca que no estaba escrita en
-él: la sección **pide los profesionales**, porque es lo único que el motor no
-sabe y no debería saber —la banda del art. 21 es la misma haya un letrado o
-cuatro, pero un texto de regulación lleva una línea por cada uno—. Idea de
-Javier.
+### Las cuatro cifras que este repositorio sigue de Honorio
 
-No queda nada urgente ni bloqueante. Lo que sigue abierto está en
-[Pendientes](#pendientes).
+Son suyas pero salen de allá: **168 recorridos**, **28.224 cruces**,
+**17 validaciones** y la versión del chip. Viven en `index.html`, en `README.md`
+y —la de validaciones— también en `documentacion.html`. La fuente de las dos
+primeras es la tabla de recorridos de [`01_PROCESOS.md`](domain/01_PROCESOS.md);
+la de validaciones se cuenta sobre
+`honorio/lib/legal/__tests__/*.validation.ts`. **Si vuelve a moverse alguna, se
+mueven las cuatro.**
 
-**Las cuatro cifras que este repositorio sigue de Honorio.** Son suyas pero
-salen de allá: **168 recorridos**, **28.224 cruces**, **17 validaciones** y la
-versión del chip. Viven en `index.html`, en `README.md` y —la de validaciones—
-también en `documentacion.html`. La fuente de las dos primeras es la tabla de
-recorridos de [`01_PROCESOS.md`](domain/01_PROCESOS.md): **si vuelve a moverse,
-se mueven las cuatro.**
+Ni mediación ni la prosa movieron recorridos ni cruces, y eso era el resultado
+buscado: ninguna de las dos agrega una pregunta a la entrevista.
 
-Se movieron el 7/8 con la modificación de alimentos —168 desde 160 y 28.224
-desde 25.600— y el 8/8 subió solo la de validaciones, de 15 a 16, con la suite
-de mediación. El 10/8 subió otra vez, de 16 a 17, con la del generador de prosa.
-**Los recorridos y los cruces no se movieron en ninguna de las dos, y eso es el
-resultado buscado**: ni el mediador ni la prosa agregan una pregunta a la
-entrevista.
+**El 14/8 se encontró que ninguna estaba al día**, y la de validaciones estaba
+mal de tres formas distintas: `index.html` decía 11 en el tile, `README.md` 16 y
+`documentacion.html` dieciséis, cuando son 17 —contados sobre los archivos, y
+confirmado por el CHANGELOG de Honorio 3.1.1—. **El chip del propio
+`index.html` ya decía 17**, así que la landing se contradecía a sí misma a
+setecientas líneas de distancia. La versión del chip, en cambio, había quedado
+en 3.0.0 con Honorio en 3.1.1.
+
+Todo quedó corregido ese día. La lección es el mecanismo, no el número:
+**ninguna de las tres páginas tiene build, así que nada controla esas cifras**,
+y el único remedio es tocarlas cuando entra una validación nueva o sale una
+versión. **Y se revisa la prosa, no solo el dígito:** la enumeración envejece
+igual —`index.html` nombraba once controles y `README.md` catorce—.
 
 ---
 
-## El dominio, cerrado el 5/8
+## Pendientes
 
-`javiercuneo.com.ar` registrado en NIC —tomó unos días porque el nombre coincide
-con el de una persona y pidió DNI y revisión a mano—, DNS en Cloudflare **sin
-proxy** (nube gris, para que GitHub pueda emitir el certificado), y configurado
-como *custom domain* del repositorio. Enforce HTTPS tildado y andando.
+Ninguno urgente y ninguno bloqueante.
 
-Cosas que conviene tener escritas porque no son obvias:
+- **`data/feriados.json` se actualiza a mano, con `npm run feriados`.** Hoy llega
+  hasta 2027, así que no apura, pero **nadie avisa cuando se queda corto**: si un
+  día alguien computa un plazo de 2028 y el archivo no lo tiene, la calculadora
+  no calcula y dice qué año falta —eso ya está resuelto— pero el que tiene que
+  correr el script sos vos.
+  Falta el cron que lo haga solo: un workflow de Actions con `schedule:` mensual
+  que corra `npm run feriados` y commitee si el diff no está vacío; el de la UMA
+  en Honorio ya hace exactamente eso y sirve de modelo. **No se armó todavía
+  porque es un workflow que escribe en el repositorio**, y eso pide
+  `permissions: contents: write` y una revisión con calma.
+- **Los nombres de la procedencia del UHOM no coinciden, y hay que ajustarlos
+  antes de que corra ese cron.** La planilla quedó con `UMA_FUENTE` y
+  `UHOM_FUENTE` llevando los **valores**, y `actualizar-uma.mjs` busca los
+  valores en `UMA` y `UHOM` y lee `UHOM_FUENTE` esperando **el texto de la
+  norma**. El caso peor no es que falle: es que escriba la cadena `12.960` como
+  la procedencia del UHOM. El detalle y las dos salidas están en
+  [`PLAN_MEDIACION.md`](PLAN_MEDIACION.md). El código es de Honorio.
+- **`data/feria-judicial.json` se carga a mano y no hay de dónde
+  automatizarlo.** Las Acordadas de la CSJN son PDFs sin API. Hoy llega hasta
+  2026; la de 2027 la dicta la Corte entre abril y junio de 2027, así que
+  **hasta que salga, ningún cálculo que toque 2027 devuelve una fecha**: las
+  cuatro calculadoras dicen qué año falta y por qué. Eso es deliberado, no un
+  bug —contar julio como hábil adelanta el vencimiento—, pero **es lo único de
+  este repositorio que hay que acordarse de hacer una vez por año.**
+- **La cobertura arranca en 2021 y está declarada en el archivo, no en el
+  código.** Las ferias de 2004 a 2020 están cargadas, pero los feriados
+  nacionales y los asuetos de esos años **no**, así que un cálculo sobre ellos
+  contaría como hábiles días que no lo fueron. El motor anota cualquier año
+  fuera de la ventana que un cálculo toque y la herramienta no afirma una
+  fecha. Completar 2004-2020 sería ir a buscar cada feriado y cada asueto de
+  diecisiete años: **se decidió que no vale la pena** —nadie computa un plazo de
+  2007— y las ferias viejas se conservan sólo como evidencia documental, que es
+  lo que probó que la heurística estaba mal.
+- **`lib/legal/minimos-data.ts` nunca se verificó contra la ley.** Las cifras de
+  los mínimos que citan el `06` y el `07` están verificadas contra ese archivo, y
+  el archivo dice ser copia fiel del asistente clásico. Que sea fiel a la copia
+  no prueba que sea fiel a la norma. Son unas cuarenta cifras.
+- **Ninguna calculadora se corrió de punta a punta.** Se midió contraste y ancho
+  en las once y se miraron capturas de dos. Un cálculo real, con su pantalla de
+  resultado, no se hizo. Desde el 16/8 hay `npm run verificar-calculos`, que
+  cubre el motor de días hábiles —507 comprobaciones— pero **no** las pantallas
+  ni la aritmética propia de cada calculadora.
+- **Tuteo suelto en el texto de las calculadoras.** Varias dicen «envíanos un
+  mail» y «si crees», que es el imperativo de *tú*. La convención del repositorio
+  es rioplatense.
+- **`calculadoras/honorarios-mediacion.html` tiene mal el rótulo del tope.** Se
+  deja viva porque da un número correcto —decisión de Javier—; el arreglo es
+  barato.
+- Los `max-width` de las calculadoras siguen yendo de 240 a 1000 px sin criterio.
+- **`www.javiercuneo.com.ar` no resuelve**, si se lo quiere: va un CNAME `www` →
+  `javiercuneo.github.io` en Cloudflare, gris.
+- **De [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) quedan seis de ocho
+  puntos**, con el orden recomendado adentro: uno para hacer ya sin tocar
+  números, tres que sí los mueven —uno hacia arriba: los pisos mínimos que el
+  motor no verifica—, dos para declarar y no implementar, y uno anotado sin
+  fecha.
+- Anotado y no decidido, de cálculo directo: si el control de fracción de etapa
+  del dashboard debería ofrecer las dos cosas.
 
-- **Con dominio propio, un *project page* se sirve en la raíz del dominio.**
-  Desapareció el `/herramientas-judiciales/` de la ruta:
-  `javiercuneo.com.ar/calculadoras/tasa.html`. Como todos los enlaces internos
-  son relativos, no se rompió nada.
-- **El CNAME no va.** Se pensó agregarlo y está mal: el sitio se publica con un
-  workflow propio de Actions, y para esa fuente la documentación de GitHub dice
-  que no se crea ningún `CNAME`, que uno existente se ignora y que no hace
-  falta. El dominio vive en la configuración de Pages. Un `CNAME` en `site/`
-  sería un archivo que no hace nada y que la próxima sesión tendría que
-  averiguar por qué está.
-- **Los enlaces viejos no se rompieron**, a diferencia del renombre del 4/8.
-  `javiercuneo.github.io/herramientas-judiciales/…` devuelve **301 al dominio
-  conservando la ruta** —comprobado—, así que el enlace de LinkedIn siguió
-  andando sin tocarlo.
-- `www.javiercuneo.com.ar` **no resuelve**: no existe el registro. Si molesta,
-  va un CNAME `www` → `javiercuneo.github.io` en Cloudflare, gris también.
-
-El barrido de URL absolutas está hecho: eran 17 acá —15 en `README.md`, el
-`og:image` de `index.html` y una en `INFORME_REFACTOR_SHARED_CSS.md`— más la
-cadena de *User-Agent* de `distancia.html`. Comprobadas contra el destino nuevo.
-En el repositorio de Honorio eran 4 y también están.
-
----
-
-## Las calculadoras, cerradas el 5/8
-
-Cada una es un HTML con su CSS y su JS adentro, escritas en momentos distintos.
-`calculadoras/css/comun.css` define los tokens del sitio —cobalto `#1E45CE`,
-neutro frío, `radius 0.375rem`, Archivo para títulos— más una base mínima de
-controles, tablas y pie. **Las once lo cargan antes de su propio `<style>`**,
-así que lo local sigue ganando y cada archivo conserva su layout.
-
-**Lo que dejó probado [`INFORME_REFACTOR_SHARED_CSS.md`](INFORME_REFACTOR_SHARED_CSS.md)**
-(31/7), y no hace falta rediscutir:
-
-- La duplicación del 72 % es de **líneas de propiedad sueltas**, no de reglas.
-  Reglas CSS completas idénticas en dos o más archivos: **9 %**.
-- Los `<style>` no son copias sino **hermanos con variaciones hechas a mano**.
-  Por eso **no existe extracción mecánica segura**: cualquier CSS compartido
-  real obliga a normalizar, y normalizar cambia el aspecto de las páginas.
-- Su plan de unificar sobre el degradé violeta `#667eea → #764ba2` con
-  Montserrat **quedó viejo**: es anterior al rediseño de la landing. Del plan
-  sirve todo lo procedimental.
-
-### Las tres lecciones que dejó el trabajo
-
-Se conservan porque las tres se van a repetir:
-
-1. **Para que una tabla no estire la página, el contenedor con `overflow-x` no
-   alcanza.** Un ítem de flex no baja de su contenido sin `min-width: 0`, y
-   `flex: 0 0 400px` significa «no encogerse nunca». Son tres arreglos:
-   envolver en `.tabla-scroll`, `min-width: 0`, y permitir que encoja. Medido en
-   `prorrateo`: de 753 px de contenido en 406 de viewport a 406 = 406.
-2. **Un control estático no sustituye una medición.** Ocho de las once habían
-   pasado un control de «tokens aplicados, sin violeta, sin texto invisible» y
-   daba verde. Un barrido de contraste sobre estilos computados encontró **27
-   fallas en oscuro y 9 en claro** —hoy cero—, incluidos dos botones principales
-   con **contraste 1.00**, blanco sobre blanco, en los dos temas y en
-   producción. La causa fue un ciclo de variables CSS; está en
-   [Trampas conocidas](#trampas-conocidas).
-3. **Medir con los paneles ocultos subestima.** Las pantallas 2 a 4 de
-   `ejecucion-estado` arrancan en `display:none` y la primera pasada no las vio.
-   Hay que forzarlas visibles. Ojo: eso mismo **inventa desbordes** —apila
-   pantallas que nunca conviven—, así que el ancho se mide en una pasada
-   aparte, sin tocar nada.
-
-Y una de fondo: **el resto de las fallas vino de un reemplazo masivo, que no
-puede ver el contexto.** `--border` usado como fondo de botón, grises planos que
-la conversión no alcanzó, y el violeta `#667eea` que este documento daba por
-erradicado, escrito `rgba(102,126,234)` en seis lugares porque la conversión
-buscaba hex.
-
-**Emojis:** salieron los 39 de contenido. Los iconos del timeline de
-`ejecucion-estado` pasaron a números. **El `✓` del paso completado se queda:** es
-una marca tipográfica monocroma, no un emoji.
+Lo que todavía no existe va en `IDEAS.md`, que es cuaderno interno y no se
+versiona: acá van sólo los pendientes de lo que ya está construido.
 
 ---
 
-## Los ocho documentos de dominio, cerrados el 7/8
+## Bugs abiertos
 
-Siete se reescribieron contra el motor; el `07` solo necesitó retoques.
-**El detalle de qué decía mal cada uno está en el propio documento**, en su
-sección final «Qué decía este documento y no era así». Acá va solo lo que no
-cabe en ninguno de los ocho.
+### `--faint` reprueba AA en tema claro — 12/8
 
-De paso salieron dos errores en Honorio, ya arreglados allá: la tarjeta de la
-medida cautelar prometía el porcentaje contrario al que el motor aplicaba, y la
-transformación se atribuía al art. 29 inc. e en vez de al 37.
+`#666e7c` sobre el fondo `#e9ebee` da **4,30:1**, contra los 4,5 que pide AA para
+texto chico. Y el token se usa justamente en texto chico: `.label` a 11,2 px en
+mayúsculas, el colofón, y las fechas. En oscuro está bien (`#828a98`, 5,51).
 
-### Por qué salieron mal
-
-**La firma del error era clara.** Lo que estaba bien en los ocho era el relato
-general —hay una escala, hay reducciones en tres etapas, el procurador sale del
-patrocinante—. Lo que estaba mal era **todo lo que exigía mirar algo concreto**:
-el número del artículo, el nombre de una clave, el orden de los pasos, si un
-mecanismo existe. Y los artículos del `04` no estaban sueltos sino **corridos en
-bloque**. Esa firma es inconfundible: **se generaron a partir de una descripción
-del sistema, no del sistema.** Una descripción conserva la estructura y pierde
-los datos, y por eso sonaban plausibles.
-
-Hubo un segundo mecanismo, el de los inventos «útiles»: el control de mínimos
-del `03` no salió de la nada, salió de que un sistema de honorarios con mínimos
-legales **debería** verificarlos. Lo mismo el «total general» y el «25 % si la
-cautelar se despacha».
-
-**Y el más importante, porque explica por qué los docs salieron peor que el
-código que describen:** el motor calcula bien y las validaciones estuvieron en
-verde todo el tiempo. El código tiene compilador, tipos y 830 afirmaciones que
-corren en cada push. **La prosa no tiene nada.** El mismo proceso produce código
-que funciona y prosa confiadamente falsa, porque uno tiene realimentación y la
-otra no.
-
-La pasada del 5/8 **funcionó** —por eso el `07` no hubo que reescribirlo— pero
-tuvo dos límites: se verificó contra la ley también las afirmaciones sobre el
-código, que la ley no puede contestar; y se corrigió la instancia señalada en
-vez de la clase, que es lo que dejó cuatro «50 % parcial / 100 % total» vivos en
-el `05` con el encabezado declarándolos arreglados. **Una nota de verificación
-que no es cierta es peor que ninguna**, porque el que la lee deja de mirar.
-
-### El único error que cambiaba un número
-
-`05_DEPENDENCIAS.md` decía, en cinco lugares y en su diagrama de orden general,
-que las reducciones de los arts. 22 y 40 se aplican **sobre el monto de la
-escala**. Se aplican sobre la base, antes de la escala. Como la escala es
-progresiva, reducir la base puede hacerla caer a otro tramo:
-
-```
-demanda desestimada (-30 %, art. 22), base $50.000.000, UMA $102.076
-
-MOTOR   base × 0,7 y después la escala  →  5ª escala: 61,93 UMA = $6.321.798
-DOC 05  la escala y después × 0,7       →  6ª escala: 66,62 UMA = $6.800.776
-                                            $478.978 de más — 7,6 %
-```
-
-**Quien hubiera regulado siguiendo ese documento habría dado casi medio millón
-de más en ese caso.** Está anotado acá y no solo allá porque es la clase de cosa
-que se puede volver a introducir sin darse cuenta.
-
-### Qué se hizo para que no se repita
-
-1. **La regla de fuentes, en [`AGENTS.md`](../AGENTS.md).** Tres tipos de
-   afirmación y tres fuentes distintas: la ley se verifica contra el texto, la
-   app contra el código leído, y una interpretación no se verifica —se declara—.
-   Más las tres consecuencias: anclar cada afirmación a algo que se pueda abrir
-   o correr, no tratar ninguna descripción secundaria como oráculo, y no firmar
-   una nota de verificación que no sea cierta.
-2. **`npm run verificar-docs`** (`scripts/verificar-docs.mjs`). **No verifica que
-   los documentos sean ciertos —eso no se puede automatizar— pero caza la clase
-   de error que salió más cara: la cita inventada.** Tres controles: normas
-   (`Ley NN.NNN`, `Decreto NNN/AAAA`) contra el texto de la ley más una lista
-   blanca con el motivo de cada una; artículos de la 27.423 contra los
-   encabezados reales del texto; e identificadores y rutas entre backticks
-   contra el código. **Corre en CI antes de armar el sitio**, así que una cita
-   inventada no llega a producción.
-
-**Tres cosas del script que costaron y conviene no volver a descubrir:**
-
-- **Se auto-validaba.** `scripts/` está en el corpus, así que sus propios
-  comentarios —que citan `escala_art21` como ejemplo de lo que hay que cazar—
-  hacían que el control pasara. Pasó de verdad, en la primera corrida de la
-  prueba de regresión. Ahora se excluye a sí mismo.
-- **La sección «Qué decía este documento y no era así» cita normas falsas a
-  propósito.** El `04` nombra un decreto inexistente justamente para decir que
-  no existe. Esa sección se saltea, detectada por el encabezado.
-- **`honorio/` no está en CI.** Los identificadores del motor salen como no
-  verificables y no hacen fallar: un rojo que depende de si alguien clonó algo
-  no sirve. Lo que sí falla en CI son las normas y los artículos, que es la
-  clase de error más cara. `--sin-honorio` simula localmente lo que ve CI.
-
-**Lo que no caza, para no confiarse:** artículos que existen pero se citan para
-lo que no son —el `art. 51 inc. 8` del `05` pasa, porque el art. 51 existe—, y
-cualquier afirmación de fondo. Eso sigue siendo leer el motor.
-
-### Reparto entre documentos, para que no se dupliquen
-
-El `01` va proceso por proceso: qué pregunta cada uno y qué hace con la
-respuesta. El `02` va por lo que los ocho tienen en común: el recorrido y el
-orden del cálculo. El `04` va por las cosas —cada entidad jurídica contra su
-tipo real—. El `05` dice qué depende de cada pieza compartida y qué validación
-corre qué. El `06` es la tabla comparativa. Cada uno remite al otro en vez de
-repetirlo.
-
-Dos aclaraciones que hubo que agregarles y conviene no borrar:
-
-- **`08_DEUDA_TECNICA_FUNCIONAL.md` no es una lista de trabajo pendiente**: eso
-  es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md). Y describe el motor
-  clásico: donde dice `calculations.js` o `core.js` se habla de
-  `asistente-honorarios-clasico/`. Está dicho en el encabezado en vez de
-  reescribir 28 entradas que como catálogo de decisiones siguen valiendo.
-- **La sección «Lo que la ley dice y el motor no hace» del `02` es lo primero
-  que envejece.** Quedó vieja el mismo día en que se completó el plan que salió
-  de ella. Ahora cada entrada dice qué se hizo, o por qué se decidió no hacerlo.
+Medido en `index.html` y en `quien-soy.html` con el mismo resultado: **es del
+sistema visual, no de una página.** Por eso no se tocó al pasar — el token está
+duplicado en `index.html`, en `documentacion.html` y en
+`calculadoras/css/comun.css`, así que arreglarlo es un cambio en las trece
+páginas y se verifica en las trece. Bajarlo a `#5f6774` alcanza para pasar.
 
 ---
 
-## Lo demás que se hizo, en orden
+## Decisiones vigentes
 
-### `quien-soy.html` — 12/8
-
-Página nueva, enlazada desde la sección «Autor» del index y desde los dos
-colofones, y agregada a la allowlist de `pages.yml`. Sin ella en esa lista la
-página existe en el repositorio y no en producción, que es lo que ya pasó con
-PDF-studio.
-
-**Por qué una página y no más texto en el index.** La sección `#autor` sostiene
-la tesis del sitio —el código lo escribe un modelo, el criterio no— en tres
-párrafos, y ese largo es el correcto ahí: quien entra a la landing viene a
-buscar una calculadora. Pero esa tesis es también lo único que distingue este
-trabajo de cualquier otro repositorio de calculadoras, y en tres párrafos no
-entra lo que la sostiene: qué parte del trabajo es propia y cuál no, y cómo se
-decide cuando la ley admite más de una lectura. El index quedó como estaba y
-ahora enlaza a la versión larga.
-
-**Lo que la página afirma de más que el index**, y que es el motivo de que
-exista: que no se escribió el código, que no se eligió la arquitectura, y que
-las decisiones técnicas se adoptaron preguntando. Declarado así, «hecho con IA»
-deja de ser una frase que tapa y pasa a delimitar dónde está el aporte:
-elegir el problema, decidir los puntos ambiguos, dejarlos escritos y darse
-cuenta cuando el número está mal.
-
-**No repite ninguna cifra.** Ni versiones, ni cantidad de validaciones, ni
-cruces de la entrevista. Todas esas viven en el index y en Honorio, y una cifra
-duplicada en una página sin build es una cifra que se desincroniza. Donde haría
-falta un número, hay un enlace.
-
-**Verificación.** Contraste sobre estilos computados, en los dos temas, con las
-transiciones desactivadas —sin eso `getComputedStyle` devuelve el color a mitad
-de la animación y da números inventados: la primera medición dio 1,15 en un
-elemento que está en 18,15—. Todo pasa AA salvo `--faint`, que es del sistema
-visual y no de esta página (ver abajo). A 390 px no hay scroll horizontal ni
-elementos desbordados, y la línea de tiempo del recorrido colapsa a una columna.
-
-**Un bug propio, encontrado midiendo.** `.btn-solid` había quedado con
-`color: #fff`, que en tema oscuro es blanco sobre el acento aclarado: **2,68:1**,
-reprueba AA. `index.html` ya lo tenía resuelto con `color: var(--bg)`, que se
-invierte solo con el tema. Copiada esa solución, queda en 6,28 claro y 7,15
-oscuro. Es exactamente la clase de error que un control «tokens aplicados, sin
-colores planos» deja pasar.
-
-### La landing decía mal lo que hace — 6/8
-
-«Barre los **25.600 recorridos posibles** de la entrevista» era una cifra
-correcta describiendo otra cosa: 25.600 no son recorridos sino **cruces**, cada
-recorrido contra cada otro, que es lo que barre `retroceso.validation.ts`. Eso
-es el **flujo hacia atrás**, el bug del 3/8: volver atrás y cambiar el tipo de
-proceso dejaba pegada una respuesta que el recorrido nuevo ya no pregunta, y el
-motor clásico tenía el mismo agujero —por eso `AGENTS.md` dice que no sirve de
-oráculo—. Era peor que un error de redondeo: una cifra más impresionante que la real,
-describiendo algo distinto, en la sección que sostiene la credibilidad del
-sitio. Ante alguien del palo, no cerraba. Se corrigió también en `README.md`.
-(Los números de hoy son otros: ver [Dónde estamos](#dónde-estamos).)
-
-**Y «casos conocidos» daba a entender una autoridad externa que no hay.** Cada
-caso es una entrada con su resultado esperado, escrito a mano en el archivo de
-validación: no hay jurisprudencia ni tabla oficial detrás. **Lo que garantizan
-las validaciones es consistencia, no corrección** —que el número de hoy sea el
-de ayer salvo que alguien haya decidido cambiarlo y lo haya escrito—. Un usuario
-puede decir «esto está mal» y tener razón, y la app no lo contradice. Ahora la
-landing lo dice.
-
-De paso se sacó el registro de la columna: «suites, una por concern», «no conoce
-React ni el DOM», «función pura», «refactor». Si el que entra es abogado, esa
-columna no le decía nada.
-
-### La guía de uso — 5/8
-
-`documentacion.html` estaba enlazada desde el hero y contradecía a la landing.
-Reescrita entera sobre el sistema visual del sitio. **Lo que se conservó, porque
-era lo que valía:** todo el contenido normativo y sobre todo las advertencias de
-alcance, con **un bloque explícito de qué NO hace** por herramienta, que es lo
-que decide si el resultado se puede usar.
-
-De ahí sale una lección que se paga cara: **al documentar una herramienta, leer
-lo que hace, no lo que su nombre sugiere.** La advertencia sobre la ampliación
-por distancia se escribió mirando una sola de las dos pestañas de
-`distancia.html`, y decía que mide en línea recta. Lo corrigió Javier el 5/8: el
-segundo modo mide **por ruta** (OSRM, sobre la red de OpenStreetMap), que es el
-que se acerca al criterio de la Corte. La guía ahora explica cuál usar —la de
-ruta manda, la lineal sirve de piso— y que donde la Acordada 5/2010 fija la
-distancia al asiento federal, manda la Acordada.
-
-El 7/8 se le agregaron al bloque «qué no hace» de Honorio las dos previsiones
-que el plan de cobertura decidió declarar y no implementar: el 4 % del art. 42
-—que se calcula sobre los fondos disponibles en favor de terceros, un dato que
-la entrevista no tiene— y el porcentaje mayor por labores altamente complejas
-del art. 21, que es una facultad del juez por auto fundado. **Las dos van con el
-motivo**, porque «no lo hace» sin el porqué se lee como una carencia y son
-decisiones.
-
-Ya no tiene emojis, así que la excepción que `AGENTS.md` anotaba está saldada.
-
----
-
-## Decisiones tomadas, y por qué
-
-No se derivan del código. Si algo se va a cambiar, conviene saber contra qué se
-está discutiendo.
-
-### El nombre y el dominio
-
-`Herramientas-Judiciales-IA` pasó a **`herramientas-judiciales`** el 4/8. Lo que
-se buscaba era sacar el `-IA`: en 2023 era una señal, hoy es el default y ubica
-al autor del lado del que usa la herramienta de moda, no del que tiene el
-dominio.
-
-Ese renombre **rompió la URL vieja de Pages sin redirección** —404 duro,
-verificado— y hubo que cambiar a mano cualquier enlace compartido antes, incluido
-el de LinkedIn. GitHub redirige las URL del repositorio, pero no las del sitio.
-**Ese fue el argumento más fuerte para pasar a dominio propio.**
-
-`honorio.ar` es un dominio de *producto*, no el paraguas: si Javier construye
-algo que no tenga que ver con honorarios, «Honorio» no lo contiene. Se evaluó un
-nombre inventado para el conjunto (**`elsecretario`** era el candidato) y se
-descartó por lo mismo: cualquier marca nueva vuelve a apretar el día que el
-trabajo se corra de tema. **La decisión fue el nombre propio.** Una persona no
-caduca ni cambia de rubro, y deja que cada producto tenga su nombre debajo.
+No se derivan del código. Las que ya no se discuten están en
+[`HISTORIA.md`](HISTORIA.md); acá quedan las que gobiernan trabajo de todos los
+días.
 
 ### El sistema visual
 
@@ -418,435 +165,72 @@ seleccionado son siempre el mismo color—, neutro frío, `--radius: 0.375rem`, 
 **Archivo** (Omnibus-Type, Buenos Aires) para títulos y cifras, elegida por ser
 una tipografía argentina para una herramienta jurídica argentina.
 
-**El tema lo elige el usuario, desde el 5/8.** Antes el sitio seguía y punto a
-`prefers-color-scheme`, o sea al sistema operativo. Lo reportó Javier: en casa
-le abría oscuro y en la oficina claro, sin forma de decidir. Y Honorio ya tenía
-su interruptor, así que el sitio y la app se comportaban distinto.
-
-Ahora hay un botón en las trece páginas, que lo inyecta `assets/tema.js` —un
-archivo compartido, porque trece páginas sin build no pueden mantener trece
-copias del mismo comportamiento—. Sin elección guardada se sigue al sistema; con
-elección, manda la elección y persiste en `localStorage`.
-
-**Cómo está hecho, para no romperlo:** los tokens oscuros están **dos veces**,
-en `@media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) }` y en
-`:root[data-tema="oscuro"]`. Si tocás un valor, tocá los dos. Se evaluó
-`light-dark()`, que evitaría la duplicación, y se descartó: si un navegador no
-la soporta la declaración entera es inválida y el token queda vacío, que es
-exactamente el bug que dejó dos calculadoras con el botón invisible. Acá la
-predictibilidad vale más que la elegancia.
-
 Se descartó explícitamente el cluster «crema + serif display + terracota» por ser
 el look más reconocible de diseño generado por IA.
 
+**El tema lo elige el usuario, desde el 5/8**, con un botón en las trece páginas
+que inyecta `assets/tema.js` —compartido, porque trece páginas sin build no
+pueden mantener trece copias del mismo comportamiento—. Sin elección guardada se
+sigue al sistema; con elección, manda la elección y persiste en `localStorage`.
+
+**Cómo está hecho, para no romperlo:** los tokens oscuros están **dos veces**, en
+`@media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) }` y en
+`:root[data-tema="oscuro"]`. Si tocás un valor, tocá los dos. Se evaluó
+`light-dark()`, que evitaría la duplicación, y se descartó: si un navegador no la
+soporta la declaración entera es inválida y el token queda vacío, que es
+exactamente el bug que dejó dos calculadoras con el botón invisible. Acá la
+predictibilidad vale más que la elegancia.
+
 `--faint` es el gris más claro que todavía se lee. **No aclararlo**: su único uso
-es texto chico, que es justo donde el piso de contraste es 4.5.
+es texto chico, que es justo donde el piso de contraste es 4.5. (Está abierto que
+en claro no llega: ver arriba.)
 
-### `calculadoras/honorarios.html` se dio de baja — 7/8
+### Una herramienta publicada tiene que estar bien o no estar publicada
 
-El 4/8 se la había dejado publicada, con la tarjeta «retirada» en el grupo
-«Otras» de la landing. **Este documento decía que se había sacado de la landing
-y era falso**: seguía ahí, con una descripción que la ofrecía como estimación
-rápida.
+Es el criterio con que `calculadoras/honorarios.html` se dio de baja en vez de
+corregirse —el porqué, en [`HISTORIA.md`](HISTORIA.md)—. Que una tarjeta de la
+landing diga «retirada» no la saca de internet, y el que llega por un enlace no
+ve la tarjeta. Si hay que retirar algo: el archivo se queda, la URL sigue viva
+con un redirect en `pages.yml`, y la landing dice el motivo.
 
-El 7/8 se le encontró el error del grupo 4 —la reducción del art. 22 sobre la
-escala en vez de sobre la base— y **se decidió darla de baja en vez de
-corregirla**. El motivo no es el costo del arreglo, que igual no era una línea:
-es que Honorio ya la reemplaza y el
-[`PLAN_CALCULO_DIRECTO.md`](PLAN_CALCULO_DIRECTO.md) la reemplaza mejor. Una
-herramienta superada dos veces no se parchea.
+### `08_DEUDA_TECNICA_FUNCIONAL.md` no es una lista de trabajo pendiente
 
-**Cómo quedó, y por qué así:**
-
-- **El archivo sigue en el repositorio**, sin tocar. Es historia: fue el primer
-  intento de regulador, antes del clásico y de Honorio.
-- **La URL sigue viva.** `pages.yml` publica `redirects/honorarios-retirada/`
-  encima de `site/calculadoras/honorarios.html`, con el mismo patrón que
-  `redirects/honorio/`. Ningún enlace viejo muere en un 404 **y ninguno entrega
-  un número equivocado.** Las dos cosas juntas, que era el punto.
-- **La tarjeta de la landing lo dice**, con el motivo. El aviso también.
-
-**El criterio, porque se va a repetir:** una herramienta publicada tiene que
-estar bien o no estar publicada. Que esté «retirada» en la landing no la saca de
-internet, y el que llega por un enlace no ve la tarjeta.
-
-### Una interpretación se funda en jurisprudencia — 8/8
-
-La regla de fuentes de [`AGENTS.md`](../AGENTS.md) decía que una interpretación
-«se declara como tal, con el razonamiento». **Ahora dice que se funda en un fallo
-o no se afirma.** El motivo, en una línea: un razonamiento propio deja a la app
-diciendo «esto lo decidimos nosotros», y al que lee sólo le queda creer o no
-creer; **un fallo cambia quién lo sostiene.**
-
-No es un invento de esa sesión: es lo que `honorio/lib/legal/jurisprudencia.ts`
-ya hacía para el 2 %-20 % de los incidentes —criterio que sale de una ley
-derogada porque el art. 47 quedó observado— y que funcionó. La regla nueva lo
-generaliza y reusa el mecanismo: un `Criterio` con su frase y sus `Fallo[]`,
-consumido por la sección que corresponda.
-
-**Y una advertencia que quedó escrita en `AGENTS.md` porque vale más que la
-regla:** una cita de jurisprudencia inventada es el peor error posible acá. Es
-indistinguible de una buena, `verificar-docs` **no la caza** —controla normas y
-artículos, no fallos— y termina adentro de un documento que produce resoluciones
-judiciales. Un fallo se transcribe de la sentencia leída o no se escribe.
-
-### El material de `docs/modelos/` deja de versionarse — 8/8
-
-`.gitignore` cubre `docs/modelos/jurisprudencia/` y todo `.pdf` o `.docx`
-bajo `docs/modelos/`.
-
-
-
-índice con `git rm --cached`: **siguen en disco y dejaron de estar en el árbol**.
-
-
-
-
-
-
-alguna vez cambia el criterio, la herramienta es `git filter-repo` y conviene
-sacar un bundle de respaldo antes.
-
-**Las plantillas limpias en `.md` sí se versionan a propósito:** son la materia
-prima de [`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md) y están sin
-datos de nadie.
-
-### Licencia
-
-**MIT** para todo lo que hay acá (`LICENSE` en la raíz). La excepción —Honorio,
-bajo AGPL-3.0— se fue con él, y el CLA de `CONTRIBUTING.md` aplica en aquel
-repositorio, no en este.
-
----
-
-## Pendientes
-
-Ninguno urgente y ninguno bloqueante. El dominio está cerrado del todo:
-registrado, con DNS, con certificado y con HTTPS forzado.
-
-- **`data/feriados.json` se actualiza a mano, con `npm run feriados`.** Hoy llega
-  hasta 2027, así que no apura, pero **nadie avisa cuando se queda corto**: si un
-  día alguien computa un plazo de 2028 y el archivo no lo tiene, la calculadora
-  no calcula y dice qué año falta —eso ya está resuelto— pero el que tiene que
-  correr el script sos vos.
-  Falta el cron que lo haga solo. Es un workflow de GitHub Actions con
-  `schedule:` mensual que corre `npm run feriados` y commitea si el diff no está
-  vacío; el de la UMA en el repositorio de Honorio ya hace exactamente eso y
-  sirve de modelo. **No se armó todavía porque es un workflow que escribe en el
-  repositorio**, y eso pide `permissions: contents: write` y una revisión con más
-  calma que la que había esa tarde.
-- **`mora.html` todavía no usa `js/calendario-judicial.js`**: tiene su propia
-  copia de la lógica de feria y fin de semana. Es duplicación de código, no
-  divergencia de datos —la lista de asuetos y los feriados ya son los mismos—,
-  así que no cambia ningún número. Es lo único de fondo que sigue abierto de las
-  calculadoras.
-- **`lib/legal/minimos-data.ts` nunca se verificó contra la ley.** Las cifras de
-  los mínimos que citan el `06` y el `07` están verificadas contra ese archivo,
-  y el archivo dice ser copia fiel del asistente clásico. Que sea fiel a la copia
-  no prueba que sea fiel a la norma. Son unas cuarenta cifras.
-- **Ninguna calculadora se corrió de punta a punta.** Se midió contraste y ancho
-  en las once y se miraron capturas de dos. Un cálculo real, con su pantalla de
-  resultado, no se hizo.
-- **Tuteo suelto en el texto de las calculadoras.** Varias dicen «envíanos un
-  mail» y «si crees», que es el imperativo de *tú*. La convención del
-  repositorio es rioplatense.
-- Los `max-width` de las calculadoras siguen yendo de 240 a 1000 px sin criterio.
-- **`www.javiercuneo.com.ar`**, si se lo quiere.
-- **El plan completo de qué falta de la ley, qué hacer y qué solo declarar está
-  en [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md)**, con el orden
-  recomendado. **Ocho puntos**, de los que el 7/8 se cerraron dos: el hint de la
-  base y el litisconsorcio. Quedan seis: uno para hacer ya sin tocar números,
-  tres que sí los mueven —uno hacia arriba: los pisos mínimos que el motor no
-  verifica—, dos para declarar y no implementar, y uno anotado sin fecha.
-
-### Planes abiertos
-
-Cada uno tiene su documento **para que se puedan analizar en sesiones
-distintas**.
-
-**El orden acordado el 7/8 se cumplió tal cual, y ya sobró:**
-
-1. ~~**Los bugs.**~~ **Hechos el 7/8.** Ver [Bugs conocidos](#bugs-conocidos).
-   Queda solo el código muerto de `honorio/public/legacy/core.js`, que es del
-   otro repositorio.
-2. ~~**Cálculo directo.**~~ **Hecho el 7/8.** Y **el argumento con que se lo puso
-   segundo se confirmó**: fijó la matriz de roles × etapas, creó el segundo
-   consumidor de las funciones puras con su validación cruzada de 171
-   afirmaciones, y de yapa terminó siendo la puerta de entrada propia que
-   mediación necesitaba y que no hubo que construir.
-3. ~~**Mediación.**~~ **Hecha el 8/8**, y el motivo de ponerla antes que prosa
-   también se confirmó: agregó una sección al resultado y una fila al cálculo
-   directo. Al revés habría que rehacer plantillas para meter al mediador.
-4. **Regulación en prosa — es acá donde estamos, desde el 10/8.** La más riesgosa
-   y la que más se beneficia de que el resto esté firme.
-
-**Lo que estaba anotado como paralelo ya no lo es:** los modelos de resolución
-—que era lo que faltaba para el punto 4— están cargados. Once archivos en
-[`docs/modelos/plantillas limpias/`](modelos/), sin datos de nadie y por eso
-versionados. Los de mediación estaban desde el 8/8 en
-[`docs/mediacion/`](mediacion/).
-
-**La alternativa que se evaluó:** subir la prosa al segundo lugar, porque cambia
-más el uso diario que una calculadora más. Se defiende; el costo era rehacer las
-plantillas cuando entrara el mediador. Se eligió el orden de arriba y salió bien,
-pero la decisión era de valor y no técnica.
-
-- **[`PLAN_MEDIACION.md`](PLAN_MEDIACION.md)** — 7/8, revisado el 8/8,
-  **implementado el mismo día y cerrado el 10/8**. Motor, UHOM versionado,
-  validación 16, las dos pantallas y el documento de dominio
-  [`09_MEDIACION.md`](domain/09_MEDIACION.md), que es el noveno y el único que no
-  documenta la Ley 27.423. **`calculadoras/honorarios-mediacion.html` se deja
-  viva por ahora**, decisión de Javier: da un número correcto, así que no es el
-  caso de `honorarios.html`. Queda barato corregirle el rótulo del tope. Lo que
-  el plan resolvió y sigue valiendo:
-  - **La escala está verificada** contra el Decreto 2536/2011 y contra la tabla
-    oficial del Ministerio. Los siete tramos de la calculadora son correctos. El
-    Decreto 696/2025 sustituyó el Anexo I entero pero **no tocó el Anexo III**:
-    cambiaron los artículos —el régimen pasó del 28 al 31— y no la escala.
-  - **Va como bloque del resultado, al lado de auxiliares**, no como noveno
-    proceso. El parentesco es real: los dos salen de la base y no del honorario
-    del abogado.
-  - **La base es una sola, la del expediente**, con las reducciones de los
-    arts. 22 y 40 ya aplicadas. Es una interpretación y va fundada: la doctrina
-    de que «el juicio es una unidad jurídica… no pueden existir dos bases
-    regulatorias diferentes, según sea letrado o auxiliar de la justicia» sale
-    del **plenario `Murguía` (CNCiv. en pleno, 2/10/2001)**. **Y hay un fallo que
-    resuelve el planteo exacto** —CNCiv., Sala K, expte. 2896/2021, 22/6/2026—:
-    el apelante era un perito que sostenía que el −30 % del art. 22 no lo
-    alcanzaba por ser auxiliar de la Justicia y no letrado, y la Sala lo rechazó
-    porque «la ley arancelaria no contempla excepción ni distinción alguna» según
-    el profesional. No es analogía.
-  - **No se agrega ninguna regla ni ninguna pregunta por el mediador**: ni
-    adicionales por audiencia, ni descuento del provisional, ni desistimiento, ni
-    reconvención. Todo el cálculo es una función pura de siete ramas sobre una
-    cifra que Honorio ya tiene.
-  - **La numeración del Anexo III cerró el 10/8**, y la destrabó una observación
-    de Javier sobre los modelos del juzgado, que citan el «Anexo I del 2536». Esa
-    cita, que parecía una cuarta variante, **es exacta y explica las otras
-    tres**: el art. 5° del 2536 sustituye el Anexo III «por el que como ANEXO I
-    forma parte integrante del presente», así que son el mismo texto nombrado por
-    su origen o por su destino. Ese texto numera la escala en su **art. 2°**,
-    igual que las seis citas del 696/2025; el «4° y 5°» es una remisión que el
-    propio decreto dejó vieja. Queda un dígito sin resolver: si el 2536 es de
-    2011 o de 2015.
-
-  Y un dato del Paso 2 que se confirmó: **el UHOM se mueve todos los meses** —es
-  la UR-SINEP × 12, redondeada a la decena superior—, así que el `SALTO_MAXIMO`
-  del 60 % calibrado para la UMA no sirve; el módulo usa 15 % y un control de
-  forma —termina siempre en cero— que la UMA no puede tener.
-
-  **La procedencia del UHOM se cargó el 10/8 y hay que ajustar los nombres antes
-  de que corra el cron.** La planilla quedó con `UMA_FUENTE` y `UHOM_FUENTE`
-  llevando los **valores**, y `actualizar-uma.mjs` busca los valores en `UMA` y
-  `UHOM` y lee `UHOM_FUENTE` esperando **el texto de la norma**. El caso peor no
-  es que falle: es que escriba la cadena `12.960` como la procedencia del UHOM.
-  El detalle y las dos salidas están en el plan.
-- **[`PLAN_CALCULO_DIRECTO.md`](PLAN_CALCULO_DIRECTO.md)** — 7/8, **hecho entero
-  el mismo día.** Motor, validación 15 con 171 afirmaciones y pantalla; el 8/8 se
-  le sumó la fila del mediador. La regla que lo gobierna y que conviene no
-  deshacer: **«sin reducciones» no es un caso, es la ausencia de caso**, así que
-  compone las funciones puras y **no arma un `WizardState` con respuestas por
-  defecto** —cada respuesta por defecto es una afirmación jurídica que nadie
-  hizo—. **Cerrado**, salvo una pregunta de producto anotada y no decidida: si el
-  control de fracción de etapa del dashboard debería ofrecer las dos cosas.
-- **[`PLAN_REGULACION_EN_PROSA.md`](PLAN_REGULACION_EN_PROSA.md)** — 7/8,
-  **empezado el 10/8 y es donde está el trabajo**. Que la app devuelva el texto
-  de la regulación para copiar y pegar. Sigue siendo la feature más riesgosa del
-  proyecto: **produce prosa con forma de documento firmado, y ninguna de las
-  validaciones actuales mira prosa.** Lo que se resolvió el 10/8:
-  - **El punto dentro de la banda lo elige el usuario, con un control**, rol por
-    rol. Era la decisión que bloqueaba todo lo demás. Se descartó el valor por
-    defecto en el medio de la banda: es una decisión jurisdiccional disfrazada de
-    conveniencia. **El control arranca sin elegir**, por el mismo argumento.
-  - **Los ocho procesos tienen modelo**, así que la decisión de cobertura no hay
-    que tomarla. Los dos últimos llegaron ese día: el de sucesión es una
-    plantilla de trabajo, y el de homologación de convenio de desocupación **no
-    existía y se escribió desde el art. 40** —leído contra el motor: el 50 % y la
-    reducción del 20 % coinciden—.
-  - **La estructura no es la que el plan suponía.** No hay encabezado —los trece
-    empiezan en «AUTOS Y VISTOS»— así que lo que Honorio no tiene no está al
-    principio sino **en el medio**, en la sección que narra quién intervino y qué
-    hizo.
-  - **Y eso no va como hueco: no se escribe.** Decisión de Javier, y cambia la
-    categoría entera del plan. **La prosa es minimalista, dice únicamente lo que
-    Honorio atrapa**, y el usuario agrega el resto según su caso. El motivo es
-    qué clase de herramienta es Honorio: **supone que el expediente está en
-    condiciones de regularse**, porque salvo los provisorios y la sucesión con
-    renuncia solo se regula cuando el procedimiento terminó —de ahí que el wizard
-    tenga una sección dedicada al modo de terminación y pida la base como un dato
-    que existe—. Un hueco donde va la valuación de los bienes de una sucesión
-    afirmaría que ese párrafo es parte de lo que Honorio produce, y no lo es.
-  - **Notificación, elevación y apertura de cuenta quedan afuera.** Son texto
-    fijo y por eso eran lo más barato de generar, pero **son prácticas del
-    juzgado y no de la ley.** Decisión de Javier.
-  - **El generador está hecho y sus controles entraron con él**, no después: las
-    dieciséis validaciones anteriores comparan números y **ninguna miraba prosa**,
-    así que la prosa sin realimentación era el problema que esta feature creaba.
-    Salieron tres controles y no dos —el tercero es que un punto fuera de la
-    banda no se redacta— y **el de números encontró un error de sí mismo en la
-    primera corrida**: `Decreto 2536` salía como importe inventado. Ahora lee solo
-    números con dos decimales, que es como se escribe una cifra y como nunca se
-    escribe un identificador. **Y una tercera cosa que se perdió y hoy tiene
-    control propio: las tildes.** Los comentarios de `lib/legal/` se escriben sin
-    ellas —convención del código— y la primera versión arrastró la costumbre a
-    las cadenas de salida. Una resolución sin acentos no se puede pegar en un
-    expediente.
-
-### Bugs conocidos
-
-**Abierto, y es el más grave: si la API de feriados no responde, el cálculo
-sigue sin feriados — 13/8.** Reportado como errores de CORS intermitentes en
-`vencimientos.html`. El CORS es del lado del servidor y no se arregla desde acá,
-pero lo que importa no es la causa: es qué hace la herramienta cuando pasa.
-
-`calendario-judicial.js:126` recorre los años pedidos y por cada uno hace un
-`fetch` a `api.argentinadatos.com`. **El `catch` está vacío** (línea 140): un año
-que falla no deja rastro. Después `init()` hace
-`_dataLoaded = _loadedYears.length > 0`, así que **alcanza con que cargue un solo
-año para que la herramienta se declare disponible**, aunque falten los demás.
-
-Y el respaldo que se suponía que cubría esto **no cubre esto**.
-`data/dias-inhabiles.json` tiene solo `dias_inhabiles_adicionales`: asuetos por
-Acordada. No tiene un solo feriado nacional. Si la API no contesta, quedan los
-fines de semana, la feria, el 16 de noviembre y los asuetos —que están
-hardcodeados o en el JSON—, y **el 25 de mayo, el 9 de julio y el carnaval pasan
-a contarse como hábiles**.
-
-Un feriado contado como hábil **adelanta el vencimiento**: el plazo parece
-cumplirse antes de lo que se cumple. Del lado de quien controla si una
-presentación fue tempestiva, ese es el sentido peligroso del error.
-
-Dos cosas más, menores al lado de eso:
-
-- `caducidad.html:268` informa el rango como `loadedYears[0]` a
-  `loadedYears[last]`. Si el agujero está en el medio —2021, 2022 y 2024
-  cargados, 2023 no— dice «2021 a 2024» y el usuario no se entera.
-- **El `README.md` afirma que hay «un respaldo local en `data/`».** No es cierto
-  para los feriados: el archivo suplementa, no sustituye. Es la clase de
-  afirmación que `AGENTS.md` pide verificar contra el código y no contra otro
-  documento.
-
-Lo que hay que decidir antes de arreglar está en [`IDEAS.md`](../IDEAS.md): el
-problema no es técnico sino de criterio, porque dos fuentes que discrepan en un
-feriado dan dos vencimientos distintos.
-
-**Abierto: `--faint` reprueba AA en tema claro — 12/8.** `#666e7c` sobre el
-fondo `#e9ebee` da **4,30:1**, contra los 4,5 que pide AA para texto chico. Y el
-token se usa justamente en texto chico: `.label` a 11,2 px en mayúsculas, el
-colofón, y las fechas de las páginas que las tienen. En oscuro está bien
-(`#828a98`, 5,51).
-
-Medido en `index.html` y en `quien-soy.html`, con el mismo resultado: **es del
-sistema visual, no de una página.** Por eso no se tocó al pasar — el token está
-duplicado en `index.html`, en `documentacion.html` y en
-`calculadoras/css/comun.css`, así que arreglarlo es un cambio en las trece
-páginas y se verifica en las trece. Bajarlo a `#5f6774` alcanza para pasar.
-
-Los tres del 7/8 quedaron cerrados el mismo día:
-
-**1. La lectura de la planilla por posición, en tres archivos.** `honorarios-mediacion.html`,
-`prorrateo.html` y `asistente-honorarios-clasico/js/core.js` tomaban la fila por
-número. Ahora los tres buscan **por clave**, respetando comillas —la fila
-`Acordada` tiene comas adentro— y detectando el HTML que Google devuelve con
-status 200 cuando la publicación se da de baja. Es el mismo criterio de
-`honorio/scripts/actualizar-uma.mjs`.
-
-El peligroso era el de mediación: leía la celda B2, así que una fila insertada
-arriba le habría hecho tomar la UMA como si fuera el UHOM —$102.076 donde van
-$12.960—, un honorario **ocho veces más alto sin ningún error visible**.
-Verificado contra el CSV real y contra tres mutaciones —fila nueva arriba, filas
-reordenadas, clave ausente—: los tres devuelven el valor correcto en las
-primeras dos y `null` en la tercera, que es lo que activa la carga manual.
-
-**El arreglo se propagó a `honorio/public/legacy/core.js`**, en el commit propio
-de aquel repositorio. Y ahí hubo una corrección de criterio que conviene tener
-escrita, porque la primera versión de este documento proponía lo contrario:
-
-> Se había anotado «sacar `cargarUMA()` de la copia de Honorio, que es código
-> muerto». **Eso estaba mal.** `AGENTS.md` dice que el motor legacy se arregla en
-> su fuente y se propaga, y que **nunca se parchea una copia sola**; y
-> `adapters.ts:74` ya había decidido a propósito no tocar esa función por ese
-> mismo motivo. Lo correcto no era borrarla de la copia sino **propagarle el
-> arreglo**, que es lo que se hizo. La copia volvió a ser fiel a su fuente
-> —difieren solo en un `return` que ya estaba— y de paso dejó de leer por
-> posición.
->
-> **La lección:** antes de proponer una limpieza en `public/legacy/`, mirar si la
-> decisión ya está tomada. Estaba, y con mejor razón.
-
-**2. El art. 22 sobre la escala en `calculadoras/honorarios.html`.** Su `grupo4`
-hacía `calcMinComp *= 0.7` sobre el resultado de la escala. **Es el mismo error
-que tenía `05_DEPENDENCIAS.md`**: el art. 22 reduce la **base**, antes de la
-escala (`aplicarReduccionesBase()`, `calculate.ts:270`). Con el ejemplo ya
-escrito acá daba **7,6 % de más** y ni siquiera caía en el mismo tramo. Los
-grupos 2, 3, 5 y 6 estaban bien: esos artículos sí reducen la escala.
-**Se resolvió dando de baja la herramienta**, no corrigiéndola; el porqué está
-arriba.
-
-**3. El redondeo en los bordes de tramo**, en ese mismo archivo: `baseEnUMA` se
-redondeaba si caía entre 15 y 16, 45 y 46, y así en los seis cortes. El motor no
-redondea nada, comprobado. Se fue con la baja de la herramienta.
-
-El último bug de fondo cerrado, el 5/8, dejó una lección de alcance que conviene
-tener:
-
-**Caducidad contaba mal la feria de julio.** El código sumaba los días de feria
-**solapados con el vencimiento nominal**, no los de la feria entera, y no volvía
-a mirar si la fecha nueva seguía cayendo adentro. El art. 311 CPCCN descuenta
-enteros los plazos que corresponden a ferias, así que el arreglo es una
-**iteración a punto fijo** —recalcular hasta que la fecha deje de moverse—, el
-mismo patrón que ese archivo ya usaba unas líneas más abajo para los inhábiles.
-
-**Lo que importa:** de 8.760 combinaciones de fecha de inicio por plazo entre
-2025 y 2028, cambiaban **298 (3,4 %)**. Solo una parte daba el absurdo visible
-que reportó Javier —una fecha de vencimiento dentro de la feria que el propio
-resultado decía haber atravesado—; **el resto daba una fecha equivocada pero
-verosímil**, que nadie habría mirado dos veces. Un bug de cálculo de plazos se
-busca con un barrido, no con el caso que lo destapó.
+Es un catálogo de decisiones, y describe el motor **clásico**: donde dice
+`calculations.js` o `core.js` se habla de `asistente-honorarios-clasico/`. La
+lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
 
 ---
 
 ## Trampas conocidas
 
 - **El repositorio vive en `C:\IA\herramientas-judiciales`, en disco local, y no
-  hay nada sincronizado.** Javier lo movió ahí el 10/8 desde el escritorio, que
-  colgaba de OneDrive: la ruta hacía que todos los agentes dieran por hecho que
-  los archivos se subían solos a la nube, y había que desmentirlo en cada
-  sesión. **Lo único que sale del disco sale por `git push`.** El segundo
+  hay nada sincronizado.** Se movió ahí el 10/8 desde el escritorio, que colgaba
+  de OneDrive y hacía que todos los agentes dieran por hecho que los archivos se
+  subían solos. **Lo único que sale del disco sale por `git push`.** El segundo
   repositorio está anidado en `honorio/`, con su propio `.git` —el de arriba lo
   ignora—, así que cada uno se commitea por separado.
-- **Abrir el panel del navegador al empezar la sesión.** Está más abajo por qué,
-  pero conviene como primer paso y no como diagnóstico: con el panel cerrado no
-  hay capturas, y en Honorio el paso del wizard **directamente no se monta**, así
-  que verificar en pantalla es imposible. Javier lo anotó como rutina propia el
-  10/8.
+- **Abrir el panel del navegador al empezar la sesión**, como primer paso y no
+  como diagnóstico. Con el panel oculto `document.hidden` es `true`,
+  `requestAnimationFrame` no dispara, `clientWidth` mide 0 y las capturas fallan
+  con *«the Browser pane is not displayed»*; en Honorio el paso del wizard
+  **directamente no se monta**. No es una limitación del entorno: **la solución
+  es abrir el panel.** Si no se puede, el JavaScript sí funciona, y estilos
+  computados y mediciones son más confiables que mirar una captura.
 - **Un artículo de la ley no termina donde termina su primer párrafo, y
   `verificar-docs` no lo nota.** El 10/8 se afirmó dos veces que «el art. 19 de
   la 27.423 instituye la UMA y no tiene incisos», y tiene dos tablas de mínimos
   —inciso a) asuntos no susceptibles de apreciación pecuniaria, inciso b) labor
-  extrajudicial— que **la propia pantalla de mínimos de Honorio muestra**. El
-  control mecánico dio verde en las dos pasadas porque el art. 19 existe: lo que
-  comprueba es que la cita exista, no lo que el artículo dice. Lo mismo con el
-  art. 61, que se leyó sin la nota de vigencia de abajo —fue sustituido por el
-  art. 96 de la Ley 27.802, B.O. 6/3/2026, y las 2 UMA son de esa versión—.
-  **`grep` de un encabezado devuelve una línea; un artículo se lee hasta el
-  siguiente encabezado.**
-- **Una fuente que contradice al motor no es por eso una fuente equivocada.** Las
-  dos correcciones de arriba salieron de leer los modelos del juzgado con la
-  hipótesis ya formada de que estaban mal, porque `AGENTS.md` dice que no son
-  oráculo. **No serlo no los hace sospechosos por defecto**: la observación de
-  Javier de que citan bien el «Anexo I del 2536» es la que cerró la numeración
-  del Anexo III, que llevaba dos días anotada como sin resolver.
-- **`.gitattributes` estuvo en UTF-16 hasta el 5/8 y git nunca lo leyó.** Lo
-  parsea como bytes, veía un nulo entre cada carácter y ninguna de sus reglas
-  rigió. Por eso los HTML quedaron guardados con CRLF y `entre-fechas.html` con
-  las dos cosas mezcladas —397 CRLF y 192 LF sueltos—, de modo que cualquier
-  edición de una línea uniformaba el archivo y salía en el diff como si se
-  hubiera reescrito entero. Ya está arreglado y el repositorio renormalizado.
-  **La trampa sigue viva:** el `>` de PowerShell 5.1 escribe UTF-16. Si hay que
-  editarlo, `Set-Content -Encoding utf8` o un editor.
-- **Al leer un diff grande de un HTML, mirar primero si es de contenido.**
-  `git diff --ignore-cr-at-eol` lo despeja en un segundo.
+  extrajudicial— que **la propia pantalla de mínimos de Honorio muestra**. Lo
+  mismo con el art. 61, leído sin la nota de vigencia de abajo —fue sustituido
+  por el art. 96 de la Ley 27.802, B.O. 6/3/2026, y las 2 UMA son de esa
+  versión—. **El control mecánico comprueba que la cita exista, no lo que el
+  artículo dice**: `grep` de un encabezado devuelve una línea; un artículo se lee
+  hasta el siguiente encabezado.
+- **Una fuente que contradice al motor no es por eso una fuente equivocada.**
+  `AGENTS.md` dice que los modelos del juzgado no son oráculo; **no serlo no los
+  hace sospechosos por defecto.** La observación de Javier de que citan bien el
+  «Anexo I del 2536» es la que cerró la numeración del Anexo III, que llevaba dos
+  días anotada como sin resolver.
 - **No redefinir los tokens de `comun.css` dentro del `<style>` de una
   calculadora.** `--accent: var(--accent)` es una dependencia cíclica: por
   especificación la propiedad queda inválida en tiempo de cómputo y `var()` no
@@ -858,49 +242,31 @@ busca con un barrido, no con el caso que lo destapó.
   `--sunk`.
 - **Las reglas de `@media print` no llevan tokens de tema.** El papel es blanco
   siempre: `background: var(--card)` imprime negro en modo oscuro.
-- **Después de tocar la configuración de Pages, mirar `Age` antes de sacar
-  conclusiones de un código de estado.** Al verificar Enforce HTTPS,
-  `http://javiercuneo.com.ar/` devolvía 404 y se leyó como que la opción estaba
-  sin tildar. Era **una respuesta cacheada en el borde de GitHub**, de cuando el
-  dominio todavía no estaba configurado: la raíz venía con `age=3502` —casi una
-  hora— mientras que `/index.html`, que nunca se había pedido por HTTP, salía con
-  `age=0` y el 301 correcto. Un parámetro de cache-bust en la query **no sirve**,
-  porque la variante ya estaba cacheada igual.
-- **`git commit -m` con here-string falla** en este entorno (guardia de
-  sandbox). Usar `git commit -F <archivo>`.
-- **`npm run lint` no existe.** Se eliminó el 4/8: declaraba `eslint .` y
-  `eslint` nunca estuvo instalado, así que era una promesa que fallaba.
+- **`sitio-estatico` de `.claude/launch.json` tiene el puerto escrito dos
+  veces**, en `runtimeArgs` (`http.server 4180`) y en `port`, con `autoPort`
+  encima. Si el 4180 está ocupado —queda ocupado por servidores viejos de
+  sesiones anteriores— el harness reasigna el puerto y abre la pestaña ahí,
+  pero Python sigue escuchando en 4180: la pestaña da error y el server figura
+  «starting» para siempre. Se ve enseguida con `curl localhost:4180`. Mientras
+  no se arregle, navegar a mano al 4180.
 - **Son dos proyectos npm distintos: fijarse en cuál se está parado.** El de la
-  raíz tiene **dos scripts y nada más**: `docs` y `verificar-docs`. `check`,
+  raíz tiene **cuatro scripts y nada más**: `docs`, `verificar-docs`,
+  `verificar-calculos` y `feriados`. `check`,
   `build`, `validate` y `typecheck` son de Honorio y **solo corren desde
   `honorio/`**, que es un clon de otro repositorio. Pedirlos acá da «Missing
   script», que se lee fácil como que algo está roto y no lo está.
-- **El panel del navegador no compone frames si no está a la vista.** Se anotó
-  varias veces como si fuera una limitación del entorno y no lo es: con el panel
-  oculto `document.hidden` es `true`, `requestAnimationFrame` no dispara,
-  `clientWidth` mide 0 y las capturas fallan con *«the Browser pane is not
-  displayed»*. **La solución es abrir el panel.** Si no se puede, el JavaScript
-  sí funciona: estilos computados y mediciones son más confiables que mirar una
-  captura.
+- **El `>` de PowerShell escribe UTF-16.** Para editar un archivo de
+  configuración, `Set-Content -Encoding utf8` o un editor. Un archivo así queda
+  inerte —git lo parsea como bytes y ve un nulo entre cada carácter— y se
+  manifiesta como diffs enormes por finales de línea, no como un error.
+- **Al leer un diff grande de un HTML, mirar primero si es de contenido.**
+  `git diff --ignore-cr-at-eol` lo despeja en un segundo.
 - **La consola de Next acumula errores viejos y no los limpia al recargar.**
   Pasó el 7/8: un guardado intermedio con el JSX roto dejó cinco errores de
   sintaxis en el buffer, y siguieron apareciendo después de arreglarlo, con
-  números de línea de código que ya no existía. Se perdió un rato leyendo
-  fantasmas. **Lo que lo resuelve es una compilación fresca:**
-  `rm -rf .next && npm run build`. Si `tsc --noEmit` está limpio y el build de
-  cero pasa, la consola miente.
-- **La landing publica lo que la allowlist de `pages.yml` nombra.** Si se agrega
-  algo al sitio, va ahí *y* se enlaza desde `index.html`. Si no, no existe para
-  nadie: ya pasó con PDF-studio, que estuvo meses publicado sin figurar.
-- **Después de publicar en un lugar nuevo, mirar la pestaña de red, no solo si
-  la página carga.** En `honorio.ar` recién publicado apareció un 404 a
-  `/_vercel/insights/script.js`: era `@vercel/analytics`, resto de la plantilla
-  de v0. La app declara que nada de lo que se escribe sale del navegador, y con
-  ese paquete adentro la afirmación dependía de dónde estuviera alojada. **Una
-  afirmación de privacidad no puede depender del hosting.**
-- **Los días inhábiles tienen una sola fuente: `data/dias-inhabiles.json` más la
-  API de `argentinadatos.com`.** Hasta el 5/8 `mora.html` leía un repositorio
-  viejo y abandonado con 36 fechas de más; 35 ya las daba la API y la única
-  huérfana estaba mal —era la fecha nominal de un feriado trasladable, no la
-  vigente—. **Ante dos fuentes que difieren, no elegir la más larga:** comparar
-  entrada por entrada contra la autoritativa.
+  números de línea de código que ya no existía. **Lo que lo resuelve es una
+  compilación fresca:** `rm -rf .next && npm run build`. Si `tsc --noEmit` está
+  limpio y el build de cero pasa, la consola miente.
+
+Las que ya no aplican —el `.gitattributes` en UTF-16, el caché de Pages,
+`npm run lint`— están en [`HISTORIA.md`](HISTORIA.md).

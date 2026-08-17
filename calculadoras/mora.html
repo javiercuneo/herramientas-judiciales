@@ -276,8 +276,8 @@ button {
 
             <div id="trace" class="trace" style="display:none"></div>
         <div class="footer">
-            <p>Los días hábiles excluyen fines de semana, feriados nacionales, ferias (enero y julio), 16 de noviembre (Ley 26.674) y <a href="../data/dias-inhabiles.json" target="_blank" rel="noopener">días inhábiles adicionales (ver)</a>.</p>
-            <p style="margin-top: 10px;">Si creés que hay un error, envíanos un mail a <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo qué salió mal.</p>
+            <p>Los días hábiles excluyen fines de semana, <a href="../data/feriados.json" target="_blank" rel="noopener">feriados nacionales</a>, la feria de enero (art. 257 CPCCN), la <a href="../data/feria-judicial.json" target="_blank" rel="noopener">feria de invierno según la Acordada de la CSJN de cada año</a>, el 16 de noviembre (Ley 26.674) y los <a href="../data/dias-inhabiles.json" target="_blank" rel="noopener">días inhábiles adicionales</a>.</p>
+            <p style="margin-top: 10px;">Si creés que hay un error, mandanos un mail a <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo qué salió mal.</p>
         </div>
         <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
         <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
@@ -290,119 +290,38 @@ button {
         </div>
     </div>
 
+    <script src="js/calendario-judicial.js"></script>
     <script>
-        // Utilities and inhábiles logic (same approach as other calculators)
-        const API_BASE = 'https://api.argentinadatos.com/v1/feriados';
+        // Hasta el 17/8/2026 este archivo tenia su propia copia de la logica de
+        // dias inhabiles, y no era solo duplicacion: divergia de las otras
+        // calculadoras en dos cosas, las dos con consecuencia en el numero.
+        //
+        //   1. Los feriados nacionales los pedia a api.argentinadatos.com EN
+        //      VIVO, en el navegador del visitante. El resto los lee de
+        //      data/feriados.json, versionado, desde el 13/8.
+        //   2. Deducia la feria de invierno con el TERCER lunes de julio,
+        //      mientras el motor compartido usaba el PENULTIMO. Contra las
+        //      Acordadas de la CSJN el tercer lunes acierta 16 de 21 anios y el
+        //      penultimo 12: las dos estaban mal, y erraban en anios distintos.
+        //
+        // Ahora las dos cosas salen de js/calendario-judicial.js. Lo unico que
+        // NO cambio es la aritmetica de mora, que sigue igual abajo: si un
+        // numero se movio, se movio por la feria o por los feriados, no por el
+        // computo.
         const MIN_YEAR = 2021; let MAX_YEAR = new Date().getFullYear(); if (MAX_YEAR < 2025) MAX_YEAR = 2025;
 
-        function toYmd(d) { const y = d.getFullYear(); const m = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${day}` }
-        function parseYmd(str) { const [y, m, day] = str.split('-').map(Number); return new Date(y, m - 1, day) }
         function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x }
-        function isWeekend(date) { const dd = date.getDay(); return dd === 0 || dd === 6 }
 
-        // --- FUNCIONES DE FECHAS CLAVE (CORREGIDAS PARA 12 DÍAS DE FERIA) ---
-        function thirdMondayOfJuly(year) {
-            const d = new Date(year, 6, 1);
-            while (d.getDay() !== 1) d.setDate(d.getDate() + 1);
-            return addDays(d, 14);
-        }
-
-        function customInhabilesForYear(year) {
-            const res = new Map();
-
-            // 1. Feria Judicial de Enero (1 al 31 de enero, inclusive)
-            for (let day = 1; day <= 31; day++) {
-                const d = new Date(year, 0, day);
-                res.set(toYmd(d), 'Feria judicial de enero (art. 257 CPCCN)');
-            }
-
-            // 2. Feria Judicial de Invierno (12 días corridos)
-            const startFeria = thirdMondayOfJuly(year);
-            for (let i = 0; i < 12; i++) {
-                const diaFeria = addDays(startFeria, i);
-                res.set(toYmd(diaFeria), 'Feria judicial de invierno (julio/agosto)');
-            }
-
-            // 3. 16 de noviembre (ley local)
-            const nov16 = new Date(year, 10, 16);
-            res.set(toYmd(nov16), '16 de noviembre (ley local)');
-
-            return res;
-        }
-        // --- FIN DE FUNCIONES DE FECHAS CLAVE ---
-
-        async function fetchFeriados(year) {
-            try {
-                const r = await fetch(`${API_BASE}/${year}`);
-                if (!r.ok) throw new Error('API feriados no disponible');
-                const data = await r.json();
-                const m = new Map();
-                data.forEach(f => {
-                    if (f.fecha) m.set(f.fecha, f.nombre || f.tipo || 'Feriado');
-                });
-                return { success: true, feriados: m };
-            } catch (e) {
-                console.warn(`API feriados falló para el año ${year}`, e);
-                return { success: false, feriados: new Map() };
-            }
-        }
-
-        // robust custom overrides fetch with cache-buster
-        async function tryFetch(url) { try { const res = await fetch(url, { cache: 'no-store' }); if (res.ok) return { ok: true, data: await res.json(), url }; return { ok: false, status: res.status, url } } catch (e) { return { ok: false, error: e, url } } }
-
-        // Dias inhabiles por acordada. Sale del JSON de ESTE repositorio, que es
-        // el mismo que usa calculadoras/js/calendario-judicial.js: si dos
-        // herramientas del sitio leyeran listas distintas podrian discrepar
-        // sobre si un dia es habil, que es la peor falla posible aca.
-        //
-        // Hasta el 5/8/2026 apuntaba a jnc-34.github.io, un repositorio propio
-        // ya abandonado, que ademas traia 2026-06-17 como inhabil. El dia de
-        // Guemes es trasladable y en 2026 cae miercoles: el feriado es el lunes
-        // 15/6, que la API ya devuelve. Era la fecha nominal, no la que rige.
-        async function fetchCustomOverrides() {
-            const CUSTOM_JSON_URL = '../data/dias-inhabiles.json';
-            const urlWithCacheBuster = CUSTOM_JSON_URL + '?_=' + Date.now();
-            const r = await tryFetch(urlWithCacheBuster);
-            if (r.ok) {
-                console.log('dias inhabiles adicionales cargados de', r.url);
-                const overrides = r.data.dias_inhabiles_adicionales;
-                return Array.isArray(overrides) ? overrides : [];
-            }
-            console.warn('No se pudo cargar data/dias-inhabiles.json.');
-            return [];
-        }
-
-        async function buildInhabilesForYears(years) {
-            const combined = new Map();
-            const loadedYears = [];
-            const failedYears = [];
-
-            for (const y of years) {
-                const api = await fetchFeriados(y);
-                if (api.success) {
-                    for (const [k, v] of api.feriados.entries()) combined.set(k, 'Feriado: ' + v);
-                    loadedYears.push(y);
-                } else {
-                    failedYears.push(y);
-                }
-
-                const custom = customInhabilesForYear(y);
-                for (const [k, v] of custom.entries()) combined.set(k, v);
-            }
-
-            const overrides = await fetchCustomOverrides();
-            overrides.forEach(o => {
-                if (o && o.fecha && o.motivo) combined.set(o.fecha, o.motivo + ' (override)');
-            });
-
-            return { inhMap: combined, loadedYears, failedYears };
-        }
-
-        function isInMapYmd(map, date) { return map.has(toYmd(date)) }
-        function isBusinessDay(date, inhMap) { return !isWeekend(date) && !isInMapYmd(inhMap, date) }
-        function nextBusinessDay(date, inhMap) { let d = new Date(date); d.setHours(0, 0, 0, 0); while (!isBusinessDay(d, inhMap)) d = addDays(d, 1); return d }
-        function nextBusinessDayStrict(date, inhMap) { const effective = isBusinessDay(date, inhMap) ? date : nextBusinessDay(date, inhMap); return addDays(effective, 1) }
-        function countBusinessDaysFrom(startDate, days, inhMap) { let counted = 0; let cursor = new Date(startDate); cursor.setHours(0, 0, 0, 0); while (counted < days) { if (isBusinessDay(cursor, inhMap)) counted++; if (counted >= days) break; cursor = addDays(cursor, 1); } return { lastCountedDay: cursor } }
+        // La aritmetica de mora, intacta. `nextBusinessDayStrict` mas el
+        // conteo inclusivo de `countBusinessDaysFrom` equivalen a: un salto de
+        // dia habil si la notificacion cae habil, y dos si cae inhabil —la
+        // notificacion se tiene por hecha el habil siguiente y el plazo corre
+        // desde el dia despues—. Se dejo escrito asi y no simplificado para
+        // que el refactor no pudiera mover el resultado.
+        function isBusinessDay(date) { return CalendarioJudicial.esDiaHabil(date) }
+        function nextBusinessDay(date) { let d = new Date(date); d.setHours(0, 0, 0, 0); while (!isBusinessDay(d)) d = addDays(d, 1); return d }
+        function nextBusinessDayStrict(date) { const effective = isBusinessDay(date) ? date : nextBusinessDay(date); return addDays(effective, 1) }
+        function countBusinessDaysFrom(startDate, days) { let counted = 0; let cursor = new Date(startDate); cursor.setHours(0, 0, 0, 0); while (counted < days) { if (isBusinessDay(cursor)) counted++; if (counted >= days) break; cursor = addDays(cursor, 1); } return { lastCountedDay: cursor } }
 
         // UI wiring
         document.getElementById('anioRange').textContent = `${MIN_YEAR} - ${MAX_YEAR}`;
@@ -432,18 +351,39 @@ button {
             const diasHabiles = parseInt(document.getElementById('diasHabiles').value, 10) || 10;
             const pagosCorridos = parseInt(document.getElementById('plazoDias').value, 10) || 0;
 
-            // build inhábiles map for relevant years
             const yearsToFetch = [];
             const y0 = notif.getFullYear();
             for (let y = Math.max(MIN_YEAR, y0 - 1); y <= Math.max(MAX_YEAR, y0 + 1); y++) yearsToFetch.push(y);
 
-            const { inhMap, loadedYears, failedYears } = await buildInhabilesForYears(Array.from(new Set(yearsToFetch)).sort());
+            const carga = await CalendarioJudicial.init(Array.from(new Set(yearsToFetch)).sort());
+            const statusElem = document.getElementById('statusMessage');
+
+            // Se precarga y0+1 porque el cómputo puede cruzar de año, pero que
+            // ese año no esté cargado no es motivo para no calcular: quizá el
+            // cómputo no llegue nunca ahí. Sólo aborta acá si falta un año que
+            // ya debería estar; lo que el cómputo toque de verdad lo detecta la
+            // auditoría, más abajo, y da un motivo preciso.
+            const límite = new Date().getFullYear() + 1;
+            const faltanExigibles = carga.missingYears.filter((y) => y <= límite);
+            if (faltanExigibles.length) {
+                statusElem.innerHTML = `<strong>No se puede calcular:</strong> faltan los feriados nacionales de ${faltanExigibles.join(', ')}. Se regeneran con <code>npm run feriados</code>.`;
+                statusElem.style.borderColor = '#ff4d4f';
+                statusElem.style.background = '#fff0f0';
+                statusElem.style.display = 'block';
+                document.getElementById('output').style.display = 'none';
+                document.getElementById('trace').style.display = 'none';
+                return;
+            }
+
+            // El motor anota los años sin feria o fuera de cobertura que el
+            // cómputo llegue a tocar. Se pregunta después de calcular.
+            CalendarioJudicial.reiniciarAuditoria();
 
             // Compute start: primer día efectivamente contado = día hábil siguiente al de la notificación
-            const startBiz = nextBusinessDayStrict(notif, inhMap);
+            const startBiz = nextBusinessDayStrict(notif);
 
             // Count diasHabiles business days starting from startBiz inclusive
-            const { lastCountedDay: lastBiz } = countBusinessDaysFrom(startBiz, diasHabiles, inhMap);
+            const { lastCountedDay: lastBiz } = countBusinessDaysFrom(startBiz, diasHabiles);
 
             // After lastBiz, count pagosCorridos days corridos. Counting starts the day after lastBiz
             const startCorr = addDays(lastBiz, 1);
@@ -451,23 +391,25 @@ button {
 
             const vencimientoDate = endCorr; // time is end of day (24:00)
 
-            // --- MENSAJE DE ESTADO DE CARGA (TRANSPARENCIA) ---
-            const statusElem = document.getElementById('statusMessage');
-            let statusHTML = `<strong>Feriados nacionales cargados:</strong> ${loadedYears.sort().join(', ')} (vía API).`;
-
-            if (failedYears.length > 0) {
-                statusHTML += `<br><span style="color:var(--warn);font-weight:600;">Advertencia:</span> No se pudieron cargar los feriados nacionales (API) para el/los año(s): ${failedYears.sort().join(', ')}. Los días de <strong>Feria</strong> y feriados locales codificados (Enero, Julio, 16/11) SÍ fueron utilizados.`;
+            // El cómputo pudo cruzar un año sin Acordada de feria cargada, o
+            // anterior a la ventana de cobertura. En los dos casos no se
+            // afirma una fecha.
+            const problema = CalendarioJudicial.problemaDeDatos();
+            if (problema) {
+                statusElem.innerHTML = '<strong>No se puede calcular.</strong> <span id="motivoSinDatos"></span>';
+                document.getElementById('motivoSinDatos').textContent = problema;
                 statusElem.style.borderColor = '#ff4d4f';
                 statusElem.style.background = '#fff0f0';
-            } else {
-                statusHTML += ` Los días de <strong>Feria</strong> y feriados locales codificados (Enero, Julio, 16/11) también fueron utilizados, junto a los días adicionales cargados por JSON.`;
-                statusElem.style.borderColor = 'var(--border)';
-                statusElem.style.background = '#f8fdf8';
+                statusElem.style.display = 'block';
+                document.getElementById('output').style.display = 'none';
+                document.getElementById('trace').style.display = 'none';
+                return;
             }
 
-            statusElem.innerHTML = statusHTML;
+            statusElem.innerHTML = `<strong>Feriados nacionales:</strong> ${carga.loadedYears.sort().join(', ')}, de <code>data/feriados.json</code> versionado —no de una API en vivo—. La feria de invierno sale de <code>data/feria-judicial.json</code>, con la Acordada de la CSJN de cada año; la de enero y el 16 de noviembre, del art. 257 CPCCN y la Ley 26.674.`;
+            statusElem.style.borderColor = 'var(--border)';
+            statusElem.style.background = '#f8fdf8';
             statusElem.style.display = 'block';
-            // --- FIN MENSAJE DE ESTADO DE CARGA ---
 
             // Output
             document.getElementById('output').style.display = 'block';
@@ -523,10 +465,10 @@ button {
             let cur = new Date(startBiz); // start audit from the first counted business day
             while (cur <= lastBiz) {
                 let statusText = '';
-                if (isBusinessDay(cur, inhMap)) {
+                if (isBusinessDay(cur)) {
                     statusText = ' — contado (hábil)';
                 } else {
-                    const reason = inhMap.get(toYmd(cur)) || 'Fin de semana';
+                    const reason = CalendarioJudicial.obtenerMotivoInhabil(cur) || 'Inhábil';
                     statusText = ` — descontado: ${reason} (no contado)`;
                 }
                 const li = document.createElement('li');

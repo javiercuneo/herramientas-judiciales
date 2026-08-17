@@ -299,7 +299,14 @@
         let plazo = pVal === 'custom' ? parseInt(document.getElementById('customValue').value) : parseInt(pVal);
 
         const startDate = new Date(y, m - 1, d);
-        
+
+        // El motor anota los anios cuya feria de invierno no esta cargada y
+        // que este calculo llegue a tocar. Se consulta al final: si toco
+        // alguno, no se muestra una fecha. Un plazo de caducidad cruza
+        // meses y puede caer en un anio cuya Acordada la CSJN todavia no
+        // dicto —la dicta en abril o junio del mismo anio—.
+        CalendarioJudicial.reiniciarAuditoria();
+
         // --- CALCULO ORDINARIO (solo ferias) ---
         let ordDate = new Date(startDate);
         let ordObs = [];
@@ -329,26 +336,27 @@
         // siempre por lo mismo. Reportado por Javier el 5/8/2026.
         const nominalDate = new Date(ordDate);
 
-        const feriaJulio = function(year) {
-            const inicio = CalendarioJudicial.getPenultimoLunesJulio(year);
-            const fin = new Date(inicio);
-            fin.setDate(inicio.getDate() + 11);
-            return { inicio: inicio, fin: fin };
+        // Las ferias salen de data/feria-judicial.json, con la Acordada de la
+        // CSJN que las fijo. Son varios rangos por año y no uno: 2009 se
+        // rectificó y se amplió, y 2020 encadenó once ferias extraordinarias.
+        const feriasDe = function(year) {
+            return CalendarioJudicial.obtenerFeriasDelAnio(year) || [];
         };
 
-        // Dias de feria de julio comprendidos entre el inicio y una fecha dada.
+        // Dias de feria comprendidos entre el inicio y una fecha dada.
         const diasDeFeriaHasta = function(hasta) {
             let dias = 0;
             const detalle = [];
             for (let año = startDate.getFullYear(); año <= hasta.getFullYear(); año++) {
-                const f = feriaJulio(año);
-                const desde = new Date(Math.max(startDate.getTime(), f.inicio.getTime()));
-                const hastaFeria = new Date(Math.min(hasta.getTime(), f.fin.getTime()));
-                if (hastaFeria >= desde) {
-                    const n = Math.round((hastaFeria.getTime() - desde.getTime()) / 86400000) + 1;
-                    dias += n;
-                    detalle.push({ año: año, feria: f, dias: n });
-                }
+                feriasDe(año).forEach(function(f) {
+                    const desde = new Date(Math.max(startDate.getTime(), f.inicio.getTime()));
+                    const hastaFeria = new Date(Math.min(hasta.getTime(), f.fin.getTime()));
+                    if (hastaFeria >= desde) {
+                        const n = Math.round((hastaFeria.getTime() - desde.getTime()) / 86400000) + 1;
+                        dias += n;
+                        detalle.push({ año: año, feria: f, dias: n });
+                    }
+                });
             }
             return { dias: dias, detalle: detalle };
         };
@@ -386,11 +394,8 @@
             
             while (iter <= fullDate) {
                 let inFeriaJan = (iter.getMonth() === 0);
-                let startJulio = CalendarioJudicial.getPenultimoLunesJulio(iter.getFullYear());
-                let endJulio = new Date(startJulio);
-                endJulio.setDate(startJulio.getDate() + 11);
-                let inFeriaJul = (iter >= startJulio && iter <= endJulio);
-                
+                let inFeriaJul = CalendarioJudicial.esFeriaJulio(iter);
+
                 let esFeriadoNac = CalendarioJudicial.esFeriado(iter);
                 let esAdicional = CalendarioJudicial.esInhabilCustom(iter);
                 let es16Nov = CalendarioJudicial.es16Noviembre(iter);
@@ -415,17 +420,32 @@
         let maxAdjIter = 10;
         while(adjusted) {
             adjusted = false;
-            let startJulioFull = CalendarioJudicial.getPenultimoLunesJulio(fullDate.getFullYear());
-            let endJulioFull = new Date(startJulioFull);
-            endJulioFull.setDate(startJulioFull.getDate() + 11);
-            
+            // La feria del anio de fullDate puede no ser la que lo contiene:
+            // 2025 corre del 21/7 al 1/8, asi que un 1 de agosto cae en la
+            // feria declarada bajo 2025. Se prueban el anio y el anterior.
+            let feriaFull = null;
+            for (const y of [fullDate.getFullYear() - 1, fullDate.getFullYear()]) {
+                feriasDe(y).forEach(function(f) {
+                    if (fullDate >= f.inicio && fullDate <= f.fin) feriaFull = f;
+                });
+            }
+
             if (fullDate.getMonth() === 0) {
                 fullDate.setMonth(1, 1);
                 adObs = " (Ajustado al primer dia habil post-feria de enero)";
                 adjusted = true;
             }
-            else if (fullDate >= startJulioFull && fullDate <= endJulioFull) {
-                fullDate.setDate(endJulioFull.getDate() + 1);
+            // Hasta el 17/8/2026 esta rama hacia
+            // `fullDate.setDate(endJulioFull.getDate() + 1)`, que mezcla dos
+            // fechas distintas: toma el DIA DEL MES del fin de feria y lo
+            // aplica al mes de fullDate. Cuando la feria termina en agosto
+            // —2007, 2008, 2014, 2019, 2025— el fin cae 1 o 2, y un
+            // vencimiento del 25 de julio se movia al 2 de JULIO: 33 dias
+            // hacia atras. Una caducidad operaba un mes antes de lo que
+            // decia la pantalla.
+            else if (feriaFull) {
+                fullDate = new Date(feriaFull.fin);
+                fullDate.setDate(fullDate.getDate() + 1);
                 adObs = " (Ajustado al primer dia habil post-feria de julio)";
                 adjusted = true;
             }
@@ -446,7 +466,18 @@
             }
         }
 
-        let listHTML = inhabilesList.length > 0 ? 
+        // Si el calculo toco un anio sin Acordada de feria cargada, no se
+        // afirma una fecha: se dice cual falta. Es la misma regla que ya rige
+        // para los feriados nacionales (ver AGENTS.md).
+        const problema = CalendarioJudicial.problemaDeDatos();
+        if (problema) {
+            document.getElementById('resultDateFull').innerText = 'No se puede calcular';
+            document.getElementById('resultDetailsFull').textContent = problema;
+            result.classList.add('show');
+            return;
+        }
+
+        let listHTML = inhabilesList.length > 0 ?
             '<details><summary>Ver detalle de los ' + inhabilesList.length + ' dias adicionados</summary>' +
             '<ul class="inhabiles-list">' +
             inhabilesList.map(function(item) { return '<li> ' + item.fecha + ': ' + item.nombre + '</li>'; }).join('') +

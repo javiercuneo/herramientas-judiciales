@@ -317,8 +317,10 @@
             const mes = parseInt(partes[1], 10) - 1;
             const anio = parseInt(partes[2], 10);
             if (isNaN(dia) || isNaN(mes) || isNaN(anio)) return null;
-            const currentYear = new Date().getFullYear();
-            if (anio < 2021 || anio > currentYear + 1) return null;
+            // El rango ya no se escribe acá: la ventana de cobertura la
+            // declara data/feria-judicial.json y la publica el motor. Un año
+            // fuera de rango tampoco es un error de formato, así que se deja
+            // pasar y lo rechaza la guarda de cobertura, con su motivo.
             const fecha = new Date(anio, mes, dia);
             if (fecha.getDate() !== dia || fecha.getMonth() !== mes || fecha.getFullYear() !== anio) return null;
             return fecha;
@@ -352,6 +354,16 @@
             const anioFecha = fechaObj.getFullYear();
             if (anosDisponibles.indexOf(anioFecha) === -1) {
                 alert('El año ' + anioFecha + ' no esta disponible en la base de feriados. Años disponibles: ' + anosDisponibles.sort().join(', '));
+                return;
+            }
+
+            // Sin la Acordada de feria de ese año, julio se contaría como
+            // hábil y el plazo regresivo arrancaría tarde. No se deduce.
+            CalendarioJudicial.reiniciarAuditoria();
+            CalendarioJudicial.esDiaHabil(fechaObj);
+            const problema = CalendarioJudicial.problemaDeDatos();
+            if (problema) {
+                alert('No se puede calcular. ' + problema);
                 return;
             }
 

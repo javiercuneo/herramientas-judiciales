@@ -554,6 +554,12 @@
 
         if (hayError) return;
 
+        // El motor anota los anios cuya feria de invierno no este cargada y
+        // que este calculo llegue a tocar. Se consulta antes de mostrar el
+        // resultado: sin la Acordada, julio se contaria como habil y el plazo
+        // venceria antes de lo que vence.
+        CalendarioJudicial.reiniciarAuditoria();
+
         const fechaIngresada = new Date(Date.UTC(parseInt(anio), parseInt(mes) - 1, parseInt(dia), 12));
         let fechaInicioConteo;
         let fechaNotificacion;
@@ -663,6 +669,16 @@
                 html += '</div>';
             });
             html += '</div></div>';
+        }
+
+        var problema = CalendarioJudicial.problemaDeDatos();
+        if (problema) {
+            resultsDiv.innerHTML = '<div class="report-error"><p><strong>No se puede calcular.</strong> ' +
+                '<span id="motivoSinDatos"></span></p></div>';
+            document.getElementById('motivoSinDatos').textContent = problema;
+            resultsDiv.classList.add('show');
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            return;
         }
 
         html += '<div class="report-error">';

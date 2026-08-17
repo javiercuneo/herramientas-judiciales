@@ -508,6 +508,11 @@
     }
 
     function performCalculation(startDate, endDate, includeStart, includeEnd, businessDays) {
+        // Solo el conteo de habiles depende de la feria; el de dias corridos
+        // no. Se audita para no contar julio como habil en un anio cuya
+        // Acordada la CSJN todavia no dicto.
+        if (businessDays) CalendarioJudicial.reiniciarAuditoria();
+
         var excludedDays = [];
         var totalDays = 0;
 
@@ -545,6 +550,13 @@
 
     function displayResults(startDate, totalDays, excludedDays, businessDays) {
         document.getElementById('loading').classList.remove('show');
+
+        var problema = businessDays ? CalendarioJudicial.problemaDeDatos() : null;
+        if (problema) {
+            alert('No se puede contar en días hábiles. ' + problema +
+                '\n\nEl conteo en días corridos sí funciona.');
+            return;
+        }
 
         document.getElementById('countStartDate').textContent = formatDate(startDate);
         document.getElementById('totalDays').textContent = totalDays;

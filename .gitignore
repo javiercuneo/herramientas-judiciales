@@ -36,6 +36,12 @@ build/
 # que GitHub rechaza por superar el limite de 100 MB por archivo.
 /honorio/
 
+# IDEAS.md es cuaderno interno: sirve para tirar ideas sueltas y explorar en
+# voz alta, y eso se hace peor cuando lo que se anota es publico. Estuvo
+# versionado hasta el 16/8/2026 y sale con `git rm --cached`, asi que sigue en
+# el historial: lo que se saca es la copia publicada, no lo ya publicado.
+/IDEAS.md
+
 #
 #
 #

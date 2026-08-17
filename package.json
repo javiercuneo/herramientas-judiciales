@@ -6,6 +6,7 @@
   "scripts": {
     "docs": "node scripts/build-docs.mjs site/docs",
     "verificar-docs": "node scripts/verificar-docs.mjs",
+    "verificar-calculos": "node scripts/verificar-calculos.mjs",
     "feriados": "node scripts/actualizar-feriados.mjs"
   },
   "devDependencies": {
