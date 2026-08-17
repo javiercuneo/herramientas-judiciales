@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tablero de plazos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/comun.css">
+<script src="../assets/tema.js"></script>
+<style>
+    /* No se redefine ningun token de comun.css aca. `--accent: var(--accent)`
+       es una dependencia ciclica: la propiedad queda invalida en tiempo de
+       computo y var() devuelve la cadena vacia, sin ningun error visible. Asi
+       quedaron mora y honorarios-mediacion con el boton blanco sobre blanco,
+       en produccion. */
+
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .cabecera {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 20px 0;
+    }
+
+    h1 {
+        font-family: var(--font-meter);
+        font-size: 1.75rem;
+        margin: 0 0 4px;
+        letter-spacing: -0.01em;
+    }
+
+    .bajada {
+        color: var(--muted-fg);
+        margin: 0 0 20px;
+        max-width: 60ch;
+    }
+
+    /* La barra queda pegada arriba: la gracia del tablero es cambiar de
+       herramienta sin buscar la barra, y algunas calculadoras son largas. */
+    .barra {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .barra-interna {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        gap: 2px;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+
+    .pestania {
+        flex: 0 0 auto;
+        appearance: none;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        color: var(--muted-fg);
+        font: inherit;
+        font-weight: 500;
+        padding: 11px 14px;
+        cursor: pointer;
+        white-space: nowrap;
+        border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .pestania:hover { color: var(--fg); background: var(--hair); }
+
+    .pestania[aria-selected="true"] {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+        font-weight: 600;
+    }
+
+    /* El foco se ve siempre, no solo con :focus-visible: estas pestanias se
+       recorren con flechas y el que las usa asi necesita ver donde esta. */
+    .pestania:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+    .panel { display: none; }
+    .panel.activo { display: block; }
+
+    .marco-caja {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px 40px;
+    }
+
+    iframe {
+        display: block;
+        width: 100%;
+        border: 0;
+        /* Alto inicial mientras carga. Despues lo fija el JS midiendo el
+           contenido, para que no queden dos barras de scroll anidadas, que es
+           lo que hace que un tablero de iframes se sienta mal. */
+        height: 900px;
+        background: var(--bg);
+        color-scheme: inherit;
+    }
+
+    .cargando {
+        color: var(--muted-fg);
+        padding: 40px 0;
+        text-align: center;
+    }
+
+    .colofon {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 18px 20px 40px;
+        border-top: 1px solid var(--border);
+        color: var(--muted-fg);
+        font-size: 13px;
+    }
+
+    .colofon a { color: var(--accent); }
+
+    .atajo {
+        display: inline-block;
+        min-width: 1.4em;
+        text-align: center;
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 0 4px;
+        font-size: 11px;
+        font-family: ui-monospace, Consolas, monospace;
+        color: var(--faint);
+        margin-left: 6px;
+    }
+
+    @media (max-width: 640px) {
+        .cabecera { padding-top: 20px; }
+        h1 { font-size: 1.4rem; }
+        .atajo { display: none; }
+        .barra-interna, .marco-caja, .colofon { padding-left: 12px; padding-right: 12px; }
+    }
+
+    @media print {
+        /* El papel es blanco siempre: nada de tokens de tema aca. */
+        .barra, .colofon, .bajada { display: none; }
+        .marco-caja { padding: 0; }
+    }
+</style>
+</head>
+<body>
+
+<div class="cabecera">
+    <h1>Tablero de plazos</h1>
+    <p class="bajada">
+        Las mismas calculadoras de siempre, en una sola ventana. Cada pestaña
+        conserva lo que cargaste mientras no cierres la página.
+    </p>
+</div>
+
+<div class="barra">
+    <div class="barra-interna" role="tablist" aria-label="Calculadoras de plazos"></div>
+</div>
+
+<div id="paneles"></div>
+
+<div class="colofon">
+    <p>
+        Cada pestaña es la calculadora publicada, sin ninguna modificación: si un
+        número acá difiere del de la página suelta, es un error de este tablero.
+        Se pueden seguir abriendo por separado desde
+        <a href="../index.html">el índice de herramientas</a>.
+    </p>
+    <p>L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</p>
+</div>
+
+<script>
+'use strict';
+
+// ---------------------------------------------------------------------------
+// El tablero NO reimplementa ninguna calculadora: las embebe.
+//
+// La alternativa era fusionar los cinco HTML en uno. Se descarto: hay
+// colisiones de id reales entre ellos —`plazo` esta en caducidad y en
+// vencimientos; `dia`/`day`, `mes`/`month`— y cada colision es una oportunidad
+// de mover un numero en aritmetica de consecuencia juridica. Con iframes el
+// riesgo de que el tablero cambie un resultado es cero, porque el codigo que
+// calcula es literalmente el mismo archivo que ya esta publicado.
+//
+// Lo que si aporta el tablero, y no es poco cuando se trabaja con esto todo el
+// dia: una sola ventana, el estado de cada herramienta vivo al volver, y sin
+// dos barras de scroll anidadas.
+//
+// La tecnica esta probada: scripts/pruebas-calculadoras.html maneja las cinco
+// por iframe desde el 17/8 y las cinco responden bien.
+// ---------------------------------------------------------------------------
+
+var HERRAMIENTAS = [
+    { id: 'vencimientos',  rotulo: 'Vencimientos',   archivo: 'vencimientos.html' },
+    { id: 'distancia',     rotulo: 'Por distancia',  archivo: 'distancia.html' },
+    { id: 'caducidad',     rotulo: 'Caducidad',      archivo: 'caducidad.html' },
+    { id: 'entre-fechas',  rotulo: 'Entre fechas',   archivo: 'entre-fechas.html' },
+    { id: 'regresiva',     rotulo: 'Regresiva',      archivo: 'regresiva.html' },
+    { id: 'mora',          rotulo: 'Mora',           archivo: 'mora.html' }
+];
+
+var listaTabs = document.querySelector('[role="tablist"]');
+var contenedor = document.getElementById('paneles');
+var montados = Object.create(null);
+var activa = null;
+
+// Cada calculadora trae su propio boton de tema, que tema.js le agrega al
+// body. Adentro del tablero son seis botones repetidos para una sola decision.
+// Se ocultan por CSS inyectado en tiempo de ejecucion y no editando las
+// calculadoras: el tablero no toca sus archivos, esa es toda su gracia.
+// Y hay que neutralizar `min-height: 100vh`, que la mitad de las calculadoras
+// usa para ocupar la pantalla. Adentro de un iframe, 100vh ES EL ALTO DEL
+// IFRAME: el contenido siempre llena el marco, medirlo devuelve el alto que
+// ya tenia, y el alto queda clavado donde arranco. A caducidad y regresiva las
+// dejaba en los 900 px iniciales con espacio en blanco de sobra.
+//
+// Es una anulacion de presentacion y no toca nada que calcule. Lo que se
+// pierde es el centrado vertical en la pantalla, que adentro del tablero no
+// se quiere: se quiere el alto del contenido.
+var CSS_EMBEBIDO =
+    '.tema-boton { display: none !important; }' +
+    'html, body { height: auto !important; min-height: 0 !important; }';
+
+function construir() {
+    HERRAMIENTAS.forEach(function (h, i) {
+        var tab = document.createElement('button');
+        tab.className = 'pestania';
+        tab.type = 'button';
+        tab.id = 'tab-' + h.id;
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('aria-controls', 'panel-' + h.id);
+        tab.setAttribute('aria-selected', 'false');
+        tab.tabIndex = -1;
+        tab.textContent = h.rotulo;
+
+        if (i < 9) {
+            var k = document.createElement('span');
+            k.className = 'atajo';
+            k.textContent = String(i + 1);
+            k.setAttribute('aria-hidden', 'true');
+            tab.appendChild(k);
+        }
+
+        tab.addEventListener('click', function () { activar(h.id, true); });
+        listaTabs.appendChild(tab);
+
+        var panel = document.createElement('div');
+        panel.className = 'panel';
+        panel.id = 'panel-' + h.id;
+        panel.setAttribute('role', 'tabpanel');
+        panel.setAttribute('aria-labelledby', 'tab-' + h.id);
+        panel.innerHTML = '<div class="marco-caja"><p class="cargando">Cargando ' +
+            h.rotulo.toLowerCase() + '…</p></div>';
+        contenedor.appendChild(panel);
+    });
+}
+
+// El iframe se crea recien cuando se abre la pestania por primera vez: cargar
+// las seis al arrancar son seis paginas y seis pedidos de los JSON de datos.
+// Una vez creado no se destruye, para que al volver este todo como se dejo.
+function montar(h) {
+    if (montados[h.id]) return montados[h.id];
+
+    var caja = document.querySelector('#panel-' + h.id + ' .marco-caja');
+    var f = document.createElement('iframe');
+    f.src = h.archivo;
+    f.title = 'Calculadora de ' + h.rotulo.toLowerCase();
+    f.addEventListener('load', function () { preparar(f); });
+    caja.innerHTML = '';
+    caja.appendChild(f);
+
+    montados[h.id] = f;
+    return f;
+}
+
+function preparar(f) {
+    var d;
+    try { d = f.contentDocument; } catch (e) { return; }
+    if (!d) return;
+
+    var s = d.createElement('style');
+    s.textContent = CSS_EMBEBIDO;
+    d.head.appendChild(s);
+
+    sincronizarTema(f);
+    ajustarAlto(f);
+
+    // El alto se recalcula solo: las calculadoras crecen cuando muestran el
+    // resultado y el detalle de dias inhabiles, que puede ser largo.
+    if (d.defaultView && d.defaultView.ResizeObserver) {
+        var ro = new d.defaultView.ResizeObserver(function () { ajustarAlto(f); });
+        ro.observe(d.documentElement);
+        if (d.body) ro.observe(d.body);
+    } else {
+        // Navegador viejo: al menos reaccionar a los clicks.
+        d.addEventListener('click', function () { setTimeout(function () { ajustarAlto(f); }, 250); });
+    }
+}
+
+function ajustarAlto(f) {
+    var d;
+    try { d = f.contentDocument; } catch (e) { return; }
+    if (!d || !d.documentElement) return;
+
+    // Se mide el <body>, no scrollHeight del documento. `scrollHeight` nunca
+    // baja del alto del propio iframe, asi que sirve para hacer crecer el
+    // marco pero no para achicarlo: una vez estirado se queda estirado. El
+    // rect del body no depende del marco, y con min-height ya anulado da el
+    // alto real del contenido.
+    if (!d.body) return;
+    var cs = d.defaultView.getComputedStyle(d.body);
+    var alto = Math.ceil(
+        d.body.getBoundingClientRect().height +
+        parseFloat(cs.marginTop || 0) +
+        parseFloat(cs.marginBottom || 0)
+    );
+    if (!alto || alto < 120) return;  // todavia cargando
+
+    // Tolerancia de 2 px: fijar el alto cambia el layout, que puede cambiar el
+    // alto, que volveria a disparar el observer. Sin esto es un bucle.
+    if (Math.abs(parseInt(f.style.height, 10) - alto) < 2) return;
+    f.style.height = alto + 'px';
+}
+
+// tema.js escribe `data-tema` en el <html> de cada documento por separado, y
+// un iframe solo lo lee al cargar. Cuando se cambia el tema en el tablero hay
+// que copiarlo a los que ya estan abiertos.
+function sincronizarTema(f) {
+    var d;
+    try { d = f.contentDocument; } catch (e) { return; }
+    if (!d) return;
+    var t = document.documentElement.getAttribute('data-tema');
+    if (t) d.documentElement.setAttribute('data-tema', t);
+    else d.documentElement.removeAttribute('data-tema');
+}
+
+new MutationObserver(function () {
+    Object.keys(montados).forEach(function (id) { sincronizarTema(montados[id]); });
+}).observe(document.documentElement, { attributes: true, attributeFilter: ['data-tema'] });
+
+function activar(id, moverFoco) {
+    var h = HERRAMIENTAS.filter(function (x) { return x.id === id; })[0];
+    if (!h || activa === id) return;
+    activa = id;
+
+    HERRAMIENTAS.forEach(function (x) {
+        var tab = document.getElementById('tab-' + x.id);
+        var panel = document.getElementById('panel-' + x.id);
+        var sel = x.id === id;
+        tab.setAttribute('aria-selected', sel ? 'true' : 'false');
+        tab.tabIndex = sel ? 0 : -1;
+        panel.classList.toggle('activo', sel);
+    });
+
+    montar(h);
+    // Al volver a una pestania, el contenido pudo crecer mientras estaba
+    // oculta: un iframe con display:none mide 0.
+    setTimeout(function () { if (montados[id]) ajustarAlto(montados[id]); }, 60);
+
+    if (moverFoco) document.getElementById('tab-' + id).focus();
+    if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id);
+    document.title = h.rotulo + ' · Tablero de plazos';
+}
+
+// Flechas para recorrer, Inicio y Fin para los extremos: es el comportamiento
+// que se espera de un role="tablist" y el que usa quien navega con teclado.
+listaTabs.addEventListener('keydown', function (e) {
+    var i = HERRAMIENTAS.findIndex(function (x) { return x.id === activa; });
+    var n = HERRAMIENTAS.length;
+    var destino = null;
+
+    if (e.key === 'ArrowRight') destino = (i + 1) % n;
+    else if (e.key === 'ArrowLeft') destino = (i - 1 + n) % n;
+    else if (e.key === 'Home') destino = 0;
+    else if (e.key === 'End') destino = n - 1;
+    else return;
+
+    e.preventDefault();
+    activar(HERRAMIENTAS[destino].id, true);
+});
+
+// Numeros para saltar directo. Se ignoran si el foco esta escribiendo, que
+// adentro de un iframe pasa siempre.
+document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) return;
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
+    var n = parseInt(e.key, 10);
+    if (n >= 1 && n <= HERRAMIENTAS.length) activar(HERRAMIENTAS[n - 1].id, true);
+});
+
+window.addEventListener('hashchange', function () {
+    var id = location.hash.slice(1);
+    if (HERRAMIENTAS.some(function (x) { return x.id === id; })) activar(id, false);
+});
+
+construir();
+var inicial = location.hash.slice(1);
+activar(HERRAMIENTAS.some(function (x) { return x.id === inicial; }) ? inicial : HERRAMIENTAS[0].id, false);
+</script>
+</body>
+</html>
