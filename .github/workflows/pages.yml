@@ -49,6 +49,14 @@ jobs:
       - name: Verificar citas de la documentacion de dominio
         run: npm run verificar-docs
 
+      # El motor de Escribiente: conversion a Markdown, rechazo del PDF sin
+      # OCR, anonimizacion y rangos de paginas. Corre aca por el mismo motivo
+      # que el de arriba: la herramienta de la que salio estuvo meses
+      # publicada perdiendo el contenido de las resoluciones de una carilla y
+      # convirtiendo montos en [DNI], sin que nada lo notara.
+      - name: Verificar el motor de Escribiente
+        run: npm run verificar-escribiente
+
       - name: Assemble Pages site
         run: |
           set -euo pipefail
@@ -66,9 +74,19 @@ jobs:
           cp -r asistente-honorarios-clasico site/
           cp -r "proyectos finalizados" "site/proyectos finalizados"
 
-          # PDF-studio: PWA estatica de vanilla JS (client-side).
-          # Se publica solo public/, que es la raiz servible.
-          cp -r PDF-studio/public site/PDF-studio
+          # Escribiente: PWA estatica de vanilla JS, todo del lado del
+          # navegador. La carpeta del repositorio ya es la raiz servible, asi
+          # que se copia entera —incluido vendor/, que son pdf.js y pdf-lib
+          # versionados adentro del repositorio a proposito: una herramienta
+          # que promete que el documento no sale de la maquina no puede
+          # cargar el codigo que lo lee desde un CDN de un tercero.
+          cp -r escribiente site/escribiente
+
+          # PDF-studio se rehizo entero y paso a llamarse Escribiente el
+          # 17/8. La URL vieja estuvo publicada meses y sigue viva con un
+          # aviso, que es la regla de la casa: retirar algo no puede ser
+          # dejar un 404.
+          cp -r redirects/pdf-studio site/PDF-studio
 
           # /honorio/ ya no sirve la app: Honorio vive en honorio.ar,
           # en su propio repositorio. Queda una pagina de redireccion para

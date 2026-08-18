@@ -13,6 +13,92 @@ de 2026.
 
 ---
 
+## PDF Studio fallaba callada y pasó a llamarse Escribiente — cerrado el 17/8
+
+La herramienta venía heredada de una plantilla de Google AI Studio y nunca se
+había leído. Javier la describió como que «por momentos siento que no anda».
+Andaba mal siempre; lo que nunca hacía era decirlo.
+
+**Seis bugs, y ninguno rompía nada visible.** Todos devolvían un archivo con
+aspecto correcto, que es lo que los hizo durar meses publicados. Los cuatro
+primeros se encontraron leyendo y corriendo el código viejo; los dos últimos
+aparecieron probando el código nuevo con documentos de prueba, que es la lección
+más útil de todas.
+
+1. **Una resolución de una carilla salía con 2 de sus 12 líneas.** El umbral de
+   «esto se repite en todas las páginas, es un membrete» era `páginas * 0.4`.
+   Para un documento de una página eso da 0,4, y cualquier línea aparece una
+   vez, que es más. Se borraban el `Resuelvo`, el monto regulado y la firma.
+   Como la mayoría de las resoluciones y los escritos tienen una o dos carillas,
+   el caso roto era el caso normal.
+
+2. **`$ 3.255.622,50` se convertía en `$ [DNI],50`.** Un DNI con puntos tiene
+   exactamente la misma forma que un monto. El anonimizador destruía la cifra
+   de la que depende la resolución entera.
+
+3. **El nombre del archivo se filtraba en el documento anonimizado.** El
+   Markdown se armaba como `"# " + archivo.name` y recién después se
+   anonimizaba, pero los nombres de archivo del PJN son la carátula entera
+   —`PEREZ JUAN c GARCIA MARIA s DAÑOS.pdf`—. La única función que existía para
+   no filtrar nombres publicaba los dos apellidos más importantes del
+   expediente, en la primera línea.
+
+4. **Pedir las páginas «1, 5, 900» de un documento de 10 devolvía la 1 y la 5,
+   sin avisar.** Las páginas fuera de rango se descartaban en silencio.
+
+5. **`Jueza` al final de un renglón se comía el renglón siguiente.** El
+   separador entre el tratamiento y el nombre era `\s+`, que incluye el salto
+   de línea. Una resolución que cerraba con «Firmado por: LOPEZ MARIA, Jueza» y
+   abajo el pie del sistema quedaba como «Jueza [PERSONA] - Lex100».
+
+6. **Un expediente de 5 fojas perdía 30 de sus 35 líneas.** Dos causas sumadas:
+   la ventana de «borde» era fija —4 líneas arriba, 6 abajo—, así que en una
+   foja de 9 renglones abarcaba la página entera; y la expansión por parecido,
+   pensada para agrupar «Pág. 1/10» con «Pág. 2/10», no tenía límite de largo,
+   y dos renglones de prosa que difieren en un dígito se parecen más del 60%.
+
+**Lo que no era un bug pero importaba igual.** El `README.md` era el de Google
+AI Studio, con su banner y la instrucción de cargar una `GEMINI_API_KEY` para
+una aplicación que no hace ninguna llamada a ninguna API. Para una herramienta
+cuyo argumento es que el documento no sale de la máquina, eso no es residuo
+cosmético: es la documentación diciendo que le manda los expedientes a Google.
+Iban en el mismo paquete `metadata.json` con `SERVER_SIDE_GEMINI_API`,
+`.env.example`, y un `server.js` con Express que nunca se usó —lo publicado
+siempre fue la carpeta estática—.
+
+La landing, además, prometía «comprimir» PDF, función que nunca existió, y no
+mencionaba ni la conversión a Markdown ni la anonimización, que son las dos
+cosas por las que la herramienta existe.
+
+### Se rehizo entero, y por qué no se parchó
+
+Quedaba poco que preservar. Las partes valiosas eran justo las rotas, el
+anonimizador había que reemplazarlo por el de otro proyecto —que lleva meses
+sobre documentos de prueba—, y el envoltorio era residuo de una plantilla. Contra
+eso pesaba la regla de la casa: **una herramienta publicada tiene que estar bien
+o no estar publicada.**
+
+Las decisiones que quedaron, en `ESTADO.md`: la anonimización en dos niveles con
+el humano decidiendo los nombres propios, y la promesa de privacidad apoyada en
+la CSP y en las librerías versionadas adentro del repositorio.
+
+El nombre lo eligió Javier: **escribiente** es un cargo real del PJN, donde
+trabaja, y es literalmente quien pasa documentos a texto. La URL vieja
+`/PDF-studio/` queda viva con un aviso.
+
+### Lo que se corrigió del original de otro proyecto
+
+Portar las reglas sirvió para encontrarles tres fallas, que valen para allá:
+
+- el orden de las dos reglas de expediente estaba invertido, y la general
+  enganchaba la mitad derecha antes de que la específica pudiera tomarlo entero:
+  `Expte. 56.868/2017` quedaba como `Expte. 56.[EXPTE]`;
+- el patrón de DNI solo se protegía del signo `$`, así que
+  `la suma de 1.500.000` se convertía en `[DNI]`;
+- el patrón de email se comía el punto final de la oración.
+
+---
+
 ## La feria de julio se deducía con una fórmula, y la fórmula estaba mal — cerrado el 17/8
 
 Dos bugs que convivieron años, encontrados el mismo día por la misma razón: se
