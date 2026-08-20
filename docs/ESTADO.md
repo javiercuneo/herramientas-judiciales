@@ -26,6 +26,7 @@ decidió—. No hace falta leerlo para trabajar: se abre cuando aparece la pregu
 El sitio está publicado en **`javiercuneo.com.ar`**, dominio propio, desde el
 5/8. Once calculadoras sobre el mismo sistema visual y revisadas una por una;
 nueve documentos de dominio cerrados y verificados contra el motor;
+**Escribiente** rehecha entera el 17/8 sobre las ruinas de PDF-studio;
 [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) hecho entero.
 
 **Los cuatro planes están cerrados.** Bugs y cálculo directo el 7/8, mediación el
@@ -204,6 +205,60 @@ Ya está enlazado desde `index.html`, en la bajada de la sección de calculadora
 
 ---
 
+## Escribiente
+
+**Es PDF-studio rehecho entero, con otro nombre, desde el 17/8.** Vive en
+`escribiente/` y se publica en `/escribiente/`; la URL vieja `/PDF-studio/`
+queda viva con un aviso. Pasa PDF judiciales a Markdown y anonimiza los datos
+personales; también une, separa y rota. Los seis bugs que tenía la versión
+anterior —y por qué se tiró en vez de parcharse— están en
+[`HISTORIA.md`](HISTORIA.md).
+
+**Se publicó el 18/8 con un aviso de «en pruebas», y el aviso es lo que hace
+honesta la publicación.** Va en dos lugares porque son dos públicos distintos:
+la tarjeta de la landing lleva la etiqueta `en pruebas`, y arriba de todo en
+`escribiente/index.html` hay un bloque en `--warn` que dice que no tiene rodaje
+y que hay que revisar el resultado antes de mandarlo a un tercero —el que llega
+por un enlace directo no ve la tarjeta—. Mismo criterio y mismo estilo que el
+aviso de `calculadoras/tablero.html`. **Se saca cuando el uso diario lo
+confirme**, y sacarlo es una decisión de Javier, no de quien lo lea.
+
+Se publicó sin rodaje a propósito: en la oficina no se puede levantar un
+servidor local, así que sin publicar no hay forma de probarlo donde se usa.
+
+**Lo que hay que saber para tocarla:**
+
+- **El motor está en `escribiente/js/motor/`, es código puro y no toca el DOM.**
+  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 104
+  comprobaciones, en CI antes de publicar. Los seis bugs están ahí como
+  regresión con el caso exacto que fallaba. `js/app.js` es sólo la pantalla y no
+  decide nada sobre el documento.
+- **Las librerías van versionadas en `escribiente/vendor/`** —pdf.js 3.11.174 y
+  pdf-lib 1.17.1, 1,9 MB—. No se vuelven a un CDN: ver la decisión de abajo.
+- **No carga la tipografía Archivo.** Es la única página del sitio que no la
+  pide a Google, y es a propósito. Si alguien «arregla» esa inconsistencia,
+  rompe la CSP y la promesa con ella.
+- **Para levantarla local hay que servir desde la raíz del repositorio**, porque
+  `comun.css` y `tema.js` están en `../`. La configuración `sitio-estatico` de
+  `.claude/launch.json` ya lo hace.
+
+**Lo que queda abierto, y ninguno es bloqueante:**
+
+- **Un DNI y un monto son el mismo número.** `30.119.078` y `1.500.000` tienen
+  la misma forma, y lo único que los distingue es el contexto. Hoy se excluye lo
+  que venga con `$`, con decimales, o precedido de «pesos», «suma de», «importe
+  de», «valor de», «monto de». Un monto escrito de otra manera todavía puede
+  salir como `[DNI]`. **Se eligió que el falso positivo sea visible** —queda en
+  el texto y en la constancia— antes que dejar pasar un documento.
+- **Nadie probó la herramienta con un expediente grande de verdad.** Lo más
+  largo que pasó por ella son 5 fojas sintéticas. La lectura muestra progreso
+  por página, pero no está medido qué tarda un expediente de 400.
+- **La detección de nombres propios no cubre razones sociales.** «Seguros del
+  Sur S.A.» no dispara ningún patrón de los tres, así que no se ofrece como
+  candidato y hay que anonimizarlo mirando el texto.
+
+---
+
 ## Bugs abiertos
 
 ### `--faint` reprueba AA en tema claro — 12/8
@@ -253,6 +308,42 @@ predictibilidad vale más que la elegancia.
 `--faint` es el gris más claro que todavía se lee. **No aclararlo**: su único uso
 es texto chico, que es justo donde el piso de contraste es 4.5. (Está abierto que
 en claro no llega: ver arriba.)
+
+### Una promesa de privacidad se demuestra, no se declara
+
+Escribiente dice que el documento no sale de tu computadora. Esa frase es la
+razón por la que alguien la elige sobre cualquier conversor online, y escrita en
+una pantalla no vale nada: obliga a creer. Está apoyada en dos cosas que se
+pueden comprobar en treinta segundos, y **las dos son requisitos, no detalles de
+implementación**:
+
+- **`connect-src 'none'` en la CSP de `escribiente/index.html`.** El navegador le
+  prohíbe a la página abrir cualquier conexión. Verificado el 17/8: `fetch`,
+  `sendBeacon`, WebSocket e imágenes externas quedan bloqueados y anotados en la
+  consola, con cero peticiones de red registradas. Si alguien agrega código que
+  intente mandar el texto afuera, el navegador lo frena.
+- **pdf.js y pdf-lib versionados en `escribiente/vendor/`.** La versión anterior
+  los pedía a `cdnjs.cloudflare.com` en cada uso: el código que abría el
+  expediente lo servía un tercero, sin verificación de integridad, en una
+  herramienta cuyo argumento es la privacidad.
+
+Lo mismo vale para la tipografía, que por eso no se carga.
+
+### La anonimización decide sola lo que tiene forma, y pregunta lo que no
+
+Es el diseño de `escribiente/js/motor/anonimizar.js`, heredado de
+`un sanitizador anterior` de otro proyecto, y no es una comodidad de interfaz.
+
+Lo que tiene forma inequívoca —DNI, CUIT, CBU, teléfono, expediente, matrícula,
+correo— se reemplaza solo, porque no hay falso positivo posible. **Los nombres
+propios se muestran para que el usuario decida uno por uno**, porque ninguna
+regla distingue sola `Pérez, Juan Carlos` —la parte— de `Llambías, Jorge
+Joaquín` —doctrina— ni de `Buenos Aires, Astrea`, que es una editorial.
+Reemplazar por adivinanza corrompe el texto; no reemplazar filtra.
+
+De ahí también la constancia al pie de cada `.md`: qué se reemplazó, cuántas
+veces, y **qué quedó sin ocultar**. Un anonimizador que no se puede auditar es
+peor que ninguno, porque produce confianza sin fundarla.
 
 ### Una herramienta publicada tiene que estar bien o no estar publicada
 

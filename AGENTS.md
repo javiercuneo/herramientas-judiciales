@@ -141,7 +141,7 @@ memoria, nunca reconstruido, nunca «debe existir uno que diga esto».
 
 No es una aplicación: son varios proyectos independientes, en distinto grado
 de madurez, conviviendo en un repositorio. Tratalos como tales — un cambio en
-`calculadoras/` no tiene por qué mirar `PDF-studio/`.
+`calculadoras/` no tiene por qué mirar `escribiente/`.
 
 ```
 asistente-honorarios-clasico/   El motor original en JS vanilla del que salió Honorio.
@@ -157,8 +157,16 @@ data/feriados.json              Feriados nacionales, versionados. Los genera
 data/feria-judicial.json        Feria de invierno, una linea por anio con su
                                   Acordada de la CSJN. Se carga a mano: no hay API.
 data/dias-inhabiles.json        Asuetos por Acordada. Este sí se edita a mano.
-PDF-studio/                     Express + JS vanilla, PWA de herramientas PDF.
-                                  App aparte, package.json propio. No toca honorarios.
+escribiente/                    PDF a Markdown y anonimizacion, en el navegador.
+                                  Estatico, sin build y sin dependencias: se abre y
+                                  se edita. El motor (js/motor/) es codigo puro, no
+                                  toca el DOM y corre en Node: por eso se puede
+                                  probar con `npm run verificar-escribiente`, que
+                                  corre en CI. Antes se llamaba PDF-studio.
+                                  Las librerias van versionadas en vendor/ y la
+                                  pagina declara `connect-src 'none'`: las dos
+                                  cosas sostienen la promesa de que el documento
+                                  no sale de la maquina. No las saques.
 docs/domain/                    Documentación del dominio (01 a 09): tipos de proceso,
                                   reglas de negocio, modelo, glosario, deuda técnica,
                                   y el honorario del mediador, que es el único que
@@ -258,7 +266,12 @@ cambiarlo.
 ## Convenciones del repositorio
 
 - **Español rioplatense, con tildes**, en interfaz, documentación y commits.
-  No "tú", no "vosotros", no texto sin acentuar.
+  No "tú", no "vosotros", no texto sin acentuar. **Los comentarios de código sí
+  pueden ir sin tildes; el texto que ve el usuario, no** —y eso incluye los
+  mensajes de error que arma el código, que es donde se cuela—. Escribiente
+  salió entera sin acentuar en su primera versión, del 17/8, y por eso
+  `verificar-escribiente` ahora comprueba la acentuación de los mensajes del
+  motor.
 - **Sin emojis, ni en documentación ni en interfaz.** `ESTADO.md`, `README.md` y
   `CONTRIBUTING.md` marcan el registro: directo, con las razones dichas, sin
   decoración.
