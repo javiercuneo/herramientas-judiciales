@@ -631,7 +631,7 @@ deja viva por ahora**, decisión de Javier: da un número correcto, así que no 
 el caso de `honorarios.html`. Queda barato corregirle el rótulo del tope. Lo que
 el plan resolvió y sigue valiendo:
 
-- **La escala está verificada** contra el Decreto 2536/2011 y contra la tabla
+- **La escala está verificada** contra el Decreto 2536/2015 y contra la tabla
   oficial del Ministerio. Los siete tramos de la calculadora son correctos. El
   Decreto 696/2025 sustituyó el Anexo I entero pero **no tocó el Anexo III**:
   cambiaron los artículos —el régimen pasó del 28 al 31— y no la escala.
@@ -659,8 +659,12 @@ el plan resolvió y sigue valiendo:
   forma parte integrante del presente», así que son el mismo texto nombrado por
   su origen o por su destino. Ese texto numera la escala en su **art. 2°**,
   igual que las seis citas del 696/2025; el «4° y 5°» es una remisión que el
-  propio decreto dejó vieja. Queda un dígito sin resolver: si el 2536 es de
-  2011 o de 2015.
+  propio decreto dejó vieja. **El dígito que quedaba —si el 2536 era de 2011 o
+  de 2015— cerró el 18/8: es de 2015**, y lo dice el texto consolidado del
+  1467/2011 que ya estaba en `docs/mediacion/`, con la nota «(Anexo sustituido
+  por art. 5° del Decreto N° 2536/2015 B.O. 30/11/2015)» en la cabeza de su
+  Anexo III. El 2011 había salido del nombre del archivo, `decreto 2536-11.md`,
+  que se llama así por el decreto que modifica.
 
 Y un dato del Paso 2 que se confirmó: **el UHOM se mueve todos los meses** —es
 la UR-SINEP × 12, redondeada a la decena superior—, así que el `SALTO_MAXIMO`

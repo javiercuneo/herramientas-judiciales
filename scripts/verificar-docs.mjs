@@ -52,8 +52,8 @@ const NORMAS_ESPERADAS = new Map([
   ['decreto 157/2018', 'derogo el art. 36'],
   ['decreto 1467/11', 'reglamenta la mediacion de la Ley 26.589'],
   ['decreto 1467/2011', 'lo mismo, escrito con el año de cuatro cifras'],
-  ['decreto 2536/2011', 'sustituyo el Anexo III: es la escala del mediador'],
-  ['decreto 2536/15', 'como lo citan los modelos del juzgado; el año no esta resuelto'],
+  ['decreto 2536/2015', 'sustituyo el Anexo III por su art. 5°: es la escala del mediador'],
+  ['decreto 2536/15', 'el mismo, como lo citan los modelos del juzgado'],
   ['decreto 696/2025', 'sustituyo el Anexo I; el regimen paso del art. 28 al 31'],
   ['decreto 202/2015', 'reglamenta la Ley 26.993 (COPREC), citado por un modelo'],
 ])

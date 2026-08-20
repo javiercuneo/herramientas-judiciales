@@ -47,7 +47,7 @@ por qué las citas de la escala no coinciden entre sí:
 |---|---|
 | **Ley 26.589** | Instituye la mediación prejudicial obligatoria. Su art. 31 define la mediación familiar y sus incisos |
 | **Decreto 1467/2011** | La reglamenta. Crea los tres anexos; el **Anexo III** es el de los honorarios |
-| **Decreto 2536/2011** | **Sustituye el Anexo III entero.** Es la escala vigente |
+| **Decreto 2536/2015** (B.O. 30/11/2015) | **Sustituye el Anexo III entero**, por su art. 5°. Es la escala vigente |
 | **Decreto 696/2025** | Sustituye el **Anexo I** entero. El régimen de honorarios pasó del art. 28 al art. 31 |
 
 ### Lo primero que hubo que despejar: el 696/2025 no se llevó la escala
@@ -100,12 +100,24 @@ el 2536 renumeró el Anexo III y dejó sin actualizar la remisión del artículo
 nunca un cálculo. Afectaba la cita, y por eso el motor estuvo dos días citando el
 Anexo sin número de artículo.
 
-> **Lo único que sigue sin resolverse es un dígito: el año del 2536.** Este
-> proyecto lo verificó como **2011**; los modelos del juzgado escriben
-> **«2536/15»** y el enlace de infoleg que usan tiene un identificador del rango
-> de 2015. No cambia ningún número ni el razonamiento de arriba. Se resuelve
-> mirando el encabezado del decreto en infoleg, que el PDF disponible trae
-> cortado por el OCR.
+### El dígito que faltaba: el 2536 es de 2015
+
+Quedó abierto un tiempo. Este proyecto lo había verificado como **2011**,
+mientras que los modelos del juzgado escriben **«2536/15»** y el enlace de
+infoleg que usan tiene un identificador del rango de 2015.
+
+**Es 2015**, y lo decide una fuente que ya estaba en `docs/mediacion/`: el texto
+consolidado del Decreto 1467/2011 trae, en la cabeza de su Anexo III, la nota
+*«(Anexo sustituido por art. 5° del Decreto N° 2536/2015 B.O. 30/11/2015)»*. La
+cronología cierra sola: el 1467/2011 reglamentó la ley con una tabla de montos
+fijos, y la tabla en UHOM llegó cuatro años después.
+
+**De dónde salió el 2011:** del nombre del archivo, `decreto 2536-11.md`, que se
+llama así por el decreto que modifica y no por el año en que se dictó. De ahí
+viajó a dos pantallas de Honorio, a los comentarios del módulo, a una validación
+y a este documento. **El nombre de un archivo de `docs/` no es una fuente.**
+
+No movió ningún número: el año nunca entró en una cuenta.
 
 ---
 

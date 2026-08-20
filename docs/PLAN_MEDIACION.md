@@ -17,9 +17,10 @@ una sola cosa, decidida y no urgente:** `calculadoras/honorarios-mediacion.html`
 sigue viva por ahora, decisión de Javier del 10/8. Ver el
 [Paso 5](#paso-5--qué-pasa-con-la-calculadora-vieja).
 
-Sigue anotado en [Lo que no está resuelto](#lo-que-no-está-resuelto) el año del
-Decreto 2536 —un dígito de una cita— y el ajuste de los nombres de las filas de
-la planilla, que es lo que falta para que el UHOM entre con procedencia.
+El año del Decreto 2536 —un dígito de una cita— **quedó resuelto el 18/8: es
+2015**. Sigue anotado en [Lo que no está resuelto](#lo-que-no-está-resuelto) el
+ajuste de los nombres de las filas de la planilla, que es lo que falta para que
+el UHOM entre con procedencia.
 
 **La implementación es en [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio).**
 Acá va la decisión; allá el código y su `ESTADO.md`. Este plan vive de este lado
@@ -36,7 +37,7 @@ En [`docs/mediacion/`](mediacion/), en PDF y en MD:
 |---|---|---|
 | `ley mediacion..md` | Ley 26.589 | El art. 31 define la mediación familiar y sus incisos |
 | `Decreto 1467-2011.md` | La reglamentación original | Es el decreto que crea los tres anexos |
-| `decreto 2536-11.md` | Decreto 2536/2011 | **Sustituyó el Anexo III: es la escala vigente** |
+| `decreto 2536-11.md` | Decreto 2536/2015 | **Sustituyó el Anexo III: es la escala vigente.** El nombre del archivo es por el decreto que modifica, no por su año |
 | `Decreto 696-2025.md` | Decreto 696/2025 | Sustituyó el Anexo I entero. El régimen de honorarios pasó del art. 28 al **art. 31** |
 | `39_tabla_...2026v2.pdf` | Tabla oficial del Ministerio | Valores jun–ago 2026, con la escala en pesos |
 
@@ -56,7 +57,7 @@ estaban en el mismo artículo salieron a un art. 32 propio.
 
 El 7/8 este plan decía que la escala de la calculadora estaba **sin verificar**
 y que no se daba por buena. **Ya está verificada** contra el texto del Decreto
-2536/2011 y contra la tabla oficial del Ministerio, que es texto limpio y sirvió
+2536/2015 y contra la tabla oficial del Ministerio, que es texto limpio y sirvió
 para leer lo que el OCR del decreto dejó ilegible:
 
 | Ítem | Monto del asunto | Honorario |
@@ -405,7 +406,7 @@ es un rojo de `npm run check` en vez de un número plausible.
 
 **La numeración del Anexo III no cierra entre las tres fuentes.** La escala está
 en el «artículo 2°» según el Decreto 696/2025 y según el propio texto del Anexo
-III; pero el art. 28 inc. b) del Decreto 2536/2011 la ubica en los «artículos 4°
+III; pero el art. 28 inc. b) del Decreto 2536 la ubica en los «artículos 4°
 y 5°», y la tabla oficial de 2026 dice cinco veces «artículo 4° del presente
 Anexo». **Los números del honorario son idénticos en las tres**, así que no
 afecta ningún cálculo: afecta la cita. Hace falta el texto consolidado del Anexo
@@ -441,12 +442,26 @@ Lo que se sigue: **la escala se cita como el art. 2° del Anexo III del Decreto
 dominio del [Paso 1](#paso-1--el-documento-de-dominio-de-mediación) y recién ahí
 a una tarjeta.
 
-**Queda una cosa chica y conviene no darla por buena:** el año del 2536. Este
-plan lo verificó como **2011** contra el texto, los modelos del juzgado escriben
-**«2536/15»** y el enlace de infoleg que usan tiene un identificador del rango de
-2015. No cambia ningún número ni el razonamiento de arriba, pero **es un dígito
-de una cita** y se resuelve mirando el encabezado del decreto en infoleg, que el
-PDF que tenemos trae cortado por el OCR.
+### Resuelto el 18/8: el 2536 es de 2015
+
+Era la última cosa chica, y quedó abierta porque el PDF que teníamos trae el
+encabezado cortado por el OCR. **La fuente que lo decide ya estaba en
+`docs/mediacion/`, en otro archivo**: el texto consolidado del Decreto 1467/2011
+trae, en la cabeza de su Anexo III, la nota *«(Anexo sustituido por art. 5° del
+Decreto N° 2536/2015 B.O. 30/11/2015)»*. Coincide con el «2536/15» de los
+modelos del juzgado y con el rango del identificador de infoleg.
+
+La cronología cierra sola y explica por qué el dato importa poco y la cita
+importa: el 1467/2011 reglamentó la ley **con una tabla de montos fijos**, y la
+escala en UHOM llegó cuatro años más tarde.
+
+**De dónde salió el 2011:** del nombre del archivo, `decreto 2536-11.md`, que se
+llama así por el decreto que modifica. Viajó desde acá a dos pantallas de
+Honorio, a los comentarios de `mediacion.ts`, a una validación y al documento de
+dominio. **El nombre de un archivo de `docs/` no es una fuente**, y esta es la
+segunda vez que un dato de contexto entra sin fuente y sale caro.
+
+Ningún número se movió: el año nunca entró en una cuenta.
 
 **La procedencia del UHOM: Javier cargó las filas el 10/8, y hay que ajustar los
 nombres antes de que el cron corra.** La planilla quedó con cinco filas —
@@ -529,7 +544,7 @@ ese documento sí entra al control y el plan que estás leyendo no:
 1. El script barre **solo `docs/domain/`**. Las citas de este plan no las controla
    nadie.
 2. `NORMAS_ESPERADAS` necesita tres entradas nuevas con su motivo:
-   **`decreto 2536/11`**, **`decreto 696/2025`** y el `decreto 1467/2011` escrito
+   **`decreto 2536/2015`**, **`decreto 696/2025`** y el `decreto 1467/2011` escrito
    con año de cuatro cifras —hoy la lista tiene `decreto 1467/11`, y la clave es
    literal—.
 3. **Los artículos del decreto van a disparar avisos** del control 2, que los

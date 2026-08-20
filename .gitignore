@@ -56,3 +56,11 @@ docs/modelos/origen/
 docs/modelos/jurisprudencia/
 docs/modelos/**/*.pdf
 docs/modelos/**/*.docx
+
+# docs/modelos/doctrina/: extractos de libros y notas de autor. Aca el
+# motivo es otro y es mas fuerte que el de arriba: **son textos con
+# derecho de autor vivo**. Lo que del libro llega al repositorio es la
+# cita —autor, obra, editorial, año, pagina— dentro de
+# honorio/lib/legal/jurisprudencia.ts, y como mucho la frase corta que
+# enuncia el criterio. El extracto entero se queda afuera.
+docs/modelos/doctrina/
