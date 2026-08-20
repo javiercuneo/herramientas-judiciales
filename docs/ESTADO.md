@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-17 · rama `main`
+Última actualización: 2026-08-18 · rama `main`
 
 Lleva sólo lo que sigue vivo: dónde está el trabajo, qué está abierto, qué se
 sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas ya
