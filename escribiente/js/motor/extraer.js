@@ -83,11 +83,11 @@ export function diagnosticar(paginas) {
             porPagina,
             vacias,
             motivo:
-                `El PDF no tiene texto extraible: ${total} caracteres en ` +
-                `${cantidad} ${cantidad === 1 ? 'pagina' : 'paginas'} ` +
-                `(${promedio} por pagina, y hacen falta ${MINIMO_POR_PAGINA}). ` +
+                `El PDF no tiene texto extraíble: ${total} caracteres en ` +
+                `${cantidad} ${cantidad === 1 ? 'página' : 'páginas'} ` +
+                `(${promedio} por página, y hacen falta ${MINIMO_POR_PAGINA}). ` +
                 `Casi seguro es un escaneo sin OCR, o sea una imagen del documento ` +
-                `y no el documento. Pasalo por OCR y volve a intentar.`,
+                `y no el documento. Pasalo por OCR y volvé a intentar.`,
         };
     }
 

@@ -47,6 +47,24 @@ body { margin: 0; padding: 24px 16px 48px; }
   line-height: 1.6;
 }
 
+/* Aviso de que la herramienta todavia no tiene rodaje.
+
+   --warn y no --accent: es una advertencia, y el cobalto es el unico acento
+   del sistema visual —lo activo, lo enfocado y lo seleccionado—. Usarlo aca le
+   quitaria significado a las dos cosas. Mismo criterio y mismo estilo que el
+   aviso de calculadoras/tablero.html, para que se lean como lo mismo. */
+.aviso-prueba {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  background: var(--warn-tint);
+  border-left: 3px solid var(--warn);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: .87rem;
+  line-height: 1.65;
+  color: var(--fg);
+}
+.aviso-prueba a { color: var(--accent); }
+
 /* ---------- Pestanias ---------- */
 
 .pestanias {

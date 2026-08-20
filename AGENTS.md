@@ -266,7 +266,12 @@ cambiarlo.
 ## Convenciones del repositorio
 
 - **Español rioplatense, con tildes**, en interfaz, documentación y commits.
-  No "tú", no "vosotros", no texto sin acentuar.
+  No "tú", no "vosotros", no texto sin acentuar. **Los comentarios de código sí
+  pueden ir sin tildes; el texto que ve el usuario, no** —y eso incluye los
+  mensajes de error que arma el código, que es donde se cuela—. Escribiente
+  salió entera sin acentuar en su primera versión, del 17/8, y por eso
+  `verificar-escribiente` ahora comprueba la acentuación de los mensajes del
+  motor.
 - **Sin emojis, ni en documentación ni en interfaz.** `ESTADO.md`, `README.md` y
   `CONTRIBUTING.md` marcan el registro: directo, con las razones dichas, sin
   decoración.

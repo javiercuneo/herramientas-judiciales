@@ -214,6 +214,18 @@ personales; también une, separa y rota. Los seis bugs que tenía la versión
 anterior —y por qué se tiró en vez de parcharse— están en
 [`HISTORIA.md`](HISTORIA.md).
 
+**Se publicó el 18/8 con un aviso de «en pruebas», y el aviso es lo que hace
+honesta la publicación.** Va en dos lugares porque son dos públicos distintos:
+la tarjeta de la landing lleva la etiqueta `en pruebas`, y arriba de todo en
+`escribiente/index.html` hay un bloque en `--warn` que dice que no tiene rodaje
+y que hay que revisar el resultado antes de mandarlo a un tercero —el que llega
+por un enlace directo no ve la tarjeta—. Mismo criterio y mismo estilo que el
+aviso de `calculadoras/tablero.html`. **Se saca cuando el uso diario lo
+confirme**, y sacarlo es una decisión de Javier, no de quien lo lea.
+
+Se publicó sin rodaje a propósito: en la oficina no se puede levantar un
+servidor local, así que sin publicar no hay forma de probarlo donde se usa.
+
 **Lo que hay que saber para tocarla:**
 
 - **El motor está en `escribiente/js/motor/`, es código puro y no toca el DOM.**

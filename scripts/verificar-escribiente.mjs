@@ -425,8 +425,8 @@ console.log('ARMADO DEL ARCHIVO\n');
     });
 
     contiene(md, 'Constancia de procesamiento', 'el archivo lleva su constancia');
-    contiene(md, 'las paginas 2, 4', 'la constancia nombra las fojas que salieron en blanco');
-    contiene(md, 'NO esta en este archivo', 'y dice que eso significa');
+    contiene(md, 'las páginas 2, 4', 'la constancia nombra las fojas que salieron en blanco');
+    contiene(md, 'NO está en este archivo', 'y dice qué significa eso');
     contiene(md, '4 reemplazos', 'la constancia totaliza los reemplazos');
     contiene(md, 'DNI: 3', 'y los desglosa por regla');
     contiene(md, 'sin reemplazar', 'la constancia dice que quedo sin reemplazar');
@@ -443,7 +443,7 @@ console.log('ARMADO DEL ARCHIVO\n');
         informe: { paginas: 1, lineas: 10, encabezados: 0, pies: 0, bordes: 0, codigos: 0 },
     });
     noContiene(md, 'Anonimizado', 'sin anonimizar, la constancia no habla de reemplazos');
-    contiene(md, '1 pagina', 'pero si dice de donde salio');
+    contiene(md, '1 página', 'pero si dice de donde salio');
 }
 
 console.log('RANGOS DE PAGINAS\n');
@@ -469,7 +469,7 @@ console.log('RANGOS DE PAGINAS\n');
     const a = analizarRango('7-4', 10);
     ok(a.indices.join(',') === '3,4,5,6', 'un rango al reves se da vuelta');
     ok(a.invertidos.length === 1, 'y se avisa que estaba al reves');
-    contiene(describirProblemas(a, 10), 'al reves', 'el aviso lo explica');
+    contiene(describirProblemas(a, 10), 'al revés', 'el aviso lo explica');
 }
 
 {
@@ -495,11 +495,41 @@ console.log('RANGOS DE PAGINAS\n');
     const protegido = explicarError(
         Object.assign(new Error('Input document to `PDFDocument.load` is encrypted'),
             { name: 'EncryptedPDFError' }), 'demanda.pdf');
-    contiene(protegido, 'contrasenia', 'un PDF protegido se explica como tal');
+    contiene(protegido, 'contraseña', 'un PDF protegido se explica como tal');
     contiene(protegido, 'demanda.pdf', 'y se nombra el archivo, no "el archivo"');
 
     const roto = explicarError(new Error('Failed to parse PDF document'), 'escrito.pdf');
-    contiene(roto, 'danado', 'un PDF ilegible se explica como tal');
+    contiene(roto, 'dañado', 'un PDF ilegible se explica como tal');
+}
+
+console.log('TEXTO VISIBLE');
+console.log('');
+
+// El repositorio exige espaniol rioplatense CON TILDES en todo el texto que
+// ve el usuario; los comentarios de codigo pueden ir sin. Al escribir esta
+// herramienta se paso por alto y la interfaz entera salio sin acentuar. Estas
+// comprobaciones miran los mensajes que arma el motor, que son los que
+// terminan en pantalla y adentro del .md.
+{
+    const d = diagnosticar([pagina(1, [''])]);
+    for (const palabra of ['página', 'extraíble', 'volvé']) {
+        contiene(d.motivo, palabra, `el rechazo por OCR esta acentuado: ${palabra}`);
+    }
+    for (const sinTilde of ['pagina', 'extraible', 'volve ']) {
+        noContiene(d.motivo, sinTilde, `y no quedo la version sin tilde: ${sinTilde}`);
+    }
+
+    const a = analizarRango('', 10);
+    contiene(a.error, 'Escribí qué páginas querés', 'el pedido de rango esta acentuado');
+
+    const md = armarDocumento({
+        nombreArchivo: 'x.pdf', cuerpo: 'texto', anonimizado: true,
+        informe: { paginas: 3, lineas: 20, encabezados: 1, pies: 0, bordes: 0, codigos: 0 },
+        conteo: { DNI: 1 }, pendientes: [], paginasVacias: [2],
+    });
+    for (const palabra of ['páginas', 'líneas', 'anonimización', 'automática', 'garantía']) {
+        contiene(md.toLowerCase(), palabra, `la constancia esta acentuada: ${palabra}`);
+    }
 }
 
 // ---------------------------------------------------------------------------

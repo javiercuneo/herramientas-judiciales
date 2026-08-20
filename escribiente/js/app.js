@@ -136,7 +136,7 @@ $('convertir').addEventListener('click', async () => {
             // cuesta mas que leerlas.
             if (hechas - ultimoPintado >= 5 || hechas === total) {
                 ultimoPintado = hechas;
-                $('progreso').textContent = `Leyendo pagina ${hechas} de ${total}...`;
+                $('progreso').textContent = `Leyendo página ${hechas} de ${total}...`;
             }
         });
 
@@ -150,10 +150,10 @@ $('convertir').addEventListener('click', async () => {
             mostrarAviso($('aviso'), 'error',
                 `<p><strong>Este PDF no se puede trabajar.</strong></p>` +
                 `<p>${texto(diagnostico.motivo)}</p>` +
-                `<p>Escribiente no hace OCR a proposito: lo hacen mejor Acrobat, ` +
+                `<p>Escribiente no hace OCR a propósito: lo hacen mejor Acrobat, ` +
                 `el escaner de la oficina o cualquier herramienta de escritorio, ` +
-                `y traerlo aca serian varios megabytes de modelo para resolver algo ` +
-                `que ya tenes resuelto.</p>`);
+                `y traerlo acá serían varios megabytes de modelo para resolver algo ` +
+                `que ya tenés resuelto.</p>`);
             return;
         }
 
@@ -170,13 +170,13 @@ $('convertir').addEventListener('click', async () => {
         if (diagnostico.vacias.length > 0) {
             const cuantas = diagnostico.vacias.length;
             mostrarAviso($('aviso'), 'atencion',
-                `<p><strong>${cuantas === 1 ? 'Una pagina salio' : `${cuantas} paginas salieron`} ` +
+                `<p><strong>${cuantas === 1 ? 'Una página salió' : `${cuantas} páginas salieron`} ` +
                 `en blanco.</strong></p>` +
-                `<p>${cuantas === 1 ? 'La pagina' : 'Las paginas'} ` +
+                `<p>${cuantas === 1 ? 'La página' : 'Las páginas'} ` +
                 `${diagnostico.vacias.join(', ')} no ${cuantas === 1 ? 'tiene' : 'tienen'} ` +
-                `texto extraible: son escaneos sin OCR intercalados en un documento que ` +
-                `por lo demas si lo tiene. Lo que decian no esta en el resultado. ` +
-                `Queda anotado tambien al pie del .md.</p>`);
+                `texto extraíble: son escaneos sin OCR intercalados en un documento que ` +
+                `por lo demás sí lo tiene. Lo que decían no está en el resultado. ` +
+                `Queda anotado también al pie del .md.</p>`);
         }
 
         prepararCandidatos();
@@ -358,8 +358,8 @@ function dibujarInforme(anonimizado, conteo, pendientes) {
     const i = estado.informe;
     const quitadas = i.encabezados + i.pies + i.bordes + i.codigos;
     const filas = [
-        `<strong>${i.paginas}</strong> ${i.paginas === 1 ? 'pagina' : 'paginas'}, ` +
-        `<strong>${i.lineas}</strong> lineas, ` +
+        `<strong>${i.paginas}</strong> ${i.paginas === 1 ? 'página' : 'páginas'}, ` +
+        `<strong>${i.lineas}</strong> líneas, ` +
         `<strong>${estado.final.length.toLocaleString('es-AR')}</strong> caracteres.`,
     ];
 
@@ -367,21 +367,21 @@ function dibujarInforme(anonimizado, conteo, pendientes) {
         const detalle = [];
         if (i.encabezados) detalle.push(`${i.encabezados} de encabezado repetido`);
         if (i.pies) detalle.push(`${i.pies} de pie repetido`);
-        if (i.bordes) detalle.push(`${i.bordes} de numeracion o sellos`);
-        if (i.codigos) detalle.push(`${i.codigos} con codigos de sistema`);
-        filas.push(`Se quitaron <strong>${quitadas}</strong> lineas: ${detalle.join(', ')}.`);
+        if (i.bordes) detalle.push(`${i.bordes} de numeración o sellos`);
+        if (i.codigos) detalle.push(`${i.codigos} con códigos de sistema`);
+        filas.push(`Se quitaron <strong>${quitadas}</strong> líneas: ${detalle.join(', ')}.`);
     }
     if (i.unidas > 0) filas.push(`Se unieron <strong>${i.unidas}</strong> renglones cortados.`);
-    if (i.columnas > 0) filas.push(`Se detectaron columnas en ${i.columnas} paginas.`);
+    if (i.columnas > 0) filas.push(`Se detectaron columnas en ${i.columnas} páginas.`);
 
     if (anonimizado) {
         const total = Object.values(conteo).reduce((a, b) => a + b, 0);
-        filas.push(`Anonimizacion: <strong>${total}</strong> reemplazos.`);
+        filas.push(`Anonimización: <strong>${total}</strong> reemplazos.`);
         if (pendientes.length > 0) {
             filas.push(
                 `<span class="destacado">${pendientes.length} ` +
-                `${pendientes.length === 1 ? 'nombre quedo' : 'nombres quedaron'} sin ocultar</span>, ` +
-                `porque asi lo elegiste: ${texto(pendientes.join(', '))}.`);
+                `${pendientes.length === 1 ? 'nombre quedó' : 'nombres quedaron'} sin ocultar</span>, ` +
+                `porque así lo elegiste: ${texto(pendientes.join(', '))}.`);
         }
     }
 
@@ -444,7 +444,7 @@ $('unir-archivos').addEventListener('change', (e) => {
     if (archivosAUnir.length === 1) {
         mostrarAviso($('unir-aviso'), 'atencion',
             '<p>Elegiste un solo archivo. Para unir hacen falta al menos dos, ' +
-            'seleccionados juntos en el mismo cuadro de dialogo.</p>');
+            'seleccionados juntos en el mismo cuadro de diálogo.</p>');
     }
 });
 
@@ -458,7 +458,7 @@ $('unir-btn').addEventListener('click', async () => {
         const { bytes, paginas } = await unir(PDFLib, archivosAUnir);
         descargar(bytes, 'documentos-unidos.pdf', 'application/pdf');
         mostrarAviso($('unir-aviso'), 'bien',
-            `<p>Listo: ${archivosAUnir.length} archivos, ${paginas} paginas en total.</p>`);
+            `<p>Listo: ${archivosAUnir.length} archivos, ${paginas} páginas en total.</p>`);
     } catch (e) {
         console.error(e);
         mostrarAviso($('unir-aviso'), 'error', `<p>${texto(e.message)}</p>`);
@@ -487,7 +487,7 @@ $('separar-archivo').addEventListener('change', async () => {
     try {
         paginasDelSeparar = await contarPaginas(PDFLib, archivo);
         $('separar-total').textContent =
-            `El documento tiene ${paginasDelSeparar} ${paginasDelSeparar === 1 ? 'pagina' : 'paginas'}.`;
+            `El documento tiene ${paginasDelSeparar} ${paginasDelSeparar === 1 ? 'página' : 'páginas'}.`;
     } catch (e) {
         mostrarAviso($('separar-aviso'), 'error', `<p>${texto(explicarError(e, archivo.name))}</p>`);
     }
@@ -524,7 +524,7 @@ $('separar-btn').addEventListener('click', async () => {
         const problemas = describirProblemas(analisis, paginasDelSeparar);
         mostrarAviso($('separar-aviso'), problemas ? 'atencion' : 'bien',
             `<p>Se extrajeron <strong>${paginas}</strong> ` +
-            `${paginas === 1 ? 'pagina' : 'paginas'}.</p>` +
+            `${paginas === 1 ? 'página' : 'páginas'}.</p>` +
             (problemas ? `<p>${texto(problemas)}</p>` : ''));
     } catch (e) {
         console.error(e);
@@ -556,7 +556,7 @@ $('rotar-btn').addEventListener('click', async () => {
         const { bytes, paginas } = await rotar(PDFLib, archivo, grados);
         descargar(bytes, `rotado-${archivo.name}`, 'application/pdf');
         mostrarAviso($('rotar-aviso'), 'bien',
-            `<p>Listo: ${paginas} ${paginas === 1 ? 'pagina rotada' : 'paginas rotadas'} ${grados} grados.</p>`);
+            `<p>Listo: ${paginas} ${paginas === 1 ? 'página rotada' : 'páginas rotadas'} ${grados} grados.</p>`);
     } catch (e) {
         console.error(e);
         mostrarAviso($('rotar-aviso'), 'error', `<p>${texto(explicarError(e, archivo.name))}</p>`);

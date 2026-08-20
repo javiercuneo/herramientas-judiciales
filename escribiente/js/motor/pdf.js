@@ -29,7 +29,7 @@ export function analizarRango(texto, totalPaginas) {
     const limpio = (texto || '').trim();
 
     if (!limpio) {
-        salida.error = 'Escribi que paginas queres extraer. Por ejemplo: 1, 3, 4-7';
+        salida.error = 'Escribí qué páginas querés extraer. Por ejemplo: 1, 3, 4-7';
         return salida;
     }
 
@@ -68,7 +68,7 @@ export function analizarRango(texto, totalPaginas) {
 
     if (salida.indices.length === 0) {
         salida.error =
-            `Ninguna de las paginas que pediste existe en este documento, que tiene ` +
+            `Ninguna de las páginas que pediste existe en este documento, que tiene ` +
             `${totalPaginas}. ` + describirProblemas(salida, totalPaginas);
     }
 
@@ -81,18 +81,18 @@ export function describirProblemas(analisis, totalPaginas) {
     if (analisis.fuera.length > 0) {
         const lista = [...new Set(analisis.fuera)].sort((a, b) => a - b);
         partes.push(
-            `${lista.length === 1 ? 'La pagina' : 'Las paginas'} ${lista.join(', ')} ` +
+            `${lista.length === 1 ? 'La página' : 'Las páginas'} ${lista.join(', ')} ` +
             `${lista.length === 1 ? 'no existe' : 'no existen'}: el documento tiene ${totalPaginas}.`
         );
     }
     if (analisis.ilegibles.length > 0) {
-        partes.push(`No entendi ${analisis.ilegibles.map((s) => `"${s}"`).join(', ')}.`);
+        partes.push(`No entendí ${analisis.ilegibles.map((s) => `"${s}"`).join(', ')}.`);
     }
     if (analisis.invertidos.length > 0) {
         partes.push(
             `${analisis.invertidos.map((s) => `"${s}"`).join(', ')} ` +
-            `${analisis.invertidos.length === 1 ? 'esta escrito' : 'estan escritos'} al reves; ` +
-            `lo tome como si fuera al derecho.`
+            `${analisis.invertidos.length === 1 ? 'está escrito' : 'están escritos'} al revés; ` +
+            `lo tomé como si fuera al derecho.`
         );
     }
     return partes.join(' ');
@@ -104,14 +104,14 @@ export function explicarError(e, nombreArchivo) {
     const mensaje = String(e && e.message || e);
 
     if (/encrypt/i.test(mensaje) || (e && e.name === 'EncryptedPDFError')) {
-        return `${cual} esta protegido con contrasenia. Abrilo, guardalo sin proteccion ` +
-               `y volve a intentar: Escribiente no la puede sacar y no deberia poder.`;
+        return `${cual} está protegido con contraseña. Abrilo, guardalo sin protección ` +
+               `y volvé a intentar: Escribiente no la puede sacar y no debería poder.`;
     }
     if (/Failed to parse|Invalid PDF|No PDF header|trailer/i.test(mensaje)) {
-        return `${cual} no se puede leer como PDF. Puede estar incompleto o danado, ` +
+        return `${cual} no se puede leer como PDF. Puede estar incompleto o dañado, ` +
                `o ser otra cosa con el nombre cambiado.`;
     }
-    return `${cual} no se pudo procesar. El navegador informo: ${mensaje}`;
+    return `${cual} no se pudo procesar. El navegador informó: ${mensaje}`;
 }
 
 /** Une varios PDF en uno. Si uno falla, dice cual y por que. */

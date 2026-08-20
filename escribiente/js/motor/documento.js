@@ -58,21 +58,21 @@ export function armarDocumento({
         const quitadas = informe.encabezados + informe.pies + informe.bordes + informe.codigos;
         constancia.push(
             `- Convertido desde PDF: ${informe.paginas} ` +
-            `${informe.paginas === 1 ? 'pagina' : 'paginas'}, ${informe.lineas} lineas.`
+            `${informe.paginas === 1 ? 'página' : 'páginas'}, ${informe.lineas} líneas.`
         );
         if (quitadas > 0) {
             constancia.push(
-                `- Se quitaron ${quitadas} lineas de encabezado, pie, numeracion o ` +
-                `codigos de sistema.`
+                `- Se quitaron ${quitadas} líneas de encabezado, pie, numeración o ` +
+                `códigos de sistema.`
             );
         }
     }
 
     if (paginasVacias.length > 0) {
         constancia.push(
-            `- **Sin texto extraible: ${paginasVacias.length === 1 ? 'la pagina' : 'las paginas'} ` +
+            `- **Sin texto extraíble: ${paginasVacias.length === 1 ? 'la página' : 'las páginas'} ` +
             `${paginasVacias.join(', ')}.** Son escaneos sin OCR intercalados y salieron ` +
-            `en blanco: lo que decian NO esta en este archivo.`
+            `en blanco: lo que decían NO está en este archivo.`
         );
     }
 
@@ -87,7 +87,7 @@ export function armarDocumento({
         if (pendientes.length > 0) {
             constancia.push(
                 `- **Quedaron ${pendientes.length} nombres propios sin reemplazar**, ` +
-                `porque se decidio conservarlos: ` +
+                `porque se decidió conservarlos: ` +
                 pendientes.map((p) => `\`${p}\``).join(', ') + '.'
             );
         } else {
@@ -99,8 +99,8 @@ export function armarDocumento({
         partes.push('---', '', '## Constancia de procesamiento', '', ...constancia, '');
         if (anonimizado) {
             partes.push(
-                '> La anonimizacion es automatica y revisada por quien la ejecuto. No es una',
-                '> garantia: un nombre escrito de una forma que las reglas no contemplan puede',
+                '> La anonimización es automática y la revisó quien la ejecutó. No es una',
+                '> garantía: un nombre escrito de una forma que las reglas no contemplan puede',
                 '> haber quedado. Antes de mandar este archivo a un tercero, leelo.',
                 ''
             );

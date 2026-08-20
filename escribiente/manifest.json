@@ -1,7 +1,7 @@
 {
-  "name": "Escribiente · PDF a Markdown y anonimizacion",
+  "name": "Escribiente · PDF a Markdown y anonimización",
   "short_name": "Escribiente",
-  "description": "Convierte escritos, resoluciones y expedientes en PDF a Markdown y anonimiza los datos personales. Todo dentro del navegador: el documento no se sube a ningun servidor.",
+  "description": "Convierte escritos, resoluciones y expedientes en PDF a Markdown y anonimiza los datos personales. Todo dentro del navegador: el documento no se sube a ningún servidor.",
   "lang": "es-AR",
   "start_url": "./",
   "scope": "./",

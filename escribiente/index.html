@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escribiente · PDF a Markdown y anonimizacion</title>
+<title>Escribiente · PDF a Markdown y anonimización</title>
 
 <!--
   LA POLITICA DE SEGURIDAD ES LA HERRAMIENTA, NO UN ADORNO.
@@ -18,6 +18,9 @@
   `default-src 'none'` deja todo prohibido y se habilita solo lo necesario.
   `blob:` en worker-src es para pdf.js, que en algunos navegadores arma su
   worker desde un blob en vez de la URL directa.
+
+  `frame-ancestors` no va aca: entregada por <meta> el navegador la ignora y lo
+  avisa por consola. Si algun dia hace falta, va como cabecera HTTP.
 -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'none';
@@ -30,7 +33,7 @@
   form-action 'none';
   base-uri 'none'">
 
-<meta name="description" content="Convierte PDF judiciales a Markdown y anonimiza datos personales. Todo en el navegador: el documento no se sube a ningun servidor.">
+<meta name="description" content="Convierte PDF judiciales a Markdown y anonimiza datos personales. Todo en el navegador: el documento no se sube a ningún servidor.">
 <meta name="theme-color" content="#1e45ce">
 <link rel="manifest" href="manifest.json">
 
@@ -58,12 +61,32 @@
   <header class="cabecera">
     <h1>Escribiente</h1>
     <p class="bajada">
-      Pasa a Markdown y anonimiza escritos, resoluciones y expedientes en PDF.
+      Pasá a Markdown y anonimizá escritos, resoluciones y expedientes en PDF.
     </p>
     <p class="promesa">
       El PDF se abre y se procesa <strong>dentro de tu navegador</strong>. No se
-      sube a ningun servidor, y la pagina tiene prohibido por configuracion abrir
-      conexiones de red: no hay a donde mandarlo.
+      sube a ningún servidor, y la página tiene prohibido por configuración abrir
+      conexiones de red: no hay a dónde mandarlo.
+    </p>
+
+    <!-- Se publica antes de estar probada en uso, y por eso lo dice. La
+         alternativa era no publicarla, y no sirve: no hay forma de probarla en
+         la oficina, donde no se puede levantar un servidor local. El aviso es
+         lo que hace honesta la publicación: el que llega acá de casualidad se
+         entera de que esto es nuevo y de qué conviene mirar dos veces. Se saca
+         cuando el uso diario lo confirme. Mismo criterio y mismo estilo que el
+         aviso de calculadoras/tablero.html. -->
+    <p class="aviso-prueba">
+      <strong>En pruebas.</strong> Escribiente se estrenó el 18/8/2026 y todavía
+      no tiene rodaje: el motor tiene
+      <a href="https://github.com/javiercuneo/herramientas-judiciales/blob/main/scripts/verificar-escribiente.mjs">pruebas
+      automáticas</a> que corren antes de cada publicación, pero nadie la usó
+      todavía sobre un expediente largo de verdad. <strong>Revisá siempre el
+      resultado antes de mandarlo a un tercero</strong>, y sobre todo la
+      anonimización, que es automática y puede dejar pasar un nombre escrito de
+      una forma que las reglas no contemplan. Si algo no cuadra te agradezco el
+      aviso a
+      <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a>.
     </p>
   </header>
 
@@ -92,7 +115,7 @@
         <span><strong>Anonimizar datos personales</strong></span>
       </label>
       <p class="ayuda">
-        Reemplaza DNI, CUIT, CBU, telefonos, correos, expedientes, matriculas,
+        Reemplaza DNI, CUIT, CBU, teléfonos, correos, expedientes, matrículas,
         domicilios y patentes. Los nombres propios se detectan y te los muestra
         para que decidas uno por uno: ninguna regla puede distinguir sola a una
         parte del juicio de un autor de doctrina.
@@ -103,13 +126,13 @@
       <summary>Limpieza del texto</summary>
       <div class="opciones-cuerpo">
         <label><input type="checkbox" id="opt-repetidos" checked> Quitar encabezados y pies repetidos
-          <span class="nota">Solo actua con tres paginas o mas.</span></label>
-        <label><input type="checkbox" id="opt-bordes" checked> Quitar numeros de pagina y sellos del margen</label>
-        <label><input type="checkbox" id="opt-codigos" checked> Quitar codigos de sistema del PJN (#12345#)</label>
-        <label><input type="checkbox" id="opt-unir" checked> Unir palabras cortadas y renglones del mismo parrafo</label>
+          <span class="nota">Sólo actúa con tres páginas o más.</span></label>
+        <label><input type="checkbox" id="opt-bordes" checked> Quitar números de página y sellos del margen</label>
+        <label><input type="checkbox" id="opt-codigos" checked> Quitar códigos de sistema del PJN (#12345#)</label>
+        <label><input type="checkbox" id="opt-unir" checked> Unir palabras cortadas y renglones del mismo párrafo</label>
         <label><input type="checkbox" id="opt-columnas" checked> Detectar texto en columnas</label>
-        <label><input type="checkbox" id="opt-titulos" checked> Marcar titulos y enumeraciones</label>
-        <label><input type="checkbox" id="opt-paginas" checked> Separar las paginas con una linea
+        <label><input type="checkbox" id="opt-titulos" checked> Marcar títulos y enumeraciones</label>
+        <label><input type="checkbox" id="opt-paginas" checked> Separar las páginas con una línea
           <span class="nota">Sirve para volver a encontrar la foja en el original.</span></label>
       </div>
     </details>
@@ -119,7 +142,7 @@
     <div id="progreso" class="progreso oculto" role="status" aria-live="polite"></div>
     <div id="aviso" class="aviso-caja oculto" role="alert"></div>
 
-    <!-- Revision de nombres propios -->
+    <!-- Revisión de nombres propios -->
     <section id="revision" class="bloque oculto" aria-labelledby="revision-titulo">
       <h2 id="revision-titulo">Nombres propios encontrados</h2>
       <p class="ayuda">
@@ -166,7 +189,7 @@
       <p class="ayuda" id="separar-total"></p>
     </div>
     <div class="campo">
-      <label for="separar-rango">Paginas a extraer</label>
+      <label for="separar-rango">Páginas a extraer</label>
       <input type="text" id="separar-rango" placeholder="1, 3, 4-7" inputmode="numeric">
     </div>
     <button type="button" class="principal" id="separar-btn" disabled>Separar y descargar</button>
@@ -186,7 +209,7 @@
         <option value="180">180 grados</option>
         <option value="270">90 grados a la izquierda</option>
       </select>
-      <p class="ayuda">Se aplica a todas las paginas, sumando sobre el giro que ya tuvieran.</p>
+      <p class="ayuda">Se aplica a todas las páginas, sumando sobre el giro que ya tuvieran.</p>
     </div>
     <button type="button" class="principal" id="rotar-btn" disabled>Rotar y descargar</button>
     <div id="rotar-aviso" class="aviso-caja oculto" role="alert"></div>
@@ -194,12 +217,12 @@
 
   <footer class="pie-sitio">
     <p>
-      La anonimizacion es automatica y la revisas vos. No es una garantia:
+      La anonimización es automática y la revisás vos. No es una garantía:
       antes de mandar un archivo a un tercero, leelo.
     </p>
     <p class="enlaces">
       <a href="../index.html">Todas las herramientas</a>
-      <a href="https://github.com/javiercuneo/herramientas-judiciales/tree/main/escribiente">Codigo</a>
+      <a href="https://github.com/javiercuneo/herramientas-judiciales/tree/main/escribiente">Código</a>
     </p>
   </footer>
 </div>
