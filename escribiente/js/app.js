@@ -226,12 +226,30 @@ function prepararCandidatos() {
         });
     });
 
+    // `marcado: false`, y la diferencia con las partes de arriba es deliberada.
+    //
+    // Las partes salen de la carátula, que tiene forma fija ("X c/ Y s/"), así
+    // que tildarlas no es una adivinanza. Todo lo demás sí lo es, y una casilla
+    // que viene tildada no es una pregunta: es una decisión tomada por la
+    // herramienta con la firma del usuario encima.
+    //
+    // POR QUÉ CAMBIÓ, 21/8/2026. Con todo tildado de fábrica, un expediente de
+    // muchas paginas se procesó con 40 reemplazos elegidos, de los cuales 27 no eran
+    // nombres de nadie: encabezados de tabla ("Responsable Inscripto Fecha",
+    // 15 veces), títulos en mayúsculas ("DESIGNE NUEVA AUDIENCIA"), un monto en
+    // letras. El texto quedó con "SOLICITA SE [PERSONA]" y "PERSONAL DE LA
+    // [PERSONA] Y AFINES". Nadie destildó nada, y era esperable: con cuarenta
+    // casillas ya tildadas, el default gana.
+    //
+    // El modo de fallar también cambia, y esa es la razón de fondo. Tildado de
+    // fábrica falla en silencio y corrompe el documento. Sin tildar falla a la
+    // vista: el nombre queda en el texto Y la constancia lo nombra.
     for (const c of candidatosANombre(estado.crudo)) {
         if (vistos.has(c.texto.toLowerCase())) continue;
         vistos.set(c.texto.toLowerCase(), {
             texto: c.texto,
             apariciones: c.apariciones,
-            marcado: true,
+            marcado: false,
             etiqueta: '[PERSONA]',
             esParte: false,
         });
@@ -380,8 +398,8 @@ function dibujarInforme(anonimizado, conteo, pendientes) {
         if (pendientes.length > 0) {
             filas.push(
                 `<span class="destacado">${pendientes.length} ` +
-                `${pendientes.length === 1 ? 'nombre quedó' : 'nombres quedaron'} sin ocultar</span>, ` +
-                `porque así lo elegiste: ${texto(pendientes.join(', '))}.`);
+                `${pendientes.length === 1 ? 'nombre quedó' : 'nombres quedaron'} sin ocultar</span> ` +
+                `porque no los tildaste: ${texto(pendientes.join(', '))}.`);
         }
     }
 

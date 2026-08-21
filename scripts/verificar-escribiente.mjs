@@ -244,7 +244,7 @@ Comparece el Sr. Juan Carlos Perez, DNI 30.119.078, con domicilio real en
 Rivadavia 1234, piso 3 depto B, y correo juan.perez@estudio-perez.com.ar.
 Se regulan los honorarios en la suma de $ 3.255.622,50 conforme el art. 730
 del Codigo Civil y Comercial y el art. 21 de la ley 27.423.
-El perito ARIAS ANALIA GABRIELA percibio la suma de 1.500.000 pesos.
+El testigo ARIAS ANALIA GABRIELA percibio la suma de 1.500.000 pesos.
 Telefono: 4371-1696. CUIT 20-30119078-9. CBU 0170099220000067797370.
 Expte. 56.868/2017, iniciado el 06/08/2017. To 45 Fo 122.
 El rodado dominio AB 123 CD colisiono. Ver art. 730 y ART 512.
@@ -384,6 +384,276 @@ ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
     ]);
     contiene(texto, '[EMPRESA] SA', 'el reemplazo actua sobre la palabra entera');
     contiene(texto, 'Insurgentes', 'y no pega dentro de otra palabra');
+}
+
+// ---------------------------------------------------------------------------
+// REGRESION 7, 8 y 9: las tres fugas dun documento largo.
+//
+// El 21/8/2026 paso por la herramienta un exhorto de muchas paginas —el primer
+// documento real largo, hasta entonces lo mas largo eran 5 fojas sinteticas—.
+// El .md resultante se reviso linea por linea contra el PDF. Las tres cosas
+// que estan abajo salieron de esa revision, con las cadenas exactas.
+// ---------------------------------------------------------------------------
+
+// --- REGRESION 7: la constancia no puede nombrar a nadie -------------------
+{
+    // El .md anonimizado terminaba con la lista de los nombres reemplazados,
+    // uno por linea y con la cantidad de apariciones al lado, porque la clave
+    // del conteo era `elegido: ${nombre}` y la constancia imprime las claves.
+    // El archivo anonimizado traia abajo el diccionario para deshacerlo.
+    const { texto, conteo } = anonimizar(
+        'Comparecio Ernesto Quiroga, y por la actora Marina Otero.',
+        [
+            { texto: 'Ernesto Quiroga', reemplazo: '[TESTIGO]' },
+            { texto: 'Marina Otero', reemplazo: '[LETRADO]' },
+        ]
+    );
+    const md = armarDocumento({
+        nombreArchivo: 'exhorto.pdf',
+        cuerpo: texto,
+        anonimizado: true,
+        conteo,
+        pendientes: [],
+    });
+
+    for (const nombre of ['Ernesto', 'Quiroga', 'Marina', 'Otero']) {
+        noContiene(md, nombre,
+            `REGRESION: la constancia no nombra al que se reemplazo: ${nombre}`);
+    }
+    contiene(md, '[TESTIGO]', 'el cuerpo si lleva la etiqueta');
+    contiene(md, 'nombre propio → [TESTIGO]: 1', 'y la constancia cuenta por etiqueta');
+    contiene(md, 'nombre propio → [LETRADO]: 1', 'una linea por etiqueta usada');
+
+    // Dos nombres con la misma etiqueta suman en la misma linea, que es lo que
+    // hace que la constancia no permita contar cuantos nombres distintos hubo.
+    const dos = anonimizar('Perez y Gomez declararon.', [
+        { texto: 'Perez', reemplazo: '[TESTIGO]' },
+        { texto: 'Gomez', reemplazo: '[TESTIGO]' },
+    ]);
+    ok(dos.conteo['nombre propio → [TESTIGO]'] === 2,
+        'dos nombres con la misma etiqueta se suman en una sola clave',
+        JSON.stringify(dos.conteo));
+}
+
+// --- REGRESION 8: el DNI sin puntos -----------------------------------------
+{
+    // Un informe del un formulario oficial escribe el documento sin
+    // puntos. La unica regla que habia exigia el formato "30.119.078", asi que
+    // cinco documentos salieron enteros y rotulados con la palabra "DNI".
+    const casos = [
+        ['DNI: 5432109', 'DNI: [DNI]'],
+        ['Tipo y N° de documento: DNI 18234567', 'documento: DNI [DNI]'],
+        ['el testigo declaro (DNI 24987654)', '(DNI [DNI])'],
+        ['D.N.I. N° 11223344', 'D.N.I. N° [DNI]'],
+        ['DNI 12.345.678', 'DNI [DNI]'],
+        ['L.C. 4567890', 'L.C. [DNI]'],
+    ];
+    for (const [entrada, esperado] of casos) {
+        const { texto } = anonimizar(entrada);
+        contiene(texto, esperado, `REGRESION: el DNI sin puntos se reemplaza: ${entrada}`);
+    }
+
+    // Y no puede tocar un numero que no sea un documento. Sin la palabra que lo
+    // ancla no hay regla, justamente porque siete digitos pelados no tienen
+    // forma propia.
+    const { texto } = anonimizar(
+        'la suma de 1500000 pesos, el expediente 48210/2023 y el codigo 9012345678'
+    );
+    contiene(texto, '1500000 pesos', 'un monto sin puntos no se confunde con un DNI');
+    contiene(texto, '9012345678', 'un numero suelto tampoco');
+}
+
+// --- REGRESION 9: el nombre de dos palabras --------------------------------
+{
+    // Los cuatro patrones de candidatos exigian tres palabras o una coma. El
+    // testigo del exhorto —diez apariciones en claro— no se ofrecio NUNCA para
+    // tildar, y "Nombre Apellido" es la forma mas frecuente que hay: el nombre
+    // completo aparece una vez y este aparece en cada foja.
+    const dosPalabras = candidatosANombre(
+        'el testigo Ernesto Quiroga y el CP Pablo Miranda'
+    ).map((c) => c.texto);
+    ok(dosPalabras.includes('Ernesto Quiroga'),
+        'REGRESION: un nombre de dos palabras se ofrece como candidato',
+        `candidatos: ${dosPalabras.join(' | ')}`);
+    ok(dosPalabras.includes('Pablo Miranda'),
+        'REGRESION: y el segundo tambien',
+        `candidatos: ${dosPalabras.join(' | ')}`);
+
+    const mayusculas = candidatosANombre('SR :ERNESTO QUIROGA').map((c) => c.texto);
+    ok(mayusculas.includes('ERNESTO QUIROGA'),
+        'REGRESION: dos palabras en mayusculas tambien',
+        `candidatos: ${mayusculas.join(' | ')}`);
+}
+
+// --- El ruido que traen las dos reglas de dos palabras ---------------------
+{
+    // La regla de dos palabras es la mas ruidosa de las seis, y entro junto con
+    // la ampliacion de NO_SON_PERSONAS. Sin eso, un expediente con facturas y
+    // fichas de formulario oficial propone encabezados de tabla tantas veces como nombres,
+    // y una lista que no se puede leer se tilda entera: asi se corrompieron 27
+    // lugares del texto en la prueba que motivo el cambio.
+    const ruido = candidatosANombre(`
+        Razon Social: Domicilio Comercial: Ingresos Brutos:
+        Codigo Producto Servicio Cantidad Medida Precio Unit
+        Periodo Facturado Desde Responsable Inscripto Fecha
+        Apellidos: Nombres: Fecha Nac: Nacionalidad: Provincia:
+        PULGAR INDICE MEDIO ANULAR MENIQUE
+        NUEVE MILLONES DOSCIENTOS OCHENTA MIL
+        Habeas Corpus Buenos Aires Capital Federal Primera Instancia
+    `).map((c) => c.texto);
+    ok(ruido.length === 0, 'los encabezados de tabla y de ficha no se ofrecen como nombres',
+        `candidatos: ${ruido.join(' | ')}`);
+}
+
+// --- Recorte: el verbo de adelante no se lleva puesto el nombre -------------
+{
+    // Un patron se queda con el primer calce y no vuelve atras: el de tres
+    // palabras engancha "Comparecio Hector Ernesto", y como "comparecio" es un
+    // verbo el candidato se descartaba entero. El nombre que estaba al lado no
+    // se ofrecia nunca, y no por no detectarse.
+    const c = candidatosANombre('Comparecio Hector Ernesto Quiroga y ratifico.')
+        .map((x) => x.texto);
+    ok(c.includes('Hector Ernesto') || c.includes('Hector Ernesto Quiroga'),
+        'el verbo de adelante se recorta y el nombre queda',
+        `candidatos: ${c.join(' | ')}`);
+    ok(!c.some((x) => /Comparecio/.test(x)), 'y el verbo no queda dentro de ningun candidato',
+        `candidatos: ${c.join(' | ')}`);
+}
+
+// ---------------------------------------------------------------------------
+// REGRESION 10: los formularios "Etiqueta: valor".
+//
+// El motor estaba escrito para prosa, y lo mas sensible del expediente de 225
+// fojas no era prosa: era la ficha del un formulario oficial que
+// venia adjunta al exhorto. Apellido, nombre, fecha de nacimiento, domicilio
+// completo y numero de tramite, cada uno detras de su etiqueta. De todo eso el
+// motor anonimizaba el telefono.
+// ---------------------------------------------------------------------------
+{
+    const FICHA = [
+        'DNI: 5432109',
+        'Clase: 1958 MASCULINO',
+        'Fecha Nac: 14/03/1958',
+        'Domicilio: Calle :MITRE 850 ,MORON,BUENOS AIRES (Teléfono:4371-1696)',
+        'Datos del Trámite: Idtrámite :123456789 Ejemplar (B) Toma: 23/06/2015',
+        'Apellidos: QUIROGA',
+        'Nombres: Hector Ernesto',
+    ].join('\n');
+
+    const { texto } = anonimizar(FICHA);
+
+    for (const dato of ['5432109', '1958', '14/03/1958', 'MITRE', 'MORON',
+                        '123456789', 'QUIROGA', 'Hector Ernesto']) {
+        noContiene(texto, dato, `REGRESION: la ficha de un formulario oficial no filtra ${dato}`);
+    }
+    // Las etiquetas se conservan: un renglon que dice "[PERSONA]" a secas no se
+    // entiende, y la constancia tiene que poder auditarse contra el original.
+    for (const etiqueta of ['DNI:', 'Clase:', 'Fecha Nac:', 'Domicilio:', 'Apellidos:', 'Nombres:']) {
+        contiene(texto, etiqueta, `y conserva la etiqueta ${etiqueta}`);
+    }
+
+    const otros = anonimizar([
+        'Apellido y nombre: PEREZ, Juan',
+        'Apoderado: SUAREZ LEANDRO',
+        'Matrícula N°: 2408',
+        'Matricula: LºXXV Fº 180',
+        'Matrícula N°: XLII, FOLIO 316',
+    ].join('\n')).texto;
+    for (const dato of ['PEREZ', 'Juan', 'SUAREZ', '2408', 'XXX', 'FOLIO 316']) {
+        noContiene(otros, dato, `REGRESION: el campo de formulario no filtra ${dato}`);
+    }
+}
+
+// --- Los dos puntos son la guarda, y el valor tiene que parecer un valor ----
+{
+    // Sin las dos guardas, estas tres se corrompen. Son las que permiten que la
+    // regla se coma el renglon entero sin miedo: en prosa no hay dos puntos.
+    const { texto } = anonimizar([
+        'Nombres: los que surgen del poder acompañado',
+        'Domicilio: Se tiene presente el denunciado',
+        'matrícula inscripta al T 45 F 210 del CPACF',
+    ].join('\n'));
+    contiene(texto, 'los que surgen del poder', 'un valor en minuscula no es un nombre');
+    contiene(texto, 'Se tiene presente el denunciado', 'y un domicilio sin altura no es un domicilio');
+    contiene(texto, 'del CPACF', 'la matricula en prosa la toma la regla de tomo y folio, sin comerse el resto');
+    contiene(texto, '[MATRICULA] del CPACF', 'y la toma entera');
+}
+
+// --- REGRESION 11: la matricula, en las formas que se filtraron -------------
+{
+    for (const [entrada, esperado] of [
+        ['Dr. Juan Perez (T: 62 F: 415)', '([MATRICULA])'],
+        ['la Dra. Ana Gomez (T: 118 F: 902)', '([MATRICULA])'],
+        ['abogado T°22 FO371', 'abogado [MATRICULA]'],
+        ['inscripto al Tomo 45, Folio 210', 'al [MATRICULA]'],
+        ['To 45 Fo 122', '[MATRICULA]'],
+    ]) {
+        contiene(anonimizar(entrada).texto, esperado,
+            `REGRESION: la matricula se reemplaza: ${entrada}`);
+    }
+}
+
+// --- REGRESION 12: el domicilio sin piso, y el que cortaba la palabra -------
+{
+    for (const [entrada, esperado] of [
+        ['con domicilio en Av. San Juan 640 CABA', 'en [DOMICILIO] CABA'],
+        ['con domicilio en Rivera 3120 CABA', 'en [DOMICILIO] CABA'],
+        ['domicilio legal constituido en Sarmiento 940, Entre Piso "A"', 'en [DOMICILIO]'],
+        ['DOMICILIO: AVENIDA CORRIENTES 1580. PISO 2 CABA.', 'DOMICILIO: [DOMICILIO]'],
+        ['domicilio procesal en Av. Corrientes 1580 2do piso de la Ciudad',
+         'en [DOMICILIO] de la Ciudad'],
+        // La que cortaba la palabra al medio: salia "[DOMICILIO]amento 2".
+        ['con domicilio en Montevideo 1740 PB departamento 2 CABA', 'en [DOMICILIO] CABA'],
+    ]) {
+        contiene(anonimizar(entrada).texto, esperado,
+            `REGRESION: el domicilio se reemplaza entero: ${entrada}`);
+    }
+    noContiene(anonimizar('con domicilio en Montevideo 1740 PB departamento 2 CABA').texto,
+        'amento', 'REGRESION: el bloque de piso no corta la palabra al medio');
+
+    // La palabra que ancla es lo que la hace segura. Sin ella la regla diria
+    // "cualquier palabra capitalizada seguida de un numero".
+    const { texto } = anonimizar('Se libro el expediente 48210 conforme el art. 431 y la Sala 3.');
+    contiene(texto, 'expediente 48210', 'un expediente no se confunde con un domicilio');
+    contiene(texto, 'art. 431', 'ni un articulo');
+    contiene(texto, 'Sala 3', 'ni una sala');
+}
+
+// --- REGRESION 13: el tratamiento con dos puntos y en mayusculas ------------
+{
+    // Una cedula del PJN encabeza "SR :ERNESTO QUIROGA": el tratamiento en
+    // mayusculas y un separador que el patron no contemplaba.
+    contiene(anonimizar('SR :ERNESTO QUIROGA').texto, 'SR [PERSONA]',
+        'REGRESION: el tratamiento en mayusculas y con dos puntos actua');
+    contiene(anonimizar('El testigo declaro ante el perito Juan Carlos Perez.').texto,
+        'perito [PERSONA]', 'y el tratamiento en minuscula, en medio de la prosa, tambien');
+
+    // Las dos guardas de esa regla, que con la bandera `i` son lo unico que
+    // separa un nombre de una frase.
+    contiene(anonimizar('Sres. Los Abogados presentes').texto, 'Los Abogados',
+        'una palabra del oficio detras del tratamiento no es un nombre');
+    contiene(anonimizar('INGENIERO JUAN CARLOS PEREZ informa').texto, 'INGENIERO',
+        'el "Ing" de "INGENIERO" no es un tratamiento: la palabra tiene que terminar ahi');
+}
+
+// --- Un fragmento de otro candidato no se ofrece dos veces ------------------
+{
+    const c = candidatosANombre('Vease Llambias, Jorge Joaquin, Tratado, Astrea.')
+        .map((x) => x.texto);
+    ok(!c.includes('Jorge Joaquin'),
+        'el pedazo de un candidato mas largo no se ofrece aparte',
+        `candidatos: ${c.join(' | ')}`);
+    ok(c.includes('Llambias, Jorge Joaquin'), 'y el largo si',
+        `candidatos: ${c.join(' | ')}`);
+
+    // Pero si el corto ademas aparece suelto, hay que ofrecerlo: el reemplazo
+    // del largo no lo va a alcanzar.
+    const suelto = candidatosANombre(
+        'Hector Ernesto Quiroga declaro. Ernesto Quiroga se retiro. Ernesto Quiroga volvio.'
+    ).map((x) => x.texto);
+    ok(suelto.includes('Ernesto Quiroga'),
+        'el corto que ademas aparece por su cuenta si se ofrece',
+        `candidatos: ${suelto.join(' | ')}`);
 }
 
 console.log('ARMADO DEL ARCHIVO\n');

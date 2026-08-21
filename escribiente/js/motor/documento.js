@@ -86,8 +86,8 @@ export function armarDocumento({
         }
         if (pendientes.length > 0) {
             constancia.push(
-                `- **Quedaron ${pendientes.length} nombres propios sin reemplazar**, ` +
-                `porque se decidió conservarlos: ` +
+                `- **Quedaron ${pendientes.length} nombres propios sin reemplazar.** ` +
+                `Se detectaron y no se tildaron, así que siguen en el texto: ` +
                 pendientes.map((p) => `\`${p}\``).join(', ') + '.'
             );
         } else {

@@ -26,9 +26,15 @@ códigos del sistema de gestión (`#12345#`).
 **Anonimizar, en dos niveles.** El primero es automático y reemplaza lo que
 tiene forma inequívoca —DNI, CUIT, CBU, CVU, teléfonos, correos, expedientes,
 matrícula tomo/folio, domicilios, patentes, y el nombre de quien firma
-conservando el cargo—. El segundo son **los nombres propios, que se te
+conservando el cargo—, más **los campos de formulario**, donde la etiqueta hace
+inequívoco lo que sigue: `Apellidos:`, `Nombres:`, `Domicilio:`, `Fecha Nac:`,
+`Matrícula N°:`. Ahí es donde vienen las fichas de identidad adjuntas a un
+expediente, que es lo más sensible que pasa por la herramienta. El segundo son **los nombres propios, que se te
 muestran para que decidas uno por uno**, con la cantidad de apariciones y una
-etiqueta a elegir (`[ACTOR]`, `[DEMANDADO]`, `[PERITO]`...).
+etiqueta a elegir (`[ACTOR]`, `[DEMANDADO]`, `[PERITO]`...). **Vienen sin
+tildar**, salvo las dos partes de la carátula: una casilla tildada de fábrica no
+es una pregunta, y lo que se ofrece son candidatos, no certezas. Los que dejes
+sin tildar quedan en el texto y la constancia los nombra.
 
 Ese segundo nivel no es una comodidad, es el diseño. Ninguna regla puede
 distinguir sola `Pérez, Juan Carlos` —la parte, hay que ocultarla— de
@@ -57,6 +63,10 @@ escritorio ya resuelven mejor. Escribiente detecta que hace falta y lo dice.
 escrito de una forma que las reglas no contemplan puede quedar. Cada archivo
 sale con una constancia al pie que dice qué se reemplazó, cuántas veces y qué
 quedó sin ocultar. Antes de mandarlo a un tercero, leelo.
+
+La constancia cuenta **por etiqueta y nunca por nombre**: dice
+«nombre propio → `[TESTIGO]`: 4», no cuál era. Un archivo anonimizado que abajo
+lista los nombres que sacó no está anonimizado.
 
 ---
 
@@ -110,7 +120,7 @@ probar:
 npm run verificar-escribiente
 ```
 
-Son 104 comprobaciones sobre el motor, e incluyen como regresión los seis bugs
+Son 184 comprobaciones sobre el motor, e incluyen como regresión los seis bugs
 que tenía la versión anterior —o que aparecieron al probar esta contra PDF
 reales—. Corre en CI antes de publicar.
 
