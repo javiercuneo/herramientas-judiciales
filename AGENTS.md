@@ -263,6 +263,45 @@ cambiarlo.
 
 ---
 
+## Datos: qué no entra a este repositorio
+
+Este repositorio es público. Todo lo que entra —código, comentarios, `docs/` y
+**los mensajes de commit**— lo lee cualquiera, y no se saca después: un commit que
+borra algo lo deja igual de accesible y encima señala dónde estaba.
+
+`scripts/verificar-datos.sh` corre como hook de `pre-commit` y bloquea lo de abajo.
+Está para atajar el olvido, no para reemplazar el criterio. Los términos propios que
+verifica se leen de una lista privada, fuera del árbol: `git config datos.listaPrivada`.
+
+**No entra:**
+
+- Nombres de personas, domicilios, teléfonos, correos, DNI, CUIT/CUIL, CBU ni
+  matrículas. Ni en archivos, ni en comentarios, ni en mensajes de commit.
+- Carátulas ni números de expediente de causas propias. Las citas de jurisprudencia
+  publicada sí —con tribunal, sala, expediente, carátula y fecha—, pero **sin anotar
+  la relación de la causa con esta oficina**: esa anotación no funda nada y ubica todo.
+- Binarios ofimáticos: `.docx`, `.pdf`, `.xlsx`. Viajan con metadatos, encabezados e
+  identificadores del documento de origen que no se ven al abrir el archivo.
+- Enlaces al visor de expedientes, ni vocabulario de sistemas internos.
+- El material de trabajo del que salen las plantillas. Vive fuera del árbol, no
+  ignorado adentro: un `.gitignore` no saca lo que ya entró.
+
+**Los datos de prueba son inventados: la forma del caso, el contenido de nadie.**
+Un tomo y folio cualquiera prueba exactamente lo mismo que la matrícula de alguien.
+Vale igual para las regresiones y para los comentarios que las explican.
+
+**Los mensajes de commit son texto publicado**, y no se editan sin reescribir la
+historia. La regla es más estricta ahí que en cualquier archivo: ni nombres, ni
+cantidad de fojas, ni fechas de actuaciones, ni la palabra «real».
+
+**Se describe la forma, no el caso.** «Un documento largo» en vez de la cantidad de
+fojas; «un formulario oficial» en vez de nombrar el organismo. Un dato que no
+identifica a nadie por separado identifica igual cuando va con otros tres.
+
+**Si falta una referencia que parece que debería estar, falta a propósito.** No completarla.
+
+---
+
 ## Convenciones del repositorio
 
 - **Español rioplatense, con tildes**, en interfaz, documentación y commits.
