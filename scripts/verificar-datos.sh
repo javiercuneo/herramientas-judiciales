@@ -62,8 +62,19 @@ buscar '\b(?:20|23|24|27|30|33|34)[0-9]{9}\b' 'CUIT/CUIL de 11 digitos sin guion
 buscar '\b[0-9]{22}\b' 'CBU'
 buscar '\bT[oº°]?\s*[:.]?\s*[0-9IVXLC]{1,6}\s*F[oº°]?\s*[:.]?\s*[0-9]{1,4}\b' 'matricula (tomo y folio)'
 buscar '\bMatr[ií]cula\b\s*(?:N[oº°]?)?\s*[:.]?\s*[0-9IVXLC]' 'matricula'
-buscar '[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ ,.]{4,60}\s+c/\s+[A-ZÁÉÍÓÚÑ]' 'caratula "X c/ Y"'
-buscar 'ACTORA?\s*:.{0,60}DEMANDAD' 'caratula de incidente del PJN (ACTOR:/DEMANDADO:)'
+# Las caratulas se pueden relajar por repositorio: en una wiki de jurisprudencia
+# son el contenido, no una fuga. Con  git config datos.caratulas aviso  pasan a
+# ser advertencia. Lo que NUNCA se relaja es la caratula de una causa propia:
+# para eso esta la lista privada, que no depende de esta opcion.
+modo_caratula=$(git config --get datos.caratulas || echo bloquea)
+if [ "$modo_caratula" = "aviso" ]; then
+  for pat in '[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ ,.]{4,60}\s+c/\s+[A-ZÁÉÍÓÚÑ]' 'ACTORA?\s*:.{0,60}DEMANDAD'; do
+    printf '%s' "$agregado" | grep -a -q -P "^\+.*(?:$pat)" && avisa "contenido" "hay una caratula; verifica que sea jurisprudencia publicada y no una causa propia"
+  done
+else
+  buscar '[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ ,.]{4,60}\s+c/\s+[A-ZÁÉÍÓÚÑ]' 'caratula "X c/ Y"'
+  buscar 'ACTORA?\s*:.{0,60}DEMANDAD' 'caratula de incidente del PJN (ACTOR:/DEMANDADO:)'
+fi
 buscar 'scw\.pjn\.gov\.ar/scw/viewer' 'enlace directo al visor de expedientes del PJN'
 buscar '\blex100\b|\bmesa virtual\b|\bSNE\b' 'vocabulario de sistemas internos del PJN'
 buscar '\+?54\s*9?\s*(?:11|351|341|261|221)\s*[-. ]?[0-9]{4}[-. ]?[0-9]{4}' 'telefono argentino'
