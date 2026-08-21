@@ -421,6 +421,17 @@ incluidos— lo puede leer cualquiera. De ahí dos reglas que no son de estilo:
   resultado se lee al lado de esa promesa y la debilita, sin agregar nada. La
   formulación que se usa es la general, y es la que cubre todos los casos:
   anonimizar antes de que el texto **salga del expediente**, sea a donde sea.
+- **Los casos de prueba llevan datos inventados, con la forma del que falló y
+  el contenido de nadie.** Vale para `verificar-escribiente.mjs` y para
+  cualquier comentario de código. Es la regla más fácil de romper de las tres,
+  porque romperla se siente como rigor: cuando una fuga se encuentra probando un
+  documento de prueba, la tentación es pegar la cadena exacta que falló —el nombre
+  del testigo, su DNI, su domicilio— para que la regresión sea fiel. **Un banco
+  de pruebas con el nombre de un testigo adentro es la misma fuga que la
+  herramienta existe para evitar**, y en un repositorio público queda para
+  siempre. Lo que hay que conservar es la *forma*: `T: 62 F: 415` prueba lo
+  mismo que la matrícula real. Pasó el 21/8, se encontró antes de pushear y los
+  commits se rehicieron.
 
 Esto se limpió el 21/8 y conviene saberlo antes de "completar" una referencia
 que parece faltar: falta a propósito.
