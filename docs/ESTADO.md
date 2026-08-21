@@ -309,6 +309,24 @@ predictibilidad vale más que la elegancia.
 es texto chico, que es justo donde el piso de contraste es 4.5. (Está abierto que
 en claro no llega: ver arriba.)
 
+### Este repositorio es público, y eso decide cómo se escribe
+
+Todo lo que hay acá —el código, sus comentarios, `ESTADO.md` y `HISTORIA.md`
+incluidos— lo puede leer cualquiera. De ahí dos reglas que no son de estilo:
+
+- **No se nombra el otro proyecto del que salieron las reglas de
+  anonimización**, ni se enlaza. Decir dónde se prueban las reglas es decir
+  dónde hay documentos de trabajo, y eso no le aporta nada a nadie que
+  lea este repositorio.
+- **Nada describe a dónde va el texto después.** Escribiente promete que el
+  documento no sale de la máquina, y cualquier frase sobre qué se hace con el
+  resultado se lee al lado de esa promesa y la debilita, sin agregar nada. La
+  formulación que se usa es la general, y es la que cubre todos los casos:
+  anonimizar antes de que el texto **salga del expediente**, sea a donde sea.
+
+Esto se limpió el 21/8 y conviene saberlo antes de "completar" una referencia
+que parece faltar: falta a propósito.
+
 ### Una promesa de privacidad se demuestra, no se declara
 
 Escribiente dice que el documento no sale de tu computadora. Esa frase es la
@@ -331,8 +349,9 @@ Lo mismo vale para la tipografía, que por eso no se carga.
 
 ### La anonimización decide sola lo que tiene forma, y pregunta lo que no
 
-Es el diseño de `escribiente/js/motor/anonimizar.js`, heredado de
-`un sanitizador anterior` de otro proyecto, y no es una comodidad de interfaz.
+Es el diseño de `escribiente/js/motor/anonimizar.js`, heredado de otra
+herramienta propia que no está en este repositorio, y no es una comodidad de
+interfaz.
 
 Lo que tiene forma inequívoca —DNI, CUIT, CBU, teléfono, expediente, matrícula,
 correo— se reemplaza solo, porque no hay falso positivo posible. **Los nombres

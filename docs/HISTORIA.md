@@ -73,8 +73,8 @@ cosas por las que la herramienta existe.
 ### Se rehizo entero, y por qué no se parchó
 
 Quedaba poco que preservar. Las partes valiosas eran justo las rotas, el
-anonimizador había que reemplazarlo por el de otro proyecto —que lleva meses
-sobre documentos de prueba—, y el envoltorio era residuo de una plantilla. Contra
+anonimizador había que reemplazarlo por uno con reglas ya probadas, y el
+envoltorio era residuo de una plantilla. Contra
 eso pesaba la regla de la casa: **una herramienta publicada tiene que estar bien
 o no estar publicada.**
 
@@ -86,9 +86,10 @@ El nombre lo eligió Javier: **escribiente** es un cargo real del PJN, donde
 trabaja, y es literalmente quien pasa documentos a texto. La URL vieja
 `/PDF-studio/` queda viva con un aviso.
 
-### Lo que se corrigió del original de otro proyecto
+### Lo que se corrigió al portar las reglas
 
-Portar las reglas sirvió para encontrarles tres fallas, que valen para allá:
+Traerlas sirvió para encontrarles tres fallas, que valen también para la
+versión de la que salieron:
 
 - el orden de las dos reglas de expediente estaba invertido, y la general
   enganchaba la mitad derecha antes de que la específica pudiera tomarlo entero:

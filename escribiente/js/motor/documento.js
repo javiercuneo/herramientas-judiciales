@@ -35,8 +35,8 @@ export function nombreDeDescarga(nombreArchivo, anonimizado) {
 /** Arma el .md completo: titulo, cuerpo y constancia.
  *
  * La constancia va al final del archivo y no es un adorno. Un .md anonimizado
- * que despues se pega en un LLM, se manda por mail o se archiva no tiene como
- * decir cuanto de el es original y cuanto se reemplazo. Sin constancia hay que
+ * que despues se comparte, se manda por mail o se archiva no tiene como decir
+ * cuanto de el es original y cuanto se reemplazo. Sin constancia hay que
  * volver a abrir el PDF para saberlo. Con constancia, el archivo se explica
  * solo, y en particular dice QUE QUEDO SIN REVISAR, que es lo que importa
  * cuando alguien lo va a mandar afuera.

@@ -235,7 +235,7 @@ console.log('DIAGNOSTICO DE OCR\n');
         `vacias=[${d.vacias}]`);
 }
 
-ok(MINIMO_POR_PAGINA === 100, 'el umbral por pagina sigue siendo el de otro proyecto');
+ok(MINIMO_POR_PAGINA === 100, 'el umbral por pagina no se movio');
 
 console.log('ANONIMIZACION\n');
 

@@ -17,8 +17,8 @@
 // escaneado sin OCR da cerca de cero. El umbral tiene un margen de 10x: no se
 // va a equivocar, y ante la duda conviene que rechace.
 //
-// El valor viene de `un sanitizador anterior` de otro proyecto, donde lleva
-// meses corriendo sobre documentos de prueba sin un falso rechazo.
+// El valor viene de otra herramienta propia, anterior a esta, donde lleva
+// tiempo corriendo sobre documentos reales sin un falso rechazo.
 export const MINIMO_POR_PAGINA = 100;
 
 /** Lee el PDF entero. Devuelve las paginas con la geometria de cada fragmento.

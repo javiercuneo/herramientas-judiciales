@@ -1,11 +1,11 @@
 // ---------------------------------------------------------------------------
 // Anonimizacion de escritos, resoluciones y expedientes.
 //
-// Portado de `un sanitizador anterior` del repositorio "otro proyecto", que
-// lleva meses de uso sobre documentos de prueba. Los comentarios de cada regla
-// vienen de alla y NO son decoracion: cada uno anota una fuga o una corrupcion
-// de texto que efectivamente paso. Si vas a tocar un patron, leelo primero;
-// casi todos parecen mejorables hasta que se entiende que evitan.
+// Portadas de otra herramienta propia, anterior a esta y fuera de este
+// repositorio, donde llevan tiempo en uso. Los comentarios de cada regla vienen
+// de alla y NO son decoracion: cada uno anota una fuga o una corrupcion de texto
+// que efectivamente paso. Si vas a tocar un patron, leelo primero; casi todos
+// parecen mejorables hasta que se entiende que evitan.
 //
 // EL DISENO, EN UNA FRASE: la maquina reemplaza lo que tiene forma inequivoca
 // y le pregunta al humano por los nombres propios. No hay heuristica que
@@ -92,7 +92,7 @@ export const REGLAS_IDENTIFICADORES = [
         // Un monto no siempre lleva el signo adelante: "la suma de 1.500.000" es
         // tan frecuente como "$ 1.500.000". Por eso, ademas del signo y de los
         // decimales, se mira la palabra que viene antes. Esta parte no esta en
-        // el original de otro proyecto y se agrego aca.
+        // la version original de las reglas y se agrego aca.
         patron: /((?:\$|pesos|suma de|importe de|valor de|monto de)\s*)?(\d{1,2}\.\d{3}\.\d{3})(\s*,\s*\d+|\s*(?:pesos|\$))?/gi,
         reemplazo: (todo, plata, numero, despues) => (plata || despues) ? todo : '[DNI]',
     },
@@ -101,8 +101,8 @@ export const REGLAS_IDENTIFICADORES = [
         // Va ANTES que la regla general a proposito: es mas especifica y
         // consume mas texto. Al reves, la general engancha primero la mitad
         // derecha y "Expte. 56.868/2017" termina como "Expte. 56.[EXPTE]", con
-        // los primeros digitos del expediente a la vista. Ese es el estado del
-        // original de otro proyecto, donde el orden esta invertido.
+        // los primeros digitos del expediente a la vista. En la version original
+        // de las reglas el orden esta invertido, y ese es el resultado.
         patron: /\b(?:expte|expediente|causa|autos)\.?\s*(?:n[°ºo]?\.?)?\s*\d{1,7}(?:\.\d{3})*\s*\/\s*(?:19|20)\d{2}/gi,
         reemplazo: '[EXPTE]',
     },
@@ -262,7 +262,7 @@ const CARATULA = new RegExp(`([${MAY}][^/\\n]{2,60}?)\\s+c/\\s*([${MAY}][^/\\n]{
 //   "INCIDENTE Nº 2 - ACTOR: FICTICIO, ADRIAN DEMANDADO: INVENTADA, BEATRIZ S/EJECUCION"
 // Sin esto, las partes de un incidente no se detectan y por lo tanto nunca se
 // sugieren: el usuario no se entera de que quedaron en claro. Caso de prueba,
-// detectada sobre un expediente en curso el 11/8/2026.
+// detectada en pruebas el 11/8/2026.
 const CARATULA_ACTOR_DEMANDADO =
     /ACTORA?\s*:\s*(.+?)\s+DEMANDAD[OA]S?\s*:\s*(.+?)\s*(?:S\s*\/|$)/i;
 

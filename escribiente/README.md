@@ -1,11 +1,12 @@
 # Escribiente
 
 Pasa escritos, resoluciones y expedientes en PDF a Markdown, y anonimiza los
-datos personales antes de que el texto salga a un modelo de lenguaje.
+datos personales antes de que el texto salga del expediente.
 
-Nace de un problema concreto: tengo el expediente en PDF, necesito trabajarlo
-con un LLM, y no puedo mandarle el nombre de las partes. O simplemente necesito
-el texto liviano, sin las cuarenta capas de un PDF del sistema de gestión.
+Nace de un problema concreto: tengo el documento en PDF y lo necesito en texto
+—para citarlo, para compartir un fragmento, para archivarlo liviano sin las
+cuarenta capas de un PDF del sistema de gestión— y no puedo hacer nada de eso
+llevándome puestos los nombres de las partes.
 
 **Todo corre dentro del navegador.** El documento no se sube a ningún servidor,
 no hay backend, y no existe la posibilidad de que lo haya: ver
@@ -125,13 +126,13 @@ Y después entrar a <http://localhost:4180/escribiente/>.
 
 ## De dónde salen las reglas de anonimización
 
-De [`un sanitizador anterior`](../../Pipeline%20drafter/un sanitizador anterior) del
-proyecto otro proyecto, donde llevan meses corriendo sobre expedientes
-reales. Los comentarios de cada regla vinieron con ellas y **no son decoración**:
-cada uno anota una fuga o una corrupción de texto que efectivamente pasó. Casi
-todos los patrones parecen mejorables hasta que se entiende qué evitan.
+De otra herramienta propia, anterior a esta y fuera de este repositorio, donde
+llevan tiempo en uso. Los comentarios de cada regla vinieron con ellas y **no
+son decoración**: cada uno anota una fuga o una corrupción de texto que
+efectivamente pasó. Casi todos los patrones parecen mejorables hasta que se
+entiende qué evitan.
 
-Tres cosas se corrigieron al portarlas, y valen para el original:
+Tres cosas se corrigieron al portarlas:
 
 - el orden de las dos reglas de expediente estaba invertido, y dejaba
   `Expte. 56.[EXPTE]` con los primeros dígitos a la vista;

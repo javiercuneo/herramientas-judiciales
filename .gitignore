@@ -64,3 +64,19 @@ docs/modelos/**/*.docx
 # honorio/lib/legal/jurisprudencia.ts, y como mucho la frase corta que
 # enuncia el criterio. El extracto entero se queda afuera.
 docs/modelos/doctrina/
+
+# pruebas-locales/: carpeta de trabajo para probar las herramientas con
+# documentos propios. Es material real —resoluciones, escritos, expedientes—
+# con nombres de partes y de profesionales, y no tiene por que salir del disco
+# de nadie.
+#
+# Se ignora el contenido con `/*` y no la carpeta a secas, porque una carpeta
+# ignorada entera no admite excepciones adentro y se necesita una: LEEME.md se
+# versiona para que la carpeta exista en cualquier copia del repositorio y se
+# entienda para que es. Sin ese archivo git no puede registrar una carpeta
+# vacia y la carpeta simplemente no aparece al clonar.
+#
+# Tampoco se publica: pages.yml arma site/ con una allowlist y esta carpeta no
+# esta nombrada ahi.
+pruebas-locales/*
+!pruebas-locales/LEEME.md
