@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-21 · rama `main`
+Última actualización: 2026-08-24 · rama `main`
 
 Lleva sólo lo que sigue vivo: dónde está el trabajo, qué está abierto, qué se
 sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas ya
@@ -406,6 +406,39 @@ predictibilidad vale más que la elegancia.
 `--faint` es el gris más claro que todavía se lee. **No aclararlo**: su único uso
 es texto chico, que es justo donde el piso de contraste es 4.5. (Está abierto que
 en claro no llega: ver arriba.)
+
+### Ningún día inhábil se decide en código
+
+La regla general —**lo que se fija por acto va en datos con la cita del acto**—
+está en [`AGENTS.md`](../AGENTS.md). El 24/8 se terminó de aplicar: enero era el
+último que quedaba escrito a mano, `getMonth() === 0` en
+`calculadoras/js/calendario-judicial.js`. Ahora sale de la clave
+`feria_de_enero` de `data/feria-judicial.json`, con el art. 2 del Reglamento
+para la Justicia Nacional citado y el texto del artículo adentro. El comentario
+del archivo decía que lo fijaba el art. 257 CPCCN, que no dice nada de esto.
+
+**El default del motor no es «no hay feria».** Si el archivo no se puede leer,
+enero sigue siendo feria. Con la feria de invierno la ausencia se puede informar
+—son doce días y el motor anota el año faltante— pero enero contado como hábil
+adelanta un vencimiento un mes entero, y eso no se ve: sale un número plausible.
+Leer el dato sólo puede confirmar el default o mover el mes, nunca apagarlo. El
+control que prueba que el dato se leyó es que el motivo cite la norma.
+
+**El jueves santo faltaba desde 2021.** El mismo art. 2 hace inhábiles los días
+«que por disposición del Congreso o del Poder Ejecutivo no sean laborables», y el
+jueves santo es no laborable, no feriado. Por eso **no viene en la API**, que
+sólo trae feriados: viene el viernes santo y el jueves no. Estaba cargado a mano
+sólo 2025; de 2021 a 2024 el motor lo contaba como hábil —un día hábil de más,
+otra vez hacia adelante—. Ahora están los seis en `data/dias-inhabiles.json` y
+**el olvido ya no depende de que alguien se acuerde**: `verificar-calculos.mjs`
+toma cada viernes santo de `feriados.json` y exige que el día anterior sea
+inhábil. 2026 no figura porque el jueves santo cayó 2 de abril y ya es feriado
+nacional por Malvinas.
+
+La frase «la Semana Santa» del mismo artículo **no** está implementada como una
+semana entera, y eso es deliberado: el lunes, el martes y el miércoles santo se
+trabaja. Está dicho en `data/feria-judicial.json` para que no se lo lea al pie
+de la letra y se inventen tres días inhábiles.
 
 ### Este repositorio es público, y eso decide cómo se escribe
 

@@ -1,9 +1,23 @@
 {
-  "_comentario": "Periodos de feria judicial de los tribunales nacionales y federales de la Capital Federal, tal como los fija la CSJN por Acordada. Incluye la feria ordinaria de invierno y las extraordinarias cuando las hubo. Se carga a mano contra el texto de cada Acordada: no hay API. Las fechas son inclusive, como dicen las Acordadas ('ambas fechas inclusive'). La feria de enero no esta aca: la fija el art. 257 CPCCN, no una Acordada, y por eso vive en el codigo.",
+  "_comentario": "Periodos de feria judicial de los tribunales nacionales y federales de la Capital Federal, tal como los fija la CSJN por Acordada. Incluye la feria ordinaria de invierno y las extraordinarias cuando las hubo. Se carga a mano contra el texto de cada Acordada: no hay API. Las fechas son inclusive, como dicen las Acordadas ('ambas fechas inclusive'). La feria de enero esta aparte, en la clave feria_de_enero, porque no es un rango que se dicte cada anio sino una regla permanente.",
 
   "_por_que_no_es_una_formula": "Hasta el 17/8/2026 la feria se deducia con una heuristica (calculadoras/js/calendario-judicial.js usaba el penultimo lunes de julio; calculadoras/mora.html el tercer lunes). Contra las Acordadas de 2004 a 2026 el penultimo lunes acierta 12 veces y el tercer lunes 16. Ninguna acierta 2005, 2006 ni 2008, y ninguna puede producir 2009 —rectificada y ampliada tres veces— ni 2020 —la ordinaria suspendida y once extraordinarias encadenadas—. La feria es un acto normativo, no aritmetica.",
 
   "_invariante": "En los anios ordinarios la feria dura 12 dias y va de lunes a viernes: son dos semanas de vacaciones escolares (14 dias corridos) menos el ultimo sabado y domingo, que quedan inhabiles igual por fin de semana. Vale para los rangos ordinarios y NO para los extraordinarios, que no siguen el calendario escolar. scripts/verificar-calculos.mjs lo comprueba solo sobre los ordinarios: sirve para detectar un error de carga, no para deducir el anio que falta.",
+
+  "feria_de_enero": {
+    "_por_que_aca": "Hasta el 24/8/2026 enero era 'getMonth() === 0' escrito a mano en calculadoras/js/calendario-judicial.js: el ultimo dia inhabil que este repositorio decidia en codigo en vez de en datos. No lo fija una Acordada anual como la feria de invierno --por eso no es un rango mas dentro de 'ferias'-- pero lo fija igual un acto: el Reglamento para la Justicia Nacional, que la Corte puede reformar sin que cambie ninguna ley. Por la regla de AGENTS.md, eso va en datos con la cita del acto.",
+
+    "_el_default_no_es_habil": "Si este bloque falta o no se puede leer, el motor NO deja de tratar enero como feria. Contar enero como habil adelanta un vencimiento un mes entero, que es el error mas caro que este motor puede cometer; la falta de dato se informa por la via de siempre y no devolviendo false.",
+
+    "mes": 1,
+    "norma": "art. 2 del Reglamento para la Justicia Nacional",
+    "texto": "Los tribunales nacionales no funcionaran durante el mes de enero, la Semana Santa, los dias domingo, los que por disposicion del Congreso o del Poder Ejecutivo no sean laborables y los que la Corte Suprema declare feriados judiciales. Los tribunales nacionales del interior del pais tampoco funcionaran los dias senalados no laborables por los respectivos gobiernos. Todos los demas dias del anio son habiles.",
+    "url": "https://www.argentina.gob.ar/normativa/nacional/norma-167638/texto",
+    "motivo": "Feria judicial de enero (art. 2 del Reglamento para la Justicia Nacional)"
+  },
+
+  "_semana_santa": "El mismo art. 2 nombra 'la Semana Santa', y esa frase NO esta implementada como una semana entera a proposito: el lunes, el martes y el miercoles santo se trabaja. Lo que es inhabil todos los anios es el jueves santo --dia no laborable en todo el pais, y el art. 2 hace inhabil lo no laborable-- y el viernes santo, que ademas es feriado nacional. El viernes viene en feriados.json desde la API; el jueves NO viene, porque la API solo trae feriados y el jueves santo es no laborable. Vive en dias-inhabiles.json, con un control que falla si falta.",
 
   "cobertura": {
     "desde": 2021,

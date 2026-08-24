@@ -1,5 +1,11 @@
 {
+  "_comentario": "Días inhábiles de los tribunales nacionales y federales de la Capital Federal que no salen de feriados.json. Se editan a mano; feriados.json no, que lo pisa el script. Hay de dos clases y conviene no mezclarlas: los asuetos, que la Corte dispone para un día puntual por Acordada o resolución, y el jueves santo, que es todos los años.",
+  "_jueves_santo": "El jueves santo es inhábil siempre y NO viene de la API: la API trae feriados, y el jueves santo es día no laborable, que es otra categoría. Inhábil lo hace el art. 2 del Reglamento para la Justicia Nacional, que incluye los días «que por disposición del Congreso o del Poder Ejecutivo no sean laborables». Hasta el 24/8/2026 estaba cargado solo 2025: 2021, 2022, 2023 y 2024 contaban el jueves santo como hábil, y un día hábil de más adelanta el vencimiento. 2026 no figura porque el 2 de abril cayó jueves santo y ya es feriado nacional por Malvinas. Que no vuelva a faltar no depende de que alguien se acuerde: verificar-calculos.mjs comprueba, para cada año de la ventana, que el día anterior a cada viernes santo de feriados.json sea inhábil.",
   "dias_inhabiles_adicionales": [
+    {
+      "fecha": "2021-04-01",
+      "motivo": "Jueves Santo (día no laborable — art. 2 del Reglamento para la Justicia Nacional)"
+    },
     {
       "fecha": "2021-12-24",
       "motivo": "Acordada 30/21"
@@ -7,6 +13,10 @@
     {
       "fecha": "2021-12-31",
       "motivo": "Acordada 30/21"
+    },
+    {
+      "fecha": "2022-04-14",
+      "motivo": "Jueves Santo (día no laborable — art. 2 del Reglamento para la Justicia Nacional)"
     },
     {
       "fecha": "2022-10-18",
@@ -19,6 +29,14 @@
     {
       "fecha": "2022-12-30",
       "motivo": "Acordada 33/22"
+    },
+    {
+      "fecha": "2023-04-06",
+      "motivo": "Jueves Santo (día no laborable — art. 2 del Reglamento para la Justicia Nacional)"
+    },
+    {
+      "fecha": "2024-03-28",
+      "motivo": "Jueves Santo (día no laborable — art. 2 del Reglamento para la Justicia Nacional)"
     },
     {
       "fecha": "2024-05-09",
@@ -34,7 +52,7 @@
     },
     {
       "fecha": "2025-04-17",
-      "motivo": "Jueves Santo"
+      "motivo": "Jueves Santo (día no laborable — art. 2 del Reglamento para la Justicia Nacional)"
     },
     {
       "fecha": "2025-12-24",
@@ -51,6 +69,10 @@
     {
       "fecha": "2026-04-22",
       "motivo": "Resolución 926 CSNJ del 8 de mayo de 2026 (tribunales nacionales y federales de la Capital Federal; comicios CPACF)"
+    },
+    {
+      "fecha": "2027-03-25",
+      "motivo": "Jueves Santo (día no laborable — art. 2 del Reglamento para la Justicia Nacional)"
     }
   ]
 }

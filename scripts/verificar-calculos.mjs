@@ -242,6 +242,15 @@ async function main() {
 
     console.log('\nInvariantes del calendario judicial');
 
+    // Enero dejo de estar escrito a mano el 24/8/2026. Que el motivo cite la
+    // norma es la prueba de que el dato se leyo: con el default de arranque
+    // enero seguiria siendo feria --a proposito-- pero diria solo "Feria
+    // judicial de enero", sin el art. 2.
+    const motivoEnero = CJ.obtenerMotivoInhabil(fecha('2026-01-15'));
+    ok(/Reglamento para la Justicia Nacional/.test(motivoEnero || ''),
+        'enero sale de data/feria-judicial.json y cita el art. 2 del RJN',
+        `dice ${motivoEnero}`);
+
     for (const anio of completos) {
         const marzo = new Date(anio, 2, 1);
         while (marzo.getDay() !== 6) marzo.setDate(marzo.getDate() + 1);
@@ -253,6 +262,23 @@ async function main() {
         ok(!CJ.esDiaHabil(new Date(anio, 0, 2)), `${anio}: 2 de enero es feria`);
         ok(!CJ.esDiaHabil(new Date(anio, 0, 31)), `${anio}: 31 de enero es feria`);
         ok(!CJ.esDiaHabil(new Date(anio, 10, 16)), `${anio}: 16 de noviembre es inhabil`);
+
+        // Jueves santo. No viene de la API --trae feriados, y el jueves santo
+        // es dia NO LABORABLE, que es otra categoria-- asi que se carga a mano
+        // en dias-inhabiles.json, y hasta el 24/8/2026 estaba cargado solo
+        // 2025: de 2021 a 2024 el motor lo contaba como habil. Un dia habil de
+        // mas adelanta el vencimiento y no se ve.
+        //
+        // El control no deduce la fecha de Pascua: toma el viernes santo, que
+        // si viene en feriados.json, y exige que el dia anterior sea inhabil.
+        // Asi el olvido de un anio falla aca en vez de salir publicado.
+        for (const f of feriadosJSON[String(anio)]) {
+            if (!/viernes\s+santo/i.test(f.motivo || '')) continue;
+            const jueves = fecha(f.fecha);
+            jueves.setDate(jueves.getDate() - 1);
+            ok(!CJ.esDiaHabil(jueves), `${anio}: el jueves santo ${ymd(jueves)} es inhabil`,
+                'no esta en data/dias-inhabiles.json');
+        }
 
         for (const plazo of [1, 5, 10, 15]) {
             const partida = new Date(anio, 2, 2);

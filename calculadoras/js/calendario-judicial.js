@@ -205,8 +205,27 @@
     // extraordinarias de 2020, que van de marzo a agosto.
     var esFeriaJulio = esFeriaJudicial;
 
+    // Enero entero es feria. Hasta el 24/8/2026 esto era `getMonth() === 0`
+    // escrito a mano, y era el ultimo dia inhabil que este repositorio decidia
+    // en codigo en vez de en datos: lo fija el art. 2 del Reglamento para la
+    // Justicia Nacional, que es un acto que la Corte puede reformar sin que
+    // cambie ninguna ley. Ahora sale de la clave `feria_de_enero` de
+    // data/feria-judicial.json, con la norma citada al lado.
+    //
+    // EL DEFAULT NO ES "no hay feria". Si el archivo no se pudo leer, enero
+    // sigue siendo feria: la feria de invierno puede darse por ausente sin
+    // romper nada --son doce dias y el motor anota el anio faltante-- pero
+    // enero contado como habil adelanta el vencimiento un mes entero, y eso
+    // no se informa: se ve como un numero plausible. Por eso el valor de
+    // arranque es el mismo que traeria el archivo, y leerlo solo puede
+    // confirmarlo o cambiar el mes, nunca apagarlo.
+    var _feriaEnero = {
+        mes: 1,
+        motivo: 'Feria judicial de enero'
+    };
+
     function esFeriaEnero(fecha) {
-        return fecha.getMonth() === 0;
+        return fecha.getMonth() === _feriaEnero.mes - 1;
     }
 
     function es16Noviembre(fecha) {
@@ -281,7 +300,7 @@
             }
             return 'Feria judicial';
         }
-        if (esFeriaEnero(fecha)) return 'Feria judicial de enero';
+        if (esFeriaEnero(fecha)) return _feriaEnero.motivo;
         if (es16Noviembre(fecha)) return '16 de noviembre (Día de la Justicia Nacional)';
 
         return null;
@@ -328,6 +347,18 @@
         _coberturaDesde = data.cobertura && data.cobertura.desde
             ? Number(data.cobertura.desde)
             : null;
+
+        // Enero. Se pisa el default solo con un mes que sea un mes: un 0, un
+        // 13 o un "enero" apagarian la feria entera sin que se note.
+        var enero = data.feria_de_enero;
+        if (enero && Number.isInteger(enero.mes) && enero.mes >= 1 && enero.mes <= 12) {
+            _feriaEnero = {
+                mes: enero.mes,
+                motivo: enero.motivo || 'Feria judicial de enero',
+                norma: enero.norma || null,
+                url: enero.url || null
+            };
+        }
 
         // Se carga todo lo que el archivo tenga, no solo los anios pedidos:
         // una feria que termina en agosto la puede necesitar el anio anterior.
@@ -455,6 +486,7 @@
         isWeekend: isWeekend,
 
         get coberturaDesde() { return _coberturaDesde; },
+        get feriaDeEnero() { return _feriaEnero; },
 
         obtenerFeriasDelAnio: obtenerFeriasDelAnio,
         obtenerFeriaJulio: obtenerFeriaJulio,

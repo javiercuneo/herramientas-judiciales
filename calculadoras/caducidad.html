@@ -345,7 +345,7 @@
         while (computados < plazo) {
             corrimientos++;
             const fin = tramo(corrimientos);
-            if (fin.getMonth() === 0) {
+            if (CalendarioJudicial.esFeriaEnero(fin)) {
                 ordObs.push('Se excluyo enero ' + fin.getFullYear() + ' (feria)');
                 continue;
             }
@@ -461,7 +461,7 @@
             iter.setDate(iter.getDate() + 1);
             
             while (iter <= fullDate) {
-                let inFeriaJan = (iter.getMonth() === 0);
+                let inFeriaJan = CalendarioJudicial.esFeriaEnero(iter);
                 let inFeriaJul = CalendarioJudicial.esFeriaJulio(iter);
 
                 let esFeriadoNac = CalendarioJudicial.esFeriado(iter);
@@ -498,8 +498,11 @@
                 });
             }
 
-            if (fullDate.getMonth() === 0) {
-                fullDate.setMonth(1, 1);
+            if (CalendarioJudicial.esFeriaEnero(fullDate)) {
+                // Al 1 del mes siguiente, no a un 1 de febrero escrito a mano:
+                // el mes de la feria lo dice data/feria-judicial.json y esta
+                // rama tiene que moverse con el, no al lado.
+                fullDate.setMonth(fullDate.getMonth() + 1, 1);
                 adObs = " (Ajustado al primer dia habil post-feria de enero)";
                 adjusted = true;
             }
