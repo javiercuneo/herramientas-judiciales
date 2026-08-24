@@ -119,8 +119,8 @@ const VERIFICADOS = [
         calc: 'caducidad',
         rotulo: 'Último acto 25/01/2025, 6 meses',
         campos: { plazo: '6', day: '25', month: '01', year: '2025' },
-        esperado: '20/8/2025',
-        porque: 'Vencimiento nominal 25/7/2025, dentro de la feria 21/7 al 1/8. La iteración a punto fijo suma los 12 días de feria → 6/8, y después los 14 inhábiles del período → 20/8. Es el caso donde el bug de setDate retrocedía al 2 de julio.'
+        esperado: '6/8/2025',
+        porque: 'Vencimiento nominal 25/7/2025, dentro de la feria 21/7 al 1/8 (Ac. 9/2025). El art. 311 CPCCN descuenta los días de feria, así que la iteración a punto fijo los va corriendo: solapan 5 → 30/7, solapan 10 → 4/8, solapan los 12 → 6/8, y ahí deja de moverse. Los feriados NO se suman: el art. 311 dice que el plazo corre durante los inhábiles salvo los de feria. Es el caso donde el bug de setDate retrocedía al 2 de julio.'
     },
     {
         calc: 'entre-fechas',
@@ -237,11 +237,11 @@ const VERIFICADOS = [
 // honesto, y decir "verifique esto" sin haberlo hecho, no.
 const FIJADOS = [
     { calc: 'caducidad', rotulo: 'Último acto 25/01/2024, 6 meses',
-      campos: { plazo: '6', day: '25', month: '01', year: '2024' }, esperado: '20/8/2024' },
+      campos: { plazo: '6', day: '25', month: '01', year: '2024' }, esperado: '6/8/2024' },
     { calc: 'caducidad', rotulo: 'Último acto 10/09/2025, 3 meses',
-      campos: { plazo: '3', day: '10', month: '09', year: '2025' }, esperado: '16/12/2025' },
+      campos: { plazo: '3', day: '10', month: '09', year: '2025' }, esperado: '10/12/2025' },
     { calc: 'caducidad', rotulo: 'Último acto 10/09/2025, 1 mes',
-      campos: { plazo: '1', day: '10', month: '09', year: '2025' }, esperado: '13/10/2025' }
+      campos: { plazo: '1', day: '10', month: '09', year: '2025' }, esperado: '10/10/2025' }
 ];
 
 // Invariantes: no comparan contra una fecha, comparan dos caminos entre si.
@@ -329,7 +329,13 @@ const DRIVERS = {
             d.getElementById('calculatorForm').dispatchEvent(
                 new d.defaultView.Event('submit', { bubbles: true, cancelable: true }));
             await pausa(120);
-            return d.getElementById('resultDateFull').innerText.trim();
+            // #resultDate y NO #resultDateFull. El segundo vive dentro de
+            // .hidden-computation, que tiene display:none: es un computo que
+            // la pantalla no muestra. Leerlo por id funciona igual --un
+            // elemento oculto responde-- asi que estas pruebas estuvieron
+            // validando un numero que ningun usuario ve. Encontrado el 17/8
+            // al revisar un calculo que trajo Javier.
+            return d.getElementById('resultDate').innerText.trim();
         }
     },
     'entre-fechas': {

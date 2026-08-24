@@ -339,8 +339,17 @@
         // Las ferias salen de data/feria-judicial.json, con la Acordada de la
         // CSJN que las fijo. Son varios rangos por año y no uno: 2009 se
         // rectificó y se amplió, y 2020 encadenó once ferias extraordinarias.
+        // Los anios cuya Acordada de feria no esta cargada y que este computo
+        // llega a tocar. Se anotan aca y no en la auditoria del motor porque
+        // el calculo ordinario NO pasa por esDiaHabil: pregunta por los rangos
+        // directo, asi que el motor nunca se entera de que se lo consulto.
+        // Ese fue el agujero del 17/8: la guarda existia y jamas disparaba.
+        const aniosSinFeria = new Set();
+
         const feriasDe = function(year) {
-            return CalendarioJudicial.obtenerFeriasDelAnio(year) || [];
+            const r = CalendarioJudicial.obtenerFeriasDelAnio(year);
+            if (r === undefined) aniosSinFeria.add(year);
+            return r || [];
         };
 
         // Dias de feria comprendidos entre el inicio y una fecha dada.
@@ -377,6 +386,34 @@
                 'y se agregaron ' + f.dias + ' dias'
             );
         });
+
+        // Si el calculo toco un anio sin Acordada de feria cargada, no se
+        // afirma una fecha: se dice cual falta. Es la misma regla que rige
+        // para los feriados nacionales (ver AGENTS.md).
+        //
+        // VA ACA, ANTES de escribir el resultado, y sobre el elemento VISIBLE.
+        // El 17/8/2026 quedo mas abajo y escribiendo en #resultDateFull, que
+        // vive dentro de .hidden-computation y tiene display:none: la negativa
+        // se escribia donde nadie la ve y la pantalla seguia mostrando la fecha
+        // de arriba. Un plazo que tocaba 2027 devolvia 25/7/2027 --calculado
+        // con CERO dias de feria, porque esa Acordada no esta cargada-- sin un
+        // solo aviso. Que la prueba lo diera por bueno es parte del mismo
+        // error: leia el elemento por id, y un id oculto responde igual.
+        const faltantes = Array.from(aniosSinFeria).sort();
+        const problema = faltantes.length
+            ? 'El plazo alcanza ' + (faltantes.length === 1 ? 'el año ' : 'los años ') +
+              faltantes.join(', ') + ', y la feria judicial de invierno ' +
+              (faltantes.length === 1 ? 'de ese año' : 'de esos años') + ' todavía no está ' +
+              'cargada. La fija la CSJN por Acordada, normalmente entre abril y junio del mismo ' +
+              'año, y esta herramienta no la deduce: sin ella el plazo vencería antes de lo que vence.'
+            : CalendarioJudicial.problemaDeDatos();
+
+        if (problema) {
+            document.getElementById('resultDate').innerText = 'No se puede calcular';
+            document.getElementById('resultDetails').textContent = problema;
+            result.classList.add('show');
+            return;
+        }
 
         document.getElementById('resultDate').innerText = ordDate.toLocaleDateString('es-AR');
         document.getElementById('resultDetails').innerHTML = '<strong>Inicio:</strong> ' + startDate.toLocaleDateString('es-AR') + '<br><strong>Observaciones:</strong><br>' + ordObs.map(function(o) { return '- ' + o; }).join('<br>');
@@ -464,17 +501,6 @@
                 console.warn('Limite en ajuste final de fecha');
                 break;
             }
-        }
-
-        // Si el calculo toco un anio sin Acordada de feria cargada, no se
-        // afirma una fecha: se dice cual falta. Es la misma regla que ya rige
-        // para los feriados nacionales (ver AGENTS.md).
-        const problema = CalendarioJudicial.problemaDeDatos();
-        if (problema) {
-            document.getElementById('resultDateFull').innerText = 'No se puede calcular';
-            document.getElementById('resultDetailsFull').textContent = problema;
-            result.classList.add('show');
-            return;
         }
 
         let listHTML = inhabilesList.length > 0 ?
