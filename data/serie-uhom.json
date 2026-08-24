@@ -1,0 +1,370 @@
+{
+  "_comentario": "Serie del valor de la Unidad de Honorarios de Mediacion (UHOM) del decreto 2536/2015. Leida de las tablas oficiales del Ministerio de Justicia, no de compilaciones. El ultimo elemento de \"valores\" es el valor vigente.",
+  "_como_se_leyo": "Cada valor se identifico por su FORMA y no por su etiqueta: el UHOM es el unico numero de la tabla que aparece tambien multiplicado por dos --el honorario provisional son dos unidades-- y por treinta --la primera franja de la escala--. Un valor mal leido no cierra contra los otros dos. Hizo falta porque el formato de la tabla cambio seis veces en diez anios y el separador de miles cambio de punto a coma en la tabla 39.",
+  "_las_tablas_se_rehacen": "El Ministerio no publica un valor por mes: publica tablas, cada una con uno o varios meses, y cuando se acuerda una paritaria posterior REHACE tablas de meses ya publicados. Las tablas 17 y 18 cubren los mismos meses de 2021 con dos bases de UR distintas. Por eso el valor de un mes es el de la tabla mas nueva entre las que empiezan en ese mes o antes, y no el de la fila mas reciente que lo nombre: la tabla 18 declara octubre de 2021 y no vuelve a declarar noviembre ni diciembre porque no cambiaron, y caer a la tabla 17 para diciembre hacia BAJAR la serie de 1100 a 1010. Los valores que quedaron atras figuran en \"superado\".",
+  "_el_redondeo_no_siempre_se_aplica": "El UHOM es la UR-SINEP por doce redondeada a la decena proxima superior, asi que termina en cero. El de noviembre de 2022 es 2003 y no termina en cero. Esta leido de la tabla oficial, que ademas construye toda la escala sobre el --el honorario provisional dice 4.006 y la franja A, 60.090--. La misma tabla declara UR 166,13, que por doce da 1.993,56 y redondeado daria 2.000. La regla no se aplico ese mes. Cualquier control que exija terminar en cero va a rechazar un valor oficial.",
+  "fuente": "https://www.argentina.gob.ar/justicia/mediacion/mediadores/aranceles-matriculas",
+  "actualizado": "2026-08-24",
+  "valores": [
+    {
+      "valor": 260,
+      "vigencia": "2016-06-01",
+      "fuente": "01_tabla_honorarios_decreto_2536_junio_2016_a_mayo_2017.pdf"
+    },
+    {
+      "valor": 340,
+      "vigencia": "2017-06-01",
+      "fuente": "02_tabla_honorarios_decreto_2536_junio_2017.pdf"
+    },
+    {
+      "valor": 350,
+      "vigencia": "2017-07-01",
+      "fuente": "03_tabla_honorarios_decreto_2536__julio_2017.pdf"
+    },
+    {
+      "valor": 390,
+      "vigencia": "2017-08-01",
+      "fuente": "04_tabla_honorarios_decreto_2536_agosto_2017_a_febrero_2018.pdf"
+    },
+    {
+      "valor": 400,
+      "vigencia": "2018-05-01",
+      "fuente": "06_tabla_honorarios_decreto_2536_mayo_2018_a_diciembre_2018.pdf"
+    },
+    {
+      "valor": 480,
+      "vigencia": "2019-01-01",
+      "fuente": "07_tabla_honorarios_decreto_2536_enero_2019.pdf"
+    },
+    {
+      "valor": 500,
+      "vigencia": "2019-02-01",
+      "fuente": "08_tabla_honorarios_decreto_2536_febrero_2019_a_mayo_2019.pdf"
+    },
+    {
+      "valor": 530,
+      "vigencia": "2019-06-01",
+      "fuente": "09_tabla_honorarios_decreto_2536_junio_2019.pdf"
+    },
+    {
+      "valor": 570,
+      "vigencia": "2019-07-01",
+      "fuente": "10_tabla_honorarios_decreto_2536_julio_2019.pdf"
+    },
+    {
+      "valor": 600,
+      "vigencia": "2019-08-01",
+      "fuente": "11_tabla_honorarios_decreto_2536_agosto_2019_a_diciembre_2019.pdf"
+    },
+    {
+      "valor": 630,
+      "vigencia": "2020-01-01",
+      "fuente": "12_tabla_honorarios_decreto_2536_enero_2020.pdf"
+    },
+    {
+      "valor": 650,
+      "vigencia": "2020-02-01",
+      "fuente": "13_tabla_honorarios_decreto_2536_febrero_2020_a_septiembre_2020.pdf"
+    },
+    {
+      "valor": 700,
+      "vigencia": "2020-10-01",
+      "fuente": "14_tabla_honorarios_decreto_2536_octubre_2020_a_enero_2021.pdf"
+    },
+    {
+      "valor": 720,
+      "vigencia": "2021-02-01",
+      "fuente": "15_tabla_honorarios_decreto_2536_febrero_2021.pdf"
+    },
+    {
+      "valor": 760,
+      "vigencia": "2021-03-01",
+      "fuente": "16_tabla_honorarios_decreto_2536_marzo_2021_a_abril_2021.pdf"
+    },
+    {
+      "valor": 900,
+      "vigencia": "2021-06-01",
+      "fuente": "17_tabla_honorarios_decreto_2536_junio_2021_a_febrero_2022_0.pdf"
+    },
+    {
+      "valor": 970,
+      "vigencia": "2021-08-01",
+      "fuente": "18_tabla_honorarios_decreto_2536_agosto_2021_a_febrero_2022_1.pdf",
+      "superado": [
+        {
+          "valor": 940,
+          "fuente": "17_tabla_honorarios_decreto_2536_junio_2021_a_febrero_2022_0.pdf"
+        }
+      ]
+    },
+    {
+      "valor": 1060,
+      "vigencia": "2021-09-01",
+      "fuente": "18_tabla_honorarios_decreto_2536_agosto_2021_a_febrero_2022_1.pdf",
+      "superado": [
+        {
+          "valor": 980,
+          "fuente": "17_tabla_honorarios_decreto_2536_junio_2021_a_febrero_2022_0.pdf"
+        }
+      ]
+    },
+    {
+      "valor": 1100,
+      "vigencia": "2021-10-01",
+      "fuente": "18_tabla_honorarios_decreto_2536_agosto_2021_a_febrero_2022_1.pdf"
+    },
+    {
+      "valor": 1140,
+      "vigencia": "2022-01-01",
+      "fuente": "18_tabla_honorarios_decreto_2536_agosto_2021_a_febrero_2022_1.pdf",
+      "superado": [
+        {
+          "valor": 1060,
+          "fuente": "17_tabla_honorarios_decreto_2536_junio_2021_a_febrero_2022_0.pdf"
+        }
+      ]
+    },
+    {
+      "valor": 1200,
+      "vigencia": "2022-02-01",
+      "fuente": "19_tabla_honorarios_decreto_2536_febrero_2022.pdf",
+      "superado": [
+        {
+          "valor": 1100,
+          "fuente": "17_tabla_honorarios_decreto_2536_junio_2021_a_febrero_2022_0.pdf"
+        }
+      ]
+    },
+    {
+      "valor": 1250,
+      "vigencia": "2022-04-01",
+      "fuente": "19_tabla_honorarios_decreto_2536_febrero_2022.pdf"
+    },
+    {
+      "valor": 1550,
+      "vigencia": "2022-06-01",
+      "fuente": "20_tabla_honorarios_decreto_2536_junio_2022_a_octubre_2022.pdf"
+    },
+    {
+      "valor": 1710,
+      "vigencia": "2022-08-01",
+      "fuente": "20_tabla_honorarios_decreto_2536_junio_2022_a_octubre_2022.pdf"
+    },
+    {
+      "valor": 1870,
+      "vigencia": "2022-10-01",
+      "fuente": "20_tabla_honorarios_decreto_2536_junio_2022_a_octubre_2022.pdf"
+    },
+    {
+      "valor": 2003,
+      "vigencia": "2022-11-01",
+      "fuente": "21_tabla_honorarios_mediadores_decreto_2536_valores_noviembre_2022_enero_2023.pdf"
+    },
+    {
+      "valor": 2130,
+      "vigencia": "2023-01-01",
+      "fuente": "21_tabla_honorarios_mediadores_decreto_2536_valores_noviembre_2022_enero_2023.pdf"
+    },
+    {
+      "valor": 2340,
+      "vigencia": "2023-02-01",
+      "fuente": "22_tabla_honorarios_mediadores_decreto_2536_valores_febrero_2023_marzo_2023_abril_2023.pdf"
+    },
+    {
+      "valor": 2510,
+      "vigencia": "2023-03-01",
+      "fuente": "22_tabla_honorarios_mediadores_decreto_2536_valores_febrero_2023_marzo_2023_abril_2023.pdf"
+    },
+    {
+      "valor": 2620,
+      "vigencia": "2023-04-01",
+      "fuente": "22_tabla_honorarios_mediadores_decreto_2536_valores_febrero_2023_marzo_2023_abril_2023.pdf"
+    },
+    {
+      "valor": 2770,
+      "vigencia": "2023-05-01",
+      "fuente": "23_tabla_honorarios_mediadores_decreto_2536_valores_mayo_2023.pdf"
+    },
+    {
+      "valor": 2960,
+      "vigencia": "2023-06-01",
+      "fuente": "24_tabla_honorarios_mediadores_decreto_2536_valores_junio_julio_agosto_2023.pdf"
+    },
+    {
+      "valor": 3290,
+      "vigencia": "2023-07-01",
+      "fuente": "24_tabla_honorarios_mediadores_decreto_2536_valores_junio_julio_agosto_2023.pdf"
+    },
+    {
+      "valor": 3680,
+      "vigencia": "2023-08-01",
+      "fuente": "24_tabla_honorarios_mediadores_decreto_2536_valores_junio_julio_agosto_2023.pdf"
+    },
+    {
+      "valor": 4080,
+      "vigencia": "2023-09-01",
+      "fuente": "25_tabla_honorarios_mediadores_decreto_2536_valores_septiembre_octubre_2023.pdf"
+    },
+    {
+      "valor": 4530,
+      "vigencia": "2023-10-01",
+      "fuente": "25_tabla_honorarios_mediadores_decreto_2536_valores_septiembre_octubre_2023.pdf"
+    },
+    {
+      "valor": 4990,
+      "vigencia": "2023-11-01",
+      "fuente": "26_tabla_honorarios_mediadores_decreto_2536_valores_noviembre_diciembre_2023.pdf"
+    },
+    {
+      "valor": 5430,
+      "vigencia": "2023-12-01",
+      "fuente": "26_tabla_honorarios_mediadores_decreto_2536_valores_noviembre_diciembre_2023.pdf"
+    },
+    {
+      "valor": 6300,
+      "vigencia": "2024-01-01",
+      "fuente": "27_tabla_honorarios_mediadores_decreto_2536_valores_enero_2024.pdf"
+    },
+    {
+      "valor": 7060,
+      "vigencia": "2024-02-01",
+      "fuente": "28_tabla_honorarios_mediadores_decreto_2536_valores_febrero_2024.pdf"
+    },
+    {
+      "valor": 7620,
+      "vigencia": "2024-03-01",
+      "fuente": "29_tabla_honorarios_mediadores_decreto_2536_valores_marzo_2024.pdf"
+    },
+    {
+      "valor": 7770,
+      "vigencia": "2024-04-01",
+      "fuente": "30_tabla_honorarios_mediadores_decreto_2536_valores_abril_mayo_2024.pdf"
+    },
+    {
+      "valor": 8320,
+      "vigencia": "2024-05-01",
+      "fuente": "30_tabla_honorarios_mediadores_decreto_2536_valores_abril_mayo_2024.pdf"
+    },
+    {
+      "valor": 8610,
+      "vigencia": "2024-07-01",
+      "fuente": "31_tabla_honorarios_mediadores_decreto_2536_valores_julio_agosto_2024.pdf"
+    },
+    {
+      "valor": 8870,
+      "vigencia": "2024-08-01",
+      "fuente": "31_tabla_honorarios_mediadores_decreto_2536_valores_julio_agosto_2024.pdf"
+    },
+    {
+      "valor": 9040,
+      "vigencia": "2024-09-01",
+      "fuente": "32_tabla_honorarios_mediadores_decreto_2536_valores_septiembre_2024.pdf"
+    },
+    {
+      "valor": 9320,
+      "vigencia": "2024-11-01",
+      "fuente": "33_tabla_honorarios_mediadores_decreto_2536_valores_noviembre_diciembre_2024.pdf"
+    },
+    {
+      "valor": 9410,
+      "vigencia": "2024-12-01",
+      "fuente": "33_tabla_honorarios_mediadores_decreto_2536_valores_noviembre_diciembre_2024.pdf"
+    },
+    {
+      "valor": 9550,
+      "vigencia": "2025-01-01",
+      "fuente": "34_tabla_honorarios_mediadores_decreto_2536_valores_enero_febrero_2025.pdf"
+    },
+    {
+      "valor": 9670,
+      "vigencia": "2025-02-01",
+      "fuente": "34_tabla_honorarios_mediadores_decreto_2536_valores_enero_febrero_2025.pdf"
+    },
+    {
+      "valor": 9920,
+      "vigencia": "2025-04-01",
+      "fuente": "35_tabla_honorarios_mediadores_decreto_2536_valores_abril_mayo_2025.pdf"
+    },
+    {
+      "valor": 10050,
+      "vigencia": "2025-05-01",
+      "fuente": "35_tabla_honorarios_mediadores_decreto_2536_valores_abril_mayo_2025.pdf"
+    },
+    {
+      "valor": 10180,
+      "vigencia": "2025-06-01",
+      "fuente": "36_tabla_honorarios_mediadores_decreto_2536_valores_junio_noviembre_2025_resubido.pdf"
+    },
+    {
+      "valor": 10310,
+      "vigencia": "2025-07-01",
+      "fuente": "36_tabla_honorarios_mediadores_decreto_2536_valores_junio_noviembre_2025_resubido.pdf"
+    },
+    {
+      "valor": 10440,
+      "vigencia": "2025-08-01",
+      "fuente": "36_tabla_honorarios_mediadores_decreto_2536_valores_junio_noviembre_2025_resubido.pdf"
+    },
+    {
+      "valor": 10570,
+      "vigencia": "2025-09-01",
+      "fuente": "36_tabla_honorarios_mediadores_decreto_2536_valores_junio_noviembre_2025_resubido.pdf"
+    },
+    {
+      "valor": 10690,
+      "vigencia": "2025-10-01",
+      "fuente": "36_tabla_honorarios_mediadores_decreto_2536_valores_junio_noviembre_2025_resubido.pdf"
+    },
+    {
+      "valor": 10800,
+      "vigencia": "2025-11-01",
+      "fuente": "36_tabla_honorarios_mediadores_decreto_2536_valores_junio_noviembre_2025_resubido.pdf"
+    },
+    {
+      "valor": 11020,
+      "vigencia": "2025-12-01",
+      "fuente": "37_tabla_honorarios_mediadores_decreto_2536_valores_diciembre_2025V.pdf"
+    },
+    {
+      "valor": 11290,
+      "vigencia": "2026-01-01",
+      "fuente": "38_tabla_honorarios_mediadores_decreto_2536_valores_enero_mayo_2026v2.pdf"
+    },
+    {
+      "valor": 11540,
+      "vigencia": "2026-02-01",
+      "fuente": "38_tabla_honorarios_mediadores_decreto_2536_valores_enero_mayo_2026v2.pdf"
+    },
+    {
+      "valor": 11770,
+      "vigencia": "2026-03-01",
+      "fuente": "38_tabla_honorarios_mediadores_decreto_2536_valores_enero_mayo_2026v2.pdf"
+    },
+    {
+      "valor": 11970,
+      "vigencia": "2026-04-01",
+      "fuente": "38_tabla_honorarios_mediadores_decreto_2536_valores_enero_mayo_2026v2.pdf"
+    },
+    {
+      "valor": 12150,
+      "vigencia": "2026-05-01",
+      "fuente": "38_tabla_honorarios_mediadores_decreto_2536_valores_enero_mayo_2026v2.pdf"
+    },
+    {
+      "valor": 12450,
+      "vigencia": "2026-06-01",
+      "fuente": "39_tabla_honorarios_mediadores_decreto_2536_valores_junio_agosto_2026v2.pdf"
+    },
+    {
+      "valor": 12720,
+      "vigencia": "2026-07-01",
+      "fuente": "39_tabla_honorarios_mediadores_decreto_2536_valores_junio_agosto_2026v2.pdf"
+    },
+    {
+      "valor": 12960,
+      "vigencia": "2026-08-01",
+      "fuente": "39_tabla_honorarios_mediadores_decreto_2536_valores_junio_agosto_2026v2.pdf",
+      "url": "https://www.argentina.gob.ar/sites/default/files/2018/07/39_tabla_honorarios_mediadores_decreto_2536_valores_junio_agosto_2026v2.pdf"
+    }
+  ]
+}

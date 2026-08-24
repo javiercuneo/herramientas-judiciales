@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Valor de la UMA y del UHOM · L. Javier Cúneo Libarona</title>
+<meta name="description" content="Valor vigente de la UMA (ley 27.423) y del UHOM (decreto 2536/15), con la norma que lo fija y la serie histórica completa leída de las acordadas de la Corte y de las tablas del Ministerio.">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Valor de la UMA y del UHOM">
+<meta property="og:description" content="El valor vigente de las dos unidades con las que se regulan honorarios, la norma que lo fija y la serie entera. Leída de los actos, no copiada.">
+<meta property="og:locale" content="es_AR">
+<!-- Sin og:image a proposito: la imagen que le corresponde a esta pagina es
+     su propio numero grande, y todavia no existe. Poner la captura de
+     Honorio seria anunciar otra cosa. Esta anotado en docs/ESTADO.md. -->
+<meta name="twitter:card" content="summary">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400&display=swap" rel="stylesheet">
+
+<style>
+/* ------------------------------------------------------------------
+   Mismo sistema visual que el resto del sitio y que Honorio.
+   --faint va en #5f6774 y no en el #666e7c de index.html: el original
+   da 4,30:1 sobre el fondo claro y AA pide 4,5 para texto chico. Es el
+   bug anotado en docs/ESTADO.md; esta pagina nace con el arreglo.
+   ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+  --bg: #e9ebee;
+  --fg: #12161c;
+  --card: #ffffff;
+  --muted-fg: #5a626e;
+  --faint: #5f6774;
+  --accent: #1e45ce;
+  --accent-tint: rgb(30 69 206 / 0.09);
+  --border: rgb(18 22 28 / 0.13);
+  --hair: rgb(18 22 28 / 0.07);
+  --sunk: #f2f4f6;
+  --alerta: #8a5f0f;
+  --alerta-tint: rgb(154 107 18 / 0.10);
+  --radius: 0.375rem;
+  --font-meter: 'Archivo', 'DIN Alternate', 'Segoe UI', sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-law: 'Source Serif 4', ui-serif, Georgia, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    color-scheme: dark;
+    --bg: #0d0f13;
+    --fg: #edeff3;
+    --card: #16191f;
+    --muted-fg: #99a1ae;
+    --faint: #828a98;
+    --accent: #7a99ff;
+    --accent-tint: rgb(122 153 255 / 0.13);
+    --border: rgb(237 239 243 / 0.15);
+    --hair: rgb(237 239 243 / 0.08);
+    --sunk: #101318;
+    --alerta: #e0b45c;
+    --alerta-tint: rgb(224 180 92 / 0.12);
+  }
+}
+/* El mismo bloque, para cuando el usuario eligio oscuro a mano.
+   Si tocas un valor arriba, tocalo aca. */
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+  --bg: #0d0f13;
+  --fg: #edeff3;
+  --card: #16191f;
+  --muted-fg: #99a1ae;
+  --faint: #828a98;
+  --accent: #7a99ff;
+  --accent-tint: rgb(122 153 255 / 0.13);
+  --border: rgb(237 239 243 / 0.15);
+  --hair: rgb(237 239 243 / 0.08);
+  --sunk: #101318;
+  --alerta: #e0b45c;
+  --alerta-tint: rgb(224 180 92 / 0.12);
+}
+
+/* ---------- Interruptor de tema ----------
+   Lo inyecta assets/tema.js; el marcado no lo declara. */
+.tema-boton {
+  position: fixed; top: 12px; right: 12px; z-index: 999;
+  padding: 7px 14px; font-size: .8rem; font-family: var(--font-sans);
+  font-weight: 500; line-height: 1.2;
+  background: var(--card); color: var(--muted-fg);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; box-shadow: 0 1px 3px rgb(0 0 0 / .06);
+  transition: color .15s, border-color .15s;
+}
+.tema-boton:hover { color: var(--accent); border-color: var(--accent); }
+.tema-boton:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 600px) { .tema-boton { top: 8px; right: 8px; padding: 5px 10px; font-size: .72rem; } }
+@media print { .tema-boton { display: none; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+a:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+h1, h2 { font-family: var(--font-meter); font-weight: 600; letter-spacing: -0.015em; text-wrap: balance; }
+
+.wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+.label { font-family: var(--font-meter); font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+hr.rule { border: 0; border-top: 1px solid var(--hair); margin: 0; }
+
+/* ---------- Portada ---------- */
+header.intro { padding-block: 48px 34px; }
+header.intro .volver { font-size: .86rem; color: var(--faint); text-decoration: none; }
+header.intro .volver:hover { color: var(--accent); }
+header.intro h1 { font-size: clamp(2rem, 4.6vw, 2.8rem); margin: 14px 0 16px; line-height: 1.1; }
+header.intro .lede { font-family: var(--font-law); font-size: 1.12rem; color: var(--fg); margin: 0; max-width: 60ch; }
+
+/* ---------- Estado de la carga ---------- */
+#estado {
+  margin: 0 auto; max-width: 920px; padding: 16px 24px;
+  font-size: .92rem; color: var(--muted-fg);
+}
+#estado.error {
+  color: var(--fg); background: var(--alerta-tint);
+  border-left: 3px solid var(--alerta);
+}
+
+/* ---------- Las dos unidades ---------- */
+.unidades { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-block: 34px; }
+@media (max-width: 680px) { .unidades { grid-template-columns: 1fr; } }
+
+.unidad {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2); padding: 26px 28px 24px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.unidad .quien { font-family: var(--font-meter); font-size: .78rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+.unidad .quees { color: var(--muted-fg); font-size: .93rem; margin: 2px 0 16px; }
+.cifra {
+  font-family: var(--font-meter); font-weight: 700;
+  font-size: clamp(2.4rem, 6vw, 3.3rem); line-height: 1;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+  display: flex; align-items: baseline; gap: 6px;
+}
+.cifra .signo { font-size: .5em; font-weight: 600; color: var(--faint); }
+.rige { font-family: var(--font-law); font-size: 1.02rem; color: var(--fg); margin: 16px 0 0; }
+.norma { font-size: .88rem; color: var(--muted-fg); margin: 8px 0 0; }
+.norma a { text-decoration: none; border-bottom: 1px solid var(--accent-tint); }
+.norma a:hover { border-bottom-color: var(--accent); }
+
+/* ---------- Cómo se fija cada una ---------- */
+.comose { padding-block: 34px; }
+.comose h2 { font-size: 1.4rem; margin: 8px 0 18px; }
+.comose dl { margin: 0; display: grid; gap: 22px; }
+.comose dt { font-family: var(--font-meter); font-weight: 600; font-size: .95rem; margin-bottom: 4px; }
+.comose dd { margin: 0; color: var(--muted-fg); max-width: 66ch; }
+.comose blockquote {
+  margin: 10px 0 0; padding-left: 16px; border-left: 2px solid var(--accent-tint);
+  font-family: var(--font-law); color: var(--fg);
+}
+
+/* ---------- La franja de cifras ---------- */
+.franja {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: var(--border); border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2); overflow: hidden; margin-top: 22px;
+}
+@media (max-width: 620px) { .franja { grid-template-columns: 1fr; } }
+.franja > div { background: var(--card); padding: 18px 20px; }
+.franja .n {
+  font-family: var(--font-meter); font-weight: 700; font-size: 1.75rem;
+  line-height: 1.1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+}
+.franja .q { font-size: .86rem; color: var(--muted-fg); margin-top: 4px; }
+
+/* ---------- Series ---------- */
+.serie { padding-block: 34px; }
+.serie h2 { font-size: 1.4rem; margin: 8px 0 6px; }
+.serie > p { color: var(--muted-fg); margin: 0 0 22px; max-width: 68ch; }
+
+.caja {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2); overflow: hidden; margin: 0 0 26px;
+}
+.caja > figcaption {
+  font-family: var(--font-meter); font-size: .76rem; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--faint);
+  padding: 14px 20px 12px; border-bottom: 1px solid var(--hair);
+  display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+}
+.caja > figcaption .cuantos { letter-spacing: 0; text-transform: none; font-weight: 500; }
+.scroll { max-height: 460px; overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 520px; }
+thead th {
+  position: sticky; top: 0; z-index: 1; background: var(--card);
+  text-align: left; font-family: var(--font-meter); font-size: .72rem;
+  font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--faint); padding: 10px 16px; border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+thead th.num, td.num { text-align: right; }
+td { padding: 9px 16px; border-bottom: 1px solid var(--hair); color: var(--muted-fg); white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+td.val {
+  font-family: var(--font-meter); font-weight: 600; color: var(--fg);
+  font-variant-numeric: tabular-nums; text-align: right;
+}
+td.fecha, td.num { font-variant-numeric: tabular-nums; }
+td.norma-celda { white-space: normal; }
+tbody tr.actual td { background: var(--accent-tint); }
+.marca {
+  font-family: var(--font-meter); font-size: .7em; vertical-align: super;
+  color: var(--alerta); margin-left: 2px;
+}
+.notas { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.notas li { font-size: .84rem; color: var(--faint); max-width: 68ch; }
+.notas .marca { margin-right: 5px; margin-left: 0; }
+
+/* ---------- Procedencia ---------- */
+.proc { padding-block: 34px; }
+.proc h2 { font-size: 1.4rem; margin: 8px 0 16px; }
+.proc p { color: var(--muted-fg); margin: 0 0 14px; max-width: 68ch; }
+.proc strong { color: var(--fg); font-weight: 600; }
+
+/* ---------- Salida ---------- */
+.salida { padding-block: 34px 20px; }
+.btn {
+  display: inline-block; padding: 12px 22px; border-radius: var(--radius);
+  font-family: var(--font-meter); font-size: .95rem; font-weight: 500; text-decoration: none;
+  background: var(--accent); color: var(--bg); border: 1px solid var(--accent);
+}
+.btn:hover { filter: brightness(1.08); }
+.salida p { color: var(--muted-fg); margin: 0 0 20px; max-width: 62ch; }
+
+.colofon { display: flex; flex-wrap: wrap; gap: 10px; padding-block: 24px 44px; font-size: .86rem; color: var(--faint); }
+.colofon a { text-decoration: none; color: var(--faint); }
+.colofon a:hover { color: var(--accent); text-decoration: underline; }
+.colofon .sep { opacity: .5; }
+</style>
+
+<script src="assets/tema.js"></script>
+</head>
+
+<body>
+
+<header class="intro wrap">
+  <a class="volver" href="index.html">&larr; Herramientas</a>
+  <h1>Valor de la UMA y del UHOM</h1>
+  <p class="lede">
+    Las dos unidades con las que se regulan honorarios en la Justicia Nacional:
+    la de los abogados y la de los mediadores. El valor de hoy, la norma que lo
+    fija y la serie entera, leída de los actos.
+  </p>
+</header>
+
+<p id="estado">Cargando las series&hellip;</p>
+
+<div id="contenido" hidden>
+
+  <hr class="rule">
+
+  <section class="unidades wrap" id="tarjetas"></section>
+
+  <hr class="rule">
+
+  <section class="comose wrap">
+    <span class="label">Cómo se fija cada una</span>
+    <h2>No salen del mismo lugar ni con el mismo ritmo</h2>
+    <dl>
+      <div>
+        <dt>UMA</dt>
+        <dd>
+          La fija la Corte Suprema por resolución, y la resolución dice desde
+          cuándo. La 1930/2026 es del 20 de agosto de 2026 y dice:
+          <blockquote>
+            «…el valor de la Unidad de Medida Arancelaria (UMA) equivale a la
+            suma de PESOS CIENTO CUATRO MIL DOSCIENTOS VEINTE ($104.220) a
+            partir del primero de julio de 2026».
+          </blockquote>
+        </dd>
+      </div>
+      <div>
+        <dt>UHOM</dt>
+        <dd>
+          Son doce Unidades Retributivas del SINEP redondeadas a la decena
+          próxima superior, así que se mueve cuando se mueve el escalafón: a
+          veces todos los meses y a veces no. La medida la publica el Ministerio
+          de Justicia en una tabla que cubre uno o varios meses, y que a veces
+          vuelve a publicarse más alta para meses que ya habían salido.
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <hr class="rule">
+
+  <section class="serie wrap">
+    <span class="label">Serie</span>
+    <h2>Valores anteriores</h2>
+    <p>
+      Para citar una regulación vieja hace falta el valor que regía entonces, no
+      el de hoy. Y hace falta saber que ese valor puede no haber existido todavía
+      el día en que la regulación se dictó.
+    </p>
+
+    <div class="franja" id="franja"></div>
+
+    <figure class="caja" style="margin-top:26px">
+      <figcaption>UMA <span class="cuantos" id="uma-cuantos"></span></figcaption>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="num">Valor</th>
+              <th>Rige desde</th>
+              <th>Norma</th>
+              <th>Fecha del acto</th>
+              <th class="num">Demora</th>
+            </tr>
+          </thead>
+          <tbody id="uma-filas"></tbody>
+        </table>
+      </div>
+    </figure>
+
+    <figure class="caja">
+      <figcaption>UHOM <span class="cuantos" id="uhom-cuantos"></span></figcaption>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="num">Valor</th>
+              <th>Rige desde</th>
+              <th>Tabla</th>
+            </tr>
+          </thead>
+          <tbody id="uhom-filas"></tbody>
+        </table>
+      </div>
+    </figure>
+
+    <ul class="notas">
+      <li><span class="marca">&dagger;</span>El UHOM es la UR por doce redondeada
+        a la decena próxima superior, así que termina en cero. Este no. Está
+        leído de la tabla oficial, que lo declara así y construye toda la escala
+        sobre él —el honorario provisional dice 4.006 y la franja A, 60.090—. La
+        regla no se aplicó ese mes.</li>
+      <li><span class="marca">&Dagger;</span>Meses cuya tabla volvió a publicarse
+        después, más alta. Figura el valor de la tabla que quedó.</li>
+      <li><span class="marca">&sect;</span>Acordadas con la fecha del acto escrita
+        a mano en el original. El valor y su vigencia están impresos y se leen del
+        texto; la fecha se leyó a ojo.</li>
+      <li><span class="marca">&curren;</span>Sin demora computable: la acordada
+        27/2018 no fijó esos valores, los consolidó. Su propio texto los atribuye
+        a las acordadas 3/2018, 11/2018 y 23/18, que son anteriores.</li>
+    </ul>
+  </section>
+
+  <hr class="rule">
+
+  <section class="proc wrap">
+    <span class="label">Procedencia</span>
+    <h2>De dónde sale el número</h2>
+    <p>
+      <strong>La serie no está copiada de ninguna tabla ajena.</strong> Los
+      valores de la UMA salen de las acordadas y resoluciones de la Corte,
+      leídos del punto resolutivo de cada acto. Los del UHOM salen de las tablas
+      históricas que publica el Ministerio de Justicia. De ahí sale también la
+      columna de la demora, que no se puede armar sin tener los dos documentos.
+    </p>
+    <p>
+      Cada valor del UHOM se leyó por su forma y no por su etiqueta: es el único
+      número de la tabla que aparece también multiplicado por dos y por treinta
+      —el honorario provisional son dos unidades y la primera franja de la
+      escala, treinta—. Un valor mal leído no cierra contra los otros dos. Hizo
+      falta porque el formato de la tabla cambió seis veces en diez años.
+    </p>
+    <p>
+      Las dos series están versionadas en el repositorio, en
+      <a href="data/serie-uma.json">serie-uma.json</a> y
+      <a href="data/serie-uhom.json">serie-uhom.json</a>, con la norma al lado de
+      cada valor y con lo que se sabe de cada una anotado adentro. Un control
+      automático les exige, en cada commit, que ninguna vigencia se repita y que
+      ningún valor sea menor que el anterior.
+    </p>
+    <p id="frescura"></p>
+  </section>
+
+  <hr class="rule">
+
+  <section class="salida wrap">
+    <p>Con el valor a la vista, lo que sigue suele ser la cuenta.</p>
+    <a class="btn" href="https://honorio.ar">Calcular honorarios en Honorio</a>
+  </section>
+
+  <div class="wrap colofon">
+    <span>L. Javier Cúneo Libarona</span>
+    <span class="sep">·</span>
+    <a href="index.html">Herramientas</a>
+    <a href="https://honorio.ar">Honorio</a>
+    <a href="quien-soy.html">Quién soy</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+             'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+  // Las fechas se parten a mano y no con new Date('2026-07-01'): esa forma se
+  // interpreta como UTC y en Buenos Aires devuelve el dia anterior. Un valor
+  // que rige "desde el 1 de julio" mostrado como 30 de junio es un error de
+  // los que despues cuesta encontrar.
+  function partir(iso) {
+    var p = String(iso).split('-').map(Number);
+    return new Date(p[0], p[1] - 1, p[2]);
+  }
+  function dmy(iso) {
+    var d = partir(iso);
+    return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear();
+  }
+  function mesAnio(iso) {
+    var d = partir(iso);
+    return MES[d.getMonth()] + ' de ' + d.getFullYear();
+  }
+  function pesos(n) { return '$' + n.toLocaleString('es-AR'); }
+  function dias(a, b) { return Math.round((partir(a) - partir(b)) / 86400000); }
+
+  function escapar(t) {
+    return String(t).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  var estado = document.getElementById('estado');
+
+  function morir(motivo) {
+    // No se muestra media pagina. Una tabla vacia se lee como "no hay
+    // valores", y lo que pasa es que no se pudieron leer: son cosas
+    // distintas y la segunda no puede parecerse a la primera.
+    estado.className = 'error';
+    estado.innerHTML = 'No se pudieron cargar las series (' + escapar(motivo) +
+      '). La página no muestra valores incompletos. Volvé a cargarla en un rato, ' +
+      'o mirá los datos directos en <a href="data/serie-uma.json">serie-uma.json</a> y ' +
+      '<a href="data/serie-uhom.json">serie-uhom.json</a>.';
+  }
+
+  function traer(url) {
+    return fetch(url + '?v=' + Date.now()).then(function (r) {
+      if (!r.ok) throw new Error(url.split('/').pop() + ': HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  // ---- Tarjetas del valor vigente ----
+
+  // `cita` va aparte y no sale de la fila: la serie de la UMA guarda el acto
+  // en "norma" y la del UHOM guarda el archivo de la tabla en "fuente", que es
+  // un nombre de PDF y no se muestra. Leer una u otra adentro de la funcion
+  // seria hacerla adivinar de que serie viene.
+  function tarjeta(unidad, quees, ultimo, comoRige, cita) {
+    var enlace = ultimo.url
+      ? '<a href="' + escapar(ultimo.url) + '">' + escapar(cita) + '</a>'
+      : escapar(cita);
+    return '<article class="unidad">' +
+      '<span class="quien">' + unidad + '</span>' +
+      '<span class="quees">' + quees + '</span>' +
+      '<div class="cifra"><span class="signo">$</span>' +
+      ultimo.valor.toLocaleString('es-AR') + '</div>' +
+      '<p class="rige">' + comoRige + '</p>' +
+      '<p class="norma">' + enlace + '</p>' +
+      '</article>';
+  }
+
+  // ---- Tablas ----
+
+  function pintarUma(valores) {
+    var html = '';
+    for (var i = valores.length - 1; i >= 0; i--) {
+      var f = valores[i];
+      var desde = f.etiqueta || dmy(f.vigencia);
+      var acto = f.acto ? dmy(f.acto) + (f.fecha_leida_a_mano ? '<span class="marca">&sect;</span>' : '') : '';
+      var dem = (f.acto && !f.sin_demora) ? dias(f.acto, f.vigencia) + ' d'
+                                          : '<span class="marca">&curren;</span>';
+      html += '<tr' + (i === valores.length - 1 ? ' class="actual"' : '') + '>' +
+        '<td class="val">' + pesos(f.valor) + '</td>' +
+        '<td class="fecha">' + escapar(desde) + '</td>' +
+        '<td class="norma-celda">' + escapar(f.norma) + '</td>' +
+        '<td class="fecha">' + acto + '</td>' +
+        '<td class="num">' + dem + '</td></tr>';
+    }
+    document.getElementById('uma-filas').innerHTML = html;
+    document.getElementById('uma-cuantos').textContent = valores.length + ' valores';
+  }
+
+  function pintarUhom(valores) {
+    var html = '';
+    for (var i = valores.length - 1; i >= 0; i--) {
+      var f = valores[i];
+      var marca = (f.valor % 10 ? '<span class="marca">&dagger;</span>' : '') +
+                  (f.superado ? '<span class="marca">&Dagger;</span>' : '');
+      var tabla = f.fuente ? 'tabla ' + parseInt(f.fuente, 10) : '';
+      html += '<tr' + (i === valores.length - 1 ? ' class="actual"' : '') + '>' +
+        '<td class="val">' + pesos(f.valor) + marca + '</td>' +
+        '<td class="fecha">' + mesAnio(f.vigencia) + '</td>' +
+        '<td>' + tabla + '</td></tr>';
+    }
+    document.getElementById('uhom-filas').innerHTML = html;
+    document.getElementById('uhom-cuantos').textContent = valores.length + ' valores';
+  }
+
+  // ---- La franja ----
+
+  function pintarFranja(valores) {
+    // Solo los que tienen fecha de acto Y demora computable. Los cuatro que
+    // consolido la acordada 27/2018 quedan afuera: restarle la vigencia a la
+    // fecha de esa acordada no mide cuanto tardo el valor en publicarse, mide
+    // cuanto tardo la acordada que los junto.
+    var con = valores.filter(function (f) { return f.acto && !f.sin_demora; });
+    var ds = con.map(function (f) { return dias(f.acto, f.vigencia); });
+    var tarde = ds.filter(function (d) { return d > 0; }).length;
+    var ordenados = ds.slice().sort(function (a, b) { return a - b; });
+    var mediana = ordenados[Math.floor(ordenados.length / 2)];
+    var peor = Math.max.apply(null, ds);
+    var peorF = con[ds.indexOf(peor)];
+
+    document.getElementById('franja').innerHTML =
+      '<div><div class="n">' + tarde + ' de ' + con.length + '</div>' +
+      '<div class="q">valores de UMA que se publicaron <strong>después</strong> del día ' +
+      'desde el que rigen.</div></div>' +
+      '<div><div class="n">' + mediana + ' días</div>' +
+      '<div class="q">de demora mediana entre el día desde el que rige un valor y el ' +
+      'día en que salió el acto que lo fija.</div></div>' +
+      '<div><div class="n">' + peor + ' días</div>' +
+      '<div class="q">la demora más larga: ' + mesAnio(peorF.vigencia) + ', fijado ' +
+      'recién por la ' + escapar(peorF.norma) + '.</div></div>';
+  }
+
+  // ---- Frescura ----
+
+  function pintarFrescura(uma, uhom) {
+    // La pagina no sabe si salio un valor nuevo: sabe hasta cuando se reviso.
+    // Decir "no hay uno posterior" seria afirmar algo sobre el mundo con un
+    // archivo que puede haber quedado viejo. Se dice lo que si se sabe, y si
+    // paso demasiado, se avisa.
+    var rev = uma.actualizado < uhom.actualizado ? uma.actualizado : uhom.actualizado;
+    var atraso = Math.round((Date.now() - partir(rev)) / 86400000);
+    var txt = 'Las series se revisaron contra las fuentes el ' + dmy(rev) + '.';
+    if (atraso > 45) {
+      txt += ' <strong>Pasaron ' + atraso + ' días desde entonces</strong>, así que ' +
+             'puede haber un valor posterior que no figure acá.';
+    }
+    document.getElementById('frescura').innerHTML = txt;
+  }
+
+  // ---- Arranque ----
+
+  Promise.all([traer('data/serie-uma.json'), traer('data/serie-uhom.json')])
+    .then(function (r) {
+      var uma = r[0], uhom = r[1];
+      if (!uma.valores || !uma.valores.length || !uhom.valores || !uhom.valores.length) {
+        throw new Error('un archivo vino sin valores');
+      }
+
+      var ultimaUma = uma.valores[uma.valores.length - 1];
+      var ultimoUhom = uhom.valores[uhom.valores.length - 1];
+
+      document.getElementById('tarjetas').innerHTML =
+        tarjeta('UMA',
+                'Unidad de Medida Arancelaria. Ley 27.423, honorarios de abogados y auxiliares.',
+                ultimaUma,
+                'A partir del ' + dmy(ultimaUma.vigencia) + '.',
+                ultimaUma.norma) +
+        tarjeta('UHOM',
+                'Unidad de honorarios de mediación. Ley 26.589 y decreto 2536/15.',
+                ultimoUhom,
+                'Vigente para ' + mesAnio(ultimoUhom.vigencia) + '.',
+                'Tabla del Ministerio de Justicia');
+
+      pintarFranja(uma.valores);
+      pintarUma(uma.valores);
+      pintarUhom(uhom.valores);
+      pintarFrescura(uma, uhom);
+
+      estado.hidden = true;
+      document.getElementById('contenido').hidden = false;
+    })
+    .catch(function (e) { morir(e.message); });
+})();
+</script>
+
+</body>
+</html>

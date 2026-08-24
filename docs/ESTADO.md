@@ -27,7 +27,9 @@ El sitio está publicado en **`javiercuneo.com.ar`**, dominio propio, desde el
 5/8. Once calculadoras sobre el mismo sistema visual y revisadas una por una;
 nueve documentos de dominio cerrados y verificados contra el motor;
 **Escribiente** rehecha entera el 17/8 sobre las ruinas de PDF-studio;
-[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) hecho entero.
+[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) hecho entero. Desde el 24/8,
+**`uma-uhom.html`**: el valor vigente de las dos unidades con las que se regulan
+honorarios y la serie entera de cada una, reconstruida de los actos.
 
 **Los cuatro planes están cerrados.** Bugs y cálculo directo el 7/8, mediación el
 8/8, y [regulación en prosa](PLAN_REGULACION_EN_PROSA.md) —la más riesgosa, la
@@ -82,13 +84,36 @@ Ninguno urgente y ninguno bloqueante.
   en Honorio ya hace exactamente eso y sirve de modelo. **No se armó todavía
   porque es un workflow que escribe en el repositorio**, y eso pide
   `permissions: contents: write` y una revisión con calma.
-- **Los nombres de la procedencia del UHOM no coinciden, y hay que ajustarlos
-  antes de que corra ese cron.** La planilla quedó con `UMA_FUENTE` y
-  `UHOM_FUENTE` llevando los **valores**, y `actualizar-uma.mjs` busca los
-  valores en `UMA` y `UHOM` y lee `UHOM_FUENTE` esperando **el texto de la
-  norma**. El caso peor no es que falle: es que escriba la cadena `12.960` como
-  la procedencia del UHOM. El detalle y las dos salidas están en
-  [`PLAN_MEDIACION.md`](PLAN_MEDIACION.md). El código es de Honorio.
+- **`data/serie-uma.json` y `data/serie-uhom.json` se cargan a mano y no hay de
+  dónde automatizarlas.** Es el mismo caso que la feria: los actos de la CSJN y
+  las tablas del Ministerio son PDFs sin API. Cuando sale un valor nuevo hay que
+  agregar una línea, con su norma y la fecha del acto.
+  **`npm run verificar-series` no puede detectar que falte el último**: detecta
+  que lo cargado esté mal, no que falte algo. Lo que sí avisa es la propia
+  página, que muestra desde cuándo no se revisan las series y pone un aviso a
+  la vista si pasaron más de 45 días.
+- **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
+  su propio número grande y hay que hacerla; poner la captura de Honorio sería
+  anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
+  descripción.
+- **Del lado de Honorio quedan cuatro cosas anotadas el 24/8**, todas en
+  `scripts/actualizar-uma.mjs`, y ninguna se tocó desde acá porque es otro
+  repositorio:
+  1. leer `UMA_VIGENCIA` y `UHOM_VIGENCIA` de la planilla —ya están cargadas— y
+     escribir `vigencia` en cada entrada de `historia`. Hoy sólo hay
+     `capturado`, que es el día en que el cron vio el valor, y **no es lo
+     mismo**: de ahí salió mostrar «rige desde el 20 de agosto» un valor que
+     rige desde el 1 de julio;
+  2. completar la vigencia también cuando el valor no cambió, igual que ya hace
+     con `fuente` y `url`;
+  3. el control de forma del UHOM —`v % 10 === 0`— tiene que pasar a aviso:
+     noviembre de 2022 salió en 2003 y ese control lo rechazaría, o sea que
+     abortaría la sincronización por un valor oficial;
+  4. los dos umbrales de salto están mal calibrados y ahora hay serie para
+     hacerlo. `SALTO_MAXIMO_UHOM = 0.15` es **más chico que saltos que ya
+     ocurrieron** —enero 2024 fue +16 %, junio 2022 +24 %, enero 2019 +20 %—;
+     `SALTO_MAXIMO_UMA = 0.6` es al revés, tan flojo que deja pasar un valor
+     leído a la mitad cuando el salto más grande de la serie entera es +20 %.
 - **`data/feria-judicial.json` se carga a mano y no hay de dónde
   automatizarlo.** Las Acordadas de la CSJN son PDFs sin API. Hoy llega hasta
   2026; la de 2027 la dicta la Corte entre abril y junio de 2027, así que
@@ -406,6 +431,62 @@ predictibilidad vale más que la elegancia.
 `--faint` es el gris más claro que todavía se lee. **No aclararlo**: su único uso
 es texto chico, que es justo donde el piso de contraste es 4.5. (Está abierto que
 en claro no llega: ver arriba.)
+
+### La serie de la UMA y del UHOM se reconstruyó de los actos
+
+`uma-uhom.html` publica las dos series completas: **67 valores de UMA desde
+diciembre de 2017 y 67 de UHOM desde junio de 2016.** No están copiadas de
+ninguna tabla ajena. Cada UMA salió del punto resolutivo de su acordada o
+resolución —50 PDF de la CSJN— y cada UHOM, de las 39 tablas oficiales del
+Ministerio de Justicia. Las dos viven en `data/`, versionadas, con la norma al
+lado de cada valor.
+
+**Copiarlas habría sido más rápido y habría estado mal.** Las dos compilaciones
+públicas que existen atribuyen a la Acordada 4/2022 el valor de $8.183 desde
+abril de 2022. La acordada dice **$7.439 a partir del 1 de enero de 2022**;
+$8.183 y $9.001 los fijó la 12/2022. Enero de 2022 no figura en ninguna de las
+dos, y a una de ellas además le falta abril de 2024 en el UHOM.
+
+**Vigencia y fecha del acto son dos campos y no uno.** La resolución dice desde
+cuándo rige el valor y casi siempre lleva fecha posterior a esa: de los 63
+valores con demora computable, **los 63 salieron después del día desde el que
+rigen**, con una mediana de 63 días y un máximo de 141. Ese es el dato que la
+página tiene y las compilaciones no, porque no se puede armar sin los dos
+documentos. Guardar una sola fecha obliga a elegir cuál, y las dos hacen falta:
+la vigencia decide qué valor corresponde a una regulación, la del acto dice si
+ese valor existía el día en que se reguló.
+
+**Tres cosas que aparecieron leyendo y conviene no volver a descubrir:**
+
+- **El UHOM de noviembre de 2022 es 2003 y no termina en cero**, contra la regla
+  del decreto 2536/15. Está bien: la tabla oficial lo declara así y construye
+  toda su escala sobre él —el provisional dice 4.006 y la franja A, 60.090—.
+  La misma tabla declara UR 166,13, que por doce da 1.993,56 y redondeado daría
+  2.000. **La regla no se aplicó ese mes**, y cualquier control que la exija va
+  a rechazar un valor oficial.
+- **El Ministerio rehace tablas ya publicadas.** Las tablas 17 y 18 cubren los
+  mismos meses de 2021 con dos bases de UR distintas. El valor de un mes es el
+  de la tabla más nueva entre las que empiezan en ese mes o antes, y no el de la
+  fila más reciente que lo nombre: la 18 declara octubre y no vuelve a declarar
+  noviembre ni diciembre porque no cambiaron, así que caer a la 17 para
+  diciembre hacía **bajar** la serie de 1100 a 1010.
+- **Ocho de los 50 PDF de la Corte no tienen capa de texto**: dibujan las letras
+  como trazos y `pdftotext` devuelve cero. Son las acordadas 36/2020, 1/2021,
+  7/2021, 12/2021, 21/2021, 4/2022, 12/2022 y la res. 2722/2023. Hubo que
+  rasterizarlos. Y las acordadas de 2018 y 2019 llevan la fecha del acto escrita
+  a mano en el original: el valor y la vigencia están impresos y se leen, la
+  fecha no.
+
+Cada valor de UHOM se leyó **por su forma y no por su etiqueta**: es el único
+número de la tabla que aparece también multiplicado por dos y por treinta. Hizo
+falta porque el formato cambió seis veces en diez años —y el separador de miles
+pasó de punto a coma en la tabla 39—, así que ninguna etiqueta es confiable pero
+la aritmética sí.
+
+**`npm run verificar-series` corre en el build**, antes de armar el sitio. Un
+archivo cargado a mano se rompe de tres formas y las tres dan un número
+plausible que nadie ve en un diff de 67 líneas: una vigencia repetida, una serie
+que baja, una fecha de acto anterior a la vigencia.
 
 ### Ningún día inhábil se decide en código
 

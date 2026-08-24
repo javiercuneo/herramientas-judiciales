@@ -57,6 +57,13 @@ jobs:
       - name: Verificar el motor de Escribiente
         run: npm run verificar-escribiente
 
+      # Las dos series de valores que muestra uma-uhom.html. Se editan a mano
+      # cada vez que sale un acto nuevo, y las tres formas en que un archivo
+      # asi se rompe --vigencia repetida, serie que baja, acto anterior a la
+      # vigencia-- dan las tres un numero plausible que nadie ve en el diff.
+      - name: Verificar las series de UMA y UHOM
+        run: npm run verificar-series
+
       - name: Assemble Pages site
         run: |
           set -euo pipefail
@@ -68,6 +75,7 @@ jobs:
           cp index.html site/
           cp documentacion.html site/
           cp quien-soy.html site/
+          cp uma-uhom.html site/
           cp -r assets site/
           cp -r calculadoras site/
           cp -r data site/
