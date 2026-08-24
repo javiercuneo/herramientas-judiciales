@@ -311,16 +311,47 @@
         let ordDate = new Date(startDate);
         let ordObs = [];
 
-        for (let i = 0; i < plazo; i++) {
-            let dayRef = ordDate.getDate();
-            ordDate.setMonth(ordDate.getMonth() + 1);
-            if (ordDate.getDate() !== dayRef) ordDate.setDate(0);
-            if (ordDate.getMonth() === 0) {
-                ordObs.push('Se excluyo enero ' + ordDate.getFullYear() + ' (feria)');
-                ordDate.setMonth(1);
-                if (ordDate.getDate() !== dayRef) ordDate.setDate(0);
+        // Los plazos en meses se cuentan DE FECHA A FECHA (art. 6 CCyC), y el
+        // dia de anclaje es siempre el del ultimo acto impulsor. Si el mes de
+        // llegada no tiene ese dia, ese tramo termina el ultimo dia del mes
+        // —"cuando en el mes del vencimiento no hubiera dia equivalente al
+        // inicial del computo, se entiende que el plazo expira el ultimo dia
+        // de ese mes"— pero el ancla NO se pierde: el tramo siguiente vuelve a
+        // salir del dia original.
+        //
+        // Hasta el 18/8/2026 el ancla se arrastraba. Se avanzaba mutando la
+        // misma fecha, asi que al pasar por febrero quedaba clavada en 28 y
+        // los tramos siguientes salian de ahi. Un ultimo acto del 28, 29, 30 o
+        // 31 de diciembre daba los cuatro la MISMA caducidad, y siempre antes
+        // de lo que corresponde: impulsar el 31 no compraba nada respecto de
+        // impulsar el 28. Reportado por Javier.
+        const anclaDia = startDate.getDate();
+
+        const tramo = function(n) {
+            const m = new Date(startDate.getFullYear(), startDate.getMonth() + n, 1);
+            const ultimoDelMes = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+            return new Date(m.getFullYear(), m.getMonth(), Math.min(anclaDia, ultimoDelMes));
+        };
+
+        // Enero no computa: es feria entera. Se lo saltea corriendo un mes mas,
+        // y eso es exacto y no una aproximacion. El tramo que se descarta
+        // —del dia D de diciembre al dia D de enero— trae dias corridos de
+        // diciembre que si deberian contar; el primer tramo que si computa
+        // —del dia D de enero al dia D de febrero— trae los dias de enero que
+        // NO deberian contar. Son la misma cantidad en los dos casos (31 - D),
+        // asi que se cancelan.
+        let corrimientos = 0;
+        let computados = 0;
+        while (computados < plazo) {
+            corrimientos++;
+            const fin = tramo(corrimientos);
+            if (fin.getMonth() === 0) {
+                ordObs.push('Se excluyo enero ' + fin.getFullYear() + ' (feria)');
+                continue;
             }
+            computados++;
         }
+        ordDate = tramo(corrimientos);
 
         // Feria de julio: art. 311 CPCCN — el plazo corre durante los dias
         // inhabiles "salvo los que correspondan a las ferias judiciales", asi

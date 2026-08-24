@@ -111,7 +111,7 @@ Ninguno urgente y ninguno bloqueante.
   no prueba que sea fiel a la norma. Son unas cuarenta cifras.
 - **Hay dos bancos de pruebas y cubren cosas distintas.** `npm run
   verificar-calculos` (664 comprobaciones) cubre **el motor**: días hábiles,
-  feria, feriados, cobertura. `scripts/pruebas-calculadoras.html` (28 casos)
+  feria, feriados, cobertura. `scripts/pruebas-calculadoras.html` (51 casos, 21 de ellos contra el tablero)
   cubre **las pantallas**: maneja las cinco calculadoras por iframe y compara
   el resultado que muestran. Se abre con el sitio servido —no con `file://`— y
   tarda seis segundos. **Los iframes llevan rompe-caché**: sin él las pruebas

@@ -289,6 +289,87 @@ al lado.
 
 ---
 
+## Caducidad: el ancla del día se caía en febrero — cerrado el 18/8
+
+Javier trajo un cálculo para que se lo explicaran —último acto 30/12/2025, seis
+meses— y salieron tres cosas.
+
+### La regla, con la norma en la mano
+
+El art. 310 CPCCN fija el plazo **en meses**, así que se cuenta por el art. 6
+CCyC: **de fecha a fecha**, y «cuando en el mes del vencimiento no hubiera día
+equivalente al inicial del cómputo, se entiende que el plazo expira el último día
+de ese mes». El art. 311 agrega que el plazo **corre durante los días inhábiles
+salvo los que correspondan a las ferias judiciales** —por eso la calculadora no
+suma feriados ni fines de semana, sólo ferias—.
+
+De ahí sale la fricción que señaló Javier: **se mezcla un cómputo de meses (art.
+310) con uno de días (la feria de julio son doce días corridos)**, y el art. 6
+los cuenta distinto.
+
+El cómputo, para el caso: enero no computa, así que los seis meses corren del
+30/1 al 30/7/2026 —el tramo de febrero termina el 28 porque no hay 30, pero el
+ancla vuelve a ser 30 en marzo—. Después la feria de invierno suspende el
+cómputo: al 19/7 quedaban 11 días de plazo, que se cuentan **del 1 al 11 de
+agosto**, porque del 20 al 31 de julio el reloj está frenado. **11/08/2026.**
+
+Javier había llegado al mismo lugar y se le escapó un día al final: propuso sumar
+**11** días —los que van del 20 al 30 de julio, o sea los de feria que caen dentro
+de la ventana nominal— y son **12**. Sumar 11 al 30/7 usa el 31 de julio como si
+el reloj hubiera avanzado ese día, y no avanzó: todavía es feria. Su propia
+formulación —«los días a contar desde el 1/8»— da 11/8; la suma era la que
+fallaba. Correr el vencimiento nominal por la **duración entera** de la feria es
+lo mismo: 30/7 + 12 = 11/8.
+
+### El bug: el ancla se arrastraba
+
+La calculadora daba **9/8/2026**. El bucle de meses mutaba una sola fecha, así
+que al pasar por febrero el día quedaba clavado en **28** y los cinco tramos
+siguientes salían de ahí. Consecuencia:
+
+| último acto | caducidad (antes) | (después) |
+|---|---|---|
+| 28/12/2025 | 9/8/2026 | 9/8/2026 |
+| 29/12/2025 | 9/8/2026 | 10/8/2026 |
+| 30/12/2025 | 9/8/2026 | **11/8/2026** |
+| 31/12/2025 | 9/8/2026 | 12/8/2026 |
+
+**Cuatro días de diciembre daban la misma caducidad**: impulsar el 31 no compraba
+nada respecto de impulsar el 28, y siempre erraba hacia adelante —la caducidad
+aparecía antes de lo que corresponde—. De 6.573 cruces de fecha por plazo entre
+2021 y 2026 cambiaron **147 (2,2 %)**, con un corrimiento máximo de 3 días.
+
+De paso quedó escrito por qué saltear enero **avanzando un mes** es exacto y no
+una aproximación: el tramo que se descarta trae días de diciembre que sí deberían
+contar, y el primer tramo que computa trae los días de enero que no deberían.
+Son `31 − D` en los dos casos, así que se cancelan.
+
+### La negativa se escribía donde nadie la ve
+
+`caducidad.html` tiene un segundo resultado —«con días inhábiles y feriados»—
+dentro de un bloque con `display: none`. La guarda por falta de datos que se
+agregó el 17/8 escribía **ahí**: un plazo que alcanzaba 2027 mostraba
+`25/7/2027` en pantalla, calculado con **cero días de feria**, mientras la
+negativa quedaba en el bloque oculto.
+
+Y moverla no alcanzó: el cálculo ordinario no pasa por `esDiaHabil` —pregunta los
+rangos con `obtenerFeriasDelAnio` directo— así que la auditoría del motor nunca
+se enteraba. El año faltante se anota ahora en el propio `feriasDe()`.
+
+**El banco de pruebas tenía el mismo error de fondo**: su driver leía
+`#resultDateFull`. Un elemento oculto responde igual a `getElementById`, así que
+las pruebas venían validando un número que ningún usuario ve.
+
+### Y una cita mal puesta, del día anterior
+
+Al reescribir el pie de `mora.html` se arrastró una etiqueta del código viejo que
+llamaba a la feria de enero «art. 257 CPCCN». **El art. 257 es el plazo de diez
+días para interponer el recurso extraordinario** —así lo usa la propia `mora`
+unas líneas más arriba, y así lo dice `documentacion.html`—. La feria de enero no
+la fija el CPCCN. Quedó sin cita hasta confirmar cuál corresponde.
+
+---
+
 ## El dominio, cerrado el 5/8
 
 `javiercuneo.com.ar` registrado en NIC —tomó unos días porque el nombre coincide

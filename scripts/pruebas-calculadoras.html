@@ -123,6 +123,20 @@ const VERIFICADOS = [
         porque: 'Vencimiento nominal 25/7/2025, dentro de la feria 21/7 al 1/8 (Ac. 9/2025). El art. 311 CPCCN descuenta los días de feria, así que la iteración a punto fijo los va corriendo: solapan 5 → 30/7, solapan 10 → 4/8, solapan los 12 → 6/8, y ahí deja de moverse. Los feriados NO se suman: el art. 311 dice que el plazo corre durante los inhábiles salvo los de feria. Es el caso donde el bug de setDate retrocedía al 2 de julio.'
     },
     {
+        calc: 'caducidad',
+        rotulo: 'Último acto 30/12/2025, 6 meses — cruza enero Y julio',
+        campos: { plazo: '6', day: '30', month: '12', year: '2025' },
+        esperado: '11/8/2026',
+        porque: 'Los plazos en meses se cuentan de fecha a fecha (art. 6 CCyC) y enero no computa por ser feria, así que los seis meses corren del 30/1 al 30/7/2026: el tramo que cae en febrero termina el 28 —no hay día 30— pero el ancla vuelve a ser 30 en marzo. Después la feria de invierno (20/7 al 31/7, Ac. 11/2026) suspende el cómputo: al 19/7 quedaban 11 días de plazo, que se cuentan del 1 al 11 de agosto. Equivale a correr el vencimiento nominal los 12 días que dura la feria: 30/7 + 12 = 11/8. Derivado con Javier el 18/8/2026; hasta ese día la calculadora daba el 9/8 porque el ancla se caía a 28 al pasar por febrero.'
+    },
+    {
+        calc: 'caducidad',
+        rotulo: 'Último acto 31/12/2025, 6 meses — un día más tiene que dar un día más',
+        campos: { plazo: '6', day: '31', month: '12', year: '2025' },
+        esperado: '12/8/2026',
+        porque: 'Mismo cómputo con ancla 31. Existe para fijar la monotonía: impulsar un día más tarde tiene que correr la caducidad un día más. Hasta el 18/8/2026 el 28, 29, 30 y 31 de diciembre daban los cuatro el 9/8, porque el ancla quedaba clavada en el 28 de febrero.'
+    },
+    {
         calc: 'entre-fechas',
         rotulo: '14/07/2024 al 31/07/2024, hábiles',
         campos: { startDay: '14', startMonth: '07', startYear: '2024', endDay: '31', endMonth: '07', endYear: '2024', businessDays: true },

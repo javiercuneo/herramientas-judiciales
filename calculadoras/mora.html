@@ -276,7 +276,7 @@ button {
 
             <div id="trace" class="trace" style="display:none"></div>
         <div class="footer">
-            <p>Los días hábiles excluyen fines de semana, <a href="../data/feriados.json" target="_blank" rel="noopener">feriados nacionales</a>, la feria de enero (art. 257 CPCCN), la <a href="../data/feria-judicial.json" target="_blank" rel="noopener">feria de invierno según la Acordada de la CSJN de cada año</a>, el 16 de noviembre (Ley 26.674) y los <a href="../data/dias-inhabiles.json" target="_blank" rel="noopener">días inhábiles adicionales</a>.</p>
+            <p>Los días hábiles excluyen fines de semana, <a href="../data/feriados.json" target="_blank" rel="noopener">feriados nacionales</a>, la feria de enero, la <a href="../data/feria-judicial.json" target="_blank" rel="noopener">feria de invierno según la Acordada de la CSJN de cada año</a>, el 16 de noviembre (Ley 26.674) y los <a href="../data/dias-inhabiles.json" target="_blank" rel="noopener">días inhábiles adicionales</a>.</p>
             <p style="margin-top: 10px;">Si creés que hay un error, mandanos un mail a <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo qué salió mal.</p>
         </div>
         <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
@@ -406,7 +406,7 @@ button {
                 return;
             }
 
-            statusElem.innerHTML = `<strong>Feriados nacionales:</strong> ${carga.loadedYears.sort().join(', ')}, de <code>data/feriados.json</code> versionado —no de una API en vivo—. La feria de invierno sale de <code>data/feria-judicial.json</code>, con la Acordada de la CSJN de cada año; la de enero y el 16 de noviembre, del art. 257 CPCCN y la Ley 26.674.`;
+            statusElem.innerHTML = `<strong>Feriados nacionales:</strong> ${carga.loadedYears.sort().join(', ')}, de <code>data/feriados.json</code> versionado —no de una API en vivo—. La feria de invierno sale de <code>data/feria-judicial.json</code>, con la Acordada de la CSJN de cada año; la de enero la fija la CSJN y el 16 de noviembre sale de la Ley 26.674.`;
             statusElem.style.borderColor = 'var(--border)';
             statusElem.style.background = '#f8fdf8';
             statusElem.style.display = 'block';
