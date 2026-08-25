@@ -23,7 +23,7 @@ por proceso y el [05](05_DEPENDENCIAS.md) va por el código.
 | **Sucesión** | `sucesion` | Sí, el patrimonio que se transmite | Sí | ninguna | art. 35 −50 % único letrado | ninguna | los 3 | Sí | **Sí** | **Sí**, 2-3 % | No |
 | **Medida cautelar** | `medida_cautelar` | Sí, el monto a asegurar | Sí | ninguna | **art. 37**: se toma el 25 % de la escala, o el 50 % si hubo oposición | ninguna | los 3 | Sí | No | No | No |
 | **Homologación de desocupación** | `homologacion_desocupacion` | Sí, los alquileres del contrato | Sí | art. 40 −20 % si es vivienda | **art. 40**: 50 % de la escala, **siempre** | ninguna | los 3 | Sí | No | No | No |
-| **Exhorto** | `exhorto` | **No**, fijo en UMA | No | — | — | — | ninguno | No | No | No | No |
+| **Exhorto** | `exhorto` | **No**; el monto del exhortante es pauta, no base | Solo como referencia, en el inc. c) | — | — | — | los 3, la misma cifra del inciso | Solo en el inc. c) y si consta el monto | No | No | No |
 | **Incidente** | `incidente` | Sí | **No**: 2 % a 20 % directo | ninguna | — | ninguna | solo patrocinante | No | No | No | No |
 
 **Cómo leer las tres columnas de reducciones.** Son las tres etapas del cálculo,

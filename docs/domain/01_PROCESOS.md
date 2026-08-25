@@ -467,7 +467,8 @@ aplica.
 ### Qué es
 
 El diligenciamiento de exhortos y oficios de la Ley 22.172 (art. 50). Los
-honorarios están fijados directamente en UMA: no hay escala, no hay base.
+honorarios están fijados en UMA por inciso: **no hay base regulatoria y no se
+pasa por la escala progresiva del art. 21.**
 
 ### Qué pregunta
 
@@ -475,33 +476,67 @@ honorarios están fijados directamente en UMA: no hay escala, no hay base.
 |---|---|---|
 | 1 | Valor de la UMA | `umaInicio` |
 | 2 | Tipo de proceso | `tipoProceso` |
+| 3 | Qué se encomienda, o sea cuál de los tres incisos rige | `exhortoInciso` |
+| 4 | Cuántos actos comprende, sólo en el inc. a) | `exhortoActos` |
+| 5 | Si consta el monto del juicio exhortante | `exhortoMontoTipo` |
+| 6 | Monto reclamado, sólo si consta | `exhortoMonto` |
 
-**Dos preguntas y termina.** Un solo recorrido posible.
+**Seis pasos y seis recorridos:** los tres incisos por las dos respuestas de si
+el monto consta. Los dos pasos numéricos no abren recorridos.
+
+**Hasta el 21/8/2026 eran dos preguntas y un solo recorrido.** La app mostraba
+los tres incisos a la vez y no elegía ninguno, que es una tabla y no una
+respuesta: la regulación en prosa salía con dos párrafos —el b) y el c)— para un
+mismo exhorto. Está contado en la entrada 3.4.0 del `CHANGELOG.md` de Honorio.
 
 ### Qué hace con esas respuestas
 
-Nada más que convertir a pesos. **No pregunta el inciso**: muestra los tres a la
-vez, con su rango en UMA y en pesos, y el usuario elige leyendo cuál describe la
-diligencia que hizo.
+Resuelve a **un** inciso y devuelve su cantidad, convertida a pesos.
 
 | Inciso | Qué comprende | UMA |
 |---|---|---|
-| a) | Notificaciones o actos semejantes | no menos de 3 |
+| a) | Notificaciones o actos semejantes | no menos de 3, **sin techo** |
 | b) | Inscripciones y actos registrales: dominios, hijuelas, testamentos, gravámenes, secuestros, embargos, inhibiciones, inventarios, remates, desalojos | de 10 a 20 |
 | c) | Diligencias de prueba en las que se intervino produciéndolas o controlándolas | de 7 a 30 |
 
+**La asimetría del inciso a) es del texto y no de esta tabla:** dice que los
+honorarios «no podrán ser inferiores a tres (3) UMA» y calla el máximo, mientras
+que los otros dos mandan regular «en una escala entre» dos valores escritos.
+
+**La cantidad de actos no multiplica nada.** Se registra para que la resolución
+pueda decir por qué el número se aparta de las 3 UMA.
+
+**El monto del juicio exhortante es una pauta y no una base.** Cuando consta, se
+muestra en UMA y —si alcanza para armar la escala— al lado corre la del art. 21;
+ninguna de las dos cosas entra a la cuenta del inciso.
+
 ### Qué devuelve
 
-Los tres incisos, cada uno en UMA y en pesos.
+- **La cantidad del inciso, la misma para patrocinante, apoderado y
+  procurador.** El art. 50 fija una cantidad por diligencia y no hay un
+  honorario de patrocinio del cual los otros dos sean múltiplo, así que no
+  corren ni el × 1,4 ni el 40 % del art. 20.
+- **Auxiliares sólo en el inc. c), y sólo si consta el monto:** la banda del 5 %
+  al 10 % del art. 21, que **no se topea** con el techo del inciso. En los actos
+  del a) y del b) no interviene ningún auxiliar.
+- **No devuelve segunda instancia ni partidor**, y la base queda en cero, que no
+  es un olvido: el exhorto no tiene base regulatoria.
 
-**No devuelve honorarios por rol** —no hay patrocinante, apoderado ni
-procurador—, **ni auxiliares, ni segunda instancia, ni partidor.** El art. 50
-regula la labor del profesional que diligencia, y no se divide en roles.
+### Los criterios que lo sostienen
+
+Los tres viven en `lib/legal/jurisprudencia.ts`, con sus fallos y —dos de
+ellos— con la lectura contraria al lado:
+
+- `EXHORTO_MONTO_PAUTA`, que el monto del exhortante es pauta indiciaria y no
+  base regulatoria, porque el proceso principal sigue en trámite.
+- `EXHORTO_AUXILIARES`, que el auxiliar cobra por las reglas generales y la
+  escala en UMA del inciso no lo topea.
+- `EXHORTO_INCISO_A_TECHO`, que el inciso a) no tiene techo y la app no le
+  inventa uno.
 
 ### Dónde mirarlo
 
-`buildExhorto()`. Los cinco valores están escritos como constantes al principio
-de la función.
+`buildExhorto()` y la tabla `EXHORTO_INCISOS`, que lleva un renglón por inciso.
 
 ---
 
@@ -594,12 +629,15 @@ para la pantalla.
 | Sucesión | `sucesion` | no | no | sí | sí | sí | 21, 35 |
 | Medida cautelar | `medida_cautelar` | no | no | sí | sí, al 25 % o 50 % | no | 21, 37 |
 | Homologación de desocupación | `homologacion_desocupacion` | no | no | sí | sí, al 50 % | no | 21, 40 |
-| Exhorto | `exhorto` | no | no | no | no | no | 50 |
+| Exhorto | `exhorto` | no | no | no | sólo como referencia, en el inc. c) | no | 50; 21 para el auxiliar del inc. c) |
 | Incidente | `incidente` | no | no | sí | no | no | 29 inc. g |
 
 Todos preguntan la UMA. Todos los que usan la escala del art. 21 calculan
 apoderado (× 1,4), procurador (× 0,4) y auxiliares (5-10 % de la base en UMA);
-el exhorto y el incidente no.
+el exhorto y el incidente no. **El exhorto tiene una excepción de una sola
+celda:** en el inc. c) calcula auxiliares con la banda del art. 21 sobre el
+monto del juicio exhortante, que no es su base. Los tres roles siguen saliendo
+del inciso y son la misma cifra.
 
 ### Cuántos recorridos tiene cada proceso
 
@@ -614,9 +652,9 @@ la entrevista y es lo que barre la validación del flujo hacia atrás.
 | Sucesión | 2 | único letrado: sí o no |
 | Medida cautelar | 2 | oposición: sí o no |
 | Homologación de desocupación | 2 | vivienda o demás casos |
-| Exhorto | 1 | no pregunta nada más |
+| Exhorto | 6 | 3 incisos × 2 respuestas de si consta el monto |
 | Incidente | 1 | idem |
-| **Total** | **168** | |
+| **Total** | **173** | |
 
 Los 8 caminos de terminación: sentencia admitida, sentencia rechazada, modos
 anormales antes de prueba, modos anormales después, caducidad art. 22,
@@ -627,11 +665,19 @@ desalojo, más las dos de las posesorias, más las dos de alimentos.
 
 **Eran 160 hasta el 7/8/2026**, cuando `familia_alimentos` pasó a tener
 sub-pregunta —los dos supuestos del art. 39— y sumó 8 recorridos al
-conocimiento. Si vuelve a moverse, se mueven también la cifra de la landing y
-la del `README.md`, que salen de acá.
+conocimiento. **Y 168 hasta el 21/8/2026**, cuando el exhorto pasó de dos
+preguntas a seis y de un recorrido a seis. Si vuelve a moverse, se mueven
+también la cifra de la landing y la del `README.md`, que salen de acá.
+
+El número no se cuenta a mano: lo imprime la propia validación, que enumera los
+recorridos por proceso antes de cruzarlos.
+
+```
+npx tsx lib/legal/__tests__/retroceso.validation.ts
+```
 
 `lib/legal/__tests__/retroceso.validation.ts` los enumera y cruza cada uno
-contra cada uno —28.224 pares— para verificar que volver atrás en la entrevista
+contra cada uno —29.929 pares— para verificar que volver atrás en la entrevista
 y cambiar el tipo de proceso no deje pegada ninguna respuesta que el nuevo
 recorrido ya no pregunta.
 

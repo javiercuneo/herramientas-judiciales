@@ -147,7 +147,11 @@ aquello**.
 
 ### `calcularEscala()` — la pieza más compartida
 
-**La usan seis de los ocho procesos.** Solo el exhorto y el incidente no.
+**La usan seis de los ocho procesos** para producir su resultado. El incidente
+no la usa nunca. **El exhorto la corre desde el 21/8/2026, pero no para
+regular:** con el monto del juicio exhortante arma la referencia del art. 21 que
+muestra al lado de la banda del inciso, y de ahí salen los auxiliares del
+inc. c). Un cambio acá le mueve ese número.
 
 Un cambio acá mueve **todos** los números de la aplicación. Incluye los siete
 tramos, las seis constantes del piso y el cálculo de `auxMin`/`auxMax`.

@@ -29,13 +29,21 @@ declara junto al número, detrás de un «por qué». Quien no quiere leerlo no 
 lee; quien tiene que fundar una regulación lo tiene ahí.
 
 - Primera y segunda instancia, para patrocinante, apoderado, procurador y
-  auxiliares.
+  auxiliares, más el honorario básico del mediador en UHOM.
 - Procesos de conocimiento, ejecución de sentencia, ejecutivo, sucesión, medida
   cautelar, homologación, exhorto e incidente.
 - Reducciones de los arts. 22, 25, 34, 35, 37, 38, 40, 41 y 49, mostrando qué
   transformó cada una.
 - Regulaciones provisorias del art. 12, reparto por etapas y mínimos
   arancelarios como tabla de referencia.
+- La regulación redactada: el mismo cálculo sale también como un texto con
+  forma de resolución, con la norma citada en cada paso.
+- Cada criterio interpretativo con lo que lo sostiene —el fallo o la doctrina
+  en que se funda, y la lectura contraria cuando existe—. Donde no hay fallo,
+  la app lo declara en vez de afirmar igual.
+- El cálculo se comparte por enlace, con las respuestas adentro y con la UMA
+  del día en que se hizo: el mismo enlace da el mismo número dentro de dos
+  años.
 
 [Abrir Honorio](https://honorio.ar) ·
 [Código y documentación](https://github.com/javiercuneo/honorio) ·
@@ -146,8 +154,8 @@ tiene **17 suites de validación**, una por concern:
 - **El texto de la regulación en prosa**, que es la única que no compara
   números: produce un documento con forma de resolución, y hasta que existió
   ninguna validación miraba prosa.
-- **Un barrido exhaustivo de los 28.224 cruces** de la entrevista —cada uno de
-  los 168 recorridos posibles contra cada uno de los otros—, que prueba que
+- **Un barrido exhaustivo de los 29.929 cruces** de la entrevista —cada uno de
+  los 173 recorridos posibles contra cada uno de los otros—, que prueba que
   volver atrás y cambiar el tipo de proceso no deja pegada ninguna respuesta que
   ya no se preguntó.
 

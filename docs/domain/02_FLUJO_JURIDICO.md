@@ -37,7 +37,7 @@ PASO 0 · UMA                          los ocho procesos, sin excepción
    ▼
 PASO 1 · TIPO DE PROCESO              ocho opciones
    │
-   ├── exhorto ─────────────────────────────────────────► RESULTADO
+   ├── exhorto ──────────────── ¿inciso? ───► ¿monto? ──► RESULTADO
    │
    ├── incidente ───────────────────────────► BASE ─────► RESULTADO
    │
