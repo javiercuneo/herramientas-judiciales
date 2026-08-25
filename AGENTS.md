@@ -17,6 +17,32 @@ borrarlo.
 
 ---
 
+## Repos hermanos
+
+Este repositorio no vive solo. Son cuatro y se reparten el trabajo: `knowledge`
+(corpus crudo y wiki de jurisprudencia), `indice` (texto exacto por artículo y
+doctrina), `herramientas-judiciales` (calculadoras y calendario judicial) y
+`pipeline-drafter` (el motor que redacta, y que consume a los otros tres).
+
+**El mapa completo —quién le da qué a quién, por qué no se fusionaron y las reglas
+de frontera— vive en `C:\IA\Pipeline drafter\HERMANOS.md`.** Es la fuente única y acá no se copia, para que no
+se desincronice. Abrilo antes de tomar una decisión que cruce de repo.
+
+Lo que hay que saber sin abrirlo:
+
+- **Éste es el único de los cuatro que es público y está desplegado.** Por eso
+  los otros tres no se fusionan con él, y por eso nada que venga de un repo
+  privado entra sin barrer antes comentarios, nombres de variables, fixtures
+  y mensajes de error: son los que arrastran ejemplos de documentos reales.
+- **Hay un pedido abierto de `pipeline-drafter`:** exponer el calendario
+  judicial (`data/feriados.json`, `data/feria-judicial.json`,
+  `data/dias-inhabiles.json`) y el cómputo de vencimientos como algo
+  consultable desde Python — API local o MCP. Allá el modelo no puede contar
+  días hábiles y hoy eso le cuesta una fecha por resolución.
+
+Y la regla que más ahorra trabajo: **antes de escribir un cálculo, un parser de
+citas o una serie de índices, fijate si ya existe en un hermano.**
+
 ## La regla que gobierna todo lo demás
 
 Esto no es software donde un bug se descubre en producción y se arregla el
@@ -207,6 +233,17 @@ Lo que quedó acá y sigue compartido:
 - **Los planes de features de Honorio** —`PLAN_COBERTURA_LEY.md` y los tres que
   salieron de él— viven en `docs/` de este lado, porque la materia prima
   —calculadoras, textos legales— está acá. Acá va la decisión; allá el código.
+- **Las cifras de Honorio que este repositorio publica** —la versión, las
+  validaciones, los tipos de proceso, los recorridos de la entrevista y los
+  cruces del barrido— están escritas a mano en `index.html`, `README.md`,
+  `documentacion.html` y la tabla de
+  [`01_PROCESOS.md`](docs/domain/01_PROCESOS.md). Ninguna de esas páginas tiene
+  build, así que envejecen en silencio: ya pasó dos veces.
+  **`npm run verificar-honorio` las compara contra el motor** y dice qué
+  archivo quedó viejo y en qué número. Necesita el clon de `honorio/`, así que
+  **no corre en CI** —allá no existe— y hay que acordarse de correrlo cuando
+  sale una versión de Honorio. Y se revisa la prosa, no sólo el dígito: la
+  enumeración de al lado envejece igual.
 
 ---
 
@@ -272,6 +309,24 @@ borra algo lo deja igual de accesible y encima señala dónde estaba.
 `scripts/verificar-datos.sh` corre como hook de `pre-commit` y bloquea lo de abajo.
 Está para atajar el olvido, no para reemplazar el criterio. Los términos propios que
 verifica se leen de una lista privada, fuera del árbol: `git config datos.listaPrivada`.
+
+**Y no corre sólo acá: es el verificador de todos los repositorios de la
+máquina.** Desde el 25/8/2026 `core.hooksPath` global apunta a un hook compartido
+—la fuente está en `scripts/hooks/pre-commit` y la instala
+`scripts/instalar-hooks.sh`— que corre este archivo en cualquier repositorio,
+incluidos los que todavía no existen. Antes había una lista de repositorios
+escrita a mano, y uno nuevo no quedaba cubierto sin que nada avisara.
+
+Tres consecuencias que hay que tener presentes:
+
+- **Este archivo es la fuente única y lo lee otro repositorio en vivo.** Un patrón
+  que se afloja acá se afloja para los cuatro. Hubo dos copias hasta el 25/8 y se
+  desincronizaron: la de afuera tenía un arreglo que ésta no.
+- **`core.hooksPath` global desactiva `.git/hooks/` en toda la máquina.** Lo que
+  sea propio de un repositorio va en su `.githooks/pre-commit`, al que el hook
+  compartido encadena. Acá eso es el aviso de las cifras de Honorio.
+- **No pongas `core.hooksPath` por repositorio:** pisa al global y el control de
+  datos personales deja de correr, en silencio.
 
 **No entra:**
 

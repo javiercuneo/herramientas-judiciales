@@ -17,6 +17,19 @@
 *.json          text eol=lf -crlf
 *.md            text eol=lf
 *.ps1           text eol=lf
+# Un .sh con CRLF no es un archivo feo: no corre. bash lee el retorno de
+# carro como parte del comando: falla con un «command not found» que nombra
+# un comando que en pantalla se ve idéntico al correcto.
+# verificar-datos.sh se ejecuta como hook de pre-commit, asi que un clon
+# nuevo en Windows se quedaba sin control de datos personales sin avisar.
+*.sh            text eol=lf
+*.mjs           text eol=lf
+# Los hooks no llevan extension, asi que la regla de arriba no los agarra, y
+# es el mismo problema en su peor version: un hook con CRLF no corre y git no
+# dice nada. El control de datos personales desaparece en silencio.
+.githooks/*     text eol=lf
+scripts/hooks/* text eol=lf
+.gitattributes  text eol=lf
 
 # Archivos binarios (imágenes)
 *.png           binary

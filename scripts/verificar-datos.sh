@@ -78,7 +78,12 @@ fi
 buscar 'scw\.pjn\.gov\.ar/scw/viewer' 'enlace directo al visor de expedientes del PJN'
 buscar '\blex100\b|\bmesa virtual\b|\bSNE\b' 'vocabulario de sistemas internos del PJN'
 buscar '\+?54\s*9?\s*(?:11|351|341|261|221)\s*[-. ]?[0-9]{4}[-. ]?[0-9]{4}' 'telefono argentino'
-buscar '\b(?:4[0-9]{3}|5[0-9]{3})-[0-9]{4}\b' 'telefono fijo de CABA'
+# El \b no alcanza: dentro de un UUID (...19e5-4608-9946-6f22...) el tramo
+# '4608-9946' tiene borde de palabra a los dos lados y pasaba por telefono.
+# Los links del CIJ son todos UUID, asi que era un bloqueo garantizado sobre
+# una wiki cuyas fuentes son links del CIJ. Ahora se exige que el numero no
+# venga pegado a un guion ni a otro caracter de palabra.
+buscar '(?<![-\w])(?:4[0-9]{3}|5[0-9]{3})-[0-9]{4}(?![-\w])' 'telefono fijo de CABA'
 buscar '[A-Za-z0-9._%+-]+@(?!javiercuneo\.com\.ar|users\.noreply\.github\.com|anthropic\.com|example\.(?:com|org))[A-Za-z0-9.-]+\.[A-Za-z]{2,}' 'direccion de correo que no es propia ni de ejemplo'
 
 # --------------------------------------------------------------------------

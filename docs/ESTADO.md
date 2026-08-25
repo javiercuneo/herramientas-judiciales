@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-24 · rama `main`
+Última actualización: 2026-08-25 · rama `main`
 
 Lleva sólo lo que sigue vivo: dónde está el trabajo, qué está abierto, qué se
 sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas ya
@@ -31,6 +31,12 @@ nueve documentos de dominio cerrados y verificados contra el motor;
 **`uma-uhom.html`**: el valor vigente de las dos unidades con las que se regulan
 honorarios y la serie entera de cada una, reconstruida de los actos.
 
+**El 25/8 la landing volvió a decir lo que Honorio hace.** Anunciaba la versión
+3.1.1 con la app en 3.4.1, publicaba los recorridos y los cruces de antes del
+exhorto, mostraba dos capturas del dashboard anterior al rediseño de la 3.4.1 y
+no nombraba tres cosas que la app tiene desde agosto. Con el arreglo entró el
+control que faltaba: ver [las cinco cifras](#las-cinco-cifras-que-este-repositorio-sigue-de-honorio).
+
 **Los cuatro planes están cerrados.** Bugs y cálculo directo el 7/8, mediación el
 8/8, y [regulación en prosa](PLAN_REGULACION_EN_PROSA.md) —la más riesgosa, la
 que se dejó última— entera el 10/8: el generador con sus tres controles y
@@ -41,32 +47,49 @@ qué se hizo de cada paso y qué se apartó de lo previsto.
 **No queda nada urgente ni bloqueante.** Lo abierto está en
 [Pendientes](#pendientes) y [Bugs abiertos](#bugs-abiertos).
 
-### Las cuatro cifras que este repositorio sigue de Honorio
+### Las cinco cifras que este repositorio sigue de Honorio
 
-Son suyas pero salen de allá: **168 recorridos**, **28.224 cruces**,
-**17 validaciones** y la versión del chip. Viven en `index.html`, en `README.md`
-y —la de validaciones— también en `documentacion.html`. La fuente de las dos
-primeras es la tabla de recorridos de [`01_PROCESOS.md`](domain/01_PROCESOS.md);
-la de validaciones se cuenta sobre
-`honorio/lib/legal/__tests__/*.validation.ts`. **Si vuelve a moverse alguna, se
-mueven las cuatro.**
+Son suyas pero salen de allá: **la versión**, **17 validaciones**, **8 tipos de
+proceso**, **173 recorridos** y **29.929 cruces**. Viven en `index.html`, en
+`README.md`, en `documentacion.html` —la de validaciones, escrita con letras— y
+en la tabla de recorridos de [`01_PROCESOS.md`](domain/01_PROCESOS.md), que es
+de donde salen las dos últimas. **Si vuelve a moverse alguna, se mueven todas.**
 
-Ni mediación ni la prosa movieron recorridos ni cruces, y eso era el resultado
-buscado: ninguna de las dos agrega una pregunta a la entrevista.
+**Desde el 25/8 hay un control: `npm run verificar-honorio`.** Lee las cinco del
+motor —la versión de su `package.json`, las validaciones contando los archivos,
+y los recorridos y los cruces de la enumeración que imprime
+`retroceso.validation.ts`— y las compara contra lo que dice cada página. No
+arregla nada: dice qué archivo quedó viejo y en qué número. Los recorridos no
+los cuenta él, y es a propósito: contarlos aparte sería una segunda
+implementación de la poda del wizard, que es exactamente la clase de problema
+que el script existe para evitar.
 
-**El 14/8 se encontró que ninguna estaba al día**, y la de validaciones estaba
-mal de tres formas distintas: `index.html` decía 11 en el tile, `README.md` 16 y
-`documentacion.html` dieciséis, cuando son 17 —contados sobre los archivos, y
-confirmado por el CHANGELOG de Honorio 3.1.1—. **El chip del propio
-`index.html` ya decía 17**, así que la landing se contradecía a sí misma a
-setecientas líneas de distancia. La versión del chip, en cambio, había quedado
-en 3.0.0 con Honorio en 3.1.1.
+**Necesita el clon de `honorio/`, así que no corre en CI** —allá no existe—, y
+ésa es la limitación que hay que tener presente: nada obliga a correrlo. Cuando
+sale una versión de Honorio, se corre acá.
 
-Todo quedó corregido ese día. La lección es el mecanismo, no el número:
-**ninguna de las tres páginas tiene build, así que nada controla esas cifras**,
-y el único remedio es tocarlas cuando entra una validación nueva o sale una
-versión. **Y se revisa la prosa, no solo el dígito:** la enumeración envejece
-igual —`index.html` nombraba once controles y `README.md` catorce—.
+Se escribió porque el mecanismo ya había fallado dos veces:
+
+- **El 14/8 ninguna de las cuatro estaba al día**, y la de validaciones estaba
+  mal de tres formas distintas: `index.html` decía 11 en el tile, `README.md` 16
+  y `documentacion.html` dieciséis, cuando son 17 —contados sobre los archivos—.
+  **El chip del propio `index.html` ya decía 17**, así que la landing se
+  contradecía a sí misma a setecientas líneas de distancia.
+- **El 21/8 el exhorto pasó de dos preguntas a seis** —la 3.4.0 de Honorio— y
+  con él los recorridos de 168 a 173 y los cruces de 28.224 a 29.929. De este
+  lado no lo notó nadie hasta el 25/8: la landing pasó cuatro días publicando una
+  cifra que ninguna corrida produce, con la versión del chip clavada en 3.1.1 y
+  Honorio en 3.4.1.
+
+Mediación y la prosa, en cambio, no movieron recorridos ni cruces, y eso era el
+resultado buscado: ninguna de las dos agrega una pregunta a la entrevista.
+
+**Lo que el script no puede ver es la prosa, y es lo que más envejece.** La
+enumeración de al lado se desactualiza igual que el número —`index.html`
+nombraba once controles y `README.md` catorce— y la lista de lo que Honorio hace
+envejece más rápido todavía: la regulación redactada, los criterios con su
+jurisprudencia y el enlace que lleva el caso adentro existían desde agosto y
+**ninguno figuraba en la landing** hasta el 25/8.
 
 ---
 
@@ -617,6 +640,23 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   devuelve el token sino **la cadena vacía**, sin ningún error visible. Así
   quedaron `mora` y `honorarios-mediacion` con el botón principal blanco sobre
   blanco, en los dos temas y en producción. Hay un comentario en cada archivo.
+- **`scripts/verificar-datos.sh` es el verificador de los cuatro repositorios,
+  no sólo de éste.** Desde el 25/8 `core.hooksPath` global apunta a un hook
+  compartido que lo corre en cualquier repositorio de la máquina —incluidos los
+  que todavía no existen— y después encadena al `.githooks/pre-commit` propio
+  del repositorio, si lo tiene. **Un patrón que se afloja acá se afloja para los
+  cuatro**, y eso ahora se ve en un diff, que antes no.
+  Hasta ese día había dos copias y ya se habían desincronizado: la de afuera
+  tenía un arreglo que ésta no. El patrón de teléfono fijo de CABA, delimitado
+  por bordes de palabra a los dos lados, **matchea adentro de un UUID**, y los
+  enlaces del CIJ son todos UUID: `knowledge` podía citar un fallo y este
+  repositorio no. El detalle de la instalación está en
+  [`AGENTS.md`](../AGENTS.md).
+- **Un `.sh` con CRLF no corre**, y `.gitattributes` no lo cubría: con
+  `* text=auto` y sin regla propia, un clon nuevo en Windows se llevaba
+  `verificar-datos.sh` con CRLF y **el hook de datos personales dejaba de
+  funcionar sin avisar**. En CI no se veía porque en Linux sale LF igual. Desde
+  el 25/8 hay `*.sh text eol=lf` y `*.mjs text eol=lf`.
 - **`--border` y `--hair` son colores de línea translúcidos, no superficies.**
   Usados como `background` dan casi transparente. Para una superficie hundida va
   `--sunk`.
@@ -630,8 +670,9 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   «starting» para siempre. Se ve enseguida con `curl localhost:4180`. Mientras
   no se arregle, navegar a mano al 4180.
 - **Son dos proyectos npm distintos: fijarse en cuál se está parado.** El de la
-  raíz tiene **cuatro scripts y nada más**: `docs`, `verificar-docs`,
-  `verificar-calculos` y `feriados`. `check`,
+  raíz tiene **siete scripts y nada más**: `docs`, `verificar-docs`,
+  `verificar-calculos`, `verificar-series`, `verificar-escribiente`,
+  `verificar-honorio` y `feriados`. `check`,
   `build`, `validate` y `typecheck` son de Honorio y **solo corren desde
   `honorio/`**, que es un clon de otro repositorio. Pedirlos acá da «Missing
   script», que se lee fácil como que algo está roto y no lo está.

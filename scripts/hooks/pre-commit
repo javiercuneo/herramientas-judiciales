@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Hook de pre-commit COMPARTIDO por todos los repositorios de la maquina.
+#
+# No se ejecuta desde aca: `scripts/instalar-hooks.sh` lo copia a un
+# directorio fuera del arbol y apunta `core.hooksPath` global ahi. Esta
+# es la fuente versionada; la que corre es la copia.
+#
+# Por que la copia y no `core.hooksPath` apuntando a este directorio: si
+# apuntara aca, un checkout de una rama donde este archivo no existe
+# **desactiva los hooks de la maquina entera y git no dice nada**. Un
+# control que desaparece en silencio es la peor forma de fallar. El
+# archivo que corre, entonces, vive afuera y no depende de ninguna rama;
+# lo que cambia seguido -los patrones- se lee en vivo del repositorio.
+#
+# Hace dos cosas, en este orden:
+#
+#   1. El verificador de datos personales, que es UNO SOLO para todos los
+#      repositorios y vive versionado en herramientas-judiciales. Si no
+#      esta, BLOQUEA: un repositorio que cree tener el control y no lo
+#      tiene es peor que uno que sabe que no lo tiene.
+#
+#   2. El hook propio del repositorio, `.githooks/pre-commit`, si lo
+#      lleva. Ahi va lo que es de ese repositorio y de ningun otro -el
+#      control de cuerpos de `knowledge`, las cifras de Honorio aca-.
+#      **No repite el paso 1**: ya corrio.
+#
+# `core.hooksPath` global tiene una consecuencia que conviene tener
+# presente: **desactiva `.git/hooks/` en TODOS los repositorios**, los de
+# esta maquina y los que clones despues. Por eso el paso 2 existe. Y por
+# eso no hay que poner `core.hooksPath` por repositorio: pisaria al
+# global y el paso 1 dejaria de correr, otra vez en silencio.
+#
+# Saltear en un caso puntual:  git commit --no-verify
+
+set -u
+
+rojo() { printf '\033[31m%s\033[0m\n' "$1"; }
+
+raiz=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+
+# La fuente unica del verificador. Se puede mover con
+#   git config --global datos.verificador <ruta>
+VERIFICADOR=$(git config --get datos.verificador || true)
+[ -z "$VERIFICADOR" ] && VERIFICADOR="/c/IA/herramientas-judiciales/scripts/verificar-datos.sh"
+
+# --- 1. Datos personales, para todos los repositorios ---------------------
+if [ -f "$VERIFICADOR" ]; then
+  bash "$VERIFICADOR" || exit 1
+else
+  rojo "  BLOQUEA  no se encontro el verificador de datos"
+  printf '           lo busque en: %s\n' "$VERIFICADOR"
+  printf '           Es la fuente unica y vive versionada en herramientas-judiciales.\n'
+  printf '           Si moviste el repositorio:  git config --global datos.verificador <ruta>\n'
+  printf '           Si es a proposito y sabes lo que haces:  git commit --no-verify\n'
+  exit 1
+fi
+
+# --- 2. El hook propio del repositorio, si lo lleva -----------------------
+propio="$raiz/.githooks/pre-commit"
+if [ -f "$propio" ]; then
+  bash "$propio" || exit 1
+fi
+
+exit 0

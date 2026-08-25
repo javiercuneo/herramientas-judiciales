@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Lo que se controla en cada commit y es propio de ESTE repositorio.
+#
+# Lo corre el hook compartido de la maquina -el que instala
+# `scripts/instalar-hooks.sh`- despues de verificar datos personales.
+# **Aca no se repite ese control**: ya corrio, y correrlo dos veces solo
+# duplica la salida.
+#
+# Vive versionado y no en `.git/hooks/` porque los hooks no se clonan. Si
+# clonas el repositorio en otra maquina, este archivo viene con el; lo que
+# hay que volver a hacer es apuntar `core.hooksPath`, una vez.
+#
+# Saltear en un caso puntual:  git commit --no-verify
+
+set -u
+
+raiz=$(git rev-parse --show-toplevel)
+
+# --- Las cifras de Honorio, en modo rapido --------------------------------
+# AVISA Y NO BLOQUEA, a proposito. Que la landing anuncie una version vieja
+# no es un dato personal filtrado ni un numero mal calculado: es una pagina
+# desactualizada, y detener por eso un commit que no tiene nada que ver
+# seria desproporcionado. Lo que hace falta es que se vea, y una linea
+# amarilla en cada commit se ve.
+#
+# `--rapido` controla la version y las validaciones, que se leen de un
+# archivo. Los recorridos y los cruces piden arrancar la enumeracion del
+# motor y tardan; esos van a mano, con `npm run verificar-honorio`, cuando
+# sale una version de Honorio.
+if [ -d "$raiz/honorio" ] && [ -f "$raiz/scripts/verificar-honorio.mjs" ]; then
+  if ! salida=$(node "$raiz/scripts/verificar-honorio.mjs" --rapido 2>&1); then
+    printf '\033[33m  REVISAR  las cifras de Honorio en la landing quedaron viejas\033[0m\n'
+    printf '%s\n' "$salida" | sed 's/^/           /'
+    printf '           No bloquea. Se arregla con: npm run verificar-honorio\n'
+  fi
+fi
+
+exit 0
