@@ -379,7 +379,7 @@ barra, y abajo —después de un corte y con título propio— «Honorarios y ta
 Hace dos cosas: no carga dos páginas más al abrir el tablero, y se lee como otra
 materia en vez de como una continuación de la barra.
 
-Las dos regiones son de verdad independientes: elegir la tasa **no cierra** el
+Las dos regiones son independientes en serio: elegir la tasa **no cierra** el
 plazo que quedó abierto arriba. Las flechas recorren su propia región y no
 saltan a la otra —saltar volvería a decir que son lo mismo—, y los atajos 1-6
 son sólo de plazos.
