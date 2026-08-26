@@ -495,14 +495,21 @@
             content: '';
             position: absolute;
             bottom: 3px;
-            width: 4px;
-            height: 4px;
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
             background: currentColor;
         }
+
+        /* La muestra del dia de nota imita una celda cualquiera con el punto
+           encima, y no un color: el punto no es una categoria de dia --un dia
+           de nota puede ser ademas contado, o ser la notificacion-- asi que la
+           muestra tiene que leerse como "un dia con esta marca". A 4px y en
+           --muted-fg no se veia y la fila entera pasaba desapercibida. */
         .muestra.punto {
             position: relative;
             border: 1.5px solid var(--border);
+            background: transparent;
         }
         .muestra.punto::after {
             content: '';
@@ -510,10 +517,10 @@
             left: 50%;
             bottom: 2px;
             transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
-            background: var(--muted-fg);
+            background: var(--fg);
         }
         .celda .orden { font-size: 8px; line-height: 1; opacity: 0.7; font-weight: 400; }
 
@@ -698,7 +705,7 @@
             </div>
 
             <div class="acciones">
-                <button class="btn-calcular" id="btnCalcular">Calcular el vencimiento</button>
+                <button class="btn-calcular" id="btnCalcular">Calcular</button>
                 <button class="btn-suave" id="btnResetear">Limpiar</button>
             </div>
         </div>
