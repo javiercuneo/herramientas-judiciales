@@ -7,10 +7,13 @@
     "docs": "node scripts/build-docs.mjs site/docs",
     "verificar-docs": "node scripts/verificar-docs.mjs",
     "verificar-calculos": "node scripts/verificar-calculos.mjs",
+    "verificar-plazos": "node scripts/verificar-plazos.mjs",
     "verificar-series": "node scripts/verificar-series.mjs",
     "verificar-escribiente": "node scripts/verificar-escribiente.mjs",
     "verificar-honorio": "node scripts/verificar-honorio.mjs",
-    "feriados": "node scripts/actualizar-feriados.mjs"
+    "feriados": "node scripts/actualizar-feriados.mjs",
+    "conector-http": "node conectores/http.mjs",
+    "conector-mcp": "node conectores/mcp.mjs"
   },
   "devDependencies": {
     "marked": "^15.0.7"

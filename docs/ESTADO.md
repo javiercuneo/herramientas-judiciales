@@ -157,8 +157,36 @@ Ninguno urgente y ninguno bloqueante.
   los mínimos que citan el `06` y el `07` están verificadas contra ese archivo, y
   el archivo dice ser copia fiel del asistente clásico. Que sea fiel a la copia
   no prueba que sea fiel a la norma. Son unas cuarenta cifras.
+- **Anotado y sin decidir: si la ampliación por distancia corresponde con
+  notificación automática.** Planteado por Javier el 25/8: `vencimientos.html`
+  —y por extensión el tablero— ofrece el campo de ampliación del art. 158 CPCCN
+  también cuando la modalidad es *automática*, y le parece un contrasentido.
+  **No se tocó, y por dos motivos.** El artículo no condiciona nada a la
+  modalidad de notificación: condiciona a que la diligencia deba practicarse
+  «fuera del lugar del asiento del juzgado o tribunal» —texto verificado contra
+  `indice`, rúbrica *AMPLIACIÓN*, Sección 2 «Plazos»—. Un letrado a 400 km tiene
+  el mismo problema de distancia lo hayan notificado por cédula o por nota. Se
+  puede sostener lo contrario —notificado por nota el interesado estaba en el
+  tribunal—, pero eso es **una interpretación**, y sin fallo cargado no se
+  afirma. Y ocultar el campo **mueve un número hacia abajo**: sin ampliación el
+  vencimiento es más temprano, que es la dirección peligrosa.
+  Lo que sí falta y no mueve nada: **la pantalla ofrece la ampliación sin decir
+  nunca cuándo corresponde.** La condición del artículo no aparece en ningún
+  lado. Un `hint` que la transcriba deja la decisión en quien sabe si la
+  diligencia es a distancia.
+- **La guarda por año faltante tiene dos granos distintos, y conviene saber
+  cuál.** Verificado el 25/8 corriendo el motor: la **feria** sólo bloquea el
+  cómputo que cae en julio o agosto del año sin Acordada —un vencimiento de
+  febrero de 2027 calcula hoy sin problema—, y eso está escrito así a propósito
+  para que la herramienta no quede muerta esperando un acto que no se dictó.
+  Los **feriados**, en cambio, bloquean el año entero, porque un feriado puede
+  caer en cualquier mes. O sea que **lo que un día va a congelar la calculadora
+  no es la Acordada de la feria: es `feriados.json` quedándose corto.** Hoy
+  llega a 2027, así que en enero de 2028 no calcula ninguna fecha de 2028 hasta
+  que alguien corra `npm run feriados`. Es el argumento que faltaba para el cron
+  que está anotado más arriba.
 - **Hay dos bancos de pruebas y cubren cosas distintas.** `npm run
-  verificar-calculos` (664 comprobaciones) cubre **el motor**: días hábiles,
+  verificar-calculos` (673 comprobaciones) cubre **el motor**: días hábiles,
   feria, feriados, cobertura. `scripts/pruebas-calculadoras.html` (51 casos, 21 de ellos contra el tablero)
   cubre **las pantallas**: maneja las cinco calculadoras por iframe y compara
   el resultado que muestran. Se abre con el sitio servido —no con `file://`— y
@@ -215,11 +243,20 @@ Cómo se construye, decidido:
   de las calculadoras. Si el flujo resulta bueno, se fusiona después.
 
 Orden: (1) ampliación por distancia en `vencimientos` —hecho el 17/8—; (2) banco
-de pruebas de las pantallas —hecho el 17/8—; (3) el marco —**en la rama
-`tablero-plazos`, sin mergear**—; (4) el calendario con el plazo dibujado.
+de pruebas de las pantallas —hecho el 17/8—; (3) el marco —**mergeado a `main`
+por el PR #2 y publicado**—; (4) el calendario con el plazo dibujado —**el motor
+que hace falta ya está extraído**, ver abajo; falta la pantalla—.
 Después, la tasa de justicia.
 
-### El marco, en `tablero-plazos`
+> **Corregido el 25/8.** Hasta hoy esta sección decía que el marco estaba «en la
+> rama `tablero-plazos`, sin mergear» y terminaba con «Antes de mergear: nada
+> bloqueante». Estaba mergeado desde el PR #2: `calculadoras/tablero.html` vive
+> en `main`, `index.html` lo enlaza y `pages.yml` copia `calculadoras/` entera,
+> así que **estuvo publicado todo ese tiempo mientras el documento lo daba por
+> inédito**. La rama ya no existe ni acá ni en `origin`. Es exactamente la clase
+> de desfase que este archivo existe para no tener.
+
+### El marco
 
 `calculadoras/tablero.html`: seis pestañas —vencimientos, distancia, caducidad,
 entre fechas, regresiva y mora—, cada una un iframe de la calculadora publicada,
@@ -249,7 +286,85 @@ hasta arreglarlo.
 
 Ya está enlazado desde `index.html`, en la bajada de la sección de calculadoras.
 
-**Antes de mergear:** nada bloqueante. Falta que Javier lo use unos días.
+---
+
+## El cómputo de plazos, extraído y consultable — 25/8
+
+**Lo que faltaba para dos cosas a la vez era lo mismo.** El paso (4) del tablero
+—el calendario con el plazo dibujado— y el pedido de `pipeline-drafter` —exponer
+el cómputo de vencimientos a Python— parecían trabajos distintos y no lo eran:
+los dos chocaban con que **la aritmética de plazos vivía adentro de los HTML**.
+`calendario-judicial.js` es el calendario —hábil, feria, feriado, asueto—, pero
+el salto de gracia, la notificación automática, los días de nota y los dos
+tramos de mora estaban entre `document.getElementById`, en `vencimientos.html`
+y en `mora.html`. Un conector no tenía a qué llamar, y una pantalla que sólo
+conoce la fecha final no puede dibujar el tramo.
+
+### `calculadoras/js/plazos.js`
+
+**Es transcripción, no rediseño.** La aritmética se movió de archivo sin tocarse:
+misma tabla de saltos de la notificación automática, mismas cuatro funciones sin
+simplificar de mora —que están así a propósito, porque escritas de otra forma el
+resultado se mueve—, mismo conteo que arranca un día antes para que el de inicio
+cuente primero.
+
+**La trampa que había que no pisar:** las dos pantallas construyen la fecha con
+convenciones distintas. `vencimientos.html` usa `Date.UTC(..., 12)` —mediodía
+UTC— y `mora.html` usa `new Date(y, m, d)` con `setHours(0,0,0,0)` —medianoche
+local—. **No se unificaron**, y están las dos en el archivo con el comentario de
+por qué: unificarlas es elegante y mueve un número de algún lado.
+
+**Las calculadoras no se tocaron, y eso es la prueba.** `git diff` sobre
+`calculadoras/*.html` quedó vacío. Siguen siendo el motor legacy publicado y
+**valen como referencia**: si el motor extraído y una pantalla discrepan en un
+número, el que está mal es el motor extraído. Decisión de Javier, 25/8.
+
+**`npm run verificar-plazos`**, 34 comprobaciones, corre en Node. Lleva como
+regresión el caso con el que el hermano pidió esto —notificación 18/6/2026, diez
+hábiles del art. 257 CPCCN, firme, diez corridos del art. 54 de la ley 27.423,
+**mora el 12/7/2026**, que es la fecha exacta de una resolución real— más los
+invariantes: el vencimiento nunca cae en inhábil, el sábado a las 23 hs. suma un
+día y no dos, la ampliación del art. 158 se cuenta en hábiles y no en corridos,
+y la notificación automática siempre cae en martes o viernes hábil.
+
+**Lo que todavía NO cubre:** la comparación pantalla contra motor. Ese cruce va
+en `scripts/pruebas-calculadoras.html`, que es el único que puede manejar las
+calculadoras de verdad, y es el próximo paso. Hasta que exista, lo que sostiene
+la extracción es la transcripción leída y los 34 casos, no una corrida contra la
+pantalla.
+
+### `conectores/`
+
+Tres consumos sobre un núcleo único, y **ninguno calcula nada**:
+
+- **`conectores/nucleo.mjs`** — carga los dos motores de navegador en Node con
+  el mismo apaño que ya usaba `verificar-calculos.mjs` (leer disco en vez de
+  red) y traduce entre `Date` y JSON. Se importa directo.
+- **`conectores/http.mjs`** (`npm run conector-http`) — JSON sobre HTTP, GET con
+  query o POST con cuerpo. **Escucha sólo en `127.0.0.1`.**
+- **`conectores/mcp.mjs`** (`npm run conector-mcp`) — MCP por stdio, JSON-RPC
+  sin dependencias. Seis herramientas: `dia_habil`, `siguiente_habil`,
+  `dias_habiles_entre`, `vencimiento`, `mora`, `cobertura`.
+
+Que sean dos transportes finos sobre un núcleo es el punto entero: **una segunda
+implementación de una cuenta con consecuencia jurídica es el modo de falla que
+produjo el bug de la feria**, cuando dos pantallas deducían la feria con dos
+heurísticas distintas y las dos estaban mal en años distintos.
+
+**La regla que el conector endurece:** la pantalla puede mostrar el aviso al
+lado del número porque hay alguien leyendo; un conector no tiene a nadie del
+otro lado. Por eso cuando falta un dato **la respuesta no trae fecha**: trae
+`ok: false` y el motivo. Y el texto de las herramientas MCP se lo dice al modelo
+donde lo va a leer, porque es la única defensa disponible contra que use igual
+una fecha que no vino.
+
+**Las fechas viajan como `AAAA-MM-DD`.** Ni ISO completo ni epoch: los dos
+arrastran hora y huso, y del otro lado nadie sabe cuál era el huso del que
+calculó. Un plazo judicial no tiene hora.
+
+**Falta avisarle al hermano.** El pedido está anotado en el `ESTADO.md` de
+`pipeline-drafter` y en `HERMANOS.md` como abierto; cuando esto se use desde
+allá, se cierra ahí y no acá.
 
 ---
 

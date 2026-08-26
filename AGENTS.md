@@ -34,11 +34,11 @@ Lo que hay que saber sin abrirlo:
   los otros tres no se fusionan con él, y por eso nada que venga de un repo
   privado entra sin barrer antes comentarios, nombres de variables, fixtures
   y mensajes de error: son los que arrastran ejemplos de documentos reales.
-- **Hay un pedido abierto de `pipeline-drafter`:** exponer el calendario
-  judicial (`data/feriados.json`, `data/feria-judicial.json`,
-  `data/dias-inhabiles.json`) y el cómputo de vencimientos como algo
-  consultable desde Python — API local o MCP. Allá el modelo no puede contar
-  días hábiles y hoy eso le cuesta una fecha por resolución.
+- **El pedido de `pipeline-drafter` está construido de este lado desde el
+  25/8:** `conectores/` expone el calendario judicial y el cómputo de plazos por
+  HTTP local y por MCP. Falta que se consuma desde allá, y **el pedido se cierra
+  en el `ESTADO.md` de aquel repositorio, no acá.** Detalle en
+  [`docs/ESTADO.md`](docs/ESTADO.md).
 
 Y la regla que más ahorra trabajo: **antes de escribir un cálculo, un parser de
 citas o una serie de índices, fijate si ya existe en un hermano.**
@@ -177,7 +177,15 @@ calculadoras/                   Herramientas de un solo archivo HTML con JS embe
                                   (plazos, mora, tasa, prorrateo, caducidad...).
                                   Sin build, sin bundler: se editan directo.
                                   js/calendario-judicial.js es la dependencia compartida
-                                  de todo lo que calcula fechas.
+                                  de todo lo que calcula fechas, y js/plazos.js es la
+                                  aritmetica de plazos --vencimiento y mora-- extraida
+                                  de las pantallas el 25/8. Las pantallas NO se pasaron
+                                  a el: siguen con su copia y valen de referencia.
+conectores/                     El calendario y el computo de plazos, consultables desde
+                                  codigo. nucleo.mjs carga los motores de navegador en
+                                  Node; http.mjs y mcp.mjs son transportes finos encima
+                                  y no calculan nada. Salio de un pedido de
+                                  pipeline-drafter.
 data/feriados.json              Feriados nacionales, versionados. Los genera
                                   scripts/actualizar-feriados.mjs (npm run feriados).
 data/feria-judicial.json        Feria de invierno, una linea por anio con su
