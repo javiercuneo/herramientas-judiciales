@@ -735,6 +735,20 @@ Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío
    d) correr la misma matriz y exigir que dé idéntico.
    Recién con la pantalla consumiendo el motor se puede dibujar, porque el
    dibujo se arma de `diasContados` y `diasSalteados`.
+
+   **Y va ANTES del rediseño de esas tres, no después.** Las dos cosas tocan
+   los mismos archivos, y al revés habría que tocarlos dos veces: rediseñar
+   una pantalla que después hay que volver a abrir para meterle el calendario
+   es hacer dos veces el mismo trabajo, y cada apertura de un archivo con
+   aritmética de plazos es una oportunidad de mover un número. Migrada la
+   pantalla, el rediseño entra con el dibujo ya adentro y el archivo se abre
+   una sola vez.
+
+   **Conviene arrancarlo en una sesión limpia y no cortarlo por la mitad.** No
+   por el tamaño: porque el estado intermedio —el motor extraído y la pantalla
+   con su copia— es exactamente lo que el 26/8 se decidió no volver a tener.
+   Si hay que parar, se para después del paso (d) de una calculadora, nunca en
+   el medio de una.
 2. **El cruce pantalla contra motor en `scripts/pruebas-calculadoras.html`.**
    Sigue pendiente y es la red que faltaría para que una divergencia falle a los
    gritos en vez de en silencio. Con `vencimientos` y `mora` ya migradas la
