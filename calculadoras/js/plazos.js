@@ -728,6 +728,34 @@
             }
         }
 
+        // LA GUARDA SE VUELVE A LEER ACA, Y NO SOLO ARRIBA.
+        //
+        // Arriba se audita la fecha OBJETIVO, que es lo unico que se conoce
+        // antes de contar. Pero este computo retrocede, y retrocediendo se sale
+        // de la ventana de cobertura sin que nadie mire: hasta el 26/8/2026 el
+        // objetivo 4/2/2021 con 40 dias de antelacion contestaba 10/11/2020 sin
+        // un solo aviso, y de 2020 no estan cargados ni los feriados nacionales
+        // ni los asuetos --y encadeno once ferias extraordinarias--. O sea que
+        // dias que fueron inhabiles se contaban como habiles, y el plazo
+        // arrancaba mas tarde de lo que arranca.
+        //
+        // En vencimientos y en mora esto no pasa porque el computo avanza y la
+        // auditoria se lee al final. Aca hacia falta leerla en los dos lados: la
+        // de arriba para no calcular sobre un objetivo que ya no se puede
+        // evaluar, la de aca para no afirmar una fecha que se apoyo en un anio
+        // que no esta.
+        var problemaAlContar = CJ.problemaDeDatos();
+        if (problemaAlContar) {
+            return {
+                problema: problemaAlContar,
+                objetivo: fechaObj,
+                objetivoInhabil: null,
+                dias: dias,
+                fechaLimite: null,
+                evaluados: null
+            };
+        }
+
         return {
             problema: null,
             objetivo: fechaObj,

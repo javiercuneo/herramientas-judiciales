@@ -76,12 +76,13 @@ después de migrar**. Con eso **ninguna de las cinco pantallas de plazos tiene
 aritmética adentro**, y el banco del motor pasó de 34 a 117 comprobaciones.
 
 **Y aparecieron dos bugs que no tocó nadie**, los dos encontrados por los
-barridos que entraron con las pruebas: una caducidad puede vencer adentro de la
-feria de enero (0,61 % de los casos), y la regresiva puede contar hacia atrás
-fuera de la ventana de cobertura sin avisar. **Ninguno se tocó**, porque los dos
-mueven una fecha, y los dos están fijados en el banco con su testigo. Están en
-[Bugs abiertos](#bugs-abiertos), con el caso concreto y lo que habría que
-decidir.
+barridos que entraron con las pruebas. **El de la regresiva se cerró el mismo
+día**, por decisión de Javier: contar hacia atrás ya no se sale de la ventana de
+cobertura en silencio. **El de la caducidad sigue abierto** —puede vencer
+adentro de la feria de enero, en el 0,61 % de los casos— porque arreglarlo mueve
+una fecha y hay una pregunta previa que decidir: está en
+[Bugs abiertos](#bugs-abiertos), con el caso, el mecanismo y el arreglo
+candidato ya medido.
 
 **No queda nada urgente ni bloqueante.** Lo abierto está en
 [Pendientes](#pendientes) y [Bugs abiertos](#bugs-abiertos).
@@ -298,7 +299,7 @@ Ninguno urgente y ninguno bloqueante.
   que alguien corra `npm run feriados`. Es el argumento que faltaba para el cron
   que está anotado más arriba.
 - **Hay cinco bancos de pruebas y cubren cosas distintas.** `npm run
-  verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (117)
+  verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (123)
   cubren **el motor**: días hábiles, feria, feriados, cobertura, y la
   aritmética de las cinco de plazos. `npm run verificar-contraste` cubre **los
   tokens de color** y `npm run verificar-conectores` (46) **los dos
@@ -1023,7 +1024,12 @@ quejaría del plazo y no de la fecha, que es lo que el usuario tiene que
 corregir. Por eso `regresiva()` **no lanza** cuando el objetivo es inhábil: eso
 no es un error, es una respuesta.
 
-#### El banco pasó de 34 a 117 comprobaciones
+**Y es la única de las tres que además se arregló**, el mismo día y por decisión
+de Javier: contar hacia atrás se salía de la ventana de cobertura sin avisar.
+Cambian 121 de 10.955 conteos y son exactamente los que antes devolvían una
+fecha anterior a 2021. El detalle está en [`HISTORIA.md`](HISTORIA.md).
+
+#### El banco pasó de 34 a 123 comprobaciones
 
 Y ninguno de los testigos sale del motor: son los que las pantallas mostraban
 antes de la extracción. Adentro van los diez de caducidad, el ancla que no se
@@ -1356,64 +1362,69 @@ ni una calle con altura.
 ### La caducidad puede vencer adentro de la feria de enero — 26/8
 
 **Apareció extrayendo la aritmética de `caducidad`, y no lo tocó nadie: es de
-antes.** La extracción salió idéntica en los 1132 casos de la matriz, así que
-esto ya estaba y sigue estando.
+antes.** La extracción salió idéntica en los 1132 casos de la matriz.
 
-**Qué pasa.** El salteo de enero mira si **el tramo de meses** termina en enero.
-No vuelve a mirar después de correr el vencimiento por los días de la feria de
-invierno, así que un tramo que termina en diciembre puede quedar **empujado
-adentro de enero**, que no computa por ser feria entera (art. 2 del Reglamento
-para la Justicia Nacional).
-
-**El caso, para que se pueda desmentir:** último acto impulsor el **21/7/2025**,
-plazo de **5 meses**. El tramo nominal termina el 21/12/2025; la feria de 2025
-—21/7 al 1/8, Acordada 9/2025— aporta doce días, y el vencimiento se corre al
-**2/1/2026**, que es feria. La pantalla lo afirma sin ningún aviso.
-
-**Cuánto es:** 67 de 10.956 cruces de fecha de inicio por plazo entre 2021 y
-2025, el **0,61 %**. Todos tienen la misma forma —seis meses desde fines de
-junio, o cinco desde fines de julio— y todos caen en los primeros once días de
+**El caso limpio, que es el que hay que mirar:** último acto impulsor el
+**25/6/2025** —un miércoles cualquiera de junio, lejos de toda feria—, plazo de
+**6 meses**. La calculadora contesta **6/1/2026**, que es feria judicial de
 enero.
+
+> El primer testigo que se anotó acá era el 21/7/2025, y era malo: **ese día es
+> el primero de la feria de invierno de 2025**, así que el caso mezclaba la
+> pregunta con otra —qué pasa si el acto impulsor cae en feria— y hacía parecer
+> rebuscado un bug que no lo es. Observado por Javier.
+
+**Por qué pasa, y por qué con cinco meses corre distinto que con seis.** Las dos
+suspensiones del art. 311 están implementadas con **mecanismos distintos que no
+se componen**:
+
+- **enero** se saltea **corriendo un mes** en la etapa de los tramos, o sea
+  **sobre el vencimiento nominal**, antes de tocar la feria de invierno;
+- **la feria de invierno** se descuenta **sumando días al final**, después de
+  que los tramos ya quedaron fijados.
+
+Con el mismo inicio del 21/7/2025, los tramos caen así:
+
+| plazo | tramo nominal | ¿el salteo de enero mira acá y dispara? | +12 días de feria | resultado |
+|---|---|---|---|---|
+| 4 meses | 21/11/2025 | no, es noviembre | 3/12/2025 | bien |
+| **5 meses** | **21/12/2025** | **no, es diciembre** | **2/1/2026** | **cae en feria** |
+| 6 meses | 21/1/2026 | **sí, es enero** → corre a 21/2/2026 | 5/3/2026 | bien |
+
+O sea que **no es que cinco meses use otra regla: es que la regla de enero se
+aplica un paso antes de que la fecha llegue a enero.** Con seis, el tramo
+aterriza en enero y el salteo lo ve; con cinco, aterriza en diciembre, el salteo
+no tiene nada que ver, y los doce días de feria lo empujan adentro de enero
+cuando ya no queda nadie mirando.
+
+**Cuánto es:** 67 de 10.956 cruces entre 2021 y 2025, el **0,61 %**, y de dos
+formas nada más: **55 son de seis meses desde junio** y **12 de cinco meses
+desde julio**. Los dos casos donde el tramo nominal cae en la segunda mitad de
+diciembre.
 
 **Es el hermano del bug que el punto fijo cerró el 5/8 para la feria de
 invierno**, por el otro lado: ahí el vencimiento nominal caía dentro de la feria
 de julio y la iteración lo empujó afuera; acá lo que empuja es la propia feria
 de julio, y no hay nada que lo vuelva a mirar.
 
-**No se tocó, y es a propósito:** arreglarlo mueve una fecha de caducidad, que
-es de lo que depende que una instancia se pierda o no. Va con pedido explícito,
-y antes hay que decidir **hacia dónde** —el candidato es meter enero en el mismo
-punto fijo que la feria de invierno, pero eso es una interpretación del art. 311
-y conviene fundarla—.
+**El arreglo candidato, medido:** después del punto fijo, si el vencimiento
+quedó en enero, correrlo un mes **con el mismo corrimiento que ya usa el salteo**
+—respetando el ancla del día, art. 6 CCyC—. Barrido sobre los 10.956 cruces:
+**cambia exactamente esos 67 y ni uno más.** El 21/7/2025 a seis meses sigue
+dando 5/3/2026; a cinco meses pasa de 2/1/2026 a 2/2/2026; el testigo limpio
+pasa de 6/1/2026 a 6/2/2026.
+
+**No se tocó, y falta la decisión.** No porque el mecanismo esté en duda sino
+porque **mueve una fecha de caducidad**, que es de lo que depende que una
+instancia se pierda o no. Y hay una pregunta previa que conviene contestar
+primero: si lo correcto es un mes entero —que es lo que hace hoy el salteo— o
+los días de enero que el plazo efectivamente atravesó. Para un ancla del 15 dan
+lo mismo; para una del 31 no, porque febrero no tiene 31.
 
 **Mientras tanto está fijado y no escondido:** `npm run verificar-plazos` cuenta
-los 23 casos de 2025 y guarda el testigo del 21/7. Si alguien lo cambia sin
-querer, el número se mueve y el control lo dice.
+los 23 casos de 2025 y guarda el testigo. Si alguien lo cambia sin querer, el
+número se mueve y el control lo dice.
 
-### La regresiva puede contar hacia atrás fuera de la ventana de cobertura — 26/8
-
-**También apareció extrayendo, también es de antes, y también quedó sin tocar.**
-La matriz de 864 casos salió idéntica.
-
-**Qué pasa.** `regresiva` consulta la guarda de datos faltantes **sobre la fecha
-objetivo y antes de empezar a contar**. El conteo retrocede después, y puede
-salirse de la ventana de cobertura sin que nada lo vuelva a mirar.
-
-**El caso, verificado en pantalla antes de migrar:** objetivo **4/2/2021** con
-**40 días de antelación** contesta **10/11/2020**, sin un solo aviso. De 2020 no
-están cargados ni los feriados nacionales ni los asuetos —la cobertura arranca
-en 2021—, así que días que fueron inhábiles se contaron como hábiles. Y 2020 es
-el peor año posible para eso: encadenó **once ferias extraordinarias** entre
-marzo y agosto.
-
-**Por qué la guarda no alcanza donde sí alcanza en las otras.** En
-`vencimientos` y en `mora` el cómputo avanza y la auditoría se lee **al final**,
-así que anota todo lo que el cálculo tocó. Acá se lee al principio, y hacia
-atrás el cálculo toca años que en ese momento todavía no existían para nadie.
-
-**No se tocó** porque cerrarlo convierte una respuesta en una negativa, y eso es
-una decisión. El arreglo es de una línea —volver a leer `problemaDeDatos()`
-después del bucle— pero decidirlo no lo es. Fijado en el banco con el testigo.
 
 ---
 

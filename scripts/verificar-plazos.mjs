@@ -592,27 +592,56 @@ console.log('\nPlazo regresivo');
         igual(rompen, 0, 'un dia mas de antelacion siempre corre el limite hacia atras');
     }
 
-    // --- ABIERTO: la guarda de cobertura se consulta antes de contar ---------
+    // --- REGRESION: contar hacia atras no se sale de la cobertura en silencio -
     //
-    // Esto NO comprueba que este bien: fija lo que la calculadora contesta hoy.
-    //
-    // La auditoria se lee sobre la fecha OBJETIVO y antes del bucle, asi que un
-    // conteo que retrocede hasta un anio fuera de la ventana de cobertura no la
-    // vuelve a consultar. Verificado en pantalla el 26/8/2026: objetivo
-    // 4/2/2021 con 40 dias de antelacion contesta 10/11/2020, sin un solo
-    // aviso, y de 2020 no estan cargados ni los feriados nacionales ni los
-    // asuetos --y tuvo once ferias extraordinarias--.
-    //
-    // NO SE TOCA sin decision de Javier: cerrarlo convierte una respuesta en
-    // una negativa. Anotado en docs/ESTADO.md.
+    // Hasta el 26/8/2026 la guarda se leia SOLO sobre la fecha objetivo y antes
+    // del bucle, asi que un conteo que retrocedia a un anio fuera de la ventana
+    // no la volvia a consultar. El caso, verificado en pantalla antes de
+    // arreglarlo: objetivo 4/2/2021 con 40 dias de antelacion contestaba
+    // 10/11/2020, sin un solo aviso, y de 2020 no estan cargados ni los
+    // feriados nacionales ni los asuetos --y encadeno once ferias
+    // extraordinarias--. O sea que dias que fueron inhabiles se contaban como
+    // habiles y el plazo arrancaba mas tarde de lo que arranca.
     {
         const cruzaAtras = atras(4, 2, 2021, 40);
-        igual(cruzaAtras.problema, null,
-            'el conteo que retrocede a 2020 sigue sin avisar: es un bug abierto, no un invariante');
-        igual(dl(cruzaAtras.fechaLimite), '2020-11-10',
-            'y el testigo: 4/2/2021 con 40 dias contesta el 10/11/2020');
+        ok(cruzaAtras.problema !== null,
+            'un conteo que retrocede fuera de la ventana de cobertura no afirma una fecha');
+        ok(/anterior/.test(cruzaAtras.problema || ''),
+            'y el motivo dice que el anio es anterior a la cobertura', cruzaAtras.problema);
+        igual(cruzaAtras.fechaLimite, null, 'y no devuelve fecha, que es lo que veria un conector');
         ok(CJ.coberturaDesde > 2020,
-            `y 2020 esta fuera de la ventana, que arranca en ${CJ.coberturaDesde}`);
+            `2020 esta fuera de la ventana, que arranca en ${CJ.coberturaDesde}`);
+
+        // Y la guarda es FINA, no gruesa: se niega el conteo que se sale, no el
+        // anio entero. Un objetivo de marzo de 2021 con quince dias no llega a
+        // 2020 y calcula igual.
+        const noSeSale = atras(1, 3, 2021, 15);
+        igual(noSeSale.problema, null, 'un conteo de 2021 que no llega a 2020 sigue calculando');
+        igual(dl(noSeSale.fechaLimite), '2021-02-04', 'y da la misma fecha que antes del arreglo');
+
+        // El barrido que fija el alcance: lo unico que dejo de contestar es lo
+        // que antes contestaba una fecha anterior a la cobertura. Ni un caso mas.
+        let seNiegan = 0;
+        let mirados = 0;
+        let malos = 0;
+        for (let anio = 2021; anio <= 2026; anio++) {
+            for (let mes = 1; mes <= 12; mes++) {
+                for (let dia = 1; dia <= new Date(anio, mes, 0).getDate(); dia++) {
+                    for (const dias of [1, 5, 15, 40, 60]) {
+                        const r = atras(dia, mes, anio, dias);
+                        if (r.objetivoInhabil) continue;
+                        mirados++;
+                        if (r.problema) seNiegan++;
+                        // lo que si contesta, contesta dentro de la ventana
+                        else if (r.fechaLimite.getFullYear() < CJ.coberturaDesde) malos++;
+                    }
+                }
+            }
+        }
+        ok(mirados > 5000, `el barrido miro ${mirados} conteos`);
+        igual(malos, 0, 'ninguna fecha limite afirmada cae antes de la ventana de cobertura');
+        ok(seNiegan > 0 && seNiegan < mirados / 20,
+            `y las negativas son las justas: ${seNiegan} de ${mirados}`);
     }
 }
 

@@ -903,6 +903,57 @@ ninguna de las validaciones anteriores miraba prosa.** Lo que se resolvió:
 
 ## Bugs cerrados
 
+### La regresiva contaba hacia atrás fuera de la ventana de cobertura — cerrado el 26/8
+
+Lo encontró el barrido de invariantes que entró con la extracción de
+`regresiva` a `plazos.js`, y es de antes de ella: la migración salió idéntica en
+los 864 casos de su matriz.
+
+**Qué pasaba.** `regresiva` leía la guarda de datos faltantes **sobre la fecha
+objetivo y antes de empezar a contar**. El cómputo retrocede después, y
+retrocediendo se salía de la ventana de cobertura sin que nada lo volviera a
+mirar.
+
+**El caso, verificado en pantalla antes de tocarlo:** objetivo **4/2/2021** con
+**40 días de antelación** contestaba **10/11/2020**, sin un solo aviso. La
+cobertura arranca en 2021: de 2020 no están cargados ni los feriados nacionales
+ni los asuetos, así que días que fueron inhábiles se contaron como hábiles y el
+plazo arrancaba más tarde de lo que arranca. Y 2020 es el peor año posible para
+eso —encadenó once ferias extraordinarias entre marzo y agosto—.
+
+**Por qué le pasaba a ésta y no a las otras, que es lo que vale la pena
+guardar.** En `vencimientos` y en `mora` el cómputo **avanza** y la auditoría se
+lee **al final**, así que anota todo lo que el cálculo llegó a tocar. Acá se leía
+al principio, y **hacia atrás el cálculo toca años que en ese momento todavía no
+existían para nadie**. La guarda no estaba mal escrita: estaba escrita para un
+cómputo que va en la otra dirección.
+
+**El arreglo son ocho líneas**: volver a leer `problemaDeDatos()` después del
+bucle y, si dice algo, devolver el motivo y **ninguna fecha**. El motor ya venía
+anotando los años —`obtenerMotivoInhabil` pasa por `esFeriaJudicial`, que audita—
+así que no hubo que agregar ni una consulta: sólo mirarla.
+
+Lo decidió Javier el mismo día, y con el criterio de las otras: *«si va fuera de
+la ventana de cobertura debería avisar como cuando vas a 2027 y cae en julio que
+te da error»*. Ahora contesta con la misma frase que ese caso, que es la única
+que hay —vive en `problemaDeDatos()` y no se reescribe por pantalla—.
+
+**El alcance, medido antes de aplicarlo:** sobre 10.955 conteos de 2021 a 2026,
+**cambian 121, y los 121 son exactamente los que antes devolvían una fecha
+anterior a 2021.** Ninguno de más. La guarda quedó fina y no gruesa: un objetivo
+de marzo de 2021 con quince días no llega a 2020 y calcula igual, con la misma
+fecha que antes.
+
+**Y una cosa del arnés que conviene no repetir.** Comparando en el navegador, la
+matriz de 864 casos marcó **22 diferencias** y sólo **6** eran reales: las otras
+16 son casos cuyo objetivo es inhábil, que no escriben nada y **se quedan con el
+resultado del caso anterior en el DOM**. Al cambiar los 6, cambió lo que las 16
+tenían pegado atrás. Lo dejó a la vista comparar el motor contra sí mismo en
+Node —el commit anterior contra el árbol de trabajo—, donde no hay DOM que
+arrastre nada: **6 diferencias en la matriz, 121 en el barrido grande, todas del
+mismo tipo.** Cuando un arnés lee una pantalla, una diferencia puede ser de la
+pantalla y no del cálculo.
+
 ### Los diez documentos de dominio no tenían interruptor de tema — cerrado el 26/8
 
 Abierto y cerrado el mismo día. Lo encontró `verificar-contraste`, que se
