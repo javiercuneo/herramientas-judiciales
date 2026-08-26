@@ -903,6 +903,47 @@ ninguna de las validaciones anteriores miraba prosa.** Lo que se resolvió:
 
 ## Bugs cerrados
 
+### Los diez documentos de dominio no tenían interruptor de tema — cerrado el 26/8
+
+Abierto y cerrado el mismo día. Lo encontró `verificar-contraste`, que se
+escribió esa mañana y exige que los tokens oscuros estén escritos dos veces
+—el `@media` y el `[data-tema="oscuro"]`—: la plantilla de
+`scripts/build-docs.mjs` tenía uno solo, y entró al control como excepción con
+nombre y motivo para no mezclar dos cosas en el mismo commit.
+
+**Qué pasaba.** Las diez páginas de `docs/domain/` no cargaban `assets/tema.js`,
+no tenían el botón, y su único bloque oscuro era el del `@media`. O sea que
+**seguían al sistema operativo y nada más**: quien había elegido claro en las
+otras dieciséis páginas del sitio llegaba a `/docs/` y lo veía en oscuro igual,
+sin nada en pantalla que le permitiera cambiarlo. Es el único lugar donde la
+elección del usuario se perdía al navegar dentro del mismo sitio.
+
+**Por qué faltaba ahí y no en otro lado, que es lo que vale la pena guardar:**
+es la única de las páginas publicadas que **la genera un script**. Las demás se
+editaron a mano el 5/8, cuando entró el interruptor, y ésta no se abrió porque
+lo que se abre para cambiarla no es la página sino la plantilla. Es la misma
+clase de olvido que dejó a esa plantilla con los valores de `--faint`
+anteriores al 5/8 hasta que el control la midió: **lo que se genera no se mira.**
+
+**El arreglo**, en la plantilla y no en las páginas: el `@media` pasó a
+`:root:not([data-tema="claro"])`, se agregó el bloque `:root[data-tema="oscuro"]`
+con los mismos valores, entraron las reglas de `.tema-boton` —las mismas de las
+otras páginas, con su `@media print`— y el `<script src="../assets/tema.js">` en
+el `<head>` y **sin `defer`**, que es lo que evita el destello del tema
+equivocado. El botón no va en el marcado: lo inyecta `tema.js`.
+
+**Y con eso se sacó la excepción de `verificar-contraste`**, que es la mitad que
+importa: la regla de los dos bloques oscuros ahora corre sobre los seis archivos
+sin ninguno declarado aparte. Probado al revés —rompiendo el bloque nuevo, el
+control corta con la falla que corresponde.
+
+**Verificado en pantalla**, con el sitio servido y rompe-caché, sobre 488 textos
+de `03_REGLAS_DE_NEGOCIO.html`: con el sistema en oscuro y la elección en claro
+la página sale clara —que es exactamente lo que no pasaba—, el botón cambia el
+tema y lo persiste, y el contraste no baja de **4,78 en claro** ni de **5,35 en
+oscuro**. Sin desborde horizontal a 375 px, y ahí el botón no pisa el
+«← Herramientas», que es lo único que le queda cerca.
+
 ### La paleta de estados no llegaba a AA en tema claro — cerrado el 26/8
 
 Abierto y cerrado el mismo día, y sólo porque el control de contraste que se

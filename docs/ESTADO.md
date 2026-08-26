@@ -1201,18 +1201,8 @@ ni una calle con altura.
 
 ## Bugs abiertos
 
-### Los diez documentos de dominio no tienen interruptor de tema — 26/8
-
-Lo que genera `scripts/build-docs.mjs` sigue al sistema y nada más: no carga
-`assets/tema.js`, no tiene el botón, y su bloque oscuro es sólo el `@media`, sin
-el `:root[data-tema="oscuro"]` que tienen las otras trece páginas. **Quien
-eligió claro con el sistema en oscuro ve `/docs/` en oscuro igual.**
-
-Apareció escribiendo `verificar-contraste`, que exige los dos bloques oscuros en
-todos lados y tiene a este archivo declarado como excepción con nombre y
-motivo. Arreglarlo es agregar el bloque, el `<script>` y el botón a la
-plantilla; no se hizo en el mismo commit para no mezclarlo con el arreglo del
-token.
+**Ninguno.** El último —los diez documentos de dominio sin interruptor de tema—
+se cerró el 26/8 y está en [`HISTORIA.md`](HISTORIA.md).
 
 ---
 
@@ -1233,10 +1223,14 @@ una tipografía argentina para una herramienta jurídica argentina.
 Se descartó explícitamente el cluster «crema + serif display + terracota» por ser
 el look más reconocible de diseño generado por IA.
 
-**El tema lo elige el usuario, desde el 5/8**, con un botón en las trece páginas
-que inyecta `assets/tema.js` —compartido, porque trece páginas sin build no
-pueden mantener trece copias del mismo comportamiento—. Sin elección guardada se
-sigue al sistema; con elección, manda la elección y persiste en `localStorage`.
+**El tema lo elige el usuario, desde el 5/8**, con un botón que inyecta
+`assets/tema.js` —compartido, porque son páginas sin build y una copia por
+página del mismo comportamiento se desincroniza—. Lo llevan **todas las páginas
+que el sitio publica salvo las tres de redirección y el asistente clásico**. Los
+diez documentos de dominio se sumaron el 26/8: hasta ese día eran los únicos que
+seguían al sistema y nada más, y quien había elegido claro los veía en oscuro
+igual. Sin elección guardada se sigue al sistema; con elección, manda la
+elección y persiste en `localStorage`.
 
 **Cómo está hecho, para no romperlo:** los tokens oscuros están **dos veces**, en
 `@media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) }` y en

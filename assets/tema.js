@@ -8,10 +8,11 @@
 // tenía su interruptor, así que además el sitio y la app se
 // comportaban distinto.
 //
-// POR QUE ESTE ARCHIVO Y NO UNO POR PAGINA: son trece páginas sin
-// build. Un archivo compartido es la única forma de que el
-// comportamiento no se desincronice, igual que comun.css con los
-// tokens.
+// POR QUE ESTE ARCHIVO Y NO UNO POR PAGINA: son muchas páginas sin
+// build —y desde el 26/8 también las que genera scripts/build-docs.mjs,
+// que lo carga con ../assets/tema.js—. Un archivo compartido es la única
+// forma de que el comportamiento no se desincronice, igual que comun.css
+// con los tokens.
 //
 // SE CARGA EN EL <head>, CON defer NO. Tiene que correr antes del
 // primer pintado o se ve el destello del tema equivocado. Por eso la

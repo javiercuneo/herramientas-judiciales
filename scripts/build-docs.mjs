@@ -57,8 +57,13 @@ const plantilla = (titulo, cuerpo, nav) => `<!DOCTYPE html>
 --accent:#1e45ce;--border:rgb(18 22 28/.13);--hair:rgb(18 22 28/.07);--sunk:#f2f4f6;--radius:.375rem;
 --font-meter:'Archivo','Segoe UI',sans-serif;--font-sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
 --font-law:'Source Serif 4',ui-serif,Georgia,serif}
-@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0d0f13;--fg:#edeff3;--card:#16191f;
+@media(prefers-color-scheme:dark){:root:not([data-tema="claro"]){color-scheme:dark;--bg:#0d0f13;--fg:#edeff3;--card:#16191f;
 --muted-fg:#99a1ae;--faint:#828a98;--accent:#7a99ff;--border:rgb(237 239 243/.15);--hair:rgb(237 239 243/.08);--sunk:#101318}}
+/* El mismo bloque, para cuando el usuario eligio oscuro a mano con el
+   sistema en claro. Si tocas un valor arriba, tocalo aca: verificar-contraste
+   exige que los dos digan lo mismo. */
+:root[data-tema="oscuro"]{color-scheme:dark;--bg:#0d0f13;--fg:#edeff3;--card:#16191f;
+--muted-fg:#99a1ae;--faint:#828a98;--accent:#7a99ff;--border:rgb(237 239 243/.15);--hair:rgb(237 239 243/.08);--sunk:#101318}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-sans);line-height:1.65;-webkit-font-smoothing:antialiased}
 .shell{max-width:1160px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:250px 1fr;gap:56px;align-items:start}
@@ -89,8 +94,20 @@ th{font-family:var(--font-meter);font-weight:600;color:var(--fg);background:var(
 td{color:var(--muted-fg)}
 hr{border:0;border-top:1px solid var(--hair);margin:32px 0}
 .aviso{background:var(--sunk);border:1px solid var(--hair);border-radius:var(--radius);padding:14px 18px;font-size:.86rem;color:var(--faint);margin-bottom:32px}
+/* ---------- Interruptor de tema ----------
+   Lo inyecta assets/tema.js; el marcado no lo declara. Mismo estilo que
+   las otras trece paginas. */
+.tema-boton{position:fixed;top:12px;right:12px;z-index:999;padding:7px 14px;font-size:.8rem;
+font-family:var(--font-sans);font-weight:500;line-height:1.2;background:var(--card);color:var(--muted-fg);
+border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;box-shadow:0 1px 3px rgb(0 0 0/.06);
+transition:color .15s,border-color .15s}
+.tema-boton:hover{color:var(--accent);border-color:var(--accent)}
+.tema-boton:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:600px){.tema-boton{top:8px;right:8px;padding:5px 10px;font-size:.72rem}}
+@media print{.tema-boton{display:none}}
 @media(max-width:880px){.shell{grid-template-columns:1fr;gap:0}nav{position:static;max-height:none;padding:28px 0 0;border-bottom:1px solid var(--hair)}main{padding-top:28px}}
 </style>
+<script src="../assets/tema.js"></script>
 </head>
 <body>
 <div class="shell">

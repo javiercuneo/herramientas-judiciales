@@ -71,13 +71,6 @@ const ARCHIVOS = [
   'scripts/build-docs.mjs',
 ]
 
-// scripts/build-docs.mjs genera las paginas de docs/domain/, que no
-// llevan el interruptor de tema: no existe assets/tema.js ahi, asi
-// que tampoco existe [data-tema] y no hay segundo bloque oscuro que
-// comparar. Es una diferencia real y esta anotada en docs/ESTADO.md;
-// hasta que se decida, no puede hacer fallar este control.
-const SIN_INTERRUPTOR = new Set(['scripts/build-docs.mjs'])
-
 const SUPERFICIES = ['bg', 'card', 'sunk']
 const TEXTOS = ['fg', 'muted-fg', 'faint', 'accent']
 // Estos ademas se miden sobre su propio tinte compuesto encima de cada
@@ -256,13 +249,11 @@ for (const [relativo, encontrados] of porArchivo) {
 for (const [relativo, encontrados] of porArchivo) {
   const oscuros = encontrados.filter((b) => b.tema === 'dark')
   if (oscuros.length < 2) {
-    if (!SIN_INTERRUPTOR.has(relativo)) {
-      mal(
-        `${relativo}: hay ${oscuros.length} bloque(s) de tema oscuro y tiene que haber dos, ` +
-          `el del @media y el de [data-tema="oscuro"]. Con uno solo, el que elige oscuro a ` +
-          `mano en un sistema claro se queda sin la mitad de los tokens.`,
-      )
-    }
+    mal(
+      `${relativo}: hay ${oscuros.length} bloque(s) de tema oscuro y tiene que haber dos, ` +
+        `el del @media y el de [data-tema="oscuro"]. Con uno solo, el que elige oscuro a ` +
+        `mano en un sistema claro se queda sin la mitad de los tokens.`,
+    )
     continue
   }
   const [primero, ...resto] = oscuros
