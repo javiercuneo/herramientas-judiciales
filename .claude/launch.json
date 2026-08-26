@@ -4,7 +4,10 @@
     {
       "name": "honorio-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000,
       "autoPort": true,
       "cwd": "honorio"
@@ -12,9 +15,12 @@
     {
       "name": "sitio-estatico",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "4180"],
-      "port": 4180,
-      "autoPort": true
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4180"
+      ],
+      "port": 4180
     }
   ]
 }

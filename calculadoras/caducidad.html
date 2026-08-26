@@ -176,6 +176,91 @@
 
         .hidden-computation { display: none; }
 
+        /* ------------------------------------------------------ los hitos
+
+           POR QUE ESTA PANTALLA NO DIBUJA UN CALENDARIO, y las otras tres si.
+
+           La caducidad es un plazo en MESES: se cuenta de fecha a fecha
+           (art. 6 CCyC) y adentro corren todos los dias, habiles e inhabiles,
+           salvo los de feria (art. 311 CPCCN). Una grilla de seis meses con
+           todos los dias pintados no explicaria nada: no hay dias salteados
+           que mostrar, salvo la feria.
+
+           Y hay una razon mas fuerte, que es la que decide. Pintar el plazo
+           dia por dia diria que el computo avanza dia por dia, y NO es lo que
+           hace: avanza por tramos mensuales anclados al dia del acto impulsor,
+           y despues se corrige. El propio motor deja escrito que las dos
+           lecturas coinciden en 56 de 67 casos y difieren en los once cuyo
+           acto impulsor cae adentro de la feria de invierno. Un calendario
+           seria exacto casi siempre, que en esta materia no alcanza: mentiria
+           con la autoridad que tiene un dibujo, y justo en el caso raro.
+
+           Lo que si hay que explicar es la SECUENCIA DE CORRECCIONES ---los
+           meses llegaron hasta aca, enero no computa, la feria de julio sumo
+           doce dias, el resultado caia adentro de la feria de enero y se
+           corrio un mes---. Eso es una linea de hitos, y cada uno sale de un
+           valor que devuelve el motor.
+           ------------------------------------------------------------- */
+        .hitos {
+            list-style: none;
+            margin: 22px 0 0;
+            padding: 0;
+            border-top: 1px solid var(--hair);
+            padding-top: 18px;
+        }
+
+        .hito {
+            display: grid;
+            grid-template-columns: 92px 1fr;
+            gap: 14px;
+            align-items: baseline;
+            padding: 9px 0 9px 16px;
+            border-left: 2px solid var(--border);
+            position: relative;
+        }
+
+        .hito::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 15px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .hito .cuando {
+            font-family: var(--font-meter);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--fg);
+        }
+
+        .hito .que {
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--muted-fg);
+        }
+
+        /* Lo que suspende el plazo. Es lo mismo que en las otras tres pantallas
+           marca la feria y los feriados: el ambar de --warn, en el borde y no
+           en el relleno, con el texto en --muted-fg. */
+        .hito.suspension { border-left-color: var(--warn); }
+        .hito.suspension::before { background: var(--warn); }
+        .hito.suspension .cuando { color: var(--warn); }
+
+        /* El primero y el ultimo son los dos extremos de la historia y llevan
+           el acento; el resto es el camino entre ellos. */
+        .hito.extremo { border-left-color: var(--accent); }
+        .hito.extremo::before { background: var(--accent); }
+        .hito.extremo .cuando { color: var(--accent); }
+        .hito.extremo .que { color: var(--fg); font-weight: 600; }
+
+        @media (max-width: 560px) {
+            .hito { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+        }
+
         .error-message {
             color: var(--error);
             font-size: 13px;
@@ -229,6 +314,7 @@
             <div class="result-title">La caducidad se produce el día:</div>
             <div class="result-date" id="resultDate"></div>
             <div class="result-details" id="resultDetails"></div>
+            <ol class="hitos" id="hitos"></ol>
             <div class="hidden-computation">
                 <hr class="hr-divider">
                 <div class="result-title">Cómputo con Días Inhábiles y Feriados:</div>
@@ -308,6 +394,11 @@
         const escribirNegativa = function(frase) {
             document.getElementById('resultDate').innerText = 'No se puede calcular';
             document.getElementById('resultDetails').textContent = frase;
+            // Los hitos del calculo ANTERIOR se barren. Dejarlos abajo de un
+            // "No se puede calcular" es la peor variante posible: una negativa
+            // con la explicacion de otra fecha debajo, y la explicacion es lo
+            // que se lee con mas confianza.
+            document.getElementById('hitos').innerHTML = '';
             result.classList.add('show');
         };
 
@@ -332,30 +423,11 @@
             return;
         }
 
-        // Las observaciones se arman aca y no en el motor: son prosa. El orden
-        // es el de siempre --primero los eneros salteados, despues las ferias
-        // atravesadas-- porque es el orden en que ocurren dentro del computo.
-        const obs = r.eneroExcluido
-            .map(function(anio) { return 'Se excluyo enero ' + anio + ' (feria)'; })
-            .concat(r.feriaAtravesada.map(function(f) {
-                return 'Se atraveso la feria de julio ' + f.anio +
-                    ' (' + f.feria.inicio.toLocaleDateString('es-AR') + ' al ' + f.feria.fin.toLocaleDateString('es-AR') + ') ' +
-                    'y se agregaron ' + f.dias + ' dias';
-            }));
-
-        // Esta observacion importa mas que las otras dos, porque explica un
-        // corrimiento de un mes entero. Sin ella el usuario ve una fecha de
-        // febrero abajo de un plazo que termina en diciembre y no tiene con que
-        // reconstruirla.
-        if (r.corridoDeEnero) {
-            obs.push('El vencimiento caia el ' + r.corridoDeEnero.desde.toLocaleDateString('es-AR') +
-                ', adentro de la feria de enero ' + r.corridoDeEnero.anio +
-                ', y se corrio al ' + r.corridoDeEnero.hasta.toLocaleDateString('es-AR') +
-                ': el plazo no corre durante la feria (art. 311 CPCCN)');
-        }
-
         document.getElementById('resultDate').innerText = r.vencimiento.toLocaleDateString('es-AR');
-        document.getElementById('resultDetails').innerHTML = '<strong>Inicio:</strong> ' + r.inicio.toLocaleDateString('es-AR') + '<br><strong>Observaciones:</strong><br>' + obs.map(function(o) { return '- ' + o; }).join('<br>');
+        document.getElementById('resultDetails').textContent =
+            'Desde el último acto impulsor del ' + r.inicio.toLocaleDateString('es-AR') +
+            ', por un plazo de ' + plazo + (plazo === 1 ? ' mes.' : ' meses.');
+        document.getElementById('hitos').innerHTML = hitosDelComputo(r, plazo);
 
         // El computo con inhabiles y feriados. Vive dentro de
         // .hidden-computation, que tiene display:none, asi que esto no se ve
@@ -363,16 +435,102 @@
         // igual: sacarlo es una decision y esta anotada en docs/ESTADO.md.
         const full = r.conInhabiles;
         const listHTML = full.inhabiles.length > 0 ?
-            '<details><summary>Ver detalle de los ' + full.inhabiles.length + ' dias adicionados</summary>' +
+            '<details><summary>Ver detalle de los ' + full.inhabiles.length + ' días adicionados</summary>' +
             '<ul class="inhabiles-list">' +
             full.inhabiles.map(function(item) { return '<li> ' + item.fecha.toLocaleDateString('es-AR') + ': ' + item.motivo + '</li>'; }).join('') +
             '</ul></details>' : '';
 
         document.getElementById('resultDateFull').innerText = full.fecha.toLocaleDateString('es-AR');
-        document.getElementById('resultDetailsFull').innerHTML = 'Se adicionaron <strong>' + full.inhabiles.length + ' dias inhabiles</strong> extra (fuera de ferias).<strong>' + full.ajuste + '</strong>' + listHTML;
+        document.getElementById('resultDetailsFull').innerHTML = 'Se adicionaron <strong>' + full.inhabiles.length + ' días inhábiles</strong> extra (fuera de ferias).<strong>' + full.ajuste + '</strong>' + listHTML;
 
         result.classList.add('show');
     });
+
+    // ----------------------------------------------------------------------
+    // La linea de hitos: como se llego a esa fecha.
+    //
+    // Reemplaza la lista de "Observaciones", que decia lo mismo en tres
+    // renglones sin orden y sin las fechas intermedias. Cada hito sale de un
+    // valor que devuelve el motor --inicio, vencimientoNominal, feriaAtravesada,
+    // eneroExcluido, corridoDeEnero, vencimiento-- y ninguno se reconstruye
+    // restando dias de este lado.
+    //
+    // El orden es el del computo y no el de importancia: primero los meses,
+    // despues la feria de invierno que los empuja, y al final el corrimiento de
+    // enero, que ocurre despues de todo lo demas y por eso va ultimo.
+    // ----------------------------------------------------------------------
+    function hitosDelComputo(r, meses) {
+        const fecha = function(d) { return d.toLocaleDateString('es-AR'); };
+        const hitos = [];
+
+        hitos.push({
+            clase: 'extremo',
+            cuando: fecha(r.inicio),
+            que: 'Último acto impulsor'
+        });
+
+        // Los eneros que no computan salen ANTES del hito de los meses, porque
+        // es lo que hace que los meses terminen un mes mas adelante de lo que
+        // la cuenta simple daria. Sin este renglon la fecha nominal parece
+        // estar corrida por nada.
+        r.eneroExcluido.forEach(function(anio) {
+            hitos.push({
+                clase: 'suspension',
+                cuando: 'enero ' + anio,
+                que: 'No computa: es feria judicial entera (art. 311 CPCCN), y el plazo se corre un mes'
+            });
+        });
+
+        // El hito de los meses solo sale como renglon propio si la fecha nominal
+        // NO es la final: cuando el plazo no atraviesa ninguna feria de
+        // invierno las dos coinciden, y dos renglones seguidos con la misma
+        // fecha se leen como un error del programa. En ese caso la regla se
+        // dice en el ultimo hito, que es donde tiene sentido.
+        const contadosDeFechaAFecha = meses + (meses === 1 ? ' mes contado' : ' meses contados') +
+            ' de fecha a fecha desde el acto impulsor (art. 6 CCyC)';
+        const nominalEsFinal = r.vencimientoNominal.getTime() === r.vencimiento.getTime();
+
+        if (!nominalEsFinal) {
+            hitos.push({ cuando: fecha(r.vencimientoNominal), que: contadosDeFechaAFecha });
+        }
+
+        r.feriaAtravesada.forEach(function(f) {
+            hitos.push({
+                clase: 'suspension',
+                cuando: '+ ' + f.dias + (f.dias === 1 ? ' día' : ' días'),
+                que: 'Feria judicial de invierno de ' + f.anio + ', del ' +
+                     fecha(f.feria.inicio) + ' al ' + fecha(f.feria.fin) +
+                     ': el plazo no corre y el vencimiento se corre otro tanto (art. 311 CPCCN)'
+            });
+        });
+
+        // El corrimiento de enero ocurre DESPUES de sumar la feria de invierno,
+        // y es el que mueve la fecha un mes entero. Sin este renglon el usuario
+        // ve una fecha de febrero abajo de un plazo que termina en diciembre y
+        // no tiene con que reconstruirla.
+        if (r.corridoDeEnero) {
+            hitos.push({
+                clase: 'suspension',
+                cuando: fecha(r.corridoDeEnero.desde),
+                que: 'Caía adentro de la feria de enero ' + r.corridoDeEnero.anio +
+                     ', que no computa: se corre un mes'
+            });
+        }
+
+        hitos.push({
+            clase: 'extremo',
+            cuando: fecha(r.vencimiento),
+            que: nominalEsFinal
+                ? 'Se produce la caducidad de la instancia: ' + contadosDeFechaAFecha
+                : 'Se produce la caducidad de la instancia'
+        });
+
+        return hitos.map(function(h) {
+            return '<li class="hito' + (h.clase ? ' ' + h.clase : '') + '">' +
+                '<span class="cuando">' + h.cuando + '</span>' +
+                '<span class="que">' + h.que + '</span></li>';
+        }).join('');
+    }
 
     document.getElementById('plazo').addEventListener('change', function() {
         document.getElementById('customMonths').classList.toggle('show', this.value === 'custom');
@@ -380,6 +538,7 @@
     document.getElementById('clearBtn').addEventListener('click', function() {
         form.reset();
         result.classList.remove('show');
+        document.getElementById('hitos').innerHTML = '';
         document.getElementById('customMonths').classList.remove('show');
     });
 </script>

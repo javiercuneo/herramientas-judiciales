@@ -185,6 +185,9 @@ calculadoras/                   Herramientas de un solo archivo HTML con JS embe
                                   y escriben. Una cuenta con consecuencia juridica
                                   escrita dos veces es el modo de falla que produjo el
                                   bug de la feria, asi que no se vuelve a copiar.
+                                  js/dibujo-plazo.js y css/dibujo-plazo.css son el
+                                  plazo dibujado, por el mismo motivo: cuatro copias
+                                  de la misma grilla se desincronizan.
 conectores/                     El calendario y el computo de plazos, consultables desde
                                   codigo. nucleo.mjs carga los motores de navegador en
                                   Node; http.mjs y mcp.mjs son transportes finos encima
@@ -265,7 +268,7 @@ Un archivo HTML cada una, con su CSS y su JS adentro. Sin build y sin bundler:
 se abren, se editan y se guardan. Esa simplicidad es deliberada: duran años sin
 mantenimiento.
 
-Comparten dos cosas, y las dos afectan a varias herramientas a la vez:
+Comparten tres cosas, y las tres afectan a varias herramientas a la vez:
 
 - **`calculadoras/js/calendario-judicial.js`**, del que depende todo lo que
   computa fechas. Lo usan las **cinco** de plazos: `caducidad`, `entre-fechas`,
@@ -276,6 +279,12 @@ Comparten dos cosas, y las dos afectan a varias herramientas a la vez:
   Ahí vive también `problemaDeDatos()`, la frase que explica por qué una
   herramienta no calcula. **No se reescribe en cada calculadora**: cinco copias
   de la misma prosa en cinco archivos sin build se desincronizan.
+- **`calculadoras/js/dibujo-plazo.js` y `calculadoras/css/dibujo-plazo.css`**,
+  el plazo dibujado sobre el calendario. Los consumen `vencimientos`,
+  `entre-fechas` y `regresiva`; `caducidad` no, y el motivo está en su `<style>`.
+  **El módulo decide cómo se dibuja un día y no qué significa:** recibe un mapa
+  de marcas ya armado y no mira un resultado del motor. Lo que significa cada día
+  lo arma cada pantalla, porque las cuatro contestan preguntas distintas.
 - **`calculadoras/css/comun.css`**, que define los tokens del sistema visual y
   una base mínima. Cada archivo lo carga *antes* de su propio `<style>`, así que
   lo local sigue ganando y cada uno resuelve su layout. **No redefinas un token

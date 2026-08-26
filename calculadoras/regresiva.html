@@ -13,6 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
+    <link rel="stylesheet" href="css/dibujo-plazo.css">
     <script src="../assets/tema.js"></script>
     <style>
         * {
@@ -78,15 +79,21 @@
             border: 2px solid var(--border);
             border-radius: 8px;
             font-family: var(--font-sans);
+            background: var(--card);
+            color: var(--fg);
             transition: 0.2s;
         }
         .campo input:focus {
             outline: none;
             border-color: var(--accent);
         }
+        /* Los cuatro colores planos que tenia esta pantalla ---#c44545,
+           #fff2f2, #f8d7da, #721c24--- son de tema claro y en tema oscuro
+           pintaban un cartel casi blanco con letra casi negra. Van los tokens
+           de estado del sistema, que estan medidos en los dos temas. */
         .campo input.error {
-            border-color: #c44545;
-            background-color: #fff2f2;
+            border-color: var(--error);
+            background-color: var(--error-tint);
         }
         .botones {
             display: flex;
@@ -144,67 +151,24 @@
             letter-spacing: 1px;
         }
         .error-mensaje {
-            background: #f8d7da;
-            color: #721c24;
+            background: var(--error-tint);
+            border: 1px solid var(--error);
+            color: var(--fg);
             padding: 15px 20px;
             border-radius: 20px;
             font-weight: 500;
             margin: 20px 0;
         }
-        .trazabilidad {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 25px;
-            margin-top: 30px;
-        }
-        .card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid var(--border);
-        }
-        .card h3 {
-            font-weight: 600;
-            font-size: 1.2rem;
-            margin-bottom: 18px;
-            color: var(--accent);
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 8px;
-        }
-        .lista {
-            max-height: 300px;
-            overflow-y: auto;
-            font-size: 0.9rem;
-            background: #fafdff;
-            border-radius: 16px;
-            padding: 10px;
-        }
-        .item {
-            padding: 8px 12px;
-            border-bottom: 1px solid #e6edf4;
-            display: flex;
-            gap: 10px;
-        }
-        .item:last-child {
-            border-bottom: none;
-        }
-        .fecha {
-            font-weight: 600;
-            min-width: 100px;
-            color: var(--accent);
-        }
-        .motivo {
-            color: #3f5466;
-            font-style: italic;
-        }
-        .contado {
-            color: #1e7a44;
-            font-weight: 500;
-        }
-        .no-contado {
-            color: #b13e3e;
-        }
+        /* El dibujo del plazo --la grilla, las fichas de motivo y las
+           referencias-- vive en css/dibujo-plazo.css, compartido con las otras
+           tres pantallas que dibujan.
+
+           Aca vivia la traza dia por dia: una fila por cada dia evaluado, con
+           "OK CONTADO" o "X NO CONTADO" al lado. La reemplaza el dibujo, que
+           dice lo mismo y ademas muestra DONDE cayeron los dias salteados. Y
+           de paso se fueron cuatro colores planos --#fafdff, #e6edf4, #1e7a44,
+           #b13e3e-- que el sistema visual no usa y que en tema oscuro pintaban
+           una lista casi blanca. */
         .footer {
             text-align: center;
             color: var(--muted-fg);
@@ -226,18 +190,13 @@
             display: inline-block;
             margin-left: 8px;
         }
+        /* Estaba escrito al reves: adentro del @media se repetia .container
+           tal cual, con los mismos 40px de relleno del escritorio, asi que en
+           un telefono la tarjeta seguia comiendose el ancho. */
         @media (max-width: 700px) {
-            .trazabilidad {
-                grid-template-columns: 1fr;
-            }
-            .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--card);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid var(--border);
-        }
+            body { padding: 14px; }
+            .container { padding: 24px 18px; border-radius: 14px; }
+            .panel { padding: 18px 16px; }
         }
     </style>
 </head>
@@ -261,7 +220,7 @@
             <button class="btn" id="calcularBtn">Calcular fecha límite</button>
             <button class="btn reset" id="resetBtn">Limpiar</button>
         </div>
-        <div id="infoAnios" class="info-anios">⏳ Cargando feriados y días inhábiles...</div>
+        <div id="infoAnios" class="info-anios">Cargando el calendario judicial…</div>
     </div>
 
     <div id="errorGlobal" class="error-mensaje" style="display: none;"></div>
@@ -271,16 +230,11 @@
         <div class="fecha-limite" id="fechaLimite">-</div>
     </div>
 
-    <div class="trazabilidad" id="trazabilidadPanel" style="display: none;">
-        <div class="card">
-            <h3>Días evaluados (desde el anterior a la objetivo)</h3>
-            <div class="lista" id="listaDiasEvaluados"></div>
-        </div>
-    </div>
+    <div id="dibujo"></div>
 
     <div class="footer">
         <p>Los días hábiles excluyen fines de semana, feriados nacionales, ferias (enero y julio), 16 de noviembre (Ley 26.674) y <a href="../data/dias-inhabiles.json" target="_blank" rel="noopener">días inhábiles adicionales (ver)</a>.</p>
-        <p style="margin-top: 10px;">Si creés que hay un error, envíanos un mail a <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo qué salió mal.</p>
+        <p style="margin-top: 10px;">Si creés que hay un error, escribime a <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo qué salió mal.</p>
     </div>
     <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
         <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
@@ -293,6 +247,7 @@
 </div>
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>
+<script src="js/dibujo-plazo.js"></script>
 <script>
     (function() {
         let datosCargados = false;
@@ -306,8 +261,7 @@
         const errorGlobalDiv = document.getElementById('errorGlobal');
         const resultadoPanel = document.getElementById('resultadoPanel');
         const fechaLimiteSpan = document.getElementById('fechaLimite');
-        const trazabilidadPanel = document.getElementById('trazabilidadPanel');
-        const listaEvaluados = document.getElementById('listaDiasEvaluados');
+        const dibujoDiv = document.getElementById('dibujo');
 
 
         function parseFechaDDMMAAAA(str) {
@@ -341,7 +295,7 @@
         // 26/8/2026 el conteo hacia atras estaba escrito aca adentro.
         function calcular() {
             if (!datosCargados) {
-                alert('Los datos aun no estan listos o hay un error. Intenta recargar.');
+                alert('El calendario judicial todavía no está cargado. Recargá la página.');
                 return;
             }
 
@@ -382,21 +336,88 @@
                 return;
             }
             if (r.objetivoInhabil) {
-                alert('La fecha objetivo es inhabil (' + r.objetivoInhabil + '). Por favor elija una fecha habil.');
+                alert('La fecha objetivo es inhábil (' + r.objetivoInhabil + '). Elegí un día hábil.');
                 return;
             }
 
             fechaLimiteSpan.textContent = formatearFechaDDMMAAAA(r.fechaLimite);
             resultadoPanel.style.display = 'block';
-            trazabilidadPanel.style.display = 'grid';
+            dibujoDiv.innerHTML = dibujarRegresiva(r);
+        }
 
-            listaEvaluados.innerHTML = '';
+        // ------------------------------------------------------------------
+        // El plazo dibujado sobre el calendario.
+        //
+        // QUE EXPLICA ESTE DIBUJO, que no es lo mismo que explica el de
+        // vencimientos. Aca el plazo se cuenta HACIA ATRAS desde una fecha que
+        // el usuario eligio, y la pregunta que el numero solo no contesta es
+        // hasta donde tuvo que retroceder el conteo y por que. Un fin de semana
+        // y una feria adelantan la fecha limite --dan MENOS tiempo, no mas-- y
+        // eso es exactamente lo contrario de lo que la intuicion espera.
+        //
+        // Por eso el orden de los dias se numera desde la fecha objetivo hacia
+        // atras: el 1 es el habil inmediatamente anterior al objetivo y el
+        // ultimo es la fecha limite. Numerarlos al reves --como si el plazo
+        // corriera hacia adelante-- diria que el computo empieza en la fecha
+        // limite, que es justo lo que todavia no se sabe.
+        //
+        // Se arma de r.evaluados, que es lo que el motor recorrio, y NO
+        // recorriendo el calendario por su cuenta.
+        // ------------------------------------------------------------------
+        function dibujarRegresiva(r) {
+            var D = window.DibujoPlazo;
+            var marcas = {};
+            var motivos = [];
+            var contados = 0;
+            var total = r.evaluados.filter(function(e) { return e.contado; }).length;
+
             r.evaluados.forEach(function(item) {
-                const div = document.createElement('div');
-                div.className = 'item';
-                const fechaS = formatearFechaDDMMAAAA(item.fecha);
-                div.innerHTML = '<span class="fecha">' + fechaS + '</span> <span class="' + (item.contado ? 'contado' : 'no-contado') + '">' + (item.contado ? 'OK CONTADO' : 'X NO CONTADO') + '</span>' + (item.motivo ? '<span class="motivo">(' + item.motivo + ')</span>' : '');
-                listaEvaluados.appendChild(div);
+                var k = D.clave(item.fecha);
+                if (item.contado) {
+                    contados++;
+                    marcas[k] = {
+                        clase: 'contado',
+                        orden: contados,
+                        titulo: ' — día ' + contados + ' de los ' + total + ' de antelación'
+                    };
+                } else {
+                    marcas[k] = {
+                        clase: item.motivo === 'Fin de semana' ? 'finde' : 'acto',
+                        titulo: ' — ' + item.motivo
+                    };
+                    motivos.push({ fecha: item.fecha, motivo: item.motivo });
+                }
+            });
+
+            // La fecha objetivo lleva el borde de --ok, igual que la firma de la
+            // resolucion en vencimientos: es el dato que el usuario cargo y del
+            // que sale todo lo demas, no un dia del plazo. No se cuenta.
+            var claveObjetivo = D.clave(r.objetivo);
+            marcas[claveObjetivo] = { clase: 'fuera firma', titulo: ' — fecha objetivo, no se cuenta' };
+
+            // La fecha limite es la respuesta y se pinta solida, igual que el
+            // vencimiento. Es ademas el ultimo dia contado: la marca lo
+            // REEMPLAZA en vez de acumularse, porque el solido encima del tinte
+            // queda ilegible. El numero de orden se conserva.
+            var claveLimite = D.clave(r.fechaLimite);
+            marcas[claveLimite] = {
+                clase: 'vence',
+                orden: contados,
+                titulo: ' — fecha límite: el día ' + contados + ' contado hacia atrás'
+            };
+
+            return D.dibujar({
+                desde: r.fechaLimite,
+                hasta: r.objetivo,
+                marcas: marcas,
+                motivos: motivos,
+                referencias: [
+                    D.ref('background:var(--accent)', 'fecha límite'),
+                    D.ref('background:var(--accent-tint)', 'día contado'),
+                    D.ref('border-color:var(--ok)', 'fecha objetivo'),
+                    D.ref('background:var(--sunk)', 'fin de semana'),
+                    D.ref('background:var(--warn-tint);border-color:var(--warn)', 'feria, feriado o asueto')
+                ]
             });
         }
 
@@ -404,10 +425,8 @@
             fechaInput.value = '';
             diasInput.value = '5';
             resultadoPanel.style.display = 'none';
-            trazabilidadPanel.style.display = 'none';
             errorGlobalDiv.style.display = 'none';
-            listaEvaluados.innerHTML = '';
-
+            dibujoDiv.innerHTML = '';
         }
 
         window.addEventListener('load', async function() {
@@ -423,10 +442,10 @@
                 calcularBtn.disabled = false;
                 anosDisponibles = [];
                 for (var y = 2021; y <= currentYear + 1; y++) anosDisponibles.push(y);
-                infoAniosDiv.innerHTML = 'OK Años disponibles: <strong>' + anosDisponibles.sort().join(', ') + '</strong> (según feriados y adicionales)';
+                infoAniosDiv.innerHTML = 'Años disponibles: <strong>' + anosDisponibles.sort().join(', ') + '</strong> (según feriados y adicionales)';
             } else {
                 datosCargados = false;
-                infoAniosDiv.innerHTML = 'Error al cargar los datos. La calculadora no funcionara. Intenta recargar la pagina mas tarde.';
+                infoAniosDiv.innerHTML = 'No se pudo cargar el calendario judicial, así que esta herramienta no calcula. Recargá la página en un rato.';
                 errorGlobalDiv.style.display = 'block';
                 errorGlobalDiv.textContent = 'No se pudieron obtener los feriados o el archivo adicional.';
                 calcularBtn.disabled = true;

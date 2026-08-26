@@ -1,0 +1,198 @@
+/* ------------------------------------------------------------------
+   El plazo dibujado sobre el calendario.
+
+   Sale de vencimientos.html, donde el dibujo se hizo el 26/8/2026, y
+   vive aca desde que lo consumen tambien caducidad, entre-fechas y
+   regresiva. Cuatro copias de la misma grilla en cuatro archivos sin
+   build se desincronizan, y ya se sabe como termina eso.
+
+   Va DESPUES de comun.css y ANTES del <style> de cada calculadora, que
+   es el orden que deja ganar a lo local. Usa solo tokens del sistema:
+   no define ninguno y no redefine ninguno --`--accent: var(--accent)`
+   es un ciclo que deja la variable en la cadena vacia, y ya dejo dos
+   calculadoras con el boton invisible--.
+
+   Todo lo que se pinta paso por scripts/verificar-contraste.mjs: el
+   numero del dia de feria estuvo en --warn sobre --warn-tint y daba
+   4,24 en tema claro, abajo de los 4,5 que pide AA a 12 px.
+   ------------------------------------------------------------------ */
+
+.lienzo {
+    margin-top: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+}
+
+/* Ancho FIJO por mes, no una fraccion del lienzo.
+
+   Con minmax(212px, 1fr) el mes se estiraba para llenar: un plazo de
+   dos meses daba celdas de 62 px y uno de cinco, de 28. El mismo dibujo
+   cambiaba de tamaño segun cuanto durara el plazo, que es justo lo que
+   un calendario no tiene que hacer. Javier, 26/8: "le dejaria siempre
+   el mismo tamaño, el que tiene cuando se ve el mes completo".
+
+   236px da celdas de ~30px, que es el tamaño con el que se dibujo. Los
+   meses se centran y sobra aire a los costados cuando son pocos: es
+   preferible al mes gigante. */
+.meses {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 236px);
+    justify-content: center;
+    gap: 24px 28px;
+}
+
+@media (max-width: 320px) {
+    .meses { grid-template-columns: minmax(0, 1fr); }
+}
+
+.mes h4 {
+    font-family: var(--font-meter);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--muted-fg);
+    margin-bottom: 10px;
+}
+
+.grilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+
+.encabezado-dia {
+    font-size: 10px;
+    text-align: center;
+    color: var(--faint);
+    font-weight: 700;
+    padding-bottom: 5px;
+}
+
+.celda {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    font-family: var(--font-meter);
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid transparent;
+    color: var(--muted-fg);
+}
+
+.celda.vacio { visibility: hidden; }
+.celda.fuera { color: var(--faint); font-weight: 400; }
+.celda.finde { background: var(--sunk); color: var(--faint); font-weight: 400; }
+
+/* Lo que decidio un ACTO --feria, feriado, asueto--. El ambar va en el
+   fondo y el borde y el numero en --fg: con el numero en --warn sobre
+   --warn-tint el contraste en tema claro da 4,24 y reprueba AA a 12 px.
+   En oscuro pasaba, que es como este error sobrevive. */
+.celda.acto {
+    background: var(--warn-tint);
+    border-color: var(--warn);
+    color: var(--fg);
+}
+
+.celda.contado { background: var(--accent-tint); color: var(--accent); }
+.celda.notificacion { border-color: var(--accent); color: var(--accent); }
+
+/* La firma de la resolucion, en notificacion automatica. Es un evento
+   de otra naturaleza --no es el plazo, es lo que lo origina-- y por eso
+   lleva --ok, que es un token de estado del sistema y no un acento
+   nuevo. Va en el borde y no en el relleno para no competir con el
+   vencimiento, que es lo unico que se llena solido.
+
+   En regresiva y en entre-fechas el mismo borde marca el ANCLA del
+   computo --la fecha objetivo, el dia desde el que se cuenta--: es el
+   mismo papel, el dato que el usuario cargo y del que sale todo lo
+   demas. */
+.celda.firma { border-color: var(--ok); color: var(--ok); }
+
+.celda.vence { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+
+/* Los dias en que se dejo nota en el Libro de Asistencia. Hasta el 26/8
+   se cargaban en el formulario, movian el vencimiento, y en el dibujo no
+   se veian: el usuario tildaba diez fechas y ninguna aparecia. Lleva un
+   punto y no un color de fondo, porque un dia de nota no es una
+   categoria de dia --puede ser ademas contado, o ser la notificacion--
+   sino algo que paso ese dia. */
+.celda.nota { position: relative; }
+.celda.nota::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.celda .orden { font-size: 8px; line-height: 1; opacity: 0.7; font-weight: 400; }
+
+.referencias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--hair);
+    font-size: 12px;
+    color: var(--muted-fg);
+}
+.referencias span { display: flex; align-items: center; gap: 7px; }
+.muestra {
+    width: 15px; height: 15px;
+    border-radius: 4px;
+    border: 1.5px solid transparent;
+    display: inline-block;
+    flex: none;
+}
+
+/* La muestra del dia de nota imita una celda cualquiera con el punto
+   encima, y no un color: el punto no es una categoria de dia --un dia
+   de nota puede ser ademas contado, o ser la notificacion-- asi que la
+   muestra tiene que leerse como "un dia con esta marca". A 4px y en
+   --muted-fg no se veia y la fila entera pasaba desapercibida. */
+.muestra.punto {
+    position: relative;
+    border: 1.5px solid var(--border);
+    background: transparent;
+}
+.muestra.punto::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--fg);
+}
+
+/* Los dias que salteo un ACTO, con su motivo. Los fines de semana NO se
+   listan: el dibujo ya los muestra y nadie necesita que le digan que el
+   sabado no se cuenta. Lo que el dibujo NO puede decir es por que un
+   martes esta marcado, y eso es lo unico que se escribe. */
+.motivos { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 16px; }
+
+.motivo {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    background: var(--warn-tint);
+    border: 1px solid var(--warn);
+    border-radius: 999px;
+    padding: 4px 13px;
+    font-size: 12px;
+    color: var(--fg);
+}
+.motivo b { font-family: var(--font-meter); font-weight: 700; }
+.motivo .cuenta { color: var(--muted-fg); }
+
+@media (max-width: 620px) {
+    .lienzo { padding: 18px 16px; }
+}

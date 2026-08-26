@@ -203,10 +203,14 @@ Ninguno urgente y ninguno bloqueante.
   cobertura —cada una nombra años distintos—, el tuteo suelto («envíanos un
   mail», «si crees»), los `max-width` de 240 a 1000 px, y los rótulos.
   **El orden acordado**: `vencimientos` primero —hecha el 26/8—, después la
-  extracción de las otras tres de plazos —**hecha el 26/8 también**—, y recién
-  ahí las que no son de plazos, que van de cero. O sea que **el turno es de las
-  que no son de plazos**, salvo que primero se quiera el dibujo y el rediseño de
-  las tres recién migradas.
+  extracción de las otras tres de plazos y su dibujo —**las dos cosas hechas el
+  26/8 también**—, y recién ahí las que no son de plazos, que van de cero. O sea
+  que **el turno es de las que no son de plazos**, salvo que primero se quiera el
+  rediseño de las tres recién migradas.
+  **Y de esas tres ya se hizo lo que no podía esperar al rediseño**, porque salió
+  al paso del dibujo: los colores planos de `regresiva`, su `@media` escrito al
+  revés, y las faltas de ortografía del texto que ve el usuario en `caducidad` y
+  en `regresiva`. Lo que queda ahí es aspecto, no defecto.
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
   su propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -796,39 +800,19 @@ en tema claro. Ahora da **5,52**, y es el peor de la página.
 Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío.
 
 1. **~~Extraer la aritmética de `caducidad`, `entre-fechas` y `regresiva`.~~
-   Hecho el 26/8**, las tres, con la matriz de cada una idéntica: ver
-   [abajo](#las-tres-que-faltaban-consumen-el-motor--268). El paso previo ya no
-   está: **las cinco pantallas de plazos consumen el motor.**
-
-   **Lo que queda es el dibujo del plazo en esas tres**, que era para lo que
-   hacía falta la extracción —el dibujo se arma de lo que el motor devuelve, no
-   recorriendo el calendario por su cuenta—. Y ahí hay una decisión antes de
-   escribir una línea: **el dibujo de `vencimientos` no se copia tal cual**,
-   porque las tres contestan otra cosa. `caducidad` es un plazo en meses y su
-   grilla tendría que mostrar medio año; `regresiva` cuenta hacia atrás y ya
-   tiene su propia traza día por día, que quizás sea mejor que una grilla;
-   `entre-fechas` no computa un vencimiento sino que cuenta, y ya lista los días
-   excluidos. **Antes de dibujar hay que decidir qué explica cada dibujo**, que
-   es lo que hizo bueno el de `vencimientos`.
-
-   **Y va ANTES del rediseño de esas tres, no después.** Las dos cosas tocan
-   los mismos archivos, y al revés habría que tocarlos dos veces: rediseñar
-   una pantalla que después hay que volver a abrir para meterle el calendario
-   es hacer dos veces el mismo trabajo.
-
-   **El método, que ya se usó cinco veces y no hay que reinventar:**
-   a) capturar la salida de la pantalla actual sobre una matriz de casos —con el
-      detalle, no sólo la fecha final—, **contra el sitio servido, y
-      comprobando que el código que corre es el que se acaba de escribir**;
-   b) transcribir la aritmética a `plazos.js` sin tocarla, conservando las
-      convenciones de fecha de cada una;
-   c) hacer que la pantalla consuma el motor;
-   d) correr la misma matriz y exigir que dé idéntico.
+   ~~Y el dibujo del plazo en las tres.~~ Las dos cosas hechas el 26/8**: la
+   extracción, con la matriz de cada una idéntica, y el dibujo, con una decisión
+   distinta por pantalla. Ver [abajo](#el-dibujo-en-las-tres-que-faltaban--268).
+   **Las cinco pantallas de plazos consumen el motor y las cuatro que tenían algo
+   que dibujar dibujan.**
 2. **El cruce pantalla contra motor en `scripts/pruebas-calculadoras.html`.**
    Sigue pendiente y es la red que faltaría para que una divergencia falle a los
-   gritos en vez de en silencio. Con `vencimientos` y `mora` ya migradas la
-   urgencia bajó —hay una sola implementación— pero el control sirve igual para
-   las que se migren después.
+   gritos en vez de en silencio. Con las cinco ya migradas la urgencia bajó
+   —hay una sola implementación— pero el control sirve igual.
+   **Y ahora hay un cruce más barato que se puede copiar:** en `entre-fechas` el
+   último número de la grilla es el total, porque los días contados los devuelve
+   el motor y no los reconstruye la pantalla. Si alguna vez discrepan, se ve sin
+   abrir nada.
 3. **El resto de las calculadoras, con `vencimientos` de patrón.** Acordado con
    Javier el 26/8: *«en algún momento hay que encarar la modificación y
    adaptación de todas las calculadoras… terminemos vencimientos y luego pasamos
@@ -841,12 +825,11 @@ Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío
    se pueden repetir: cada control ocupa lo que mide su contenido, lo único
    grande es el resultado, los modificadores del cómputo van juntos y detrás de
    una casilla, y nada se separa con una línea si alcanza con el espacio.
-4. **Sacarle a `honorarios-mediacion` la dependencia de Google Docs.** Le pide
-   el UHOM a una planilla publicada en cada carga, y desde el 24/8
-   `data/serie-uhom.json` tiene los 67 valores leídos de las tablas oficiales y
-   verificados por `npm run verificar-series`. Saca un tercero de la página y
-   además usa la serie buena. Es el mismo movimiento que ya se hizo con los
-   feriados, y vale para todas las que lean planillas.
+4. **~~Sacarle a `honorarios-mediacion` la dependencia de Google Docs.~~ Hecho
+   el 26/8**, el mismo día en que este punto se escribió: la página lee
+   `data/serie-uhom.json`, del propio repositorio. Este punto quedó acá
+   contradiciendo a la lista de pendientes de arriba, que ya lo daba por
+   arreglado. Comprobado leyendo el `fetch` del archivo antes de tacharlo.
 
 ---
 
@@ -912,13 +895,153 @@ tuvieron más de una feria—.
 idénticos** después del rediseño completo. Contraste sin excepciones en los dos
 temas —peor 4,66 en claro, 5,06 en oscuro— y sin desborde a 375 px.
 
-**Lo que falta de este frente:** extender el dibujo a `caducidad`,
-`entre-fechas` y `regresiva`, que no tienen calendario porque no consumen el
-motor todavía; ése es el paso previo y está en [Por dónde
-seguir](#por-dónde-seguir). Los otros dos que estaban acá —el tablero
-rediseñado y sacar `honorarios`, `tasa` y `prorrateo` de la barra— se hicieron
-el mismo 26/8: ver [el rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268).
+**Lo que faltaba de este frente ya no falta:** el dibujo se extendió a las otras
+tres el mismo 26/8, y el de `vencimientos` salió a un módulo compartido sin mover
+un carácter de lo que produce. Ver [el dibujo en las tres que
+faltaban](#el-dibujo-en-las-tres-que-faltaban--268). Los otros dos que estaban
+acá —el tablero rediseñado y sacar `honorarios`, `tasa` y `prorrateo` de la
+barra— se hicieron el mismo día: ver [el
+rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268).
 
+---
+
+### El dibujo en las tres que faltaban — 26/8
+
+**Lo primero fue no copiar el de `vencimientos`.** El pendiente lo decía y tenía
+razón: las tres contestan otra pregunta, y un calendario que no explica nada es
+peor que ninguno, porque un dibujo se lee con más confianza que una frase.
+
+**El dibujo salió de `vencimientos.html` a dos archivos compartidos** —
+`calculadoras/js/dibujo-plazo.js` y `calculadoras/css/dibujo-plazo.css` —. Cuatro
+copias de la misma grilla en cuatro archivos sin build se desincronizan: es el
+mismo argumento por el que `problemaDeDatos()` vive en el calendario y no en cada
+pantalla.
+
+**El módulo decide cómo se dibuja un día; no decide qué significa.** Recibe un
+mapa de marcas ya armado —clase, número de orden y el texto del globo— y no mira
+ni un resultado del motor. Si interpretara el cómputo, sería una segunda
+implementación del cómputo. Lo que significa cada día lo arma cada pantalla, que
+es donde está la diferencia.
+
+**Verificado antes de tocar nada y después:** los mismos 10 casos de
+`vencimientos` —cédula, automática, días de nota, ampliación, feria de julio y de
+enero— **idénticos carácter por carácter**, comparados por longitud y suma de
+control del HTML que produce el dibujo. La extracción movió el archivo y nada más.
+
+Ahí apareció el único desvío, y vale anotarlo porque es la clase de cosa que se
+publica sin que nadie la vea: en la primera pasada faltaban seis caracteres por
+caso. Era la clase `fuera` del día de la notificación, que no está contado ni
+salteado y por lo tanto no entraba en ninguna de las dos vueltas. Se veía como un
+gris que faltaba en una celda; se encontró porque la comparación era por
+longitud y no por «se ve igual».
+
+#### `regresiva`: el dibujo reemplazó la traza
+
+Contaba hacia atrás y ya listaba día por día: una fila por cada uno, con «OK
+CONTADO» o «X NO CONTADO» al lado. **La lista es el dibujo sin la forma**, y
+repetía el problema que en `vencimientos` ya se había resuelto agrupando: doce
+renglones idénticos de feria tapando al feriado suelto.
+
+**Qué explica el dibujo acá, que el número no:** hasta dónde tuvo que retroceder
+el conteo. Un fin de semana y una feria **adelantan** la fecha límite —dan menos
+tiempo, no más— y eso es lo contrario de lo que la intuición espera. El caso que
+lo muestra: objetivo el 5/8/2026 con 10 días de antelación no da fines de julio,
+da el **6 de julio**, porque la feria de la Acordada 11/2026 se come doce días.
+
+Los días se numeran **desde el objetivo hacia atrás**: el 1 es el hábil anterior
+al objetivo y el último es la fecha límite. Numerarlos al revés diría que el
+cómputo empieza en la fecha límite, que es justo lo que todavía no se sabe.
+
+**Esto sacó una pantalla y es una decisión, no una consecuencia.** Si la traza
+hacía falta, vuelve: son veinte líneas y están en el historial.
+
+De paso salieron de esa pantalla cuatro colores planos —`#fafdff`, `#e6edf4`,
+`#1e7a44`, `#b13e3e`— más los dos del cartel de error, que en tema oscuro
+pintaban una lista casi blanca con letra casi negra. Y el `@media` de 700 px
+estaba escrito al revés: repetía `.container` con los mismos 40 px de relleno del
+escritorio, así que en un teléfono la tarjeta seguía comiéndose el ancho.
+
+#### `entre-fechas`: lo que el dibujo muestra son las dos casillas
+
+No computa un vencimiento: cuenta. Así que lo que el número no contesta son dos
+cosas, y las dos se ven en la grilla:
+
+1. **Qué días entraron.** Las casillas de incluir el inicio y el fin mueven el
+   total sin mover nada en pantalla: se destilda una, el número baja en uno, y no
+   queda con qué saber cuál día se fue. Ahora **las dos fechas cargadas están
+   siempre marcadas**, y se ve si quedaron adentro o afuera.
+2. **Cuáles se descontaron y por qué**, cuando se cuenta en hábiles.
+
+**Y la diferencia entre los dos modos se lee de un vistazo:** en días corridos el
+bloque sale entero, porque el sábado también cuenta; en hábiles sale picado.
+Atenuar el fin de semana en un conteo de corridos sería dibujar lo contrario de
+lo que el número dice.
+
+**`entreFechas()` ahora devuelve `contados`**, los días que entraron al conteo.
+Es aditivo —no toca una sola cuenta— y existe por una razón concreta: si el
+dibujo caminara el rango restando los excluidos, sería un segundo conteo, y el
+último número de la grilla podría no coincidir con el total. Así coinciden porque
+**son el mismo conteo**, y eso convierte al dibujo en un control: si alguna vez
+discrepan, se ve sin abrir nada.
+
+**El período no tiene tope, así que el dibujo sí:** arriba de doce meses no se
+dibuja. Y acá **sí se escribe una línea diciéndolo**, a diferencia de
+`vencimientos`, donde no dibujar coincide siempre con no tener resultado. Acá hay
+un resultado y el dibujo desaparecería sin explicación.
+
+#### `caducidad`: no es un calendario, y ésa es la decisión
+
+**Es la única de las cuatro que no dibuja una grilla, y el motivo no es que
+ocupara medio año.** Es un plazo en meses: se cuenta de fecha a fecha (art. 6
+CCyC) y adentro corren todos los días salvo los de feria (art. 311 CPCCN). No hay
+días salteados que mostrar.
+
+**Y hay una razón más fuerte, que es la que decide.** Pintar el plazo día por día
+diría que el cómputo avanza día por día, y no es lo que hace: avanza por tramos
+mensuales anclados al día del acto impulsor, y después se corrige. El propio
+motor deja escrito que las dos lecturas coinciden en 56 de 67 casos y **difieren
+en los once cuyo acto impulsor cae adentro de la feria de invierno**. Un
+calendario sería exacto casi siempre, que en esta materia no alcanza: mentiría
+con la autoridad que tiene un dibujo, y justo en el caso raro.
+
+Lo que sí hay que explicar es **la secuencia de correcciones**, y eso es una línea
+de hitos. El caso de Javier, entero:
+
+> 21/6/2025 · Último acto impulsor
+> 21/12/2025 · 6 meses contados de fecha a fecha desde el acto impulsor (art. 6 CCyC)
+> \+ 12 días · Feria judicial de invierno de 2025, del 21/7 al 1/8: el plazo no corre y el vencimiento se corre otro tanto (art. 311 CPCCN)
+> 2/1/2026 · Caía adentro de la feria de enero 2026, que no computa: se corre un mes
+> 2/2/2026 · Se produce la caducidad de la instancia
+
+Reemplaza a las «Observaciones», que decían lo mismo en tres renglones sin orden,
+sin las fechas intermedias y **sin una sola tilde** —«Se excluyo enero», «Se
+atraveso la feria», «dias adicionados»—, que es texto que ve el usuario.
+
+**`caducidad()` ahora devuelve `vencimientoNominal`**, dónde caen los meses antes
+de sumarle la feria. Es aditivo y existe para no reconstruirlo restando días de
+este lado, que sería una segunda cuenta.
+
+Dos cosas que salieron de probar los casos raros y no de mirar la pantalla buena:
+
+- **La negativa dejaba los hitos del cálculo anterior.** Un «No se puede
+  calcular» con la explicación de otra fecha debajo es la peor variante posible,
+  porque la explicación es lo que se lee con más confianza. Ahora se barren.
+- **Sin feria de por medio, el hito de los meses y el final son la misma fecha**,
+  y dos renglones seguidos con la misma fecha se leen como un error del programa.
+  En ese caso la regla se dice en el último hito y el renglón no sale.
+
+#### Qué se verificó
+
+- **`scripts/pruebas-calculadoras.html`: 51 de 51 pasan**, incluidos los 21
+  corridos otra vez adentro del tablero. **Ningún número se movió en ninguna
+  pantalla**, que es lo único que este trabajo no podía hacer.
+- Los siete bancos del repositorio en verde: `verificar-calculos`,
+  `verificar-plazos`, `verificar-contraste`, `verificar-conectores`,
+  `verificar-docs`, `verificar-series` y `verificar-escribiente`.
+- **Sin desborde horizontal a 375 px** en las cuatro.
+- Contraste de los hitos, calculado sobre la superficie real —`--accent-tint`
+  sobre `--card`, que es donde vive el panel de resultado—: peor **5,33** en
+  claro y **5,35** en oscuro.
 ---
 
 ### Las tres que faltaban consumen el motor — 26/8
@@ -1583,6 +1706,15 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   `vencimientos`, que en realidad da 5,59— y desaparecen al medir ese elemento
   solo. **Un valor computado sospechoso: fijarse si la regla tiene
   `transition`.**
+  **Y esa comprobación no siempre alcanza, que es lo que se aprendió el mismo
+  día midiendo los hitos de `caducidad`.** El elemento no tenía ninguna
+  transición declarada, `getComputedStyle` igual reportó `transitionProperty:
+  all`, y el color devuelto era un valor intermedio que no está escrito en
+  ningún lado: `rgb(154, 107, 18)` donde el token dice `#815a0f`. Con eso el
+  contraste daba 4,05 y parecía reprobar AA. **Lo que lo resuelve no es volver a
+  medir: es calcular el número afuera del navegador**, del token contra la
+  superficie compuesta. Da 5,34, y pasa. La regla corta: **con el panel oculto,
+  un color computado no es evidencia; el token sí.**
 - **Un artículo de la ley no termina donde termina su primer párrafo, y
   `verificar-docs` no lo nota.** El 10/8 se afirmó dos veces que «el art. 19 de
   la 27.423 instituye la UMA y no tiene incisos», y tiene dos tablas de mínimos
@@ -1626,13 +1758,15 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   `--sunk`.
 - **Las reglas de `@media print` no llevan tokens de tema.** El papel es blanco
   siempre: `background: var(--card)` imprime negro en modo oscuro.
-- **`sitio-estatico` de `.claude/launch.json` tiene el puerto escrito dos
-  veces**, en `runtimeArgs` (`http.server 4180`) y en `port`, con `autoPort`
-  encima. Si el 4180 está ocupado —queda ocupado por servidores viejos de
-  sesiones anteriores— el harness reasigna el puerto y abre la pestaña ahí,
-  pero Python sigue escuchando en 4180: la pestaña da error y el server figura
-  «starting» para siempre. Se ve enseguida con `curl localhost:4180`. Mientras
-  no se arregle, navegar a mano al 4180.
+- **~~`sitio-estatico` de `.claude/launch.json` reasignaba el puerto y Python
+  no se enteraba.~~ Arreglado el 26/8** sacándole el `autoPort`: el puerto está
+  escrito en `runtimeArgs` (`http.server 4180`) y no lo puede reasignar nadie.
+  Con `autoPort` encima, un 4180 ocupado —lo dejan ocupado los servidores de
+  sesiones anteriores— hacía que el harness abriera la pestaña en otro puerto
+  mientras Python seguía escuchando en el 4180: la pestaña daba error y el
+  server figuraba «starting» para siempre. **Si vuelve a pasar, `curl
+  localhost:4180` lo dice en un segundo.** `honorio-dev` conserva el `autoPort`
+  a propósito: ahí el puerto lo elige Next y el 3000 se ocupa seguido.
 - **Son dos proyectos npm distintos: fijarse en cuál se está parado.** El de la
   raíz tiene **doce scripts y nada más**: `docs`, `verificar-docs`,
   `verificar-calculos`, `verificar-plazos`, `verificar-series`,

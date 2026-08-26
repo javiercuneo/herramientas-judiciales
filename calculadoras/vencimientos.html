@@ -6,6 +6,7 @@
     <title>Calculadora de Plazos Judiciales</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
+    <link rel="stylesheet" href="css/dibujo-plazo.css">
     <script src="../assets/tema.js"></script>
     <style>
         /* ==================================================================
@@ -392,176 +393,9 @@
 
         .dato .n { font-size: 11.5px; color: var(--muted-fg); margin-top: 3px; }
 
-        /* --------------------------------------------------------- calendario */
-        .lienzo {
-            margin-top: 20px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 22px;
-        }
-
-        /* Ancho FIJO por mes, no una fraccion del lienzo.
-
-           Con minmax(212px, 1fr) el mes se estiraba para llenar: un plazo de
-           dos meses daba celdas de 62 px y uno de cinco, de 28. El mismo dibujo
-           cambiaba de tamaño segun cuanto durara el plazo, que es justo lo que
-           un calendario no tiene que hacer. Javier, 26/8: "le dejaria siempre
-           el mismo tamaño, el que tiene cuando se ve el mes completo".
-
-           236px da celdas de ~30px, que es el tamaño con el que se dibujo. Los
-           meses se centran y sobra aire a los costados cuando son pocos: es
-           preferible al mes gigante. */
-        .meses {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, 236px);
-            justify-content: center;
-            gap: 24px 28px;
-        }
-
-        @media (max-width: 320px) {
-            .meses { grid-template-columns: minmax(0, 1fr); }
-        }
-
-        .mes h4 {
-            font-family: var(--font-meter);
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-            text-align: center;
-            color: var(--muted-fg);
-            margin-bottom: 10px;
-        }
-
-        .grilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-
-        .encabezado-dia {
-            font-size: 10px;
-            text-align: center;
-            color: var(--faint);
-            font-weight: 700;
-            padding-bottom: 5px;
-        }
-
-        .celda {
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 7px;
-            font-family: var(--font-meter);
-            font-size: 12px;
-            font-weight: 600;
-            border: 1.5px solid transparent;
-            color: var(--muted-fg);
-        }
-
-        .celda.vacio { visibility: hidden; }
-        .celda.fuera { color: var(--faint); font-weight: 400; }
-        .celda.finde { background: var(--sunk); color: var(--faint); font-weight: 400; }
-
-        /* Lo que decidio un ACTO --feria, feriado, asueto--. El ambar va en el
-           fondo y el borde y el numero en --fg: con el numero en --warn sobre
-           --warn-tint el contraste en tema claro da 4,24 y reprueba AA a 12 px.
-           En oscuro pasaba, que es como este error sobrevive. */
-        .celda.acto {
-            background: var(--warn-tint);
-            border-color: var(--warn);
-            color: var(--fg);
-        }
-
-        .celda.contado { background: var(--accent-tint); color: var(--accent); }
-        .celda.notificacion { border-color: var(--accent); color: var(--accent); }
-
-        /* La firma de la resolucion, en notificacion automatica. Es un evento
-           de otra naturaleza --no es el plazo, es lo que lo origina-- y por eso
-           lleva --ok, que es un token de estado del sistema y no un acento
-           nuevo. Va en el borde y no en el relleno para no competir con el
-           vencimiento, que es lo unico que se llena solido. */
-        .celda.firma { border-color: var(--ok); color: var(--ok); }
-
-        .celda.vence { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
-
-        /* Los dias en que se dejo nota en el Libro de Asistencia. Hasta el 26/8
-           se cargaban en el formulario, movian el vencimiento, y en el dibujo no
-           se veian: el usuario tildaba diez fechas y ninguna aparecia. Lleva un
-           punto y no un color de fondo, porque un dia de nota no es una
-           categoria de dia --puede ser ademas contado, o ser la notificacion--
-           sino algo que paso ese dia. */
-        .celda.nota { position: relative; }
-        .celda.nota::after {
-            content: '';
-            position: absolute;
-            bottom: 3px;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        /* La muestra del dia de nota imita una celda cualquiera con el punto
-           encima, y no un color: el punto no es una categoria de dia --un dia
-           de nota puede ser ademas contado, o ser la notificacion-- asi que la
-           muestra tiene que leerse como "un dia con esta marca". A 4px y en
-           --muted-fg no se veia y la fila entera pasaba desapercibida. */
-        .muestra.punto {
-            position: relative;
-            border: 1.5px solid var(--border);
-            background: transparent;
-        }
-        .muestra.punto::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            bottom: 2px;
-            transform: translateX(-50%);
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--fg);
-        }
-        .celda .orden { font-size: 8px; line-height: 1; opacity: 0.7; font-weight: 400; }
-
-        .referencias {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px 18px;
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid var(--hair);
-            font-size: 12px;
-            color: var(--muted-fg);
-        }
-        .referencias span { display: flex; align-items: center; gap: 7px; }
-        .muestra {
-            width: 15px; height: 15px;
-            border-radius: 4px;
-            border: 1.5px solid transparent;
-            display: inline-block;
-            flex: none;
-        }
-
-        /* Los dias que salteo un ACTO, con su motivo. Los fines de semana NO se
-           listan: el dibujo ya los muestra y nadie necesita que le digan que el
-           sabado no se cuenta. Lo que el dibujo NO puede decir es por que un
-           martes esta marcado, y eso es lo unico que se escribe. */
-        .motivos { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 16px; }
-
-        .motivo {
-            display: flex;
-            align-items: baseline;
-            gap: 7px;
-            background: var(--warn-tint);
-            border: 1px solid var(--warn);
-            border-radius: 999px;
-            padding: 4px 13px;
-            font-size: 12px;
-            color: var(--fg);
-        }
-        .motivo b { font-family: var(--font-meter); font-weight: 700; }
-        .motivo .cuenta { color: var(--muted-fg); }
+        /* El dibujo del plazo --la grilla, las fichas de motivo y las
+           referencias-- vive en css/dibujo-plazo.css, que lo comparten las
+           cuatro pantallas que dibujan. */
 
         .sin-datos {
             background: var(--warn-tint);
@@ -585,7 +419,7 @@
 
         @media (max-width: 620px) {
             body { padding: 20px 14px 48px; }
-            .panel, .lienzo { padding: 18px 16px; }
+            .panel { padding: 18px 16px; }
             .cabecera { flex-direction: column; align-items: flex-start; gap: 8px; }
             .cobertura { text-align: left; }
             .acciones { flex-direction: column; }
@@ -734,6 +568,7 @@
 
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>
+<script src="js/dibujo-plazo.js"></script>
 <script>
     let datosCargados = false;
 
@@ -1124,7 +959,10 @@
     // ----------------------------------------------------------------------
     // El plazo dibujado sobre el calendario.
     //
-    // Se arma de los tramos que devuelve el motor --diasContados y
+    // La grilla, las fichas de motivo y las referencias viven en
+    // js/dibujo-plazo.js, compartidas con las otras tres pantallas que dibujan.
+    // Lo que queda aca es lo unico que es de vencimientos: QUE significa cada
+    // dia. Se arma de los tramos que devuelve el motor --diasContados y
     // diasSalteados, cada uno con su motivo-- y NO recorre el calendario por su
     // cuenta. Si la grilla y el computo pudieran discrepar, la grilla mentiria
     // con la autoridad que tiene un dibujo.
@@ -1134,21 +972,17 @@
     // un dibujo que ya lo muestra es ruido. Lo unico que el dibujo no puede
     // decir es POR QUE un martes esta marcado, y eso --y solo eso-- se escribe.
     // ----------------------------------------------------------------------
-    var INICIALES_DIA = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
-    var NOMBRES_MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-                       'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-
-    function claveUTC(fecha) { return fecha.toISOString().split('T')[0]; }
-
     function dibujarPlazo(datos) {
+        var D = window.DibujoPlazo;
+
         var contados = {};
-        datos.diasContados.forEach(function (f, i) { contados[claveUTC(f)] = i + 1; });
+        datos.diasContados.forEach(function (f, i) { contados[D.clave(f)] = i + 1; });
 
         var salteados = {};
-        datos.diasIgnorados.forEach(function (d) { salteados[d.ymd || claveUTC(d.fecha)] = d.motivo; });
+        datos.diasIgnorados.forEach(function (d) { salteados[d.ymd || D.clave(d.fecha)] = d.motivo; });
 
-        var claveNotificacion = claveUTC(datos.fechaNotificacion);
-        var claveVence = claveUTC(datos.fechaVencimientoConGracia);
+        var claveNotificacion = D.clave(datos.fechaNotificacion);
+        var claveVence = D.clave(datos.fechaVencimientoConGracia);
 
         // Los dias de nota vienen ya como AAAA-MM-DD del formulario, que es la
         // misma clave con la que se indexa la grilla.
@@ -1159,126 +993,85 @@
         // el plazo y puede caer varios dias antes de la notificacion, asi que
         // sin marcarla el dibujo empieza en el medio de la historia. Con cedula
         // la fecha cargada ya es la de la diligencia y la marca seria redundante.
-        var claveFirma = (datos.modalidad === 'automatica') ? claveUTC(datos.fechaIngresadaUTC) : null;
+        var claveFirma = (datos.modalidad === 'automatica') ? D.clave(datos.fechaIngresadaUTC) : null;
 
-        // El dibujo arranca en la fecha cargada y no en la notificacion, para
-        // que la firma entre en el lienzo.
-        var desde = datos.fechaIngresadaUTC;
-        var hasta = datos.fechaVencimientoConGracia;
-        var anio = desde.getUTCFullYear();
-        var mes = desde.getUTCMonth();
-
-        var html = '<div class="lienzo"><div class="meses">';
-
-        while (anio < hasta.getUTCFullYear() || (anio === hasta.getUTCFullYear() && mes <= hasta.getUTCMonth())) {
-            html += mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence, claveFirma, notas);
-            mes++;
-            if (mes > 11) { mes = 0; anio++; }
+        // Una marca por cada dia del que el dibujo tiene algo que decir; los
+        // demas los pone el modulo como 'fuera'. El ORDEN en que se acumulan
+        // las clases y los titulos es el mismo de siempre --base, nota, firma,
+        // notificacion, vencimiento-- y no es cosmetico: es el orden en que se
+        // lee el globo de ayuda.
+        var marcas = {};
+        function marca(k) {
+            if (!marcas[k]) marcas[k] = { clases: [], titulo: '' };
+            return marcas[k];
         }
 
-        html += '</div>';
-
-        // Los motivos, solo de lo que decidio un acto, y AGRUPADOS POR TRAMO.
-        // La feria son doce dias habiles y doce fichas que dicen "Feria judicial
-        // (Acordada CSJN 11/2026)" no informan mas que una: tapan al feriado
-        // suelto que si es una sorpresa, que es justo lo que hay que ver.
-        var tramos = agruparPorTramo(datos.diasIgnorados);
-        if (tramos.length) {
-            html += '<div class="motivos">';
-            tramos.forEach(function (t) {
-                var rotulo = (t.desde === t.hasta)
-                    ? formatearFechaCorta(t.desde)
-                    : formatearFechaCorta(t.desde) + ' a ' + formatearFechaCorta(t.hasta);
-                var cuenta = t.dias > 1 ? ' <span class="cuenta">· ' + t.dias + ' días</span>' : '';
-                html += '<span class="motivo"><b>' + rotulo + '</b>' + t.motivo + cuenta + '</span>';
-            });
-            html += '</div>';
+        Object.keys(salteados).forEach(function (k) {
+            var m = marca(k);
+            m.clases.push(salteados[k] === 'Fin de semana' ? 'finde' : 'acto');
+            m.titulo += ' — ' + salteados[k];
+        });
+        Object.keys(contados).forEach(function (k) {
+            if (salteados[k]) return;
+            var m = marca(k);
+            m.clases.push('contado');
+            m.orden = contados[k];
+            m.titulo += ' — día ' + contados[k] + ' del plazo';
+        });
+        Object.keys(notas).forEach(function (k) {
+            var m = marca(k);
+            m.clases.push('nota');
+            m.titulo += ' — se dejó nota en el Libro de Asistencia';
+        });
+        if (claveFirma) {
+            var mf = marca(claveFirma);
+            mf.clases.push('firma');
+            mf.titulo += ' — firma de la resolución';
         }
+        var mn = marca(claveNotificacion);
+        mn.clases.push('notificacion');
+        mn.titulo += ' — notificación';
 
-        html += '<div class="referencias">';
-        if (claveFirma) html += ref('border-color:var(--ok)', 'firma de la resolución');
-        if (Object.keys(notas).length) html += refPunto('día de nota');
-        html += ref('border-color:var(--accent)', 'notificación');
-        html += ref('background:var(--accent-tint)', 'día contado');
-        html += ref('background:var(--accent)', 'vencimiento');
-        html += ref('background:var(--sunk)', 'fin de semana');
-        html += ref('background:var(--warn-tint);border-color:var(--warn)', 'feria, feriado o asueto');
-        html += '</div></div>';
-        return html;
-    }
-
-    // Junta en un tramo los dias seguidos que comparten motivo. "Seguidos"
-    // admite hasta tres dias de hueco porque la feria salta el fin de semana:
-    // del viernes al lunes hay tres. Un motivo que reaparece mas lejos abre un
-    // tramo nuevo, que es lo correcto --2009 y 2020 tuvieron mas de una feria--.
-    function agruparPorTramo(dias) {
-        var actos = dias
-            .filter(function (d) { return d.motivo !== 'Fin de semana'; })
-            .slice()
-            .sort(function (a, b) { return a.fecha - b.fecha; });
-
-        var tramos = [];
-        actos.forEach(function (d) {
-            var ultimo = tramos[tramos.length - 1];
-            var hueco = ultimo ? Math.round((d.fecha - ultimo.hasta) / 86400000) : Infinity;
-            if (ultimo && ultimo.motivo === d.motivo && hueco <= 3) {
-                ultimo.hasta = d.fecha;
-                ultimo.dias++;
-            } else {
-                tramos.push({ motivo: d.motivo, desde: d.fecha, hasta: d.fecha, dias: 1 });
+        // Todo dia marcado lleva una base --finde, acto, contado o 'fuera'-- y
+        // va PRIMERA. Un dia que solo es la notificacion no esta contado: sin
+        // la base saldria sin el gris de los dias de afuera del plazo.
+        Object.keys(marcas).forEach(function (k) {
+            var c = marcas[k].clases;
+            if (c.indexOf('finde') === -1 && c.indexOf('acto') === -1 && c.indexOf('contado') === -1) {
+                c.unshift('fuera');
             }
         });
-        return tramos;
-    }
 
-    function ref(estilo, texto) {
-        return '<span><i class="muestra" style="' + estilo + '"></i>' + texto + '</span>';
-    }
+        // El vencimiento REEMPLAZA a la base --el dia siempre es habil, asi que
+        // la base era 'contado' o 'fuera'-- en vez de acumularse con ella:
+        // pintarlo solido encima del tinte del dia contado lo dejaria ilegible.
+        var mv = marca(claveVence);
+        mv.clases = mv.clases.filter(function (c) { return c !== 'contado' && c !== 'fuera'; });
+        mv.clases.push('vence');
+        mv.titulo += ' — vencimiento';
 
-    function refPunto(texto) {
-        return '<span><i class="muestra punto"></i>' + texto + '</span>';
-    }
-
-    function mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence, claveFirma, notas) {
-        var html = '<div class="mes"><h4>' + NOMBRES_MES[mes] + ' ' + anio + '</h4><div class="grilla">';
-
-        INICIALES_DIA.forEach(function (letra) {
-            html += '<div class="encabezado-dia" aria-hidden="true">' + letra + '</div>';
+        Object.keys(marcas).forEach(function (k) {
+            marcas[k].clase = marcas[k].clases.join(' ');
         });
 
-        var arranque = new Date(Date.UTC(anio, mes, 1, 12)).getUTCDay();
-        for (var v = 0; v < arranque; v++) html += '<div class="celda vacio"></div>';
+        var referencias = [];
+        if (claveFirma) referencias.push(D.ref('border-color:var(--ok)', 'firma de la resolución'));
+        if (Object.keys(notas).length) referencias.push(D.refPunto('día de nota'));
+        referencias.push(D.ref('border-color:var(--accent)', 'notificación'));
+        referencias.push(D.ref('background:var(--accent-tint)', 'día contado'));
+        referencias.push(D.ref('background:var(--accent)', 'vencimiento'));
+        referencias.push(D.ref('background:var(--sunk)', 'fin de semana'));
+        referencias.push(D.ref('background:var(--warn-tint);border-color:var(--warn)', 'feria, feriado o asueto'));
 
-        var ultimo = new Date(Date.UTC(anio, mes + 1, 0, 12)).getUTCDate();
-        for (var d = 1; d <= ultimo; d++) {
-            var clave = claveUTC(new Date(Date.UTC(anio, mes, d, 12)));
-            var clases = 'celda';
-            var titulo = d + ' de ' + NOMBRES_MES[mes];
-            var orden = '';
-
-            if (salteados[clave]) {
-                clases += (salteados[clave] === 'Fin de semana') ? ' finde' : ' acto';
-                titulo += ' — ' + salteados[clave];
-            } else if (contados[clave]) {
-                clases += ' contado';
-                orden = '<span class="orden">' + contados[clave] + '</span>';
-                titulo += ' — día ' + contados[clave] + ' del plazo';
-            } else {
-                clases += ' fuera';
-            }
-
-            if (notas && notas[clave]) { clases += ' nota'; titulo += ' — se dejó nota en el Libro de Asistencia'; }
-            if (clave === claveFirma) { clases += ' firma'; titulo += ' — firma de la resolución'; }
-            if (clave === claveNotificacion) { clases += ' notificacion'; titulo += ' — notificación'; }
-            if (clave === claveVence) {
-                clases = clases.replace(' contado', '').replace(' fuera', '') + ' vence';
-                titulo += ' — vencimiento';
-            }
-
-            html += '<div class="' + clases + '" title="' + titulo + '"><span>' + d + '</span>' + orden + '</div>';
-        }
-
-        return html + '</div></div>';
+        return D.dibujar({
+            // El dibujo arranca en la fecha cargada y no en la notificacion,
+            // para que la firma entre en el lienzo.
+            desde: datos.fechaIngresadaUTC,
+            hasta: datos.fechaVencimientoConGracia,
+            marcas: marcas,
+            motivos: datos.diasIgnorados,
+            referencias: referencias
+        });
     }
 
     // El aviso de la columna derecha, para poder volver a ponerlo al limpiar.

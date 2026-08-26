@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
+    <link rel="stylesheet" href="css/dibujo-plazo.css">
     <script src="../assets/tema.js"></script>
     <style>
         * {
@@ -215,42 +216,20 @@
             color: var(--fg);
         }
 
-        .excluded-days {
+        /* El dibujo del plazo --la grilla, las fichas de motivo y las
+           referencias-- vive en css/dibujo-plazo.css, compartido con las otras
+           tres pantallas que dibujan.
+
+           Aca vivia la lista de dias NO contados, una fila por dia. La
+           reemplaza el dibujo, que dice lo mismo agrupado por tramo y ademas
+           muestra donde cayeron. */
+
+        /* Cuando el periodo es largo el dibujo no sale, y eso hay que decirlo:
+           a diferencia de las otras pantallas, aca SI hay un resultado. */
+        .sin-dibujo {
             margin-top: 20px;
-        }
-
-        .excluded-days-title {
-            font-weight: 600;
-            color: var(--accent);
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .excluded-list {
-            max-height: 300px;
-            overflow-y: auto;
-            background: var(--card);
-            padding: 15px;
-            border-radius: 8px;
-        }
-
-        .excluded-item {
-            padding: 8px;
-            margin-bottom: 8px;
-            background: var(--sunk);
-            border-radius: 6px;
-            font-size: 11px;
-            border-left: 3px solid var(--accent);
-        }
-
-        .excluded-date {
-            font-weight: 600;
-            color: var(--fg);
-        }
-
-        .excluded-reason {
-            color: var(--muted-fg);
-            margin-left: 10px;
+            font-size: 12px;
+            color: var(--faint);
         }
 
         .error-report {
@@ -377,10 +356,7 @@
                 <div class="result-label">Total de días:</div>
                 <div class="result-value" id="totalDays"></div>
             </div>
-            <div class="excluded-days" id="excludedDaysSection" style="display: none;">
-                <div class="excluded-days-title">Días NO Contados (Inhábiles):</div>
-                <div class="excluded-list" id="excludedDaysList"></div>
-            </div>
+            <div id="dibujo"></div>
             <div class="error-report">
                 <strong>Reportar error</strong>
                 Si creés que hay un error, envíanos un mail a <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo qué salió mal.
@@ -397,6 +373,7 @@
     </div>
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>
+<script src="js/dibujo-plazo.js"></script>
 <script>
     var YEARS = [];
     (function() {
@@ -536,21 +513,89 @@
         document.getElementById('countStartDate').textContent = formatDate(r.desdeEfectivo);
         document.getElementById('totalDays').textContent = r.total;
 
-        if (businessDays && r.excluidos.length > 0) {
-            document.getElementById('excludedDaysSection').style.display = 'block';
-            var listEl = document.getElementById('excludedDaysList');
-            listEl.innerHTML = '';
-            r.excluidos.forEach(function(item) {
-                var div = document.createElement('div');
-                div.className = 'excluded-item';
-                div.innerHTML = '<span class="excluded-date">' + formatDate(item.fecha) + '</span> <span class="excluded-reason">' + item.motivo + '</span>';
-                listEl.appendChild(div);
-            });
-        } else {
-            document.getElementById('excludedDaysSection').style.display = 'none';
+        document.getElementById('dibujo').innerHTML = dibujarConteo(r);
+        document.getElementById('results').classList.add('show');
+    }
+
+    // ----------------------------------------------------------------------
+    // El conteo dibujado sobre el calendario.
+    //
+    // QUE EXPLICA ESTE DIBUJO, que no es lo mismo que explican los otros tres.
+    // Esta pantalla no computa un vencimiento: cuenta. Asi que lo que el numero
+    // solo no contesta son dos cosas, y las dos se ven en la grilla:
+    //
+    //   1. QUE DIAS ENTRARON. Las dos casillas de incluir el inicio y el fin
+    //      mueven el total sin mover nada en pantalla: se destilda una y el
+    //      numero baja en uno, y no queda con que saber cual dia se fue. En el
+    //      dibujo las dos fechas cargadas estan siempre marcadas, y se ve si
+    //      quedaron adentro o afuera del conteo.
+    //   2. CUALES SE DESCONTARON Y POR QUE, cuando se cuenta en habiles.
+    //
+    // Y la diferencia entre los dos modos se lee de un vistazo: en dias
+    // corridos el bloque sale entero, porque el sabado tambien cuenta; en
+    // habiles sale picado. Atenuar el fin de semana en un conteo de corridos
+    // seria dibujar lo contrario de lo que el numero dice.
+    //
+    // Los dias contados salen de r.contados, que los devuelve el motor. NO se
+    // reconstruyen caminando el rango: el ultimo numero de la grilla es el
+    // total, y tiene que serlo porque son el mismo conteo y no dos.
+    // ----------------------------------------------------------------------
+    var MESES_MAXIMOS = 12;
+
+    function dibujarConteo(r) {
+        var D = window.DibujoPlazo;
+
+        // Un periodo puede ir de 2021 a 2030 y cien grillas no explican nada.
+        if (D.mesesQueAbarca(r.desde, r.hasta) > MESES_MAXIMOS) {
+            return '<p class="sin-dibujo">El período abarca más de un año, ' +
+                'así que no se dibuja: el calendario entero no entra en una pantalla.</p>';
         }
 
-        document.getElementById('results').classList.add('show');
+        var marcas = {};
+        var motivos = [];
+
+        r.contados.forEach(function(fecha, i) {
+            marcas[D.clave(fecha)] = {
+                clase: 'contado',
+                orden: i + 1,
+                titulo: ' — día ' + (i + 1) + ' de ' + r.total
+            };
+        });
+
+        r.excluidos.forEach(function(item) {
+            marcas[D.clave(item.fecha)] = {
+                clase: item.motivo === 'Fin de semana' ? 'finde' : 'acto',
+                titulo: ' — ' + item.motivo + ', no se cuenta'
+            };
+            motivos.push({ fecha: item.fecha, motivo: item.motivo });
+        });
+
+        // Las dos fechas que el usuario cargo, con el borde de --ok: son el
+        // dato de entrada y no un dia del conteo. Se marcan hayan entrado o no,
+        // que es justamente lo que hay que poder ver.
+        [[r.desde, 'inicio'], [r.hasta, 'fin']].forEach(function(par) {
+            var k = D.clave(par[0]);
+            var entro = !!(marcas[k] && marcas[k].orden);
+            var m = marcas[k] || { clase: 'fuera', titulo: '' };
+            m.clase += ' firma';
+            m.titulo += ' — fecha de ' + par[1] + ' cargada' + (entro ? '' : ', fuera del conteo');
+            marcas[k] = m;
+        });
+
+        var referencias = [D.ref('background:var(--accent-tint)', 'día contado')];
+        referencias.push(D.ref('border-color:var(--ok)', 'fecha cargada'));
+        if (r.soloHabiles) {
+            referencias.push(D.ref('background:var(--sunk)', 'fin de semana'));
+            referencias.push(D.ref('background:var(--warn-tint);border-color:var(--warn)', 'feria, feriado o asueto'));
+        }
+
+        return D.dibujar({
+            desde: r.desde,
+            hasta: r.hasta,
+            marcas: marcas,
+            motivos: motivos,
+            referencias: referencias
+        });
     }
 
     function resetForm() {
@@ -567,6 +612,7 @@
 
         document.getElementById('results').classList.remove('show');
         document.getElementById('loading').classList.remove('show');
+        document.getElementById('dibujo').innerHTML = '';
 
         document.querySelectorAll('input[type="text"]').forEach(function(input) {
             input.classList.remove('error');

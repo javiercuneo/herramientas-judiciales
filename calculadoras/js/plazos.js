@@ -528,6 +528,12 @@
             corrimientos: corrimientos,
             eneroExcluido: eneroExcluido,
             corridoDeEnero: corridoDeEnero,
+            // Donde caen los meses contados de fecha a fecha, ANTES de sumarle
+            // los dias de feria de invierno. Es un hito del computo y no un
+            // resultado: la pantalla lo dibuja para poder contar la historia
+            // --los meses llegaron hasta aca, la feria lo empujo hasta alla--
+            // sin reconstruirlo restando dias, que seria una segunda cuenta.
+            vencimientoNominal: nominalDate,
             feriaAtravesada: feria.detalle,
             vencimiento: ordDate,
             conInhabiles: null
@@ -675,6 +681,7 @@
         if (soloHabiles) CJ.reiniciarAuditoria();
 
         var excluidos = [];
+        var contados = [];
         var total = 0;
 
         var actualStart = new Date(startDate);
@@ -696,6 +703,13 @@
 
             if (cuenta) {
                 total++;
+                // Los dias que SI entraron al conteo. Se anotan aca y no se
+                // reconstruyen del lado de la pantalla: si el dibujo caminara
+                // el rango por su cuenta y descontara los excluidos, seria una
+                // segunda implementacion de este conteo y podria mostrar un
+                // ultimo numero distinto de `total`. Un dibujo que discrepa
+                // del numero miente con mas autoridad que el numero.
+                contados.push(new Date(currentDate));
             } else if (soloHabiles && motivo) {
                 excluidos.push({ fecha: new Date(currentDate), motivo: motivo });
             }
@@ -711,6 +725,7 @@
             hastaEfectivo: actualEnd,
             soloHabiles: soloHabiles,
             total: total,
+            contados: contados,
             excluidos: excluidos
         };
     }
