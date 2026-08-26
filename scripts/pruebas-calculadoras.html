@@ -306,8 +306,19 @@ const DRIVERS = {
             d.getElementById('yearsAvailable').textContent),
         correr: async (d, campos) => {
             const set = (id, v) => { if (v !== undefined) d.getElementById(id).value = v; };
-            set('modalidad', campos.modalidad);
-            d.getElementById('modalidad').dispatchEvent(new d.defaultView.Event('change', { bubbles: true }));
+            // La modalidad dejo de ser un <select id="modalidad"> el 26/8/2026:
+            // es un control segmentado de dos radio con name="modalidad". El
+            // driver seguia buscando el select y se caia con "Cannot set
+            // properties of null" en los 26 casos de vencimientos --13 sueltos
+            // y 13 adentro del tablero--, o sea que este banco estuvo rojo
+            // desde el rediseño sin que nada lo dijera. Se hace click en el
+            // radio y no se le pone .checked a mano: el click es lo que dispara
+            // el listener que pinta la etiqueta y esconde la ampliacion.
+            if (campos.modalidad !== undefined) {
+                const radio = d.querySelector('input[name="modalidad"][value="' + campos.modalidad + '"]');
+                if (!radio) return 'no calcula: no existe la modalidad ' + campos.modalidad;
+                radio.click();
+            }
             set('dia', campos.dia); set('mes', campos.mes); set('anio', campos.anio);
             // La sección del horario aparece o se esconde según si el día es
             // hábil, y eso lo decide un listener de `input`. Hay que
@@ -320,14 +331,22 @@ const DRIVERS = {
             d.getElementById('ampliacion').value = campos.ampliacion || '';
             d.getElementById('btnCalcular').click();
             await pausa(120);
-            const t = d.getElementById('results').innerText.replace(/\s+/g, ' ');
-            if (/No se puede calcular/.test(t)) return 'no calcula: ' + t.slice(0, 80);
-            // El dia de la semana se descarta hasta la coma. Con \w+ se comia
-            // la tilde —"Miercoles" quedaba en "ercoles"— porque \w no incluye
-            // acentuadas: la fecha salia mutilada y encima de forma consistente,
-            // que es peor, porque las comparaciones seguian pasando.
-            const m = t.match(/Vencimiento del Plazo\s+(?:[^,]+,\s*)?(.+?)\s*Hora/);
-            return m ? m[1].trim() : '(no se pudo leer) ' + t.slice(0, 70);
+            const res = d.getElementById('results');
+            if (res.querySelector('.sin-datos')) {
+                return 'no calcula: ' + res.innerText.replace(/\s+/g, ' ').slice(0, 80);
+            }
+            // La fecha se lee del elemento, no de una expresion regular sobre
+            // el texto de toda la tarjeta. Antes se recortaba entre "Vencimiento
+            // del Plazo" y "Hora", y el rediseño del 26/8/2026 se llevo los dos
+            // rotulos. Un ancla estructural sobrevive a que cambie la redaccion;
+            // una sobre el texto visible, no.
+            const f = res.querySelector('.veredicto .fecha');
+            if (!f) return '(no se pudo leer) ' + res.innerText.replace(/\s+/g, ' ').slice(0, 70);
+            // Se descarta el nombre del dia hasta la coma. Con \w+ se comia la
+            // tilde —"Miercoles" quedaba en "ercoles"— porque \w no incluye
+            // acentuadas: la fecha salia mutilada y de forma consistente, que es
+            // peor, porque las comparaciones seguian pasando.
+            return f.textContent.replace(/^[^,]+,\s*/, '').trim();
         }
     },
     caducidad: {

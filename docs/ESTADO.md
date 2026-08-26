@@ -231,14 +231,14 @@ Ninguno urgente y ninguno bloqueante.
   llega a 2027, así que en enero de 2028 no calcula ninguna fecha de 2028 hasta
   que alguien corra `npm run feriados`. Es el argumento que faltaba para el cron
   que está anotado más arriba.
-- **Hay tres bancos de pruebas y cubren cosas distintas.** `npm run
+- **Hay cuatro bancos de pruebas y cubren cosas distintas.** `npm run
   verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (34)
   cubren **el motor**: días hábiles, feria, feriados, cobertura, y la
-  aritmética de vencimiento y mora. `scripts/pruebas-calculadoras.html`
-  —**24 casos: 21 verificados a mano y 3 fijados**, y los 21 verificados se
-  corren además adentro del tablero, o sea 45 comprobaciones—
-  cubre **las pantallas**: maneja las cinco calculadoras por iframe y compara
-  el resultado que muestran. Se abre con el sitio servido —no con `file://`— y
+  aritmética de vencimiento y mora. `npm run verificar-contraste` cubre **los
+  tokens de color**. `scripts/pruebas-calculadoras.html` —**51 filas: 21
+  verificados a mano, 6 invariantes, 3 fijados, y los 21 verificados otra vez
+  adentro del tablero**— cubre **las pantallas**: maneja las cinco calculadoras
+  por iframe y compara el resultado que muestran. Se abre con el sitio servido —no con `file://`— y
   tarda seis segundos. **Los iframes llevan rompe-caché**: sin él las pruebas
   corren contra la versión anterior de la calculadora, que es la peor forma de
   falla porque parece un bug del cambio que se acaba de hacer.
@@ -525,6 +525,35 @@ lo supera) y 20.000 con el tope aplicado y dicho.
 son plazos. Verificado: la tarjeta monta el iframe, mide alto, y el enlace
 directo `#mediacion` en carga fría deja el hash donde corresponde —que es el
 bug que costó encontrar al partir el tablero en dos regiones—.
+
+---
+
+### El banco de pruebas de las pantallas estuvo rojo desde el rediseño — 26/8
+
+**Se descubrió corriéndolo**, que es la única forma: `pruebas-calculadoras.html`
+no está en CI —maneja páginas reales por iframe y necesita el sitio servido—,
+así que nada avisa cuando se rompe.
+
+**26 de las 51 filas fallaban** con `Cannot set properties of null (setting
+'value')`: las 13 de `vencimientos` sueltas y las mismas 13 adentro del tablero.
+El motivo: el rediseño de esa misma mañana convirtió el `<select
+id="modalidad">` en un control segmentado de dos `radio` con
+`name="modalidad"`, y el driver seguía buscando el `<select>`. La lectura del
+resultado estaba rota igual, por lo mismo: recortaba la fecha entre los rótulos
+«Vencimiento del Plazo» y «Hora», que el rediseño se llevó.
+
+**La lección, que es la parte que sirve:** las dos roturas son la misma. El
+driver estaba anclado en **cómo se ve** la pantalla —el tipo de control, el
+texto de los rótulos— y no en su estructura. Ahora hace click en el `radio` por
+`value` —click y no `.checked = true`, porque el click es lo que dispara el
+listener que pinta la etiqueta y esconde la ampliación— y lee la fecha de
+`.veredicto .fecha`. **Un ancla estructural sobrevive a que cambie la
+redacción; una sobre el texto visible, no.**
+
+**Y lo que hay que hacer, aunque no se hizo:** el rediseño y el banco tienen que
+correr juntos. Hoy hay que acordarse, y el 26/8 nadie se acordó durante las
+horas que separaron el rediseño de esta corrida. **Verificado después del
+arreglo: 51 de 51.**
 
 ---
 
