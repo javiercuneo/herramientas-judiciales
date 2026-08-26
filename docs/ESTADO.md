@@ -116,7 +116,7 @@ Ninguno urgente y ninguno bloqueante.
   API todavía no lo publicó. En los primeros meses de cada año el workflow puede
   fallar por ese motivo y no por un problema real. El modo de falla es el
   correcto —no escribe medio archivo— pero **la alarma es indistinguible de una
-  de verdad**. Si molesta, lo que hay que cambiar es el script, para que
+  auténtica**. Si molesta, lo que hay que cambiar es el script, para que
   distinga «el año que viene todavía no existe» de «la API no contesta».
 - **`data/serie-uma.json` y `data/serie-uhom.json` se cargan a mano y no hay de
   dónde automatizarlas.** Es el mismo caso que la feria: los actos de la CSJN y

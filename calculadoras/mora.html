@@ -369,7 +369,7 @@ button {
             // Se precarga y0+1 porque el cómputo puede cruzar de año, pero que
             // ese año no esté cargado no es motivo para no calcular: quizá el
             // cómputo no llegue nunca ahí. Sólo aborta acá si falta un año que
-            // ya debería estar; lo que el cómputo toque de verdad lo detecta la
+            // ya debería estar; lo que el cómputo toque realmente lo detecta la
             // auditoría, más abajo, y da un motivo preciso.
             const límite = new Date().getFullYear() + 1;
             const faltanExigibles = carga.missingYears.filter((y) => y <= límite);

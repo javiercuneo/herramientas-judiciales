@@ -30,7 +30,7 @@
 # siguiente cuando la API todavia no lo publico. En los primeros meses
 # de cada anio este workflow puede fallar por ese motivo y no por un
 # problema real. El modo de falla es el correcto --no escribe medio
-# archivo-- pero la alarma es indistinguible de una de verdad. Si
+# archivo-- pero la alarma es indistinguible de una autentica. Si
 # empieza a molestar, lo que hay que cambiar es el script, para que
 # distinga "el anio que viene todavia no existe" de "la API no
 # contesta", y no este archivo.
