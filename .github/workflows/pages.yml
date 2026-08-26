@@ -75,7 +75,7 @@ jobs:
       - name: Verificar el contraste de los tokens
         run: npm run verificar-contraste
 
-      # Los dos conectores: se levantan de verdad --el HTTP en un puerto
+      # Los dos conectores: se levanta cada proceso --el HTTP en un puerto
       # propio, el MCP por stdio-- y se les pega. No cubren aritmetica,
       # que ya cubre verificar-plazos: cubren que arranquen, que el
       # formato no cambie, y sobre todo que cuando falta un dato NO
