@@ -379,15 +379,31 @@
             <div class="error" id="errorPlazo">Por favor, ingrese un número válido de días.</div>
         </div>
 
-        <div class="form-section">
+        <!-- La ampliacion se ofrece solo con cedula. Con notificacion
+             automatica no hay distancia que medir: ver el comentario de
+             actualizarSeccionAmpliacion(), abajo. -->
+        <div class="form-section" id="seccionAmpliacion">
             <label for="ampliacion">Ampliación por distancia, en días (art. 158 CPCCN) — opcional</label>
             <input type="text" id="ampliacion" placeholder="0" pattern="[0-9]*" inputmode="numeric">
             <div class="error" id="errorAmpliacion">La ampliación tiene que ser un número de días de 0 en adelante.</div>
             <p class="hint" style="margin-top:6px">
+                Corresponde cuando la diligencia debe practicarse fuera del lugar
+                del asiento del juzgado, que en la práctica es la cédula al
+                <strong>domicilio real</strong>: la que va al constituido se
+                diligencia dentro del radio (art. 40 CPCCN) y no amplía nada.
                 Un día por cada 200 km, más uno si la fracción restante llega a 100.
                 Si no sabés cuántos días son, la
                 <a href="distancia.html">calculadora de ampliación por distancia</a>
                 los calcula a partir de las dos localidades.
+            </p>
+        </div>
+
+        <div class="form-section" id="avisoSinAmpliacion" style="display: none;">
+            <p class="hint">
+                La ampliación por distancia (art. 158 CPCCN) no se ofrece con
+                notificación automática: la resolución queda notificada en el
+                tribunal los días de nota, así que no hay diligencia fuera del
+                asiento del juzgado que ampliar.
             </p>
         </div>
 
@@ -830,6 +846,7 @@
         actualizarLabelFecha();
         mostrarDiasDeNota();
         actualizarSeccionHorario();
+        actualizarSeccionAmpliacion();
     }
 
     function actualizarLabelFecha() {
@@ -884,10 +901,55 @@
             'no cambia el cómputo.';
     }
 
+    // La ampliacion del art. 158 CPCCN se ofrece solo con cedula.
+    //
+    // Por que. El 158 no condiciona a la modalidad: condiciona a que la
+    // diligencia deba practicarse "fuera del lugar del asiento del juzgado o
+    // tribunal". Lo que decide es donde se practica, y eso lo contesta el resto
+    // del Codigo:
+    //
+    //   - art. 40: el domicilio legal se constituye DENTRO del perimetro de la
+    //     ciudad asiento del juzgado, y ahi se diligencian todas las cedulas
+    //     que no deban ir al real. O sea: dentro del radio, cero ampliacion.
+    //   - art. 42: ese domicilio subsiste hasta la terminacion del juicio. Una
+    //     vez constituido en el radio no hay distancia que medir, viva la parte
+    //     donde viva.
+    //   - art. 133: la resolucion queda notificada EN EL TRIBUNAL los martes y
+    //     viernes. No hay notificador, no hay traslado, no hay diligencia
+    //     afuera. El propio articulo lo confirma cuando dice que la
+    //     notificacion no se tiene por cumplida "si el expediente no se
+    //     encontrare en el tribunal": el mecanismo entero esta anclado ahi.
+    //   - art. 41: y si la parte NO constituye domicilio, la sancion es
+    //     justamente que todo se le notifique por nota. Ampliar en ese supuesto
+    //     convertiria la sancion en el mayor beneficio del Codigo: el que
+    //     incumple el 40 cobraria un dia cada 200 km en cada resolucion.
+    //
+    // Hasta el 25/8/2026 el campo se ofrecia con las dos modalidades. Lo agrego
+    // una sesion anterior, el 17/8, sin que nadie lo pidiera. El caso que lo
+    // deja a la vista: una demandada domiciliada en las antipodas que constituye
+    // en CABA y a la que se le notifica algo por nota no tiene cien dias de
+    // ampliacion, tiene cero.
+    function actualizarSeccionAmpliacion() {
+        var esCedula = document.getElementById('modalidad').value === 'cedula';
+        document.getElementById('seccionAmpliacion').style.display = esCedula ? 'block' : 'none';
+        document.getElementById('avisoSinAmpliacion').style.display = esCedula ? 'none' : 'block';
+
+        // El valor se limpia al ocultar. Dejarlo escrito abajo de una seccion
+        // invisible es la peor variante: el usuario cargo 3, cambio de
+        // modalidad, y el plazo sale con tres dias de mas sin que nada lo
+        // muestre en pantalla.
+        if (!esCedula) {
+            document.getElementById('ampliacion').value = '';
+            document.getElementById('errorAmpliacion').classList.remove('show');
+            document.getElementById('ampliacion').classList.remove('invalid');
+        }
+    }
+
     // Event listeners
     document.getElementById('modalidad').addEventListener('change', actualizarLabelFecha);
     document.getElementById('modalidad').addEventListener('change', mostrarDiasDeNota);
     document.getElementById('modalidad').addEventListener('change', actualizarSeccionHorario);
+    document.getElementById('modalidad').addEventListener('change', actualizarSeccionAmpliacion);
     document.getElementById('checkNotaAsistencia').addEventListener('change', mostrarDiasDeNota);
     ['dia', 'mes', 'anio'].forEach(function(id) {
         document.getElementById(id).addEventListener('input', mostrarDiasDeNota);
@@ -899,6 +961,10 @@
     });
     document.getElementById('btnCalcular').addEventListener('click', calcular);
     document.getElementById('btnResetear').addEventListener('click', resetear);
+
+    // Estado inicial: la modalidad por defecto es cedula, asi que la seccion
+    // arranca visible. Se llama igual para no depender del valor del markup.
+    actualizarSeccionAmpliacion();
 
     ['dia', 'mes', 'anio', 'plazo'].forEach(function(id) {
         document.getElementById(id).addEventListener('input', function(e) {

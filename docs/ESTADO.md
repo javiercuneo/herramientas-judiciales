@@ -157,23 +157,40 @@ Ninguno urgente y ninguno bloqueante.
   los mínimos que citan el `06` y el `07` están verificadas contra ese archivo, y
   el archivo dice ser copia fiel del asistente clásico. Que sea fiel a la copia
   no prueba que sea fiel a la norma. Son unas cuarenta cifras.
-- **Anotado y sin decidir: si la ampliación por distancia corresponde con
-  notificación automática.** Planteado por Javier el 25/8: `vencimientos.html`
-  —y por extensión el tablero— ofrece el campo de ampliación del art. 158 CPCCN
-  también cuando la modalidad es *automática*, y le parece un contrasentido.
-  **No se tocó, y por dos motivos.** El artículo no condiciona nada a la
-  modalidad de notificación: condiciona a que la diligencia deba practicarse
-  «fuera del lugar del asiento del juzgado o tribunal» —texto verificado contra
-  `indice`, rúbrica *AMPLIACIÓN*, Sección 2 «Plazos»—. Un letrado a 400 km tiene
-  el mismo problema de distancia lo hayan notificado por cédula o por nota. Se
-  puede sostener lo contrario —notificado por nota el interesado estaba en el
-  tribunal—, pero eso es **una interpretación**, y sin fallo cargado no se
-  afirma. Y ocultar el campo **mueve un número hacia abajo**: sin ampliación el
-  vencimiento es más temprano, que es la dirección peligrosa.
-  Lo que sí falta y no mueve nada: **la pantalla ofrece la ampliación sin decir
-  nunca cuándo corresponde.** La condición del artículo no aparece en ningún
-  lado. Un `hint` que la transcriba deja la decisión en quien sabe si la
-  diligencia es a distancia.
+- **La ampliación por distancia salió de la notificación automática — 25/8.**
+  Planteado por Javier y resuelto contra el Código leído entero, no contra un
+  artículo suelto. El art. 158 no condiciona a la modalidad: condiciona a que la
+  diligencia deba practicarse «fuera del lugar del asiento del juzgado». Lo que
+  contesta dónde se practica es el resto del Código: el **art. 40** manda
+  constituir domicilio *dentro del perímetro* de la ciudad asiento del juzgado y
+  ahí se diligencian todas las cédulas que no deban ir al real; el **art. 42**
+  lo hace subsistir hasta la terminación del juicio; el **art. 133** deja la
+  resolución notificada *en el tribunal* los días de nota —tanto que no se tiene
+  por cumplida «si el expediente no se encontrare en el tribunal»—; y el
+  **art. 41** dispone que a quien no constituye domicilio se le notifique todo
+  por nota. Ese último es el que cierra la discusión: **ampliar con nota
+  convertiría la sanción del 41 en el mayor beneficio del Código**, porque el
+  que incumple el 40 cobraría un día cada 200 km en cada resolución. El caso que
+  lo muestra —de Javier—: una demandada en las antípodas que constituye en CABA
+  y recibe una notificación por nota no tiene cien días de ampliación, tiene
+  cero.
+  **Y el campo no estaba porque nadie lo pidiera:** lo agregó una sesión de
+  agente el 17/8. Sacarlo no fue mover un número, fue volver al punto de partida
+  — la distinción importa, porque el primer análisis lo trató al revés y con eso
+  invirtió la carga de la prueba.
+  Hecho: la sección se oculta con modalidad automática, **el valor cargado se
+  limpia** —dejarlo escrito abajo de una sección invisible es la peor variante—,
+  y en su lugar aparece el motivo. Verificado en pantalla que el camino de
+  cédula no movió un número.
+  **Lo que queda abierto y es más grande:** por el mismo razonamiento, la
+  ampliación tampoco corresponde con **cédula al domicilio constituido**, que es
+  la mayoría de las cédulas (art. 40, tercer párrafo). Sólo corresponde con
+  cédula al **domicilio real** fuera del radio —traslado de demanda, absolución
+  de posiciones, sentencia— o para una diligencia que efectivamente se practique
+  afuera. Hoy la calculadora la ofrece con cualquier cédula. Javier decidió el
+  25/8 dejarlo así por ahora —«tiene sentido en la cédula y por eso lo toleré»—
+  y por lo pronto entró la explicación de cuándo corresponde, que antes no
+  estaba en ningún lado.
 - **La guarda por año faltante tiene dos granos distintos, y conviene saber
   cuál.** Verificado el 25/8 corriendo el motor: la **feria** sólo bloquea el
   cómputo que cae en julio o agosto del año sin Acordada —un vencimiento de
