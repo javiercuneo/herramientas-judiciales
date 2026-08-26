@@ -403,6 +403,220 @@ console.log('\nCaducidad de instancia (art. 310 CPCCN)');
 }
 
 // ---------------------------------------------------------------------------
+// DIAS ENTRE DOS FECHAS
+//
+// La unica de las cinco que no computa un vencimiento: cuenta. Los totales de
+// abajo son los que entre-fechas.html mostraba antes de la extraccion,
+// capturados el 26/8/2026 sobre una matriz de 4608 casos --seis anios por doce
+// meses por dos dias por cuatro distancias por las cuatro combinaciones de
+// puntas por habiles y corridos--, que dio identica despues de migrar.
+// ---------------------------------------------------------------------------
+console.log('\nDias entre dos fechas');
+{
+    const dl = (fecha) =>
+        `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
+
+    const entre = (desde, hasta, opts = {}) =>
+        P.entreFechas({
+            desde: { anio: desde[2], mes: desde[1], dia: desde[0] },
+            hasta: { anio: hasta[2], mes: hasta[1], dia: hasta[0] },
+            incluirInicio: opts.incluirInicio !== false,
+            incluirFin: opts.incluirFin !== false,
+            soloHabiles: !!opts.soloHabiles,
+        });
+
+    // --- Los testigos de la pantalla ---------------------------------------
+    igual(entre([15, 7, 2025], [14, 8, 2025], { soloHabiles: true }).total, 13,
+        'del 15/7 al 14/8/2025, habiles: la feria de 2025 se come doce dias');
+    igual(entre([15, 6, 2026], [13, 10, 2026], { soloHabiles: true }).total, 72,
+        'del 15/6 al 13/10/2026, habiles');
+    igual(entre([1, 12, 2025], [31, 3, 2026], { soloHabiles: true }).total, 57,
+        'del 1/12/2025 al 31/3/2026, habiles: enero entero no aporta ninguno');
+    igual(entre([1, 1, 2021], [31, 1, 2021], { soloHabiles: true }).total, 0,
+        'enero entero de 2021 no tiene un solo dia habil');
+    igual(entre([14, 7, 2024], [31, 7, 2024], { soloHabiles: true }).total, 3,
+        'del 14 al 31/7/2024, habiles: quedan el 29, el 30 y el 31');
+    igual(entre([2, 1, 2026], [28, 2, 2026], { soloHabiles: true }).total, 18,
+        'del 2/1 al 28/2/2026, habiles');
+    igual(entre([2, 1, 2026], [28, 2, 2026]).total, 58,
+        'los mismos dias, corridos: cuenta las dos puntas');
+
+    // --- Las puntas ---------------------------------------------------------
+    igual(entre([1, 1, 2026], [31, 1, 2026], { incluirInicio: false, incluirFin: false }).total, 29,
+        'sin las dos puntas, enero de 2026 da 29 dias corridos');
+    igual(dl(entre([1, 1, 2026], [31, 1, 2026], { incluirInicio: false }).desdeEfectivo), '2026-01-02',
+        'y el conteo arranca el 2, que es lo que la pantalla muestra');
+    igual(entre([10, 3, 2026], [10, 3, 2026]).total, 1,
+        'la misma fecha con las dos puntas es un dia');
+    igual(entre([10, 3, 2026], [10, 3, 2026], { incluirInicio: false }).total, 0,
+        'y sin una punta, ninguno');
+
+    // --- INVARIANTES --------------------------------------------------------
+    //
+    // El conteo de corridos es aritmetica de calendario y tiene que dar exacto;
+    // el de habiles no puede superarlo, y cada dia del tramo esta contado o
+    // excluido, sin un tercer estado.
+    {
+        let mal = 0;
+        let mirados = 0;
+        let ejemplo = null;
+        for (let mes = 1; mes <= 12; mes++) {
+            for (const dia of [1, 9, 17, 25]) {
+                for (const salto of [0, 1, 13, 60, 200]) {
+                    for (const ini of [true, false]) {
+                        for (const fin of [true, false]) {
+                            const desde = new Date(2025, mes - 1, dia);
+                            const hasta = new Date(desde);
+                            hasta.setDate(hasta.getDate() + salto);
+                            const arg = [
+                                [desde.getDate(), desde.getMonth() + 1, desde.getFullYear()],
+                                [hasta.getDate(), hasta.getMonth() + 1, hasta.getFullYear()],
+                            ];
+                            const corridos = entre(arg[0], arg[1], { incluirInicio: ini, incluirFin: fin });
+                            const habiles = entre(arg[0], arg[1], { incluirInicio: ini, incluirFin: fin, soloHabiles: true });
+                            mirados++;
+                            const esperado = Math.max(0, salto + 1 - (ini ? 0 : 1) - (fin ? 0 : 1));
+                            const rotulo = `${dia}/${mes}/2025 +${salto} ini=${ini} fin=${fin}`;
+                            if (corridos.total !== esperado ||
+                                habiles.total > corridos.total ||
+                                habiles.total + habiles.excluidos.length !== corridos.total) {
+                                mal++;
+                                if (!ejemplo) ejemplo = `${rotulo}: corridos ${corridos.total} (esperado ${esperado}), habiles ${habiles.total}, excluidos ${habiles.excluidos.length}`;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        ok(mirados > 900, `el barrido miro ${mirados} tramos`);
+        igual(mal, 0, 'los corridos dan la cuenta exacta y cada dia esta contado o excluido', ejemplo);
+    }
+
+    // Los dias corridos no dependen del calendario, asi que se contestan
+    // igual cuando falta un anio. Es la unica de las cinco que puede.
+    const lejos = Math.max(...carga.loadedYears) + 1;
+    igual(entre([1, 3, lejos], [10, 3, lejos]).problema, null,
+        `un tramo de ${lejos} se cuenta en corridos aunque falten sus feriados`);
+    ok(entre([1, 3, lejos], [10, 3, lejos], { soloHabiles: true }).problema !== null,
+        'y el mismo tramo en habiles no afirma un numero');
+}
+
+// ---------------------------------------------------------------------------
+// PLAZO REGRESIVO: N dias habiles hacia atras
+//
+// Contesta al reves: hasta cuando hay tiempo para algo que tiene que estar N
+// dias habiles antes de una fecha. Los testigos son los de la pantalla, de la
+// matriz de 864 casos del 26/8/2026, que dio identica despues de migrar.
+// ---------------------------------------------------------------------------
+console.log('\nPlazo regresivo');
+{
+    const dl = (fecha) =>
+        `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
+    const atras = (dia, mes, anio, dias) => P.regresiva({ anio, mes, dia, dias });
+
+    igual(dl(atras(15, 7, 2025, 15).fechaLimite), '2025-06-23',
+        'quince habiles antes del 15/7/2025');
+    igual(dl(atras(15, 3, 2024, 5).fechaLimite), '2024-03-08',
+        'cinco habiles antes del 15/3/2024');
+    igual(dl(atras(1, 12, 2025, 40).fechaLimite), '2025-10-01',
+        'cuarenta habiles antes del 1/12/2025');
+
+    // Enero entero no aporta ninguno. Va como invariante y no como testigo: los
+    // dias que la matriz de captura barrio --1, 15 y 28-- caen todos en fin de
+    // semana en febrero y marzo de 2026, asi que no hay ningun objetivo de esos
+    // meses con un valor capturado de la pantalla. Un testigo que salga de una
+    // corrida que NO calculo es peor que ninguno: fue exactamente el error de
+    // este bloque en su primera version, que copio 1/2/2026 sin ver que es
+    // domingo y se llevo el resultado del caso anterior, que habia quedado en
+    // el DOM.
+    {
+        const cruzaEnero = atras(2, 2, 2026, 40);
+        igual(cruzaEnero.objetivoInhabil, null, 'el 2/2/2026 es habil, asi que el caso calcula');
+        igual(cruzaEnero.evaluados.filter((e) => e.fecha.getMonth() === 0 && e.contado).length, 0,
+            'contando hacia atras, ningun dia de enero se cuenta');
+        ok(cruzaEnero.evaluados.some((e) => e.fecha.getMonth() === 0),
+            'y sin embargo el conteo atraviesa enero entero');
+    }
+    igual(dl(atras(28, 2, 2024, 15).fechaLimite), '2024-02-05',
+        'quince habiles antes del 28/2/2024, con el carnaval en el medio');
+    igual(dl(atras(30, 7, 2024, 5).fechaLimite), '2024-07-08',
+        'cinco habiles antes del 30/7/2024: la feria 15 al 26 se los come');
+    igual(dl(atras(10, 3, 2026, 15).fechaLimite), '2026-02-13',
+        'quince habiles antes del 10/3/2026');
+
+    // Un objetivo inhabil no se calcula: se dice por que. No es un error, es
+    // una respuesta, y por eso no lanza.
+    const enFeria = atras(4, 1, 2022, 5);
+    igual(enFeria.fechaLimite, null, 'un objetivo en feria de enero no devuelve fecha');
+    ok(/[Ff]eria/.test(enFeria.objetivoInhabil || ''), 'y dice que es feria', enFeria.objetivoInhabil);
+    igual(atras(15, 3, 2025, 5).objetivoInhabil, 'Fin de semana',
+        'un objetivo en fin de semana tampoco, y lo dice');
+
+    // --- INVARIANTES --------------------------------------------------------
+    {
+        let mal = 0;
+        let mirados = 0;
+        let ejemplo = null;
+        for (let mes = 1; mes <= 12; mes++) {
+            for (let dia = 1; dia <= 28; dia++) {
+                for (const dias of [1, 3, 10, 25]) {
+                    const r = atras(dia, mes, 2025, dias);
+                    if (r.problema || r.objetivoInhabil) continue;
+                    mirados++;
+                    const contados = r.evaluados.filter((e) => e.contado).length;
+                    const ultimo = r.evaluados[r.evaluados.length - 1];
+                    const rotulo = `${dia}/${mes}/2025 x${dias}`;
+                    if (contados !== dias ||
+                        !CJ.esDiaHabil(r.fechaLimite) ||
+                        r.fechaLimite >= r.objetivo ||
+                        !ultimo.contado ||
+                        dl(ultimo.fecha) !== dl(r.fechaLimite)) {
+                        mal++;
+                        if (!ejemplo) ejemplo = `${rotulo}: contados ${contados}, limite ${dl(r.fechaLimite)}`;
+                    }
+                }
+            }
+        }
+        ok(mirados > 700, `el barrido miro ${mirados} objetivos habiles`);
+        igual(mal, 0,
+            'se cuentan exactamente los dias pedidos, el limite es habil, anterior al objetivo, y es el ultimo contado',
+            ejemplo);
+
+        // Pedir un dia mas nunca puede dar una fecha posterior.
+        let rompen = 0;
+        for (let mes = 1; mes <= 12; mes++) {
+            const a = atras(15, mes, 2025, 5);
+            const b = atras(15, mes, 2025, 6);
+            if (a.fechaLimite && b.fechaLimite && b.fechaLimite >= a.fechaLimite) rompen++;
+        }
+        igual(rompen, 0, 'un dia mas de antelacion siempre corre el limite hacia atras');
+    }
+
+    // --- ABIERTO: la guarda de cobertura se consulta antes de contar ---------
+    //
+    // Esto NO comprueba que este bien: fija lo que la calculadora contesta hoy.
+    //
+    // La auditoria se lee sobre la fecha OBJETIVO y antes del bucle, asi que un
+    // conteo que retrocede hasta un anio fuera de la ventana de cobertura no la
+    // vuelve a consultar. Verificado en pantalla el 26/8/2026: objetivo
+    // 4/2/2021 con 40 dias de antelacion contesta 10/11/2020, sin un solo
+    // aviso, y de 2020 no estan cargados ni los feriados nacionales ni los
+    // asuetos --y tuvo once ferias extraordinarias--.
+    //
+    // NO SE TOCA sin decision de Javier: cerrarlo convierte una respuesta en
+    // una negativa. Anotado en docs/ESTADO.md.
+    {
+        const cruzaAtras = atras(4, 2, 2021, 40);
+        igual(cruzaAtras.problema, null,
+            'el conteo que retrocede a 2020 sigue sin avisar: es un bug abierto, no un invariante');
+        igual(dl(cruzaAtras.fechaLimite), '2020-11-10',
+            'y el testigo: 4/2/2021 con 40 dias contesta el 10/11/2020');
+        ok(CJ.coberturaDesde > 2020,
+            `y 2020 esta fuera de la ventana, que arranca en ${CJ.coberturaDesde}`);
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Entradas invalidas: se rechazan con un mensaje, no con una fecha.
 // ---------------------------------------------------------------------------
 console.log('\nEntradas invalidas');
@@ -416,6 +630,7 @@ console.log('\nEntradas invalidas');
     rechaza(() => P.mora({ anio: 2026, mes: 6, dia: 18, diasHabiles: 0, diasCorridos: 10 }), 'mora sin dias habiles se rechaza');
     rechaza(() => P.caducidad({ anio: 2026, mes: 6, dia: 18, meses: 0 }), 'caducidad sin meses se rechaza');
     rechaza(() => P.caducidad({ anio: 2026, mes: 6, dia: 18 }), 'caducidad con el plazo vacio se rechaza, y no devuelve la fecha de inicio');
+    rechaza(() => P.regresiva({ anio: 2026, mes: 3, dia: 10, dias: 0 }), 'regresiva con cero dias se rechaza');
 }
 
 console.log(`\n${pruebas} comprobaciones, ${fallos} fallas.`);

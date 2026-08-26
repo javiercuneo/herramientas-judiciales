@@ -292,6 +292,7 @@
       </div>
 </div>
 <script src="js/calendario-judicial.js"></script>
+<script src="js/plazos.js"></script>
 <script>
     (function() {
         let datosCargados = false;
@@ -334,6 +335,10 @@
             return dia + '/' + mes + '/' + anio;
         }
 
+        // La aritmetica NO vive aca: esta en js/plazos.js, el mismo motor que
+        // consultan vencimientos, mora, caducidad, entre-fechas y los
+        // conectores. Esta funcion lee el formulario, llama y escribe. Hasta el
+        // 26/8/2026 el conteo hacia atras estaba escrito aca adentro.
         function calcular() {
             if (!datosCargados) {
                 alert('Los datos aun no estan listos o hay un error. Intenta recargar.');
@@ -357,70 +362,42 @@
                 return;
             }
 
-            // Sin la Acordada de feria de ese año, julio se contaría como
-            // hábil y el plazo regresivo arrancaría tarde. No se deduce.
-            CalendarioJudicial.reiniciarAuditoria();
-            CalendarioJudicial.esDiaHabil(fechaObj);
-            const problema = CalendarioJudicial.problemaDeDatos();
-            if (problema) {
-                alert('No se puede calcular. ' + problema);
-                return;
-            }
-
-            if (!CalendarioJudicial.esDiaHabil(fechaObj)) {
-                const motivo = CalendarioJudicial.obtenerMotivoInhabil(fechaObj);
-                alert('La fecha objetivo es inhabil (' + motivo + '). Por favor elija una fecha habil.');
-                return;
-            }
-
-            const dias = parseInt(diasInput.value, 10);
-            if (isNaN(dias) || dias < 1) {
-                alert('Los dias deben ser un numero entero mayor o igual a 1.');
-                return;
-            }
-
-            let fechaActual = new Date(fechaObj);
-            fechaActual.setDate(fechaActual.getDate() - 1);
-
-            let diasRestantes = dias;
-            const evaluados = [];
-
-            while (diasRestantes > 0) {
-                const motivo = CalendarioJudicial.obtenerMotivoInhabil(fechaActual);
-                const esHabil = motivo === null;
-
-                evaluados.push({
-                    fecha: new Date(fechaActual),
-                    contado: esHabil,
-                    motivo: esHabil ? null : motivo
+            let r;
+            try {
+                r = Plazos.regresiva({
+                    anio: anioFecha,
+                    mes: fechaObj.getMonth() + 1,
+                    dia: fechaObj.getDate(),
+                    dias: parseInt(diasInput.value, 10)
                 });
-
-                if (!esHabil) {
-                } else {
-                    diasRestantes--;
-                }
-
-                if (diasRestantes > 0) {
-                    fechaActual.setDate(fechaActual.getDate() - 1);
-                }
+            } catch (e) {
+                alert(e.message);
+                return;
             }
 
-            const fechaLimite = new Date(fechaActual);
+            // El orden de estos tres avisos es el mismo de siempre y lo fija el
+            // motor: dato faltante, objetivo inhabil, plazo mal escrito.
+            if (r.problema) {
+                alert('No se puede calcular. ' + r.problema);
+                return;
+            }
+            if (r.objetivoInhabil) {
+                alert('La fecha objetivo es inhabil (' + r.objetivoInhabil + '). Por favor elija una fecha habil.');
+                return;
+            }
 
-            fechaLimiteSpan.textContent = formatearFechaDDMMAAAA(fechaLimite);
+            fechaLimiteSpan.textContent = formatearFechaDDMMAAAA(r.fechaLimite);
             resultadoPanel.style.display = 'block';
             trazabilidadPanel.style.display = 'grid';
 
             listaEvaluados.innerHTML = '';
-            evaluados.forEach(function(item) {
+            r.evaluados.forEach(function(item) {
                 const div = document.createElement('div');
                 div.className = 'item';
                 const fechaS = formatearFechaDDMMAAAA(item.fecha);
                 div.innerHTML = '<span class="fecha">' + fechaS + '</span> <span class="' + (item.contado ? 'contado' : 'no-contado') + '">' + (item.contado ? 'OK CONTADO' : 'X NO CONTADO') + '</span>' + (item.motivo ? '<span class="motivo">(' + item.motivo + ')</span>' : '');
                 listaEvaluados.appendChild(div);
             });
-
-
         }
 
         function resetear() {

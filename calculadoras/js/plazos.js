@@ -586,12 +586,166 @@
         return { fecha: fullDate, inhabiles: inhabilesList, ajuste: ajuste };
     }
 
+    // --- Dias entre dos fechas ----------------------------------------------
+    //
+    // Transcripcion de performCalculation() en entre-fechas.html, sin la parte
+    // que lee el formulario ni la que arma el HTML. La aritmetica no se toco.
+    //
+    // Es la unica de las cinco de plazos que NO computa un vencimiento: cuenta.
+    // Y es la unica que puede contestar sin el calendario cargado, porque el
+    // conteo de dias corridos no depende de ningun feriado. Por eso la
+    // auditoria se reinicia SOLO cuando se cuentan habiles: reiniciarla siempre
+    // haria que un conteo de corridos borrara la auditoria de otro calculo.
+    //
+    // opciones:
+    //   desde, hasta     { anio, mes, dia } cada una. La pantalla las valida
+    //                    antes: aca se asume que existen y que desde <= hasta.
+    //   incluirInicio    contar el dia de arranque
+    //   incluirFin       contar el dia de cierre
+    //   soloHabiles      descontar fines de semana, feriados, asuetos y feria
+    function entreFechas(opciones) {
+        var CJ = calendario();
+        var o = opciones || {};
+        var desde = o.desde || {};
+        var hasta = o.hasta || {};
+        var soloHabiles = !!o.soloHabiles;
+
+        var startDate = fechaLocal(desde.anio, desde.mes, desde.dia);
+        var endDate = fechaLocal(hasta.anio, hasta.mes, hasta.dia);
+
+        // Solo el conteo de habiles depende de la feria; el de dias corridos
+        // no. Se audita para no contar julio como habil en un anio cuya
+        // Acordada la CSJN todavia no dicto.
+        if (soloHabiles) CJ.reiniciarAuditoria();
+
+        var excluidos = [];
+        var total = 0;
+
+        var actualStart = new Date(startDate);
+        var actualEnd = new Date(endDate);
+
+        if (!o.incluirInicio) actualStart.setDate(actualStart.getDate() + 1);
+        if (!o.incluirFin) actualEnd.setDate(actualEnd.getDate() - 1);
+
+        var currentDate = new Date(actualStart);
+
+        while (currentDate.getTime() <= actualEnd.getTime()) {
+            var cuenta = true;
+            var motivo = null;
+
+            if (soloHabiles && !CJ.esDiaHabil(currentDate)) {
+                cuenta = false;
+                motivo = CJ.obtenerMotivoInhabil(currentDate) || 'Inhábil';
+            }
+
+            if (cuenta) {
+                total++;
+            } else if (soloHabiles && motivo) {
+                excluidos.push({ fecha: new Date(currentDate), motivo: motivo });
+            }
+
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        return {
+            problema: soloHabiles ? CJ.problemaDeDatos() : null,
+            desde: startDate,
+            hasta: endDate,
+            desdeEfectivo: actualStart,
+            hastaEfectivo: actualEnd,
+            soloHabiles: soloHabiles,
+            total: total,
+            excluidos: excluidos
+        };
+    }
+
+    // --- Plazo regresivo: N dias habiles hacia atras -------------------------
+    //
+    // Transcripcion de calcular() en regresiva.html, sin la parte que lee el
+    // formulario ni la que arma el HTML. La aritmetica no se toco.
+    //
+    // Contesta la pregunta al reves que las demas: no "cuando vence" sino
+    // "hasta cuando tengo para presentar algo que tiene que estar N dias
+    // habiles antes de una fecha". El conteo arranca el dia ANTERIOR al
+    // objetivo --el objetivo no se cuenta-- y la fecha limite es el ultimo dia
+    // contado, no el siguiente.
+    //
+    // EL ORDEN DE LO QUE DEVUELVE IMPORTA, porque es el orden en que la
+    // pantalla avisa: primero el dato faltante, despues el objetivo inhabil,
+    // y recien despues se valida el plazo. Al reves, una fecha de feria con el
+    // plazo mal escrito se quejaria del plazo y no de la fecha.
+    //
+    // opciones:
+    //   anio, mes, dia   la fecha objetivo, que tiene que ser habil
+    //   dias             dias habiles de antelacion
+    function regresiva(opciones) {
+        var CJ = calendario();
+        var o = opciones || {};
+
+        var fechaObj = fechaLocal(o.anio, o.mes, o.dia);
+
+        // Sin la Acordada de feria de ese anio, julio se contaria como habil y
+        // el plazo regresivo arrancaria tarde. No se deduce.
+        CJ.reiniciarAuditoria();
+        CJ.esDiaHabil(fechaObj);
+        var problema = CJ.problemaDeDatos();
+        if (problema) {
+            return { problema: problema, objetivo: fechaObj, objetivoInhabil: null, fechaLimite: null, evaluados: null };
+        }
+
+        var motivoObjetivo = CJ.obtenerMotivoInhabil(fechaObj);
+        if (motivoObjetivo !== null) {
+            return { problema: null, objetivo: fechaObj, objetivoInhabil: motivoObjetivo, fechaLimite: null, evaluados: null };
+        }
+
+        var dias = Number(o.dias);
+        if (!Number.isInteger(dias) || dias < 1) {
+            throw new Error('Los días tienen que ser un número entero mayor o igual a 1.');
+        }
+
+        var fechaActual = new Date(fechaObj);
+        fechaActual.setDate(fechaActual.getDate() - 1);
+
+        var diasRestantes = dias;
+        var evaluados = [];
+
+        while (diasRestantes > 0) {
+            var motivo = CJ.obtenerMotivoInhabil(fechaActual);
+            var esHabil = motivo === null;
+
+            evaluados.push({
+                fecha: new Date(fechaActual),
+                contado: esHabil,
+                motivo: esHabil ? null : motivo
+            });
+
+            if (esHabil) diasRestantes--;
+
+            // Cuando ya se contaron todos, NO se retrocede una vez mas: la
+            // fecha limite es el ultimo dia contado y no el anterior a el.
+            if (diasRestantes > 0) {
+                fechaActual.setDate(fechaActual.getDate() - 1);
+            }
+        }
+
+        return {
+            problema: null,
+            objetivo: fechaObj,
+            objetivoInhabil: null,
+            dias: dias,
+            fechaLimite: new Date(fechaActual),
+            evaluados: evaluados
+        };
+    }
+
     var API = {
         notificacionAutomatica: notificacionAutomatica,
         proximoDiaDeNota: proximoDiaDeNota,
         parDeNotas: parDeNotas,
         vencimiento: vencimiento,
         caducidad: caducidad,
+        entreFechas: entreFechas,
+        regresiva: regresiva,
         mora: mora
     };
 

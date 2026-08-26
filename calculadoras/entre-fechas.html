@@ -396,6 +396,7 @@
       </div>
     </div>
 <script src="js/calendario-judicial.js"></script>
+<script src="js/plazos.js"></script>
 <script>
     var YEARS = [];
     (function() {
@@ -507,68 +508,42 @@
         }, 100);
     }
 
+    // La aritmetica NO vive aca: esta en js/plazos.js, el mismo motor que
+    // consultan vencimientos, mora, caducidad y los conectores. Esta funcion
+    // llama y pasa el resultado a la pantalla. Hasta el 26/8/2026 el conteo
+    // estaba escrito aca adentro.
     function performCalculation(startDate, endDate, includeStart, includeEnd, businessDays) {
-        // Solo el conteo de habiles depende de la feria; el de dias corridos
-        // no. Se audita para no contar julio como habil en un anio cuya
-        // Acordada la CSJN todavia no dicto.
-        if (businessDays) CalendarioJudicial.reiniciarAuditoria();
+        var r = Plazos.entreFechas({
+            desde: { anio: startDate.getFullYear(), mes: startDate.getMonth() + 1, dia: startDate.getDate() },
+            hasta: { anio: endDate.getFullYear(), mes: endDate.getMonth() + 1, dia: endDate.getDate() },
+            incluirInicio: includeStart,
+            incluirFin: includeEnd,
+            soloHabiles: businessDays
+        });
 
-        var excludedDays = [];
-        var totalDays = 0;
-
-        var actualStart = new Date(startDate);
-        var actualEnd = new Date(endDate);
-
-        if (!includeStart) actualStart.setDate(actualStart.getDate() + 1);
-        if (!includeEnd) actualEnd.setDate(actualEnd.getDate() - 1);
-
-        var currentDate = new Date(actualStart);
-
-        while (currentDate.getTime() <= actualEnd.getTime()) {
-            var shouldCount = true;
-            var exclusionReason = null;
-
-            if (businessDays && !CalendarioJudicial.esDiaHabil(currentDate)) {
-                shouldCount = false;
-                exclusionReason = CalendarioJudicial.obtenerMotivoInhabil(currentDate) || 'Inhabil';
-            }
-
-            if (shouldCount) {
-                totalDays++;
-            } else if (businessDays && exclusionReason) {
-                excludedDays.push({
-                    date: new Date(currentDate),
-                    reason: exclusionReason
-                });
-            }
-
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-
-        displayResults(actualStart, totalDays, excludedDays, businessDays);
+        displayResults(r, businessDays);
     }
 
-    function displayResults(startDate, totalDays, excludedDays, businessDays) {
+    function displayResults(r, businessDays) {
         document.getElementById('loading').classList.remove('show');
 
-        var problema = businessDays ? CalendarioJudicial.problemaDeDatos() : null;
-        if (problema) {
-            alert('No se puede contar en días hábiles. ' + problema +
+        if (r.problema) {
+            alert('No se puede contar en días hábiles. ' + r.problema +
                 '\n\nEl conteo en días corridos sí funciona.');
             return;
         }
 
-        document.getElementById('countStartDate').textContent = formatDate(startDate);
-        document.getElementById('totalDays').textContent = totalDays;
+        document.getElementById('countStartDate').textContent = formatDate(r.desdeEfectivo);
+        document.getElementById('totalDays').textContent = r.total;
 
-        if (businessDays && excludedDays.length > 0) {
+        if (businessDays && r.excluidos.length > 0) {
             document.getElementById('excludedDaysSection').style.display = 'block';
             var listEl = document.getElementById('excludedDaysList');
             listEl.innerHTML = '';
-            excludedDays.forEach(function(item) {
+            r.excluidos.forEach(function(item) {
                 var div = document.createElement('div');
                 div.className = 'excluded-item';
-                div.innerHTML = '<span class="excluded-date">' + formatDate(item.date) + '</span> <span class="excluded-reason">' + item.reason + '</span>';
+                div.innerHTML = '<span class="excluded-date">' + formatDate(item.fecha) + '</span> <span class="excluded-reason">' + item.motivo + '</span>';
                 listEl.appendChild(div);
             });
         } else {

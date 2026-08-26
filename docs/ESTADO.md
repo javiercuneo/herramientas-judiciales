@@ -69,11 +69,19 @@ casilla, tres líneas separadoras de menos, los días de nota marcados en el
 dibujo y el calendario con tamaño constante. Con eso **queda desbloqueado el
 frente grande que sigue: las otras diez calculadoras, con ésta de patrón.**
 
-**El 26/8, además, arrancó la extracción aritmética de las tres que faltaban**
-—el frente pesado—: `caducidad` ya consume el motor, con 1132 casos idénticos.
-Y de paso apareció un bug que no lo tocó nadie: **una caducidad puede vencer
-adentro de la feria de enero**, en el 0,61 % de los casos. Está en
-[Bugs abiertos](#bugs-abiertos) y no se tocó, porque arreglarlo mueve una fecha.
+**El 26/8, además, se hizo entera la extracción aritmética de las tres que
+faltaban** —el frente pesado—: `caducidad`, `entre-fechas` y `regresiva` pasaron
+a consumir `plazos.js`, con **6604 casos capturados de la pantalla e idénticos
+después de migrar**. Con eso **ninguna de las cinco pantallas de plazos tiene
+aritmética adentro**, y el banco del motor pasó de 34 a 117 comprobaciones.
+
+**Y aparecieron dos bugs que no tocó nadie**, los dos encontrados por los
+barridos que entraron con las pruebas: una caducidad puede vencer adentro de la
+feria de enero (0,61 % de los casos), y la regresiva puede contar hacia atrás
+fuera de la ventana de cobertura sin avisar. **Ninguno se tocó**, porque los dos
+mueven una fecha, y los dos están fijados en el banco con su testigo. Están en
+[Bugs abiertos](#bugs-abiertos), con el caso concreto y lo que habría que
+decidir.
 
 **No queda nada urgente ni bloqueante.** Lo abierto está en
 [Pendientes](#pendientes) y [Bugs abiertos](#bugs-abiertos).
@@ -195,8 +203,10 @@ Ninguno urgente y ninguno bloqueante.
   cobertura —cada una nombra años distintos—, el tuteo suelto («envíanos un
   mail», «si crees»), los `max-width` de 240 a 1000 px, y los rótulos.
   **El orden acordado**: `vencimientos` primero —hecha el 26/8—, después la
-  extracción de las otras tres de plazos, y recién ahí las que no son de
-  plazos, que van de cero.
+  extracción de las otras tres de plazos —**hecha el 26/8 también**—, y recién
+  ahí las que no son de plazos, que van de cero. O sea que **el turno es de las
+  que no son de plazos**, salvo que primero se quiera el dibujo y el rediseño de
+  las tres recién migradas.
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
   su propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -288,9 +298,9 @@ Ninguno urgente y ninguno bloqueante.
   que alguien corra `npm run feriados`. Es el argumento que faltaba para el cron
   que está anotado más arriba.
 - **Hay cinco bancos de pruebas y cubren cosas distintas.** `npm run
-  verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (83)
+  verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (117)
   cubren **el motor**: días hábiles, feria, feriados, cobertura, y la
-  aritmética de vencimiento, mora y caducidad. `npm run verificar-contraste` cubre **los
+  aritmética de las cinco de plazos. `npm run verificar-contraste` cubre **los
   tokens de color** y `npm run verificar-conectores` (46) **los dos
   transportes de `conectores/`**. `scripts/pruebas-calculadoras.html` —**51 filas: 21
   verificados a mano, 6 invariantes, 3 fijados, y los 21 verificados otra vez
@@ -785,37 +795,35 @@ en tema claro. Ahora da **5,52**, y es el peor de la página.
 
 Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío.
 
-1. **Extender el dibujo del plazo a `caducidad`, `entre-fechas` y `regresiva`.**
-   Es lo que sigue y es lo más largo. **No se puede hacer directo:** esas tres
-   tienen su aritmética adentro del HTML y `plazos.js` todavía no las cubre, así
-   que primero hay que extraerlas.
-   **`caducidad` ya está extraída y migrada —26/8—**, con la matriz de 1132
-   casos idéntica: ver [abajo](#caducidad-consume-el-motor--268). Quedan
-   `entre-fechas` y `regresiva`.
-   El método está probado tres veces y es el que hay que repetir:
-   a) capturar la salida de la pantalla actual sobre una matriz de casos —con el
-      detalle, no sólo la fecha final—, **contra el sitio servido y con
-      rompe-caché**;
-   b) transcribir la aritmética a `plazos.js` sin tocarla, conservando las
-      convenciones de fecha de cada una;
-   c) hacer que la pantalla consuma el motor;
-   d) correr la misma matriz y exigir que dé idéntico.
-   Recién con la pantalla consumiendo el motor se puede dibujar, porque el
-   dibujo se arma de `diasContados` y `diasSalteados`.
+1. **~~Extraer la aritmética de `caducidad`, `entre-fechas` y `regresiva`.~~
+   Hecho el 26/8**, las tres, con la matriz de cada una idéntica: ver
+   [abajo](#las-tres-que-faltaban-consumen-el-motor--268). El paso previo ya no
+   está: **las cinco pantallas de plazos consumen el motor.**
+
+   **Lo que queda es el dibujo del plazo en esas tres**, que era para lo que
+   hacía falta la extracción —el dibujo se arma de lo que el motor devuelve, no
+   recorriendo el calendario por su cuenta—. Y ahí hay una decisión antes de
+   escribir una línea: **el dibujo de `vencimientos` no se copia tal cual**,
+   porque las tres contestan otra cosa. `caducidad` es un plazo en meses y su
+   grilla tendría que mostrar medio año; `regresiva` cuenta hacia atrás y ya
+   tiene su propia traza día por día, que quizás sea mejor que una grilla;
+   `entre-fechas` no computa un vencimiento sino que cuenta, y ya lista los días
+   excluidos. **Antes de dibujar hay que decidir qué explica cada dibujo**, que
+   es lo que hizo bueno el de `vencimientos`.
 
    **Y va ANTES del rediseño de esas tres, no después.** Las dos cosas tocan
    los mismos archivos, y al revés habría que tocarlos dos veces: rediseñar
    una pantalla que después hay que volver a abrir para meterle el calendario
-   es hacer dos veces el mismo trabajo, y cada apertura de un archivo con
-   aritmética de plazos es una oportunidad de mover un número. Migrada la
-   pantalla, el rediseño entra con el dibujo ya adentro y el archivo se abre
-   una sola vez.
+   es hacer dos veces el mismo trabajo.
 
-   **Conviene arrancarlo en una sesión limpia y no cortarlo por la mitad.** No
-   por el tamaño: porque el estado intermedio —el motor extraído y la pantalla
-   con su copia— es exactamente lo que el 26/8 se decidió no volver a tener.
-   Si hay que parar, se para después del paso (d) de una calculadora, nunca en
-   el medio de una.
+   **El método, que ya se usó cinco veces y no hay que reinventar:**
+   a) capturar la salida de la pantalla actual sobre una matriz de casos —con el
+      detalle, no sólo la fecha final—, **contra el sitio servido, y
+      comprobando que el código que corre es el que se acaba de escribir**;
+   b) transcribir la aritmética a `plazos.js` sin tocarla, conservando las
+      convenciones de fecha de cada una;
+   c) hacer que la pantalla consuma el motor;
+   d) correr la misma matriz y exigir que dé idéntico.
 2. **El cruce pantalla contra motor en `scripts/pruebas-calculadoras.html`.**
    Sigue pendiente y es la red que faltaría para que una divergencia falle a los
    gritos en vez de en silencio. Con `vencimientos` y `mora` ya migradas la
@@ -913,10 +921,27 @@ el mismo 26/8: ver [el rediseño](#el-tablero-rediseñado-y-las-dos-regiones--26
 
 ---
 
-### `caducidad` consume el motor — 26/8
+### Las tres que faltaban consumen el motor — 26/8
 
-Primera de las tres que faltaban, con el método de
-[Por dónde seguir](#por-dónde-seguir) hecho entero y sin cortar por la mitad.
+**Con esto, ninguna de las cinco pantallas de plazos tiene aritmética adentro.**
+Las tres se hicieron con el método de [Por dónde seguir](#por-dónde-seguir)
+entero y una por una, sin cortar ninguna por la mitad. En total **6604 casos
+capturados de la pantalla antes de tocar nada y vueltos a correr después:
+idénticos, los 6604.**
+
+| pantalla | casos | qué barre |
+|---|---|---|
+| `caducidad` | 1132 | 6 años × 12 meses × 4 días × 4 plazos |
+| `entre-fechas` | 4608 | 6 × 12 × 2 días × 4 distancias × 4 combinaciones de puntas × hábiles y corridos |
+| `regresiva` | 864 | 6 × 12 × 3 días × 4 plazos |
+
+Y `plazos.js` pasó de dos funciones de cálculo a cinco. **Sigue sin decidir nada
+nuevo**: es transcripción, y las tres convenciones de fecha conviven adentro sin
+unificarse —mediodía UTC en `vencimientos`, medianoche local con `setHours` en
+`mora`, medianoche local pelada en estas tres— porque unificarlas es elegante y
+mueve un número de algún lado.
+
+#### `caducidad`
 
 **Qué se movió de lugar.** El cómputo del art. 310 vivía adentro del `submit` de
 `caducidad.html`, entre `document.getElementById`: el ancla del día, el salteo
@@ -963,12 +988,73 @@ DOM y nadie lo ve. Se transcribió igual, con el motivo escrito en `plazos.js`.
 Javier: mostrarlo agrega una segunda fecha a una pantalla que responde una sola
 pregunta, y sacarlo tira una cuenta que alguien escribió a propósito.
 
-**El banco creció de 34 a 83 comprobaciones**, y las de caducidad no salen del
-motor: son las que la pantalla mostraba antes de la extracción. Adentro van los
-diez testigos, el ancla que no se arrastra —el bug del 18/8—, el salteo de
-enero, los días de feria descontados, y el barrido de 4260 cruces que prueba que
-**ningún vencimiento cae en la feria de invierno**. Ese barrido es el que
-encontró el bug de enero.
+#### `entre-fechas`
+
+**Es la única de las cinco que no computa un vencimiento: cuenta.** Y la única
+que puede contestar con el calendario incompleto, porque los días corridos no
+dependen de ningún feriado. Por eso la auditoría se reinicia **sólo** cuando se
+cuentan hábiles: reiniciarla siempre haría que un conteo de corridos borrara la
+auditoría de otro cálculo. Eso estaba así y se conservó.
+
+La matriz son 4608 casos y cubre las dos puntas por separado —incluir el día de
+inicio, el de cierre, los dos, ninguno—, que es donde una migración se
+equivocaría sin que se note: un día de más o de menos en un extremo no cambia la
+forma del resultado.
+
+**Un cambio de texto y no de número:** el motivo de exclusión tenía un
+`|| 'Inhabil'` sin tilde como último recurso, en texto que ve el usuario. Es
+inalcanzable —si el día no es hábil, el motor siempre da un motivo— y por eso
+sobrevivió. Quedó `'Inhábil'`. Ninguno de los 4608 casos lo produce, así que la
+comparación no lo vio, y se anota acá para que no parezca una diferencia
+escondida.
+
+#### `regresiva`
+
+Contesta al revés que las demás —hasta cuándo hay tiempo para algo que tiene que
+estar N días hábiles **antes** de una fecha— y tiene una particularidad que hubo
+que preservar con cuidado: **cuando se contaron todos los días, el cursor no
+retrocede una vez más.** La fecha límite es el último día contado y no el
+anterior a él. Escrito de otra forma, el resultado se va un día.
+
+**Y el orden de los tres avisos importa, así que lo fija el motor y no la
+pantalla:** primero el dato faltante, después el objetivo inhábil, y recién
+después el plazo mal escrito. Al revés, una fecha de feria con el plazo vacío se
+quejaría del plazo y no de la fecha, que es lo que el usuario tiene que
+corregir. Por eso `regresiva()` **no lanza** cuando el objetivo es inhábil: eso
+no es un error, es una respuesta.
+
+#### El banco pasó de 34 a 117 comprobaciones
+
+Y ninguno de los testigos sale del motor: son los que las pantallas mostraban
+antes de la extracción. Adentro van los diez de caducidad, el ancla que no se
+arrastra —el bug del 18/8—, el salteo de enero, los días de feria descontados,
+los totales de `entre-fechas` con y sin puntas, y las seis fechas límite de
+`regresiva`. Y tres barridos con invariantes: que **ningún vencimiento de
+caducidad cae en la feria de invierno** (4260 cruces), que los días corridos dan
+la cuenta exacta y cada día del tramo está contado o excluido sin un tercer
+estado (960 tramos), y que la regresiva cuenta exactamente los días pedidos y
+deja el límite en un hábil anterior al objetivo (780 objetivos).
+
+**Los dos bugs abiertos los encontraron esos barridos**, que es para lo que
+existen.
+
+#### Un testigo mío estaba mal, y conviene saber por qué
+
+El primer bloque de pruebas de `regresiva` fijaba «40 hábiles antes del 1/2/2026
+dan el 15/10/2025», copiado de la captura. **El 1/2/2026 es domingo**: la
+pantalla no calcula, avisa que el objetivo es inhábil y **deja en el DOM el
+resultado del caso anterior**. El valor copiado era el de otro caso.
+
+La comparación no lo notó ni podía: compara la pantalla contra sí misma, y una
+salida vieja es igual de vieja de los dos lados. Lo cazó correr las pruebas en
+Node, donde no hay DOM que se quede con nada.
+
+**De ahí la regla, que vale para cualquier arnés que lea una pantalla:** una
+matriz sirve para comparar antes y después, pero **un testigo tiene que salir de
+una corrida que efectivamente calculó**. Los días que la matriz barre —1, 15 y
+28— caen todos en fin de semana en febrero y marzo de 2026, así que para esos
+meses no hay ningún testigo posible; el caso que cruza enero quedó como
+invariante —ningún día de enero se cuenta— y no como número copiado.
 
 ### Las pantallas consumen el motor — 26/8
 
@@ -1001,9 +1087,9 @@ archivo viejo**, porque el servidor estático no manda `no-cache`. Salió a la l
 sólo porque el dibujo no aparecía. Una comparación cacheada da verde siempre:
 **toda medición contra el sitio servido va con rompe-caché.**
 
-**Lo que falta de esto:** `caducidad`, `entre-fechas` y `regresiva` siguen con su
-aritmética adentro. `plazos.js` todavía no las cubre, así que migrarlas pide
-primero extraerlas, con el mismo método —capturar la salida, extraer, comparar—.
+**Y las tres que faltaban se migraron el mismo 26/8**, con el mismo método:
+ver [abajo](#las-tres-que-faltaban-consumen-el-motor--268). Desde entonces
+**ninguna de las cinco pantallas de plazos tiene aritmética adentro.**
 
 ---
 
@@ -1303,6 +1389,31 @@ y conviene fundarla—.
 **Mientras tanto está fijado y no escondido:** `npm run verificar-plazos` cuenta
 los 23 casos de 2025 y guarda el testigo del 21/7. Si alguien lo cambia sin
 querer, el número se mueve y el control lo dice.
+
+### La regresiva puede contar hacia atrás fuera de la ventana de cobertura — 26/8
+
+**También apareció extrayendo, también es de antes, y también quedó sin tocar.**
+La matriz de 864 casos salió idéntica.
+
+**Qué pasa.** `regresiva` consulta la guarda de datos faltantes **sobre la fecha
+objetivo y antes de empezar a contar**. El conteo retrocede después, y puede
+salirse de la ventana de cobertura sin que nada lo vuelva a mirar.
+
+**El caso, verificado en pantalla antes de migrar:** objetivo **4/2/2021** con
+**40 días de antelación** contesta **10/11/2020**, sin un solo aviso. De 2020 no
+están cargados ni los feriados nacionales ni los asuetos —la cobertura arranca
+en 2021—, así que días que fueron inhábiles se contaron como hábiles. Y 2020 es
+el peor año posible para eso: encadenó **once ferias extraordinarias** entre
+marzo y agosto.
+
+**Por qué la guarda no alcanza donde sí alcanza en las otras.** En
+`vencimientos` y en `mora` el cómputo avanza y la auditoría se lee **al final**,
+así que anota todo lo que el cálculo tocó. Acá se lee al principio, y hacia
+atrás el cálculo toca años que en ese momento todavía no existían para nadie.
+
+**No se tocó** porque cerrarlo convierte una respuesta en una negativa, y eso es
+una decisión. El arreglo es de una línea —volver a leer `problemaDeDatos()`
+después del bucle— pero decidirlo no lo es. Fijado en el banco con el testigo.
 
 ---
 
