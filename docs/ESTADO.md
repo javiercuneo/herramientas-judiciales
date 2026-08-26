@@ -83,8 +83,30 @@ mueve 67 fechas de 10.956— y la **regresiva ya no cuenta hacia atrás fuera de
 ventana de cobertura** en silencio. Los dos están en
 [`HISTORIA.md`](HISTORIA.md), con la aritmética y el alcance medido.
 
+**Y el 26/8 cerró con el dibujo del plazo en las cuatro pantallas que tenían
+algo que dibujar, y con tres redes nuevas.** El dibujo salió de
+`vencimientos.html` a un módulo compartido —idéntico carácter por carácter
+después de la extracción— y se extendió con una decisión distinta por pantalla:
+`regresiva` cambió su traza día por día por la grilla, `entre-fechas` muestra qué
+días entraron al conteo, y **`caducidad` no dibuja un calendario a propósito**,
+porque su plazo se cuenta por tramos mensuales y pintarlo día por día mentiría
+justo en el caso raro. Ver
+[el dibujo en las tres](#el-dibujo-en-las-tres-que-faltaban--268).
+
+Las tres redes, en orden de lo que cubren: el banco de las pantallas
+**cruza cada una contra el motor** y pasó de 51 a 75 filas;
+`npm run verificar-red` controla **qué terceros nombra el sitio** —y existe
+porque el barrido de «qué sale del navegador» de esa misma mañana dio una lista
+incompleta: **`prorrateo` le pedía la UMA a una planilla de Google y no se
+vio**—; y `scripts/pruebas-no-plazos.html` pone **18 fijados** sobre las cuatro
+calculadoras que no tenían ninguna comprobación, que era la condición para poder
+refundarlas. **Las tres se probaron rompiendo algo a propósito**, porque un
+control que nunca falló no es un control.
+
 **No queda nada urgente ni bloqueante.** Lo abierto está en
-[Pendientes](#pendientes) y [Bugs abiertos](#bugs-abiertos).
+[Pendientes](#pendientes) y [Bugs abiertos](#bugs-abiertos). **Lo que sigue es
+el frente grande y ya está desbloqueado y con red:** el rediseño de las tres de
+plazos recién migradas y la refundación de las cuatro que no son de plazos.
 
 ### Las cinco cifras que este repositorio sigue de Honorio
 
@@ -177,7 +199,7 @@ Ninguno urgente y ninguno bloqueante.
     hablan con nadie**: sólo piden los JSON de `data/` del propio sitio.
   - **~~`honorarios-mediacion` le pide el UHOM a una planilla de Google~~
     Arreglado el 26/8:** lee `data/serie-uhom.json`, del propio repositorio.
-    Ver [abajo](#dos-arreglos-que-salieron-de-preguntar-qué-sale-del-navegador--268).
+    Ver [abajo](#tres-arreglos-que-salieron-de-preguntar-qué-sale-del-navegador--268).
   - **~~`prorrateo` le pedía la UMA a la MISMA planilla, y este barrido no lo
     vio.~~ Arreglado el 26/8:** lee `data/serie-uma.json`. **La primera versión
     de esta lista decía que las únicas dos que consultaban afuera eran
