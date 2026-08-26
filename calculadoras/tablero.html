@@ -144,11 +144,14 @@
     .panel { display: none; }
     .panel.activo { display: block; }
 
+    /* Sin borde ni fondo propio, desde el 26/8. Antes era una tarjeta, y eso
+       daba tres niveles de encierro para una sola cosa: la linea de abajo de
+       la barra de pestañas, este recuadro, y adentro la tarjeta que trae la
+       propia calculadora. Javier: "hay demasiadas lineas separando cosas, no
+       se que vienen a mostrar". Las once calculadoras traen su propio
+       contenedor en --card, asi que este no delimitaba nada que no estuviera
+       ya delimitado. Queda solo como caja de posicionamiento del iframe. */
     .marco-caja {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        overflow: hidden;
         margin: 20px 0 0;
     }
 
@@ -411,9 +414,18 @@ var montados = Object.create(null);
 // alto queda clavado donde arranco.
 //
 // Es una anulacion de presentacion y no toca nada que calcule.
+//
+// Y desde el 26/8 se anula tambien el margen LATERAL del body de la
+// calculadora. Suelta lo necesita ---el contenido no puede ir pegado al borde
+// de la ventana--- pero embebida se suma al de la pagina del tablero, y el
+// resultado es la calculadora corrida hacia adentro respecto del titulo de
+// arriba: otro nivel de encierro sin que nada lo delimite. El vertical se
+// deja, que es el aire entre la barra de pestañas y el contenido.
 var CSS_EMBEBIDO =
     '.tema-boton { display: none !important; }' +
-    'html, body { height: auto !important; min-height: 0 !important; }';
+    'html, body { height: auto !important; min-height: 0 !important; }' +
+    'body { padding-left: 0 !important; padding-right: 0 !important; ' +
+    'margin-left: 0 !important; margin-right: 0 !important; }';
 
 function construir() {
     var numero = 0;

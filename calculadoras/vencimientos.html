@@ -45,9 +45,7 @@
             justify-content: space-between;
             gap: 16px;
             flex-wrap: wrap;
-            padding-bottom: 14px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 26px;
+            margin-bottom: 20px;
         }
 
         .cabecera h1 {
@@ -69,6 +67,51 @@
             color: var(--faint);
             max-width: 46ch;
             text-align: right;
+        }
+
+        /* --------------------------------------------------- las dos columnas
+
+           El formulario a la izquierda y la respuesta a la derecha, desde el
+           26/8. Antes iban uno abajo del otro y los controles ocupaban lo que
+           mide su contenido --que es el criterio correcto y no se toco-- pero
+           eso dejaba media pantalla vacia a la derecha de la fila de campos.
+           Javier: "hacen que quede un espacio grande a la derecha vacio... me
+           pregunto si el resultado se deberia mostrar ahi".
+
+           El dibujo NO entra en la grilla: va abajo y a ancho completo, porque
+           es lo unico de la pantalla que quiere todo el ancho que haya.
+
+           A una sola columna abajo de 900px, que es donde la fecha grande y la
+           tira de datos dejan de entrar al lado del formulario.
+           -------------------------------------------------------------- */
+        .tablero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .tablero { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        /* La columna derecha antes de calcular. No es un adorno: si estuviera
+           vacia, calcular movería el formulario de lugar. Y dice donde va a
+           aparecer la respuesta, que es lo que una caja vacia no dice. */
+        .espera {
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            padding: 30px 26px;
+            color: var(--faint);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .espera b {
+            display: block;
+            font-family: var(--font-meter);
+            font-size: 15px;
+            color: var(--muted-fg);
+            margin-bottom: 6px;
         }
 
         /* ------------------------------------------------------------ panel */
@@ -189,12 +232,33 @@
 
         .casilla input { width: 15px; height: 15px; margin-top: 2px; accent-color: var(--accent); flex: none; }
 
-        .nota-caja {
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px 16px;
-            background: var(--sunk);
+        /* Los modificadores del computo, juntos y sin caja propia.
+
+           Los tres --el horario, la ampliacion por distancia y los dias de
+           nota-- son lo mismo: cosas que corren el vencimiento y que casi
+           siempre no van. Estaban en tres lugares distintos de la pantalla y
+           uno de ellos, los dias de nota, adentro de un recuadro con OTRO
+           color de fondo, que lo hacia parecer de otra categoria. Criterio de
+           Javier, 26/8: "en el fondo son como modificadores del computo".
+
+           Sin fondo ni borde: el rotulo y el espacio alcanzan. Un recuadro
+           dentro de una tarjeta dentro de una pagina son tres encierros. */
+        .modificadores {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
+
+        .modificadores .rotulo { margin-bottom: 0; }
+
+        /* El campo que aparece al tildar una casilla, con sangria: se lee como
+           lo que es, una consecuencia de la casilla de arriba y no otro campo
+           del formulario. */
+        .desplegado {
+            margin-left: 24px;
+            display: none;
+        }
+        .desplegado.abierto { display: block; }
 
         .nota-fechas { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; }
         .nota-fechas .casilla { font-size: 12px; }
@@ -208,12 +272,12 @@
         input.invalid { border-color: var(--error); }
 
         /* -------------------------------------------------------- acciones */
+        /* Sin linea arriba: la separacion la hace el espacio. Era la cuarta
+           regla horizontal de una pantalla que ya tenia tres. */
         .acciones {
             display: flex;
             gap: 10px;
             margin-top: 24px;
-            padding-top: 20px;
-            border-top: 1px solid var(--hair);
         }
 
         button {
@@ -243,9 +307,11 @@
 
         .btn-chico { padding: 7px 14px; font-size: 12.5px; }
 
-        /* --------------------------------------------------------- resultado */
-        .resultado { margin-top: 26px; display: none; }
-        .resultado.show { display: block; }
+        /* --------------------------------------------------------- resultado
+           Siempre presente, nunca display:none. Antes aparecia al calcular y
+           empujaba la pagina; ahora es la columna derecha y lo que cambia es
+           su contenido: el aviso de espera o la respuesta. */
+        .resultado { min-width: 0; }
 
         /* El unico elemento grande de la pagina: la respuesta por la que se
            abrio la herramienta. */
@@ -265,7 +331,10 @@
 
         .veredicto .fecha {
             font-family: var(--font-meter);
-            font-size: clamp(26px, 5vw, 40px);
+            /* Baja de 40 a 34: la fecha ya no tiene el ancho de la pagina sino
+               el de media, y a 40 px "Miercoles, 11 de agosto de 2026" se
+               partia en tres lineas. */
+            font-size: clamp(24px, 3.4vw, 34px);
             font-weight: 700;
             line-height: 1.05;
             letter-spacing: -0.02em;
@@ -277,11 +346,9 @@
            se partia en cuatro lineas. Con flex-basis pide su lugar, y cuando no
            entra baja entero en vez de deshilacharse. */
         .veredicto .alterno {
-            flex: 0 1 300px;
-            min-width: 240px;
+            flex: 1 1 100%;
             font-size: 12px;
             opacity: 0.88;
-            text-align: right;
             line-height: 1.5;
         }
         .veredicto .alterno b { font-family: var(--font-meter); }
@@ -293,9 +360,12 @@
            entraban tres arriba y el cuarto solo abajo ocupando todo el ancho,
            que le daba un peso que no tiene. Con auto-fit se reparten parejo:
            cuatro, dos y dos, o uno por fila, segun entre. */
+        /* 180 y no 150: la tira vive en la columna derecha, que mide 460px. Con
+           150 entraban tres y el cuarto quedaba solo, con un hueco al lado.
+           Con 180 son dos y dos. */
         .tira {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1px;
             margin-top: 1px;
             background: var(--border);
@@ -324,17 +394,33 @@
 
         /* --------------------------------------------------------- calendario */
         .lienzo {
-            margin-top: 18px;
+            margin-top: 20px;
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 22px;
         }
 
+        /* Ancho FIJO por mes, no una fraccion del lienzo.
+
+           Con minmax(212px, 1fr) el mes se estiraba para llenar: un plazo de
+           dos meses daba celdas de 62 px y uno de cinco, de 28. El mismo dibujo
+           cambiaba de tamaño segun cuanto durara el plazo, que es justo lo que
+           un calendario no tiene que hacer. Javier, 26/8: "le dejaria siempre
+           el mismo tamaño, el que tiene cuando se ve el mes completo".
+
+           236px da celdas de ~30px, que es el tamaño con el que se dibujo. Los
+           meses se centran y sobra aire a los costados cuando son pocos: es
+           preferible al mes gigante. */
         .meses {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(212px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fit, 236px);
+            justify-content: center;
+            gap: 24px 28px;
+        }
+
+        @media (max-width: 320px) {
+            .meses { grid-template-columns: minmax(0, 1fr); }
         }
 
         .mes h4 {
@@ -397,6 +483,38 @@
         .celda.firma { border-color: var(--ok); color: var(--ok); }
 
         .celda.vence { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+
+        /* Los dias en que se dejo nota en el Libro de Asistencia. Hasta el 26/8
+           se cargaban en el formulario, movian el vencimiento, y en el dibujo no
+           se veian: el usuario tildaba diez fechas y ninguna aparecia. Lleva un
+           punto y no un color de fondo, porque un dia de nota no es una
+           categoria de dia --puede ser ademas contado, o ser la notificacion--
+           sino algo que paso ese dia. */
+        .celda.nota { position: relative; }
+        .celda.nota::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        .muestra.punto {
+            position: relative;
+            border: 1.5px solid var(--border);
+        }
+        .muestra.punto::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 2px;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--muted-fg);
+        }
         .celda .orden { font-size: 8px; line-height: 1; opacity: 0.7; font-weight: 400; }
 
         .referencias {
@@ -478,6 +596,7 @@
             <p class="cobertura" id="yearsAvailable">Cargando el calendario judicial…</p>
         </header>
 
+        <div class="tablero">
         <div class="panel">
             <!-- Dos opciones no son un desplegable. Un desplegable esconde la
                  mitad de la eleccion detras de un clic, y ademas se estiraba a
@@ -521,36 +640,47 @@
                         <div class="error" id="errorPlazo">El plazo tiene que ser un número de días mayor que cero.</div>
                     </div>
 
-                    <!-- La ampliacion se ofrece solo con cedula: con notificacion
-                         automatica la resolucion queda notificada en el tribunal
-                         y no hay diligencia fuera del asiento que ampliar
-                         (arts. 40, 41, 42 y 133 CPCCN). -->
-                    <div class="campo" id="seccionAmpliacion">
-                        <span class="rotulo">Ampliación por distancia</span>
-                        <div class="trio">
+                </div>
+            </div>
+
+            <!-- Los tres modificadores del computo, juntos. Ninguno se usa casi
+                 nunca y los tres corren el vencimiento, asi que van detras de
+                 una casilla y no como campos del formulario. -->
+            <div class="grupo modificadores">
+                <span class="rotulo">Modificadores del cómputo</span>
+
+                <!-- Si el dia es inhabil la hora no cambia nada y no se pregunta:
+                     la cedula se tiene por practicada el habil siguiente igual. -->
+                <div id="seccionHorario" style="display: none;">
+                    <label class="casilla">
+                        <input type="checkbox" id="fueraDeHorario">
+                        Se diligenció fuera del horario hábil (después de las 20 o antes de las 7)
+                    </label>
+                </div>
+
+                <div id="avisoDiaInhabil" style="display: none;">
+                    <p class="apunte" id="textoDiaInhabil"></p>
+                </div>
+
+                <!-- La ampliacion se ofrece solo con cedula: con notificacion
+                     automatica la resolucion queda notificada en el tribunal
+                     y no hay diligencia fuera del asiento que ampliar
+                     (arts. 40, 41, 42 y 133 CPCCN). -->
+                <div id="seccionAmpliacion">
+                    <label class="casilla">
+                        <input type="checkbox" id="checkAmpliacion">
+                        Se amplía por distancia (art. 158 CPCCN)
+                    </label>
+                    <div class="desplegado" id="campoAmpliacion">
+                        <div class="trio" style="margin-top: 8px;">
                             <input type="text" id="ampliacion" class="mide-3" placeholder="0" inputmode="numeric" aria-label="Ampliación por distancia, en días">
-                            <span class="pie-campo" style="margin-top:0">días · art. 158</span>
+                            <span class="pie-campo" style="margin-top:0">días hábiles de ampliación</span>
                         </div>
                         <div class="error" id="errorAmpliacion">La ampliación tiene que ser un número de días de 0 en adelante.</div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Si el dia es inhabil la hora no cambia nada y no se pregunta: la
-                 cedula se tiene por practicada el habil siguiente igual. -->
-            <div class="grupo" id="seccionHorario" style="display: none;">
-                <label class="casilla">
-                    <input type="checkbox" id="fueraDeHorario">
-                    Se diligenció fuera del horario hábil (después de las 20 o antes de las 7)
-                </label>
-            </div>
-
-            <div class="grupo" id="avisoDiaInhabil" style="display: none;">
-                <p class="apunte" id="textoDiaInhabil"></p>
-            </div>
-
-            <div class="grupo" id="notaAsistenciaSection" style="display: none;">
-                <div class="nota-caja">
+                <div id="notaAsistenciaSection" style="display: none;">
                     <label class="casilla">
                         <input type="checkbox" id="checkNotaAsistencia">
                         Se dejó nota en el Libro de Asistencia (art. 133 CPCCN)
@@ -558,10 +688,12 @@
                     <div class="error" id="errorNotaAsistencia">
                         Cargá primero la fecha de la firma de la resolución para calcular los días de nota.
                     </div>
-                    <div class="nota-fechas" id="diasNotaContainer"></div>
-                    <button class="btn-suave btn-chico" id="btnAddDiasNota" style="display: none; margin-top: 12px;">
-                        Agregar dos días de nota
-                    </button>
+                    <div class="desplegado" id="cajaDiasNota">
+                        <div class="nota-fechas" id="diasNotaContainer"></div>
+                        <button class="btn-suave btn-chico" id="btnAddDiasNota" style="display: none; margin-top: 10px;">
+                            Agregar dos días de nota
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -571,7 +703,16 @@
             </div>
         </div>
 
-        <div class="resultado" id="results"></div>
+        <div class="resultado" id="results">
+            <div class="espera" id="espera">
+                <b>El vencimiento aparece acá.</b>
+                Cargá la fecha y el plazo, y abajo se dibuja el plazo entero sobre
+                el calendario: qué día se contó, cuál se salteó y por qué.
+            </div>
+        </div>
+        </div>
+
+        <div id="dibujo"></div>
 
         <p class="colofon">
             El cómputo sale de <code>js/plazos.js</code>, el mismo motor que
@@ -720,6 +861,8 @@
             return;
         }
 
+        const caja = document.getElementById('cajaDiasNota');
+
         if (checkNota.checked) {
             container.innerHTML = '';
             const dia = document.getElementById('dia').value;
@@ -727,14 +870,17 @@
             const anio = document.getElementById('anio').value;
             if (!validarFecha(dia, mes, anio)) {
                 document.getElementById('errorNotaAsistencia').classList.add('show');
+                caja.classList.remove('abierto');
                 btnAdd.style.display = 'none';
                 return;
             }
             document.getElementById('errorNotaAsistencia').classList.remove('show');
             generarNuevoParNotas();
+            caja.classList.add('abierto');
             btnAdd.style.display = 'block';
         } else {
             container.innerHTML = '';
+            caja.classList.remove('abierto');
             btnAdd.style.display = 'none';
             document.getElementById('errorNotaAsistencia').classList.remove('show');
         }
@@ -789,7 +935,19 @@
         // El campo recibe dias y no kilometros a proposito: los km ya los
         // convierte distancia.html, que ademas resuelve la distancia por ruta.
         // Duplicar esa conversion aca serian dos lugares donde arreglarla.
-        const ampliacionRaw = document.getElementById('ampliacion').value.trim();
+        //
+        // Y se lee SOLO si la seccion esta a la vista. Desde el 26/8 el campo
+        // vive detras de una casilla, y un numero escondido que igual se suma
+        // es el peor modo de falla que puede tener esta pantalla: el plazo sale
+        // con dias de mas y nada en pantalla lo explica. Que el campo se limpie
+        // al ocultarse no alcanza como unica defensa ---alcanza con que alguien
+        // le escriba el value por codigo, que es exactamente lo que hace el
+        // banco de pruebas---, asi que la condicion se comprueba de nuevo aca.
+        const usaAmpliacion = modalidad === 'cedula' &&
+            document.getElementById('checkAmpliacion').checked;
+        const ampliacionRaw = usaAmpliacion
+            ? document.getElementById('ampliacion').value.trim()
+            : '';
         const ampliacion = ampliacionRaw === '' ? 0 : parseInt(ampliacionRaw, 10);
 
         let hayError = false;
@@ -871,6 +1029,10 @@
             fechaVencimientoConGracia: r.vencimiento,
             fechaVencimientoSinGracia: r.vencimientoSinGracia,
             diasContados: r.diasContados,
+            // Las fechas en que se dejo nota, para marcarlas en el dibujo.
+            // Vienen del formulario y no del motor: el motor las usa para
+            // elegir el dia de notificacion y no las devuelve.
+            notasDejadas: notasDejadas,
             diasIgnorados: r.diasSalteados.map(function (d) {
                 return { fecha: d.fecha, ymd: d.ymd, motivo: d.motivo };
             })
@@ -888,6 +1050,7 @@
     // ----------------------------------------------------------------------
     function mostrarResultados(datos) {
         const resultsDiv = document.getElementById('results');
+        const dibujoDiv = document.getElementById('dibujo');
 
         // Sin datos completos no se afirma una fecha, y tampoco se dibuja nada.
         // Un calendario dibujado con un mes mal contado es MAS convincente que
@@ -896,7 +1059,7 @@
             resultsDiv.innerHTML = '<div class="sin-datos"><strong>No se puede calcular.</strong> ' +
                 '<span id="motivoSinDatos"></span></div>';
             document.getElementById('motivoSinDatos').textContent = datos.problema;
-            resultsDiv.classList.add('show');
+            dibujoDiv.innerHTML = '';
             resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             return;
         }
@@ -939,10 +1102,10 @@
 
         html += '</div>';
 
-        html += dibujarPlazo(datos);
-
         resultsDiv.innerHTML = html;
-        resultsDiv.classList.add('show');
+        // El dibujo va afuera de la grilla de dos columnas: es lo unico de la
+        // pantalla que quiere todo el ancho que haya.
+        dibujoDiv.innerHTML = dibujarPlazo(datos);
         resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
@@ -980,6 +1143,11 @@
         var claveNotificacion = claveUTC(datos.fechaNotificacion);
         var claveVence = claveUTC(datos.fechaVencimientoConGracia);
 
+        // Los dias de nota vienen ya como AAAA-MM-DD del formulario, que es la
+        // misma clave con la que se indexa la grilla.
+        var notas = {};
+        (datos.notasDejadas || []).forEach(function (ymd) { notas[ymd] = true; });
+
         // La firma solo se marca con notificacion automatica: es lo que ORIGINA
         // el plazo y puede caer varios dias antes de la notificacion, asi que
         // sin marcarla el dibujo empieza en el medio de la historia. Con cedula
@@ -996,7 +1164,7 @@
         var html = '<div class="lienzo"><div class="meses">';
 
         while (anio < hasta.getUTCFullYear() || (anio === hasta.getUTCFullYear() && mes <= hasta.getUTCMonth())) {
-            html += mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence, claveFirma);
+            html += mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence, claveFirma, notas);
             mes++;
             if (mes > 11) { mes = 0; anio++; }
         }
@@ -1022,6 +1190,7 @@
 
         html += '<div class="referencias">';
         if (claveFirma) html += ref('border-color:var(--ok)', 'firma de la resolución');
+        if (Object.keys(notas).length) html += refPunto('día de nota');
         html += ref('border-color:var(--accent)', 'notificación');
         html += ref('background:var(--accent-tint)', 'día contado');
         html += ref('background:var(--accent)', 'vencimiento');
@@ -1059,7 +1228,11 @@
         return '<span><i class="muestra" style="' + estilo + '"></i>' + texto + '</span>';
     }
 
-    function mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence, claveFirma) {
+    function refPunto(texto) {
+        return '<span><i class="muestra punto"></i>' + texto + '</span>';
+    }
+
+    function mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence, claveFirma, notas) {
         var html = '<div class="mes"><h4>' + NOMBRES_MES[mes] + ' ' + anio + '</h4><div class="grilla">';
 
         INICIALES_DIA.forEach(function (letra) {
@@ -1087,6 +1260,7 @@
                 clases += ' fuera';
             }
 
+            if (notas && notas[clave]) { clases += ' nota'; titulo += ' — se dejó nota en el Libro de Asistencia'; }
             if (clave === claveFirma) { clases += ' firma'; titulo += ' — firma de la resolución'; }
             if (clave === claveNotificacion) { clases += ' notificacion'; titulo += ' — notificación'; }
             if (clave === claveVence) {
@@ -1100,9 +1274,16 @@
         return html + '</div></div>';
     }
 
+    // El aviso de la columna derecha, para poder volver a ponerlo al limpiar.
+    // Se lee del markup en vez de repetirse aca: dos copias del mismo texto es
+    // una que se actualiza y otra que no.
+    var HTML_ESPERA = document.getElementById('results').innerHTML;
+
     function resetear() {
         ponerModalidad('cedula');
         document.getElementById('fueraDeHorario').checked = false;
+        document.getElementById('checkAmpliacion').checked = false;
+        document.getElementById('checkNotaAsistencia').checked = false;
         document.getElementById('dia').value = '';
         document.getElementById('mes').value = '';
         document.getElementById('anio').value = '';
@@ -1110,7 +1291,8 @@
         document.getElementById('ampliacion').value = '';
         document.querySelectorAll('.error').forEach(function(e) { e.classList.remove('show'); });
         document.querySelectorAll('input').forEach(function(i) { i.classList.remove('invalid'); });
-        document.getElementById('results').classList.remove('show');
+        document.getElementById('results').innerHTML = HTML_ESPERA;
+        document.getElementById('dibujo').innerHTML = '';
         actualizarLabelFecha();
         mostrarDiasDeNota();
         actualizarSeccionHorario();
@@ -1199,19 +1381,28 @@
     // deja a la vista: una demandada domiciliada en las antipodas que constituye
     // en CABA y a la que se le notifica algo por nota no tiene cien dias de
     // ampliacion, tiene cero.
+    //
+    // Y desde el 26/8 va detras de una casilla, junto con el horario y los dias
+    // de nota. Los tres son modificadores del computo --criterio de Javier-- y
+    // ninguno se usa casi nunca: como campo permanente, la ampliacion ocupaba
+    // un tercio de la fila de campos para decir "0".
     function actualizarSeccionAmpliacion() {
         var esCedula = modalidadActual() === 'cedula';
+        var tildada = document.getElementById('checkAmpliacion').checked;
         document.getElementById('seccionAmpliacion').style.display = esCedula ? 'block' : 'none';
+        document.getElementById('campoAmpliacion').classList.toggle('abierto', esCedula && tildada);
 
-        // El valor se limpia al ocultar. Dejarlo escrito abajo de una seccion
-        // invisible es la peor variante: el usuario cargo 3, cambio de
-        // modalidad, y el plazo sale con tres dias de mas sin que nada lo
-        // muestre en pantalla.
-        if (!esCedula) {
+        // El valor se limpia al ocultar, y ahora hay dos formas de ocultarlo:
+        // cambiar de modalidad y destildar la casilla. Dejarlo escrito abajo de
+        // algo invisible es la peor variante: el usuario cargo 3, lo escondio,
+        // y el plazo sale con tres dias de mas sin que nada lo muestre en
+        // pantalla.
+        if (!esCedula || !tildada) {
             document.getElementById('ampliacion').value = '';
             document.getElementById('errorAmpliacion').classList.remove('show');
             document.getElementById('ampliacion').classList.remove('invalid');
         }
+        if (!esCedula) document.getElementById('checkAmpliacion').checked = false;
     }
 
     // Event listeners
@@ -1229,6 +1420,7 @@
     });
 
     document.getElementById('checkNotaAsistencia').addEventListener('change', mostrarDiasDeNota);
+    document.getElementById('checkAmpliacion').addEventListener('change', actualizarSeccionAmpliacion);
     ['dia', 'mes', 'anio'].forEach(function(id) {
         document.getElementById(id).addEventListener('input', mostrarDiasDeNota);
         document.getElementById(id).addEventListener('input', actualizarSeccionHorario);

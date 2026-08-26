@@ -903,6 +903,37 @@ ninguna de las validaciones anteriores miraba prosa.** Lo que se resolvió:
 
 ## Bugs cerrados
 
+### La paleta de estados no llegaba a AA en tema claro — cerrado el 26/8
+
+Abierto y cerrado el mismo día, y sólo porque el control de contraste que se
+escribió esa mañana los midió de paso. Es el hermano del bug de `--faint` y
+tiene la misma causa: **la paleta clara se calibró contra la tarjeta blanca.**
+
+Lo que faltaba entender es cuál es la superficie que manda, y no es ninguna de
+las tres: **es el tinte del propio estado compuesto encima de `--bg`**. Un aviso
+casi nunca se escribe sobre la superficie pelada; se escribe sobre su tinte, que
+es el mismo color al 8-13 % y por lo tanto más oscuro.
+
+Medido: `--warn` `#9a6b12` no llegaba a 4,5 **sobre ninguna de las tres
+superficies** —3,92 / 4,25 / 4,68— y daba 3,58 sobre su propio tinte encima de
+`--bg`. `--ok` daba 4,45 sobre `--bg` y 3,98 sobre su tinte; `--error`, 4,28
+sobre su tinte. En oscuro los tres pasaban con holgura, que es como sobrevivió.
+
+Ya se había pagado una vez: el ámbar de los días de feria del calendario de
+`vencimientos` salió midiendo 4,24 en claro y se corrigió antes de publicar sólo
+porque alguien midió el tema en el que no estaba trabajando.
+
+Se bajó la luminosidad de los tres conservando tono y saturación —`--ok` a
+`#1c6e45`, `--warn` a `#815a0f`, `--error` a `#9f4429`, y los tintes con ellos—,
+y el peor caso pasó a 4,64. `--ok` y `--error` se mueven tan poco que no se ven;
+`--warn` sí se ve más ocre.
+
+**Nacieron en el control como aviso y no como falla**, porque bajarlos era mover
+la paleta y eso es una decisión, no un arreglo. La tomó Javier el mismo día
+—*«los colores de la paleta los elegiste vos de todos modos»*— y con eso
+`verificar-contraste` pasó a fallar con ellos, con el tinte incluido como fondo
+a medir.
+
 ### `--faint` estaba calibrado contra la tarjeta y no contra el fondo — cerrado el 26/8
 
 Abierto el 12/8 y arreglado tres veces a mano antes de arreglarse una vez de

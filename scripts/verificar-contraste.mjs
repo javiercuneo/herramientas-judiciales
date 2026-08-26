@@ -32,11 +32,16 @@
 //      ---el @media y el [data-tema="oscuro"]--- y tienen que decir lo
 //      mismo, que es la regla escrita en comun.css.
 //
-// Los tokens de estado ---ok, warn, error--- se miden y se imprimen
-// pero NO hacen fallar: en claro varios no llegan a 4.5 y arreglarlos
-// es mover la paleta, que es una decision y no un arreglo. Se listan
-// para que el numero este a la vista, que es como se encontro que el
-// ambar de la feria daba 4.24 antes de publicarse.
+// Los tokens de estado ---ok, warn, error--- entran con una exigencia
+// mas: no alcanza con medirlos contra las tres superficies, porque casi
+// nunca se escriben directamente sobre una. Se escriben sobre su propio
+// tinte ---el mismo color al 8-13 % compuesto encima de la superficie---
+// y eso es siempre mas oscuro. El fondo que manda es el tinte sobre --bg.
+//
+// Nacieron como aviso y no como falla, porque los tres reprobaban en
+// claro y bajarlos era mover la paleta, que es una decision y no un
+// arreglo. Javier la tomo el 26/8: se bajaron los tres y esto paso a
+// fallar. El peor era --warn, que no llegaba sobre NINGUNA superficie.
 //
 // Salidas:
 //   0  todo bien
@@ -75,6 +80,8 @@ const SIN_INTERRUPTOR = new Set(['scripts/build-docs.mjs'])
 
 const SUPERFICIES = ['bg', 'card', 'sunk']
 const TEXTOS = ['fg', 'muted-fg', 'faint', 'accent']
+// Estos ademas se miden sobre su propio tinte compuesto encima de cada
+// superficie, que es donde de verdad se escriben.
 const ESTADOS = ['ok', 'warn', 'error']
 
 const fallas = []
@@ -210,21 +217,31 @@ for (const [relativo, encontrados] of porArchivo) {
       superficies[s] = c.rgb
     }
 
-    for (const t of TEXTOS) {
+    for (const t of [...TEXTOS, ...ESTADOS]) {
       if (tokens[t] === undefined) continue
       const c = color(tokens[t])
       if (!c) {
         mal(`${donde}: --${t} = "${tokens[t]}" no se puede leer como color`)
         continue
       }
+      const tinte = tokens[`${t}-tint`] && color(tokens[`${t}-tint`])
       for (const [nombre, fondo] of Object.entries(superficies)) {
-        const r = contraste(c.rgb, fondo)
-        if (r < AA) {
-          mal(
-            `${donde}: --${t} sobre --${nombre} da ${dosDec(r)}, abajo de ${AA}. ` +
-              `Es texto chico: --${t} tiene que pasar sobre las tres superficies, ` +
-              `no solo sobre la que se miro al elegirlo.`,
-          )
+        const fondos = [[`--${nombre}`, fondo]]
+        // El tinte del propio token encima de la superficie: es el fondo real
+        // de casi todos los avisos, y es mas oscuro que la superficie sola.
+        // Medir solo contra la superficie deja pasar justo el caso que se usa.
+        if (tinte && tinte.alfa < 1) {
+          fondos.push([`--${t}-tint sobre --${nombre}`, componer(tinte.rgb, tinte.alfa, fondo)])
+        }
+        for (const [queFondo, rgb] of fondos) {
+          const r = contraste(c.rgb, rgb)
+          if (r < AA) {
+            mal(
+              `${donde}: --${t} sobre ${queFondo} da ${dosDec(r)}, abajo de ${AA}. ` +
+                `Es texto chico: tiene que pasar sobre las tres superficies ---y sobre ` +
+                `su tinte encima de cada una---, no solo sobre la que se miro al elegirlo.`,
+            )
+          }
         }
       }
     }
@@ -291,43 +308,6 @@ for (const [clave, valores] of porToken) {
   mal(`--${nombre} (${tema}) esta escrito con ${valores.size} valores distintos: ${detalle}`)
 }
 
-// --- Los tokens de estado: se miden y se avisan ------------------
-
-const avisos = []
-for (const [relativo, encontrados] of porArchivo) {
-  for (const { tema, via, tokens } of encontrados) {
-    if (via === 'eleccion') continue // el mismo bloque ya medido arriba
-    for (const e of ESTADOS) {
-      if (tokens[e] === undefined) continue
-      const c = color(tokens[e])
-      if (!c) continue
-      const medidas = []
-      for (const s of SUPERFICIES) {
-        if (tokens[s] === undefined) continue
-        const fondo = color(tokens[s])
-        if (!fondo) continue
-        medidas.push([`--${s}`, contraste(c.rgb, fondo.rgb)])
-        // El tinte del propio estado, compuesto encima de la superficie:
-        // es el fondo real de casi todos los avisos.
-        const tinte = tokens[`${e}-tint`] && color(tokens[`${e}-tint`])
-        if (tinte && tinte.alfa < 1) {
-          medidas.push([
-            `--${e}-tint sobre --${s}`,
-            contraste(c.rgb, componer(tinte.rgb, tinte.alfa, fondo.rgb)),
-          ])
-        }
-      }
-      const bajos = medidas.filter(([, r]) => r < AA)
-      if (bajos.length) {
-        avisos.push(
-          `${relativo} (${tema}): --${e} no llega a ${AA} en ` +
-            bajos.map(([d, r]) => `${d} (${dosDec(r)})`).join(', '),
-        )
-      }
-    }
-  }
-}
-
 // ---------------------------------------------------------------
 
 const bloquesLeidos = [...porArchivo.values()].reduce((n, b) => n + b.length, 0)
@@ -336,20 +316,11 @@ console.log(
     `umbral AA ${AA} para texto chico.`,
 )
 
-if (avisos.length) {
-  console.log(
-    `\nAviso: ${avisos.length} caso(s) de tokens de estado abajo de ${AA}. No hacen fallar ` +
-      `---mover la paleta de estados es una decision, no un arreglo--- pero el numero tiene ` +
-      `que estar a la vista antes de poner uno de estos colores en texto chico:`,
-  )
-  for (const a of avisos) console.log('  ' + a)
-}
-
 if (fallas.length) {
   console.error(`\n${fallas.length} problema(s):`)
   for (const f of fallas) console.error('  ' + f)
   process.exit(1)
 }
 
-console.log('\nLos tokens de texto pasan AA sobre las tres superficies, en los dos temas,')
-console.log('y los seis archivos dicen lo mismo.')
+console.log('\nLos tokens de texto y los de estado pasan AA sobre las tres superficies')
+console.log('---y sobre sus tintes---, en los dos temas, y los seis archivos dicen lo mismo.')

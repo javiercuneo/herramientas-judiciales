@@ -55,9 +55,19 @@ y el cron de feriados dejó de ser un pendiente. **Si arrancás una sesión nuev
 **Y cerró el bug más viejo que quedaba abierto: `--faint`**, que estaba desde el
 12/8 y se había parchado tres veces en tres pantallas distintas. El token se
 arregló en los seis lugares donde vive y entró `npm run verificar-contraste`,
-que corre en CI y que de paso encontró que **los diez documentos de dominio se
-publicaban con los valores anteriores al 5/8** —2,59 de contraste, peor que el
-bug que se estaba arreglando—. Ver [el arreglo](#el-token---faint-arreglado-de-raíz--268).
+que corre en CI y que de paso encontró **dos cosas que nadie había visto**: que
+los diez documentos de dominio se publicaban con los valores anteriores al 5/8
+—2,59 de contraste, peor que el bug que se estaba arreglando— y que **la paleta
+de estados entera reprobaba en tema claro**, con `--warn` sin llegar sobre
+ninguna superficie. Las dos arregladas el mismo día. Ver
+[el arreglo](#el-token---faint-arreglado-de-raíz--268) y
+[la paleta](#la-paleta-de-estados-bajada-a-aa--268).
+
+**Y `vencimientos` quedó terminada**, con la devolución de Javier hecha punto
+por punto: dos columnas, los modificadores del cómputo juntos y detrás de una
+casilla, tres líneas separadoras de menos, los días de nota marcados en el
+dibujo y el calendario con tamaño constante. Con eso **queda desbloqueado el
+frente grande que sigue: las otras diez calculadoras, con ésta de patrón.**
 
 **No queda nada urgente ni bloqueante.** Lo abierto está en
 [Pendientes](#pendientes) y [Bugs abiertos](#bugs-abiertos).
@@ -141,6 +151,36 @@ Ninguno urgente y ninguno bloqueante.
   que lo cargado esté mal, no que falte algo. Lo que sí avisa es la propia
   página, que muestra desde cuándo no se revisan las series y pone un aviso a
   la vista si pasaron más de 45 días.
+- **Qué sale del navegador, y de dónde salió la pregunta.** Planteada por
+  Javier el 26/8: *«no sé si en javiercuneo.com.ar prometemos que los datos no
+  salen del navegador o sólo en Honorio»*. Verificado leyendo las once
+  calculadoras:
+  - **La promesa está escrita en dos lugares y los dos son de Escribiente** —la
+    tarjeta de `index.html` y `documentacion.html`—, y es la única que la
+    sostiene con la CSP. **Ninguna calculadora promete nada**, así que no hay
+    promesa incumplida.
+  - **`vencimientos`, `caducidad`, `entre-fechas`, `regresiva` y `mora` no
+    hablan con nadie**: sólo piden los JSON de `data/` del propio sitio.
+  - **`honorarios-mediacion` le pide el UHOM a una planilla publicada de Google
+    Docs**, en cada carga. No manda ningún dato del usuario, pero Google ve la
+    IP y que alguien abrió esa página. **Y es evitable desde el 24/8**, que es
+    lo que vale la pena: `data/serie-uhom.json` tiene los 67 valores leídos de
+    las tablas oficiales y verificados por `npm run verificar-series`. Pasar la
+    calculadora al archivo local saca al tercero y además usa la serie buena en
+    vez de una planilla. Es el mismo movimiento que ya se hizo con los feriados.
+  - **`distancia` es el caso distinto y el único que manda algo:** los nombres
+    de localidad que el usuario escribe van a `apis.datos.gob.ar`, a
+    `geocoding-api.open-meteo.com` y a `router.project-osrm.org`. Los dos
+    primeros están nombrados en el texto de la página; el tercero no. No es un
+    dato personal —es una ciudad— pero es entrada del usuario saliendo a tres
+    terceros, y **eso conviene que lo diga la propia página** antes que
+    aparezca en un pendiente.
+- **Las once calculadoras no hablan el mismo idioma.** Pedido de Javier del
+  26/8: *«cada una usa un lenguaje distinto, avisa de años distintos, etc. hay
+  que hacer algo más uniforme»*. No es sólo el aspecto: es el tuteo suelto, los
+  avisos de cobertura que dicen años distintos, los `max-width` de 240 a 1000
+  px, y los rótulos. **El orden acordado es terminar `vencimientos` primero y
+  después pasar al resto**, usando esta como patrón.
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
   su propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -557,6 +597,111 @@ arreglo: 51 de 51.**
 
 ---
 
+### `vencimientos` terminada: la devolución de Javier, punto por punto — 26/8
+
+Seis observaciones sobre la pantalla ya rediseñada. Todas hechas, y ninguna
+movió un número: **51 de 51 en el banco de pantallas, después de los cambios.**
+
+**1. «Hay demasiadas líneas separando cosas, no sé qué vienen a mostrar.»**
+Contadas: la de abajo de la barra de pestañas, el recuadro del tablero, la
+línea de abajo del encabezado de la calculadora, y la de arriba de los botones.
+**Cuatro divisiones para una sola cosa.** Salieron tres: el recuadro del
+tablero —las once calculadoras traen su propio contenedor en `--card`, así que
+no delimitaba nada que no estuviera ya delimitado—, la del encabezado y la de
+los botones. Queda la de la barra de pestañas, que sí separa la navegación del
+contenido. **Y salió también el margen lateral del `body` embebido**, que se
+sumaba al de la página del tablero y dejaba la calculadora corrida hacia
+adentro respecto del título de arriba: era un encierro más, sin borde que lo
+mostrara.
+
+**2. «Un espacio grande a la derecha vacío… me pregunto si el resultado se
+debería mostrar ahí.»** Sí. **Ahora son dos columnas**: el formulario a la
+izquierda, la respuesta a la derecha, y el dibujo abajo a ancho completo, que
+es lo único de la pantalla que quiere todo el ancho que haya. A una sola
+columna abajo de 900 px.
+
+Y la columna derecha **no arranca vacía**: lleva un aviso que dice dónde va a
+aparecer la respuesta. No es decoración —si estuviera vacía, calcular movería
+el formulario de lugar—, y una caja vacía no dice qué va a pasar.
+
+**3. «Ampliación por distancia debería ir junto a fuera de horario hábil,
+porque en el fondo son como modificadores del cómputo, y permanecer oculto con
+un checkbox.»** Hecho, y tenía razón por partida doble: los tres —el horario,
+la ampliación y los días de nota— corren el vencimiento, ninguno se usa casi
+nunca, y estaban en tres lugares distintos de la pantalla. Ahora son un solo
+grupo, **Modificadores del cómputo**, cada uno detrás de una casilla.
+
+**Y eso abrió un modo de falla que hubo que cerrar aparte.** Con el campo
+escondido, un valor cargado antes seguía sumándose: el plazo salía con días de
+más y nada en pantalla lo explicaba. Que el campo se limpie al ocultarse no
+alcanza —alcanza con que alguien le escriba el `value` por código, que es
+exactamente lo que hace el banco de pruebas—, así que **`calcular()` comprueba
+de nuevo que la casilla esté tildada antes de leer el número.** El banco tuvo
+que aprender a tildar la casilla, y los cuatro casos de ampliación lo prueban.
+
+**4. «Si cambiás a notificación automática aparece un recuadro nuevo con otro
+color de fondo.»** Era `.nota-caja`, con fondo `--sunk` y borde propio. Un
+recuadro adentro de una tarjeta adentro de una página son tres encierros, y
+además hacía parecer los días de nota de otra categoría que los otros dos
+modificadores, cuando son lo mismo. Sin fondo ni borde: el rótulo y el espacio
+alcanzan.
+
+**5. «Los días de nota no se ven marcados en el calendario.»** Era cierto y era
+el peor de los seis: el usuario tildaba diez fechas, esas fechas **movían el
+vencimiento**, y el dibujo no las mostraba. Ahora llevan un punto, con su
+entrada en las referencias. **Punto y no color de fondo, a propósito:** un día
+de nota no es una categoría de día —puede ser además contado, o ser la
+notificación— sino algo que pasó ese día. Las fechas salen del formulario y no
+del motor: el motor las usa para elegir el día de notificación y no las
+devuelve.
+
+**6. «El calendario me está encantando… creo que le dejaría siempre el mismo
+tamaño, el que tiene cuando se ve el mes completo, porque es demasiado grande
+si no.»** El mes era `minmax(212px, 1fr)`, o sea se estiraba para llenar el
+lienzo: un plazo de dos meses daba celdas de 62 px y uno de cinco, de 28. **El
+mismo dibujo cambiaba de tamaño según cuánto durara el plazo**, que es justo lo
+que un calendario no puede hacer. Ahora el mes mide 236 px fijos —celda de
+30 px, el tamaño con el que se dibujó— y los meses se centran. Sobra aire a los
+costados cuando son pocos, y es preferible al mes gigante.
+
+**Verificado:** contraste sin excepciones en los dos temas, **midiendo cada
+tema en una carga fresca y no cambiando `data-tema` en caliente** —ver la
+trampa de las transiciones—: peor 4,78 en claro y 5,06 en oscuro, sobre 187
+textos. Sin desborde horizontal a 375 px. Y `vencimientos` embebida en el
+tablero da la misma fecha que suelta.
+
+### La paleta de estados, bajada a AA — 26/8
+
+El hermano de `--faint`, y con la misma causa: la paleta clara estaba calibrada
+contra la tarjeta blanca. Decisión de Javier: *«corregí el bug de --warn, --ok
+y --error… los colores de la paleta los elegiste vos de todos modos»*.
+
+**La superficie que manda no es `--card` ni siquiera `--bg`: es el tinte del
+propio estado encima de `--bg`**, porque un aviso casi nunca se escribe sobre
+la superficie pelada, se escribe sobre su tinte, que es más oscuro. Ahí los
+tres reprobaban, y `--warn` no llegaba **sobre ninguna de las tres
+superficies**: 3,92 sobre `--bg`, 4,25 sobre `--sunk`, 4,68 sobre `--card`, y
+3,58 sobre su tinte.
+
+Se bajó la luminosidad conservando tono y saturación:
+
+| token | antes | ahora | peor caso ahora |
+|---|---|---|---|
+| `--ok` | `#1f7a4d` | `#1c6e45` | 4,64 |
+| `--warn` | `#9a6b12` | `#815a0f` | 4,64 |
+| `--error` | `#a8482b` | `#9f4429` | 4,65 |
+
+`--ok` y `--error` se mueven tan poco que no se ven; **`--warn` sí se ve más
+ocre, y es el precio de que se lea.** En oscuro no se tocó nada: los tres
+pasaban con holgura.
+
+**Y `verificar-contraste` dejó de avisarlos y pasó a fallar con ellos**, con el
+tinte incluido como fondo a medir. Probado al revés: devolviendo `--warn` al
+valor viejo, el control corta con cuatro fallas y además delata la deriva
+—`documentacion.html` diciendo una cosa y `comun.css` otra—.
+
+---
+
 ## Por dónde seguir
 
 Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío.
@@ -580,15 +725,31 @@ Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío
    gritos en vez de en silencio. Con `vencimientos` y `mora` ya migradas la
    urgencia bajó —hay una sola implementación— pero el control sirve igual para
    las que se migren después.
-3. **El resto de las calculadoras con el sistema visual nuevo.** `vencimientos`
-   quedó rediseñada y las otras siete no, así que dentro del tablero se nota el
-   salto al cambiar de pestaña. El criterio que ordenó `vencimientos` está en su
-   `<style>` y se puede repetir: cada control ocupa lo que mide su contenido, y
-   lo único grande es el resultado.
+3. **El resto de las calculadoras, con `vencimientos` de patrón.** Acordado con
+   Javier el 26/8: *«en algún momento hay que encarar la modificación y
+   adaptación de todas las calculadoras… terminemos vencimientos y luego pasamos
+   al resto»*. `vencimientos` quedó terminada ese mismo día, así que **esto ya
+   está desbloqueado y es el frente grande que sigue.**
+   No es sólo el aspecto. Lo que hay que uniformar, en orden de lo que más se
+   nota: el aviso de cobertura —cada una nombra años distintos—, el tuteo suelto
+   («envíanos un mail», «si crees»), los `max-width` de 240 a 1000 px, y los
+   rótulos. Los criterios que ordenaron `vencimientos` están en su `<style>` y
+   se pueden repetir: cada control ocupa lo que mide su contenido, lo único
+   grande es el resultado, los modificadores del cómputo van juntos y detrás de
+   una casilla, y nada se separa con una línea si alcanza con el espacio.
 4. **Cubrir los conectores con una prueba.** Hoy `conectores/` no lo toca
    ninguna: `verificar-plazos` cubre el motor. Es lo que falta para poder
    decir que están terminados, y es barato —levantar el HTTP, pegarle a los
-   seis endpoints, y hablarle al MCP por stdio—.
+   seis endpoints, y hablarle al MCP por stdio—. **Lo demás del pedido ya no
+   es de este lado**: el 26/8 quedó anotado en el `ESTADO.md` de
+   `pipeline-drafter` que el servicio existe, cómo se llama y cuáles son las
+   dos reglas de borde. El pedido se cierra allá.
+5. **Sacarle a `honorarios-mediacion` la dependencia de Google Docs.** Le pide
+   el UHOM a una planilla publicada en cada carga, y desde el 24/8
+   `data/serie-uhom.json` tiene los 67 valores leídos de las tablas oficiales y
+   verificados por `npm run verificar-series`. Saca un tercero de la página y
+   además usa la serie buena. Es el mismo movimiento que ya se hizo con los
+   feriados, y vale para todas las que lean planillas.
 
 ---
 
@@ -951,34 +1112,6 @@ ni una calle con altura.
 ---
 
 ## Bugs abiertos
-
-### Los tokens de estado no llegan a AA en tema claro
-
-Es el hermano de `--faint`, que se cerró el 26/8, y sale de la misma causa: la
-paleta clara se calibró contra la tarjeta blanca. Medido por
-`npm run verificar-contraste`, que lo imprime en cada corrida:
-
-| token | sobre `--bg` | sobre `--sunk` | sobre su propio tinte |
-|---|---|---|---|
-| `--warn` `#9a6b12` | **3,92** | **4,25** | **3,58** sobre `--bg`, **4,23** sobre `--card`, **3,86** sobre `--sunk` |
-| `--ok` `#1f7a4d` | **4,45** | 4,82 | **3,98** sobre `--bg`, **4,29** sobre `--sunk` |
-| `--error` `#a8482b` | 4,85 | 5,25 | **4,28** sobre `--bg` |
-
-En oscuro los tres pasan con holgura —lo peor es 5,83—. **El peor es `--warn`,
-que no llega en ninguna de las tres superficies**, y el tinte de aviso es
-justamente el fondo sobre el que se escribe casi siempre.
-
-Ya se pagó una vez: el ámbar de los días de feria del calendario de
-`vencimientos.html` salió midiendo **4,24** en claro y se corrigió antes de
-publicar sólo porque se midió el tema en el que no se estaba trabajando. La
-solución de ahí es la que sirve mientras esto siga abierto: **el color de estado
-va en el fondo y en el borde, y el texto en `--fg`.**
-
-**No se arregló junto con `--faint` a propósito.** Bajar `--faint` es mover un
-gris; bajar `--warn` hasta que pase sobre su tinte lo convierte en marrón, y eso
-es mover la paleta, que es una decisión de Javier y no un arreglo. Por eso el
-control los mide, los imprime y **no falla**: el número queda a la vista de
-quien vaya a poner uno de estos colores en texto chico.
 
 ### Los diez documentos de dominio no tienen interruptor de tema — 26/8
 

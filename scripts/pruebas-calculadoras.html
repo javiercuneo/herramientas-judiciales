@@ -328,7 +328,15 @@ const DRIVERS = {
                 d.getElementById(id).dispatchEvent(new d.defaultView.Event('input', { bubbles: true })));
             d.getElementById('fueraDeHorario').checked = !!campos.fueraDeHorario;
             set('plazo', campos.plazo);
-            d.getElementById('ampliacion').value = campos.ampliacion || '';
+            // La ampliacion vive detras de una casilla desde el 26/8/2026, y la
+            // pantalla la ignora si la casilla no esta tildada. Hay que tildarla
+            // con click --no con .checked-- porque es el click el que despliega
+            // el campo, igual que con la modalidad.
+            const quiereAmpliacion = campos.ampliacion !== undefined && campos.ampliacion !== '' &&
+                campos.ampliacion !== '0';
+            const chkAmp = d.getElementById('checkAmpliacion');
+            if (chkAmp.checked !== quiereAmpliacion) chkAmp.click();
+            d.getElementById('ampliacion').value = quiereAmpliacion ? campos.ampliacion : '';
             d.getElementById('btnCalcular').click();
             await pausa(120);
             const res = d.getElementById('results');
