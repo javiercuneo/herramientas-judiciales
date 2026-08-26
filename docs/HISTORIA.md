@@ -903,6 +903,45 @@ ninguna de las validaciones anteriores miraba prosa.** Lo que se resolvió:
 
 ## Bugs cerrados
 
+### `--faint` estaba calibrado contra la tarjeta y no contra el fondo — cerrado el 26/8
+
+Abierto el 12/8 y arreglado tres veces a mano antes de arreglarse una vez de
+raíz. El token del gris más claro daba **5,14 sobre `--card`** y **4,30 sobre
+`--bg`**, o sea reprobaba AA —4,5 para texto chico— en el único texto que lo
+usa: etiquetas de 11 px en mayúsculas, colofones, fechas.
+
+**La causa no fue el valor, fue contra qué se lo midió.** El 5/8 el token se
+bajó de `#8b93a0` a `#666e7c` midiendo sobre la tarjeta blanca, que es la
+superficie más clara del tema claro y por lo tanto la más fácil. Nadie midió el
+texto que va sobre el fondo de la página, que es más oscuro. **En claro la
+superficie que manda es `--bg` y en oscuro es `--card`, y son opuestas**: la más
+oscura en un tema, la más clara en el otro. Medir contra una sola alcanza para
+que el token parezca bien en las dos.
+
+Las tres veces que apareció se resolvió cambiando el token en esa pantalla
+—`.cobertura` y `.colofon` de `vencimientos.html`, el badge de atajo del
+tablero—, y el token seguía mal para las trece páginas. Es el modo de falla que
+tiene un arreglo local: cierra el síntoma y deja el defecto.
+
+Qué se hizo: `--faint` pasó a **`#5f6774`** (4,78 / 5,71 / 5,18 sobre
+`--bg` / `--card` / `--sunk`) en los **seis** archivos donde están escritos los
+tokens, los parches locales volvieron al token, y entró
+`npm run verificar-contraste`, que corre en CI.
+
+**Y el control encontró dos cosas que nadie había visto**, que es lo que
+justifica que exista:
+
+- **La plantilla de `scripts/build-docs.mjs` tenía los valores anteriores al
+  5/8.** Los diez documentos de dominio se publicaron todo ese tiempo con
+  `--faint: #8b93a0`, que da **2,59 sobre el fondo** —contra 4,5— justo en la
+  etiqueta del índice lateral. En oscuro, `#6b7381` daba 3,68. Es peor que el
+  bug que se estaba arreglando y **no se veía mirando ninguna de las trece
+  páginas**, porque esas diez las genera un script.
+- **`uma-uhom.html` ya tenía el arreglo** desde el 24/8 y las otras tres
+  páginas sueltas no. Seis copias del mismo token no se mantienen iguales
+  solas, y la deriva no aparece en ningún diff: cada archivo, por separado,
+  se ve bien.
+
 ### Los feriados salían de una API en vivo, y podían no salir — cerrado el 14/8
 
 Reportado como errores de CORS intermitentes en `vencimientos.html`. El CORS es

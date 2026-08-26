@@ -9,6 +9,7 @@
     "verificar-calculos": "node scripts/verificar-calculos.mjs",
     "verificar-plazos": "node scripts/verificar-plazos.mjs",
     "verificar-series": "node scripts/verificar-series.mjs",
+    "verificar-contraste": "node scripts/verificar-contraste.mjs",
     "verificar-escribiente": "node scripts/verificar-escribiente.mjs",
     "verificar-honorio": "node scripts/verificar-honorio.mjs",
     "feriados": "node scripts/actualizar-feriados.mjs",

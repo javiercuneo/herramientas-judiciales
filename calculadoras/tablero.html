@@ -116,15 +116,13 @@
 
     .pestania:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-    /* El numero de atajo.
-       --muted-fg y no --faint: sobre el fondo compuesto de --border encima de
-       --bg, --faint da 3,30 medido, y esto son diez pixeles. Es el mismo bug de
-       --faint que ya aparecio en la cabecera de vencimientos.html: el token
-       aguanta sobre --card y no sobre el fondo de la pagina.
-       Y con --muted-fg tampoco alcanzaba --3,96--, porque el relleno de
-       --border oscurecia el fondo. Por eso el chip quedo de contorno y sin
-       relleno: asi el numero se lee contra --bg y da 5,16. Tres mediciones para
-       un badge de diez pixeles, y las tres hicieron falta. */
+    /* El numero de atajo. Lo que hay que no volver a hacer aca es el relleno:
+       con background --border el numero leia contra el fondo compuesto y daba
+       3,30 con --faint y 3,96 con --muted-fg, porque el relleno translucido
+       oscurece la superficie. --border y --hair son colores de linea, no
+       superficies. De contorno y sin relleno el numero lee contra --bg y da
+       5,16. Se queda --muted-fg y no --faint por el tamaño ---diez pixeles---,
+       no porque --faint no llegue: desde el 26/8 el token pasa AA sobre --bg. */
     .atajo {
         font-family: var(--font-meter);
         font-size: 10px;

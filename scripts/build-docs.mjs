@@ -53,12 +53,12 @@ const plantilla = (titulo, cuerpo, nav) => `<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:light;--bg:#e9ebee;--fg:#12161c;--card:#fff;--muted-fg:#5a626e;--faint:#8b93a0;
+:root{color-scheme:light;--bg:#e9ebee;--fg:#12161c;--card:#fff;--muted-fg:#5a626e;--faint:#5f6774;
 --accent:#1e45ce;--border:rgb(18 22 28/.13);--hair:rgb(18 22 28/.07);--sunk:#f2f4f6;--radius:.375rem;
 --font-meter:'Archivo','Segoe UI',sans-serif;--font-sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
 --font-law:'Source Serif 4',ui-serif,Georgia,serif}
 @media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0d0f13;--fg:#edeff3;--card:#16191f;
---muted-fg:#99a1ae;--faint:#6b7381;--accent:#7a99ff;--border:rgb(237 239 243/.15);--hair:rgb(237 239 243/.08);--sunk:#101318}}
+--muted-fg:#99a1ae;--faint:#828a98;--accent:#7a99ff;--border:rgb(237 239 243/.15);--hair:rgb(237 239 243/.08);--sunk:#101318}}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-sans);line-height:1.65;-webkit-font-smoothing:antialiased}
 .shell{max-width:1160px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:250px 1fr;gap:56px;align-items:start}

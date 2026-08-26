@@ -28,11 +28,17 @@
   --fg: #12161c;
   --card: #ffffff;
   --muted-fg: #5a626e;
-  /* --faint es el gris mas claro que todavia se lee. No aclararlo: medido
-     el 5/8, #8b93a0 daba 3.10 sobre la tarjeta y 2.81 sobre --sunk, o sea
-     por debajo de AA (4.5) para texto chico, que es el unico texto que lo
-     usa —el pie del sitio y los subtitulos—. Ahora da 5.09 y 4.61. */
-  --faint: #666e7c;
+  /* --faint es el gris mas claro que todavia se lee, y la superficie contra
+     la que hay que medirlo es --bg, NO --card. Es el error que costo tres
+     arreglos locales: el token se calibro el 5/8 contra la tarjeta blanca
+     ---#8b93a0 daba 3.10 y se bajo a #666e7c, que da 5.14--- y nadie midio
+     el texto que va sobre el fondo de la pagina, que es mas oscuro. Ahi el
+     mismo #666e7c daba 4.30 y reprobaba AA (4.5) para texto chico, que es
+     el unico texto que lo usa.
+     En claro manda --bg porque es la superficie MAS OSCURA; en oscuro manda
+     --card, que es la MAS CLARA. #5f6774 da 4.78 / 5.71 / 5.18 sobre
+     --bg / --card / --sunk. Lo verifica npm run verificar-contraste. */
+  --faint: #5f6774;
 
   /* Un solo acento en todo el sitio: lo activo, lo enfocado, lo seleccionado */
   --accent: #1e45ce;
@@ -82,7 +88,7 @@
     --fg: #edeff3;
     --card: #16191f;
     --muted-fg: #99a1ae;
-    --faint: #828a98;  /* 3.68 sobre la tarjeta antes del 5/8; ahora 5.08 */
+    --faint: #828a98;  /* 5.06 sobre --card, que en oscuro es la superficie mas clara */
 
     --accent: #7a99ff;
     --accent-tint: rgb(122 153 255 / 0.13);
@@ -109,7 +115,7 @@
   --fg: #edeff3;
   --card: #16191f;
   --muted-fg: #99a1ae;
-  --faint: #828a98;  /* 3.68 sobre la tarjeta antes del 5/8; ahora 5.08 */
+  --faint: #828a98;  /* 5.06 sobre --card, que en oscuro es la superficie mas clara */
 
   --accent: #7a99ff;
   --accent-tint: rgb(122 153 255 / 0.13);

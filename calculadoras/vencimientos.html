@@ -59,15 +59,14 @@
 
         .cabecera h1 span { color: var(--accent); }
 
-        /* --muted-fg y no --faint. Los dos textos que van sobre el fondo de la
-           pagina --este y el colofon-- son los unicos que no se apoyan en la
-           tarjeta, y ahi --faint da 4,30 en tema claro: reprueba AA para texto
-           chico. Sobre --card el mismo token da 5,14 y pasa. Es el bug abierto
-           de --faint anotado en docs/ESTADO.md; arreglarlo de raiz toca trece
-           paginas, asi que aca se elige el token de al lado. */
+        /* Este texto y el colofon son los unicos de la pagina que no se apoyan
+           en la tarjeta: van sobre --bg. Hasta el 26/8 llevaban --muted-fg
+           porque --faint reprobaba AA ahi ---4,30--- y pasaba solo sobre
+           --card. El token se arreglo de raiz (#5f6774, 4,78 sobre --bg), asi
+           que vuelven a --faint, que es lo que semanticamente son. */
         .cobertura {
             font-size: 12px;
-            color: var(--muted-fg);
+            color: var(--faint);
             max-width: 46ch;
             text-align: right;
         }
@@ -453,7 +452,7 @@
         .colofon {
             margin-top: 26px;
             font-size: 12px;
-            color: var(--muted-fg);
+            color: var(--faint);
             line-height: 1.6;
         }
         .colofon a { color: var(--accent); }

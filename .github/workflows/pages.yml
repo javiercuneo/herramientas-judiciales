@@ -64,6 +64,17 @@ jobs:
       - name: Verificar las series de UMA y UHOM
         run: npm run verificar-series
 
+      # Los tokens de color, que estan escritos seis veces porque son
+      # paginas sin build. Dos formas de fallar y las dos son invisibles
+      # mirando una pantalla: un token de texto que no llega a AA sobre
+      # alguna de las tres superficies --asi vivio --faint cuatro
+      # semanas, bien sobre la tarjeta y mal sobre el fondo-- y seis
+      # copias que dejan de decir lo mismo, que es como la plantilla de
+      # los documentos de dominio se quedo con los valores de antes del
+      # 5/8. No necesita honorio/ ni red: corre siempre.
+      - name: Verificar el contraste de los tokens
+        run: npm run verificar-contraste
+
       - name: Assemble Pages site
         run: |
           set -euo pipefail

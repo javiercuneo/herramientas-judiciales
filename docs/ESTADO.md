@@ -52,6 +52,13 @@ plazo dibujado sobre el calendario, se rediseñaron `vencimientos` y el tablero,
 y el cron de feriados dejó de ser un pendiente. **Si arrancás una sesión nueva,
 [Por dónde seguir](#por-dónde-seguir) tiene el orden y el método.**
 
+**Y cerró el bug más viejo que quedaba abierto: `--faint`**, que estaba desde el
+12/8 y se había parchado tres veces en tres pantallas distintas. El token se
+arregló en los seis lugares donde vive y entró `npm run verificar-contraste`,
+que corre en CI y que de paso encontró que **los diez documentos de dominio se
+publicaban con los valores anteriores al 5/8** —2,59 de contraste, peor que el
+bug que se estaba arreglando—. Ver [el arreglo](#el-token---faint-arreglado-de-raíz--268).
+
 **No queda nada urgente ni bloqueante.** Lo abierto está en
 [Pendientes](#pendientes) y [Bugs abiertos](#bugs-abiertos).
 
@@ -224,9 +231,12 @@ Ninguno urgente y ninguno bloqueante.
   llega a 2027, así que en enero de 2028 no calcula ninguna fecha de 2028 hasta
   que alguien corra `npm run feriados`. Es el argumento que faltaba para el cron
   que está anotado más arriba.
-- **Hay dos bancos de pruebas y cubren cosas distintas.** `npm run
-  verificar-calculos` (673 comprobaciones) cubre **el motor**: días hábiles,
-  feria, feriados, cobertura. `scripts/pruebas-calculadoras.html` (51 casos, 21 de ellos contra el tablero)
+- **Hay tres bancos de pruebas y cubren cosas distintas.** `npm run
+  verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (34)
+  cubren **el motor**: días hábiles, feria, feriados, cobertura, y la
+  aritmética de vencimiento y mora. `scripts/pruebas-calculadoras.html`
+  —**24 casos: 21 verificados a mano y 3 fijados**, y los 21 verificados se
+  corren además adentro del tablero, o sea 45 comprobaciones—
   cubre **las pantallas**: maneja las cinco calculadoras por iframe y compara
   el resultado que muestran. Se abre con el sitio servido —no con `file://`— y
   tarda seis segundos. **Los iframes llevan rompe-caché**: sin él las pruebas
@@ -296,12 +306,15 @@ por el PR #2 y publicado**—; (4) el calendario con el plazo dibujado —**hech
 
 ### El marco
 
-`calculadoras/tablero.html`: seis pestañas —vencimientos, distancia, caducidad,
-entre fechas, regresiva y mora—, cada una un iframe de la calculadora publicada,
-**sin una línea modificada de ninguna**. Carga perezosa, estado vivo al volver,
-enlace directo por `#pestania`, teclas 1-6 y flechas.
+`calculadoras/tablero.html`: **ocho herramientas en dos regiones**. Arriba las
+seis de plazos —vencimientos, distancia, caducidad, entre fechas, regresiva y
+mora— en una barra de pestañas; abajo, aparte, prorrateo y tasa (ver
+[el rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268)). Cada una es un
+iframe de la calculadora publicada, **sin una línea modificada de ninguna**.
+Carga perezosa, estado vivo al volver, enlace directo por `#pestania`, teclas
+1-6 y flechas.
 
-**Lo que lo hace verificable:** `pruebas-calculadoras.html` corre los 16 casos
+**Lo que lo hace verificable:** `pruebas-calculadoras.html` corre los 21 casos
 verificados **dos veces**, contra las páginas sueltas y contra las embebidas, y
 exige que den lo mismo. Toda la apuesta del tablero es que embeber no cambie un
 número, y eso se comprueba en vez de suponerse.
@@ -398,13 +411,88 @@ había motivo para reescribirlo.
 **Y una medición que hizo falta tres veces para un badge de diez píxeles.** El
 número de atajo daba **3,30** con `--faint` sobre `--border`; con `--muted-fg`
 seguía en **3,96**, porque el relleno de `--border` oscurece el fondo. Quedó de
-contorno y sin relleno, leyendo contra `--bg`: **5,16**. Es el mismo bug abierto
-de `--faint` que ya apareció dos veces hoy —el token aguanta sobre `--card` y no
-sobre el fondo de la página—, y va sumando argumentos para arreglarlo de raíz.
+contorno y sin relleno, leyendo contra `--bg`: **5,16**. Fue la tercera aparición
+del bug de `--faint` en el mismo día, y la que hizo que se arreglara de raíz esa
+misma tarde: ver [el token, arreglado](#el-token---faint-arreglado-de-raíz--268).
+El badge se queda en `--muted-fg` igual, por el tamaño y no por el token.
 
 Verificado: contraste sin excepciones en los dos temas —peor 4,82 en claro,
 5,06 en oscuro—, sin desborde a 375 px, y `vencimientos` embebida da la misma
 fecha que suelta.
+
+---
+
+### El token `--faint`, arreglado de raíz — 26/8
+
+**El bug estaba abierto desde el 12/8 y se había arreglado tres veces a mano.**
+Javier: *«no lo veo... ni lo entiendo... arreglalo y listo»*, y tenía razón en
+las dos cosas: no se ve, y se venía tratando como si fuera un problema de cada
+pantalla.
+
+**Qué era.** `--faint` es el gris de todo el texto chico —etiquetas de 11 px en
+mayúsculas, colofones, fechas—. En tema claro daba **5,14 sobre `--card`** y
+**4,30 sobre `--bg`**: pasaba AA sobre la tarjeta blanca y lo reprobaba sobre el
+fondo de la página. O sea que el mismo texto, con el mismo color, cumplía o no
+según arriba de qué estuviera.
+
+**La causa no fue el valor: fue contra qué se lo midió.** El 5/8 se lo bajó
+mirando la tarjeta, que en claro es la superficie **más clara** y por lo tanto la
+más fácil. La regla que faltaba escrita, y que ahora está en `comun.css`:
+
+> **en claro manda `--bg`, que es la superficie más oscura; en oscuro manda
+> `--card`, que es la más clara.** Son opuestas. Medir contra una sola alcanza
+> para que un token parezca bien en los dos temas y esté mal en uno.
+
+**El arreglo.** `--faint: #5f6774` —4,78 / 5,71 / 5,18 sobre `--bg` / `--card` /
+`--sunk`— en los **seis archivos donde viven los tokens**: `index.html`,
+`documentacion.html`, `quien-soy.html`, `uma-uhom.html`,
+`calculadoras/css/comun.css` y la plantilla de `scripts/build-docs.mjs`. Los dos
+parches locales volvieron al token: `.cobertura` y `.colofon` de
+`vencimientos.html`. En oscuro no se tocó nada: `#828a98` da 5,06 sobre `--card`,
+que ahí es el piso.
+
+### Y el control que hace que no vuelva: `npm run verificar-contraste`
+
+`scripts/verificar-contraste.mjs`, en CI, sin red y sin `honorio/`. **Existe
+porque un arreglo que se hizo tres veces no se arregla escribiendo bien la
+cuarta.** Hace dos cosas, que son dos formas distintas de fallar:
+
+1. **Contraste.** Cada token de texto —`--fg`, `--muted-fg`, `--faint`,
+   `--accent`— contra **las tres superficies**, en los dos temas, con piso 4,5.
+   Es exactamente lo que nadie hizo el 5/8.
+2. **Deriva.** Los tokens están escritos seis veces porque son páginas sin
+   build. El control exige que los seis archivos digan lo mismo, y que adentro
+   de cada uno **los dos bloques oscuros coincidan** —el del `@media` y el de
+   `[data-tema="oscuro"]`—, que es la regla que `comun.css` pide de palabra
+   desde agosto y nada verificaba.
+
+**Y encontró dos cosas que nadie había visto, que es lo que justifica que
+exista:**
+
+- **La plantilla de `build-docs.mjs` tenía los valores anteriores al 5/8.** Los
+  diez documentos de dominio se publicaron todo ese tiempo con `--faint:
+  #8b93a0`, que da **2,59 sobre el fondo** —contra 4,5— en la etiqueta del
+  índice lateral, y `#6b7381` en oscuro, que da 3,68. **Peor que el bug que se
+  estaba arreglando**, y no se veía mirando ninguna de las trece páginas porque
+  esas diez las genera un script. Arreglado en el mismo commit.
+- **`uma-uhom.html` ya tenía el valor nuevo** desde el 24/8 y las otras tres
+  páginas sueltas no. Seis copias no se mantienen iguales solas y la deriva no
+  aparece en ningún diff: cada archivo, por separado, se ve bien.
+
+**Lo que el control mide y no hace fallar:** los tokens de estado. Ver
+[Bugs abiertos](#bugs-abiertos).
+
+**Lo que el control NO puede ver, y hay que seguir midiendo en pantalla:** que un
+token esté bien no dice que esté usado sobre la superficie que se supone. El
+badge del tablero pasó a 3,30 porque el relleno de `--border` oscureció el fondo,
+y eso no está en ninguna declaración de token. El control cubre la paleta; el uso
+se mide sobre estilos computados.
+
+**Verificado en pantalla**, con `vencimientos.html` servida y con rompe-caché en
+el `<link>` además del HTML —sin eso se mide el CSS anterior, que es la trampa
+de siempre—: en oscuro no queda ni un texto abajo de AA, y en claro los que
+quedaban por `--faint` —`.cobertura`, `.colofon` y los cuatro `<code>` del
+colofón— pasaron de 4,30 a 4,78.
 
 ---
 
@@ -489,9 +577,10 @@ tuvieron más de una feria—.
 **Dos arreglos que salieron de medir, no de mirar:**
 
 - `.cobertura` y `.colofon` daban **4,30 en tema claro**. Son los dos únicos
-  textos que van sobre `--bg` en vez de `--card`, y ahí `--faint` reprueba AA
-  —el mismo token da 5,14 sobre la tarjeta—. Es el bug abierto de `--faint`;
-  arreglarlo de raíz toca trece páginas, así que acá se eligió `--muted-fg`.
+  textos que van sobre `--bg` en vez de `--card`, y ahí `--faint` reprobaba AA
+  —el mismo token daba 5,14 sobre la tarjeta—. Ese día se eligió `--muted-fg`
+  para no tocar trece páginas; **más tarde el token se arregló de raíz y los dos
+  volvieron a `--faint`**, que es lo que semánticamente son.
 - El rótulo de la fecha decía «Seleccione la fecha de la firma de la
   **resolucion**», **sin tilde**, en texto que ve el usuario. Venía del original.
   Ahora dice «Firma de la resolución», que además entra en una línea: el estilo
@@ -502,16 +591,12 @@ tuvieron más de una feria—.
 idénticos** después del rediseño completo. Contraste sin excepciones en los dos
 temas —peor 4,66 en claro, 5,06 en oscuro— y sin desborde a 375 px.
 
-**Lo que falta de este frente, y es la mayor parte:**
-
-1. **Extender el dibujo a las demás.** `caducidad`, `entre-fechas` y `regresiva`
-   no tienen calendario porque no consumen el motor todavía; ése es el paso
-   previo.
-2. **El tablero rediseñado.** Sigue con el aspecto viejo, y ahora contrasta con
-   la calculadora que embebe.
-3. **Sacar `honorarios`, `tasa` y `prorrateo` de la barra de pestañas.** Criterio
-   de Javier, 26/8: van en la misma página pero **más abajo y afuera**, no como
-   pestañas de igual jerarquía. El rótulo de grupo que hay hoy no alcanza.
+**Lo que falta de este frente:** extender el dibujo a `caducidad`,
+`entre-fechas` y `regresiva`, que no tienen calendario porque no consumen el
+motor todavía; ése es el paso previo y está en [Por dónde
+seguir](#por-dónde-seguir). Los otros dos que estaban acá —el tablero
+rediseñado y sacar `honorarios`, `tasa` y `prorrateo` de la barra— se hicieron
+el mismo 26/8: ver [el rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268).
 
 ---
 
@@ -627,9 +712,26 @@ una fecha que no vino.
 arrastran hora y huso, y del otro lado nadie sabe cuál era el huso del que
 calculó. Un plazo judicial no tiene hora.
 
-**Falta avisarle al hermano.** El pedido está anotado en el `ESTADO.md` de
-`pipeline-drafter` y en `HERMANOS.md` como abierto; cuando esto se use desde
-allá, se cierra ahí y no acá.
+**Los dos andan, verificado el 26/8 corriéndolos.** El MCP contesta
+`initialize`, `tools/list` y las seis herramientas por stdio; el HTTP contesta
+GET con query y POST con cuerpo, escucha en `127.0.0.1:8787`, lista sus
+endpoints en `/` y devuelve 404 en una ruta que no existe. Los dos dan el mismo
+número que la pantalla en los dos casos testigo —vencimiento 11/8/2026 y mora
+12/7/2026— y los dos devuelven `ok: false` con el motivo cuando el año no está
+cargado, en vez de una fecha.
+
+**Lo que falta, y son dos cosas distintas:**
+
+- **Ninguna prueba los toca.** `verificar-plazos` cubre el motor, no los
+  conectores: hoy nada detecta que un transporte deje de arrancar, que se
+  rompa el JSON-RPC o que un cambio de nombre de campo tire un `arguments`
+  al piso. Es barato de agregar —levantar el HTTP, pegarle a los seis
+  endpoints, y hablarle al MCP por stdio— y es lo que falta para poder decir
+  que están terminados.
+- **Falta avisarle al hermano.** El pedido está anotado en el `ESTADO.md` de
+  `pipeline-drafter` y en `HERMANOS.md` como abierto; cuando esto se use desde
+  allá, se cierra ahí y no acá. **Hasta que alguien los consuma, «andan» quiere
+  decir que pasan una corrida a mano, no que estén rodados.**
 
 ---
 
@@ -787,17 +889,46 @@ ni una calle con altura.
 
 ## Bugs abiertos
 
-### `--faint` reprueba AA en tema claro — 12/8
+### Los tokens de estado no llegan a AA en tema claro
 
-`#666e7c` sobre el fondo `#e9ebee` da **4,30:1**, contra los 4,5 que pide AA para
-texto chico. Y el token se usa justamente en texto chico: `.label` a 11,2 px en
-mayúsculas, el colofón, y las fechas. En oscuro está bien (`#828a98`, 5,51).
+Es el hermano de `--faint`, que se cerró el 26/8, y sale de la misma causa: la
+paleta clara se calibró contra la tarjeta blanca. Medido por
+`npm run verificar-contraste`, que lo imprime en cada corrida:
 
-Medido en `index.html` y en `quien-soy.html` con el mismo resultado: **es del
-sistema visual, no de una página.** Por eso no se tocó al pasar — el token está
-duplicado en `index.html`, en `documentacion.html` y en
-`calculadoras/css/comun.css`, así que arreglarlo es un cambio en las trece
-páginas y se verifica en las trece. Bajarlo a `#5f6774` alcanza para pasar.
+| token | sobre `--bg` | sobre `--sunk` | sobre su propio tinte |
+|---|---|---|---|
+| `--warn` `#9a6b12` | **3,92** | **4,25** | **3,58** sobre `--bg`, **4,23** sobre `--card`, **3,86** sobre `--sunk` |
+| `--ok` `#1f7a4d` | **4,45** | 4,82 | **3,98** sobre `--bg`, **4,29** sobre `--sunk` |
+| `--error` `#a8482b` | 4,85 | 5,25 | **4,28** sobre `--bg` |
+
+En oscuro los tres pasan con holgura —lo peor es 5,83—. **El peor es `--warn`,
+que no llega en ninguna de las tres superficies**, y el tinte de aviso es
+justamente el fondo sobre el que se escribe casi siempre.
+
+Ya se pagó una vez: el ámbar de los días de feria del calendario de
+`vencimientos.html` salió midiendo **4,24** en claro y se corrigió antes de
+publicar sólo porque se midió el tema en el que no se estaba trabajando. La
+solución de ahí es la que sirve mientras esto siga abierto: **el color de estado
+va en el fondo y en el borde, y el texto en `--fg`.**
+
+**No se arregló junto con `--faint` a propósito.** Bajar `--faint` es mover un
+gris; bajar `--warn` hasta que pase sobre su tinte lo convierte en marrón, y eso
+es mover la paleta, que es una decisión de Javier y no un arreglo. Por eso el
+control los mide, los imprime y **no falla**: el número queda a la vista de
+quien vaya a poner uno de estos colores en texto chico.
+
+### Los diez documentos de dominio no tienen interruptor de tema — 26/8
+
+Lo que genera `scripts/build-docs.mjs` sigue al sistema y nada más: no carga
+`assets/tema.js`, no tiene el botón, y su bloque oscuro es sólo el `@media`, sin
+el `:root[data-tema="oscuro"]` que tienen las otras trece páginas. **Quien
+eligió claro con el sistema en oscuro ve `/docs/` en oscuro igual.**
+
+Apareció escribiendo `verificar-contraste`, que exige los dos bloques oscuros en
+todos lados y tiene a este archivo declarado como excepción con nombre y
+motivo. Arreglarlo es agregar el bloque, el `<script>` y el botón a la
+plantilla; no se hizo en el mismo commit para no mezclarlo con el arreglo del
+token.
 
 ---
 
@@ -832,8 +963,12 @@ exactamente el bug que dejó dos calculadoras con el botón invisible. Acá la
 predictibilidad vale más que la elegancia.
 
 `--faint` es el gris más claro que todavía se lee. **No aclararlo**: su único uso
-es texto chico, que es justo donde el piso de contraste es 4.5. (Está abierto que
-en claro no llega: ver arriba.)
+es texto chico, que es justo donde el piso de contraste es 4.5. Y **la superficie
+contra la que se lo mide es `--bg` en claro y `--card` en oscuro** —la más oscura
+en un tema, la más clara en el otro—, que es lo que costó cuatro semanas
+descubrir: ver [el arreglo](#el-token---faint-arreglado-de-raíz--268). Lo
+verifica `npm run verificar-contraste`, que también exige que los seis archivos
+donde están escritos los tokens digan lo mismo.
 
 ### La serie de la UMA y del UHOM se reconstruyó de los actos
 
@@ -999,6 +1134,14 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   **directamente no se monta**. No es una limitación del entorno: **la solución
   es abrir el panel.** Si no se puede, el JavaScript sí funciona, y estilos
   computados y mediciones son más confiables que mirar una captura.
+  **Con una excepción que costó media hora el 26/8: las transiciones CSS
+  tampoco avanzan.** Un elemento con `transition: color` se queda con el color
+  del tema anterior después de cambiar `data-tema`, y `getComputedStyle`
+  devuelve ese color viejo por tiempo indefinido, no por un instante. Midiendo
+  contraste da falsos positivos escandalosos —2,36 en el control segmentado de
+  `vencimientos`, que en realidad da 5,59— y desaparecen al medir ese elemento
+  solo. **Un valor computado sospechoso: fijarse si la regla tiene
+  `transition`.**
 - **Un artículo de la ley no termina donde termina su primer párrafo, y
   `verificar-docs` no lo nota.** El 10/8 se afirmó dos veces que «el art. 19 de
   la 27.423 instituye la UMA y no tiene incisos», y tiene dos tablas de mínimos
@@ -1050,9 +1193,10 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   «starting» para siempre. Se ve enseguida con `curl localhost:4180`. Mientras
   no se arregle, navegar a mano al 4180.
 - **Son dos proyectos npm distintos: fijarse en cuál se está parado.** El de la
-  raíz tiene **siete scripts y nada más**: `docs`, `verificar-docs`,
-  `verificar-calculos`, `verificar-series`, `verificar-escribiente`,
-  `verificar-honorio` y `feriados`. `check`,
+  raíz tiene **once scripts y nada más**: `docs`, `verificar-docs`,
+  `verificar-calculos`, `verificar-plazos`, `verificar-series`,
+  `verificar-contraste`, `verificar-escribiente`, `verificar-honorio`,
+  `feriados`, `conector-http` y `conector-mcp`. `check`,
   `build`, `validate` y `typecheck` son de Honorio y **solo corren desde
   `honorio/`**, que es un clon de otro repositorio. Pedirlos acá da «Missing
   script», que se lee fácil como que algo está roto y no lo está.
