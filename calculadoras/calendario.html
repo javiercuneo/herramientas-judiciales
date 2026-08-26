@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El plazo, dibujado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/comun.css">
+    <script src="../assets/tema.js"></script>
+    <style>
+        /* ------------------------------------------------------------------
+           Esta pantalla es distinta de las otras once en una cosa: NO tiene
+           aritmetica propia. Todo lo que calcula sale de js/plazos.js, que es
+           el mismo motor que consultan los conectores. Es a proposito y es el
+           camino al que van las demas: hoy cada calculadora lleva su copia de
+           la cuenta, y dos copias de un computo con consecuencia juridica se
+           desincronizan --ya paso con la feria--.
+
+           Lo que esta pantalla agrega es lo que una fecha suelta no dice:
+           donde cayo la feria, cuantos fines de semana se comio el plazo, que
+           tan cerca quedo de un asueto.
+           ------------------------------------------------------------------ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--fg);
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+        }
+
+        h1 {
+            font-family: var(--font-meter);
+            color: var(--accent);
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .bajada {
+            text-align: center;
+            color: var(--muted-fg);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .cobertura {
+            text-align: center;
+            color: var(--faint);
+            font-size: 12px;
+            font-style: italic;
+            margin-bottom: 28px;
+        }
+
+        .campo { margin-bottom: 22px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--fg);
+            font-family: var(--font-sans);
+            font-size: 14px;
+        }
+
+        select:focus, input:focus { outline: none; border-color: var(--accent); }
+
+        .fecha-campos { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 10px; }
+        .fecha-campos input { text-align: center; }
+
+        .fila { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .marca { display: flex; align-items: center; gap: 10px; }
+        .marca input { width: auto; height: 16px; }
+        .marca label { margin-bottom: 0; font-weight: 400; }
+
+        .hint { color: var(--muted-fg); font-size: 12px; line-height: 1.5; margin-top: 6px; }
+
+        .botones { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 28px; }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-sans);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-calcular { background: var(--accent); color: var(--on-accent); }
+        .btn-limpiar { background: var(--border); color: var(--fg); }
+
+        .aviso {
+            background: var(--warn-tint);
+            border-left: 4px solid var(--warn);
+            color: var(--warn);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 24px;
+            font-size: 13px;
+            line-height: 1.5;
+            display: none;
+        }
+        .aviso.ver { display: block; }
+
+        .salida { margin-top: 32px; display: none; }
+        .salida.ver { display: block; }
+
+        /* El numero grande primero: es la respuesta. El dibujo es el porque. */
+        .veredicto {
+            background: var(--accent);
+            color: var(--on-accent);
+            border-radius: 12px;
+            padding: 22px;
+            text-align: center;
+        }
+        .veredicto .rotulo { font-size: 13px; opacity: 0.85; }
+        .veredicto .fecha {
+            font-family: var(--font-meter);
+            font-size: 32px;
+            font-weight: 700;
+            margin: 8px 0 4px;
+        }
+        .veredicto .pie { font-size: 12px; opacity: 0.85; }
+
+        .resumen {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 26px;
+            justify-content: center;
+            margin: 22px 0 6px;
+            font-size: 13px;
+            color: var(--muted-fg);
+        }
+        .resumen b { font-family: var(--font-meter); color: var(--fg); }
+
+        .meses { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; margin-top: 22px; }
+
+        .mes { width: 260px; }
+
+        .mes h3 {
+            font-family: var(--font-meter);
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--fg);
+        }
+
+        .grilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+
+        .encabezado {
+            font-size: 10px;
+            text-align: center;
+            color: var(--faint);
+            font-weight: 600;
+            padding-bottom: 4px;
+        }
+
+        .dia {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+            font-size: 12px;
+            font-family: var(--font-meter);
+            border: 1px solid transparent;
+            color: var(--muted-fg);
+        }
+
+        .dia.vacio { visibility: hidden; }
+
+        /* Habil que el computo no toco: fuera del tramo. */
+        .dia.fuera { color: var(--faint); }
+
+        /* Inhabil por fin de semana: se atenua, no se marca. Es lo esperable. */
+        .dia.finde { background: var(--sunk); color: var(--faint); }
+
+        /* Inhabil por un ACTO --feria, feriado, asueto--. Lleva --warn, que es
+           un token de estado y no un segundo acento: son los dias que hay que
+           poder ver de un vistazo, porque son los que mueven el vencimiento y
+           los que nadie tiene en la cabeza.
+
+           El ambar va en el fondo y en el borde, y el numero en --fg. La
+           primera version ponia el numero en --warn sobre --warn-tint y en
+           tema claro eso da 4,24 --medido--, abajo de los 4,5 que pide AA para
+           texto de 12 px. En oscuro pasaba, que es la forma en que este error
+           sobrevive: se prueba en un tema y se publica roto en el otro. */
+        .dia.acto {
+            background: var(--warn-tint);
+            border-color: var(--warn);
+            color: var(--fg);
+            font-weight: 600;
+        }
+
+        /* Dia contado del plazo. */
+        .dia.contado { background: var(--accent-tint); color: var(--accent); font-weight: 600; }
+
+        /* El dia en que se notifico. */
+        .dia.notificacion { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+        /* El vencimiento. */
+        .dia.vence {
+            background: var(--accent);
+            color: var(--on-accent);
+            font-weight: 700;
+        }
+
+        .dia .orden { font-size: 8px; line-height: 1; opacity: 0.75; }
+
+        .referencias {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            justify-content: center;
+            margin-top: 26px;
+            font-size: 12px;
+            color: var(--muted-fg);
+        }
+        .referencias span { display: flex; align-items: center; gap: 6px; }
+        .muestra {
+            width: 16px; height: 16px;
+            border-radius: 3px;
+            border: 1px solid transparent;
+            display: inline-block;
+        }
+
+        .detalle { margin-top: 26px; }
+        .detalle h3 { font-size: 14px; margin-bottom: 10px; }
+        .detalle ul { list-style: none; }
+        .detalle li {
+            padding: 8px 10px;
+            background: var(--sunk);
+            border-radius: var(--radius);
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: var(--muted-fg);
+        }
+        .detalle li b { font-family: var(--font-meter); color: var(--fg); }
+
+        .error { color: var(--error); font-size: 12px; margin-top: 5px; display: none; }
+        .error.ver { display: block; }
+        input.mal { border-color: var(--error); }
+
+        .colofon {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 1px solid var(--hair);
+            font-size: 12px;
+            color: var(--muted-fg);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 640px) {
+            .container { padding: 24px 18px; }
+            .fila { grid-template-columns: 1fr; }
+            .mes { width: 100%; max-width: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>El plazo, dibujado</h1>
+        <p class="bajada">
+            El mismo cómputo que hace la calculadora de vencimientos, sobre el
+            calendario: qué días se contaron, cuáles se saltearon y por qué.
+        </p>
+        <p class="cobertura" id="cobertura">Cargando el calendario judicial…</p>
+
+        <div class="campo">
+            <label for="modalidad">Modalidad de notificación</label>
+            <select id="modalidad">
+                <option value="cedula">Por cédula (art. 152 CPCCN)</option>
+                <option value="automatica">Notificación automática (art. 133 CPCCN)</option>
+            </select>
+        </div>
+
+        <div class="campo">
+            <label id="rotuloFecha" for="dia">Fecha de la notificación</label>
+            <div class="fecha-campos">
+                <input type="text" id="dia" placeholder="Día" inputmode="numeric" maxlength="2">
+                <input type="text" id="mes" placeholder="Mes" inputmode="numeric" maxlength="2">
+                <input type="text" id="anio" placeholder="Año" inputmode="numeric" maxlength="4">
+            </div>
+            <div class="error" id="errorFecha">Esa fecha no existe en el calendario.</div>
+        </div>
+
+        <div class="fila">
+            <div class="campo">
+                <label for="plazo">Plazo, en días hábiles</label>
+                <input type="text" id="plazo" placeholder="10" inputmode="numeric">
+                <div class="error" id="errorPlazo">El plazo tiene que ser un número de días mayor que cero.</div>
+            </div>
+
+            <div class="campo" id="campoAmpliacion">
+                <label for="ampliacion">Ampliación por distancia (art. 158) — opcional</label>
+                <input type="text" id="ampliacion" placeholder="0" inputmode="numeric">
+                <div class="error" id="errorAmpliacion">La ampliación tiene que ser un número de días de 0 en adelante.</div>
+            </div>
+        </div>
+
+        <div class="campo marca" id="campoHorario">
+            <input type="checkbox" id="fueraDeHorario">
+            <label for="fueraDeHorario">Se diligenció fuera del horario hábil (después de las 20 o antes de las 7)</label>
+        </div>
+
+        <p class="hint" id="notaAmpliacion" style="display:none">
+            Con notificación automática no se ofrece la ampliación por distancia:
+            la resolución queda notificada en el tribunal los días de nota, así
+            que no hay diligencia fuera del asiento del juzgado que ampliar.
+        </p>
+
+        <div class="botones">
+            <button class="btn-calcular" id="btnCalcular">Dibujar el plazo</button>
+            <button class="btn-limpiar" id="btnLimpiar">Limpiar</button>
+        </div>
+
+        <div class="aviso" id="aviso"></div>
+
+        <div class="salida" id="salida">
+            <div class="veredicto">
+                <div class="rotulo">Vence el</div>
+                <div class="fecha" id="fechaVence">—</div>
+                <div class="pie" id="pieVence"></div>
+            </div>
+
+            <div class="resumen" id="resumen"></div>
+
+            <div class="meses" id="meses"></div>
+
+            <div class="referencias">
+                <span><i class="muestra" style="border-color:var(--accent)"></i> notificación</span>
+                <span><i class="muestra" style="background:var(--accent-tint)"></i> día contado</span>
+                <span><i class="muestra" style="background:var(--accent)"></i> vencimiento</span>
+                <span><i class="muestra" style="background:var(--sunk)"></i> fin de semana</span>
+                <span><i class="muestra" style="background:var(--warn-tint);border-color:var(--warn)"></i> feria, feriado o asueto</span>
+            </div>
+
+            <div class="detalle" id="detalle"></div>
+        </div>
+
+        <p class="colofon">
+            El cómputo no se hace acá: sale de <code>js/plazos.js</code>, el mismo
+            motor que consultan la calculadora de vencimientos y los conectores.
+            Los días inhábiles salen de <code>data/feriados.json</code>,
+            <code>data/feria-judicial.json</code> —una Acordada de la CSJN por
+            año— y <code>data/dias-inhabiles.json</code>. Ninguno se deduce con
+            una fórmula.
+        </p>
+    </div>
+
+    <script src="js/calendario-judicial.js"></script>
+    <script src="js/plazos.js"></script>
+    <script>
+    (function () {
+        'use strict';
+
+        var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                     'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        var DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        var INICIALES = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+
+        var $ = function (id) { return document.getElementById(id); };
+        var datosListos = false;
+
+        function ymd(fecha) { return fecha.toISOString().slice(0, 10); }
+
+        function enLetras(cadena) {
+            var p = cadena.split('-').map(Number);
+            var f = new Date(Date.UTC(p[0], p[1] - 1, p[2], 12));
+            return DIAS[f.getUTCDay()] + ', ' + p[2] + ' de ' + MESES[p[1] - 1] + ' de ' + p[0];
+        }
+
+        // -------------------------------------------------------------------
+        // Carga del calendario. Se piden los anios de la ventana entera: que
+        // uno falte NO impide calcular --quiza el computo no lo toque-- y lo
+        // que el computo toque de veras lo anota la auditoria del motor.
+        // -------------------------------------------------------------------
+        (function iniciar() {
+            var anios = [];
+            var hasta = new Date().getFullYear() + 2;
+            for (var y = 2021; y <= hasta; y++) anios.push(y);
+
+            CalendarioJudicial.init(anios).then(function (carga) {
+                datosListos = true;
+                var sinFeria = carga.missingFeriaYears;
+                $('cobertura').textContent = sinFeria.length
+                    ? 'Calendario cargado desde 2021, salvo los plazos que caigan en la feria de invierno de ' +
+                      sinFeria.join(', ') + ': esa Acordada de la CSJN todavía no se dictó.'
+                    : 'Calendario cargado desde 2021.';
+            });
+        })();
+
+        // -------------------------------------------------------------------
+        // La ampliacion se ofrece solo con cedula, por la misma razon que en
+        // vencimientos.html: con notificacion automatica la resolucion queda
+        // notificada EN EL TRIBUNAL, asi que no hay diligencia fuera del
+        // asiento del juzgado que ampliar (arts. 40, 41, 42 y 133 CPCCN).
+        // El valor se limpia al ocultar: dejarlo escrito abajo de una seccion
+        // invisible suma dias sin que nada lo muestre.
+        // -------------------------------------------------------------------
+        function actualizarModalidad() {
+            var esCedula = $('modalidad').value === 'cedula';
+            $('rotuloFecha').textContent = esCedula
+                ? 'Fecha de la notificación'
+                : 'Fecha de la firma de la resolución';
+            $('campoAmpliacion').style.display = esCedula ? 'block' : 'none';
+            $('campoHorario').style.display = esCedula ? 'flex' : 'none';
+            $('notaAmpliacion').style.display = esCedula ? 'none' : 'block';
+            if (!esCedula) {
+                $('ampliacion').value = '';
+                $('fueraDeHorario').checked = false;
+                $('errorAmpliacion').classList.remove('ver');
+                $('ampliacion').classList.remove('mal');
+            }
+        }
+
+        function fechaValida(d, m, a) {
+            if (!d || !m || !a) return false;
+            var f = new Date(Number(a), Number(m) - 1, Number(d));
+            return f.getFullYear() === Number(a) && f.getMonth() === Number(m) - 1 && f.getDate() === Number(d);
+        }
+
+        // -------------------------------------------------------------------
+        // El dibujo. Se arma de los tramos que devuelve el motor y no se
+        // recorre el calendario por las suyas: si la grilla y el computo
+        // pudieran discrepar, la grilla mentiria con la autoridad de un dibujo.
+        // -------------------------------------------------------------------
+        function dibujar(r) {
+            var contados = {};
+            r.diasContados.forEach(function (f, i) { contados[ymd(f)] = i + 1; });
+
+            var salteados = {};
+            r.diasSalteados.forEach(function (s) { salteados[s.ymd] = s.motivo; });
+
+            var claveNotificacion = ymd(r.fechaNotificacion);
+            var claveVence = ymd(r.vencimiento);
+
+            // Del mes de la notificacion al mes del vencimiento, inclusive.
+            var desde = new Date(r.fechaIngresada);
+            var hasta = new Date(r.vencimiento);
+            var contenedor = $('meses');
+            contenedor.innerHTML = '';
+
+            var anio = desde.getUTCFullYear();
+            var mes = desde.getUTCMonth();
+
+            while (anio < hasta.getUTCFullYear() || (anio === hasta.getUTCFullYear() && mes <= hasta.getUTCMonth())) {
+                contenedor.appendChild(armarMes(anio, mes, contados, salteados, claveNotificacion, claveVence));
+                mes++;
+                if (mes > 11) { mes = 0; anio++; }
+            }
+        }
+
+        function armarMes(anio, mes, contados, salteados, claveNotificacion, claveVence) {
+            var caja = document.createElement('div');
+            caja.className = 'mes';
+
+            var titulo = document.createElement('h3');
+            titulo.textContent = MESES[mes] + ' de ' + anio;
+            caja.appendChild(titulo);
+
+            var grilla = document.createElement('div');
+            grilla.className = 'grilla';
+
+            INICIALES.forEach(function (letra, i) {
+                var e = document.createElement('div');
+                e.className = 'encabezado';
+                e.textContent = letra;
+                // Las iniciales repiten M y son decorativas: el dia real va en
+                // el title de cada celda, que es lo que lee un lector de
+                // pantalla.
+                e.setAttribute('aria-hidden', 'true');
+                e.title = DIAS[i];
+                grilla.appendChild(e);
+            });
+
+            var primero = new Date(Date.UTC(anio, mes, 1, 12));
+            var arranque = primero.getUTCDay();
+            for (var v = 0; v < arranque; v++) {
+                var hueco = document.createElement('div');
+                hueco.className = 'dia vacio';
+                grilla.appendChild(hueco);
+            }
+
+            var ultimo = new Date(Date.UTC(anio, mes + 1, 0, 12)).getUTCDate();
+            for (var d = 1; d <= ultimo; d++) {
+                var fecha = new Date(Date.UTC(anio, mes, d, 12));
+                var clave = ymd(fecha);
+
+                var celda = document.createElement('div');
+                celda.className = 'dia';
+
+                var numero = document.createElement('span');
+                numero.textContent = d;
+                celda.appendChild(numero);
+
+                var partes = [DIAS[fecha.getUTCDay()] + ' ' + d + ' de ' + MESES[mes]];
+
+                if (salteados[clave]) {
+                    var motivo = salteados[clave];
+                    // El fin de semana se atenua; lo que decidio un ACTO se
+                    // marca. Son los dias que mueven el vencimiento y que nadie
+                    // tiene en la cabeza.
+                    celda.className += (motivo === 'Fin de semana') ? ' finde' : ' acto';
+                    partes.push(motivo);
+                } else if (contados[clave]) {
+                    celda.className += ' contado';
+                    var orden = document.createElement('span');
+                    orden.className = 'orden';
+                    orden.textContent = contados[clave];
+                    celda.appendChild(orden);
+                    partes.push('día ' + contados[clave] + ' del plazo');
+                } else {
+                    celda.className += ' fuera';
+                }
+
+                if (clave === claveNotificacion) {
+                    celda.className += ' notificacion';
+                    partes.push('notificación');
+                }
+                if (clave === claveVence) {
+                    celda.className = celda.className.replace(' contado', '').replace(' fuera', '') + ' vence';
+                    partes.push('vencimiento');
+                }
+
+                celda.title = partes.join(' — ');
+                grilla.appendChild(celda);
+            }
+
+            caja.appendChild(grilla);
+            return caja;
+        }
+
+        function contarMotivos(salteados) {
+            var cuenta = {};
+            salteados.forEach(function (s) {
+                var clave = (s.motivo === 'Fin de semana') ? 'fines de semana' : s.motivo;
+                cuenta[clave] = (cuenta[clave] || 0) + 1;
+            });
+            return cuenta;
+        }
+
+        function calcular() {
+            $('aviso').classList.remove('ver');
+            $('salida').classList.remove('ver');
+            ['errorFecha', 'errorPlazo', 'errorAmpliacion'].forEach(function (id) {
+                $(id).classList.remove('ver');
+            });
+            ['dia', 'mes', 'anio', 'plazo', 'ampliacion'].forEach(function (id) {
+                $(id).classList.remove('mal');
+            });
+
+            if (!datosListos) {
+                mostrarAviso('El calendario judicial todavía se está cargando. Probá de nuevo en un segundo.');
+                return;
+            }
+
+            var d = $('dia').value, m = $('mes').value, a = $('anio').value;
+            var plazo = parseInt($('plazo').value, 10);
+            var ampliacionCruda = $('ampliacion').value.trim();
+            var ampliacion = ampliacionCruda === '' ? 0 : parseInt(ampliacionCruda, 10);
+            var hayError = false;
+
+            if (!fechaValida(d, m, a)) {
+                $('errorFecha').classList.add('ver');
+                ['dia', 'mes', 'anio'].forEach(function (id) { $(id).classList.add('mal'); });
+                hayError = true;
+            }
+            if (!plazo || plazo <= 0) {
+                $('errorPlazo').classList.add('ver');
+                $('plazo').classList.add('mal');
+                hayError = true;
+            }
+            if (isNaN(ampliacion) || ampliacion < 0) {
+                $('errorAmpliacion').classList.add('ver');
+                $('ampliacion').classList.add('mal');
+                hayError = true;
+            }
+            if (hayError) return;
+
+            var r = Plazos.vencimiento({
+                modalidad: $('modalidad').value,
+                anio: a, mes: m, dia: d,
+                plazo: plazo,
+                ampliacion: ampliacion,
+                fueraDeHorario: $('fueraDeHorario').checked
+            });
+
+            // Sin datos completos no se afirma una fecha. No hay medio
+            // resultado: ni el numero grande ni el dibujo, porque un calendario
+            // dibujado con un mes mal contado es MAS convincente que una fecha
+            // suelta y por eso es peor.
+            if (r.problema) {
+                mostrarAviso('<strong>No se puede calcular.</strong> ' + r.problema);
+                return;
+            }
+
+            mostrar(r);
+        }
+
+        function mostrarAviso(html) {
+            $('aviso').innerHTML = html;
+            $('aviso').classList.add('ver');
+        }
+
+        function mostrar(r) {
+            $('fechaVence').textContent = enLetras(ymd(r.vencimiento));
+
+            var pie = r.plazoTotal + (r.plazoTotal === 1 ? ' día hábil' : ' días hábiles');
+            if (r.ampliacion) pie += ' (' + r.plazo + ' más ' + r.ampliacion + ' de ampliación)';
+            pie += ', con el plazo de gracia. Sin él vencía el ' + enLetras(ymd(r.vencimientoSinGracia)) + '.';
+            $('pieVence').textContent = pie;
+
+            var cuenta = contarMotivos(r.diasSalteados);
+            var piezas = ['<span>Notificado el <b>' + enLetras(ymd(r.fechaNotificacion)).replace(/^[^,]+, /, '') + '</b></span>'];
+            piezas.push('<span>Empieza a correr el <b>' + enLetras(ymd(r.fechaInicioConteo)).replace(/^[^,]+, /, '') + '</b></span>');
+            Object.keys(cuenta).forEach(function (motivo) {
+                piezas.push('<span><b>' + cuenta[motivo] + '</b> ' + motivo + '</span>');
+            });
+            $('resumen').innerHTML = piezas.join('');
+
+            dibujar(r);
+
+            // El detalle lista solo lo que decidio un acto. Los fines de semana
+            // ya estan contados arriba y enumerarlos uno por uno seria ruido:
+            // nadie necesita que le digan que el sabado no se cuenta.
+            var porActo = r.diasSalteados.filter(function (s) { return s.motivo !== 'Fin de semana'; });
+            if (porActo.length) {
+                var lista = porActo.map(function (s) {
+                    return '<li><b>' + enLetras(s.ymd) + '</b> — ' + s.motivo + '</li>';
+                }).join('');
+                $('detalle').innerHTML =
+                    '<h3>Los días que el cómputo salteó por feria, feriado o asueto</h3><ul>' + lista + '</ul>';
+            } else {
+                $('detalle').innerHTML =
+                    '<h3>Ningún feriado, feria ni asueto cayó adentro del plazo</h3>' +
+                    '<ul><li>Sólo se saltearon fines de semana.</li></ul>';
+            }
+
+            $('salida').classList.add('ver');
+        }
+
+        function limpiar() {
+            ['dia', 'mes', 'anio', 'plazo', 'ampliacion'].forEach(function (id) {
+                $(id).value = '';
+                $(id).classList.remove('mal');
+            });
+            $('modalidad').value = 'cedula';
+            $('fueraDeHorario').checked = false;
+            $('salida').classList.remove('ver');
+            $('aviso').classList.remove('ver');
+            ['errorFecha', 'errorPlazo', 'errorAmpliacion'].forEach(function (id) {
+                $(id).classList.remove('ver');
+            });
+            actualizarModalidad();
+        }
+
+        $('modalidad').addEventListener('change', actualizarModalidad);
+        $('btnCalcular').addEventListener('click', calcular);
+        $('btnLimpiar').addEventListener('click', limpiar);
+
+        ['dia', 'mes', 'anio', 'plazo', 'ampliacion'].forEach(function (id) {
+            $(id).addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        });
+        $('dia').addEventListener('input', function () { if (this.value.length === 2) $('mes').focus(); });
+        $('mes').addEventListener('input', function () { if (this.value.length === 2) $('anio').focus(); });
+
+        actualizarModalidad();
+    })();
+    </script>
+</body>
+</html>

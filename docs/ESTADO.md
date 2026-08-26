@@ -261,9 +261,8 @@ Cómo se construye, decidido:
 
 Orden: (1) ampliación por distancia en `vencimientos` —hecho el 17/8—; (2) banco
 de pruebas de las pantallas —hecho el 17/8—; (3) el marco —**mergeado a `main`
-por el PR #2 y publicado**—; (4) el calendario con el plazo dibujado —**el motor
-que hace falta ya está extraído**, ver abajo; falta la pantalla—.
-Después, la tasa de justicia.
+por el PR #2 y publicado**—; (4) el calendario con el plazo dibujado —**hecho el
+25/8**, ver abajo—. Después, la tasa de justicia.
 
 > **Corregido el 25/8.** Hasta hoy esta sección decía que el marco estaba «en la
 > rama `tablero-plazos`, sin mergear» y terminaba con «Antes de mergear: nada
@@ -302,6 +301,43 @@ tiene mal el rótulo del tope (ver arriba) y no conviene darle más superficie
 hasta arreglarlo.
 
 Ya está enlazado desde `index.html`, en la bajada de la sección de calculadoras.
+
+
+### El paso (4): `calculadoras/calendario.html` — 25/8
+
+**Es la novena pestaña del tablero y la primera pantalla del repositorio que no
+tiene aritmética propia.** Todo lo que calcula sale de `js/plazos.js`, el mismo
+motor que consultan los conectores. Las otras once llevan cada una su copia de
+la cuenta; ésta no, y ése es el camino al que van las demás.
+
+Dibuja el plazo sobre los meses que abarca: el día de la notificación, cada día
+contado con su número de orden, los que se saltearon con el motivo de cada uno,
+y el vencimiento. **El fin de semana se atenúa y lo que decidió un acto se
+marca** —feria, feriado, asueto—, porque son los días que mueven el vencimiento
+y que nadie tiene en la cabeza.
+
+El caso que muestra para qué sirve: **20 días hábiles desde el 25/6/2026 no
+vencen en julio, vencen el 11 de agosto.** El plazo se comió el Día de la
+Independencia, un puente turístico y los diez días hábiles de la feria de la
+Acordada 11/2026. Una fecha suelta no dice nada de eso; el dibujo lo dice de un
+vistazo. Verificado contra `vencimientos.html`: las dos dan la misma fecha.
+
+**Si falta un dato no dibuja nada**, ni siquiera el calendario vacío. Un
+calendario dibujado con un mes mal contado es *más* convincente que una fecha
+suelta, así que es peor.
+
+**Un error que casi se publica, y cómo se encontró:** la primera versión ponía
+el número de los días de feria en `--warn` sobre `--warn-tint`. En tema oscuro
+daba 12,7 y en claro **4,24**, abajo de los 4,5 que pide AA a 12 px. Se vio
+midiendo contraste sobre estilos computados en los dos temas —que es la regla
+del repositorio, no mirar— y sólo porque se midió el tema en el que no se estaba
+trabajando. Ahora el ámbar va en el fondo y el borde, el número en `--fg`, y el
+peor contraste de la grilla es 4,66 en claro y 5,06 en oscuro. Sin desborde
+horizontal a 375 px.
+
+**Falta decidir si va como tarjeta propia en la landing.** Hoy se llega por el
+tablero, que sí está enlazado. `pages.yml` copia `calculadoras/` entera, así que
+publicarse se publica igual.
 
 ---
 
