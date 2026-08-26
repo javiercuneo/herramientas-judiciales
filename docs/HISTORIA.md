@@ -903,6 +903,89 @@ ninguna de las validaciones anteriores miraba prosa.** Lo que se resolvió:
 
 ## Bugs cerrados
 
+### La caducidad podía vencer adentro de la feria de enero — cerrado el 26/8
+
+El art. 311 CPCCN desoído, y por eso vale la pena entender cómo: **no estaba mal
+ninguna de las dos reglas, estaba mal que se aplicaran en momentos distintos del
+cálculo.**
+
+- **enero** se saltea corriendo un mes en la etapa de los tramos, o sea **sobre
+  el vencimiento nominal**;
+- **la feria de invierno** se descuenta sumando días **al final**, cuando los
+  tramos ya quedaron fijos.
+
+Con eso, un tramo que termina en diciembre no pasa por el salteo —diciembre no
+es enero— y después los días de feria de invierno lo empujan adentro de enero,
+que no computa, sin que quede nadie mirando.
+
+**El caso, de Javier:** último acto impulsor el **21/6/2025**, seis meses. Los
+tramos van 21/7, 21/8, 21/9, 21/10, 21/11 y 21/12/2025; los doce días de la
+feria de 2025 —21/7 al 1/8, Acordada 9/2025— lo corren al **2/1/2026**. La
+pantalla lo afirmaba sin un solo aviso.
+
+**Y el mismo inicio a cinco meses y a seis daba cosas distintas**, que es lo que
+lo delató como bug y no como criterio: a seis meses el tramo aterriza en enero y
+el salteo lo ve; a cinco aterriza en diciembre y no lo ve nadie.
+
+**Cuánto era:** 67 de 10.956 cruces de fecha por plazo entre 2021 y 2025, el
+0,61 %, y de dos formas nada más —seis meses desde fines de junio, o cinco desde
+fines de julio—: los casos en que el tramo nominal cae en la segunda quincena de
+diciembre.
+
+Es el hermano del bug que el punto fijo cerró el 5/8/2026 para la feria de
+invierno, por el otro lado: ahí el vencimiento nominal caía **dentro** de la
+feria de julio y la iteración lo empujó afuera; acá lo que empujaba era la propia
+feria de julio.
+
+#### Por qué se corre un mes y no al primer día de febrero
+
+Fue la parte que hubo que discutir, y la diferencia es de un día.
+
+El plazo del ejemplo necesita **183 días corridos** —del 21/6 al 21/12, de fecha
+a fecha, art. 6 CCyC—. Del 22/6 al 31/12/2025 hay 193 días de calendario y doce
+fueron feria: **corrieron 181. Le faltaban dos.** Enero aporta cero, así que esos
+dos corren el 1 y el 2 de febrero y el plazo vence el **2/2/2026**.
+
+Vencerlo el 1 de febrero sería darlo por cumplido **sin haber servido los dos
+días que se saltearon**, y le daría al plazo un día menos del que le
+corresponde. Ese número sale de «salir de la feria» y no de contar —y de hecho
+el 1/2/2026 es domingo, que es la pista—.
+
+**Y no es una aproximación:** corriendo el plazo día por día desde el 21/6/2025 y
+salteando todo día de feria —los doce de julio y los treinta y uno de enero— se
+cae exactamente en el 2/2/2026. Sobre los 67 casos afectados el corrimiento
+coincide con ese conteo literal **en 56**; los once que difieren, por un día, son
+exactamente aquellos cuyo acto impulsor cae **adentro** de la feria de invierno,
+y ahí lo que decide es otra pregunta —si el propio día de inicio cuenta como día
+de feria—, que sigue abierta y no la contesta este arreglo.
+
+#### El arreglo
+
+Después del punto fijo, si el vencimiento quedó en enero se lo corre un mes
+**respetando el ancla del día**, que es el **mismo** corrimiento que ya hacía el
+salteo de los tramos. Se eligió ése y no uno nuevo por el motivo obvio: aplicar
+dos correcciones distintas a la misma suspensión es lo que produjo el bug.
+
+**Alcance medido antes de aplicarlo**, comparando el motor del commit anterior
+contra el nuevo sobre los 10.956 cruces: **cambian 67, y los 67 son exactamente
+los que antes caían en enero.** Ni uno de más. Y después del arreglo **ningún
+vencimiento de caducidad cae en feria**, ni de invierno ni de enero.
+
+**La pantalla lo dice**, porque explica un mes entero de diferencia: «El
+vencimiento caía el 2/1/2026, adentro de la feria de enero 2026, y se corrió al
+2/2/2026: el plazo no corre durante la feria (art. 311 CPCCN)». Sin esa línea el
+usuario ve una fecha de febrero abajo de un plazo que termina en diciembre y no
+tiene con qué reconstruirla.
+
+#### Lo que dejó anotado
+
+**El cómputo oculto de `caducidad.html` tiene su propia regla para salir de la
+feria de enero** —`setMonth(+1, 1)`, el primer día del mes siguiente— distinta de
+la que usa la cuenta visible. Dos reglas para la misma suspensión, y una de ellas
+adentro de un `display:none`: es la misma forma del bug que se acaba de cerrar.
+Está en `ESTADO.md`, junto con la decisión pendiente de si ese cómputo se muestra
+o se saca.
+
 ### La regresiva contaba hacia atrás fuera de la ventana de cobertura — cerrado el 26/8
 
 Lo encontró el barrido de invariantes que entró con la extracción de

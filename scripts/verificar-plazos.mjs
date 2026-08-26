@@ -361,27 +361,84 @@ console.log('\nCaducidad de instancia (art. 310 CPCCN)');
         }
         ok(mirados > 2000, `el barrido miro ${mirados} cruces de fecha por plazo`);
         igual(enInvierno, 0, 'ningun vencimiento de caducidad cae en la feria de invierno', ejemploInvierno);
+        igual(enEnero, 0, 'ni en la feria de enero', ejemploEnero);
+    }
 
-        // ABIERTO, y esto NO es una comprobacion de que este bien: fija lo que
-        // la calculadora contesta hoy para que un cambio se vea.
-        //
-        // El salteo de enero mira si el TRAMO termina en enero. No vuelve a
-        // mirar despues de correr el vencimiento por los dias de la feria de
-        // invierno, asi que un tramo que termina en diciembre puede quedar
-        // empujado adentro de enero, que no computa. Son 23 de los 4260 cruces
-        // de 2025 --67 de 10.956 entre 2021 y 2025, el 0,61 %-- y todos tienen
-        // la misma forma: seis meses desde fines de junio, o cinco desde fines
-        // de julio.
-        //
-        // Es el hermano del bug que el punto fijo cerro el 5/8/2026 para la
-        // feria de invierno, por el otro lado. NO SE TOCA sin decision de
-        // Javier: mover esto mueve una fecha de caducidad. Anotado en
-        // docs/ESTADO.md con el caso.
-        igual(enEnero, 23,
-            'quedan 23 vencimientos empujados adentro de enero: es un bug abierto, no un invariante',
-            ejemploEnero);
-        igual(dl(cad(21, 7, 2025, 5).vencimiento), '2026-01-02',
-            'el testigo del bug de enero: 21/7/2025 a cinco meses contesta un 2 de enero');
+    // --- REGRESION: el vencimiento empujado adentro de enero (26/8/2026) ----
+    //
+    // El salteo de enero miraba si el TRAMO termina en enero, o sea el
+    // vencimiento NOMINAL, y no volvia a mirar despues de correrlo por los dias
+    // de la feria de invierno. Un tramo que terminaba en diciembre no pasaba por
+    // el salteo --diciembre no es enero-- y los dias de feria lo empujaban
+    // adentro de enero, que no computa. Eran 67 de 10.956 cruces entre 2021 y
+    // 2025, de dos formas: seis meses desde fines de junio, o cinco desde fines
+    // de julio.
+    //
+    // El caso lo trajo Javier: 21/6/2025, seis meses. Ahora se corre un mes
+    // respetando el ancla, que es el MISMO corrimiento que ya hacia el salteo de
+    // los tramos.
+    {
+        igual(dl(cad(21, 6, 2025, 6).vencimiento), '2026-02-02',
+            'el caso de Javier: 21/6/2025 a seis meses vence el 2/2/2026 y no el 2/1');
+        igual(dl(cad(25, 6, 2025, 6).vencimiento), '2026-02-06',
+            'y el testigo con el inicio lejos de toda feria');
+        igual(dl(cad(21, 7, 2025, 5).vencimiento), '2026-02-02',
+            'cinco meses desde el 21/7/2025, que es la otra forma que tomaba el bug');
+        igual(dl(cad(21, 7, 2025, 6).vencimiento), '2026-03-05',
+            'y el que ya salia bien porque el tramo caia en enero no se movio');
+
+        // El corrimiento se dice, porque explica un mes entero de diferencia.
+        const corrido = cad(21, 6, 2025, 6);
+        ok(corrido.corridoDeEnero !== null, 'el motor avisa que corrio el vencimiento');
+        igual(corrido.corridoDeEnero.anio, 2026, 'y de que enero lo saco');
+        igual(cad(21, 7, 2025, 6).corridoDeEnero, null,
+            'y no avisa nada cuando no hubo que correr nada');
+
+        // DERIVACION INDEPENDIENTE, que es lo que hace que esto no sea el motor
+        // dandose la razon solo: se corre el plazo dia por dia desde el inicio,
+        // salteando TODO dia de feria --de invierno y de enero-- hasta juntar
+        // los dias que van de fecha a fecha (art. 6 CCyC). Es el art. 311 leido
+        // literal, escrito aparte y con otra forma.
+        const literal = (dia, mes, anio, meses) => {
+            const inicio = new Date(anio, mes - 1, dia);
+            const m = new Date(anio, mes - 1 + meses, 1);
+            const ultimo = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+            const nominal = new Date(m.getFullYear(), m.getMonth(), Math.min(dia, ultimo));
+            const necesarios = Math.round((nominal - inicio) / 86400000);
+            let corridos = 0;
+            const cursor = new Date(inicio);
+            while (corridos < necesarios) {
+                cursor.setDate(cursor.getDate() + 1);
+                if (CJ.esFeriaJudicial(cursor) || CJ.esFeriaEnero(cursor)) continue;
+                corridos++;
+            }
+            return cursor;
+        };
+        igual(dl(literal(21, 6, 2025, 6)), '2026-02-02',
+            'contando dia por dia y salteando toda feria se llega a la misma fecha');
+
+        // Y sobre los casos que el arreglo movio: coincide con ese conteo
+        // siempre que el acto impulsor NO caiga adentro de la feria. Los que
+        // caen adentro difieren en un dia, y eso depende de si el propio dia de
+        // inicio cuenta como dia de feria: es otra pregunta y sigue abierta.
+        let coinciden = 0;
+        let difieren = 0;
+        let difierenConInicioLimpio = 0;
+        for (const [dia, mes, anio, meses] of [
+            [20, 6, 2025, 6], [21, 6, 2025, 6], [25, 6, 2025, 6], [30, 6, 2025, 6],
+            [21, 7, 2025, 5], [25, 7, 2025, 5], [31, 7, 2025, 5],
+            [20, 6, 2021, 6], [26, 6, 2023, 6],
+        ]) {
+            const inicioEnFeria = CJ.esFeriaJudicial(new Date(anio, mes - 1, dia));
+            if (dl(cad(dia, mes, anio, meses).vencimiento) === dl(literal(dia, mes, anio, meses))) coinciden++;
+            else {
+                difieren++;
+                if (!inicioEnFeria) difierenConInicioLimpio++;
+            }
+        }
+        ok(coinciden > 0 && difieren > 0, `${coinciden} coinciden con el conteo literal y ${difieren} no`);
+        igual(difierenConInicioLimpio, 0,
+            'y los que no coinciden son todos de actos impulsores que caen adentro de la feria');
     }
 
     // --- La guarda de datos faltantes ---------------------------------------

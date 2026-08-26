@@ -450,6 +450,61 @@
             feria = diasDeFeriaHasta(ordDate);
         }
 
+        // Y despues del punto fijo, enero otra vez.
+        //
+        // POR QUE HACE FALTA UNA SEGUNDA VEZ. Las dos suspensiones del art. 311
+        // estaban aplicadas en momentos distintos del calculo: enero se saltea
+        // arriba, en la etapa de los tramos, o sea sobre el vencimiento NOMINAL;
+        // la feria de invierno se descuenta aca, sumando dias al final. Con eso,
+        // un tramo que termina en diciembre no pasa por el salteo --diciembre no
+        // es enero-- y despues los dias de feria de invierno lo empujan adentro
+        // de enero, que no computa, sin que quede nadie mirando.
+        //
+        // El caso, de Javier: ultimo acto impulsor el 21/6/2025, seis meses. Los
+        // tramos van 21/7, 21/8, 21/9, 21/10, 21/11 y 21/12/2025; los doce dias
+        // de la feria de 2025 --21/7 al 1/8, Acordada 9/2025-- lo corren al
+        // 2/1/2026, que es feria de enero. Hasta el 26/8/2026 la pantalla lo
+        // afirmaba sin un solo aviso. Eran 67 de 10.956 cruces entre 2021 y 2025.
+        //
+        // POR QUE SE CORRE UN MES Y NO AL PRIMER DIA DE FEBRERO. El plazo del
+        // ejemplo necesita 183 dias corridos --del 21/6 al 21/12, de fecha a
+        // fecha, art. 6 CCyC--. Del 22/6 al 31/12 hay 193 dias de calendario y
+        // doce fueron feria: corrieron 181. LE FALTABAN DOS. Enero aporta cero,
+        // asi que esos dos corren el 1 y el 2 de febrero y el plazo vence el
+        // 2/2/2026. Vencerlo el 1 seria darlo por cumplido sin haber servido los
+        // dos dias que se saltearon.
+        //
+        // Y no es una aproximacion: corriendo el plazo dia por dia desde el
+        // 21/6/2025 y salteando todo dia de feria --los doce de julio y los
+        // treinta y uno de enero-- se cae exactamente en el 2/2/2026. Sobre los
+        // 67 casos afectados este corrimiento coincide con ese conteo literal en
+        // 56; los once que difieren son exactamente aquellos cuyo acto impulsor
+        // cae ADENTRO de la feria de invierno, que es otra pregunta y esta
+        // abierta.
+        //
+        // Se usa el MISMO corrimiento que el salteo de los tramos --un mes,
+        // respetando el ancla del dia-- y no uno nuevo: aplicar dos correcciones
+        // distintas a la misma suspension es lo que produjo este bug.
+        //
+        // Decidido por Javier el 26/8/2026, con el caso en la mano.
+        var corridoDeEnero = null;
+        var vueltas = 0;
+        while (CJ.esFeriaEnero(ordDate) && vueltas++ < 3) {
+            var antesDeCorrer = new Date(ordDate);
+            var mesSiguiente = new Date(ordDate.getFullYear(), ordDate.getMonth() + 1, 1);
+            var ultimoDelSiguiente = new Date(mesSiguiente.getFullYear(), mesSiguiente.getMonth() + 1, 0).getDate();
+            ordDate = new Date(
+                mesSiguiente.getFullYear(),
+                mesSiguiente.getMonth(),
+                Math.min(ordDate.getDate(), ultimoDelSiguiente)
+            );
+            corridoDeEnero = {
+                anio: antesDeCorrer.getFullYear(),
+                desde: antesDeCorrer,
+                hasta: new Date(ordDate)
+            };
+        }
+
         // Si el calculo toco un anio sin Acordada de feria cargada, no se
         // afirma una fecha: se dice cual falta. Es la misma regla que rige para
         // los feriados nacionales (ver AGENTS.md), y la frase vive aca por el
@@ -472,6 +527,7 @@
             meses: meses,
             corrimientos: corrimientos,
             eneroExcluido: eneroExcluido,
+            corridoDeEnero: corridoDeEnero,
             feriaAtravesada: feria.detalle,
             vencimiento: ordDate,
             conInhabiles: null

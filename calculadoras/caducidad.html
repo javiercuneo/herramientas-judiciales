@@ -343,6 +343,17 @@
                     'y se agregaron ' + f.dias + ' dias';
             }));
 
+        // Esta observacion importa mas que las otras dos, porque explica un
+        // corrimiento de un mes entero. Sin ella el usuario ve una fecha de
+        // febrero abajo de un plazo que termina en diciembre y no tiene con que
+        // reconstruirla.
+        if (r.corridoDeEnero) {
+            obs.push('El vencimiento caia el ' + r.corridoDeEnero.desde.toLocaleDateString('es-AR') +
+                ', adentro de la feria de enero ' + r.corridoDeEnero.anio +
+                ', y se corrio al ' + r.corridoDeEnero.hasta.toLocaleDateString('es-AR') +
+                ': el plazo no corre durante la feria (art. 311 CPCCN)');
+        }
+
         document.getElementById('resultDate').innerText = r.vencimiento.toLocaleDateString('es-AR');
         document.getElementById('resultDetails').innerHTML = '<strong>Inicio:</strong> ' + r.inicio.toLocaleDateString('es-AR') + '<br><strong>Observaciones:</strong><br>' + obs.map(function(o) { return '- ' + o; }).join('<br>');
 
