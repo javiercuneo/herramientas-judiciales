@@ -271,11 +271,12 @@ Ninguno urgente y ninguno bloqueante.
   llega a 2027, así que en enero de 2028 no calcula ninguna fecha de 2028 hasta
   que alguien corra `npm run feriados`. Es el argumento que faltaba para el cron
   que está anotado más arriba.
-- **Hay cuatro bancos de pruebas y cubren cosas distintas.** `npm run
+- **Hay cinco bancos de pruebas y cubren cosas distintas.** `npm run
   verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (34)
   cubren **el motor**: días hábiles, feria, feriados, cobertura, y la
   aritmética de vencimiento y mora. `npm run verificar-contraste` cubre **los
-  tokens de color**. `scripts/pruebas-calculadoras.html` —**51 filas: 21
+  tokens de color** y `npm run verificar-conectores` (46) **los dos
+  transportes de `conectores/`**. `scripts/pruebas-calculadoras.html` —**51 filas: 21
   verificados a mano, 6 invariantes, 3 fijados, y los 21 verificados otra vez
   adentro del tablero**— cubre **las pantallas**: maneja las cinco calculadoras
   por iframe y compara el resultado que muestran. Se abre con el sitio servido —no con `file://`— y
@@ -751,14 +752,7 @@ Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío
    se pueden repetir: cada control ocupa lo que mide su contenido, lo único
    grande es el resultado, los modificadores del cómputo van juntos y detrás de
    una casilla, y nada se separa con una línea si alcanza con el espacio.
-4. **Cubrir los conectores con una prueba.** Hoy `conectores/` no lo toca
-   ninguna: `verificar-plazos` cubre el motor. Es lo que falta para poder
-   decir que están terminados, y es barato —levantar el HTTP, pegarle a los
-   seis endpoints, y hablarle al MCP por stdio—. **Lo demás del pedido ya no
-   es de este lado**: el 26/8 quedó anotado en el `ESTADO.md` de
-   `pipeline-drafter` que el servicio existe, cómo se llama y cuáles son las
-   dos reglas de borde. El pedido se cierra allá.
-5. **Sacarle a `honorarios-mediacion` la dependencia de Google Docs.** Le pide
+4. **Sacarle a `honorarios-mediacion` la dependencia de Google Docs.** Le pide
    el UHOM a una planilla publicada en cada carga, y desde el 24/8
    `data/serie-uhom.json` tiene los 67 valores leídos de las tablas oficiales y
    verificados por `npm run verificar-series`. Saca un tercero de la página y
@@ -960,12 +954,20 @@ cargado, en vez de una fecha.
 
 **Lo que falta, y son dos cosas distintas:**
 
-- **Ninguna prueba los toca.** `verificar-plazos` cubre el motor, no los
-  conectores: hoy nada detecta que un transporte deje de arrancar, que se
-  rompa el JSON-RPC o que un cambio de nombre de campo tire un `arguments`
-  al piso. Es barato de agregar —levantar el HTTP, pegarle a los seis
-  endpoints, y hablarle al MCP por stdio— y es lo que falta para poder decir
-  que están terminados.
+- **~~Ninguna prueba los toca.~~ Hecho el 26/8: `npm run
+  verificar-conectores`, 46 comprobaciones, en CI.** Levanta el HTTP en un
+  puerto propio —8799, para no dar un falso verde contra un conector que
+  alguien tenga abierto— y le habla al MCP por stdio. No cubre aritmética,
+  que ya cubre `verificar-plazos`: cubre lo que puede romperse de un
+  transporte y no de una cuenta —que arranque, que el JSON-RPC siga siendo
+  JSON-RPC, que no cambie el nombre de un campo, que un 404 conteste JSON y
+  no HTML— y **sobre todo que un dato faltante no devuelva una fecha**, que
+  es la única regla del conector que no se puede reparar después.
+  Lleva el caso testigo del hermano como regresión, el mismo plazo por GET y
+  por POST exigiendo que den idéntico, y el plazo mandado como número y como
+  texto por MCP, que el esquema declara `string` porque así llega de un
+  modelo. Y encontró de entrada que el campo se llama `habil` y no
+  `esHabil`, que es justo la clase de cosa por la que existe.
 - **Falta avisarle al hermano.** El pedido está anotado en el `ESTADO.md` de
   `pipeline-drafter` y en `HERMANOS.md` como abierto; cuando esto se use desde
   allá, se cierra ahí y no acá. **Hasta que alguien los consuma, «andan» quiere
@@ -1403,10 +1405,10 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   «starting» para siempre. Se ve enseguida con `curl localhost:4180`. Mientras
   no se arregle, navegar a mano al 4180.
 - **Son dos proyectos npm distintos: fijarse en cuál se está parado.** El de la
-  raíz tiene **once scripts y nada más**: `docs`, `verificar-docs`,
+  raíz tiene **doce scripts y nada más**: `docs`, `verificar-docs`,
   `verificar-calculos`, `verificar-plazos`, `verificar-series`,
-  `verificar-contraste`, `verificar-escribiente`, `verificar-honorio`,
-  `feriados`, `conector-http` y `conector-mcp`. `check`,
+  `verificar-contraste`, `verificar-conectores`, `verificar-escribiente`,
+  `verificar-honorio`, `feriados`, `conector-http` y `conector-mcp`. `check`,
   `build`, `validate` y `typecheck` son de Honorio y **solo corren desde
   `honorio/`**, que es un clon de otro repositorio. Pedirlos acá da «Missing
   script», que se lee fácil como que algo está roto y no lo está.

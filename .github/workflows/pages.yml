@@ -75,6 +75,15 @@ jobs:
       - name: Verificar el contraste de los tokens
         run: npm run verificar-contraste
 
+      # Los dos conectores: se levantan de verdad --el HTTP en un puerto
+      # propio, el MCP por stdio-- y se les pega. No cubren aritmetica,
+      # que ya cubre verificar-plazos: cubren que arranquen, que el
+      # formato no cambie, y sobre todo que cuando falta un dato NO
+      # devuelvan una fecha. Del otro lado de un conector no hay nadie
+      # leyendo un aviso al lado del numero.
+      - name: Verificar los conectores
+        run: npm run verificar-conectores
+
       - name: Assemble Pages site
         run: |
           set -euo pipefail
