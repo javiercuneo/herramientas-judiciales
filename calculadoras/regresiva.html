@@ -301,18 +301,18 @@
 
             const fechaStr = fechaInput.value.trim();
             if (!fechaStr) {
-                alert('Ingrese una fecha objetivo.');
+                alert('Falta la fecha objetivo.');
                 return;
             }
             const fechaObj = parseFechaDDMMAAAA(fechaStr);
             if (!fechaObj) {
-                alert('Formato de fecha invalido. Use DD/MM/AAAA (ej: 25/05/2025).');
+                alert('El formato de la fecha no es válido: va DD/MM/AAAA, por ejemplo 25/05/2025.');
                 return;
             }
 
             const anioFecha = fechaObj.getFullYear();
             if (anosDisponibles.indexOf(anioFecha) === -1) {
-                alert('El año ' + anioFecha + ' no esta disponible en la base de feriados. Años disponibles: ' + anosDisponibles.sort().join(', '));
+                alert('El año ' + anioFecha + ' no está en el calendario judicial cargado. Años disponibles: ' + anosDisponibles.sort().join(', ') + '.');
                 return;
             }
 

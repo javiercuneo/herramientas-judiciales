@@ -342,9 +342,17 @@ Ninguno urgente y ninguno bloqueante.
 - **Las cinco de plazos ya se corrieron de punta a punta** (17/8), con cálculo
   real y pantalla de resultado. Las otras seis no: de esas se midió contraste y
   ancho, y se miraron capturas de dos.
-- **Tuteo suelto en el texto de las calculadoras.** Varias dicen «envíanos un
-  mail» y «si crees», que es el imperativo de *tú*. La convención del repositorio
-  es rioplatense.
+- **~~Tuteo suelto en el texto de las calculadoras.~~ Barrido el 26/8 en las
+  cinco de plazos.** Salieron «envíanos un mail» —que además convivía con «si
+  creés» en la misma oración—, «Intenta recargar», y de paso los mensajes de
+  error sin tildes que arma el código: «Los datos aun no estan listos», «no esta
+  disponible», «Formato de fecha invalido». Todos van en voseo y acentuados.
+  **Falta lo mismo en las que no son de plazos**, y ahí conviene esperar: van de
+  cero, así que arreglar su texto ahora es escribirlo dos veces.
+  **Y una distinción que vale para el barrido que queda:** el *usted*
+  —«Ingrese», «Verifique»— **no es tuteo y no es un error**; es otro registro. Lo
+  que hay que sacar es el imperativo de *tú*. Cambiar los ustedes a voseo es una
+  decisión de estilo y no una corrección, así que va con el rediseño.
 - Los `max-width` de las calculadoras siguen yendo de 240 a 1000 px sin criterio.
 - **`www.javiercuneo.com.ar` no resuelve**, si se lo quiere: va un CNAME `www` →
   `javiercuneo.github.io` en Cloudflare, gris.

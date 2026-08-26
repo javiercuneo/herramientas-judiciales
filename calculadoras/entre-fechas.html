@@ -359,7 +359,7 @@
             <div id="dibujo"></div>
             <div class="error-report">
                 <strong>Reportar error</strong>
-                Si creés que hay un error, envíanos un mail a <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo qué salió mal.
+                Si creés que hay un error, escribime a <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo qué salió mal.
             </div>
         </div>
          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 12px; line-height: 1.8; font-family: var(--font-sans);">
@@ -440,7 +440,7 @@
         var endYear = document.getElementById('endYear').value;
 
         if (!startDay || !startMonth || !startYear || !endDay || !endMonth || !endYear) {
-            alert('Por favor complete todos los campos de fecha');
+            alert('Faltan campos de fecha por completar.');
             return;
         }
 
@@ -448,7 +448,7 @@
         var endDate = parseDate(endDay, endMonth, endYear);
 
         if (!startDate) {
-            alert('La fecha de inicio no es valida');
+            alert('La fecha de inicio no es válida.');
             ['startDay', 'startMonth', 'startYear'].forEach(function(id) {
                 document.getElementById(id).classList.add('error');
             });
@@ -456,7 +456,7 @@
         }
 
         if (!endDate) {
-            alert('La fecha de fin no es valida');
+            alert('La fecha de fin no es válida.');
             ['endDay', 'endMonth', 'endYear'].forEach(function(id) {
                 document.getElementById(id).classList.add('error');
             });
@@ -464,7 +464,7 @@
         }
 
         if (startDate > endDate) {
-            alert('La fecha de inicio debe ser anterior a la fecha de fin');
+            alert('La fecha de inicio tiene que ser anterior a la de fin.');
             return;
         }
 
@@ -473,7 +473,7 @@
         var businessDays = document.getElementById('businessDays').checked;
 
         if (businessDays && !datosCargados) {
-            alert('Los datos de feriados no estan disponibles. Use el calculo de dias corridos o recargue la pagina.');
+            alert('El calendario judicial no está cargado, así que no se puede contar en días hábiles. El conteo en días corridos sí funciona.');
             return;
         }
 
