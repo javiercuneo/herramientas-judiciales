@@ -10,11 +10,20 @@
 <link rel="stylesheet" href="css/comun.css">
 <script src="../assets/tema.js"></script>
 <style>
-    /* No se redefine ningun token de comun.css aca. `--accent: var(--accent)`
+    /* ==================================================================
+       No se redefine ningun token de comun.css aca. `--accent: var(--accent)`
        es una dependencia ciclica: la propiedad queda invalida en tiempo de
        computo y var() devuelve la cadena vacia, sin ningun error visible. Asi
        quedaron mora y honorarios-mediacion con el boton blanco sobre blanco,
-       en produccion. */
+       en produccion.
+
+       Rediseñado el 26/8, con el mismo criterio que vencimientos.html: cada
+       cosa ocupa lo que mide su contenido y hay jerarquia. Lo que cambio de
+       fondo es la ESTRUCTURA: los plazos y lo que no es plazo dejaron de ser
+       pestañas de la misma barra.
+       ================================================================== */
+
+    * { box-sizing: border-box; }
 
     body {
         margin: 0;
@@ -25,213 +34,292 @@
         line-height: 1.6;
     }
 
-    .cabecera {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 28px 20px 0;
-    }
+    .hoja { max-width: 1120px; margin: 0 auto; padding: 0 22px; }
 
-    h1 {
+    /* ------------------------------------------------------------ cabecera */
+    .cabecera { padding: 32px 0 20px; }
+
+    .cabecera h1 {
         font-family: var(--font-meter);
-        font-size: 1.75rem;
-        margin: 0 0 4px;
-        letter-spacing: -0.01em;
+        font-size: 27px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        margin: 0 0 8px;
     }
+    .cabecera h1 span { color: var(--accent); }
 
     .bajada {
+        margin: 0;
+        max-width: 64ch;
         color: var(--muted-fg);
-        margin: 0 0 20px;
-        max-width: 60ch;
+        font-size: 14px;
     }
 
-    /* La barra queda pegada arriba: la gracia del tablero es cambiar de
-       herramienta sin buscar la barra, y algunas calculadoras son largas. */
-    /* --warn y no --accent: es una advertencia, y el cobalto es el único acento
-       del sistema visual —lo activo, lo enfocado y lo seleccionado—. Usarlo acá
-       le quitaría significado a las dos cosas. */
+    /* Se publica antes de estar probado en uso y por eso lo dice. */
     .aviso-prueba {
+        margin: 18px 0 0;
+        max-width: 72ch;
         background: var(--warn-tint);
-        border-left: 3px solid var(--warn);
-        border-radius: 0 var(--radius) var(--radius) 0;
-        padding: 12px 14px;
-        margin: 0 0 20px;
-        max-width: 70ch;
-        font-size: 13px;
+        border: 1px solid var(--warn);
+        border-left-width: 4px;
+        border-radius: 10px;
+        padding: 13px 16px;
+        font-size: 12.5px;
+        line-height: 1.55;
         color: var(--fg);
     }
+    .aviso-prueba a { color: inherit; }
 
-    .aviso-prueba a { color: var(--accent); }
-
+    /* --------------------------------------------------------------- barra */
     .barra {
         position: sticky;
         top: 0;
-        z-index: 10;
+        z-index: 5;
         background: var(--bg);
+        padding: 14px 0 12px;
         border-bottom: 1px solid var(--border);
     }
 
     .barra-interna {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 0 20px;
         display: flex;
-        gap: 2px;
+        gap: 4px;
         overflow-x: auto;
         scrollbar-width: thin;
+        padding-bottom: 2px;
     }
 
     .pestania {
-        flex: 0 0 auto;
-        appearance: none;
-        border: 0;
-        border-bottom: 2px solid transparent;
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid transparent;
         background: transparent;
         color: var(--muted-fg);
-        font: inherit;
-        font-weight: 500;
-        padding: 11px 14px;
+        font-family: var(--font-sans);
+        font-size: 13.5px;
+        font-weight: 600;
+        padding: 9px 15px;
+        border-radius: 9px;
         cursor: pointer;
         white-space: nowrap;
-        border-radius: var(--radius) var(--radius) 0 0;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
 
-    .pestania:hover { color: var(--fg); background: var(--hair); }
-
-    /* El rótulo de grupo separa plazos de honorarios. Sin él, una pestaña de
-       honorarios pegada a una de plazos invita a leer un número como si fuera
-       del otro grupo. */
-    .grupo {
-        flex: 0 0 auto;
-        align-self: center;
-        color: var(--faint);
-        font-size: 10.5px;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        padding: 0 10px 0 18px;
-        border-left: 1px solid var(--border);
-        margin-left: 6px;
-        white-space: nowrap;
-    }
-
-    .grupo.primero { padding-left: 0; margin-left: 0; border-left: 0; }
+    .pestania:hover { color: var(--fg); background: var(--sunk); }
 
     .pestania[aria-selected="true"] {
-        color: var(--accent);
-        border-bottom-color: var(--accent);
-        font-weight: 600;
+        background: var(--accent);
+        color: var(--on-accent);
+        border-color: var(--accent);
     }
 
-    /* El foco se ve siempre, no solo con :focus-visible: estas pestanias se
-       recorren con flechas y el que las usa asi necesita ver donde esta. */
-    .pestania:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .pestania:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+    /* El numero de atajo.
+       --muted-fg y no --faint: sobre el fondo compuesto de --border encima de
+       --bg, --faint da 3,30 medido, y esto son diez pixeles. Es el mismo bug de
+       --faint que ya aparecio en la cabecera de vencimientos.html: el token
+       aguanta sobre --card y no sobre el fondo de la pagina.
+       Y con --muted-fg tampoco alcanzaba --3,96--, porque el relleno de
+       --border oscurecia el fondo. Por eso el chip quedo de contorno y sin
+       relleno: asi el numero se lee contra --bg y da 5,16. Tres mediciones para
+       un badge de diez pixeles, y las tres hicieron falta. */
+    .atajo {
+        font-family: var(--font-meter);
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1;
+        padding: 1px 5px;
+        border-radius: 4px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--muted-fg);
+    }
+    .pestania[aria-selected="true"] .atajo {
+        background: rgb(255 255 255 / 0.2);
+        border-color: transparent;
+        color: inherit;
+    }
+
+    /* -------------------------------------------------------------- panel */
     .panel { display: none; }
     .panel.activo { display: block; }
 
     .marco-caja {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 0 20px 40px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        margin: 20px 0 0;
     }
 
-    iframe {
+    .marco-caja iframe {
         display: block;
         width: 100%;
-        border: 0;
-        /* Alto inicial mientras carga. Despues lo fija el JS midiendo el
-           contenido, para que no queden dos barras de scroll anidadas, que es
-           lo que hace que un tablero de iframes se sienta mal. */
         height: 900px;
-        background: var(--bg);
-        color-scheme: inherit;
+        border: 0;
     }
 
     .cargando {
-        color: var(--muted-fg);
-        padding: 40px 0;
+        margin: 0;
+        padding: 70px 20px;
         text-align: center;
+        color: var(--faint);
+        font-size: 13px;
     }
 
-    .colofon {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 18px 20px 40px;
+    /* ======================= la segunda region ===========================
+       Prorrateo y tasa NO son plazos. Hasta el 26/8 estaban en la misma barra
+       con un rotulo de grupo, y el rotulo no alcanzaba: una pestaña al lado de
+       otra son dos cosas del mismo rango, y eso invita a leer un numero como
+       si fuera del otro grupo. Ahora estan abajo, despues de un corte, en una
+       region propia y con su propio titulo.
+
+       Y arrancan sin nada elegido: hay que pedirlas. Asi no se cargan dos
+       paginas mas al abrir el tablero, y sobre todo asi se lee lo que son
+       --otra materia-- en vez de una continuacion de la barra de arriba.
+       ==================================================================== */
+    .corte {
+        margin: 54px 0 0;
+        border: 0;
         border-top: 1px solid var(--border);
+    }
+
+    .region-otras { padding: 26px 0 0; }
+
+    .region-otras h2 {
+        font-family: var(--font-meter);
+        font-size: 17px;
+        font-weight: 700;
+        margin: 0 0 5px;
+    }
+
+    .region-otras .nota {
+        margin: 0 0 16px;
+        max-width: 62ch;
         color: var(--muted-fg);
         font-size: 13px;
     }
 
+    .otras-barra { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .tarjeta {
+        flex: 1 1 220px;
+        text-align: left;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 15px 17px;
+        cursor: pointer;
+        font-family: var(--font-sans);
+        color: var(--fg);
+        transition: border-color 0.15s, background 0.15s, transform 0.12s;
+    }
+
+    .tarjeta:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .tarjeta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .tarjeta[aria-selected="true"] {
+        border-color: var(--accent);
+        background: var(--accent-tint);
+    }
+
+    .tarjeta .t {
+        display: block;
+        font-family: var(--font-meter);
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .tarjeta .d { display: block; font-size: 12.5px; color: var(--muted-fg); }
+
+    /* ------------------------------------------------------------ colofon */
+    .colofon {
+        margin-top: 54px;
+        padding: 22px 0 46px;
+        border-top: 1px solid var(--border);
+        color: var(--muted-fg);
+        font-size: 12.5px;
+        line-height: 1.6;
+    }
+    .colofon p { margin: 0 0 7px; max-width: 76ch; }
     .colofon a { color: var(--accent); }
 
-    .atajo {
-        display: inline-block;
-        min-width: 1.4em;
-        text-align: center;
-        border: 1px solid var(--border);
-        border-radius: 3px;
-        padding: 0 4px;
-        font-size: 11px;
-        font-family: ui-monospace, Consolas, monospace;
-        color: var(--faint);
-        margin-left: 6px;
-    }
-
-    @media (max-width: 640px) {
-        .cabecera { padding-top: 20px; }
-        h1 { font-size: 1.4rem; }
-        .atajo { display: none; }
-        .barra-interna, .marco-caja, .colofon { padding-left: 12px; padding-right: 12px; }
-    }
-
-    @media print {
-        /* El papel es blanco siempre: nada de tokens de tema aca. */
-        .barra, .colofon, .bajada { display: none; }
-        .marco-caja { padding: 0; }
+    @media (max-width: 620px) {
+        .hoja { padding: 0 14px; }
+        .cabecera { padding: 24px 0 16px; }
+        .cabecera h1 { font-size: 22px; }
+        .corte { margin-top: 40px; }
     }
 </style>
 </head>
 <body>
 
-<div class="cabecera">
-    <h1>Tablero de plazos</h1>
-    <p class="bajada">
-        Las mismas calculadoras de siempre, en una sola ventana. Cada pestaña
-        conserva lo que cargaste mientras no cierres la página. Las de
-        honorarios y tasa van aparte: comparten la ventana, no la materia.
-    </p>
+<div class="hoja">
+    <div class="cabecera">
+        <h1>Tablero de <span>plazos</span></h1>
+        <p class="bajada">
+            Las mismas calculadoras de siempre, en una sola ventana. Cada pestaña
+            conserva lo que cargaste mientras no cierres la página.
+        </p>
 
-    <!-- Se publica antes de estar probado en uso, y por eso lo dice. La
-         alternativa era no publicarlo, y no sirve: no hay forma de probarlo en
-         la oficina, donde no se puede levantar un servidor local. El aviso es
-         lo que hace honesta la publicación: el que llega acá de casualidad se
-         entera de que esto es nuevo y de dónde está la referencia. Se saca
-         cuando el uso diario lo confirme. -->
-    <p class="aviso-prueba">
-        <strong>Recién estrenado.</strong> Cada pestaña es la calculadora
-        publicada, sin ninguna modificación, y hay
-        <a href="https://github.com/javiercuneo/herramientas-judiciales/blob/main/scripts/pruebas-calculadoras.html">pruebas
-        automáticas</a> que verifican que acá los números den lo mismo que en las
-        páginas sueltas. Lo que todavía no tiene es rodaje: si algo no cuadra, la
-        referencia son las calculadoras por separado, y te agradezco el aviso a
-        <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a>.
-    </p>
+        <!-- Se publica antes de estar probado en uso, y por eso lo dice. La
+             alternativa era no publicarlo, y no sirve: no hay forma de probarlo
+             en la oficina, donde no se puede levantar un servidor local. El
+             aviso es lo que hace honesta la publicación. Se saca cuando el uso
+             diario lo confirme. -->
+        <p class="aviso-prueba">
+            <strong>Recién estrenado.</strong> Cada pestaña es la calculadora
+            publicada, y hay
+            <a href="https://github.com/javiercuneo/herramientas-judiciales/blob/main/scripts/pruebas-calculadoras.html">pruebas
+            automáticas</a> que verifican que acá los números den lo mismo que en
+            las páginas sueltas. Lo que todavía no tiene es rodaje: si algo no
+            cuadra, la referencia son las calculadoras por separado, y te
+            agradezco el aviso a
+            <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a>.
+        </p>
+    </div>
 </div>
 
 <div class="barra">
-    <div class="barra-interna" role="tablist" aria-label="Calculadoras de plazos"></div>
+    <div class="hoja">
+        <div class="barra-interna" id="tabs-plazos" role="tablist" aria-label="Calculadoras de plazos"></div>
+    </div>
 </div>
 
-<div id="paneles"></div>
+<div class="hoja">
+    <div id="paneles-plazos"></div>
 
-<div class="colofon">
-    <p>
-        Cada pestaña es la calculadora publicada, sin ninguna modificación: si un
-        número acá difiere del de la página suelta, es un error de este tablero.
-        Se pueden seguir abriendo por separado desde
-        <a href="../index.html">el índice de herramientas</a>.
-    </p>
-    <p>L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</p>
+    <hr class="corte">
+
+    <!-- Prorrateo y tasa no son plazos. Comparten la ventana porque el flujo es
+         el mismo --en un expediente mirás un plazo y en el siguiente un
+         prorrateo-- pero no comparten la materia, y hasta el 26/8 estaban en la
+         misma barra de pestañas, que las ponía en el mismo rango. -->
+    <section class="region-otras">
+        <h2>Honorarios y tasa</h2>
+        <p class="nota">
+            No son plazos. Están acá porque el trabajo es el mismo —en un
+            expediente mirás un plazo y en el siguiente un prorrateo—, pero van
+            aparte a propósito: un número de honorarios y uno de plazos no se
+            leen igual.
+        </p>
+
+        <div class="otras-barra" id="tabs-otras" role="tablist" aria-label="Honorarios y tasa"></div>
+        <div id="paneles-otras"></div>
+    </section>
+
+    <div class="colofon">
+        <p>
+            Cada pestaña es la calculadora publicada, sin ninguna modificación: si
+            un número acá difiere del de la página suelta, es un error de este
+            tablero. Se pueden seguir abriendo por separado desde
+            <a href="../index.html">el índice de herramientas</a>.
+        </p>
+        <p>L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</p>
+    </div>
 </div>
 
 <script>
@@ -255,105 +343,143 @@
 // por iframe desde el 17/8 y las cinco responden bien.
 // ---------------------------------------------------------------------------
 
-// Prorrateo y tasa no son plazos, y entran igual: el flujo es el mismo —en un
-// expediente mirás un plazo y en el siguiente un prorrateo—, que es el criterio
-// que decidio Javier el 17/8. Pero entran SEPARADAS y con un rotulo de grupo:
-// que compartan ventana no las hace la misma cosa, y una pestania de honorarios
-// pegada a una de plazos invita a leer un numero como si fuera del otro.
-var GRUPOS = [
+// Dos regiones independientes, no una barra con rotulos de grupo.
+//
+// Hasta el 26/8 las ocho estaban en el mismo tablist, separadas por una
+// etiqueta de grupo. El rotulo no alcanzaba: dos pestañas una al lado de la
+// otra son dos cosas del mismo rango, y una de honorarios pegada a una de
+// plazos invita a leer un numero como si fuera del otro. Ahora son dos
+// regiones: los plazos arriba, y abajo --despues de un corte y con titulo
+// propio-- lo que no es plazo.
+//
+// La segunda arranca SIN NADA elegido, y eso hace dos cosas: no carga dos
+// paginas mas al abrir el tablero, y se lee como otra materia en vez de como
+// una continuacion de la barra de arriba.
+var REGIONES = [
     {
-        titulo: 'Plazos',
+        id: 'plazos',
+        tabs: document.getElementById('tabs-plazos'),
+        paneles: document.getElementById('paneles-plazos'),
+        clase: 'pestania',
+        atajos: true,
+        arrancaEn: 0,
         items: [
-            { id: 'vencimientos',  rotulo: 'Vencimientos',   archivo: 'vencimientos.html' },
-            { id: 'distancia',     rotulo: 'Por distancia',  archivo: 'distancia.html' },
-            { id: 'caducidad',     rotulo: 'Caducidad',      archivo: 'caducidad.html' },
-            { id: 'entre-fechas',  rotulo: 'Entre fechas',   archivo: 'entre-fechas.html' },
-            { id: 'regresiva',     rotulo: 'Regresiva',      archivo: 'regresiva.html' },
-            { id: 'mora',          rotulo: 'Mora',           archivo: 'mora.html' }
+            { id: 'vencimientos', rotulo: 'Vencimientos',  archivo: 'vencimientos.html' },
+            { id: 'distancia',    rotulo: 'Por distancia', archivo: 'distancia.html' },
+            { id: 'caducidad',    rotulo: 'Caducidad',     archivo: 'caducidad.html' },
+            { id: 'entre-fechas', rotulo: 'Entre fechas',  archivo: 'entre-fechas.html' },
+            { id: 'regresiva',    rotulo: 'Regresiva',     archivo: 'regresiva.html' },
+            { id: 'mora',         rotulo: 'Mora',          archivo: 'mora.html' }
         ]
     },
     {
-        titulo: 'Honorarios y tasa',
+        id: 'otras',
+        tabs: document.getElementById('tabs-otras'),
+        paneles: document.getElementById('paneles-otras'),
+        clase: 'tarjeta',
+        atajos: false,
+        arrancaEn: null,
         items: [
-            { id: 'prorrateo',     rotulo: 'Prorrateo',      archivo: 'prorrateo.html' },
-            { id: 'tasa',          rotulo: 'Tasa de justicia', archivo: 'tasa.html' }
+            { id: 'prorrateo', rotulo: 'Prorrateo', archivo: 'prorrateo.html',
+              detalle: 'Repartir honorarios entre varios' },
+            { id: 'tasa', rotulo: 'Tasa de justicia', archivo: 'tasa.html',
+              detalle: 'Lo que hay que integrar' }
         ]
     }
 ];
 
-var HERRAMIENTAS = GRUPOS.reduce(function (acc, g) {
-    return acc.concat(g.items.map(function (h) {
-        return { id: h.id, rotulo: h.rotulo, archivo: h.archivo, grupo: g.titulo };
+// honorarios-mediacion NO entra: tiene mal el rotulo del tope --ver
+// docs/ESTADO.md-- y no conviene darle mas superficie hasta arreglarlo.
+
+var HERRAMIENTAS = REGIONES.reduce(function (acc, r) {
+    return acc.concat(r.items.map(function (h) {
+        return { id: h.id, rotulo: h.rotulo, archivo: h.archivo, region: r };
     }));
 }, []);
 
-var listaTabs = document.querySelector('[role="tablist"]');
-var contenedor = document.getElementById('paneles');
 var montados = Object.create(null);
-var activa = null;
 
 // Cada calculadora trae su propio boton de tema, que tema.js le agrega al
-// body. Adentro del tablero son seis botones repetidos para una sola decision.
+// body. Adentro del tablero son ocho botones repetidos para una sola decision.
 // Se ocultan por CSS inyectado en tiempo de ejecucion y no editando las
 // calculadoras: el tablero no toca sus archivos, esa es toda su gracia.
-// Y hay que neutralizar `min-height: 100vh`, que la mitad de las calculadoras
-// usa para ocupar la pantalla. Adentro de un iframe, 100vh ES EL ALTO DEL
-// IFRAME: el contenido siempre llena el marco, medirlo devuelve el alto que
-// ya tenia, y el alto queda clavado donde arranco. A caducidad y regresiva las
-// dejaba en los 900 px iniciales con espacio en blanco de sobra.
+// Y hay que neutralizar `min-height: 100vh`, que varias calculadoras usan para
+// ocupar la pantalla. Adentro de un iframe, 100vh ES EL ALTO DEL IFRAME: el
+// contenido siempre llena el marco, medirlo devuelve el alto que ya tenia, y el
+// alto queda clavado donde arranco.
 //
-// Es una anulacion de presentacion y no toca nada que calcule. Lo que se
-// pierde es el centrado vertical en la pantalla, que adentro del tablero no
-// se quiere: se quiere el alto del contenido.
+// Es una anulacion de presentacion y no toca nada que calcule.
 var CSS_EMBEBIDO =
     '.tema-boton { display: none !important; }' +
     'html, body { height: auto !important; min-height: 0 !important; }';
 
 function construir() {
-    var grupoAnterior = null;
+    var numero = 0;
 
-    HERRAMIENTAS.forEach(function (h, i) {
-        // Separador de grupo. Es decorativo, asi que sale del arbol de
-        // accesibilidad: para el que navega con teclado, el tablist tiene que
-        // tener pestanias y nada mas.
-        if (h.grupo !== grupoAnterior) {
-            grupoAnterior = h.grupo;
-            var sep = document.createElement('span');
-            sep.className = 'grupo' + (i === 0 ? ' primero' : '');
-            sep.textContent = h.grupo;
-            sep.setAttribute('aria-hidden', 'true');
-            listaTabs.appendChild(sep);
-        }
+    REGIONES.forEach(function (region) {
+        region.activa = null;
 
-        var tab = document.createElement('button');
-        tab.className = 'pestania';
-        tab.type = 'button';
-        tab.id = 'tab-' + h.id;
-        tab.setAttribute('role', 'tab');
-        tab.setAttribute('aria-controls', 'panel-' + h.id);
-        tab.setAttribute('aria-selected', 'false');
-        tab.tabIndex = -1;
-        tab.textContent = h.rotulo;
+        region.items.forEach(function (h) {
+            var tab = document.createElement('button');
+            tab.className = region.clase;
+            tab.type = 'button';
+            tab.id = 'tab-' + h.id;
+            tab.setAttribute('role', 'tab');
+            tab.setAttribute('aria-controls', 'panel-' + h.id);
+            tab.setAttribute('aria-selected', 'false');
+            tab.tabIndex = -1;
 
-        if (i < 9) {
-            var k = document.createElement('span');
-            k.className = 'atajo';
-            k.textContent = String(i + 1);
-            k.setAttribute('aria-hidden', 'true');
-            tab.appendChild(k);
-        }
+            if (region.clase === 'tarjeta') {
+                tab.innerHTML = '<span class="t"></span><span class="d"></span>';
+                tab.querySelector('.t').textContent = h.rotulo;
+                tab.querySelector('.d').textContent = h.detalle;
+            } else {
+                tab.appendChild(document.createTextNode(h.rotulo));
+            }
 
-        tab.addEventListener('click', function () { activar(h.id, true); });
-        listaTabs.appendChild(tab);
+            if (region.atajos) {
+                numero++;
+                if (numero <= 9) {
+                    var k = document.createElement('span');
+                    k.className = 'atajo';
+                    k.textContent = String(numero);
+                    k.setAttribute('aria-hidden', 'true');
+                    tab.appendChild(k);
+                    h.atajo = numero;
+                }
+            }
 
-        var panel = document.createElement('div');
-        panel.className = 'panel';
-        panel.id = 'panel-' + h.id;
-        panel.setAttribute('role', 'tabpanel');
-        panel.setAttribute('aria-labelledby', 'tab-' + h.id);
-        panel.innerHTML = '<div class="marco-caja"><p class="cargando">Cargando ' +
-            h.rotulo.toLowerCase() + '…</p></div>';
-        contenedor.appendChild(panel);
+            tab.addEventListener('click', function () { activar(h.id, true); });
+            region.tabs.appendChild(tab);
+
+            var panel = document.createElement('div');
+            panel.className = 'panel';
+            panel.id = 'panel-' + h.id;
+            panel.setAttribute('role', 'tabpanel');
+            panel.setAttribute('aria-labelledby', 'tab-' + h.id);
+            panel.innerHTML = '<div class="marco-caja"><p class="cargando">Cargando ' +
+                h.rotulo.toLowerCase() + '…</p></div>';
+            region.paneles.appendChild(panel);
+        });
+
+        // Las flechas recorren SU region y no se pasan a la otra: son dos
+        // tablist distintos, y saltar de uno al otro con una flecha volveria a
+        // decir que son lo mismo, que es lo que este cambio deshace.
+        region.tabs.addEventListener('keydown', function (e) {
+            var n = region.items.length;
+            var i = region.items.findIndex(function (x) { return x.id === region.activa; });
+            var destino = null;
+
+            if (e.key === 'ArrowRight') destino = (i + 1) % n;
+            else if (e.key === 'ArrowLeft') destino = (i - 1 + n) % n;
+            else if (e.key === 'Home') destino = 0;
+            else if (e.key === 'End') destino = n - 1;
+            else return;
+
+            e.preventDefault();
+            if (i === -1 && (e.key === 'ArrowLeft')) destino = n - 1;
+            activar(region.items[destino].id, true);
+        });
     });
 }
 
@@ -440,12 +566,17 @@ new MutationObserver(function () {
     Object.keys(montados).forEach(function (id) { sincronizarTema(montados[id]); });
 }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-tema'] });
 
+// Activa dentro de SU region. Las dos regiones son independientes: elegir una
+// calculadora de honorarios no apaga la de plazos que quedo abierta arriba, que
+// es el punto de haberlas separado.
 function activar(id, moverFoco) {
     var h = HERRAMIENTAS.filter(function (x) { return x.id === id; })[0];
-    if (!h || activa === id) return;
-    activa = id;
+    if (!h) return;
+    var region = h.region;
+    if (region.activa === id) return;
+    region.activa = id;
 
-    HERRAMIENTAS.forEach(function (x) {
+    region.items.forEach(function (x) {
         var tab = document.getElementById('tab-' + x.id);
         var panel = document.getElementById('panel-' + x.id);
         var sel = x.id === id;
@@ -464,31 +595,17 @@ function activar(id, moverFoco) {
     document.title = h.rotulo + ' · Tablero de plazos';
 }
 
-// Flechas para recorrer, Inicio y Fin para los extremos: es el comportamiento
-// que se espera de un role="tablist" y el que usa quien navega con teclado.
-listaTabs.addEventListener('keydown', function (e) {
-    var i = HERRAMIENTAS.findIndex(function (x) { return x.id === activa; });
-    var n = HERRAMIENTAS.length;
-    var destino = null;
-
-    if (e.key === 'ArrowRight') destino = (i + 1) % n;
-    else if (e.key === 'ArrowLeft') destino = (i - 1 + n) % n;
-    else if (e.key === 'Home') destino = 0;
-    else if (e.key === 'End') destino = n - 1;
-    else return;
-
-    e.preventDefault();
-    activar(HERRAMIENTAS[destino].id, true);
-});
-
-// Numeros para saltar directo. Se ignoran si el foco esta escribiendo, que
-// adentro de un iframe pasa siempre.
+// Numeros para saltar directo, solo entre los plazos: son los que se usan todos
+// los dias. Se ignoran si el foco esta escribiendo, que adentro de un iframe
+// pasa siempre.
 document.addEventListener('keydown', function (e) {
     if (e.ctrlKey || e.altKey || e.metaKey) return;
     var t = e.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
     var n = parseInt(e.key, 10);
-    if (n >= 1 && n <= HERRAMIENTAS.length) activar(HERRAMIENTAS[n - 1].id, true);
+    if (!n) return;
+    var destino = HERRAMIENTAS.filter(function (x) { return x.atajo === n; })[0];
+    if (destino) activar(destino.id, true);
 });
 
 window.addEventListener('hashchange', function () {
@@ -497,8 +614,18 @@ window.addEventListener('hashchange', function () {
 });
 
 construir();
+
+// El enlace directo manda, venga de la region que venga: #tasa abre la tasa
+// aunque este abajo. El orden importa: primero se abre la de plazos por
+// defecto y DESPUES la del hash, porque cada activar reescribe el hash y el
+// ultimo es el que queda. Al reves, entrar por #tasa terminaba con la URL
+// diciendo #vencimientos.
 var inicial = location.hash.slice(1);
-activar(HERRAMIENTAS.some(function (x) { return x.id === inicial; }) ? inicial : HERRAMIENTAS[0].id, false);
+var apunta = HERRAMIENTAS.filter(function (x) { return x.id === inicial; })[0];
+
+activar(REGIONES[0].items[0].id, false);
+if (apunta && apunta.id !== REGIONES[0].items[0].id) activar(apunta.id, false);
+
 </script>
 </body>
 </html>

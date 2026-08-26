@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-25 · rama `main`
+Última actualización: 2026-08-26 · rama `main`
 
 Lleva sólo lo que sigue vivo: dónde está el trabajo, qué está abierto, qué se
 sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas ya
@@ -43,6 +43,14 @@ que se dejó última— entera el 10/8: el generador con sus tres controles y
 `ProsaSection.tsx`, la última sección del dashboard. Casi todo el código es de
 Honorio y el detalle está en su `ESTADO.md`; de este lado quedan los planes con
 qué se hizo de cada paso y qué se apartó de lo previsto.
+
+**El 25 y el 26/8 se hizo el frente más grande desde la mudanza de Honorio:** el
+cómputo de plazos salió de adentro de los HTML a `calculadoras/js/plazos.js`, se
+expuso por HTTP local y por MCP en `conectores/` —el pedido abierto de
+`pipeline-drafter`—, `vencimientos` y `mora` pasaron a consumirlo, entró el
+plazo dibujado sobre el calendario, se rediseñaron `vencimientos` y el tablero,
+y el cron de feriados dejó de ser un pendiente. **Si arrancás una sesión nueva,
+[Por dónde seguir](#por-dónde-seguir) tiene el orden y el método.**
 
 **No queda nada urgente ni bloqueante.** Lo abierto está en
 [Pendientes](#pendientes) y [Bugs abiertos](#bugs-abiertos).
@@ -305,12 +313,11 @@ tenía, y el alto queda clavado donde arrancó. Se anula por CSS inyectado, y el
 alto se mide sobre el rect del `<body>` y no con `scrollHeight`, que nunca baja
 del alto del propio marco.
 
-**Prorrateo y tasa entran, y van agrupadas aparte.** No son plazos, y entran
-igual porque **el flujo es el mismo**: en un expediente mirás un plazo y en el
-siguiente un prorrateo —criterio de Javier, 17/8—. Pero la barra lleva rótulos
-de grupo, «Plazos» y «Honorarios y tasa»: que compartan ventana no las hace la
-misma materia, y una pestaña de honorarios pegada a una de plazos invita a leer
-un número como si fuera del otro grupo. `honorarios-mediacion` **no** entró:
+**Prorrateo y tasa entran, y desde el 26/8 van en una región aparte**, no como
+pestañas de la misma barra. No son plazos, y entran igual porque **el flujo es
+el mismo**: en un expediente mirás un plazo y en el siguiente un prorrateo
+—criterio de Javier, 17/8—. Hasta el 26/8 la separación era un rótulo de grupo
+adentro de la misma barra y no alcanzaba: ver [el rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268). `honorarios-mediacion` **no** entró:
 tiene mal el rótulo del tope (ver arriba) y no conviene darle más superficie
 hasta arreglarlo.
 
@@ -357,6 +364,82 @@ estilos computados en los dos temas, y sólo porque se midió el tema en el que 
 se estaba trabajando. Ahora el ámbar va en el fondo y el borde, el número en
 `--fg`, y lo peor de la grilla es 4,66 en claro y 5,06 en oscuro. Sin desborde
 horizontal a 375 px.
+
+### El tablero rediseñado, y las dos regiones — 26/8
+
+**Lo estructural: los plazos y lo que no es plazo dejaron de ser pestañas de la
+misma barra.** Hasta hoy las ocho estaban en el mismo `tablist` separadas por
+una etiqueta de grupo, y el criterio de Javier del 26/8 es que la etiqueta no
+alcanza: dos pestañas una al lado de la otra son dos cosas del mismo rango, y
+eso es justo lo que invita a leer un número de honorarios como si fuera de
+plazos. Ahora hay **dos regiones independientes**: los plazos arriba con su
+barra, y abajo —después de un corte y con título propio— «Honorarios y tasa».
+
+**La segunda arranca sin nada elegido**, como dos tarjetas que hay que pedir.
+Hace dos cosas: no carga dos páginas más al abrir el tablero, y se lee como otra
+materia en vez de como una continuación de la barra.
+
+Las dos regiones son de verdad independientes: elegir la tasa **no cierra** el
+plazo que quedó abierto arriba. Las flechas recorren su propia región y no
+saltan a la otra —saltar volvería a decir que son lo mismo—, y los atajos 1-6
+son sólo de plazos.
+
+**El enlace directo sigue funcionando para las ocho**, y ahí hubo un bug que
+costó encontrar y conviene no repetir: en el arranque hay que activar **primero**
+la de plazos por defecto y **después** la del hash, porque cada `activar()`
+reescribe el hash con `replaceState` y el último es el que queda. Al revés,
+entrar por `#tasa` terminaba con la URL diciendo `#vencimientos`.
+
+**El motor de iframes no se tocó.** La carga perezosa, la medición del alto
+sobre el rect del `<body>`, la anulación de `min-height: 100vh` y la
+sincronización de tema son las mismas líneas: es lo que costó encontrar y no
+había motivo para reescribirlo.
+
+**Y una medición que hizo falta tres veces para un badge de diez píxeles.** El
+número de atajo daba **3,30** con `--faint` sobre `--border`; con `--muted-fg`
+seguía en **3,96**, porque el relleno de `--border` oscurece el fondo. Quedó de
+contorno y sin relleno, leyendo contra `--bg`: **5,16**. Es el mismo bug abierto
+de `--faint` que ya apareció dos veces hoy —el token aguanta sobre `--card` y no
+sobre el fondo de la página—, y va sumando argumentos para arreglarlo de raíz.
+
+Verificado: contraste sin excepciones en los dos temas —peor 4,82 en claro,
+5,06 en oscuro—, sin desborde a 375 px, y `vencimientos` embebida da la misma
+fecha que suelta.
+
+---
+
+## Por dónde seguir
+
+Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío.
+
+1. **Extender el dibujo del plazo a `caducidad`, `entre-fechas` y `regresiva`.**
+   Es lo que sigue y es lo más largo. **No se puede hacer directo:** esas tres
+   tienen su aritmética adentro del HTML y `plazos.js` todavía no las cubre, así
+   que primero hay que extraerlas. El método está probado dos veces hoy y es el
+   que hay que repetir:
+   a) capturar la salida de la pantalla actual sobre una matriz de casos —con el
+      detalle, no sólo la fecha final—, **contra el sitio servido y con
+      rompe-caché**;
+   b) transcribir la aritmética a `plazos.js` sin tocarla, conservando las
+      convenciones de fecha de cada una;
+   c) hacer que la pantalla consuma el motor;
+   d) correr la misma matriz y exigir que dé idéntico.
+   Recién con la pantalla consumiendo el motor se puede dibujar, porque el
+   dibujo se arma de `diasContados` y `diasSalteados`.
+2. **El cruce pantalla contra motor en `scripts/pruebas-calculadoras.html`.**
+   Sigue pendiente y es la red que faltaría para que una divergencia falle a los
+   gritos en vez de en silencio. Con `vencimientos` y `mora` ya migradas la
+   urgencia bajó —hay una sola implementación— pero el control sirve igual para
+   las que se migren después.
+3. **El resto de las calculadoras con el sistema visual nuevo.** `vencimientos`
+   quedó rediseñada y las otras siete no, así que dentro del tablero se nota el
+   salto al cambiar de pestaña. El criterio que ordenó `vencimientos` está en su
+   `<style>` y se puede repetir: cada control ocupa lo que mide su contenido, y
+   lo único grande es el resultado.
+4. **`honorarios-mediacion` sigue afuera del tablero** por el rótulo del tope
+   mal, que es un arreglo barato y no se hizo.
+
+---
 
 ### `vencimientos.html` rediseñada — 26/8
 
