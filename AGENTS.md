@@ -178,9 +178,10 @@ calculadoras/                   Herramientas de un solo archivo HTML con JS embe
                                   Sin build, sin bundler: se editan directo.
                                   js/calendario-judicial.js es la dependencia compartida
                                   de todo lo que calcula fechas, y js/plazos.js es la
-                                  aritmetica de plazos --vencimiento y mora-- extraida
-                                  de las pantallas el 25/8. Las pantallas NO se pasaron
-                                  a el: siguen con su copia y valen de referencia.
+                                  aritmetica de plazos --vencimiento y mora--, que
+                                  vencimientos.html y mora.html CONSUMEN desde el 26/8.
+                                  caducidad, entre-fechas y regresiva todavia tienen la
+                                  suya adentro: migrarlas pide extraerlas primero.
 conectores/                     El calendario y el computo de plazos, consultables desde
                                   codigo. nucleo.mjs carga los motores de navegador en
                                   Node; http.mjs y mcp.mjs son transportes finos encima

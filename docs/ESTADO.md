@@ -102,11 +102,22 @@ Ninguno urgente y ninguno bloqueante.
   día alguien computa un plazo de 2028 y el archivo no lo tiene, la calculadora
   no calcula y dice qué año falta —eso ya está resuelto— pero el que tiene que
   correr el script sos vos.
-  Falta el cron que lo haga solo: un workflow de Actions con `schedule:` mensual
-  que corra `npm run feriados` y commitee si el diff no está vacío; el de la UMA
-  en Honorio ya hace exactamente eso y sirve de modelo. **No se armó todavía
-  porque es un workflow que escribe en el repositorio**, y eso pide
-  `permissions: contents: write` y una revisión con calma.
+  **Desde el 26/8 hay cron: `.github/workflows/feriados.yml`.** Corre el día 1 de
+  cada mes y a mano desde Actions. El permiso de escritura —que es lo que
+  necesita el `git push`— se declara **sólo en el job que lo usa**, no en el
+  workflow: es una línea de más y evita que un segundo job lo herede sin que
+  nadie lo decida.
+  **Y el banco de pruebas corre entre traer el archivo y commitearlo.** Sin ese
+  paso el cron sería un canal automático desde la API de un tercero hasta las
+  fechas que la herramienta afirma; con él, un archivo que rompe un cómputo no
+  llega al repositorio.
+  **Consecuencia conocida, para que no sorprenda:** `actualizar-feriados` aborta
+  entero si un año no se puede leer, y eso incluye el año siguiente cuando la
+  API todavía no lo publicó. En los primeros meses de cada año el workflow puede
+  fallar por ese motivo y no por un problema real. El modo de falla es el
+  correcto —no escribe medio archivo— pero **la alarma es indistinguible de una
+  de verdad**. Si molesta, lo que hay que cambiar es el script, para que
+  distinga «el año que viene todavía no existe» de «la API no contesta».
 - **`data/serie-uma.json` y `data/serie-uhom.json` se cargan a mano y no hay de
   dónde automatizarlas.** Es el mismo caso que la feria: los actos de la CSJN y
   las tablas del Ministerio son PDFs sin API. Cuando sale un valor nuevo hay que
@@ -178,10 +189,14 @@ Ninguno urgente y ninguno bloqueante.
   agente el 17/8. Sacarlo no fue mover un número, fue volver al punto de partida
   — la distinción importa, porque el primer análisis lo trató al revés y con eso
   invirtió la carga de la prueba.
-  Hecho: la sección se oculta con modalidad automática, **el valor cargado se
-  limpia** —dejarlo escrito abajo de una sección invisible es la peor variante—,
-  y en su lugar aparece el motivo. Verificado en pantalla que el camino de
-  cédula no movió un número.
+  Hecho: la sección se oculta con modalidad automática y **el valor cargado se
+  limpia** —dejarlo escrito abajo de una sección invisible es la peor variante—.
+  Verificado en pantalla que el camino de cédula no movió un número.
+  **Sin texto explicativo, por decisión de Javier del 26/8.** El primer intento
+  agregó dos párrafos —uno explicando cuándo corresponde la ampliación, otro
+  diciendo por qué no aparece con nota— y los dos salieron. El campo se oculta y
+  ya está: una pantalla que explica cada cosa que no muestra termina siendo un
+  manual.
   **Lo que queda abierto y es más grande:** por el mismo razonamiento, la
   ampliación tampoco corresponde con **cédula al domicilio constituido**, que es
   la mayoría de las cédulas (art. 40, tercer párrafo). Sólo corresponde con
@@ -189,8 +204,7 @@ Ninguno urgente y ninguno bloqueante.
   de posiciones, sentencia— o para una diligencia que efectivamente se practique
   afuera. Hoy la calculadora la ofrece con cualquier cédula. Javier decidió el
   25/8 dejarlo así por ahora —«tiene sentido en la cédula y por eso lo toleré»—
-  y por lo pronto entró la explicación de cuándo corresponde, que antes no
-  estaba en ningún lado.
+  Queda anotado acá, que es donde va lo que está abierto.
 - **La guarda por año faltante tiene dos granos distintos, y conviene saber
   cuál.** Verificado el 25/8 corriendo el motor: la **feria** sólo bloquea el
   cómputo que cae en julio o agosto del año sin Acordada —un vencimiento de
@@ -303,41 +317,81 @@ hasta arreglarlo.
 Ya está enlazado desde `index.html`, en la bajada de la sección de calculadoras.
 
 
-### El paso (4): `calculadoras/calendario.html` — 25/8
+### El paso (4): el plazo dibujado, adentro de la calculadora — 26/8
 
-**Es la novena pestaña del tablero y la primera pantalla del repositorio que no
-tiene aritmética propia.** Todo lo que calcula sale de `js/plazos.js`, el mismo
-motor que consultan los conectores. Las otras once llevan cada una su copia de
-la cuenta; ésta no, y ése es el camino al que van las demás.
+**Primero se hizo mal.** El 25/8 salió como `calculadoras/calendario.html`, una
+pestaña aparte del tablero. Javier lo corrigió el 26/8: *«mi idea era que el
+plazo dibujado fuera parte de la propia calculadora que se está usando y no una
+tab aparte»*. Tiene razón y el motivo es el mismo que hace bueno el tablero: el
+dibujo no es otra herramienta, **es la explicación del número que la
+calculadora acaba de dar**. En una pestaña aparte había que volver a cargar la
+fecha y el plazo para ver por qué el resultado era ése. El archivo se borró y la
+pestaña se sacó; el tablero volvió a ocho.
 
-Dibuja el plazo sobre los meses que abarca: el día de la notificación, cada día
-contado con su número de orden, los que se saltearon con el motivo de cada uno,
-y el vencimiento. **El fin de semana se atenúa y lo que decidió un acto se
-marca** —feria, feriado, asueto—, porque son los días que mueven el vencimiento
-y que nadie tiene en la cabeza.
+Ahora vive adentro de `vencimientos.html`, abajo del resultado. Dibuja los meses
+que el plazo abarca: el día de la notificación, cada día contado con su número
+de orden, los salteados con el motivo de cada uno, y el vencimiento. **El fin de
+semana se atenúa y lo que decidió un acto se marca** —feria, feriado, asueto—,
+porque son los días que mueven el vencimiento y que nadie tiene en la cabeza.
+
+Se arma de los tramos que devuelve el motor, **no recorriendo el calendario por
+su cuenta**: si la grilla y el cómputo pudieran discrepar, la grilla mentiría con
+la autoridad que tiene un dibujo. Y si falta un dato no dibuja nada, ni el
+calendario vacío.
 
 El caso que muestra para qué sirve: **20 días hábiles desde el 25/6/2026 no
 vencen en julio, vencen el 11 de agosto.** El plazo se comió el Día de la
 Independencia, un puente turístico y los diez días hábiles de la feria de la
-Acordada 11/2026. Una fecha suelta no dice nada de eso; el dibujo lo dice de un
-vistazo. Verificado contra `vencimientos.html`: las dos dan la misma fecha.
+Acordada 11/2026.
 
-**Si falta un dato no dibuja nada**, ni siquiera el calendario vacío. Un
-calendario dibujado con un mes mal contado es *más* convincente que una fecha
-suelta, así que es peor.
+**Y de paso se limpió CSS muerto.** `vencimientos.html` tenía reglas `.calendar`,
+`.calendar-day.counted` y `.calendar-day.ignored` escritas y **nunca usadas**
+—nada del markup ni del JS producía un `.calendar`—, con colores planos
+(`#d4edda`, `#f8d7da`) que el sistema visual no usa. Alguien pensó esta pantalla
+antes y no la terminó.
 
-**Un error que casi se publica, y cómo se encontró:** la primera versión ponía
-el número de los días de feria en `--warn` sobre `--warn-tint`. En tema oscuro
-daba 12,7 y en claro **4,24**, abajo de los 4,5 que pide AA a 12 px. Se vio
-midiendo contraste sobre estilos computados en los dos temas —que es la regla
-del repositorio, no mirar— y sólo porque se midió el tema en el que no se estaba
-trabajando. Ahora el ámbar va en el fondo y el borde, el número en `--fg`, y el
-peor contraste de la grilla es 4,66 en claro y 5,06 en oscuro. Sin desborde
+**Un error que casi se publica.** La primera versión ponía el número de los días
+de feria en `--warn` sobre `--warn-tint`: 12,7 en tema oscuro y **4,24 en
+claro**, abajo de los 4,5 que pide AA a 12 px. Se vio midiendo contraste sobre
+estilos computados en los dos temas, y sólo porque se midió el tema en el que no
+se estaba trabajando. Ahora el ámbar va en el fondo y el borde, el número en
+`--fg`, y lo peor de la grilla es 4,66 en claro y 5,06 en oscuro. Sin desborde
 horizontal a 375 px.
 
-**Falta decidir si va como tarjeta propia en la landing.** Hoy se llega por el
-tablero, que sí está enlazado. `pages.yml` copia `calculadoras/` entera, así que
-publicarse se publica igual.
+### Las pantallas consumen el motor — 26/8
+
+**El 25/8 quedó lo peor de los dos mundos y conviene que quede escrito:** el
+motor extraído y las pantallas con su copia, o sea dos implementaciones vivas de
+una cuenta con consecuencia jurídica, mantenidas iguales sólo por haber sido
+escritas el mismo día. Decisión de Javier el 26/8: hacer que las pantallas
+consuman el motor.
+
+Migradas las dos que `plazos.js` cubre:
+
+- **`vencimientos.html`** — `calcular()` ya no tiene aritmética: lee el
+  formulario, valida, llama a `Plazos.vencimiento()` y muestra.
+  `calcularNotificacionAutomatica()` y `proximoDiaDeNota()` quedaron como
+  delegaciones de una línea.
+- **`mora.html`** — se fueron `nextBusinessDayStrict` y `countBusinessDaysFrom`.
+  `isBusinessDay` se queda porque la usa el detalle día por día, que no calcula
+  el vencimiento. Es el caso testigo del problema: hasta el 17/8 deducía la feria
+  con una heurística propia distinta de la del motor, y **las dos estaban mal, en
+  años distintos, durante años**.
+
+**Cómo se probó que no se movió un número.** Antes de tocar nada se capturó la
+salida de las pantallas: 12 casos de `vencimientos` y 6 de `mora` —éstos con la
+línea de tiempo entera, no sólo la fecha final—. Después de migrar, los mismos
+casos: **12 de 12 y 6 de 6 idénticos.**
+
+**Y en el medio se pisó la trampa del caché**, que ya estaba anotada para los
+iframes del tablero y vale igual acá: la primera corrida dio 12 de 12 **contra el
+archivo viejo**, porque el servidor estático no manda `no-cache`. Salió a la luz
+sólo porque el dibujo no aparecía. Una comparación cacheada da verde siempre:
+**toda medición contra el sitio servido va con rompe-caché.**
+
+**Lo que falta de esto:** `caducidad`, `entre-fechas` y `regresiva` siguen con su
+aritmética adentro. `plazos.js` todavía no las cubre, así que migrarlas pide
+primero extraerlas, con el mismo método —capturar la salida, extraer, comparar—.
 
 ---
 
@@ -367,10 +421,11 @@ UTC— y `mora.html` usa `new Date(y, m, d)` con `setHours(0,0,0,0)` —medianoc
 local—. **No se unificaron**, y están las dos en el archivo con el comentario de
 por qué: unificarlas es elegante y mueve un número de algún lado.
 
-**Las calculadoras no se tocaron, y eso es la prueba.** `git diff` sobre
-`calculadoras/*.html` quedó vacío. Siguen siendo el motor legacy publicado y
-**valen como referencia**: si el motor extraído y una pantalla discrepan en un
-número, el que está mal es el motor extraído. Decisión de Javier, 25/8.
+**El 25/8 las calculadoras no se tocaron, y sirvieron de referencia. El 26/8
+pasaron a consumir el motor.** Esa segunda mitad es la que importa: mientras las
+pantallas tenían su copia, había **dos implementaciones vivas** de una cuenta
+que puede hacer perder un derecho, y dos copias no se mantienen iguales solas.
+El estado del 25/8 era la transición, no el destino. Ver [la migración](#las-pantallas-consumen-el-motor--268).
 
 **`npm run verificar-plazos`**, 34 comprobaciones, corre en Node. Lleva como
 regresión el caso con el que el hermano pidió esto —notificación 18/6/2026, diez

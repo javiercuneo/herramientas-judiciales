@@ -244,40 +244,93 @@
             color: #721c24;
         }
         
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            margin-top: 20px;
+        /* ------------------------------------------------------------------
+           El plazo dibujado. Hasta el 26/8 aca habia CSS de calendario escrito
+           y nunca usado --nada del markup ni del JS producia un .calendar--, y
+           encima con colores planos (#d4edda, #f8d7da) que el sistema visual no
+           usa. Se reemplazo entero por la grilla que si se dibuja.
+           ------------------------------------------------------------------ */
+        .meses {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            justify-content: center;
+            margin-top: 16px;
         }
-        
-        .calendar-day {
+
+        .mes { width: 240px; }
+
+        .mes h4 {
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 8px;
+            color: var(--fg);
+        }
+
+        .grilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+
+        .encabezado-dia {
+            font-size: 10px;
+            text-align: center;
+            color: var(--faint);
+            font-weight: 600;
+            padding-bottom: 4px;
+        }
+
+        .celda {
             aspect-ratio: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
-            font-size: 11px;
+            border-radius: var(--radius);
+            font-size: 12px;
             font-weight: 600;
+            border: 1px solid transparent;
+            color: var(--muted-fg);
         }
-        
-        .calendar-header {
-            background: var(--accent);
-            color: var(--on-accent);
+
+        .celda.vacio { visibility: hidden; }
+        .celda.fuera { color: var(--faint); font-weight: 400; }
+
+        /* Fin de semana: se atenua, no se marca. Es lo esperable. */
+        .celda.finde { background: var(--sunk); color: var(--faint); font-weight: 400; }
+
+        /* Lo que decidio un ACTO --feria, feriado, asueto--. El ambar va en el
+           fondo y el borde, y el numero en --fg: la primera version ponia el
+           numero en --warn sobre --warn-tint, que en tema claro da 4,24 y
+           reprueba AA a 12 px. En oscuro pasaba, que es como este error
+           sobrevive. */
+        .celda.acto {
+            background: var(--warn-tint);
+            border-color: var(--warn);
+            color: var(--fg);
         }
-        
-        .calendar-day.counted {
-            background: #d4edda;
-            color: #155724;
+
+        .celda.contado { background: var(--accent-tint); color: var(--accent); }
+        .celda.notificacion { border-color: var(--accent); color: var(--accent); }
+        .celda.vence { background: var(--accent); color: var(--on-accent); }
+        .celda .orden { font-size: 8px; line-height: 1; opacity: 0.75; }
+
+        .referencias {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            justify-content: center;
+            margin-top: 18px;
+            font-size: 12px;
+            color: var(--muted-fg);
         }
-        
-        .calendar-day.ignored {
-            background: #f8d7da;
-            color: #721c24;
+        .referencias span { display: flex; align-items: center; gap: 6px; }
+        .muestra {
+            width: 14px; height: 14px;
+            border-radius: 3px;
+            border: 1px solid transparent;
+            display: inline-block;
         }
-        
-        .calendar-day.empty {
-            background: transparent;
+
+        @media (max-width: 640px) {
+            .mes { width: 100%; max-width: 280px; }
         }
         
         .report-error {
@@ -386,26 +439,8 @@
             <label for="ampliacion">Ampliación por distancia, en días (art. 158 CPCCN) — opcional</label>
             <input type="text" id="ampliacion" placeholder="0" pattern="[0-9]*" inputmode="numeric">
             <div class="error" id="errorAmpliacion">La ampliación tiene que ser un número de días de 0 en adelante.</div>
-            <p class="hint" style="margin-top:6px">
-                Corresponde cuando la diligencia debe practicarse fuera del lugar
-                del asiento del juzgado, que en la práctica es la cédula al
-                <strong>domicilio real</strong>: la que va al constituido se
-                diligencia dentro del radio (art. 40 CPCCN) y no amplía nada.
-                Un día por cada 200 km, más uno si la fracción restante llega a 100.
-                Si no sabés cuántos días son, la
-                <a href="distancia.html">calculadora de ampliación por distancia</a>
-                los calcula a partir de las dos localidades.
-            </p>
         </div>
 
-        <div class="form-section" id="avisoSinAmpliacion" style="display: none;">
-            <p class="hint">
-                La ampliación por distancia (art. 158 CPCCN) no se ofrece con
-                notificación automática: la resolución queda notificada en el
-                tribunal los días de nota, así que no hay diligencia fuera del
-                asiento del juzgado que ampliar.
-            </p>
-        </div>
 
         <div class="buttons">
             <button class="btn-calculate" id="btnCalcular">Calcular Plazo</button>
@@ -423,6 +458,7 @@
       </div>
     </div>
 <script src="js/calendario-judicial.js"></script>
+<script src="js/plazos.js"></script>
 <script>
     let datosCargados = false;
 
@@ -466,18 +502,10 @@
     })();
 
     // --- FUNCIONES PARA NOTA DE ASISTENCIA ---
+    // Delega en el motor. Antes esta funcion tenia su propia copia del
+    // recorrido de dias de nota; ahora hay una sola, en js/plazos.js.
     function proximoDiaDeNota(fecha) {
-        let siguiente = new Date(fecha);
-        siguiente.setDate(siguiente.getDate() + 1);
-        while (true) {
-            const diaSemana = siguiente.getDay();
-            if (diaSemana === 2 || diaSemana === 5) {
-                if (CalendarioJudicial.esDiaHabil(siguiente)) {
-                    return siguiente;
-                }
-            }
-            siguiente.setDate(siguiente.getDate() + 1);
-        }
+        return Plazos.proximoDiaDeNota(fecha);
     }
 
     function generarNuevoParNotas() {
@@ -550,29 +578,10 @@
         }
     }
 
+    // Delega en el motor, por lo mismo: la tabla de saltos por dia de la
+    // semana vivia aca y ahora vive en js/plazos.js, una sola vez.
     function calcularNotificacionAutomatica(fechaFirma) {
-        const dia = fechaFirma.getDay();
-        let diasHastaNotificacion = 0;
-        if (dia === 0) diasHastaNotificacion = 2;
-        else if (dia === 1) diasHastaNotificacion = 1;
-        else if (dia === 2) diasHastaNotificacion = 3;
-        else if (dia === 3) diasHastaNotificacion = 2;
-        else if (dia === 4) diasHastaNotificacion = 1;
-        else if (dia === 5) diasHastaNotificacion = 4;
-        else if (dia === 6) diasHastaNotificacion = 3;
-
-        let fechaNotificacion = new Date(fechaFirma);
-        fechaNotificacion.setDate(fechaNotificacion.getDate() + diasHastaNotificacion);
-
-        while (!CalendarioJudicial.esDiaHabil(fechaNotificacion)) {
-            const diaActual = fechaNotificacion.getDay();
-            if (diaActual === 2) {
-                fechaNotificacion.setDate(fechaNotificacion.getDate() + 3);
-            } else {
-                fechaNotificacion.setDate(fechaNotificacion.getDate() + 4);
-            }
-        }
-        return fechaNotificacion;
+        return Plazos.notificacionAutomatica(fechaFirma);
     }
 
     function formatearFecha(fecha) {
@@ -651,105 +660,71 @@
         // que este calculo llegue a tocar. Se consulta antes de mostrar el
         // resultado: sin la Acordada, julio se contaria como habil y el plazo
         // venceria antes de lo que vence.
-        CalendarioJudicial.reiniciarAuditoria();
-
-        const fechaIngresada = new Date(Date.UTC(parseInt(anio), parseInt(mes) - 1, parseInt(dia), 12));
-        let fechaInicioConteo;
-        let fechaNotificacion;
-
-        if (modalidad === 'cedula') {
-            // Una sola regla, y sale de que los dos supuestos son el mismo: la
-            // cedula se tiene por practicada el primer dia habil a partir del
-            // momento en que se diligencio, y el plazo corre desde el habil
-            // siguiente a ese.
-            //
-            //   dia habil + hora habil    -> practicada ese dia   (un salto)
-            //   dia habil + fuera de hora -> practicada el habil siguiente
-            //   dia INHABIL, a cualquier hora -> idem
-            //
-            // Los dos ultimos NO se acumulan: un sabado a las 23 hs. suma un
-            // dia, no dos. Por eso la condicion es una sola y no dos sumandos.
-            //
-            // Hasta el 17/8/2026 el desplegable ofrecia "dia y hora habil" y
-            // "dia y hora inhabil", y el usuario elegia las dos cosas juntas
-            // sin manera de saber que el dia tambien contaba: elegir "habil"
-            // un sabado devolvia el vencimiento UN DIA ANTES. Que el dia sea
-            // habil lo sabe el programa; la hora es lo unico que hay que
-            // preguntar, y solo cuando el dia es habil.
-            var horaHabil = !document.getElementById('fueraDeHorario').checked;
-            var practicada = (CalendarioJudicial.esDiaHabil(fechaIngresada) && horaHabil)
-                ? fechaIngresada
-                : CalendarioJudicial.siguienteDiaHabil(fechaIngresada);
-
-            fechaNotificacion = practicada;
-            fechaInicioConteo = CalendarioJudicial.siguienteDiaHabil(practicada);
-        } else {
-            fechaNotificacion = calcularNotificacionAutomatica(fechaIngresada);
-
-            const checkNota = document.getElementById('checkNotaAsistencia');
-            if (checkNota.checked) {
-                const notasDejadas = Array.from(document.querySelectorAll('.nota-checkbox:checked')).map(function(cb) {
-                    return new Date(cb.dataset.fecha);
-                });
-                while (notasDejadas.some(function(nota) {
-                    return nota.toISOString().split('T')[0] === fechaNotificacion.toISOString().split('T')[0];
-                })) {
-                    fechaNotificacion = proximoDiaDeNota(fechaNotificacion);
-                }
-            }
-            fechaInicioConteo = CalendarioJudicial.siguienteDiaHabil(fechaNotificacion);
+        // ------------------------------------------------------------------
+        // EL COMPUTO NO SE HACE ACA. Sale de js/plazos.js, el mismo motor que
+        // consultan el conector HTTP y el MCP.
+        //
+        // Hasta el 26/8/2026 esta funcion tenia la aritmetica adentro --el
+        // salto de gracia, la notificacion automatica, el conteo-- y plazos.js
+        // era una transcripcion de ella. Eso dejaba DOS implementaciones vivas
+        // de una cuenta que puede hacer perder un derecho, y dos copias de un
+        // computo se desincronizan: ya paso con la feria de invierno, deducida
+        // con dos heuristicas distintas en dos pantallas, cada una mal en anios
+        // distintos. Ahora hay una sola, y esta pantalla la consume.
+        //
+        // Lo que quedo aca es lo que le corresponde a una pantalla: leer el
+        // formulario, validar, y mostrar.
+        // ------------------------------------------------------------------
+        var notasDejadas = [];
+        if (modalidad === 'automatica' && document.getElementById('checkNotaAsistencia').checked) {
+            notasDejadas = Array.from(document.querySelectorAll('.nota-checkbox:checked'))
+                .map(function (cb) { return cb.dataset.fecha; });
         }
 
-        let diasContados = 0;
-        let fechaActual = new Date(fechaInicioConteo);
-        fechaActual.setDate(fechaActual.getDate() - 1);
-
-        while (diasContados < plazoTotal) {
-            fechaActual.setDate(fechaActual.getDate() + 1);
-            if (CalendarioJudicial.esDiaHabil(fechaActual)) {
-                diasContados++;
-            }
-        }
-
-        const fechaVencimientoSinGracia = new Date(fechaActual);
-        const fechaVencimientoConGracia = CalendarioJudicial.siguienteDiaHabil(fechaVencimientoSinGracia);
-
-        const diasIgnorados = [];
-        let fechaRegistro = new Date(fechaIngresada);
-
-        while (fechaRegistro.getTime() <= fechaVencimientoConGracia.getTime()) {
-            if (!CalendarioJudicial.esDiaHabil(fechaRegistro)) {
-                const motivo = CalendarioJudicial.obtenerMotivoInhabil(fechaRegistro);
-                const fechaRegistroStr = fechaRegistro.toISOString().split('T')[0];
-                if (!diasIgnorados.some(function(d) { return d.fecha.toISOString().split('T')[0] === fechaRegistroStr; })) {
-                    diasIgnorados.push({
-                        fecha: new Date(fechaRegistro),
-                        motivo: motivo
-                    });
-                }
-            }
-            fechaRegistro.setDate(fechaRegistro.getDate() + 1);
-        }
-
-        mostrarResultados({
+        var r = Plazos.vencimiento({
             modalidad: modalidad,
-            fechaIngresada: new Date(parseInt(anio), parseInt(mes) - 1, parseInt(dia)),
-            fechaNotificacion: fechaNotificacion,
-            fechaInicioConteo: fechaInicioConteo,
+            anio: anio, mes: mes, dia: dia,
             plazo: plazo,
             ampliacion: ampliacion,
-            plazoTotal: plazoTotal,
-            diaEraHabil: CalendarioJudicial.esDiaHabil(fechaIngresada),
-            motivoInhabil: CalendarioJudicial.obtenerMotivoInhabil(fechaIngresada),
             fueraDeHorario: document.getElementById('fueraDeHorario').checked,
-            fechaVencimientoConGracia: fechaVencimientoConGracia,
-            fechaVencimientoSinGracia: fechaVencimientoSinGracia,
-            diasIgnorados: diasIgnorados
+            notasDejadas: notasDejadas
+        });
+
+        mostrarResultados({
+            problema: r.problema,
+            modalidad: r.modalidad,
+            fechaIngresada: new Date(parseInt(anio), parseInt(mes) - 1, parseInt(dia)),
+            fechaNotificacion: r.fechaNotificacion,
+            fechaInicioConteo: r.fechaInicioConteo,
+            plazo: r.plazo,
+            ampliacion: r.ampliacion,
+            plazoTotal: r.plazoTotal,
+            diaEraHabil: r.diaEraHabil,
+            motivoInhabil: r.motivoInhabil,
+            fueraDeHorario: r.fueraDeHorario,
+            fechaVencimientoConGracia: r.vencimiento,
+            fechaVencimientoSinGracia: r.vencimientoSinGracia,
+            diasContados: r.diasContados,
+            diasIgnorados: r.diasSalteados.map(function (d) {
+                return { fecha: d.fecha, ymd: d.ymd, motivo: d.motivo };
+            })
         });
     }
 
     function mostrarResultados(datos) {
         const resultsDiv = document.getElementById('results');
+
+        // Sin datos completos no se afirma una fecha, y tampoco se dibuja nada.
+        // Un calendario dibujado con un mes mal contado es MAS convincente que
+        // una fecha suelta, asi que es peor.
+        if (datos.problema) {
+            resultsDiv.innerHTML = '<div class="report-error"><p><strong>No se puede calcular.</strong> ' +
+                '<span id="motivoSinDatos"></span></p></div>';
+            document.getElementById('motivoSinDatos').textContent = datos.problema;
+            resultsDiv.classList.add('show');
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            return;
+        }
 
         var html = '';
         html += '<div class="vencimiento">';
@@ -801,7 +776,7 @@
             html += '</div></div>';
         }
 
-        var problema = CalendarioJudicial.problemaDeDatos();
+        var problema = datos.problema;
         if (problema) {
             resultsDiv.innerHTML = '<div class="report-error"><p><strong>No se puede calcular.</strong> ' +
                 '<span id="motivoSinDatos"></span></p></div>';
@@ -811,6 +786,8 @@
             return;
         }
 
+        html += dibujarPlazo(datos);
+
         html += '<div class="report-error">';
         html += '<p><strong>Reportar error:</strong> Si crees que ha habido un error, por favor envianos un email a ';
         html += '<a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo que salio mal.</p>';
@@ -819,6 +796,97 @@
         resultsDiv.innerHTML = html;
         resultsDiv.classList.add('show');
         resultsDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ----------------------------------------------------------------------
+    // El plazo dibujado sobre el calendario.
+    //
+    // Se arma de los tramos que devuelve el motor --diasContados y
+    // diasSalteados, cada uno con su motivo-- y NO recorre el calendario por
+    // las suyas. Si la grilla y el computo pudieran discrepar, la grilla
+    // mentiria con la autoridad que tiene un dibujo.
+    //
+    // Lo que agrega sobre la fecha suelta: donde cayo la feria, cuantos fines
+    // de semana se comio el plazo, que tan cerca quedo de un asueto.
+    // ----------------------------------------------------------------------
+    var INICIALES_DIA = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+    var NOMBRES_MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                       'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+    function claveUTC(fecha) { return fecha.toISOString().split('T')[0]; }
+
+    function dibujarPlazo(datos) {
+        var contados = {};
+        datos.diasContados.forEach(function (f, i) { contados[claveUTC(f)] = i + 1; });
+
+        var salteados = {};
+        datos.diasIgnorados.forEach(function (d) { salteados[d.ymd || claveUTC(d.fecha)] = d.motivo; });
+
+        var claveNotificacion = claveUTC(datos.fechaNotificacion);
+        var claveVence = claveUTC(datos.fechaVencimientoConGracia);
+
+        var desde = datos.fechaNotificacion;
+        var hasta = datos.fechaVencimientoConGracia;
+        var anio = desde.getUTCFullYear();
+        var mes = desde.getUTCMonth();
+
+        var html = '<div class="result-item"><h3>El plazo, dibujado</h3><div class="meses">';
+
+        while (anio < hasta.getUTCFullYear() || (anio === hasta.getUTCFullYear() && mes <= hasta.getUTCMonth())) {
+            html += mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence);
+            mes++;
+            if (mes > 11) { mes = 0; anio++; }
+        }
+
+        html += '</div>';
+        html += '<div class="referencias">';
+        html += '<span><i class="muestra" style="border-color:var(--accent)"></i> notificación</span>';
+        html += '<span><i class="muestra" style="background:var(--accent-tint)"></i> día contado</span>';
+        html += '<span><i class="muestra" style="background:var(--accent)"></i> vencimiento</span>';
+        html += '<span><i class="muestra" style="background:var(--sunk)"></i> fin de semana</span>';
+        html += '<span><i class="muestra" style="background:var(--warn-tint);border-color:var(--warn)"></i> feria, feriado o asueto</span>';
+        html += '</div></div>';
+        return html;
+    }
+
+    function mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence) {
+        var html = '<div class="mes"><h4>' + NOMBRES_MES[mes] + ' de ' + anio + '</h4><div class="grilla">';
+
+        INICIALES_DIA.forEach(function (letra) {
+            html += '<div class="encabezado-dia" aria-hidden="true">' + letra + '</div>';
+        });
+
+        var arranque = new Date(Date.UTC(anio, mes, 1, 12)).getUTCDay();
+        for (var v = 0; v < arranque; v++) html += '<div class="celda vacio"></div>';
+
+        var ultimo = new Date(Date.UTC(anio, mes + 1, 0, 12)).getUTCDate();
+        for (var d = 1; d <= ultimo; d++) {
+            var clave = claveUTC(new Date(Date.UTC(anio, mes, d, 12)));
+            var clases = 'celda';
+            var titulo = d + ' de ' + NOMBRES_MES[mes];
+            var orden = '';
+
+            if (salteados[clave]) {
+                clases += (salteados[clave] === 'Fin de semana') ? ' finde' : ' acto';
+                titulo += ' — ' + salteados[clave];
+            } else if (contados[clave]) {
+                clases += ' contado';
+                orden = '<span class="orden">' + contados[clave] + '</span>';
+                titulo += ' — día ' + contados[clave] + ' del plazo';
+            } else {
+                clases += ' fuera';
+            }
+
+            if (clave === claveNotificacion) { clases += ' notificacion'; titulo += ' — notificación'; }
+            if (clave === claveVence) {
+                clases = clases.replace(' contado', '').replace(' fuera', '') + ' vence';
+                titulo += ' — vencimiento';
+            }
+
+            html += '<div class="' + clases + '" title="' + titulo + '"><span>' + d + '</span>' + orden + '</div>';
+        }
+
+        return html + '</div></div>';
     }
 
     // El resultado dice cómo quedó resuelto el día y la hora, porque son lo
@@ -932,7 +1000,6 @@
     function actualizarSeccionAmpliacion() {
         var esCedula = document.getElementById('modalidad').value === 'cedula';
         document.getElementById('seccionAmpliacion').style.display = esCedula ? 'block' : 'none';
-        document.getElementById('avisoSinAmpliacion').style.display = esCedula ? 'none' : 'block';
 
         // El valor se limpia al ocultar. Dejarlo escrito abajo de una seccion
         // invisible es la peor variante: el usuario cargo 3, cambio de

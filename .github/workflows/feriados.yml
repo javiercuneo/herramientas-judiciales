@@ -1,0 +1,105 @@
+# ------------------------------------------------------------------
+# Trae los feriados nacionales y los commitea si cambiaron.
+#
+# Por que existe. data/feriados.json se actualizaba a mano, con
+# `npm run feriados`, y nadie avisaba cuando se quedaba corto. El dia
+# que el archivo no llega al anio que alguien computa, la calculadora
+# no calcula: dice que anio falta y no afirma una fecha. Eso esta bien
+# --es preferible a inventarla-- pero deja la herramienta muerta hasta
+# que alguien se acuerde de correr el script.
+#
+# Y la guarda de los feriados es GRUESA, a diferencia de la de la
+# feria. Un anio sin feria cargada solo bloquea los computos que caen
+# en julio o agosto; un anio sin feriados bloquea el anio ENTERO,
+# porque un feriado puede caer en cualquier mes. O sea que lo que un
+# dia va a congelar las calculadoras no es la Acordada de la feria
+# --que la Corte dicta en abril o junio y no se puede tener antes--
+# sino este archivo quedandose corto. Eso si se puede evitar solo.
+#
+# La cadencia es mensual y no diaria como la de la UMA en Honorio, y
+# es a proposito: los feriados nacionales salen una vez al anio, no
+# todos los meses. Doce pasadas al anio alcanzan de sobra para que el
+# archivo nunca este mas de un mes atrasado sobre un dato que cambia
+# una vez.
+#
+# El script pide de 2021 hasta el anio en curso mas uno, asi que el
+# archivo siempre va un anio adelante y nadie se topa con el limite.
+#
+# CONSECUENCIA CONOCIDA, para que no sorprenda: `actualizar-feriados`
+# aborta entero si un anio no se puede leer, y eso incluye el anio
+# siguiente cuando la API todavia no lo publico. En los primeros meses
+# de cada anio este workflow puede fallar por ese motivo y no por un
+# problema real. El modo de falla es el correcto --no escribe medio
+# archivo-- pero la alarma es indistinguible de una de verdad. Si
+# empieza a molestar, lo que hay que cambiar es el script, para que
+# distinga "el anio que viene todavia no existe" de "la API no
+# contesta", y no este archivo.
+#
+# El push a main dispara Deploy Pages, asi que el sitio queda con los
+# feriados nuevos sin que nadie toque nada.
+#
+# El disparo manual queda y es el camino cuando hay apuro: Actions ->
+# "Feriados nacionales" -> "Run workflow".
+# ------------------------------------------------------------------
+name: Feriados nacionales
+
+on:
+  schedule:
+    - cron: '0 11 1 * *' # el dia 1 de cada mes, 08:00 en Buenos Aires
+  workflow_dispatch:
+
+# El workflow entero arranca en solo lectura, y el permiso de escritura
+# --que es lo que necesita el `git push`-- se declara SOLO en el job que
+# lo usa. Es una linea de mas y vale la pena: si manana se agrega un
+# segundo job, no hereda el permiso sin que nadie lo decida.
+permissions:
+  contents: read
+
+concurrency:
+  group: feriados
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Las versiones van alineadas con pages.yml, y no son cosmetica:
+      # de la v5 en adelante las acciones declaran node24, que es lo que
+      # Actions ejecuta. El porque completo esta en pages.yml.
+      - uses: actions/checkout@v7
+
+      # No hace falta `npm ci`: los dos verificadores y el script de
+      # feriados usan solo modulos de Node. La unica dependencia del
+      # repositorio, marked, es de `npm run docs`.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Traer los feriados de la API
+        run: node scripts/actualizar-feriados.mjs
+
+      # El banco de pruebas corre DESPUES de escribir el archivo y
+      # ANTES de commitear. Si la API trajo algo que rompe un computo
+      # --un anio incompleto que igual paso los controles del script,
+      # un feriado que se movio-- el workflow falla y el archivo malo
+      # no llega al repositorio. Sin este paso el cron seria un canal
+      # automatico desde una API de un tercero hasta las fechas que la
+      # herramienta afirma.
+      - name: Verificar que los calculos siguen dando
+        run: |
+          npm run verificar-calculos
+          npm run verificar-plazos
+
+      - name: Commitear si cambio
+        run: |
+          if git diff --quiet -- data/feriados.json; then
+            echo "Sin cambios."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/feriados.json
+          git commit -m "chore(datos): actualizar los feriados nacionales"
+          git push

@@ -291,6 +291,7 @@ button {
     </div>
 
     <script src="js/calendario-judicial.js"></script>
+    <script src="js/plazos.js"></script>
     <script>
         // Hasta el 17/8/2026 este archivo tenia su propia copia de la logica de
         // dias inhabiles, y no era solo duplicacion: divergia de las otras
@@ -312,16 +313,23 @@ button {
 
         function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x }
 
-        // La aritmetica de mora, intacta. `nextBusinessDayStrict` mas el
-        // conteo inclusivo de `countBusinessDaysFrom` equivalen a: un salto de
-        // dia habil si la notificacion cae habil, y dos si cae inhabil —la
-        // notificacion se tiene por hecha el habil siguiente y el plazo corre
-        // desde el dia despues—. Se dejo escrito asi y no simplificado para
-        // que el refactor no pudiera mover el resultado.
+        // LA ARITMETICA DE MORA YA NO VIVE ACA. Desde el 26/8/2026 sale de
+        // js/plazos.js, el mismo motor que usan vencimientos.html y los
+        // conectores. Estaba escrita en cuatro funciones deliberadamente sin
+        // simplificar --nextBusinessDayStrict mas el conteo inclusivo de
+        // countBusinessDaysFrom equivalen a un salto de dia habil si la
+        // notificacion cae habil y dos si cae inhabil-- y se movieron tal cual,
+        // sin tocarlas: alla siguen las cuatro y con el mismo comentario.
+        //
+        // Por que se movieron. Esta pantalla es el caso testigo del problema:
+        // hasta el 17/8 deducia la feria de invierno con una heuristica propia
+        // --el tercer lunes de julio-- distinta de la del motor compartido --el
+        // penultimo--, y las dos estaban mal, en anios distintos, durante anios.
+        // Dos copias de un computo no se mantienen iguales solas.
+        //
+        // isBusinessDay se queda porque la usa el trace de abajo, que recorre
+        // dia por dia para mostrar el detalle. No calcula el vencimiento.
         function isBusinessDay(date) { return CalendarioJudicial.esDiaHabil(date) }
-        function nextBusinessDay(date) { let d = new Date(date); d.setHours(0, 0, 0, 0); while (!isBusinessDay(d)) d = addDays(d, 1); return d }
-        function nextBusinessDayStrict(date) { const effective = isBusinessDay(date) ? date : nextBusinessDay(date); return addDays(effective, 1) }
-        function countBusinessDaysFrom(startDate, days) { let counted = 0; let cursor = new Date(startDate); cursor.setHours(0, 0, 0, 0); while (counted < days) { if (isBusinessDay(cursor)) counted++; if (counted >= days) break; cursor = addDays(cursor, 1); } return { lastCountedDay: cursor } }
 
         // UI wiring
         document.getElementById('anioRange').textContent = `${MIN_YEAR} - ${MAX_YEAR}`;
@@ -375,26 +383,31 @@ button {
                 return;
             }
 
-            // El motor anota los años sin feria o fuera de cobertura que el
-            // cómputo llegue a tocar. Se pregunta después de calcular.
-            CalendarioJudicial.reiniciarAuditoria();
+            // La auditoría de años faltantes la reinicia y la consulta el
+            // propio Plazos.mora(): viene en `r.problema`. Acá había una
+            // llamada suelta a reiniciarAuditoria() que ahora sería redundante,
+            // y una redundante es peor que ninguna: invita a creer que el
+            // control se hace acá cuando se hace adentro del motor.
 
-            // Compute start: primer día efectivamente contado = día hábil siguiente al de la notificación
-            const startBiz = nextBusinessDayStrict(notif);
+            // El computo entero, en una llamada al motor. El tramo de habiles
+            // --cuando queda firme-- y el de corridos --cuando hay mora-- son
+            // dos cosas distintas y el motor las devuelve por separado.
+            const r = Plazos.mora({
+                anio: dy, mes: dm, dia: dd,
+                diasHabiles: diasHabiles,
+                diasCorridos: pagosCorridos
+            });
 
-            // Count diasHabiles business days starting from startBiz inclusive
-            const { lastCountedDay: lastBiz } = countBusinessDaysFrom(startBiz, diasHabiles);
-
-            // After lastBiz, count pagosCorridos days corridos. Counting starts the day after lastBiz
-            const startCorr = addDays(lastBiz, 1);
-            const endCorr = addDays(startCorr, pagosCorridos - 1); // inclusive count of pagosCorridos days
-
-            const vencimientoDate = endCorr; // time is end of day (24:00)
+            const startBiz = r.inicioHabiles;
+            const lastBiz = r.firme;
+            const startCorr = r.inicioCorridos;
+            const endCorr = r.vencimiento;
+            const vencimientoDate = endCorr; // hasta las 24:00
 
             // El cómputo pudo cruzar un año sin Acordada de feria cargada, o
             // anterior a la ventana de cobertura. En los dos casos no se
             // afirma una fecha.
-            const problema = CalendarioJudicial.problemaDeDatos();
+            const problema = r.problema;
             if (problema) {
                 statusElem.innerHTML = '<strong>No se puede calcular.</strong> <span id="motivoSinDatos"></span>';
                 document.getElementById('motivoSinDatos').textContent = problema;
