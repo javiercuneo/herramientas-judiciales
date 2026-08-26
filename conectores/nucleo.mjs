@@ -60,8 +60,9 @@ async function cargar() {
 
 // Los anios que un computo puede llegar a tocar. Se pide de sobra a proposito:
 // que un anio no este cargado NO es motivo para no calcular --quiza el computo
-// no llegue nunca ahi-- y lo que toque de verdad lo detecta la auditoria del
-// motor, que da un motivo preciso. Es el mismo criterio de mora.html.
+// no llegue nunca ahi-- y lo que el computo toque realmente lo detecta la
+// auditoria del motor, que da un motivo preciso. Es el mismo criterio de
+// mora.html.
 function ventanaDeAnios(anio) {
     const desde = Math.min(COBERTURA_DESDE, Number(anio) - 1);
     const hasta = Math.max(new Date().getFullYear(), Number(anio)) + 2;

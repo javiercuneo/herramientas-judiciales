@@ -329,7 +329,7 @@ y la notificación automática siempre cae en martes o viernes hábil.
 
 **Lo que todavía NO cubre:** la comparación pantalla contra motor. Ese cruce va
 en `scripts/pruebas-calculadoras.html`, que es el único que puede manejar las
-calculadoras de verdad, y es el próximo paso. Hasta que exista, lo que sostiene
+calculadoras reales, y es el próximo paso. Hasta que exista, lo que sostiene
 la extracción es la transcripción leída y los 34 casos, no una corrida contra la
 pantalla.
 
