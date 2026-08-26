@@ -8,263 +8,345 @@
     <link rel="stylesheet" href="css/comun.css">
     <script src="../assets/tema.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        /* ==================================================================
+           Sistema visual: el de todo el sitio --cobalto como unico acento,
+           Archivo para lo que se mide, tokens de comun.css--. Lo que cambio
+           el 26/8 es la DENSIDAD y la jerarquia, no la paleta.
+
+           Que estaba mal. Todo era un bloque a ancho completo, apilado: el
+           selector de modalidad ocupaba 820 px para decir "Por cedula", y
+           tres campos de dos digitos ocupaban lo mismo que el resultado. Sin
+           jerarquia el ojo no sabe donde empezar, y todo termina pesando lo
+           mismo: el dato que se carga y la respuesta por la que se abrio la
+           herramienta.
+
+           El criterio nuevo: CADA CONTROL OCUPA LO QUE MIDE SU CONTENIDO. Un
+           dia son dos digitos y entra en 4ch. La modalidad son dos opciones y
+           es un control segmentado, no un desplegable que esconde la mitad de
+           la eleccion detras de un clic. Lo unico grande es el vencimiento.
+           ================================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: var(--font-sans);
             background: var(--bg);
-            min-height: 100vh;
-            padding: 20px;
-            font-size: 14px;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--card);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid var(--border);
-        }
-        
-        h1 {
-            color: var(--accent);
-            margin-bottom: 10px;
-            font-size: 28px;
-            text-align: center;
-        }
-        
-        .years-available {
-            text-align: center;
-            color: var(--muted-fg);
-            margin-bottom: 30px;
-            font-size: 12px;
-            font-style: italic;
-        }
-        
-        .form-section {
-            margin-bottom: 30px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 10px;
             color: var(--fg);
-            font-weight: 600;
             font-size: 14px;
+            line-height: 1.5;
+            padding: 28px 20px 64px;
         }
-        
-        select, input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-family: var(--font-sans);
-            font-size: 14px;
-            transition: border-color 0.3s;
+
+        .hoja { max-width: 940px; margin: 0 auto; }
+
+        /* ---------------------------------------------------------- cabecera */
+        .cabecera {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 26px;
         }
-        
-        select:focus, input:focus {
-            outline: none;
-            border-color: var(--accent);
+
+        .cabecera h1 {
+            font-family: var(--font-meter);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
         }
-        
-        .date-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1.5fr;
-            gap: 10px;
+
+        .cabecera h1 span { color: var(--accent); }
+
+        /* --muted-fg y no --faint. Los dos textos que van sobre el fondo de la
+           pagina --este y el colofon-- son los unicos que no se apoyan en la
+           tarjeta, y ahi --faint da 4,30 en tema claro: reprueba AA para texto
+           chico. Sobre --card el mismo token da 5,14 y pasa. Es el bug abierto
+           de --faint anotado en docs/ESTADO.md; arreglarlo de raiz toca trece
+           paginas, asi que aca se elige el token de al lado. */
+        .cobertura {
+            font-size: 12px;
+            color: var(--muted-fg);
+            max-width: 46ch;
+            text-align: right;
         }
-        
-        .date-inputs input {
-            text-align: center;
+
+        /* ------------------------------------------------------------ panel */
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px 24px;
         }
-        
-        .input-group {
+
+        .grupo { margin-bottom: 22px; }
+        .grupo:last-child { margin-bottom: 0; }
+
+        .rotulo {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin-bottom: 8px;
+        }
+
+        .segmentado {
+            display: inline-flex;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 3px;
+            background: var(--sunk);
+            gap: 3px;
+            max-width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .segmentado label {
+            position: relative;
             display: flex;
             flex-direction: column;
-        }
-        
-        .input-group small {
-            color: var(--faint);
-            margin-top: 5px;
-            font-size: 11px;
-        }
-        
-        /* --muted-fg y no --faint: este texto lleva un enlace y es la unica
-           explicacion del campo de ampliacion. --faint es para etiquetas, y
-           en tema claro todavia no llega a AA (ver docs/ESTADO.md). */
-        .hint {
+            gap: 1px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
             color: var(--muted-fg);
-            font-size: 12px;
-            line-height: 1.5;
-            margin: 0;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
         }
 
-        .error {
-            color: #e74c3c;
-            font-size: 12px;
-            margin-top: 5px;
-            display: none;
+        .segmentado label small {
+            font-size: 11px;
+            font-weight: 400;
+            opacity: 0.82;
         }
-        
-        .error.show {
-            display: block;
-        }
-        
-        input.invalid {
-            border-color: #e74c3c;
-        }
-        
-        .buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        
-        button {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-family: var(--font-sans);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-calculate {
+
+        .segmentado input { position: absolute; opacity: 0; pointer-events: none; }
+
+        .segmentado label:hover { color: var(--fg); }
+
+        .segmentado label.elegida {
             background: var(--accent);
             color: var(--on-accent);
         }
-        
-        .btn-calculate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgb(0 0 0 / 0.18);
+
+        .segmentado label:focus-within {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
         }
-        
-        .btn-reset {
-            background: var(--border);
-            color: var(--fg);
-        }
-        
-        .btn-reset:hover {
-            background: var(--border);
-        }
-        
-        .results {
-            margin-top: 40px;
-            padding: 30px;
-            background: var(--sunk);
-            border-radius: 12px;
-            display: none;
-        }
-        
-        .results.show {
-            display: block;
-        }
-        
-        .result-item {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: var(--card);
-            border-radius: 8px;
-            border-left: 4px solid var(--accent);
-        }
-        
-        .result-item h3 {
-            color: var(--accent);
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-        
-        .result-item p {
-            color: var(--muted-fg);
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        
-        .vencimiento {
-            background: var(--accent);
-            color: var(--on-accent);
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .vencimiento h2 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-        
-        .vencimiento .fecha {
-            font-size: 32px;
-            font-weight: 700;
-            margin: 10px 0;
-        }
-        
-        .warning {
-            background: var(--warn-tint);
-            border-left: 4px solid var(--warn);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        
-        .warning p {
-            color: var(--warn);
-            font-size: 13px;
-        }
-        
-        .dias-inhabiles {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .dia-inhabil {
-            padding: 8px;
-            margin-bottom: 5px;
-            background: var(--card);
-            border-radius: 4px;
-            font-size: 12px;
-            color: var(--muted-fg);
-        }
-        
-        .error-message {
-            background: #f8d7da;
-            border-left: 4px solid #e74c3c;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            color: #721c24;
-        }
-        
-        /* ------------------------------------------------------------------
-           El plazo dibujado. Hasta el 26/8 aca habia CSS de calendario escrito
-           y nunca usado --nada del markup ni del JS producia un .calendar--, y
-           encima con colores planos (#d4edda, #f8d7da) que el sistema visual no
-           usa. Se reemplazo entero por la grilla que si se dibuja.
-           ------------------------------------------------------------------ */
-        .meses {
+
+        /* -------------------------------------------------- campos numericos */
+        .campos {
             display: flex;
             flex-wrap: wrap;
-            gap: 24px;
-            justify-content: center;
-            margin-top: 16px;
+            gap: 22px 30px;
+            align-items: flex-start;
         }
 
-        .mes { width: 240px; }
+        .campo { display: flex; flex-direction: column; }
+
+        .trio { display: flex; gap: 6px; align-items: center; }
+
+        input[type="text"] {
+            font-family: var(--font-meter);
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            padding: 9px 6px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--fg);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+
+        input.mide-2 { width: 4.4ch; }
+        input.mide-3 { width: 5.6ch; }
+        input.mide-4 { width: 6.8ch; }
+
+        .separador { color: var(--faint); font-weight: 600; }
+
+        .pie-campo { font-size: 11px; color: var(--faint); margin-top: 6px; }
+
+        /* ------------------------------------------------------ casillas */
+        .casilla {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            font-size: 13px;
+            color: var(--muted-fg);
+            cursor: pointer;
+        }
+
+        .casilla input { width: 15px; height: 15px; margin-top: 2px; accent-color: var(--accent); flex: none; }
+
+        .nota-caja {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            background: var(--sunk);
+        }
+
+        .nota-fechas { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; }
+        .nota-fechas .casilla { font-size: 12px; }
+        .nota-par { display: contents; }
+
+        /* --------------------------------------------------------- avisos */
+        .apunte { font-size: 12px; color: var(--muted-fg); line-height: 1.5; }
+
+        .error { color: var(--error); font-size: 12px; margin-top: 6px; display: none; }
+        .error.show { display: block; }
+        input.invalid { border-color: var(--error); }
+
+        /* -------------------------------------------------------- acciones */
+        .acciones {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--hair);
+        }
+
+        button {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 9px;
+            padding: 11px 22px;
+            cursor: pointer;
+            transition: transform 0.12s, box-shadow 0.15s, background 0.15s, color 0.15s;
+        }
+
+        .btn-calcular {
+            background: var(--accent);
+            color: var(--on-accent);
+            box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+        }
+        .btn-calcular:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--accent-tint); }
+
+        .btn-suave {
+            background: transparent;
+            color: var(--muted-fg);
+            border: 1px solid var(--border);
+        }
+        .btn-suave:hover { color: var(--fg); background: var(--sunk); }
+
+        .btn-chico { padding: 7px 14px; font-size: 12.5px; }
+
+        /* --------------------------------------------------------- resultado */
+        .resultado { margin-top: 26px; display: none; }
+        .resultado.show { display: block; }
+
+        /* El unico elemento grande de la pagina: la respuesta por la que se
+           abrio la herramienta. */
+        .veredicto {
+            background: var(--accent);
+            color: var(--on-accent);
+            border-radius: 14px;
+            padding: 26px 28px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .veredicto .rotulo { color: inherit; opacity: 0.82; margin-bottom: 5px; }
+
+        .veredicto .fecha {
+            font-family: var(--font-meter);
+            font-size: clamp(26px, 5vw, 40px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+
+        .veredicto .hora { font-size: 13px; opacity: 0.86; margin-top: 7px; }
+
+        /* Ancho propio y no un resto: apretado al lado de una fecha de 40 px
+           se partia en cuatro lineas. Con flex-basis pide su lugar, y cuando no
+           entra baja entero en vez de deshilacharse. */
+        .veredicto .alterno {
+            flex: 0 1 300px;
+            min-width: 240px;
+            font-size: 12px;
+            opacity: 0.88;
+            text-align: right;
+            line-height: 1.5;
+        }
+        .veredicto .alterno b { font-family: var(--font-meter); }
+
+        /* Los datos del computo, en una tira. Antes eran tarjetas apiladas con
+           borde a la izquierda: seis bloques del mismo peso para seis datos que
+           no valen lo mismo. */
+        /* Grilla y no flex-wrap: con flex, cuatro datos de ancho minimo
+           entraban tres arriba y el cuarto solo abajo ocupando todo el ancho,
+           que le daba un peso que no tiene. Con auto-fit se reparten parejo:
+           cuatro, dos y dos, o uno por fila, segun entre. */
+        .tira {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1px;
+            margin-top: 1px;
+            background: var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .dato { background: var(--card); padding: 13px 16px; }
+
+        .dato .k {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--faint);
+        }
+
+        .dato .v {
+            font-family: var(--font-meter);
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .dato .n { font-size: 11.5px; color: var(--muted-fg); margin-top: 3px; }
+
+        /* --------------------------------------------------------- calendario */
+        .lienzo {
+            margin-top: 18px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .meses {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(212px, 1fr));
+            gap: 24px;
+        }
 
         .mes h4 {
-            font-size: 13px;
+            font-family: var(--font-meter);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
             text-align: center;
-            margin-bottom: 8px;
-            color: var(--fg);
+            color: var(--muted-fg);
+            margin-bottom: 10px;
         }
 
         .grilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
@@ -273,8 +355,8 @@
             font-size: 10px;
             text-align: center;
             color: var(--faint);
-            font-weight: 600;
-            padding-bottom: 4px;
+            font-weight: 700;
+            padding-bottom: 5px;
         }
 
         .celda {
@@ -283,24 +365,22 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: var(--radius);
+            border-radius: 7px;
+            font-family: var(--font-meter);
             font-size: 12px;
             font-weight: 600;
-            border: 1px solid transparent;
+            border: 1.5px solid transparent;
             color: var(--muted-fg);
         }
 
         .celda.vacio { visibility: hidden; }
         .celda.fuera { color: var(--faint); font-weight: 400; }
-
-        /* Fin de semana: se atenua, no se marca. Es lo esperable. */
         .celda.finde { background: var(--sunk); color: var(--faint); font-weight: 400; }
 
         /* Lo que decidio un ACTO --feria, feriado, asueto--. El ambar va en el
-           fondo y el borde, y el numero en --fg: la primera version ponia el
-           numero en --warn sobre --warn-tint, que en tema claro da 4,24 y
-           reprueba AA a 12 px. En oscuro pasaba, que es como este error
-           sobrevive. */
+           fondo y el borde y el numero en --fg: con el numero en --warn sobre
+           --warn-tint el contraste en tema claro da 4,24 y reprueba AA a 12 px.
+           En oscuro pasaba, que es como este error sobrevive. */
         .celda.acto {
             background: var(--warn-tint);
             border-color: var(--warn);
@@ -309,154 +389,202 @@
 
         .celda.contado { background: var(--accent-tint); color: var(--accent); }
         .celda.notificacion { border-color: var(--accent); color: var(--accent); }
-        .celda.vence { background: var(--accent); color: var(--on-accent); }
-        .celda .orden { font-size: 8px; line-height: 1; opacity: 0.75; }
+
+        /* La firma de la resolucion, en notificacion automatica. Es un evento
+           de otra naturaleza --no es el plazo, es lo que lo origina-- y por eso
+           lleva --ok, que es un token de estado del sistema y no un acento
+           nuevo. Va en el borde y no en el relleno para no competir con el
+           vencimiento, que es lo unico que se llena solido. */
+        .celda.firma { border-color: var(--ok); color: var(--ok); }
+
+        .celda.vence { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+        .celda .orden { font-size: 8px; line-height: 1; opacity: 0.7; font-weight: 400; }
 
         .referencias {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px 16px;
-            justify-content: center;
-            margin-top: 18px;
+            gap: 8px 18px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--hair);
             font-size: 12px;
             color: var(--muted-fg);
         }
-        .referencias span { display: flex; align-items: center; gap: 6px; }
+        .referencias span { display: flex; align-items: center; gap: 7px; }
         .muestra {
-            width: 14px; height: 14px;
-            border-radius: 3px;
-            border: 1px solid transparent;
+            width: 15px; height: 15px;
+            border-radius: 4px;
+            border: 1.5px solid transparent;
             display: inline-block;
+            flex: none;
         }
 
-        @media (max-width: 640px) {
-            .mes { width: 100%; max-width: 280px; }
+        /* Los dias que salteo un ACTO, con su motivo. Los fines de semana NO se
+           listan: el dibujo ya los muestra y nadie necesita que le digan que el
+           sabado no se cuenta. Lo que el dibujo NO puede decir es por que un
+           martes esta marcado, y eso es lo unico que se escribe. */
+        .motivos { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 16px; }
+
+        .motivo {
+            display: flex;
+            align-items: baseline;
+            gap: 7px;
+            background: var(--warn-tint);
+            border: 1px solid var(--warn);
+            border-radius: 999px;
+            padding: 4px 13px;
+            font-size: 12px;
+            color: var(--fg);
         }
-        
-        .report-error {
-            text-align: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: var(--sunk);
-            border-radius: 8px;
+        .motivo b { font-family: var(--font-meter); font-weight: 700; }
+        .motivo .cuenta { color: var(--muted-fg); }
+
+        .sin-datos {
+            background: var(--warn-tint);
+            border: 1px solid var(--warn);
+            border-left-width: 4px;
+            border-radius: 10px;
+            padding: 16px 18px;
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--fg);
         }
-        
-        .report-error a {
-            color: #1976d2;
-            text-decoration: none;
-            font-weight: 600;
+
+        .colofon {
+            margin-top: 26px;
+            font-size: 12px;
+            color: var(--muted-fg);
+            line-height: 1.6;
         }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            
-            .buttons {
-                grid-template-columns: 1fr;
-            }
-            
-            .date-inputs {
-                grid-template-columns: 1fr;
-            }
+        .colofon a { color: var(--accent); }
+        .colofon code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+
+        @media (max-width: 620px) {
+            body { padding: 20px 14px 48px; }
+            .panel, .lienzo { padding: 18px 16px; }
+            .cabecera { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .cobertura { text-align: left; }
+            .acciones { flex-direction: column; }
+            .segmentado { display: flex; width: 100%; }
+            .segmentado label { flex: 1 1 auto; align-items: center; text-align: center; white-space: normal; }
+            .veredicto { flex-direction: column; align-items: flex-start; }
+            .veredicto .alterno { text-align: left; max-width: none; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Calculadora de Plazos Judiciales</h1>
-        <div class="years-available" id="yearsAvailable">Cargando información de años disponibles...</div>
-        
-        <div class="form-section">
-            <label for="modalidad">Modalidad de Notificación</label>
-            <select id="modalidad">
-                <option value="cedula">Por cédula (art. 152 CPCCN)</option>
-                <option value="automatica">Notificación automática (art. 133 CPCCN)</option>
-            </select>
-        </div>
+    <div class="hoja">
+        <header class="cabecera">
+            <h1>Vencimiento de <span>plazos judiciales</span></h1>
+            <p class="cobertura" id="yearsAvailable">Cargando el calendario judicial…</p>
+        </header>
 
-        <!-- Si el día es inhábil, la hora no cambia nada y no se pregunta: la
-             cédula se tiene por practicada el hábil siguiente igual. Sólo se
-             pregunta cuando el día es hábil, que es cuando la hora decide. -->
-        <div class="form-section" id="seccionHorario" style="display: none;">
-            <div class="input-group" style="flex-direction: row; align-items: center;">
-                <input type="checkbox" id="fueraDeHorario" style="width: auto; margin-right: 10px; height: 16px;">
-                <label for="fueraDeHorario" style="margin-bottom: 0;">
+        <div class="panel">
+            <!-- Dos opciones no son un desplegable. Un desplegable esconde la
+                 mitad de la eleccion detras de un clic, y ademas se estiraba a
+                 ancho completo para decir "Por cedula". -->
+            <div class="grupo">
+                <span class="rotulo" id="rotuloModalidad">Modalidad de notificación</span>
+                <div class="segmentado" role="radiogroup" aria-labelledby="rotuloModalidad">
+                    <label class="elegida" data-valor="cedula">
+                        <input type="radio" name="modalidad" value="cedula" checked>
+                        Por cédula
+                        <small>art. 152 CPCCN</small>
+                    </label>
+                    <label data-valor="automatica">
+                        <input type="radio" name="modalidad" value="automatica">
+                        Automática
+                        <small>art. 133 CPCCN</small>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grupo">
+                <div class="campos">
+                    <div class="campo">
+                        <span class="rotulo" id="labelFecha">Fecha de la notificación</span>
+                        <div class="trio">
+                            <input type="text" id="dia" class="mide-2" placeholder="DD" maxlength="2" inputmode="numeric" aria-label="Día">
+                            <span class="separador">/</span>
+                            <input type="text" id="mes" class="mide-2" placeholder="MM" maxlength="2" inputmode="numeric" aria-label="Mes">
+                            <span class="separador">/</span>
+                            <input type="text" id="anio" class="mide-4" placeholder="AAAA" maxlength="4" inputmode="numeric" aria-label="Año">
+                        </div>
+                        <div class="error" id="errorFecha">Esa fecha no existe en el calendario.</div>
+                    </div>
+
+                    <div class="campo">
+                        <span class="rotulo">Plazo</span>
+                        <div class="trio">
+                            <input type="text" id="plazo" class="mide-3" placeholder="10" inputmode="numeric" aria-label="Plazo en días hábiles">
+                            <span class="pie-campo" style="margin-top:0">días hábiles</span>
+                        </div>
+                        <div class="error" id="errorPlazo">El plazo tiene que ser un número de días mayor que cero.</div>
+                    </div>
+
+                    <!-- La ampliacion se ofrece solo con cedula: con notificacion
+                         automatica la resolucion queda notificada en el tribunal
+                         y no hay diligencia fuera del asiento que ampliar
+                         (arts. 40, 41, 42 y 133 CPCCN). -->
+                    <div class="campo" id="seccionAmpliacion">
+                        <span class="rotulo">Ampliación por distancia</span>
+                        <div class="trio">
+                            <input type="text" id="ampliacion" class="mide-3" placeholder="0" inputmode="numeric" aria-label="Ampliación por distancia, en días">
+                            <span class="pie-campo" style="margin-top:0">días · art. 158</span>
+                        </div>
+                        <div class="error" id="errorAmpliacion">La ampliación tiene que ser un número de días de 0 en adelante.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Si el dia es inhabil la hora no cambia nada y no se pregunta: la
+                 cedula se tiene por practicada el habil siguiente igual. -->
+            <div class="grupo" id="seccionHorario" style="display: none;">
+                <label class="casilla">
+                    <input type="checkbox" id="fueraDeHorario">
                     Se diligenció fuera del horario hábil (después de las 20 o antes de las 7)
                 </label>
             </div>
-        </div>
 
-        <div class="form-section" id="avisoDiaInhabil" style="display: none;">
-            <p class="hint" id="textoDiaInhabil"></p>
-        </div>
-        
-        <div class="form-section" id="notaAsistenciaSection" style="display: none; border: 1px solid var(--border); padding: 15px; border-radius: 8px;">
-            <div class="input-group" style="flex-direction: row; align-items: center;">
-                <input type="checkbox" id="checkNotaAsistencia" style="width: auto; margin-right: 10px; height: 16px;">
-                <label for="checkNotaAsistencia" style="margin-bottom: 0;">Se dejó Nota en el Libro de Asistencia (Art. 133 CPCCN)</label>
-            </div>
-            <div class="error" id="errorNotaAsistencia" style="margin-top: 10px; font-weight: 600;">
-                Debe seleccionar una fecha de inicio (firma de la resolución) para calcular los días de nota.
+            <div class="grupo" id="avisoDiaInhabil" style="display: none;">
+                <p class="apunte" id="textoDiaInhabil"></p>
             </div>
 
-            <div id="diasNotaContainer" style="margin-top: 15px;">
-                </div>
-            
-            <button class="btn-reset" id="btnAddDiasNota" style="display: none; margin-top: 10px; padding: 8px 15px; font-size: 14px;">
-                + Agregar 2 Días de Nota
-            </button>
-        </div>
-        <div class="form-section">
-            <label for="fecha" id="labelFecha">Seleccione la fecha de la notificación</label>
-            <div class="date-inputs">
-                <div class="input-group">
-                    <input type="text" id="dia" placeholder="DD" maxlength="2" pattern="[0-9]*" inputmode="numeric">
-                    <small>Día</small>
-                </div>
-                <div class="input-group">
-                    <input type="text" id="mes" placeholder="MM" maxlength="2" pattern="[0-9]*" inputmode="numeric">
-                    <small>Mes</small>
-                </div>
-                <div class="input-group">
-                    <input type="text" id="anio" placeholder="YYYY" maxlength="4" pattern="[0-9]*" inputmode="numeric">
-                    <small>Año</small>
+            <div class="grupo" id="notaAsistenciaSection" style="display: none;">
+                <div class="nota-caja">
+                    <label class="casilla">
+                        <input type="checkbox" id="checkNotaAsistencia">
+                        Se dejó nota en el Libro de Asistencia (art. 133 CPCCN)
+                    </label>
+                    <div class="error" id="errorNotaAsistencia">
+                        Cargá primero la fecha de la firma de la resolución para calcular los días de nota.
+                    </div>
+                    <div class="nota-fechas" id="diasNotaContainer"></div>
+                    <button class="btn-suave btn-chico" id="btnAddDiasNota" style="display: none; margin-top: 12px;">
+                        Agregar dos días de nota
+                    </button>
                 </div>
             </div>
-            <div class="error" id="errorFecha">Fecha inválida. Por favor, verifique la fecha ingresada.</div>
-        </div>
-        
-        <div class="form-section">
-            <label for="plazo">Duración del Plazo (en días)</label>
-            <input type="text" id="plazo" placeholder="Ej: 5" pattern="[0-9]*" inputmode="numeric">
-            <div class="error" id="errorPlazo">Por favor, ingrese un número válido de días.</div>
+
+            <div class="acciones">
+                <button class="btn-calcular" id="btnCalcular">Calcular el vencimiento</button>
+                <button class="btn-suave" id="btnResetear">Limpiar</button>
+            </div>
         </div>
 
-        <!-- La ampliacion se ofrece solo con cedula. Con notificacion
-             automatica no hay distancia que medir: ver el comentario de
-             actualizarSeccionAmpliacion(), abajo. -->
-        <div class="form-section" id="seccionAmpliacion">
-            <label for="ampliacion">Ampliación por distancia, en días (art. 158 CPCCN) — opcional</label>
-            <input type="text" id="ampliacion" placeholder="0" pattern="[0-9]*" inputmode="numeric">
-            <div class="error" id="errorAmpliacion">La ampliación tiene que ser un número de días de 0 en adelante.</div>
-        </div>
+        <div class="resultado" id="results"></div>
 
-
-        <div class="buttons">
-            <button class="btn-calculate" id="btnCalcular">Calcular Plazo</button>
-            <button class="btn-reset" id="btnResetear">Resetear</button>
-        </div>
-        
-        <div class="results" id="results"></div>
-         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8; font-family: var(--font-sans);">
-        <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
-        <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
-          <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
-        </span>
-      </div>
+        <p class="colofon">
+            El cómputo sale de <code>js/plazos.js</code>, el mismo motor que
+            consultan la calculadora de mora y los conectores. Los días inhábiles
+            salen de <code>data/feriados.json</code>,
+            <code>data/feria-judicial.json</code> —una Acordada de la CSJN por
+            año— y <code>data/dias-inhabiles.json</code>. Ninguno se deduce con
+            una fórmula. Si algo da mal,
+            <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.
+        </p>
     </div>
+
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>
 <script>
@@ -501,6 +629,42 @@
         actualizarSeccionHorario();
     })();
 
+    // ----------------------------------------------------------------------
+    // La modalidad, en un control segmentado.
+    //
+    // Era un <select> a ancho completo: 820 px para decir "Por cedula". Con dos
+    // opciones un desplegable esconde la mitad de la eleccion detras de un clic
+    // y no ahorra nada. Los radio de adentro son el control de verdad --teclado
+    // y lector de pantalla-- y el estilo de la etiqueta es solo pintura.
+    // ----------------------------------------------------------------------
+    function modalidadActual() {
+        var elegido = document.querySelector('input[name="modalidad"]:checked');
+        return elegido ? elegido.value : 'cedula';
+    }
+
+    function ponerModalidad(valor) {
+        var radio = document.querySelector('input[name="modalidad"][value="' + valor + '"]');
+        if (radio) { radio.checked = true; pintarModalidad(); }
+    }
+
+    function pintarModalidad() {
+        document.querySelectorAll('.segmentado label').forEach(function (etiqueta) {
+            etiqueta.classList.toggle('elegida', etiqueta.dataset.valor === modalidadActual());
+        });
+    }
+
+    // Dia y mes sin el nombre del dia: en la tira de datos y en las fichas de
+    // motivo el nombre del dia no aporta y alarga cada linea al doble.
+    function formatearFechaCorta(fecha) {
+        var meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun',
+                     'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+        var esUTC = fecha.getUTCHours() === 12;
+        var d = esUTC ? fecha.getUTCDate() : fecha.getDate();
+        var m = esUTC ? fecha.getUTCMonth() : fecha.getMonth();
+        var a = esUTC ? fecha.getUTCFullYear() : fecha.getFullYear();
+        return d + ' ' + meses[m] + ' ' + a;
+    }
+
     // --- FUNCIONES PARA NOTA DE ASISTENCIA ---
     // Delega en el motor. Antes esta funcion tenia su propia copia del
     // recorrido de dias de nota; ahora hay una sola, en js/plazos.js.
@@ -533,15 +697,14 @@
         const parDiv = document.createElement('div');
         parDiv.className = 'nota-par';
         parDiv.innerHTML =
-            '<div class="input-group" style="margin-bottom: 10px; flex-direction: row; align-items: center;">' +
-            '<input type="checkbox" id="nota-' + newIndex + '" class="nota-checkbox" data-fecha="' + nota1.toISOString().split('T')[0] + '" style="width: auto; margin-right: 10px; height: 16px;">' +
-            '<label for="nota-' + newIndex + '" style="margin-bottom: 0;">Nota dejada el: <strong>' + formatearFecha(nota1) + '</strong></label>' +
-            '</div>' +
-            '<div class="input-group" style="margin-bottom: 10px; flex-direction: row; align-items: center;">' +
-            '<input type="checkbox" id="nota-' + (newIndex + 1) + '" class="nota-checkbox" data-fecha="' + nota2.toISOString().split('T')[0] + '" style="width: auto; margin-right: 10px; height: 16px;">' +
-            '<label for="nota-' + (newIndex + 1) + '" style="margin-bottom: 0;">Nota dejada el: <strong>' + formatearFecha(nota2) + '</strong></label>' +
-            '</div>';
+            casillaDeNota(newIndex, nota1) + casillaDeNota(newIndex + 1, nota2);
         container.appendChild(parDiv);
+    }
+
+    function casillaDeNota(indice, fecha) {
+        return '<label class="casilla"><input type="checkbox" id="nota-' + indice +
+            '" class="nota-checkbox" data-fecha="' + fecha.toISOString().split('T')[0] + '">' +
+            formatearFechaCorta(fecha) + '</label>';
     }
 
     function mostrarDiasDeNota() {
@@ -549,7 +712,7 @@
         const checkNota = document.getElementById('checkNotaAsistencia');
         const container = document.getElementById('diasNotaContainer');
         const btnAdd = document.getElementById('btnAddDiasNota');
-        const modalidad = document.getElementById('modalidad').value;
+        const modalidad = modalidadActual();
 
         if (modalidad === 'automatica') {
             section.style.display = 'block';
@@ -613,7 +776,7 @@
         document.querySelectorAll('.error').forEach(function(e) { e.classList.remove('show'); });
         document.querySelectorAll('input').forEach(function(i) { i.classList.remove('invalid'); });
 
-        const modalidad = document.getElementById('modalidad').value;
+        const modalidad = modalidadActual();
         const dia = document.getElementById('dia').value;
         const mes = document.getElementById('mes').value;
         const anio = document.getElementById('anio').value;
@@ -694,6 +857,10 @@
             problema: r.problema,
             modalidad: r.modalidad,
             fechaIngresada: new Date(parseInt(anio), parseInt(mes) - 1, parseInt(dia)),
+            // El dibujo trabaja sobre claves UTC y el motor construye a
+            // mediodia UTC. Las dos conviven a proposito: formatearFecha lee la
+            // local y la grilla lee esta. Unificarlas correria un dia.
+            fechaIngresadaUTC: r.fechaIngresada,
             fechaNotificacion: r.fechaNotificacion,
             fechaInicioConteo: r.fechaInicioConteo,
             plazo: r.plazo,
@@ -711,6 +878,15 @@
         });
     }
 
+    // ----------------------------------------------------------------------
+    // El resultado.
+    //
+    // Orden deliberado: primero la fecha --grande, sola, es la respuesta--,
+    // despues los datos del computo en una tira, y al final el dibujo, que es
+    // el porque. Antes eran seis tarjetas apiladas del mismo peso, incluida la
+    // del vencimiento: seis bloques iguales para seis datos que no valen lo
+    // mismo.
+    // ----------------------------------------------------------------------
     function mostrarResultados(datos) {
         const resultsDiv = document.getElementById('results');
 
@@ -718,96 +894,76 @@
         // Un calendario dibujado con un mes mal contado es MAS convincente que
         // una fecha suelta, asi que es peor.
         if (datos.problema) {
-            resultsDiv.innerHTML = '<div class="report-error"><p><strong>No se puede calcular.</strong> ' +
-                '<span id="motivoSinDatos"></span></p></div>';
+            resultsDiv.innerHTML = '<div class="sin-datos"><strong>No se puede calcular.</strong> ' +
+                '<span id="motivoSinDatos"></span></div>';
             document.getElementById('motivoSinDatos').textContent = datos.problema;
             resultsDiv.classList.add('show');
-            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             return;
         }
+
+        var esAutomatica = datos.modalidad === 'automatica';
 
         var html = '';
-        html += '<div class="vencimiento">';
-        html += '<h2>Vencimiento del Plazo</h2>';
+
+        html += '<div class="veredicto">';
+        html += '<div><div class="rotulo">Vence el</div>';
         html += '<div class="fecha">' + formatearFecha(datos.fechaVencimientoConGracia) + '</div>';
-        html += '<p style="margin-top: 10px;">Hora: 9:30 hs. (plazo de gracia art. 124 CPCCN)</p>';
+        html += '<div class="hora">a las 9:30 hs., por el plazo de gracia del art. 124 CPCCN</div></div>';
+        html += '<div class="alterno">Si el plazo de gracia no resulta aplicable, el vencimiento se produce el <b>' +
+            formatearFecha(datos.fechaVencimientoSinGracia) + '</b>.</div>';
         html += '</div>';
 
-        html += '<div class="warning">';
-        html += '<p><strong>Nota:</strong> Si NO resulta aplicable el plazo de gracia del art. 124 CPCCN, el vencimiento se produce el día: <strong>' + formatearFecha(datos.fechaVencimientoSinGracia) + '</strong></p>';
-        html += '</div>';
+        html += '<div class="tira">';
 
-        html += '<div class="result-item">';
-        html += '<h3>Información del Cálculo</h3>';
-        html += '<p><strong>Modalidad:</strong> ' + obtenerTextoModalidad(datos) + '</p>';
-        if (datos.modalidad === 'cedula' && !datos.diaEraHabil) {
-            html += '<p><strong>Día de la diligencia:</strong> ' + formatearFecha(datos.fechaIngresada) +
-                ' — ' + datos.motivoInhabil + '. La cédula se tiene por practicada el primer día hábil siguiente.</p>';
-        }
-        if (datos.modalidad === 'automatica') {
-            html += '<p><strong>Fecha de firma:</strong> ' + formatearFecha(datos.fechaIngresada) + '</p>';
-            html += '<p><strong>Fecha de notificación:</strong> ' + formatearFecha(datos.fechaNotificacion) + '</p>';
+        if (esAutomatica) {
+            html += dato('Resolución firmada', formatearFechaCorta(datos.fechaIngresada), '');
+            html += dato('Notificada', formatearFechaCorta(datos.fechaNotificacion), 'día de nota, art. 133 CPCCN');
         } else {
-            html += '<p><strong>Fecha de notificación:</strong> ' + formatearFecha(datos.fechaNotificacion) + '</p>';
+            var nota = '';
+            if (!datos.diaEraHabil) {
+                nota = datos.motivoInhabil + ': se tiene por practicada el hábil siguiente';
+            } else if (datos.fueraDeHorario) {
+                nota = 'fuera del horario hábil: se tiene por practicada el hábil siguiente';
+            }
+            html += dato('Cédula diligenciada', formatearFechaCorta(datos.fechaIngresada), nota);
+            html += dato('Notificada', formatearFechaCorta(datos.fechaNotificacion), '');
         }
-        html += '<p><strong>Fecha de inicio del conteo:</strong> ' + formatearFecha(datos.fechaInicioConteo) + '</p>';
-        // Si hubo ampliacion, se muestran los tres numeros. Un plazo de 15 dias
-        // presentado como "15" cuando en realidad se contaron 20 es la clase de
-        // resultado que no se puede auditar mirandolo.
-        if (datos.ampliacion > 0) {
-            html += '<p><strong>Plazo:</strong> ' + datos.plazo + ' días hábiles + ' +
-                datos.ampliacion + ' de ampliación por distancia (art. 158 CPCCN) = <strong>' +
-                datos.plazoTotal + ' días hábiles</strong></p>';
-        } else {
-            html += '<p><strong>Plazo:</strong> ' + datos.plazo + ' días hábiles</p>';
-        }
+
+        html += dato('Empieza a correr', formatearFechaCorta(datos.fechaInicioConteo), 'el hábil siguiente');
+
+        var textoPlazo = datos.plazoTotal + (datos.plazoTotal === 1 ? ' día hábil' : ' días hábiles');
+        var notaPlazo = datos.ampliacion > 0
+            ? datos.plazo + ' de plazo más ' + datos.ampliacion + ' de ampliación (art. 158 CPCCN)'
+            : '';
+        html += dato('Se contaron', textoPlazo, notaPlazo);
+
         html += '</div>';
-
-        if (datos.diasIgnorados.length > 0) {
-            html += '<div class="result-item">';
-            html += '<h3>Días NO Contados (Inhábiles)</h3>';
-            html += '<div class="dias-inhabiles">';
-            datos.diasIgnorados.sort(function(a, b) { return a.fecha.getTime() - b.fecha.getTime(); });
-            datos.diasIgnorados.forEach(function(dia) {
-                html += '<div class="dia-inhabil">';
-                html += '<strong>' + formatearFecha(dia.fecha) + '</strong> - ' + dia.motivo;
-                html += '</div>';
-            });
-            html += '</div></div>';
-        }
-
-        var problema = datos.problema;
-        if (problema) {
-            resultsDiv.innerHTML = '<div class="report-error"><p><strong>No se puede calcular.</strong> ' +
-                '<span id="motivoSinDatos"></span></p></div>';
-            document.getElementById('motivoSinDatos').textContent = problema;
-            resultsDiv.classList.add('show');
-            resultsDiv.scrollIntoView({ behavior: 'smooth' });
-            return;
-        }
 
         html += dibujarPlazo(datos);
 
-        html += '<div class="report-error">';
-        html += '<p><strong>Reportar error:</strong> Si crees que ha habido un error, por favor envianos un email a ';
-        html += '<a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo que salio mal.</p>';
-        html += '</div>';
-
         resultsDiv.innerHTML = html;
         resultsDiv.classList.add('show');
-        resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function dato(clave, valor, nota) {
+        return '<div class="dato"><div class="k">' + clave + '</div><div class="v">' + valor + '</div>' +
+            (nota ? '<div class="n">' + nota + '</div>' : '') + '</div>';
     }
 
     // ----------------------------------------------------------------------
     // El plazo dibujado sobre el calendario.
     //
     // Se arma de los tramos que devuelve el motor --diasContados y
-    // diasSalteados, cada uno con su motivo-- y NO recorre el calendario por
-    // las suyas. Si la grilla y el computo pudieran discrepar, la grilla
-    // mentiria con la autoridad que tiene un dibujo.
+    // diasSalteados, cada uno con su motivo-- y NO recorre el calendario por su
+    // cuenta. Si la grilla y el computo pudieran discrepar, la grilla mentiria
+    // con la autoridad que tiene un dibujo.
     //
-    // Lo que agrega sobre la fecha suelta: donde cayo la feria, cuantos fines
-    // de semana se comio el plazo, que tan cerca quedo de un asueto.
+    // No lleva titulo: se explica solo. Y no lleva lista de dias no contados:
+    // los fines de semana se VEN, y escribir "el sabado no se cuenta" abajo de
+    // un dibujo que ya lo muestra es ruido. Lo unico que el dibujo no puede
+    // decir es POR QUE un martes esta marcado, y eso --y solo eso-- se escribe.
     // ----------------------------------------------------------------------
     var INICIALES_DIA = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     var NOMBRES_MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
@@ -825,32 +981,87 @@
         var claveNotificacion = claveUTC(datos.fechaNotificacion);
         var claveVence = claveUTC(datos.fechaVencimientoConGracia);
 
-        var desde = datos.fechaNotificacion;
+        // La firma solo se marca con notificacion automatica: es lo que ORIGINA
+        // el plazo y puede caer varios dias antes de la notificacion, asi que
+        // sin marcarla el dibujo empieza en el medio de la historia. Con cedula
+        // la fecha cargada ya es la de la diligencia y la marca seria redundante.
+        var claveFirma = (datos.modalidad === 'automatica') ? claveUTC(datos.fechaIngresadaUTC) : null;
+
+        // El dibujo arranca en la fecha cargada y no en la notificacion, para
+        // que la firma entre en el lienzo.
+        var desde = datos.fechaIngresadaUTC;
         var hasta = datos.fechaVencimientoConGracia;
         var anio = desde.getUTCFullYear();
         var mes = desde.getUTCMonth();
 
-        var html = '<div class="result-item"><h3>El plazo, dibujado</h3><div class="meses">';
+        var html = '<div class="lienzo"><div class="meses">';
 
         while (anio < hasta.getUTCFullYear() || (anio === hasta.getUTCFullYear() && mes <= hasta.getUTCMonth())) {
-            html += mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence);
+            html += mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence, claveFirma);
             mes++;
             if (mes > 11) { mes = 0; anio++; }
         }
 
         html += '</div>';
+
+        // Los motivos, solo de lo que decidio un acto, y AGRUPADOS POR TRAMO.
+        // La feria son doce dias habiles y doce fichas que dicen "Feria judicial
+        // (Acordada CSJN 11/2026)" no informan mas que una: tapan al feriado
+        // suelto que si es una sorpresa, que es justo lo que hay que ver.
+        var tramos = agruparPorTramo(datos.diasIgnorados);
+        if (tramos.length) {
+            html += '<div class="motivos">';
+            tramos.forEach(function (t) {
+                var rotulo = (t.desde === t.hasta)
+                    ? formatearFechaCorta(t.desde)
+                    : formatearFechaCorta(t.desde) + ' a ' + formatearFechaCorta(t.hasta);
+                var cuenta = t.dias > 1 ? ' <span class="cuenta">· ' + t.dias + ' días</span>' : '';
+                html += '<span class="motivo"><b>' + rotulo + '</b>' + t.motivo + cuenta + '</span>';
+            });
+            html += '</div>';
+        }
+
         html += '<div class="referencias">';
-        html += '<span><i class="muestra" style="border-color:var(--accent)"></i> notificación</span>';
-        html += '<span><i class="muestra" style="background:var(--accent-tint)"></i> día contado</span>';
-        html += '<span><i class="muestra" style="background:var(--accent)"></i> vencimiento</span>';
-        html += '<span><i class="muestra" style="background:var(--sunk)"></i> fin de semana</span>';
-        html += '<span><i class="muestra" style="background:var(--warn-tint);border-color:var(--warn)"></i> feria, feriado o asueto</span>';
+        if (claveFirma) html += ref('border-color:var(--ok)', 'firma de la resolución');
+        html += ref('border-color:var(--accent)', 'notificación');
+        html += ref('background:var(--accent-tint)', 'día contado');
+        html += ref('background:var(--accent)', 'vencimiento');
+        html += ref('background:var(--sunk)', 'fin de semana');
+        html += ref('background:var(--warn-tint);border-color:var(--warn)', 'feria, feriado o asueto');
         html += '</div></div>';
         return html;
     }
 
-    function mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence) {
-        var html = '<div class="mes"><h4>' + NOMBRES_MES[mes] + ' de ' + anio + '</h4><div class="grilla">';
+    // Junta en un tramo los dias seguidos que comparten motivo. "Seguidos"
+    // admite hasta tres dias de hueco porque la feria salta el fin de semana:
+    // del viernes al lunes hay tres. Un motivo que reaparece mas lejos abre un
+    // tramo nuevo, que es lo correcto --2009 y 2020 tuvieron mas de una feria--.
+    function agruparPorTramo(dias) {
+        var actos = dias
+            .filter(function (d) { return d.motivo !== 'Fin de semana'; })
+            .slice()
+            .sort(function (a, b) { return a.fecha - b.fecha; });
+
+        var tramos = [];
+        actos.forEach(function (d) {
+            var ultimo = tramos[tramos.length - 1];
+            var hueco = ultimo ? Math.round((d.fecha - ultimo.hasta) / 86400000) : Infinity;
+            if (ultimo && ultimo.motivo === d.motivo && hueco <= 3) {
+                ultimo.hasta = d.fecha;
+                ultimo.dias++;
+            } else {
+                tramos.push({ motivo: d.motivo, desde: d.fecha, hasta: d.fecha, dias: 1 });
+            }
+        });
+        return tramos;
+    }
+
+    function ref(estilo, texto) {
+        return '<span><i class="muestra" style="' + estilo + '"></i>' + texto + '</span>';
+    }
+
+    function mesDibujado(anio, mes, contados, salteados, claveNotificacion, claveVence, claveFirma) {
+        var html = '<div class="mes"><h4>' + NOMBRES_MES[mes] + ' ' + anio + '</h4><div class="grilla">';
 
         INICIALES_DIA.forEach(function (letra) {
             html += '<div class="encabezado-dia" aria-hidden="true">' + letra + '</div>';
@@ -877,6 +1088,7 @@
                 clases += ' fuera';
             }
 
+            if (clave === claveFirma) { clases += ' firma'; titulo += ' — firma de la resolución'; }
             if (clave === claveNotificacion) { clases += ' notificacion'; titulo += ' — notificación'; }
             if (clave === claveVence) {
                 clases = clases.replace(' contado', '').replace(' fuera', '') + ' vence';
@@ -889,19 +1101,8 @@
         return html + '</div></div>';
     }
 
-    // El resultado dice cómo quedó resuelto el día y la hora, porque son lo
-    // que explica la diferencia de un día y ya no se eligen a mano.
-    function obtenerTextoModalidad(datos) {
-        if (datos.modalidad === 'automatica') return 'Notificación automática (art. 133 CPCCN)';
-
-        var t = 'Por cédula (art. 152 CPCCN), diligenciada en día ';
-        t += datos.diaEraHabil ? 'hábil' : 'inhábil';
-        if (datos.diaEraHabil) t += datos.fueraDeHorario ? ' y fuera del horario' : ' y en horario';
-        return t;
-    }
-
     function resetear() {
-        document.getElementById('modalidad').value = 'cedula';
+        ponerModalidad('cedula');
         document.getElementById('fueraDeHorario').checked = false;
         document.getElementById('dia').value = '';
         document.getElementById('mes').value = '';
@@ -917,14 +1118,16 @@
         actualizarSeccionAmpliacion();
     }
 
+    // El rotulo va corto porque el estilo es de etiqueta --once pixeles, en
+    // mayusculas, con espaciado--, y una frase entera ahi se lee peor que en
+    // caja baja. "Seleccione la fecha de la firma de la resolucion" ocupaba una
+    // linea y media y ademas venia SIN TILDE en "resolucion", que es texto que
+    // ve el usuario: la convencion del repositorio es rioplatense con tildes.
     function actualizarLabelFecha() {
-        const modalidad = document.getElementById('modalidad').value;
-        const label = document.getElementById('labelFecha');
-        if (modalidad === 'automatica') {
-            label.textContent = 'Seleccione la fecha de la firma de la resolucion';
-        } else {
-            label.textContent = 'Seleccione la fecha de la notificación';
-        }
+        document.getElementById('labelFecha').textContent =
+            modalidadActual() === 'automatica'
+                ? 'Firma de la resolución'
+                : 'Fecha de la notificación';
     }
 
     // Se pregunta por la hora sólo cuando puede cambiar algo. Si el día es
@@ -932,7 +1135,7 @@
     // importar la hora, así que en vez de una pregunta inútil se dice por qué
     // ese día no cuenta. Corre con cada tecla de la fecha.
     function actualizarSeccionHorario() {
-        const esCedula = document.getElementById('modalidad').value === 'cedula';
+        const esCedula = modalidadActual() === 'cedula';
         const seccion = document.getElementById('seccionHorario');
         const aviso = document.getElementById('avisoDiaInhabil');
         const dia = document.getElementById('dia').value;
@@ -998,7 +1201,7 @@
     // en CABA y a la que se le notifica algo por nota no tiene cien dias de
     // ampliacion, tiene cero.
     function actualizarSeccionAmpliacion() {
-        var esCedula = document.getElementById('modalidad').value === 'cedula';
+        var esCedula = modalidadActual() === 'cedula';
         document.getElementById('seccionAmpliacion').style.display = esCedula ? 'block' : 'none';
 
         // El valor se limpia al ocultar. Dejarlo escrito abajo de una seccion
@@ -1013,10 +1216,19 @@
     }
 
     // Event listeners
-    document.getElementById('modalidad').addEventListener('change', actualizarLabelFecha);
-    document.getElementById('modalidad').addEventListener('change', mostrarDiasDeNota);
-    document.getElementById('modalidad').addEventListener('change', actualizarSeccionHorario);
-    document.getElementById('modalidad').addEventListener('change', actualizarSeccionAmpliacion);
+    // Un solo listener para los dos radio: cambiar de modalidad reordena
+    // media pantalla --el rotulo de la fecha, la pregunta del horario, los dias
+    // de nota y la ampliacion-- y conviene que eso se lea junto.
+    document.querySelectorAll('input[name="modalidad"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            pintarModalidad();
+            actualizarLabelFecha();
+            mostrarDiasDeNota();
+            actualizarSeccionHorario();
+            actualizarSeccionAmpliacion();
+        });
+    });
+
     document.getElementById('checkNotaAsistencia').addEventListener('change', mostrarDiasDeNota);
     ['dia', 'mes', 'anio'].forEach(function(id) {
         document.getElementById(id).addEventListener('input', mostrarDiasDeNota);
@@ -1029,8 +1241,9 @@
     document.getElementById('btnCalcular').addEventListener('click', calcular);
     document.getElementById('btnResetear').addEventListener('click', resetear);
 
-    // Estado inicial: la modalidad por defecto es cedula, asi que la seccion
-    // arranca visible. Se llama igual para no depender del valor del markup.
+    // Estado inicial. Se llama todo para no depender de lo que diga el markup.
+    pintarModalidad();
+    actualizarLabelFecha();
     actualizarSeccionAmpliacion();
 
     ['dia', 'mes', 'anio', 'plazo'].forEach(function(id) {

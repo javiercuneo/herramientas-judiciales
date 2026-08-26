@@ -358,6 +358,80 @@ se estaba trabajando. Ahora el ámbar va en el fondo y el borde, el número en
 `--fg`, y lo peor de la grilla es 4,66 en claro y 5,06 en oscuro. Sin desborde
 horizontal a 375 px.
 
+### `vencimientos.html` rediseñada — 26/8
+
+**El pedido de Javier, textual:** *«transformar desde un html hecho por una IA
+que no le da para mucho a un dashboard que parezca hecho por Claude»*, y el
+diagnóstico concreto que lo acompañaba: el selector de modalidad ocupaba el
+ancho entero para decir «Por cédula», con un espacio en blanco cuatro veces más
+grande que el texto. Sin jerarquía.
+
+**El criterio que ordenó todo: cada control ocupa lo que mide su contenido.** Un
+día son dos dígitos y entra en 4ch; el año en 6,8ch. La modalidad son dos
+opciones y pasó a ser un **control segmentado**, no un desplegable: con dos
+opciones un desplegable esconde la mitad de la elección detrás de un clic y no
+ahorra nada. Los `radio` de adentro son el control real —teclado y lector de
+pantalla—; la clase `.elegida` es sólo pintura.
+
+Lo único grande de la página es el vencimiento. Antes eran seis tarjetas
+apiladas del mismo peso, incluida la del resultado: seis bloques iguales para
+seis datos que no valen lo mismo. Ahora hay tres alturas: la fecha, la tira de
+cuatro datos, y el dibujo.
+
+**No se cambió la paleta.** Cobalto sigue siendo el único acento y los tokens
+son los de `comun.css`. Lo que cambió es densidad y jerarquía.
+
+**Tres cosas del dibujo, pedidas por Javier:**
+
+- **Sin título.** «El plazo, dibujado» arriba de un calendario dibujado no
+  informa nada.
+- **Sin lista de días no contados.** Los fines de semana se ven; escribir «el
+  sábado no se cuenta» abajo de un dibujo que ya lo muestra es ruido. Lo que el
+  dibujo no puede decir es **por qué** un martes está marcado, y eso —y sólo
+  eso— se escribe.
+- **La firma de la resolución se marca**, con notificación automática. Lleva
+  `--ok`, que es un token de estado del sistema y no un acento nuevo, y va en el
+  borde y no en el relleno para no competir con el vencimiento. El dibujo ahora
+  arranca en la fecha cargada y no en la notificación, porque si no la firma
+  quedaba fuera del lienzo.
+
+**Y los motivos van agrupados por tramo.** La primera versión sacaba doce fichas
+idénticas que decían «Feria judicial (Acordada CSJN 11/2026)» y **tapaban al
+feriado suelto**, que es justamente la sorpresa que hay que ver. Ahora son tres:
+el 9 de julio, el puente del 10, y «20 jul a 31 jul · Feria judicial · 10 días».
+El agrupado admite hasta tres días de hueco porque la feria salta el fin de
+semana, y un motivo que reaparece más lejos abre un tramo nuevo —2009 y 2020
+tuvieron más de una feria—.
+
+**Dos arreglos que salieron de medir, no de mirar:**
+
+- `.cobertura` y `.colofon` daban **4,30 en tema claro**. Son los dos únicos
+  textos que van sobre `--bg` en vez de `--card`, y ahí `--faint` reprueba AA
+  —el mismo token da 5,14 sobre la tarjeta—. Es el bug abierto de `--faint`;
+  arreglarlo de raíz toca trece páginas, así que acá se eligió `--muted-fg`.
+- El rótulo de la fecha decía «Seleccione la fecha de la firma de la
+  **resolucion**», **sin tilde**, en texto que ve el usuario. Venía del original.
+  Ahora dice «Firma de la resolución», que además entra en una línea: el estilo
+  es de etiqueta —once píxeles, mayúsculas, con espaciado— y una frase entera ahí
+  se lee peor que en caja baja.
+
+**Verificado:** los mismos 12 casos de antes de la migración, **12 de 12
+idénticos** después del rediseño completo. Contraste sin excepciones en los dos
+temas —peor 4,66 en claro, 5,06 en oscuro— y sin desborde a 375 px.
+
+**Lo que falta de este frente, y es la mayor parte:**
+
+1. **Extender el dibujo a las demás.** `caducidad`, `entre-fechas` y `regresiva`
+   no tienen calendario porque no consumen el motor todavía; ése es el paso
+   previo.
+2. **El tablero rediseñado.** Sigue con el aspecto viejo, y ahora contrasta con
+   la calculadora que embebe.
+3. **Sacar `honorarios`, `tasa` y `prorrateo` de la barra de pestañas.** Criterio
+   de Javier, 26/8: van en la misma página pero **más abajo y afuera**, no como
+   pestañas de igual jerarquía. El rótulo de grupo que hay hoy no alcanza.
+
+---
+
 ### Las pantallas consumen el motor — 26/8
 
 **El 25/8 quedó lo peor de los dos mundos y conviene que quede escrito:** el
