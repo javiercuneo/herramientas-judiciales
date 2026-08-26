@@ -306,10 +306,10 @@ Ninguno urgente y ninguno bloqueante.
   cubren **el motor**: días hábiles, feria, feriados, cobertura, y la
   aritmética de las cinco de plazos. `npm run verificar-contraste` cubre **los
   tokens de color** y `npm run verificar-conectores` (46) **los dos
-  transportes de `conectores/`**. `scripts/pruebas-calculadoras.html` —**51 filas: 21
-  verificados a mano, 6 invariantes, 3 fijados, y los 21 verificados otra vez
-  adentro del tablero**— cubre **las pantallas**: maneja las cinco calculadoras
-  por iframe y compara el resultado que muestran. Se abre con el sitio servido —no con `file://`— y
+  transportes de `conectores/`**. `scripts/pruebas-calculadoras.html` —**75 filas: 21
+  verificados a mano, 6 invariantes, 3 fijados, los 24 cruzados contra el motor,
+  y los 21 verificados otra vez adentro del tablero**— cubre **las pantallas**:
+  maneja las cinco calculadoras por iframe y compara el resultado que muestran. Se abre con el sitio servido —no con `file://`— y
   tarda seis segundos. **Los iframes llevan rompe-caché**: sin él las pruebas
   corren contra la versión anterior de la calculadora, que es la peor forma de
   falla porque parece un bug del cambio que se acaba de hacer.
@@ -805,14 +805,9 @@ Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío
    distinta por pantalla. Ver [abajo](#el-dibujo-en-las-tres-que-faltaban--268).
    **Las cinco pantallas de plazos consumen el motor y las cuatro que tenían algo
    que dibujar dibujan.**
-2. **El cruce pantalla contra motor en `scripts/pruebas-calculadoras.html`.**
-   Sigue pendiente y es la red que faltaría para que una divergencia falle a los
-   gritos en vez de en silencio. Con las cinco ya migradas la urgencia bajó
-   —hay una sola implementación— pero el control sirve igual.
-   **Y ahora hay un cruce más barato que se puede copiar:** en `entre-fechas` el
-   último número de la grilla es el total, porque los días contados los devuelve
-   el motor y no los reconstruye la pantalla. Si alguna vez discrepan, se ve sin
-   abrir nada.
+2. **~~El cruce pantalla contra motor en `scripts/pruebas-calculadoras.html`.~~
+   Hecho el 26/8**: ver [abajo](#pantalla-contra-motor-y-la-prueba-de-que-el-control-controla--268).
+   **El banco pasó de 51 filas a 75.**
 3. **El resto de las calculadoras, con `vencimientos` de patrón.** Acordado con
    Javier el 26/8: *«en algún momento hay que encarar la modificación y
    adaptación de todas las calculadoras… terminemos vencimientos y luego pasamos
@@ -902,6 +897,44 @@ faltaban](#el-dibujo-en-las-tres-que-faltaban--268). Los otros dos que estaban
 acá —el tablero rediseñado y sacar `honorarios`, `tasa` y `prorrateo` de la
 barra— se hicieron el mismo día: ver [el
 rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268).
+
+---
+
+### Pantalla contra motor, y la prueba de que el control controla — 26/8
+
+**Qué prueba, que no es lo que prueban los otros bancos.** Desde este mismo día
+las cinco pantallas de plazos consumen `js/plazos.js` y ninguna tiene aritmética
+adentro, así que ya no puede haber dos cuentas distintas. Lo que sí puede haber,
+y no lo controlaba nada, es **una pantalla que le pase al motor algo distinto de
+lo que dice el formulario, o que muestre algo distinto de lo que el motor le
+devolvió**. Un campo leído del `id` equivocado, un mes sin restarle uno, una
+casilla que se ignora: el motor contesta perfecto y la pantalla miente igual.
+
+Para cada caso ya escrito —los 21 verificados y los 3 fijados— se corre la
+pantalla por su driver y **además se llama al motor a mano, en el mismo iframe y
+por lo tanto con el mismo calendario cargado**, con lo que ese formulario debería
+significar. Después se exige que las dos salidas coincidan, ya formateadas como
+la pantalla las muestra.
+
+**El mapeo de campos a opciones y el formato de la fecha están escritos otra vez
+a propósito**, en vez de importarlos de algún lado. Un control que reusa el
+código que controla no controla nada: lo que se comparan son dos lecturas
+independientes del mismo formulario. Si una pantalla cambia cómo interpreta un
+campo, este archivo tiene que cambiar también, y eso es la señal, no la molestia.
+
+**Y se comprobó que falla cuando tiene que fallar**, que es lo único que
+distingue un control de un sello verde. Se rompió `entre-fechas` a propósito
+—`soloHabiles: false` fijo, o sea la casilla de días hábiles ignorada— y las dos
+filas de hábiles se pusieron en rojo diciendo exactamente qué pasó: *«la pantalla
+muestra 18 · el motor devuelve 3»*. Con el archivo revertido, **75 de 75**.
+
+Un caso puede salir **«sin cruce»** y no es una falla: es una entrada para la que
+el motor no afirma una fecha —año sin Acordada, objetivo inhábil, plazo mal
+escrito— y entonces no hay dos valores que comparar. Hoy no hay ninguno.
+
+**Lo que este cruce no prueba es que el motor esté bien.** Para eso están los
+verificados, que comparan contra una fecha deducida a mano contra las Acordadas,
+y `npm run verificar-calculos`.
 
 ---
 

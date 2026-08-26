@@ -552,6 +552,148 @@ async function correrEnTablero(cuerpo) {
     return { pasan, fallan };
 }
 
+// ---------------------------------------------------------------------------
+// El cruce pantalla contra motor.
+//
+// QUE PRUEBA, QUE NO ES LO QUE PRUEBAN LOS DEMAS BANCOS. Desde el 26/8/2026 las
+// cinco pantallas de plazos consumen js/plazos.js y ninguna tiene aritmetica
+// adentro, asi que ya no puede haber dos cuentas distintas. Lo que SI puede
+// haber, y nada controlaba, es una pantalla que le pase al motor algo distinto
+// de lo que dice el formulario, o que muestre algo distinto de lo que el motor
+// le devolvio. Un campo leido del id equivocado, un mes sin restarle uno, una
+// casilla que se ignora: el motor contesta perfecto y la pantalla miente igual.
+//
+// Como funciona. Para cada caso ya escrito se corre la pantalla --por su
+// driver, como siempre-- y ADEMAS se llama al motor a mano, en el mismo iframe
+// y por lo tanto con el mismo calendario cargado, con lo que ese formulario
+// deberia significar. Despues se exige que las dos salidas coincidan.
+//
+// Y ES DELIBERADO que el mapeo de campos a opciones y el formato de la fecha se
+// escriban aca de nuevo, en vez de importarlos de algun lado. Un control que
+// reusa el codigo que controla no controla nada: lo que se compara son dos
+// lecturas independientes del mismo formulario. Si la pantalla cambia como
+// interpreta un campo, este archivo tiene que cambiar tambien, y esa es la
+// senial, no la molestia.
+//
+// Lo que este cruce NO prueba: que el motor este bien. Para eso estan los
+// VERIFICADOS, que comparan contra una fecha deducida a mano, y
+// npm run verificar-calculos.
+// ---------------------------------------------------------------------------
+
+// Las mismas dos formas de escribir una fecha que usan las pantallas. Ver
+// js/plazos.js: no se unifican porque unificarlas correria un dia.
+const fmtAR = (d) => d.toLocaleDateString('es-AR');
+
+// vencimientos muestra "11 de agosto de 2025", sin el nombre del dia, que el
+// driver ya descarta. La fecha viene a mediodia UTC.
+const MESES_LARGOS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const fmtLargoUTC = (d) =>
+    d.getUTCDate() + ' de ' + MESES_LARGOS[d.getUTCMonth()] + ' de ' + d.getUTCFullYear();
+
+// regresiva muestra DD/MM/AAAA con cero adelante.
+const dos = (n) => (n < 10 ? '0' + n : String(n));
+const fmtDDMMAAAA = (d) => dos(d.getDate()) + '/' + dos(d.getMonth() + 1) + '/' + d.getFullYear();
+
+// Un motor por calculadora: traduce los mismos `campos` del caso a opciones y
+// devuelve la salida ya formateada como la muestra la pantalla. Devuelve null
+// cuando el caso no se puede cruzar --una entrada invalida que la pantalla
+// rechaza antes de llamar al motor-- y entonces la fila sale "sin cruce".
+const MOTORES = {
+    vencimientos: (w, campos) => {
+        const r = w.Plazos.vencimiento({
+            modalidad: campos.modalidad,
+            anio: Number(campos.anio), mes: Number(campos.mes), dia: Number(campos.dia),
+            plazo: Number(campos.plazo),
+            ampliacion: campos.ampliacion === undefined || campos.ampliacion === ''
+                ? 0 : Number(campos.ampliacion),
+            fueraDeHorario: !!campos.fueraDeHorario
+        });
+        if (r.problema) return null;
+        return fmtLargoUTC(r.vencimiento);
+    },
+
+    caducidad: (w, campos) => {
+        const meses = campos.plazo === 'custom' ? Number(campos.customValue) : Number(campos.plazo);
+        if (!Number.isInteger(meses) || meses <= 0) return null;
+        const r = w.Plazos.caducidad({
+            anio: Number(campos.year), mes: Number(campos.month), dia: Number(campos.day),
+            meses: meses
+        });
+        if (r.problema) return null;
+        return fmtAR(r.vencimiento);
+    },
+
+    'entre-fechas': (w, campos) => {
+        const r = w.Plazos.entreFechas({
+            desde: { anio: Number(campos.startYear), mes: Number(campos.startMonth), dia: Number(campos.startDay) },
+            hasta: { anio: Number(campos.endYear), mes: Number(campos.endMonth), dia: Number(campos.endDay) },
+            // La pantalla las trae tildadas y el caso solo las nombra cuando las
+            // apaga: el default es contar las dos puntas.
+            incluirInicio: campos.includeStart !== false,
+            incluirFin: campos.includeEnd !== false,
+            soloHabiles: !!campos.businessDays
+        });
+        if (r.problema) return null;
+        return String(r.total);
+    },
+
+    regresiva: (w, campos) => {
+        const p = String(campos.fechaObjetivo).split('/');
+        const r = w.Plazos.regresiva({
+            dia: Number(p[0]), mes: Number(p[1]), anio: Number(p[2]),
+            dias: Number(campos.diasAntelacion)
+        });
+        if (r.problema || r.objetivoInhabil) return null;
+        return fmtDDMMAAAA(r.fechaLimite);
+    },
+
+    mora: (w, campos) => {
+        const r = w.Plazos.mora({
+            anio: Number(campos.d_anio), mes: Number(campos.d_mes), dia: Number(campos.d_dia),
+            diasHabiles: Number(campos.diasHabiles),
+            diasCorridos: Number(campos.plazoDias)
+        });
+        if (r.problema) return null;
+        return fmtAR(r.vencimiento);
+    }
+};
+
+async function correrCruce(cuerpo) {
+    let pasan = 0, fallan = 0, sinCruce = 0;
+
+    for (const c of VERIFICADOS.concat(FIJADOS)) {
+        try {
+            const f = await marco(c.calc);
+            const d = f.contentDocument;
+            const w = f.contentWindow;
+
+            const enPantalla = await DRIVERS[c.calc].correr(d, c.campos);
+            const delMotor = MOTORES[c.calc](w, c.campos);
+
+            if (delMotor === null) {
+                sinCruce++;
+                cuerpo.appendChild(fila('sin cruce', 'pend', c.rotulo, c.calc,
+                    'el motor no afirma una fecha para esta entrada', null));
+                continue;
+            }
+
+            const bien = enPantalla === delMotor;
+            bien ? pasan++ : fallan++;
+            cuerpo.appendChild(fila(bien ? 'pasa' : 'DIVERGEN', bien ? 'ok' : 'mal',
+                c.rotulo, c.calc,
+                bien ? `los dos dan ${delMotor}`
+                     : `la pantalla muestra ${enPantalla} · el motor devuelve ${delMotor}`,
+                null));
+        } catch (e) {
+            fallan++;
+            cuerpo.appendChild(fila('ERROR', 'mal', c.rotulo, c.calc, e.message, null));
+        }
+    }
+
+    return { pasan, fallan, sinCruce };
+}
+
 document.getElementById('correr').addEventListener('click', async () => {
     const btn = document.getElementById('correr');
     btn.disabled = true;
@@ -616,6 +758,18 @@ document.getElementById('correr').addEventListener('click', async () => {
             fallan++;
             cuerpoF.appendChild(fila('ERROR', 'mal', c.rotulo, c.calc, e.message, null));
         }
+    }
+
+    const cuerpoM = seccion('Pantalla contra motor',
+        'Los mismos casos, corridos por la pantalla y llamando al motor a mano con lo que ese formulario debería significar. No prueba que el motor esté bien: prueba que la pantalla le pasa lo que dice el formulario y muestra lo que le devolvió.');
+    try {
+        const m = await correrCruce(cuerpoM);
+        pasan += m.pasan;
+        fallan += m.fallan;
+        sinFijar += m.sinCruce;
+    } catch (e) {
+        fallan++;
+        cuerpoM.appendChild(fila('ERROR', 'mal', 'No se pudo cruzar', 'motor', e.message, null));
     }
 
     const cuerpoT = seccion('Los mismos casos, adentro del tablero',
