@@ -161,26 +161,36 @@ Ninguno urgente y ninguno bloqueante.
     promesa incumplida.
   - **`vencimientos`, `caducidad`, `entre-fechas`, `regresiva` y `mora` no
     hablan con nadie**: sólo piden los JSON de `data/` del propio sitio.
-  - **`honorarios-mediacion` le pide el UHOM a una planilla publicada de Google
-    Docs**, en cada carga. No manda ningún dato del usuario, pero Google ve la
-    IP y que alguien abrió esa página. **Y es evitable desde el 24/8**, que es
-    lo que vale la pena: `data/serie-uhom.json` tiene los 67 valores leídos de
-    las tablas oficiales y verificados por `npm run verificar-series`. Pasar la
-    calculadora al archivo local saca al tercero y además usa la serie buena en
-    vez de una planilla. Es el mismo movimiento que ya se hizo con los feriados.
+  - **~~`honorarios-mediacion` le pide el UHOM a una planilla de Google~~
+    Arreglado el 26/8:** lee `data/serie-uhom.json`, del propio repositorio.
+    Ver [abajo](#dos-arreglos-que-salieron-de-preguntar-qué-sale-del-navegador--268).
   - **`distancia` es el caso distinto y el único que manda algo:** los nombres
     de localidad que el usuario escribe van a `apis.datos.gob.ar`, a
-    `geocoding-api.open-meteo.com` y a `router.project-osrm.org`. Los dos
-    primeros están nombrados en el texto de la página; el tercero no. No es un
-    dato personal —es una ciudad— pero es entrada del usuario saliendo a tres
-    terceros, y **eso conviene que lo diga la propia página** antes que
-    aparezca en un pendiente.
-- **Las once calculadoras no hablan el mismo idioma.** Pedido de Javier del
-  26/8: *«cada una usa un lenguaje distinto, avisa de años distintos, etc. hay
-  que hacer algo más uniforme»*. No es sólo el aspecto: es el tuteo suelto, los
-  avisos de cobertura que dicen años distintos, los `max-width` de 240 a 1000
-  px, y los rótulos. **El orden acordado es terminar `vencimientos` primero y
-  después pasar al resto**, usando esta como patrón.
+    `geocoding-api.open-meteo.com` y a `router.project-osrm.org`. No es un dato
+    personal —es una ciudad— pero es entrada del usuario saliendo a tres
+    terceros. **Desde el 26/8 la página lo dice arriba de todo**, y el tercero
+    que faltaba nombrar quedó nombrado. Sigue siendo la única del sitio que
+    consulta afuera.
+- **Las once calculadoras no hablan el mismo idioma, y las que no son de plazos
+  se rehacen de cero.** Pedido de Javier del 26/8: *«cada una usa un lenguaje
+  distinto, avisa de años distintos, etc. hay que hacer algo más uniforme»*, y
+  la decisión que lo acompaña: ***«lo que no es plazos, tenemos que refundarlas
+  de cero me parece»***.
+  **La distinción no es de gusto y conviene entenderla antes de tocar nada.**
+  Las cinco de plazos comparten motor —`plazos.js` y `calendario-judicial.js`—
+  y ahí lo que hay que uniformar es la pantalla, no lo que calcula: se
+  rediseñan, no se rehacen. Las que no son de plazos —`prorrateo`, `tasa`,
+  `honorarios-mediacion`, `ejecucion-estado`— **no comparten nada**: cada una
+  trae su propio HTML, su propio parser, sus propios rótulos y su propia
+  aritmética adentro del `<style>`. Rehacerlas de cero sale más barato que
+  emparejarlas, y es la misma conclusión a la que se llegó con PDF-studio, que
+  se tiró y se rehizo como Escribiente en vez de parchearse.
+  Lo que hay que uniformar, en orden de lo que más se nota: el aviso de
+  cobertura —cada una nombra años distintos—, el tuteo suelto («envíanos un
+  mail», «si crees»), los `max-width` de 240 a 1000 px, y los rótulos.
+  **El orden acordado**: `vencimientos` primero —hecha el 26/8—, después la
+  extracción de las otras tres de plazos, y recién ahí las que no son de
+  plazos, que van de cero.
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
   su propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -714,6 +724,54 @@ pasaban con holgura.
 tinte incluido como fondo a medir. Probado al revés: devolviendo `--warn` al
 valor viejo, el control corta con cuatro fallas y además delata la deriva
 —`documentacion.html` diciendo una cosa y `comun.css` otra—.
+
+---
+
+### Dos arreglos que salieron de preguntar qué sale del navegador — 26/8
+
+La pregunta la hizo Javier: *«no sé si en javiercuneo.com.ar prometemos que los
+datos no salen del navegador o sólo en Honorio»*. **La respuesta era que no lo
+prometemos** —la promesa está escrita en dos lugares y los dos son de
+Escribiente, que es la única que la sostiene con la CSP—, así que no había
+promesa incumplida. Pero leer las once para contestar dejó dos cosas para
+arreglar, y las dos se arreglaron.
+
+**`honorarios-mediacion` ya no le pide el UHOM a Google.** Lo lee de
+`data/serie-uhom.json`. Dos problemas de distinto tamaño:
+
+- **El chico, pero el que se ve:** abrir la calculadora le contaba a un tercero
+  que alguien la abrió. Ningún dato del usuario salía —lo que se pedía era un
+  valor— pero la IP y el momento sí.
+- **El grande:** la planilla es una tabla suelta que se edita a mano y **nada la
+  controla**. `data/serie-uhom.json` tiene los 67 valores leídos uno por uno de
+  las 39 tablas oficiales, y `npm run verificar-series` le exige en cada commit
+  que ninguna vigencia se repita, que la serie no baje y que cada valor tenga su
+  tabla al lado. Es la misma serie que publica `uma-uhom.html`.
+
+**Y elige el último valor cuya vigencia ya empezó, no el último del archivo.**
+La diferencia aparece el día que se carga un valor por adelantado: el último del
+archivo sería uno que todavía no rige, y esta calculadora fija honorarios de
+hoy. **La pantalla dice desde cuándo rige** —«Rige desde agosto de 2026»— que es
+lo que le permite a quien lo usa notar que la serie quedó corta. Y si el archivo
+no se puede leer, no se inventa un valor ni se deja el anterior: se pide
+cargarlo a mano.
+
+Salió también el parser de CSV que leía la planilla, con su manejo de comillas.
+Era buen código y no hace falta más: la fila que buscaba ya no existe.
+
+**`distancia` ahora dice qué sale.** Es la única calculadora del sitio que manda
+algo escrito por el usuario a un tercero: los nombres de localidad van a GEOREF,
+a Open-Meteo Geocoding y a OSRM. Dos de los tres estaban nombrados abajo, en
+«Método de Cálculo»; **OSRM no estaba en ninguna parte**. Ahora hay un aviso
+arriba de todo que dice las tres cosas que importan: qué sale (el lugar), qué no
+sale (fechas, plazos, nada del expediente), y que es la única del sitio que
+consulta afuera.
+**Neutro y no en `--warn`:** es información, no un peligro. Un aviso ámbar sobre
+una herramienta que funciona bien enseña a ignorar los avisos ámbar.
+
+**Y de paso se vio el efecto de la paleta bajada:** el bloque de advertencia
+legal de esa página es `--warn` sobre `--warn-tint`, que hasta hoy daba **4,19**
+en tema claro. Ahora da **5,52**, y es el peor de la página.
 
 ---
 

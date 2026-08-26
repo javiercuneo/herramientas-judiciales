@@ -75,7 +75,7 @@
 
   <div class="wrap" role="application" aria-label="Calculadora para fijar honorarios de mediación">
     <h1>Calculadora para fijar honorarios de mediación</h1>
-    <p class="sub">Complete los valores y presione <strong>Calcular</strong>. El valor del UHOM se actualiza automáticamente.</p>
+    <p class="sub">Complete los valores y presione <strong>Calcular</strong>. El valor del UHOM sale de <a href="../uma-uhom.html">la serie oficial</a>, versionada en este mismo sitio.</p>
 
     <div class="grid">
       <div class="field">
@@ -114,7 +114,6 @@
   </div>
 
   <script>
-    const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8tumvxptTGBCfScMwWxK7r6ATnGfMw061GKGdzfIVyThcSGzUqjI-vcpME1AtykPmjqTq0xdjgc7D/pub?output=csv';
     const nf = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     function parseFlexibleNumber(raw) {
@@ -134,78 +133,73 @@
       return parseFloat(s.replace(/[^0-9.-]/g, ''));
     }
 
+    const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+                   'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
     /*
-      La planilla es una tabla de clave y valor:
+      El UHOM sale de data/serie-uhom.json, del propio repositorio.
 
-        UMA,102.076
-        UHOM,12.960
-        Acordada,"Expresado en UMAs: (valor = $ ... segun Res. ...)"
-        URL,https://...
+      Hasta el 26/8/2026 se lo pedia a una planilla publicada de Google Docs
+      en cada carga, y eso tenia dos problemas de distinto tamaño:
 
-      Se busca POR CLAVE y no por posicion. Antes esto leia la celda
-      B2 —fila 2, columna 2— y funcionaba solo mientras UHOM fuera la
-      segunda fila: el dia que se agregara una fila arriba habria
-      tomado la UMA como si fuera el UHOM, o sea un honorario ocho
-      veces mas alto sin ningun error visible. Es el mismo criterio
-      que usa scripts/actualizar-uma.mjs en el repositorio de Honorio.
+        - el chico, pero el que se ve: abrir esta calculadora le contaba a un
+          tercero que alguien la abrio. Ningun dato del usuario salia --lo
+          que se pedia era un valor, no se mandaba nada-- pero la IP y el
+          momento si. Ahora la pagina no habla con nadie fuera del sitio;
 
-      Se respetan las comillas porque la fila Acordada tiene comas
-      adentro: partir por coma a secas funciona hasta que deja de
-      funcionar, en silencio y en el numero.
+        - el grande: la planilla es una tabla suelta que se edita a mano y
+          nada la controla. data/serie-uhom.json tiene los 67 valores leidos
+          uno por uno de las 39 tablas oficiales del Ministerio, y
+          npm run verificar-series le exige en cada commit que ninguna
+          vigencia se repita, que la serie no baje y que cada valor tenga su
+          tabla al lado. Es la misma serie que publica uma-uhom.html.
+
+      Se elige el ultimo valor cuya VIGENCIA ya empezo, y no el ultimo del
+      archivo. La diferencia aparece el dia que se carga un valor por
+      adelantado: el ultimo del archivo seria uno que todavia no rige, y
+      esta calculadora fija honorarios de hoy.
     */
-    function valorDePlanilla(csv, clave) {
-      const campos = [];
-      let celda = '';
-      let entreComillas = false;
-
-      const cerrarFila = () => {
-        campos.push(celda);
-        celda = '';
-        const encontrada = campos[0].trim().toUpperCase() === clave;
-        const valor = encontrada && campos.length > 1 ? campos[1].trim() : null;
-        campos.length = 0;
-        return valor;
-      };
-
-      for (let i = 0; i < csv.length; i++) {
-        const c = csv[i];
-        if (entreComillas) {
-          if (c === '"') {
-            if (csv[i + 1] === '"') { celda += '"'; i++; }
-            else entreComillas = false;
-          } else celda += c;
-          continue;
-        }
-        if (c === '"') entreComillas = true;
-        else if (c === ',') { campos.push(celda); celda = ''; }
-        else if (c === '\n') { const v = cerrarFila(); if (v) return v; }
-        else if (c !== '\r') celda += c;
+    function uhomVigente(valores) {
+      const hoy = new Date().toISOString().slice(0, 10);
+      let elegido = null;
+      for (const v of valores) {
+        if (typeof v.valor !== 'number' || !v.vigencia) continue;
+        if (v.vigencia <= hoy) elegido = v;
       }
-      return cerrarFila();
+      return elegido;
+    }
+
+    function desdeCuando(vigencia) {
+      const partes = String(vigencia).split('-');
+      const mes = MESES[parseInt(partes[1], 10) - 1];
+      return mes ? mes + ' de ' + partes[0] : vigencia;
     }
 
     async function fetchUhom() {
       const inputUhom = document.getElementById('uhom');
       const status = document.getElementById('statusUhom');
       try {
-        const response = await fetch(URL_SHEET + '&cache=' + new Date().getTime());
-        const data = await response.text();
+        // Rompe-cache: sin esto un valor nuevo puede tardar en aparecer y el
+        // usuario ve el anterior sin que nada se lo diga.
+        const response = await fetch('../data/serie-uhom.json?v=' + Date.now());
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const serie = await response.json();
+        const vigente = uhomVigente(serie.valores || []);
+        if (!vigente) throw new Error('la serie no tiene ningun valor vigente');
 
-        // Google devuelve el HTML de una pantalla de error con status
-        // 200 cuando la publicacion se dio de baja. Sin esto, la fila
-        // "no aparece" y el usuario no sabe por que.
-        if (/^\s*</.test(data)) throw new Error('la planilla no esta publicada');
-
-        const valor = valorDePlanilla(data, 'UHOM');
-        if (valor && !isNaN(parseFlexibleNumber(valor))) {
-          inputUhom.value = valor;
-          status.textContent = 'Valor actualizado.';
-          if (document.getElementById('monto').value) calcular();
-          return;
-        }
-        throw new Error('la planilla no tiene una fila UHOM legible');
+        inputUhom.value = vigente.valor.toLocaleString('es-AR');
+        // Se dice DESDE CUANDO rige, y no solo el numero. Es el dato que le
+        // permite a quien lo usa notar que la serie quedo corta: un UHOM que
+        // rige desde hace medio año seguramente ya no es el ultimo.
+        status.textContent = 'Rige desde ' + desdeCuando(vigente.vigencia) +
+          '. Sale de la tabla oficial del Ministerio, no de una estimación.';
+        if (document.getElementById('monto').value) calcular();
       } catch (e) {
-        status.textContent = 'Ingrese el valor manualmente.';
+        // No se inventa un valor ni se deja el anterior: se dice que hay que
+        // cargarlo. Un honorario calculado con un UHOM equivocado sale
+        // plausible y nadie lo nota.
+        status.textContent = 'No se pudo leer el valor del UHOM (' + e.message +
+          '). Cargalo a mano.';
       }
     }
 
