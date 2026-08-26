@@ -81,7 +81,7 @@ const SIN_INTERRUPTOR = new Set(['scripts/build-docs.mjs'])
 const SUPERFICIES = ['bg', 'card', 'sunk']
 const TEXTOS = ['fg', 'muted-fg', 'faint', 'accent']
 // Estos ademas se miden sobre su propio tinte compuesto encima de cada
-// superficie, que es donde de verdad se escriben.
+// superficie, que es la superficie sobre la que se escriben.
 const ESTADOS = ['ok', 'warn', 'error']
 
 const fallas = []
