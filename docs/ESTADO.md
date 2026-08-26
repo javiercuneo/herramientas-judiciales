@@ -664,6 +664,20 @@ que un calendario no puede hacer. Ahora el mes mide 236 px fijos —celda de
 30 px, el tamaño con el que se dibujó— y los meses se centran. Sobra aire a los
 costados cuando son pocos, y es preferible al mes gigante.
 
+**Y dos correcciones más, del mismo día, sobre la pantalla ya terminada:**
+
+- **El botón dice «Calcular» y no «Calcular el vencimiento».** Está abajo de un
+  formulario que no hace otra cosa: el resto de la frase no agregaba nada.
+- **La muestra del día de nota no se veía.** La entrada de las referencias
+  existía, pero el punto medía 4 px en `--muted-fg` adentro de un cuadrado
+  vacío, al lado de muestras sólidas de color: la fila entera pasaba
+  desapercibida. Javier la pidió creyendo que faltaba, que es la prueba de que
+  no se veía. Ahora el punto va a 5 px y en `--fg`, y la muestra imita una
+  celda cualquiera con la marca encima. **Una celda y no un color, a
+  propósito:** el punto no es una categoría de día —un día de nota puede ser
+  además contado, o ser la notificación— así que la muestra tiene que leerse
+  como «un día con esta marca» y no como un estado.
+
 **Verificado:** contraste sin excepciones en los dos temas, **midiendo cada
 tema en una carga fresca y no cambiando `data-tema` en caliente** —ver la
 trampa de las transiciones—: peor 4,78 en claro y 5,06 en oscuro, sobre 187
