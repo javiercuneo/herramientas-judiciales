@@ -248,6 +248,7 @@
         </div>
     </div>
     <script src="js/calendario-judicial.js"></script>
+    <script src="js/plazos.js"></script>
 <script>
     const apiStatus = document.getElementById('apiStatus');
     const form = document.getElementById('calculatorForm');
@@ -285,266 +286,79 @@
     }
     initData();
 
+    // La aritmetica NO vive aca: esta en js/plazos.js, que es el mismo motor
+    // que consultan vencimientos, mora y los conectores de conectores/. Esta
+    // funcion lee el formulario, llama al motor y escribe la pantalla. Nada
+    // mas. Hasta el 26/8/2026 el computo entero --el ancla de los meses, el
+    // salteo de enero, el punto fijo de la feria-- estaba escrito aca adentro,
+    // entre document.getElementById.
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         if (!datosCargados) {
             alert('Los datos aun no estan listos. Intenta recargar.');
             return;
         }
-        
+
         const d = parseInt(document.getElementById('day').value);
         const m = parseInt(document.getElementById('month').value);
         const y = parseInt(document.getElementById('year').value);
         const pVal = document.getElementById('plazo').value;
-        let plazo = pVal === 'custom' ? parseInt(document.getElementById('customValue').value) : parseInt(pVal);
+        const plazo = pVal === 'custom' ? parseInt(document.getElementById('customValue').value) : parseInt(pVal);
 
-        const startDate = new Date(y, m - 1, d);
-
-        // El motor anota los anios cuya feria de invierno no esta cargada y
-        // que este calculo llegue a tocar. Se consulta al final: si toco
-        // alguno, no se muestra una fecha. Un plazo de caducidad cruza
-        // meses y puede caer en un anio cuya Acordada la CSJN todavia no
-        // dicto —la dicta en abril o junio del mismo anio—.
-        CalendarioJudicial.reiniciarAuditoria();
-
-        // --- CALCULO ORDINARIO (solo ferias) ---
-        let ordDate = new Date(startDate);
-        let ordObs = [];
-
-        // Los plazos en meses se cuentan DE FECHA A FECHA (art. 6 CCyC), y el
-        // dia de anclaje es siempre el del ultimo acto impulsor. Si el mes de
-        // llegada no tiene ese dia, ese tramo termina el ultimo dia del mes
-        // —"cuando en el mes del vencimiento no hubiera dia equivalente al
-        // inicial del computo, se entiende que el plazo expira el ultimo dia
-        // de ese mes"— pero el ancla NO se pierde: el tramo siguiente vuelve a
-        // salir del dia original.
-        //
-        // Hasta el 18/8/2026 el ancla se arrastraba. Se avanzaba mutando la
-        // misma fecha, asi que al pasar por febrero quedaba clavada en 28 y
-        // los tramos siguientes salian de ahi. Un ultimo acto del 28, 29, 30 o
-        // 31 de diciembre daba los cuatro la MISMA caducidad, y siempre antes
-        // de lo que corresponde: impulsar el 31 no compraba nada respecto de
-        // impulsar el 28. Reportado por Javier.
-        const anclaDia = startDate.getDate();
-
-        const tramo = function(n) {
-            const m = new Date(startDate.getFullYear(), startDate.getMonth() + n, 1);
-            const ultimoDelMes = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
-            return new Date(m.getFullYear(), m.getMonth(), Math.min(anclaDia, ultimoDelMes));
-        };
-
-        // Enero no computa: es feria entera. Se lo saltea corriendo un mes mas,
-        // y eso es exacto y no una aproximacion. El tramo que se descarta
-        // —del dia D de diciembre al dia D de enero— trae dias corridos de
-        // diciembre que si deberian contar; el primer tramo que si computa
-        // —del dia D de enero al dia D de febrero— trae los dias de enero que
-        // NO deberian contar. Son la misma cantidad en los dos casos (31 - D),
-        // asi que se cancelan.
-        let corrimientos = 0;
-        let computados = 0;
-        while (computados < plazo) {
-            corrimientos++;
-            const fin = tramo(corrimientos);
-            if (CalendarioJudicial.esFeriaEnero(fin)) {
-                ordObs.push('Se excluyo enero ' + fin.getFullYear() + ' (feria)');
-                continue;
-            }
-            computados++;
-        }
-        ordDate = tramo(corrimientos);
-
-        // Feria de julio: art. 311 CPCCN — el plazo corre durante los dias
-        // inhabiles "salvo los que correspondan a las ferias judiciales", asi
-        // que los dias de feria que caen dentro del plazo se descuentan y el
-        // vencimiento se corre otro tanto.
-        //
-        // Se itera a punto fijo porque correr el vencimiento puede meter mas
-        // dias de feria adentro del plazo, y esos tambien hay que descontarlos.
-        // Sin iterar, un vencimiento nominal que cayera DENTRO de la feria
-        // sumaba solo los dias solapados y quedaba igual adentro: con inicio
-        // 23/6/2026 y plazo de 1 mes daba 27/7/2026, que es un dia de feria.
-        // Fallaba en el 3,7 % de los cruces de fecha de inicio por plazo,
-        // siempre por lo mismo. Reportado por Javier el 5/8/2026.
-        const nominalDate = new Date(ordDate);
-
-        // Las ferias salen de data/feria-judicial.json, con la Acordada de la
-        // CSJN que las fijo. Son varios rangos por año y no uno: 2009 se
-        // rectificó y se amplió, y 2020 encadenó once ferias extraordinarias.
-        // Los anios cuya Acordada de feria no esta cargada y que este computo
-        // llega a tocar. Se anotan aca y no en la auditoria del motor porque
-        // el calculo ordinario NO pasa por esDiaHabil: pregunta por los rangos
-        // directo, asi que el motor nunca se entera de que se lo consulto.
-        // Ese fue el agujero del 17/8: la guarda existia y jamas disparaba.
-        const aniosSinFeria = new Set();
-
-        const feriasDe = function(year) {
-            const r = CalendarioJudicial.obtenerFeriasDelAnio(year);
-            if (r === undefined) aniosSinFeria.add(year);
-            return r || [];
-        };
-
-        // Dias de feria comprendidos entre el inicio y una fecha dada.
-        const diasDeFeriaHasta = function(hasta) {
-            let dias = 0;
-            const detalle = [];
-            for (let año = startDate.getFullYear(); año <= hasta.getFullYear(); año++) {
-                feriasDe(año).forEach(function(f) {
-                    const desde = new Date(Math.max(startDate.getTime(), f.inicio.getTime()));
-                    const hastaFeria = new Date(Math.min(hasta.getTime(), f.fin.getTime()));
-                    if (hastaFeria >= desde) {
-                        const n = Math.round((hastaFeria.getTime() - desde.getTime()) / 86400000) + 1;
-                        dias += n;
-                        detalle.push({ año: año, feria: f, dias: n });
-                    }
-                });
-            }
-            return { dias: dias, detalle: detalle };
-        };
-
-        let feria = diasDeFeriaHasta(ordDate);
-        for (let iter = 0; iter < 12; iter++) {
-            const propuesta = new Date(nominalDate);
-            propuesta.setDate(nominalDate.getDate() + feria.dias);
-            if (propuesta.getTime() === ordDate.getTime()) break;
-            ordDate = propuesta;
-            feria = diasDeFeriaHasta(ordDate);
-        }
-
-        feria.detalle.forEach(function(f) {
-            ordObs.push(
-                'Se atraveso la feria de julio ' + f.año +
-                ' (' + f.feria.inicio.toLocaleDateString('es-AR') + ' al ' + f.feria.fin.toLocaleDateString('es-AR') + ') ' +
-                'y se agregaron ' + f.dias + ' dias'
-            );
-        });
-
-        // Si el calculo toco un anio sin Acordada de feria cargada, no se
-        // afirma una fecha: se dice cual falta. Es la misma regla que rige
-        // para los feriados nacionales (ver AGENTS.md).
-        //
-        // VA ACA, ANTES de escribir el resultado, y sobre el elemento VISIBLE.
-        // El 17/8/2026 quedo mas abajo y escribiendo en #resultDateFull, que
-        // vive dentro de .hidden-computation y tiene display:none: la negativa
-        // se escribia donde nadie la ve y la pantalla seguia mostrando la fecha
-        // de arriba. Un plazo que tocaba 2027 devolvia 25/7/2027 --calculado
-        // con CERO dias de feria, porque esa Acordada no esta cargada-- sin un
-        // solo aviso. Que la prueba lo diera por bueno es parte del mismo
-        // error: leia el elemento por id, y un id oculto responde igual.
-        const faltantes = Array.from(aniosSinFeria).sort();
-        const problema = faltantes.length
-            ? 'El plazo alcanza ' + (faltantes.length === 1 ? 'el año ' : 'los años ') +
-              faltantes.join(', ') + ', y la feria judicial de invierno ' +
-              (faltantes.length === 1 ? 'de ese año' : 'de esos años') + ' todavía no está ' +
-              'cargada. La fija la CSJN por Acordada, normalmente entre abril y junio del mismo ' +
-              'año, y esta herramienta no la deduce: sin ella el plazo vencería antes de lo que vence.'
-            : CalendarioJudicial.problemaDeDatos();
-
-        if (problema) {
+        const escribirNegativa = function(frase) {
             document.getElementById('resultDate').innerText = 'No se puede calcular';
-            document.getElementById('resultDetails').textContent = problema;
+            document.getElementById('resultDetails').textContent = frase;
             result.classList.add('show');
+        };
+
+        // "Plazo de prescripcion menor" sin numero cargado. Hasta el 26/8/2026
+        // esto seguia de largo con un plazo NaN: el bucle de meses no corria
+        // ni una vez y la pantalla contestaba que la caducidad se produce el
+        // dia del ultimo acto impulsor --la fecha de inicio, tal cual--.
+        // Verificado en pantalla antes de cambiarlo: 15/3/2025 con el campo
+        // vacio devolvia "15/3/2025". Es la unica salida de esta calculadora
+        // que cambia con la extraccion, y cambia de un numero equivocado a una
+        // negativa.
+        if (!Number.isInteger(plazo) || plazo <= 0) {
+            escribirNegativa('Falta el plazo en meses. Elegí uno de la lista, o escribí ' +
+                'el de prescripción menor en el campo de al lado.');
             return;
         }
 
-        document.getElementById('resultDate').innerText = ordDate.toLocaleDateString('es-AR');
-        document.getElementById('resultDetails').innerHTML = '<strong>Inicio:</strong> ' + startDate.toLocaleDateString('es-AR') + '<br><strong>Observaciones:</strong><br>' + ordObs.map(function(o) { return '- ' + o; }).join('<br>');
+        const r = Plazos.caducidad({ anio: y, mes: m, dia: d, meses: plazo });
 
-        // --- CALCULO FULL (con dias inhabiles y feriados, oculto) ---
-        let inhabilesList = [];
-        let fullDate = new Date(ordDate);
-        let previousLength;
-        let maxFullIter = 10;
-        do {
-            previousLength = inhabilesList.length;
-            inhabilesList = [];
-            let iter = new Date(startDate);
-            iter.setDate(iter.getDate() + 1);
-            
-            while (iter <= fullDate) {
-                let inFeriaJan = CalendarioJudicial.esFeriaEnero(iter);
-                let inFeriaJul = CalendarioJudicial.esFeriaJulio(iter);
-
-                let esFeriadoNac = CalendarioJudicial.esFeriado(iter);
-                let esAdicional = CalendarioJudicial.esInhabilCustom(iter);
-                let es16Nov = CalendarioJudicial.es16Noviembre(iter);
-                
-                if ((esFeriadoNac || esAdicional || es16Nov) && !inFeriaJan && !inFeriaJul) {
-                    inhabilesList.push({ fecha: iter.toLocaleDateString('es-AR'), nombre: CalendarioJudicial.obtenerMotivoInhabil(iter) });
-                }
-                iter.setDate(iter.getDate() + 1);
-            }
-            
-            fullDate = new Date(ordDate);
-            fullDate.setDate(fullDate.getDate() + inhabilesList.length);
-            
-            if (--maxFullIter <= 0) {
-                console.warn('Limite de iteraciones en calculo inhabiles');
-                break;
-            }
-        } while (inhabilesList.length > previousLength);
-
-        let adjusted = true;
-        let adObs = "";
-        let maxAdjIter = 10;
-        while(adjusted) {
-            adjusted = false;
-            // La feria del anio de fullDate puede no ser la que lo contiene:
-            // 2025 corre del 21/7 al 1/8, asi que un 1 de agosto cae en la
-            // feria declarada bajo 2025. Se prueban el anio y el anterior.
-            let feriaFull = null;
-            for (const y of [fullDate.getFullYear() - 1, fullDate.getFullYear()]) {
-                feriasDe(y).forEach(function(f) {
-                    if (fullDate >= f.inicio && fullDate <= f.fin) feriaFull = f;
-                });
-            }
-
-            if (CalendarioJudicial.esFeriaEnero(fullDate)) {
-                // Al 1 del mes siguiente, no a un 1 de febrero escrito a mano:
-                // el mes de la feria lo dice data/feria-judicial.json y esta
-                // rama tiene que moverse con el, no al lado.
-                fullDate.setMonth(fullDate.getMonth() + 1, 1);
-                adObs = " (Ajustado al primer dia habil post-feria de enero)";
-                adjusted = true;
-            }
-            // Hasta el 17/8/2026 esta rama hacia
-            // `fullDate.setDate(endJulioFull.getDate() + 1)`, que mezcla dos
-            // fechas distintas: toma el DIA DEL MES del fin de feria y lo
-            // aplica al mes de fullDate. Cuando la feria termina en agosto
-            // —2007, 2008, 2014, 2019, 2025— el fin cae 1 o 2, y un
-            // vencimiento del 25 de julio se movia al 2 de JULIO: 33 dias
-            // hacia atras. Una caducidad operaba un mes antes de lo que
-            // decia la pantalla.
-            else if (feriaFull) {
-                fullDate = new Date(feriaFull.fin);
-                fullDate.setDate(fullDate.getDate() + 1);
-                adObs = " (Ajustado al primer dia habil post-feria de julio)";
-                adjusted = true;
-            }
-            else if (fullDate.getDay() === 0 || fullDate.getDay() === 6) {
-                fullDate.setDate(fullDate.getDate() + 1);
-                adObs = " (Ajustado al siguiente dia habil por fin de semana)";
-                adjusted = true;
-            }
-            else if (!CalendarioJudicial.esDiaHabil(fullDate)) {
-                var motivo = CalendarioJudicial.obtenerMotivoInhabil(fullDate);
-                fullDate.setDate(fullDate.getDate() + 1);
-                adObs = ' (Ajustado por feriado: ' + motivo + ')';
-                adjusted = true;
-            }
-            if (--maxAdjIter <= 0) {
-                console.warn('Limite en ajuste final de fecha');
-                break;
-            }
+        if (r.problema) {
+            escribirNegativa(r.problema);
+            return;
         }
 
-        let listHTML = inhabilesList.length > 0 ?
-            '<details><summary>Ver detalle de los ' + inhabilesList.length + ' dias adicionados</summary>' +
+        // Las observaciones se arman aca y no en el motor: son prosa. El orden
+        // es el de siempre --primero los eneros salteados, despues las ferias
+        // atravesadas-- porque es el orden en que ocurren dentro del computo.
+        const obs = r.eneroExcluido
+            .map(function(anio) { return 'Se excluyo enero ' + anio + ' (feria)'; })
+            .concat(r.feriaAtravesada.map(function(f) {
+                return 'Se atraveso la feria de julio ' + f.anio +
+                    ' (' + f.feria.inicio.toLocaleDateString('es-AR') + ' al ' + f.feria.fin.toLocaleDateString('es-AR') + ') ' +
+                    'y se agregaron ' + f.dias + ' dias';
+            }));
+
+        document.getElementById('resultDate').innerText = r.vencimiento.toLocaleDateString('es-AR');
+        document.getElementById('resultDetails').innerHTML = '<strong>Inicio:</strong> ' + r.inicio.toLocaleDateString('es-AR') + '<br><strong>Observaciones:</strong><br>' + obs.map(function(o) { return '- ' + o; }).join('<br>');
+
+        // El computo con inhabiles y feriados. Vive dentro de
+        // .hidden-computation, que tiene display:none, asi que esto no se ve
+        // en pantalla y no se ve desde antes de esta extraccion. Se escribe
+        // igual: sacarlo es una decision y esta anotada en docs/ESTADO.md.
+        const full = r.conInhabiles;
+        const listHTML = full.inhabiles.length > 0 ?
+            '<details><summary>Ver detalle de los ' + full.inhabiles.length + ' dias adicionados</summary>' +
             '<ul class="inhabiles-list">' +
-            inhabilesList.map(function(item) { return '<li> ' + item.fecha + ': ' + item.nombre + '</li>'; }).join('') +
+            full.inhabiles.map(function(item) { return '<li> ' + item.fecha.toLocaleDateString('es-AR') + ': ' + item.motivo + '</li>'; }).join('') +
             '</ul></details>' : '';
 
-        document.getElementById('resultDateFull').innerText = fullDate.toLocaleDateString('es-AR');
-        document.getElementById('resultDetailsFull').innerHTML = 'Se adicionaron <strong>' + inhabilesList.length + ' dias inhabiles</strong> extra (fuera de ferias).<strong>' + adObs + '</strong>' + listHTML;
+        document.getElementById('resultDateFull').innerText = full.fecha.toLocaleDateString('es-AR');
+        document.getElementById('resultDetailsFull').innerHTML = 'Se adicionaron <strong>' + full.inhabiles.length + ' dias inhabiles</strong> extra (fuera de ferias).<strong>' + full.ajuste + '</strong>' + listHTML;
 
         result.classList.add('show');
     });

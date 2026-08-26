@@ -241,6 +241,168 @@ console.log('\nLa guarda de datos faltantes');
 }
 
 // ---------------------------------------------------------------------------
+// CADUCIDAD DE INSTANCIA (art. 310 CPCCN)
+//
+// Es un plazo en MESES: se cuenta de fecha a fecha (art. 6 CCyC) y los dias
+// inhabiles corren adentro salvo los de feria (art. 311 CPCCN). No comparte
+// una linea con vencimiento().
+//
+// Las fechas esperadas de abajo NO salen de este motor: son las que
+// caducidad.html mostraba en pantalla ANTES de la extraccion, capturadas el
+// 26/8/2026 contra el sitio servido sobre una matriz de 1132 casos --seis
+// anios por doce meses por cuatro dias por cuatro plazos--. La matriz entera
+// dio identica despues de migrar; esto guarda los testigos para que una
+// diferencia futura falle en CI y no dentro de un navegador que nadie abrio.
+//
+// Las fechas se comparan en huso local y no con toISOString(): caducidad
+// construye la fecha con new Date(y, m - 1, d), que es medianoche local, y en
+// un huso al este de Greenwich toISOString() devolveria el dia anterior.
+// ---------------------------------------------------------------------------
+console.log('\nCaducidad de instancia (art. 310 CPCCN)');
+{
+    const dl = (fecha) =>
+        `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
+
+    const cad = (dia, mes, anio, meses) => P.caducidad({ anio, mes, dia, meses });
+
+    // --- Los testigos de la pantalla ---------------------------------------
+    const testigos = [
+        // inicio            meses  ordinario     con inhabiles (no se muestra)
+        [[1, 1, 2021], 6, '2021-07-01', '2021-07-12'],
+        [[1, 7, 2025], 1, '2025-08-13', '2025-08-14'],
+        [[15, 7, 2025], 1, '2025-08-27', '2025-08-29'],
+        [[28, 7, 2025], 1, '2025-09-02', '2025-09-04'],
+        [[28, 2, 2025], 6, '2025-09-09', '2025-09-23'],
+        [[15, 12, 2025], 1, '2026-02-15', '2026-02-20'],
+        [[28, 12, 2025], 3, '2026-04-28', '2026-05-08'],
+        [[31, 12, 2025], 3, '2026-04-30', '2026-05-11'],
+        [[1, 6, 2026], 1, '2026-07-01', '2026-07-03'],
+        [[15, 6, 2026], 3, '2026-09-27', '2026-10-01'],
+    ];
+
+    for (const [[dia, mes, anio], meses, esperado, esperadoFull] of testigos) {
+        const r = cad(dia, mes, anio, meses);
+        igual(r.problema, null, `${dia}/${mes}/${anio} a ${meses} mes(es) calcula`);
+        igual(dl(r.vencimiento), esperado, `${dia}/${mes}/${anio} a ${meses} mes(es) vence el ${esperado}`);
+        igual(dl(r.conInhabiles.fecha), esperadoFull,
+            `${dia}/${mes}/${anio} a ${meses} mes(es), computo con inhabiles`);
+    }
+
+    // --- REGRESION: el ancla del dia no se arrastra (bug del 18/8/2026) -----
+    //
+    // Se avanzaba mutando la misma fecha, asi que al pasar por febrero quedaba
+    // clavada en 28 y los tramos siguientes salian de ahi. Un ultimo acto del
+    // 28, 29, 30 o 31 de diciembre daba los cuatro la MISMA caducidad, y
+    // siempre antes de lo que corresponde: impulsar el 31 no compraba nada
+    // respecto de impulsar el 28.
+    const finDeDiciembre = [28, 29, 30, 31].map((dia) => dl(cad(dia, 12, 2025, 3).vencimiento));
+    igual(finDeDiciembre.join(' '), '2026-04-28 2026-04-29 2026-04-30 2026-04-30',
+        'el ancla no se arrastra: el 28, el 29 y el 30 de diciembre dan tres fechas distintas',
+        finDeDiciembre.join(' '));
+    // El 30 y el 31 SI coinciden, y no es el bug: abril no tiene 31, asi que el
+    // art. 6 CCyC hace expirar el tramo el ultimo dia del mes. Lo que el bug
+    // producia era que los CUATRO coincidieran, y en febrero.
+    ok(finDeDiciembre.every((f, i) => i === 0 || f >= finDeDiciembre[i - 1]),
+        'y en orden: impulsar mas tarde no adelanta la caducidad', finDeDiciembre.join(' '));
+
+    // Febrero sigue siendo el mes que acorta el tramo que cae en el, y solo ese:
+    // el art. 6 CCyC hace expirar en el ultimo dia del mes cuando no hay dia
+    // equivalente.
+    igual(dl(cad(31, 1, 2025, 1).vencimiento), '2025-02-28',
+        'el 31 de enero a un mes vence el ultimo dia de febrero');
+    igual(dl(cad(31, 1, 2025, 2).vencimiento), '2025-03-31',
+        'y a dos meses vuelve al 31: el ancla no se perdio en febrero');
+
+    // --- Enero no computa ---------------------------------------------------
+    const cruzaEnero = cad(15, 12, 2025, 1);
+    ok(cruzaEnero.eneroExcluido.includes(2026),
+        'un plazo que caeria en enero lo saltea y lo dice', JSON.stringify(cruzaEnero.eneroExcluido));
+    igual(cad(15, 12, 2025, 1).corrimientos, 2,
+        'saltear enero cuesta un corrimiento de mas');
+
+    // --- La feria de invierno se descuenta y se dice cuanto ------------------
+    const conFeria = cad(1, 7, 2025, 1);
+    igual(conFeria.feriaAtravesada.length, 1, 'una sola feria atravesada');
+    igual(conFeria.feriaAtravesada[0].dias, 12, 'y son los doce dias de la feria de 2025');
+    igual(conFeria.feriaAtravesada[0].anio, 2025, 'anotada bajo su anio');
+
+    // Un inicio DENTRO de la feria solo descuenta los dias que quedan.
+    igual(cad(28, 7, 2025, 1).feriaAtravesada[0].dias, 5,
+        'empezando dentro de la feria se descuentan solo los dias que restan');
+
+    // --- INVARIANTE: el vencimiento nunca cae en feria (bug del 5/8/2026) ----
+    //
+    // Sin iterar a punto fijo, un vencimiento nominal que cayera DENTRO de la
+    // feria sumaba solo los dias solapados y quedaba igual adentro. Fallaba en
+    // el 3,7 % de los cruces. Se barre un anio entero por seis plazos.
+    {
+        let enInvierno = 0;
+        let enEnero = 0;
+        let mirados = 0;
+        let ejemploInvierno = null;
+        let ejemploEnero = null;
+        for (let mes = 1; mes <= 12; mes++) {
+            const ultimo = new Date(2025, mes, 0).getDate();
+            for (let dia = 1; dia <= ultimo; dia++) {
+                for (let meses = 1; meses <= 6; meses++) {
+                    const r = cad(dia, mes, 2025, meses);
+                    if (r.problema) continue;
+                    mirados++;
+                    if (CJ.esFeriaJudicial(r.vencimiento)) {
+                        enInvierno++;
+                        if (!ejemploInvierno) ejemploInvierno = `${dia}/${mes}/2025 a ${meses} mes(es) -> ${dl(r.vencimiento)}`;
+                    }
+                    if (CJ.esFeriaEnero(r.vencimiento)) {
+                        enEnero++;
+                        if (!ejemploEnero) ejemploEnero = `${dia}/${mes}/2025 a ${meses} mes(es) -> ${dl(r.vencimiento)}`;
+                    }
+                }
+            }
+        }
+        ok(mirados > 2000, `el barrido miro ${mirados} cruces de fecha por plazo`);
+        igual(enInvierno, 0, 'ningun vencimiento de caducidad cae en la feria de invierno', ejemploInvierno);
+
+        // ABIERTO, y esto NO es una comprobacion de que este bien: fija lo que
+        // la calculadora contesta hoy para que un cambio se vea.
+        //
+        // El salteo de enero mira si el TRAMO termina en enero. No vuelve a
+        // mirar despues de correr el vencimiento por los dias de la feria de
+        // invierno, asi que un tramo que termina en diciembre puede quedar
+        // empujado adentro de enero, que no computa. Son 23 de los 4260 cruces
+        // de 2025 --67 de 10.956 entre 2021 y 2025, el 0,61 %-- y todos tienen
+        // la misma forma: seis meses desde fines de junio, o cinco desde fines
+        // de julio.
+        //
+        // Es el hermano del bug que el punto fijo cerro el 5/8/2026 para la
+        // feria de invierno, por el otro lado. NO SE TOCA sin decision de
+        // Javier: mover esto mueve una fecha de caducidad. Anotado en
+        // docs/ESTADO.md con el caso.
+        igual(enEnero, 23,
+            'quedan 23 vencimientos empujados adentro de enero: es un bug abierto, no un invariante',
+            ejemploEnero);
+        igual(dl(cad(21, 7, 2025, 5).vencimiento), '2026-01-02',
+            'el testigo del bug de enero: 21/7/2025 a cinco meses contesta un 2 de enero');
+    }
+
+    // --- La guarda de datos faltantes ---------------------------------------
+    //
+    // El calculo ordinario NO pasa por esDiaHabil --pregunta por los rangos de
+    // feria directo-- asi que la auditoria del calendario no se entera. La
+    // guarda es propia y este es el agujero del 17/8/2026: existia y jamas
+    // disparaba.
+    if (carga.missingFeriaYears.includes(2027)) {
+        const toca2027 = cad(15, 8, 2026, 6);
+        ok(toca2027.problema !== null, 'un plazo que alcanza 2027 no afirma una fecha');
+        ok(/feria judicial de invierno/.test(toca2027.problema || ''),
+            'y el motivo nombra la feria', toca2027.problema);
+        igual(toca2027.conInhabiles, null,
+            'y con un dato faltante no se sigue calculando');
+    } else {
+        console.log('  (la feria de 2027 ya esta cargada: la guarda se saltea)');
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Entradas invalidas: se rechazan con un mensaje, no con una fecha.
 // ---------------------------------------------------------------------------
 console.log('\nEntradas invalidas');
@@ -252,6 +414,8 @@ console.log('\nEntradas invalidas');
     rechaza(() => P.vencimiento({ anio: 2026, mes: 6, dia: 18, plazo: 0 }), 'plazo 0 se rechaza, con mensaje acentuado');
     rechaza(() => P.vencimiento({ anio: 2026, mes: 6, dia: 18, plazo: 10, ampliacion: -1 }), 'ampliacion negativa se rechaza');
     rechaza(() => P.mora({ anio: 2026, mes: 6, dia: 18, diasHabiles: 0, diasCorridos: 10 }), 'mora sin dias habiles se rechaza');
+    rechaza(() => P.caducidad({ anio: 2026, mes: 6, dia: 18, meses: 0 }), 'caducidad sin meses se rechaza');
+    rechaza(() => P.caducidad({ anio: 2026, mes: 6, dia: 18 }), 'caducidad con el plazo vacio se rechaza, y no devuelve la fecha de inicio');
 }
 
 console.log(`\n${pruebas} comprobaciones, ${fallos} fallas.`);

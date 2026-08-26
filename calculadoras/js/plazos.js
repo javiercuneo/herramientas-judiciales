@@ -54,6 +54,15 @@
         return d;
     }
 
+    // caducidad.html, entre-fechas.html y regresiva.html construyen la fecha
+    // con new Date(y, m - 1, d) pelado, que ya es medianoche local: es el mismo
+    // instante que fechaComoMora sin el setHours redundante. Se escribe aparte
+    // igual, para que se vea de un vistazo que son tres convenciones y no una
+    // sola con tres nombres.
+    function fechaLocal(anio, mes, dia) {
+        return new Date(Number(anio), Number(mes) - 1, Number(dia));
+    }
+
     // --- Notificacion automatica (art. 133 CPCCN) ----------------------------
     // Transcripcion literal de calcularNotificacionAutomatica() en
     // vencimientos.html. La tabla de saltos por dia de la semana se deja como
@@ -303,11 +312,286 @@
         };
     }
 
+    // --- Caducidad de instancia (art. 310 CPCCN) ----------------------------
+    //
+    // Transcripcion de la funcion que caducidad.html tenia adentro del submit,
+    // sin la parte que lee el formulario y sin la que arma el HTML. La
+    // aritmetica no se toco: ni el ancla, ni el salteo de enero, ni el punto
+    // fijo de la feria, ni la iteracion del computo con inhabiles.
+    //
+    // Es un plazo en MESES y no en dias habiles, asi que no comparte una sola
+    // linea con vencimiento(): se cuenta de fecha a fecha (art. 6 CCyC) y los
+    // dias inhabiles corren adentro salvo los de feria (art. 311 CPCCN). Por
+    // eso vive al lado y no encima.
+    //
+    // opciones:
+    //   anio, mes, dia   la fecha del ultimo acto impulsor
+    //   meses            el plazo del art. 310: 6, 3, 1 o el de prescripcion
+    //
+    // Devuelve datos y no prosa, salvo `problema`, que es la frase que explica
+    // por que no se puede afirmar una fecha y que por regla del repositorio no
+    // se reescribe en cada calculadora.
+    function caducidad(opciones) {
+        var CJ = calendario();
+        var o = opciones || {};
+        var meses = Number(o.meses);
+
+        if (!Number.isInteger(meses) || meses <= 0) {
+            throw new Error('El plazo tiene que ser un número entero de meses mayor que cero.');
+        }
+
+        var startDate = fechaLocal(o.anio, o.mes, o.dia);
+
+        // El motor anota los anios cuya feria de invierno no esta cargada y
+        // que este calculo llegue a tocar. Se consulta al final: si toco
+        // alguno, no se muestra una fecha. Un plazo de caducidad cruza meses y
+        // puede caer en un anio cuya Acordada la CSJN todavia no dicto --la
+        // dicta en abril o junio del mismo anio--.
+        CJ.reiniciarAuditoria();
+
+        var ordDate = new Date(startDate);
+        var eneroExcluido = [];
+
+        // Los plazos en meses se cuentan DE FECHA A FECHA (art. 6 CCyC), y el
+        // dia de anclaje es siempre el del ultimo acto impulsor. Si el mes de
+        // llegada no tiene ese dia, ese tramo termina el ultimo dia del mes
+        // --"cuando en el mes del vencimiento no hubiera dia equivalente al
+        // inicial del computo, se entiende que el plazo expira el ultimo dia
+        // de ese mes"-- pero el ancla NO se pierde: el tramo siguiente vuelve
+        // a salir del dia original.
+        //
+        // Hasta el 18/8/2026 el ancla se arrastraba. Se avanzaba mutando la
+        // misma fecha, asi que al pasar por febrero quedaba clavada en 28 y
+        // los tramos siguientes salian de ahi. Un ultimo acto del 28, 29, 30 o
+        // 31 de diciembre daba los cuatro la MISMA caducidad, y siempre antes
+        // de lo que corresponde. Reportado por Javier.
+        var anclaDia = startDate.getDate();
+
+        var tramo = function (n) {
+            var m = new Date(startDate.getFullYear(), startDate.getMonth() + n, 1);
+            var ultimoDelMes = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+            return new Date(m.getFullYear(), m.getMonth(), Math.min(anclaDia, ultimoDelMes));
+        };
+
+        // Enero no computa: es feria entera. Se lo saltea corriendo un mes mas,
+        // y eso es exacto y no una aproximacion. El tramo que se descarta --del
+        // dia D de diciembre al dia D de enero-- trae dias corridos de
+        // diciembre que si deberian contar; el primer tramo que si computa
+        // --del dia D de enero al dia D de febrero-- trae los dias de enero que
+        // NO deberian contar. Son la misma cantidad en los dos casos (31 - D),
+        // asi que se cancelan.
+        var corrimientos = 0;
+        var computados = 0;
+        while (computados < meses) {
+            corrimientos++;
+            var fin = tramo(corrimientos);
+            if (CJ.esFeriaEnero(fin)) {
+                eneroExcluido.push(fin.getFullYear());
+                continue;
+            }
+            computados++;
+        }
+        ordDate = tramo(corrimientos);
+
+        // Feria de julio: art. 311 CPCCN --el plazo corre durante los dias
+        // inhabiles "salvo los que correspondan a las ferias judiciales", asi
+        // que los dias de feria que caen dentro del plazo se descuentan y el
+        // vencimiento se corre otro tanto.
+        //
+        // Se itera a punto fijo porque correr el vencimiento puede meter mas
+        // dias de feria adentro del plazo, y esos tambien hay que descontarlos.
+        // Sin iterar, un vencimiento nominal que cayera DENTRO de la feria
+        // sumaba solo los dias solapados y quedaba igual adentro: con inicio
+        // 23/6/2026 y plazo de 1 mes daba 27/7/2026, que es un dia de feria.
+        // Fallaba en el 3,7 % de los cruces de fecha de inicio por plazo,
+        // siempre por lo mismo. Reportado por Javier el 5/8/2026.
+        var nominalDate = new Date(ordDate);
+
+        // Los anios cuya Acordada de feria no esta cargada y que este computo
+        // llega a tocar. Se anotan aca y no en la auditoria del motor porque
+        // este calculo NO pasa por esDiaHabil: pregunta por los rangos
+        // directo, asi que el calendario nunca se entera de que se lo
+        // consulto. Ese fue el agujero del 17/8: la guarda existia y jamas
+        // disparaba.
+        var aniosSinFeria = new Set();
+
+        var feriasDe = function (year) {
+            var r = CJ.obtenerFeriasDelAnio(year);
+            if (r === undefined) aniosSinFeria.add(year);
+            return r || [];
+        };
+
+        // Dias de feria comprendidos entre el inicio y una fecha dada.
+        var diasDeFeriaHasta = function (hasta) {
+            var dias = 0;
+            var detalle = [];
+            for (var anio = startDate.getFullYear(); anio <= hasta.getFullYear(); anio++) {
+                (function (anioActual) {
+                    feriasDe(anioActual).forEach(function (f) {
+                        var desde = new Date(Math.max(startDate.getTime(), f.inicio.getTime()));
+                        var hastaFeria = new Date(Math.min(hasta.getTime(), f.fin.getTime()));
+                        if (hastaFeria >= desde) {
+                            var n = Math.round((hastaFeria.getTime() - desde.getTime()) / 86400000) + 1;
+                            dias += n;
+                            detalle.push({ anio: anioActual, feria: f, dias: n });
+                        }
+                    });
+                })(anio);
+            }
+            return { dias: dias, detalle: detalle };
+        };
+
+        var feria = diasDeFeriaHasta(ordDate);
+        for (var iter = 0; iter < 12; iter++) {
+            var propuesta = new Date(nominalDate);
+            propuesta.setDate(nominalDate.getDate() + feria.dias);
+            if (propuesta.getTime() === ordDate.getTime()) break;
+            ordDate = propuesta;
+            feria = diasDeFeriaHasta(ordDate);
+        }
+
+        // Si el calculo toco un anio sin Acordada de feria cargada, no se
+        // afirma una fecha: se dice cual falta. Es la misma regla que rige para
+        // los feriados nacionales (ver AGENTS.md), y la frase vive aca por el
+        // mismo motivo por el que problemaDeDatos() vive en el calendario:
+        // cinco pantallas sin build no mantienen cinco copias de la misma
+        // prosa. Se arma aparte de problemaDeDatos() porque el motor no puede
+        // haberse enterado --ver el comentario de aniosSinFeria--.
+        var faltantes = Array.from(aniosSinFeria).sort();
+        var problema = faltantes.length
+            ? 'El plazo alcanza ' + (faltantes.length === 1 ? 'el año ' : 'los años ') +
+              faltantes.join(', ') + ', y la feria judicial de invierno ' +
+              (faltantes.length === 1 ? 'de ese año' : 'de esos años') + ' todavía no está ' +
+              'cargada. La fija la CSJN por Acordada, normalmente entre abril y junio del mismo ' +
+              'año, y esta herramienta no la deduce: sin ella el plazo vencería antes de lo que vence.'
+            : CJ.problemaDeDatos();
+
+        var base = {
+            problema: problema,
+            inicio: startDate,
+            meses: meses,
+            corrimientos: corrimientos,
+            eneroExcluido: eneroExcluido,
+            feriaAtravesada: feria.detalle,
+            vencimiento: ordDate,
+            conInhabiles: null
+        };
+
+        // Con un dato faltante no se sigue calculando. La pantalla vieja
+        // devolvia aca mismo, asi que el computo con inhabiles no llegaba a
+        // correr: se conserva, y ademas es lo que corresponde.
+        if (problema) return base;
+
+        base.conInhabiles = caducidadConInhabiles(CJ, startDate, ordDate, feriasDe);
+        return base;
+    }
+
+    // El segundo computo de caducidad.html: al vencimiento ordinario se le
+    // suman los dias inhabiles que NO son de feria y despues se lo corre al
+    // primer dia habil.
+    //
+    // NO SE MUESTRA, y no desde ahora: en la pantalla vive dentro de un div
+    // .hidden-computation con display:none, y estaba asi antes de esta
+    // extraccion. Se transcribe igual y no se descarta por dos razones: sacar
+    // algo es una decision de Javier y no de quien lo lee, y escrito aca por lo
+    // menos se ve. Queda anotado en docs/ESTADO.md.
+    function caducidadConInhabiles(CJ, startDate, ordDate, feriasDe) {
+        var inhabilesList = [];
+        var fullDate = new Date(ordDate);
+        var previousLength;
+        var maxFullIter = 10;
+        do {
+            previousLength = inhabilesList.length;
+            inhabilesList = [];
+            var iter = new Date(startDate);
+            iter.setDate(iter.getDate() + 1);
+
+            while (iter <= fullDate) {
+                var inFeriaJan = CJ.esFeriaEnero(iter);
+                var inFeriaJul = CJ.esFeriaJulio(iter);
+
+                var esFeriadoNac = CJ.esFeriado(iter);
+                var esAdicional = CJ.esInhabilCustom(iter);
+                var es16Nov = CJ.es16Noviembre(iter);
+
+                if ((esFeriadoNac || esAdicional || es16Nov) && !inFeriaJan && !inFeriaJul) {
+                    inhabilesList.push({ fecha: new Date(iter), motivo: CJ.obtenerMotivoInhabil(iter) });
+                }
+                iter.setDate(iter.getDate() + 1);
+            }
+
+            fullDate = new Date(ordDate);
+            fullDate.setDate(fullDate.getDate() + inhabilesList.length);
+
+            if (--maxFullIter <= 0) {
+                if (typeof console !== 'undefined') console.warn('Limite de iteraciones en calculo inhabiles');
+                break;
+            }
+        } while (inhabilesList.length > previousLength);
+
+        var adjusted = true;
+        var ajuste = '';
+        var maxAdjIter = 10;
+        while (adjusted) {
+            adjusted = false;
+            // La feria del anio de fullDate puede no ser la que lo contiene:
+            // 2025 corre del 21/7 al 1/8, asi que un 1 de agosto cae en la
+            // feria declarada bajo 2025. Se prueban el anio y el anterior.
+            var feriaFull = null;
+            [fullDate.getFullYear() - 1, fullDate.getFullYear()].forEach(function (y) {
+                feriasDe(y).forEach(function (f) {
+                    if (fullDate >= f.inicio && fullDate <= f.fin) feriaFull = f;
+                });
+            });
+
+            if (CJ.esFeriaEnero(fullDate)) {
+                // Al 1 del mes siguiente, no a un 1 de febrero escrito a mano:
+                // el mes de la feria lo dice data/feria-judicial.json y esta
+                // rama tiene que moverse con el, no al lado.
+                fullDate.setMonth(fullDate.getMonth() + 1, 1);
+                ajuste = ' (Ajustado al primer dia habil post-feria de enero)';
+                adjusted = true;
+            }
+            // Hasta el 17/8/2026 esta rama hacia
+            // `fullDate.setDate(endJulioFull.getDate() + 1)`, que mezcla dos
+            // fechas distintas: toma el DIA DEL MES del fin de feria y lo
+            // aplica al mes de fullDate. Cuando la feria termina en agosto
+            // --2007, 2008, 2014, 2019, 2025-- el fin cae 1 o 2, y un
+            // vencimiento del 25 de julio se movia al 2 de JULIO: 33 dias
+            // hacia atras. Una caducidad operaba un mes antes de lo que decia
+            // la pantalla.
+            else if (feriaFull) {
+                fullDate = new Date(feriaFull.fin);
+                fullDate.setDate(fullDate.getDate() + 1);
+                ajuste = ' (Ajustado al primer dia habil post-feria de julio)';
+                adjusted = true;
+            }
+            else if (fullDate.getDay() === 0 || fullDate.getDay() === 6) {
+                fullDate.setDate(fullDate.getDate() + 1);
+                ajuste = ' (Ajustado al siguiente dia habil por fin de semana)';
+                adjusted = true;
+            }
+            else if (!CJ.esDiaHabil(fullDate)) {
+                var motivo = CJ.obtenerMotivoInhabil(fullDate);
+                fullDate.setDate(fullDate.getDate() + 1);
+                ajuste = ' (Ajustado por feriado: ' + motivo + ')';
+                adjusted = true;
+            }
+            if (--maxAdjIter <= 0) {
+                if (typeof console !== 'undefined') console.warn('Limite en ajuste final de fecha');
+                break;
+            }
+        }
+
+        return { fecha: fullDate, inhabiles: inhabilesList, ajuste: ajuste };
+    }
+
     var API = {
         notificacionAutomatica: notificacionAutomatica,
         proximoDiaDeNota: proximoDiaDeNota,
         parDeNotas: parDeNotas,
         vencimiento: vencimiento,
+        caducidad: caducidad,
         mora: mora
     };
 

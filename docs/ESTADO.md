@@ -69,6 +69,12 @@ casilla, tres líneas separadoras de menos, los días de nota marcados en el
 dibujo y el calendario con tamaño constante. Con eso **queda desbloqueado el
 frente grande que sigue: las otras diez calculadoras, con ésta de patrón.**
 
+**El 26/8, además, arrancó la extracción aritmética de las tres que faltaban**
+—el frente pesado—: `caducidad` ya consume el motor, con 1132 casos idénticos.
+Y de paso apareció un bug que no lo tocó nadie: **una caducidad puede vencer
+adentro de la feria de enero**, en el 0,61 % de los casos. Está en
+[Bugs abiertos](#bugs-abiertos) y no se tocó, porque arreglarlo mueve una fecha.
+
 **No queda nada urgente ni bloqueante.** Lo abierto está en
 [Pendientes](#pendientes) y [Bugs abiertos](#bugs-abiertos).
 
@@ -282,9 +288,9 @@ Ninguno urgente y ninguno bloqueante.
   que alguien corra `npm run feriados`. Es el argumento que faltaba para el cron
   que está anotado más arriba.
 - **Hay cinco bancos de pruebas y cubren cosas distintas.** `npm run
-  verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (34)
+  verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (83)
   cubren **el motor**: días hábiles, feria, feriados, cobertura, y la
-  aritmética de vencimiento y mora. `npm run verificar-contraste` cubre **los
+  aritmética de vencimiento, mora y caducidad. `npm run verificar-contraste` cubre **los
   tokens de color** y `npm run verificar-conectores` (46) **los dos
   transportes de `conectores/`**. `scripts/pruebas-calculadoras.html` —**51 filas: 21
   verificados a mano, 6 invariantes, 3 fijados, y los 21 verificados otra vez
@@ -782,8 +788,11 @@ Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío
 1. **Extender el dibujo del plazo a `caducidad`, `entre-fechas` y `regresiva`.**
    Es lo que sigue y es lo más largo. **No se puede hacer directo:** esas tres
    tienen su aritmética adentro del HTML y `plazos.js` todavía no las cubre, así
-   que primero hay que extraerlas. El método está probado dos veces hoy y es el
-   que hay que repetir:
+   que primero hay que extraerlas.
+   **`caducidad` ya está extraída y migrada —26/8—**, con la matriz de 1132
+   casos idéntica: ver [abajo](#caducidad-consume-el-motor--268). Quedan
+   `entre-fechas` y `regresiva`.
+   El método está probado tres veces y es el que hay que repetir:
    a) capturar la salida de la pantalla actual sobre una matriz de casos —con el
       detalle, no sólo la fecha final—, **contra el sitio servido y con
       rompe-caché**;
@@ -903,6 +912,63 @@ rediseñado y sacar `honorarios`, `tasa` y `prorrateo` de la barra— se hiciero
 el mismo 26/8: ver [el rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268).
 
 ---
+
+### `caducidad` consume el motor — 26/8
+
+Primera de las tres que faltaban, con el método de
+[Por dónde seguir](#por-dónde-seguir) hecho entero y sin cortar por la mitad.
+
+**Qué se movió de lugar.** El cómputo del art. 310 vivía adentro del `submit` de
+`caducidad.html`, entre `document.getElementById`: el ancla del día, el salteo
+de enero, el punto fijo de la feria de invierno y el cómputo con inhábiles.
+Ahora es `Plazos.caducidad()`, y la pantalla quedó en 77 líneas donde había 265:
+lee el formulario, llama al motor y escribe. **Es transcripción**: no se
+simplificó una línea, ni el bucle que arranca en `corrimientos = 0` ni la
+iteración a doce vueltas.
+
+**No comparte nada con `vencimiento()`, y eso está bien.** Es un plazo en meses
+—de fecha a fecha, art. 6 CCyC— y los inhábiles corren adentro salvo los de
+feria (art. 311 CPCCN). Vive al lado y no encima.
+
+**Cómo se probó que no se movió un número.** Antes de tocar nada, la matriz:
+seis años por doce meses por cuatro días por cuatro plazos, **1132 casos**,
+capturados de la pantalla servida —con el detalle y el cómputo oculto, no sólo
+la fecha—. Después de migrar, los mismos 1132 en el mismo orden: **idénticos**,
+con el mismo SHA-256 de la corrida entera (`408fedbd…`). Y las 51 filas de
+`pruebas-calculadoras.html` siguen en verde.
+
+**La trampa del caché, otra vez, y ahora con la forma exacta:** el `?v=` del
+HTML **no toca los subrecursos**. La primera corrida después de migrar encontró
+el `plazos.js` **anterior** todavía en memoria —`Plazos.caducidad` no existía— y
+sólo se vio porque el arnés lo comprueba antes de medir en vez de suponerlo. Lo
+que sí funciona es `fetch(url, { cache: 'reload' })` sobre cada script y recién
+después recargar: eso reemplaza la entrada de caché. **Toda medición contra el
+sitio servido tiene que empezar comprobando que el código que corre es el que se
+acaba de escribir**, y no que la URL llevaba un parámetro distinto.
+
+**Lo único que cambió de salida, y cambia para bien.** Con «Plazo de
+prescripción menor» elegido y el campo **vacío**, la calculadora seguía de largo
+con un plazo `NaN`: el bucle de meses no corría ni una vez y la pantalla
+contestaba que **la caducidad se produce el día del último acto impulsor**.
+Verificado en pantalla antes de tocarlo: 15/3/2025 con el campo vacío devolvía
+«15/3/2025». Ahora dice que falta el plazo. Es la única diferencia de las 1132 y
+va de un número equivocado a una negativa.
+
+**Y lo que quedó anotado sin tocar** —además del bug de enero, que está en
+[Bugs abiertos](#bugs-abiertos)—: el **cómputo con inhábiles y feriados no se
+muestra**, y no desde ahora. Vive en un `div.hidden-computation` con
+`display:none` desde antes de la extracción: se calcula entero, se escribe en el
+DOM y nadie lo ve. Se transcribió igual, con el motivo escrito en `plazos.js`.
+**Hay que decidir si se muestra o se saca**, y las dos cosas son decisión de
+Javier: mostrarlo agrega una segunda fecha a una pantalla que responde una sola
+pregunta, y sacarlo tira una cuenta que alguien escribió a propósito.
+
+**El banco creció de 34 a 83 comprobaciones**, y las de caducidad no salen del
+motor: son las que la pantalla mostraba antes de la extracción. Adentro van los
+diez testigos, el ancla que no se arrastra —el bug del 18/8—, el salteo de
+enero, los días de feria descontados, y el barrido de 4260 cruces que prueba que
+**ningún vencimiento cae en la feria de invierno**. Ese barrido es el que
+encontró el bug de enero.
 
 ### Las pantallas consumen el motor — 26/8
 
@@ -1201,8 +1267,42 @@ ni una calle con altura.
 
 ## Bugs abiertos
 
-**Ninguno.** El último —los diez documentos de dominio sin interruptor de tema—
-se cerró el 26/8 y está en [`HISTORIA.md`](HISTORIA.md).
+### La caducidad puede vencer adentro de la feria de enero — 26/8
+
+**Apareció extrayendo la aritmética de `caducidad`, y no lo tocó nadie: es de
+antes.** La extracción salió idéntica en los 1132 casos de la matriz, así que
+esto ya estaba y sigue estando.
+
+**Qué pasa.** El salteo de enero mira si **el tramo de meses** termina en enero.
+No vuelve a mirar después de correr el vencimiento por los días de la feria de
+invierno, así que un tramo que termina en diciembre puede quedar **empujado
+adentro de enero**, que no computa por ser feria entera (art. 2 del Reglamento
+para la Justicia Nacional).
+
+**El caso, para que se pueda desmentir:** último acto impulsor el **21/7/2025**,
+plazo de **5 meses**. El tramo nominal termina el 21/12/2025; la feria de 2025
+—21/7 al 1/8, Acordada 9/2025— aporta doce días, y el vencimiento se corre al
+**2/1/2026**, que es feria. La pantalla lo afirma sin ningún aviso.
+
+**Cuánto es:** 67 de 10.956 cruces de fecha de inicio por plazo entre 2021 y
+2025, el **0,61 %**. Todos tienen la misma forma —seis meses desde fines de
+junio, o cinco desde fines de julio— y todos caen en los primeros once días de
+enero.
+
+**Es el hermano del bug que el punto fijo cerró el 5/8 para la feria de
+invierno**, por el otro lado: ahí el vencimiento nominal caía dentro de la feria
+de julio y la iteración lo empujó afuera; acá lo que empuja es la propia feria
+de julio, y no hay nada que lo vuelva a mirar.
+
+**No se tocó, y es a propósito:** arreglarlo mueve una fecha de caducidad, que
+es de lo que depende que una instancia se pierda o no. Va con pedido explícito,
+y antes hay que decidir **hacia dónde** —el candidato es meter enero en el mismo
+punto fijo que la feria de invierno, pero eso es una interpretación del art. 311
+y conviene fundarla—.
+
+**Mientras tanto está fijado y no escondido:** `npm run verificar-plazos` cuenta
+los 23 casos de 2025 y guarda el testigo del 21/7. Si alguien lo cambia sin
+querer, el número se mueve y el control lo dice.
 
 ---
 
@@ -1509,6 +1609,15 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   con punto**, desde v4 y salvo `include-hidden-files: true`. Hoy no hay
   ninguno en lo que se publica, pero el día que entre uno **no falla nada**:
   simplemente no llega al sitio.
+- **El rompe-caché del HTML no toca los scripts que el HTML carga.** Un `?v=`
+  en la URL de la página trae la página nueva y sigue ejecutando el
+  `plazos.js` viejo que ya estaba en memoria, sin ningún síntoma salvo que el
+  código nuevo «no hace nada». Pasó el 26/8 midiendo la migración de
+  `caducidad`. Lo que sí funciona: `fetch(url, { cache: 'reload' })` sobre cada
+  script y recién después recargar. Y la regla que lo vuelve innecesario:
+  **antes de medir, comprobar que el código que corre es el que se acaba de
+  escribir** —que la función nueva exista—, en vez de confiar en un parámetro
+  de la URL.
 - **Al leer un diff grande de un HTML, mirar primero si es de contenido.**
   `git diff --ignore-cr-at-eol` lo despeja en un segundo.
 - **La consola de Next acumula errores viejos y no los limpia al recargar.**
