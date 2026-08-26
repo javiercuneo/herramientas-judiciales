@@ -84,6 +84,15 @@ jobs:
       - name: Verificar los conectores
         run: npm run verificar-conectores
 
+      # Que terceros nombran las paginas que se publican. Existe porque el
+      # 26/8/2026 se contesto "que sale del navegador" leyendo las once
+      # calculadoras una por una, y la respuesta se dejo afuera a prorrateo,
+      # que le pedia la UMA a una planilla de Google desde una llamada
+      # escondida a cuatrocientas lineas del calculo. Un host nuevo no rompe
+      # nada visible, asi que sin este control entra en silencio.
+      - name: Verificar que terceros nombra el sitio
+        run: npm run verificar-red
+
       - name: Assemble Pages site
         run: |
           set -euo pipefail

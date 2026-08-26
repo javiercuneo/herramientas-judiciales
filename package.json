@@ -11,6 +11,7 @@
     "verificar-series": "node scripts/verificar-series.mjs",
     "verificar-contraste": "node scripts/verificar-contraste.mjs",
     "verificar-conectores": "node scripts/verificar-conectores.mjs",
+    "verificar-red": "node scripts/verificar-red.mjs",
     "verificar-escribiente": "node scripts/verificar-escribiente.mjs",
     "verificar-honorio": "node scripts/verificar-honorio.mjs",
     "feriados": "node scripts/actualizar-feriados.mjs",

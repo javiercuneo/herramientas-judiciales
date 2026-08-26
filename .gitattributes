@@ -24,6 +24,13 @@
 # nuevo en Windows se quedaba sin control de datos personales sin avisar.
 *.sh            text eol=lf
 *.mjs           text eol=lf
+# Los workflows llevan bloques `run: |` que el runner ejecuta como shell. Con
+# `* text=auto` y sin regla propia, la copia de trabajo en Windows se los lleva
+# con CRLF y cualquier edicion de una linea aparece en el diff como el archivo
+# entero. En el repositorio siempre estuvieron con LF; esto lo deja escrito en
+# vez de depender de que nadie los guarde de la otra forma.
+*.yml           text eol=lf
+*.yaml          text eol=lf
 # Los hooks no llevan extension, asi que la regla de arriba no los agarra, y
 # es el mismo problema en su peor version: un hook con CRLF no corre y git no
 # dice nada. El control de datos personales desaparece en silencio.

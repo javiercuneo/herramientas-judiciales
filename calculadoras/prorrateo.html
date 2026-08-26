@@ -295,7 +295,7 @@
                     <td class="label-cell">VALOR UMA (pesos)</td>
                     <td>
                         <input type="text" id="umaInput" placeholder="Ingrese valor UMA" value="" oninput="calculate()">
-                        <div style="font-size: 12px; color: var(--muted-fg);">Si la carga automática falla, ingréselo manualmente (sin puntos, solo números)</div>
+                        <div id="avisoUma" style="font-size: 12px; color: var(--muted-fg);">Cargando el valor de la UMA…</div>
                     </td>
                 </tr>
             </table></div>
@@ -485,71 +485,57 @@
         }
 
         /*
-          La planilla es una tabla de clave y valor:
+          El valor de la UMA sale de data/serie-uma.json, del propio
+          repositorio, y no de una planilla publicada de un tercero.
 
-            UMA,102.076
-            UHOM,12.960
-            Acordada,"Expresado en UMAs: (valor = $ ... segun Res. ...)"
-            URL,https://...
+          Hasta el 26/8/2026 esta pagina le pedia el valor a una planilla de
+          Google en cada carga. Quedo afuera del barrido de "que sale del
+          navegador" del 26/8, que reviso las once calculadoras y nombro a
+          honorarios-mediacion --arreglada ese dia-- y a distancia como las
+          unicas dos que consultaban afuera. Eran tres.
 
-          Se busca POR CLAVE y no por posicion: agregar una fila o
-          cambiarlas de orden no puede romper el numero. Antes esto
-          leia la primera linea a ciegas. Es el mismo criterio que usa
-          scripts/actualizar-uma.mjs en el repositorio de Honorio.
+          El archivo tiene la serie entera leida de los actos de la CSJN, uno
+          por uno, y la verifica npm run verificar-series. Es la misma serie
+          que publica uma-uhom.html y el mismo movimiento que ya se hizo con
+          los feriados y con el UHOM.
 
-          Se respetan las comillas porque la fila Acordada tiene comas
-          adentro.
+          Se elige el ultimo valor cuya VIGENCIA ya empezo, y no el ultimo del
+          archivo. La diferencia aparece el dia que se carga un valor por
+          adelantado: el ultimo del archivo seria uno que todavia no rige.
         */
-        function valorDePlanilla(csv, clave) {
-            const campos = [];
-            let celda = '';
-            let entreComillas = false;
-
-            const cerrarFila = () => {
-                campos.push(celda);
-                celda = '';
-                const encontrada = campos[0].trim().toUpperCase() === clave;
-                const valor = encontrada && campos.length > 1 ? campos[1].trim() : null;
-                campos.length = 0;
-                return valor;
-            };
-
-            for (let i = 0; i < csv.length; i++) {
-                const c = csv[i];
-                if (entreComillas) {
-                    if (c === '"') {
-                        if (csv[i + 1] === '"') { celda += '"'; i++; }
-                        else entreComillas = false;
-                    } else celda += c;
-                    continue;
-                }
-                if (c === '"') entreComillas = true;
-                else if (c === ',') { campos.push(celda); celda = ''; }
-                else if (c === '\n') { const v = cerrarFila(); if (v) return v; }
-                else if (c !== '\r') celda += c;
+        function umaVigente(valores) {
+            const hoy = new Date().toISOString().slice(0, 10);
+            let elegido = null;
+            for (const v of valores) {
+                if (typeof v.valor !== 'number' || !v.vigencia) continue;
+                if (v.vigencia <= hoy) elegido = v;
             }
-            return cerrarFila();
+            return elegido;
         }
 
-        // --- Cargar UMA desde la planilla publicada ---
         async function cargarUMA() {
             const umaInput = document.getElementById('umaInput');
+            const aviso = document.getElementById('avisoUma');
             try {
-                const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8tumvxptTGBCfScMwWxK7r6ATnGfMw061GKGdzfIVyThcSGzUqjI-vcpME1AtykPmjqTq0xdjgc7D/pub?output=csv');
-                const csvText = await response.text();
+                // Rompe-cache: sin esto un valor nuevo puede tardar en
+                // aparecer y el usuario ve el anterior sin que nada se lo diga.
+                const response = await fetch('../data/serie-uma.json?v=' + Date.now());
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const serie = await response.json();
+                const vigente = umaVigente(serie.valores || []);
+                if (!vigente) throw new Error('la serie no tiene ningún valor vigente');
 
-                // Google devuelve el HTML de una pantalla de error con
-                // status 200 cuando la publicacion se dio de baja.
-                if (/^\s*</.test(csvText)) throw new Error('la planilla no esta publicada');
-
-                const bruto = valorDePlanilla(csvText, 'UMA');
-                // Los puntos son separador de miles en la planilla.
-                const umaValor = bruto ? parseFloat(bruto.replace(/\./g, '')) : NaN;
-
-                umaInput.value = !isNaN(umaValor) && umaValor > 0 ? umaValor : '';
+                umaInput.value = vigente.valor;
+                // Se dice desde cuándo rige, y no sólo el número: es el dato
+                // que permite notar que la serie quedó corta.
+                aviso.textContent = 'Rige desde el ' + vigente.vigencia.split('-').reverse().join('/') +
+                    ' (' + vigente.norma + '). Se puede reemplazar a mano.';
             } catch (e) {
-                console.warn("Error al cargar UMA:", e);
-                umaInput.value = ''; // dejar vacío para ingreso manual
+                // No se inventa un valor ni se deja el anterior: se dice que
+                // hay que cargarlo. Un prorrateo calculado con una UMA
+                // equivocada sale plausible y nadie lo nota.
+                umaInput.value = '';
+                aviso.textContent = 'No se pudo leer el valor de la UMA (' + e.message + '). Cargalo a mano, sin puntos.';
             }
             calculate(); // recalcular con el nuevo valor
         }

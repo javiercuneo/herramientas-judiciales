@@ -178,13 +178,28 @@ Ninguno urgente y ninguno bloqueante.
   - **~~`honorarios-mediacion` le pide el UHOM a una planilla de Google~~
     Arreglado el 26/8:** lee `data/serie-uhom.json`, del propio repositorio.
     Ver [abajo](#dos-arreglos-que-salieron-de-preguntar-qué-sale-del-navegador--268).
-  - **`distancia` es el caso distinto y el único que manda algo:** los nombres
-    de localidad que el usuario escribe van a `apis.datos.gob.ar`, a
+  - **~~`prorrateo` le pedía la UMA a la MISMA planilla, y este barrido no lo
+    vio.~~ Arreglado el 26/8:** lee `data/serie-uma.json`. **La primera versión
+    de esta lista decía que las únicas dos que consultaban afuera eran
+    `honorarios-mediacion` y `distancia`, y eran tres.** El barrido se hizo
+    leyendo las calculadoras una por una y a `prorrateo` se la leyó por lo que
+    calcula, no por lo que pide: la llamada está a cuatrocientas líneas del
+    cálculo, adentro de un cargador de CSV. **Lo que lo habría cazado —y es lo
+    que se hizo ahora— es un `grep` de `fetch(` sobre las once, que tarda un
+    segundo y no depende de qué tan atento estuvo el que leyó.**
+  - **`calculadoras/honorarios.html` también le pide a la planilla**, y es la
+    excepción que no hay que arreglar: se retiró el 7/8 y `pages.yml` publica en
+    su URL el aviso de `redirects/honorarios-retirada/`, así que **el archivo con
+    el `fetch` no llega al sitio**. Queda en el repositorio como historia.
+  - **`distancia` es el caso distinto y el único que manda ALGO QUE EL USUARIO
+    ESCRIBIÓ:** los nombres de localidad van a `apis.datos.gob.ar`, a
     `geocoding-api.open-meteo.com` y a `router.project-osrm.org`. No es un dato
     personal —es una ciudad— pero es entrada del usuario saliendo a tres
     terceros. **Desde el 26/8 la página lo dice arriba de todo**, y el tercero
-    que faltaba nombrar quedó nombrado. Sigue siendo la única del sitio que
-    consulta afuera.
+    que faltaba nombrar quedó nombrado. **Con `prorrateo` arreglada, es otra vez
+    la única del sitio que consulta afuera**, y ahora la única que lo hizo
+    alguna vez con algo que el usuario tipeó: las otras dos pedían un número
+    público.
 - **Las once calculadoras no hablan el mismo idioma, y las que no son de plazos
   se rehacen de cero.** Pedido de Javier del 26/8: *«cada una usa un lenguaje
   distinto, avisa de años distintos, etc. hay que hacer algo más uniforme»*, y
@@ -301,12 +316,14 @@ Ninguno urgente y ninguno bloqueante.
   llega a 2027, así que en enero de 2028 no calcula ninguna fecha de 2028 hasta
   que alguien corra `npm run feriados`. Es el argumento que faltaba para el cron
   que está anotado más arriba.
-- **Hay cinco bancos de pruebas y cubren cosas distintas.** `npm run
+- **Hay seis bancos de pruebas y cubren cosas distintas.** `npm run
   verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (132)
   cubren **el motor**: días hábiles, feria, feriados, cobertura, y la
   aritmética de las cinco de plazos. `npm run verificar-contraste` cubre **los
-  tokens de color** y `npm run verificar-conectores` (46) **los dos
-  transportes de `conectores/`**. `scripts/pruebas-calculadoras.html` —**75 filas: 21
+  tokens de color**, `npm run verificar-conectores` (46) **los dos
+  transportes de `conectores/`** y `npm run verificar-red` **qué terceros
+  nombran las quince páginas que se publican**, contra una lista con el motivo
+  escrito al lado de cada uno. `scripts/pruebas-calculadoras.html` —**75 filas: 21
   verificados a mano, 6 invariantes, 3 fijados, los 24 cruzados contra el motor,
   y los 21 verificados otra vez adentro del tablero**— cubre **las pantallas**:
   maneja las cinco calculadoras por iframe y compara el resultado que muestran. Se abre con el sitio servido —no con `file://`— y
@@ -747,14 +764,24 @@ valor viejo, el control corta con cuatro fallas y además delata la deriva
 
 ---
 
-### Dos arreglos que salieron de preguntar qué sale del navegador — 26/8
+### Tres arreglos que salieron de preguntar qué sale del navegador — 26/8
 
 La pregunta la hizo Javier: *«no sé si en javiercuneo.com.ar prometemos que los
 datos no salen del navegador o sólo en Honorio»*. **La respuesta era que no lo
 prometemos** —la promesa está escrita en dos lugares y los dos son de
 Escribiente, que es la única que la sostiene con la CSP—, así que no había
-promesa incumplida. Pero leer las once para contestar dejó dos cosas para
-arreglar, y las dos se arreglaron.
+promesa incumplida. Pero leer las once para contestar dejó cosas para arreglar,
+y se arreglaron todas.
+
+> **Corregido el mismo 26/8, y conviene leer por qué.** Esta sección decía «dos
+> arreglos» y eran tres: **`prorrateo` le pedía la UMA a la misma planilla de
+> Google y el barrido no lo vio.** Se leyeron las once calculadoras una por una,
+> y a `prorrateo` se la leyó por lo que calcula: la llamada está a cuatrocientas
+> líneas del cálculo, adentro de un cargador de CSV con su propio parser. Un
+> `grep` de `fetch(` sobre las once —que es lo que se hizo después— la encuentra
+> en un segundo. **La lección no es «leer con más atención»: es que para una
+> pregunta mecánica hay un control mecánico**, y usar el ojo donde va el `grep`
+> es cómo se escribe una lista incompleta con toda confianza.
 
 **`honorarios-mediacion` ya no le pide el UHOM a Google.** Lo lee de
 `data/serie-uhom.json`. Dos problemas de distinto tamaño:
@@ -776,11 +803,20 @@ lo que le permite a quien lo usa notar que la serie quedó corta. Y si el archiv
 no se puede leer, no se inventa un valor ni se deja el anterior: se pide
 cargarlo a mano.
 
-Salió también el parser de CSV que leía la planilla, con su manejo de comillas.
-Era buen código y no hace falta más: la fila que buscaba ya no existe.
+**`prorrateo` ya no le pide la UMA a Google.** Lee `data/serie-uma.json`, con
+la serie entera leída de los actos de la CSJN uno por uno. Es el mismo cambio y
+por los mismos dos motivos. Y acá el efecto se nota además en la pantalla:
+**la página ahora dice desde cuándo rige el valor y con qué resolución**
+—«Rige desde el 01/07/2026 (Res. SGA 1930/2026)»—, donde antes el campo salía
+con un número sin procedencia, o vacío.
 
-**`distancia` ahora dice qué sale.** Es la única calculadora del sitio que manda
-algo escrito por el usuario a un tercero: los nombres de localidad van a GEOREF,
+Salió también el parser de CSV que leía la planilla, con su manejo de comillas
+—estaba escrito dos veces, una en cada calculadora—. Era buen código y no hace
+falta más: la fila que buscaba ya no existe.
+
+**`distancia` ahora dice qué sale.** Con las otras dos arregladas es otra vez la
+única del sitio que consulta afuera, y la única que siempre mandó algo escrito
+por el usuario —las otras dos pedían un número público—: los nombres de localidad van a GEOREF,
 a Open-Meteo Geocoding y a OSRM. Dos de los tres estaban nombrados abajo, en
 «Método de Cálculo»; **OSRM no estaba en ninguna parte**. Ahora hay un aviso
 arriba de todo que dice las tres cosas que importan: qué sale (el lugar), qué no
@@ -897,6 +933,65 @@ faltaban](#el-dibujo-en-las-tres-que-faltaban--268). Los otros dos que estaban
 acá —el tablero rediseñado y sacar `honorarios`, `tasa` y `prorrateo` de la
 barra— se hicieron el mismo día: ver [el
 rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268).
+
+---
+
+### `prorrateo` también le pedía la UMA a Google, y el control que lo caza — 26/8
+
+**El barrido de «qué sale del navegador» de esta misma mañana dio una lista
+incompleta, y la escribió con toda confianza.** Decía que las únicas dos
+calculadoras que consultaban afuera eran `honorarios-mediacion` —arreglada ese
+día— y `distancia`. Eran **tres**: `prorrateo.html` le pedía el valor de la UMA a
+la misma planilla publicada de Google, en cada carga.
+
+**Por qué no se vio, que es lo que importa.** Se leyeron las once una por una, y
+a `prorrateo` se la leyó por lo que calcula. La llamada está a cuatrocientas
+líneas del cálculo, adentro de un cargador de CSV con su propio parser de
+comillas: un bloque que se lee como infraestructura y se saltea. **La lección no
+es «leer con más atención». Es que para una pregunta mecánica —qué hosts aparecen
+en estos archivos— hay un control mecánico**, y usar el ojo donde va el control
+es exactamente cómo se produce una lista incompleta sin darse cuenta.
+
+**El arreglo:** lee `data/serie-uma.json`, el mismo movimiento que se hizo con el
+UHOM y por los mismos dos motivos —abrir la página dejaba de contarle a un
+tercero que alguien la abrió, y la planilla es una tabla suelta que se edita a
+mano y no la controla nada—. Elige el último valor **cuya vigencia ya empezó**, y
+**ahora la pantalla dice desde cuándo rige y con qué resolución**: «Rige desde el
+01/07/2026 (Res. SGA 1930/2026)». Antes el campo salía con un número sin
+procedencia, o vacío. Si el archivo no se puede leer no se inventa nada: se pide
+cargarlo a mano.
+
+#### `npm run verificar-red`
+
+`scripts/verificar-red.mjs`, en CI, sin red y sin `honorio/`. Busca cada host que
+aparezca en **las quince páginas que se publican** y exige que esté en una lista
+con **el motivo escrito al lado**. Hoy son trece hosts.
+
+Dos listas y no una, porque no es lo mismo:
+
+- **Desconocido** —«no está en la lista»— es «esto es nuevo, decidilo».
+- **Prohibido** es «esto ya se sacó a propósito», y el mensaje dice cuándo y por
+  qué. Hoy el único es `docs.google.com`.
+
+**No mira si la llamada se ejecuta ni cuándo**, y es deliberado: un host
+nombrado en un comentario cuenta igual que uno en un `fetch()`. La pregunta que
+contesta es «a quién nombra este sitio», y afinarla para distinguir código de
+prosa la volvería otra vez dependiente de leer bien, que es el problema que vino
+a resolver.
+
+**Una sola exclusión, escrita a la vista:** `calculadoras/honorarios.html`, que
+se retiró el 7/8 y cuya URL publica el aviso de `redirects/honorarios-retirada/`.
+El archivo tiene el `fetch` a la planilla y **no llega al sitio**.
+
+**Comprobado que falla cuando tiene que fallar**, con las dos formas: se metió a
+mano un `docs.google.com` y un host inventado en `tasa.html`, y salieron los dos
+con mensajes distintos y salida 1.
+
+**Y de paso, `*.yml text eol=lf` en `.gitattributes`.** Los workflows llevan
+bloques `run: |` que el runner ejecuta como shell, y sin regla propia la copia de
+trabajo en Windows se los lleva con CRLF: la próxima edición de una línea
+aparece como el archivo entero. Es el mismo agujero que ya se había tapado para
+`.sh` y `.mjs`.
 
 ---
 
