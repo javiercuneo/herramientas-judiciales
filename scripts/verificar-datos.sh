@@ -61,7 +61,14 @@ buscar '\b(?:L\.?C\.?|L\.?E\.?|C\.?I\.?)\b[^0-9]{0,8}[0-9]{6,8}' 'documento de i
 # 21/2025 llevo el del art. 286 del CCyCN a $1.400.000). Sin el, cada monto de
 # siete digitos bloquea un commit, y un control que da falsos positivos seguido
 # es un control que se termina salteando siempre.
-buscar '(?<![$])\b[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}\b(?![0-9])' 'numero con forma de DNI (7-8 digitos con puntos)'
+#
+# Y el lookahead de los centavos es por lo mismo, agregado el 26/8/2026: un DNI
+# NO LLEVA DECIMALES, asi que 1.500.000,00 no puede ser uno. No es aflojar el
+# patron ---no deja pasar ninguna forma que un documento de identidad pueda
+# tener--- sino sacarle una que nunca fue suya. Aparecio con los importes que
+# fija scripts/pruebas-no-plazos.html, que son salidas de pantalla copiadas tal
+# cual y por eso no se les puede poner el signo de peso adelante.
+buscar '(?<![$])\b[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}\b(?![0-9])(?!,[0-9])' 'numero con forma de DNI (7-8 digitos con puntos)'
 buscar '\b(?:20|23|24|27|30|33|34)\s*-\s*[0-9]{8}\s*-\s*[0-9]\b' 'CUIT/CUIL con guiones (ojo: puede llevar espacios)'
 buscar '\b(?:20|23|24|27|30|33|34)[0-9]{9}\b' 'CUIT/CUIL de 11 digitos sin guiones -- contiene el DNI'
 buscar '\b[0-9]{22}\b' 'CBU'

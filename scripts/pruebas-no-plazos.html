@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pruebas de las calculadoras que no son de plazos</title>
+<link rel="stylesheet" href="../calculadoras/css/comun.css">
+<style>
+    body {
+        font-family: var(--font-sans);
+        background: var(--bg);
+        color: var(--fg);
+        font-size: 14px;
+        line-height: 1.55;
+        padding: 28px 20px 64px;
+    }
+    .hoja { max-width: 1000px; margin: 0 auto; }
+    h1 {
+        font-family: var(--font-meter);
+        font-size: 21px;
+        font-weight: 700;
+        margin-bottom: 14px;
+    }
+    h2 {
+        font-family: var(--font-meter);
+        font-size: 15px;
+        font-weight: 700;
+        margin: 30px 0 4px;
+    }
+    p { max-width: 78ch; margin-bottom: 14px; color: var(--muted-fg); }
+    p.bajada { margin-bottom: 10px; font-size: 13px; }
+    button {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        font-weight: 600;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 9px;
+        background: var(--accent);
+        color: var(--on-accent);
+        cursor: pointer;
+    }
+    button:disabled { opacity: 0.55; cursor: default; }
+    #resumen { font-family: var(--font-meter); font-weight: 700; margin-left: 14px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 8px; }
+    th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--hair); vertical-align: top; }
+    th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--faint); }
+    td.est { font-family: var(--font-meter); font-weight: 700; white-space: nowrap; }
+    .ok { color: var(--ok); }
+    .mal { color: var(--error); }
+    .pend { color: var(--warn); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .porque { display: block; font-size: 12px; color: var(--muted-fg); margin-top: 3px; }
+    iframe { position: fixed; left: -9999px; top: 0; width: 1100px; height: 1400px; border: 0; }
+</style>
+</head>
+<body>
+<div class="hoja">
+<h1>Pruebas de las calculadoras que no son de plazos</h1>
+
+<p><strong>Abrir con el sitio servido, no con <code>file://</code></strong>: las
+calculadoras piden archivos de <code>data/</code> con <code>fetch</code>.</p>
+
+<p><strong>Por qué existe.</strong> Las cinco de plazos comparten motor y tienen
+tres bancos encima. <code>prorrateo</code>, <code>tasa</code>,
+<code>honorarios-mediacion</code> y <code>ejecucion-estado</code> no comparten
+nada: cada una trae su propia aritmética adentro de un <code>&lt;script&gt;</code>
+atado al DOM, y hasta hoy <strong>no tenían ni una comprobación</strong>. Se
+decidió refundarlas de cero, y un refactor sin red no se puede distinguir de un
+error: esto es la red, y va primero.</p>
+
+<p><strong>Son fijados y no verificados.</strong> No dicen que el número esté
+bien: dicen que es el que la calculadora devuelve hoy. Sirven para que una
+reescritura que mueva un resultado se vea, que es exactamente lo que pide la
+regla de la casa. Cuando un caso se derive a mano contra la norma, se lo asciende
+a verificado y se escribe el porqué.</p>
+
+<p><strong>Cada caso carga sus propios valores de UMA y de UHOM.</strong> Las dos
+calculadoras que los usan los leen de <code>data/</code>, así que si el caso no
+los fijara, publicar un valor nuevo pondría el banco en rojo sin que nada se haya
+roto.</p>
+
+<p>Esto vive en <code>scripts/</code> a propósito: el workflow de Pages publica
+por lista explícita y <code>scripts/</code> no está en ella, así que no llega a
+producción.</p>
+
+<p><button id="correr">Correr las pruebas</button><span id="resumen"></span></p>
+
+<div id="salida"></div>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Un driver por calculadora: sabe llenar sus campos, disparar el calculo y
+// leer su resultado. Es lo unico que hay que tocar cuando una pantalla cambia,
+// y cuando se refunde va a haber que reescribirlo entero: eso es esperado y no
+// invalida los casos, que estan escritos en entradas y salidas y no en ids.
+// ---------------------------------------------------------------------------
+const pausa = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function esperar(cond, ms) {
+    const hasta = Date.now() + ms;
+    while (Date.now() < hasta) {
+        try { if (cond()) return true; } catch (e) { /* el iframe todavia carga */ }
+        await pausa(80);
+    }
+    return false;
+}
+
+const DRIVERS = {
+    // -----------------------------------------------------------------------
+    // prorrateo: art. 730 CCyC, el tope del 25 % de la condena.
+    //
+    // El caso trae el monto del proceso, la UMA, las banderas de tasa y una
+    // lista de honorarios, cada uno con si esta expresado en UMA y si lleva
+    // IVA. Se leen los seis numeros de la pantalla y ademas el prorrateo de
+    // cada fila: el total puede quedar igual con las filas repartidas mal.
+    // -----------------------------------------------------------------------
+    prorrateo: {
+        archivo: '../calculadoras/prorrateo.html',
+        lista: (d) => !!d.getElementById('honorario-body') &&
+                      d.getElementById('honorario-body').rows.length > 0,
+        correr: async (d, campos) => {
+            const w = d.defaultView;
+            // resetCalculator() va PRIMERO: limpia el monto del proceso y las
+            // dos casillas de la tasa, ademas de rehacer las cinco filas.
+            // Llamarlo despues de cargar los campos los borraba, y el sintoma
+            // era enganioso: los honorarios sumaban bien y el tope, el 25 % y
+            // el porcentaje daban cero, o sea que parecia un bug del prorrateo
+            // y era el driver.
+            w.resetCalculator();
+
+            d.getElementById('montoProcess').value = campos.monto;
+            // La UMA se fija siempre: si se dejara la que trae el archivo, el
+            // banco se pondria rojo cada vez que la CSJN publica un valor.
+            d.getElementById('umaInput').value = campos.uma;
+
+            const tasaManual = campos.tasaManual !== undefined;
+            d.getElementById('tasaManualCheckbox').checked = tasaManual;
+            d.getElementById('tasaManualInput').value = tasaManual ? campos.tasaManual : '';
+            d.getElementById('incluirTasaCheckbox').checked = !!campos.incluirTasa;
+
+            const filas = d.querySelectorAll('#honorario-body tr');
+            campos.honorarios.forEach((h, i) => {
+                const fila = filas[i];
+                fila.querySelector('.honorario-input').value = h.monto;
+                fila.querySelector('.uma-checkbox').checked = !!h.uma;
+                fila.querySelector('.iva-checkbox').checked = !!h.iva;
+            });
+            w.calculate();
+            await pausa(60);
+
+            const t = (id) => d.getElementById(id).textContent.trim();
+            const porFila = Array.from(d.querySelectorAll('#honorario-body tr'))
+                .slice(0, campos.honorarios.length)
+                .map((fila) => fila.querySelector('td:nth-child(6)').textContent.trim())
+                .join(' | ');
+
+            return [
+                'tasa ' + t('tasa'),
+                '25% ' + t('percent25'),
+                'tope ' + t('tope730'),
+                'honorarios ' + t('totalHonorarios'),
+                'sobre el proceso ' + t('percentTotal'),
+                'prorrateo ' + t('totalProrrateo'),
+                'por fila ' + porFila
+            ].join(' · ');
+        }
+    },
+
+    // -----------------------------------------------------------------------
+    // honorarios-mediacion: la escala del anexo, en UHOM.
+    //
+    // Es la unica de las cuatro cuya cuenta tiene un salto en cada tramo, asi
+    // que los casos van pegados a los bordes: 30, 60, 150, 300, 600 y 1000
+    // UHOM exactos y uno arriba de cada uno. Un borde mal puesto ---<= contra
+    // <--- no se ve en ningun otro lado.
+    // -----------------------------------------------------------------------
+    'honorarios-mediacion': {
+        archivo: '../calculadoras/honorarios-mediacion.html',
+        // NO alcanza con que exista el boton. La pagina lee el UHOM de
+        // data/serie-uhom.json y lo escribe en el campo cuando llega, o sea
+        // DESPUES de que el driver puso el suyo: el primer caso corria con el
+        // UHOM del archivo y los demas con el del caso. El sintoma era el peor
+        // posible ---fallaba solo el primero--- y el numero salia plausible.
+        // Hay que exigir el texto del estado FINAL, que es distinto del inicial.
+        lista: (d) => /Rige desde|No se pudo leer/.test(
+            d.getElementById('statusUhom').textContent),
+        correr: async (d, campos) => {
+            d.getElementById('uhom').value = campos.uhom;
+            d.getElementById('monto').value = campos.monto;
+            d.getElementById('btnCalc').click();
+            await pausa(60);
+            const msg = d.getElementById('msg').textContent.trim();
+            if (msg) return 'no calcula: ' + msg;
+            if (d.getElementById('result').hidden) return 'no calcula: sin mensaje';
+            return d.getElementById('honorarioPesos').textContent.trim() +
+                ' · ' + d.getElementById('honorarioUhom').textContent.trim() + ' UHOM' +
+                ' · ' + d.getElementById('notaRegla').textContent.trim();
+        }
+    },
+
+    // -----------------------------------------------------------------------
+    // tasa: Ley 23.898. La pantalla se arma sola segun el objeto del juicio,
+    // asi que el driver elige el objeto y despues llena la tabla que aparecio.
+    // -----------------------------------------------------------------------
+    tasa: {
+        archivo: '../calculadoras/tasa.html',
+        lista: (d) => !!d.getElementById('objetoJuicio'),
+        correr: async (d, campos) => {
+            const sel = d.getElementById('objetoJuicio');
+            sel.value = campos.objeto;
+            sel.dispatchEvent(new d.defaultView.Event('change', { bubbles: true }));
+            await pausa(80);
+
+            const entradas = d.querySelectorAll('.montoInput');
+            if (!entradas.length) return 'no calcula: el objeto no armo ninguna tabla';
+            entradas[0].value = campos.monto;
+            entradas[0].dispatchEvent(new d.defaultView.Event('input', { bubbles: true }));
+            await pausa(60);
+            const total = d.getElementById('totalTasa');
+            return total ? total.value.trim() : '(no se pudo leer)';
+        }
+    },
+
+    // -----------------------------------------------------------------------
+    // ejecucion-estado: el asistente de cuatro pasos de la Ley 25.344. No es
+    // una cuenta de plata sino de aniios, y depende de dos cosas: si la
+    // notificacion cayo antes del 31 de julio y si se certifico el agotamiento
+    // de la partida. Los cuatro cruces estan cubiertos.
+    // -----------------------------------------------------------------------
+    'ejecucion-estado': {
+        archivo: '../calculadoras/ejecucion-estado.html',
+        lista: (d) => !!d.getElementById('btnNext') || !!d.getElementById('btnEntendido'),
+        correr: async (d, campos) => {
+            const w = d.defaultView;
+            // El iframe se reusa entre casos y el asistente queda parado en el
+            // resultado del anterior. Sin este reinicio corria el primer caso y
+            // los otros tres decian "no aparecio el paso de la fecha": el
+            // sintoma no se parece en nada a la causa.
+            const reiniciar = d.getElementById('btnReiniciarCalc');
+            if (reiniciar) { reiniciar.click(); await pausa(120); }
+
+            // El paso 0 es un aviso con su propio boton. Se lo pasa si esta.
+            const entendido = d.getElementById('btnEntendido');
+            if (entendido) { entendido.click(); await pausa(80); }
+
+            const puso = await esperar(() => !!d.getElementById('inputDia'), 3000);
+            if (!puso) return 'no calcula: no aparecio el paso de la fecha';
+            // El asistente NO lee los campos al avanzar: lee su propio estado,
+            // que un listener de `input` mantiene. Poner .value sin disparar el
+            // evento dejaba el estado vacio, la fecha salia invalida y el
+            // asistente se quedaba en el paso 1 sin decir nada al driver.
+            [['inputDia', campos.dia], ['inputMes', campos.mes], ['inputAnio', campos.anio]]
+                .forEach(([id, valor]) => {
+                    const campo = d.getElementById(id);
+                    campo.value = valor;
+                    campo.dispatchEvent(new w.Event('input', { bubbles: true }));
+                });
+            d.getElementById('btnNext').click();
+            await pausa(120);
+
+            // El paso de la certificacion son dos tarjetas con data-cert, no
+            // radios: se eligen por ese atributo, que es el que lee la propia
+            // pantalla para decidir. Un ancla estructural sobrevive a que
+            // cambie la redaccion de la tarjeta; una sobre su texto, no.
+            const elegida = d.querySelector('[data-cert="' + (campos.certificacion ? 'si' : 'no') + '"]');
+            if (!elegida) return 'no calcula: no se encontro la opcion de certificacion';
+            elegida.click();
+            await pausa(80);
+            d.getElementById('btnNext').click();
+            await pausa(120);
+            d.getElementById('btnNext').click();
+            await pausa(150);
+
+            const caja = d.querySelector('.result-date-box .date');
+            if (!caja) return '(no se pudo leer) ' + d.getElementById('contentArea').innerText.replace(/\s+/g, ' ').slice(0, 80);
+            return caja.textContent.trim();
+        }
+    }
+};
+
+// ---------------------------------------------------------------------------
+// Los casos. Entradas y salida esperada, nada de ids: cuando la pantalla se
+// refunda, se reescribe el driver y estos quedan.
+// ---------------------------------------------------------------------------
+const FIJADOS = [
+    // --- prorrateo ---------------------------------------------------------
+    {
+        calc: 'prorrateo',
+        rotulo: 'Sin tope: los honorarios no llegan al 25 %',
+        campos: { monto: '10000000', uma: '100000', honorarios: [{ monto: '1000000' }, { monto: '500000' }] },
+        esperado: 'tasa 300.000,00 · 25% 2.500.000,00 · tope 2.200.000,00 · honorarios 1.500.000,00 · sobre el proceso 15,00% · prorrateo 0.00 · por fila 0.00 | 0.00',
+        porque: 'La base es $1.500.000 sobre $10.000.000, o sea 15 %. Abajo del 25 % no hay prorrateo y las columnas quedan en cero.'
+    },
+    {
+        calc: 'prorrateo',
+        rotulo: 'Con tope: dos honorarios que juntos pasan el 25 %',
+        campos: { monto: '10000000', uma: '100000', honorarios: [{ monto: '2000000' }, { monto: '1000000' }] },
+        esperado: 'tasa 300.000,00 · 25% 2.500.000,00 · tope 2.200.000,00 · honorarios 3.000.000,00 · sobre el proceso 30,00% · prorrateo 2.200.000,00 · por fila 1.466.666,67 | 733.333,33',
+        porque: 'Base $3.000.000 sobre $10.000.000, o sea 30 %. El tope del art. 730 es el 22 % y se reparte 2:1.'
+    },
+    {
+        calc: 'prorrateo',
+        rotulo: 'Un honorario en UMA y otro con IVA',
+        campos: { monto: '10000000', uma: '100000', honorarios: [{ monto: '30', uma: true }, { monto: '1000000', iva: true }] },
+        esperado: 'tasa 300.000,00 · 25% 2.500.000,00 · tope 2.200.000,00 · honorarios 4.210.000,00 · sobre el proceso 42,10% · prorrateo 2.200.000,00 · por fila 1.567.695,96 | 632.304,04',
+        porque: 'Los dos modificadores de la fila: 30 UMA son $3.000.000, y el segundo lleva el 21 %. Existe para que un cambio en el orden de los dos se vea.'
+    },
+    {
+        calc: 'prorrateo',
+        rotulo: 'La tasa de justicia contada dentro de la base',
+        campos: { monto: '10000000', uma: '100000', incluirTasa: true, honorarios: [{ monto: '2400000' }] },
+        esperado: 'tasa 300.000,00 · 25% 2.500.000,00 · tope 2.200.000,00 · honorarios 2.400.000,00 · sobre el proceso 27,00% · prorrateo 2.200.000,00 · por fila 2.200.000,00',
+        porque: 'La casilla suma la tasa a la base de comparación pero NO al total que se prorratea. $2.400.000 es 24 % y solo pasa el 25 % con la tasa adentro: es el caso que distingue las dos cosas.'
+    },
+    {
+        calc: 'prorrateo',
+        rotulo: 'Tasa cargada a mano en vez del 3 %',
+        campos: { monto: '10000000', uma: '100000', tasaManual: '150000', incluirTasa: true, honorarios: [{ monto: '2400000' }] },
+        esperado: 'tasa 150.000,00 · 25% 2.500.000,00 · tope 2.200.000,00 · honorarios 2.400.000,00 · sobre el proceso 25,50% · prorrateo 2.200.000,00 · por fila 2.200.000,00',
+        porque: 'Mismo caso con la tasa a mano y más chica que el 3 %: acá NO llega al 25 % y no hay prorrateo. Es el par del anterior.'
+    },
+
+    // --- honorarios-mediacion, pegados a los bordes de la escala -----------
+    {
+        calc: 'honorarios-mediacion',
+        rotulo: 'Ítem A: 30 UHOM exactos',
+        campos: { uhom: '10000', monto: '300000' },
+        esperado: '$ 30.000,00 · 3,00 UHOM · Regla aplicada: hasta 30 UHOM ⇒ 3 UHOM (ítem A).',
+        porque: 'El borde de arriba del ítem A. Con "<" en vez de "<=" caería en el B y el honorario se duplicaría.'
+    },
+    {
+        calc: 'honorarios-mediacion',
+        rotulo: 'Ítem B: un peso arriba de 30 UHOM',
+        campos: { uhom: '10000', monto: '300001' },
+        esperado: '$ 60.000,00 · 6,00 UHOM · Regla aplicada: > 30 y hasta 60 UHOM ⇒ 6 UHOM (ítem B).',
+        porque: 'El par del anterior. Los dos juntos fijan dónde está el corte.'
+    },
+    {
+        calc: 'honorarios-mediacion',
+        rotulo: 'Ítem F: 1000 UHOM exactos',
+        campos: { uhom: '10000', monto: '10000000' },
+        esperado: '$ 200.000,00 · 20,00 UHOM · Regla aplicada: > 600 y hasta 1000 UHOM ⇒ 20 UHOM (ítem F).',
+        porque: 'El último tramo de suma fija, antes de que empiece el 2 % del ítem G.'
+    },
+    {
+        calc: 'honorarios-mediacion',
+        rotulo: 'Ítem G: 2 % del monto, sin llegar al tope',
+        campos: { uhom: '10000', monto: '20000000' },
+        esperado: '$ 400.000,00 · 40,00 UHOM · Regla aplicada: > 1000 UHOM ⇒ 2 % del monto, hasta 120 UHOM (ítem G).',
+        porque: 'Arriba de 1000 UHOM se pasa al 2 %. Acá da 40 UHOM, muy abajo de los 120 del tope.'
+    },
+    {
+        calc: 'honorarios-mediacion',
+        rotulo: 'Ítem G topeado en 120 UHOM',
+        campos: { uhom: '10000', monto: '100000000' },
+        esperado: '$ 1.200.000,00 · 120,00 UHOM · Regla aplicada: > 1000 UHOM ⇒ 2 % del monto, hasta 120 UHOM (ítem G). El 2 % superaba el tope del ítem G, así que se aplicó el tope de 120 UHOM.',
+        porque: 'El 2 % daría 200 UHOM y el tope del ítem G lo corta en 120. Es el único caso donde el tope hace algo, y por eso el rótulo equivocado vivió tanto: la cuenta no cambiaba nunca.'
+    },
+    {
+        calc: 'honorarios-mediacion',
+        rotulo: 'Sin UHOM cargado',
+        campos: { uhom: '', monto: '300000' },
+        esperado: 'no calcula: Ingrese un UHOM válido.',
+        porque: 'No se afirma un honorario sin el valor de la unidad con la que se mide.'
+    },
+
+    // --- tasa --------------------------------------------------------------
+    {
+        calc: 'tasa',
+        rotulo: 'Sumas de dinero: 3 % (art. 4 inc. a)',
+        campos: { objeto: 'sumasDinero', monto: '10000000' },
+        esperado: '300000.00',
+        porque: 'La alícuota general de la Ley 23.898 sobre el monto reclamado con intereses.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Desalojo: 3 % sobre seis cánones (art. 4 inc. b)',
+        campos: { objeto: 'desalojo', monto: '500000' },
+        esperado: '90000.00',
+        porque: 'El multiplicador por seis es propio de este inciso y es lo que un refactor puede perder sin que se note.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Inmuebles: 3 % sobre la valuación (art. 4 inc. c)',
+        campos: { objeto: 'inmuebles', monto: '25000000' },
+        esperado: '750000.00',
+        porque: null
+    },
+
+    // --- ejecucion-estado, los cuatro cruces -------------------------------
+    {
+        calc: 'ejecucion-estado',
+        rotulo: 'Notificación antes del 31 de julio, sin certificación',
+        campos: { dia: '15', mes: '3', anio: '2024', certificacion: false },
+        esperado: '01/01/2026',
+        porque: 'Entra en el presupuesto del año siguiente: dos años.'
+    },
+    {
+        calc: 'ejecucion-estado',
+        rotulo: 'Notificación después del 31 de julio, sin certificación',
+        campos: { dia: '15', mes: '9', anio: '2024', certificacion: false },
+        esperado: '01/01/2027',
+        porque: 'Pierde el presupuesto del año siguiente y va al subsiguiente: tres años.'
+    },
+    {
+        calc: 'ejecucion-estado',
+        rotulo: 'Antes del 31 de julio, con certificación de agotamiento',
+        campos: { dia: '15', mes: '3', anio: '2024', certificacion: true },
+        esperado: '01/01/2027',
+        porque: 'La certificación suma un año más de espera.'
+    },
+    {
+        calc: 'ejecucion-estado',
+        rotulo: 'El 31 de julio exacto: es el borde y cuenta como después',
+        campos: { dia: '31', mes: '7', anio: '2024', certificacion: false },
+        esperado: '01/01/2027',
+        porque: 'El corte es "antes del 31", así que el 31 mismo ya no entra. Un ">" cambiado por ">=" mueve un año entero.'
+    }
+];
+
+// ---------------------------------------------------------------------------
+const marcos = new Map();
+
+async function marco(calc) {
+    if (marcos.has(calc)) return marcos.get(calc);
+    const drv = DRIVERS[calc];
+    const f = document.createElement('iframe');
+    // Rompe-cache: sin esto el iframe puede servir la version anterior de la
+    // calculadora y las pruebas corren contra codigo viejo, que es la peor
+    // forma de falla porque parece un bug del cambio que se acaba de hacer.
+    f.src = drv.archivo + '?v=' + Date.now();
+    document.body.appendChild(f);
+    await new Promise((r) => { f.onload = r; });
+    const ok = await esperar(() => drv.lista(f.contentDocument), 12000);
+    if (!ok) throw new Error(`${calc}: no terminó de cargar en 12 s`);
+    marcos.set(calc, f);
+    return f;
+}
+
+function fila(estado, clase, rotulo, calc, detalle, porque) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td class="est"></td><td></td><td><code></code></td><td></td>';
+    const td = tr.children;
+    td[0].textContent = estado;
+    td[0].className = 'est ' + clase;
+    td[1].textContent = rotulo;
+    if (porque) {
+        const s = document.createElement('span');
+        s.className = 'porque';
+        s.textContent = porque;
+        td[1].appendChild(s);
+    }
+    td[2].firstChild.textContent = calc;
+    td[3].textContent = detalle;
+    return tr;
+}
+
+function seccion(titulo, bajada) {
+    const h = document.createElement('h2');
+    h.textContent = titulo;
+    const p = document.createElement('p');
+    p.className = 'bajada';
+    p.textContent = bajada;
+    const t = document.createElement('table');
+    t.innerHTML = '<thead><tr><th>Estado</th><th>Caso</th><th>Página</th><th>Resultado</th></tr></thead><tbody></tbody>';
+    const salida = document.getElementById('salida');
+    salida.append(h, p, t);
+    return t.querySelector('tbody');
+}
+
+document.getElementById('correr').addEventListener('click', async () => {
+    const btn = document.getElementById('correr');
+    btn.disabled = true;
+    btn.textContent = 'Corriendo…';
+    document.getElementById('salida').innerHTML = '';
+    document.getElementById('resumen').textContent = '';
+    marcos.forEach((f) => f.remove());
+    marcos.clear();
+
+    let pasan = 0, fallan = 0, sinFijar = 0;
+
+    const cuerpo = seccion('Fijados',
+        'Lo que las calculadoras devuelven hoy. No dice que esté bien: dice que es lo que hay, para que una reescritura que mueva un número se vea.');
+
+    for (const c of FIJADOS) {
+        try {
+            const d = (await marco(c.calc)).contentDocument;
+            const got = await DRIVERS[c.calc].correr(d, c.campos);
+            if (c.esperado === null || c.esperado === undefined) {
+                sinFijar++;
+                cuerpo.appendChild(fila('sin fijar', 'pend', c.rotulo, c.calc,
+                    `valor actual: ${got}  ← pegarlo en FIJADOS`, c.porque));
+            } else {
+                const bien = got === c.esperado;
+                bien ? pasan++ : fallan++;
+                cuerpo.appendChild(fila(bien ? 'pasa' : 'CAMBIÓ', bien ? 'ok' : 'mal', c.rotulo, c.calc,
+                    bien ? got : `fijado ${c.esperado} · ahora ${got}`, c.porque));
+            }
+        } catch (e) {
+            fallan++;
+            cuerpo.appendChild(fila('ERROR', 'mal', c.rotulo, c.calc, e.message, c.porque));
+        }
+    }
+
+    const r = document.getElementById('resumen');
+    r.innerHTML = '';
+    const partes = [[`${pasan} pasan`, 'ok']];
+    if (fallan) partes.push([`${fallan} fallan`, 'mal']);
+    if (sinFijar) partes.push([`${sinFijar} sin fijar`, 'pend']);
+    partes.forEach(([txt, cls], i) => {
+        if (i) r.append(document.createTextNode(' · '));
+        const s = document.createElement('span');
+        s.className = cls;
+        s.textContent = txt;
+        r.appendChild(s);
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Correr las pruebas';
+});
+</script>
+</body>
+</html>

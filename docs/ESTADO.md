@@ -226,6 +226,10 @@ Ninguno urgente y ninguno bloqueante.
   al paso del dibujo: los colores planos de `regresiva`, su `@media` escrito al
   revés, y las faltas de ortografía del texto que ve el usuario en `caducidad` y
   en `regresiva`. Lo que queda ahí es aspecto, no defecto.
+  **Y las cuatro que van de cero ya tienen red**, que era la condición para
+  poder tocarlas: `scripts/pruebas-no-plazos.html`, 18 fijados. Antes del 26/8
+  no tenían ninguna comprobación y una reescritura no se habría podido
+  distinguir de un error.
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
   su propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -316,7 +320,7 @@ Ninguno urgente y ninguno bloqueante.
   llega a 2027, así que en enero de 2028 no calcula ninguna fecha de 2028 hasta
   que alguien corra `npm run feriados`. Es el argumento que faltaba para el cron
   que está anotado más arriba.
-- **Hay seis bancos de pruebas y cubren cosas distintas.** `npm run
+- **Hay siete bancos de pruebas y cubren cosas distintas.** `npm run
   verificar-calculos` (673 comprobaciones) y `npm run verificar-plazos` (132)
   cubren **el motor**: días hábiles, feria, feriados, cobertura, y la
   aritmética de las cinco de plazos. `npm run verificar-contraste` cubre **los
@@ -330,8 +334,11 @@ Ninguno urgente y ninguno bloqueante.
   tarda seis segundos. **Los iframes llevan rompe-caché**: sin él las pruebas
   corren contra la versión anterior de la calculadora, que es la peor forma de
   falla porque parece un bug del cambio que se acaba de hacer.
-  **Falta cubrir el prorrateo, la tasa y las demás no-de-plazos**, que hoy no
-  tienen ni una comprobación.
+  **~~Falta cubrir el prorrateo, la tasa y las demás no-de-plazos~~ Hecho el
+  26/8:** `scripts/pruebas-no-plazos.html`, **18 fijados** sobre `prorrateo`,
+  `tasa`, `honorarios-mediacion` y `ejecucion-estado`. Va antes de refundarlas,
+  que es lo que sigue. Ver
+  [abajo](#la-red-de-las-que-no-son-de-plazos-que-va-antes-de-refundarlas--268).
 - **Las cinco de plazos ya se corrieron de punta a punta** (17/8), con cálculo
   real y pantalla de resultado. Las otras seis no: de esas se midió contraste y
   ancho, y se miraron capturas de dos.
@@ -933,6 +940,80 @@ faltaban](#el-dibujo-en-las-tres-que-faltaban--268). Los otros dos que estaban
 acá —el tablero rediseñado y sacar `honorarios`, `tasa` y `prorrateo` de la
 barra— se hicieron el mismo día: ver [el
 rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268).
+
+---
+
+### La red de las que no son de plazos, que va antes de refundarlas — 26/8
+
+**`scripts/pruebas-no-plazos.html`, 18 casos sobre las cuatro que no comparten
+motor.** Hasta hoy `prorrateo`, `tasa`, `honorarios-mediacion` y
+`ejecucion-estado` **no tenían ni una comprobación**, y la decisión de Javier es
+refundarlas de cero. Un refactor sin red no se distingue de un error: la red va
+primero. Es el mismo orden que se usó con las de plazos, donde el banco de las
+pantallas se construyó *antes* de extraer la aritmética.
+
+**Son fijados y no verificados**, y la diferencia importa: no dicen que el número
+esté bien, dicen que es el que la calculadora devuelve hoy. Cuando un caso se
+derive a mano contra la norma se lo asciende y se escribe el porqué. Los casos
+están escritos en **entradas y salidas, no en ids**: cuando la pantalla se
+refunda hay que reescribir el driver, y eso es esperado.
+
+Qué cubre cada una, y por qué esos casos:
+
+- **`prorrateo`** (5): el art. 730 CCyC. Se leen los seis números de la pantalla
+  **y el prorrateo de cada fila**, porque el total puede quedar bien con las
+  filas repartidas mal. Hay un par deliberado —la misma base con la tasa dentro
+  y fuera— que es el único que distingue las dos cosas que hace la casilla:
+  suma la tasa a la base de comparación pero **no** al total que se reparte.
+- **`honorarios-mediacion`** (6): los bordes de la escala. 30 UHOM exactos y un
+  peso más, 1000 exactos, el 2 % del ítem G y el tope de 120. Un `<=` cambiado
+  por `<` no se ve en ningún otro lado.
+- **`tasa`** (3): los tres incisos del art. 4 de la Ley 23.898 que la pantalla
+  arma distinto. El de desalojo existe por el multiplicador por seis cánones,
+  que es lo que un refactor pierde sin que se note.
+- **`ejecucion-estado`** (4): los cuatro cruces de la Ley 25.344 —antes o después
+  del 31 de julio, con o sin certificación—, más el 31 exacto, que es el borde.
+
+**Cada caso carga su propia UMA y su propio UHOM.** Las dos calculadoras que los
+usan los leen de `data/`, así que un caso que no los fijara pondría el banco en
+rojo el día que la CSJN publica un valor nuevo, sin que nada se haya roto.
+
+**Comprobado que falla cuando tiene que fallar:** se movió el tope del ítem G de
+120 a 130 UHOM y salieron dos casos en rojo. **Dos y no uno**, y ahí está lo
+interesante: el segundo caso ni siquiera cambia de número —da 40 UHOM con
+cualquiera de los dos topes— y falla igual, porque el fijado incluye **la frase
+con la que la pantalla explica su propia cuenta**. Es exactamente el error del
+tope del ítem G que vivió meses: la aritmética estaba bien y el rótulo mentía, y
+ninguna comprobación numérica podía cazarlo.
+
+**Y el hook de datos personales bloqueó el commit, con razón aparente.** Los
+importes fijados —`1.500.000,00`— matchean el patrón de «número con forma de
+DNI». Es texto copiado de la pantalla, así que no se les puede poner el signo de
+peso adelante, que es la salida que el patrón ya preveía. **Se le agregó un
+lookahead de centavos: un DNI no lleva decimales.** No es aflojar el patrón —no
+deja pasar ninguna forma que un documento pueda tener— sino sacarle una que nunca
+fue suya. Y como el archivo es la fuente única de los cuatro repositorios, el
+cambio vale para los cuatro y se ve en un diff, que es como tiene que ser. Los
+importes que sí eran prosa propia se escribieron con el signo, que además es
+como se escriben.
+
+#### Tres cosas que costaron encontrar, y las tres eran del driver
+
+Van escritas porque el síntoma no se parece en nada a la causa, que es la marca
+de las trampas que vale la pena anotar:
+
+- **`resetCalculator()` de `prorrateo` limpia el monto del proceso.** Llamándolo
+  después de cargar los campos, los honorarios sumaban bien y el tope, el 25 % y
+  el porcentaje daban cero: se leía como un bug del prorrateo.
+- **`honorarios-mediacion` escribe el UHOM del archivo en el campo cuando el
+  `fetch` vuelve**, o sea después de que el driver puso el suyo. Fallaba **sólo
+  el primer caso** —para el segundo ya había cargado— y el número salía
+  plausible. Es la misma forma de falla que el predicado de «página lista» del
+  otro banco, y se arregla igual: exigir el texto del estado final.
+- **`ejecucion-estado` no lee sus campos al avanzar: lee su propio estado**, que
+  mantiene un listener de `input`. Y el iframe se reusa entre casos, así que el
+  asistente quedaba parado en el resultado del anterior. Corría el primer caso y
+  los otros tres decían «no apareció el paso de la fecha».
 
 ---
 
