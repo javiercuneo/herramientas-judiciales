@@ -170,6 +170,11 @@ mismo número**. La cuenta no cambiaría y el rótulo estaría mintiendo.
 En el motor, `TOPE_ITEM_G_UHOM` se aplica solo en la rama donde
 `item.honorarioUHOM` es `null`, que es únicamente la G.
 
+**`calculadoras/honorarios-mediacion.html` se arregló el 26/8/2026** y ahora
+dice lo mismo: el tope se aplica y se nombra sólo en la rama del ítem G.
+Verificado que no movió un importe sobre un millón de pares (UHOM, monto), que
+es lo esperable por lo que dice el párrafo de arriba.
+
 ### La base no se redondea para elegir el tramo
 
 30,4 UHOM cae en el ítem B, no en el A. Es la misma regla que gobierna la escala

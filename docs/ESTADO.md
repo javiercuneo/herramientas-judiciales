@@ -250,9 +250,6 @@ Ninguno urgente y ninguno bloqueante.
 - **Tuteo suelto en el texto de las calculadoras.** Varias dicen «envíanos un
   mail» y «si crees», que es el imperativo de *tú*. La convención del repositorio
   es rioplatense.
-- **`calculadoras/honorarios-mediacion.html` tiene mal el rótulo del tope.** Se
-  deja viva porque da un número correcto —decisión de Javier—; el arreglo es
-  barato.
 - Los `max-width` de las calculadoras siguen yendo de 240 a 1000 px sin criterio.
 - **`www.javiercuneo.com.ar` no resuelve**, si se lo quiere: va un CNAME `www` →
   `javiercuneo.github.io` en Cloudflare, gris.
@@ -326,13 +323,14 @@ tenía, y el alto queda clavado donde arrancó. Se anula por CSS inyectado, y el
 alto se mide sobre el rect del `<body>` y no con `scrollHeight`, que nunca baja
 del alto del propio marco.
 
-**Prorrateo y tasa entran, y desde el 26/8 van en una región aparte**, no como
-pestañas de la misma barra. No son plazos, y entran igual porque **el flujo es
-el mismo**: en un expediente mirás un plazo y en el siguiente un prorrateo
-—criterio de Javier, 17/8—. Hasta el 26/8 la separación era un rótulo de grupo
-adentro de la misma barra y no alcanzaba: ver [el rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268). `honorarios-mediacion` **no** entró:
-tiene mal el rótulo del tope (ver arriba) y no conviene darle más superficie
-hasta arreglarlo.
+**Prorrateo, tasa y honorarios de mediación entran, y desde el 26/8 van en una
+región aparte**, no como pestañas de la misma barra. No son plazos, y entran
+igual porque **el flujo es el mismo**: en un expediente mirás un plazo y en el
+siguiente un prorrateo —criterio de Javier, 17/8—. Hasta el 26/8 la separación
+era un rótulo de grupo adentro de la misma barra y no alcanzaba: ver
+[el rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268).
+`honorarios-mediacion` estuvo afuera hasta que se arregló el rótulo del tope, el
+mismo 26/8: ver [el tope del ítem G](#el-tope-de-mediación-era-del-ítem-g-y-no-de-la-escala--268).
 
 Ya está enlazado desde `index.html`, en la bajada de la sección de calculadoras.
 
@@ -496,6 +494,40 @@ colofón— pasaron de 4,30 a 4,78.
 
 ---
 
+### El tope de mediación era del ítem G, y no de la escala — 26/8
+
+Estaba anotado desde el 8/8 como «el rótulo del tope está mal, el arreglo es
+barato», y era lo único que mantenía a `honorarios-mediacion` afuera del
+tablero.
+
+**Qué decía mal.** La calculadora aplicaba el tope de 120 UHOM a toda la escala
+y, cuando mordía, escribía «Aplicado tope máximo de 120 UHOM». El tope es del
+**ítem G** —el que manda 2 % del monto cuando el reclamo pasa las 1000 UHOM—,
+no de la escala: está en la tabla del Anexo III y en
+[`09_MEDIACION.md`](domain/09_MEDIACION.md).
+
+**Por qué vivió tanto, que es lo que vale la pena guardar:** los ítems A a F
+topean en 20 UHOM, seis veces por debajo de 120, así que **el tope general
+nunca podía morder**. La cuenta daba lo mismo con el error y sin él. Ninguna
+comprobación aritmética podía cazarlo: lo único que estaba mal era lo que la
+pantalla decía de su propia cuenta. En una herramienta que se usa para fundar
+una regulación, eso no es cosmética —el que la usa copia la regla que la
+pantalla nombra—, pero tampoco movía un peso, y por eso se dejó viva.
+
+**Verificado que no movió un número:** un millón de pares (UHOM, monto)
+—cinco valores de UHOM, el monto barrido de 0 a 20.000 UHOM en pasos de 0,1—
+comparando la lógica vieja contra la nueva: **cero diferencias de importe**. Y
+en pantalla, los cinco tramos: 20 UHOM da el ítem A, 500 el E, 2000 el G sin
+tope (40 UHOM), 6000 justo en el borde (120 UHOM, sin aviso de tope porque no
+lo supera) y 20.000 con el tope aplicado y dicho.
+
+**Y con eso entró al tablero**, en la segunda región, con los otros dos que no
+son plazos. Verificado: la tarjeta monta el iframe, mide alto, y el enlace
+directo `#mediacion` en carga fría deja el hash donde corresponde —que es el
+bug que costó encontrar al partir el tablero en dos regiones—.
+
+---
+
 ## Por dónde seguir
 
 Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío.
@@ -524,8 +556,10 @@ Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío
    salto al cambiar de pestaña. El criterio que ordenó `vencimientos` está en su
    `<style>` y se puede repetir: cada control ocupa lo que mide su contenido, y
    lo único grande es el resultado.
-4. **`honorarios-mediacion` sigue afuera del tablero** por el rótulo del tope
-   mal, que es un arreglo barato y no se hizo.
+4. **Cubrir los conectores con una prueba.** Hoy `conectores/` no lo toca
+   ninguna: `verificar-plazos` cubre el motor. Es lo que falta para poder
+   decir que están terminados, y es barato —levantar el HTTP, pegarle a los
+   seis endpoints, y hablarle al MCP por stdio—.
 
 ---
 

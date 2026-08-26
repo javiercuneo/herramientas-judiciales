@@ -381,13 +381,17 @@ var REGIONES = [
             { id: 'prorrateo', rotulo: 'Prorrateo', archivo: 'prorrateo.html',
               detalle: 'Repartir honorarios entre varios' },
             { id: 'tasa', rotulo: 'Tasa de justicia', archivo: 'tasa.html',
-              detalle: 'Lo que hay que integrar' }
+              detalle: 'Lo que hay que integrar' },
+            { id: 'mediacion', rotulo: 'Honorarios de mediación', archivo: 'honorarios-mediacion.html',
+              detalle: 'La escala del Anexo III del decreto 2536/15' }
         ]
     }
 ];
 
-// honorarios-mediacion NO entra: tiene mal el rotulo del tope --ver
-// docs/ESTADO.md-- y no conviene darle mas superficie hasta arreglarlo.
+// honorarios-mediacion estuvo afuera hasta el 26/8 porque decia mal su propio
+// tope --lo aplicaba como si fuera de la escala y es del item G--. El importe
+// nunca estuvo mal, pero no conviene darle mas superficie a una pantalla que
+// se explica mal a si misma. Arreglado, entra.
 
 var HERRAMIENTAS = REGIONES.reduce(function (acc, r) {
     return acc.concat(r.items.map(function (h) {

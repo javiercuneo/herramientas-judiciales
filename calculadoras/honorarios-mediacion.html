@@ -230,24 +230,34 @@
 
       let honorario = 0;
       let regla = '';
-      const tope = 120 * uhom;
+      let fueTopeado = false;
 
-      if (monto <= 30 * uhom) { honorario = 3 * uhom; regla = '≤ 30 × UHOM ⇒ 3 × UHOM'; }
-      else if (monto <= 60 * uhom) { honorario = 6 * uhom; regla = '≤ 60 × UHOM ⇒ 6 × UHOM'; }
-      else if (monto <= 150 * uhom) { honorario = 9 * uhom; regla = '≤ 150 × UHOM ⇒ 9 × UHOM'; }
-      else if (monto <= 300 * uhom) { honorario = 12 * uhom; regla = '≤ 300 × UHOM ⇒ 12 × UHOM'; }
-      else if (monto <= 600 * uhom) { honorario = 16 * uhom; regla = '≤ 600 × UHOM ⇒ 16 × UHOM'; }
-      else if (monto <= 1000 * uhom) { honorario = 20 * uhom; regla = '≤ 1000 × UHOM ⇒ 20 × UHOM'; }
-      else { honorario = 0.02 * monto; regla = '> 1000 × UHOM ⇒ 2% del monto'; }
+      // El tope de 120 UHOM es del item G y NO de la escala. Ver
+      // docs/domain/09_MEDIACION.md: los items A a F topean en 20 UHOM, muy
+      // por debajo de 120, asi que aplicarlo como si fuera general devuelve
+      // SIEMPRE el mismo numero. Por eso el error vivio: ninguna comprobacion
+      // aritmetica podia cazarlo, porque la cuenta no cambia. Lo que estaba
+      // mal era lo que la pantalla decia de su propia cuenta.
+      const TOPE_ITEM_G_UHOM = 120;
 
-      const fueTopeado = honorario > tope;
-      if (fueTopeado) honorario = tope;
+      if (monto <= 30 * uhom) { honorario = 3 * uhom; regla = 'hasta 30 UHOM ⇒ 3 UHOM (ítem A)'; }
+      else if (monto <= 60 * uhom) { honorario = 6 * uhom; regla = '> 30 y hasta 60 UHOM ⇒ 6 UHOM (ítem B)'; }
+      else if (monto <= 150 * uhom) { honorario = 9 * uhom; regla = '> 60 y hasta 150 UHOM ⇒ 9 UHOM (ítem C)'; }
+      else if (monto <= 300 * uhom) { honorario = 12 * uhom; regla = '> 150 y hasta 300 UHOM ⇒ 12 UHOM (ítem D)'; }
+      else if (monto <= 600 * uhom) { honorario = 16 * uhom; regla = '> 300 y hasta 600 UHOM ⇒ 16 UHOM (ítem E)'; }
+      else if (monto <= 1000 * uhom) { honorario = 20 * uhom; regla = '> 600 y hasta 1000 UHOM ⇒ 20 UHOM (ítem F)'; }
+      else {
+        honorario = 0.02 * monto;
+        regla = '> 1000 UHOM ⇒ 2 % del monto, hasta ' + TOPE_ITEM_G_UHOM + ' UHOM (ítem G)';
+        fueTopeado = honorario > TOPE_ITEM_G_UHOM * uhom;
+        if (fueTopeado) honorario = TOPE_ITEM_G_UHOM * uhom;
+      }
 
       document.getElementById('honorarioPesos').textContent = '$ ' + nf.format(honorario);
       document.getElementById('honorarioUhom').textContent = nf.format(honorario / uhom);
       
       let txtNota = 'Regla aplicada: ' + regla + '.';
-      if (fueTopeado) txtNota += ' Aplicado tope máximo de 120 UHOM.';
+      if (fueTopeado) txtNota += ' El 2 % superaba el tope del ítem G, así que se aplicó el tope de ' + TOPE_ITEM_G_UHOM + ' UHOM.';
       nota.textContent = txtNota;
       resBox.hidden = false;
     }
