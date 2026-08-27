@@ -1310,6 +1310,95 @@ regulación es un acto ocasional. El hint en el renglón da lo mismo que la
 entrevista —decirte qué número va— sin cobrar el peaje cada vez.
 **Sin decidir.**
 
+#### Los dos ejes de la ley, y el error que costó no verlos — 27/8
+
+**Javier volteó el interruptor de sucesorio**, y con un argumento que resultó ser
+la clave del diseño entero: *«no sé para qué hay que separar sucesión de todo el
+resto, parece darle más jerarquía, y si elegís, no sé, quiebra, no hace el mismo
+cálculo que sumas de dinero. No sé cuál es el beneficio de dividir en dos algo
+que tiene más divisiones»*.
+
+Tiene razón, y leyendo el art. 3 entero se ve por qué. **La reducción del 50 % no
+es de los sucesorios: es de seis supuestos**, y el sucesorio es uno.
+
+| Art. 3 | Supuesto |
+|---|---|
+| inc. b | Juicios de mensura y deslinde |
+| inc. c | Juicios sucesorios |
+| inc. d | Testamentos, declaratoria de herederos e hijuelas extendidos fuera de jurisdicción nacional |
+| inc. f | Reinscripción de hipotecas o prendas |
+| inc. g | Recursos directos contra resoluciones del PEN, provincial o municipal |
+| inc. h | Tercerías |
+
+(Los incs. a y e están derogados.) Partir la pantalla en «sucesión» y «el resto»
+le da a un inciso una jerarquía que la ley no le da.
+
+##### Y no verlo ya costó plata
+
+La pantalla actual junta tres supuestos abajo del rótulo «Otros» y les aplica
+3 % a los tres. Probado el 27/8 con $10.000.000:
+
+| Supuesto | Lo que cobra hoy | Lo que manda la ley |
+|---|---|---|
+| Bienes muebles, art. 4 inc. d | 3 % → $300.000 | 3 % — correcto |
+| Reinscripción de hipotecas, art. 4 inc. **f** | 3 % → $300.000 | **art. 3 inc. f: reducida — $150.000** |
+| Tercerías, art. 4 inc. **h** | 3 % → $300.000 | **art. 3 inc. h: reducida — $150.000** |
+
+**Cobra el doble en dos de los tres.** Y la ironía es exacta: los agrupó
+*porque compartían la alícuota del 3 %*, que es lo que le impidió ver que dos de
+los tres no la comparten. **Agrupó por el eje equivocado.**
+
+##### La ley tiene dos ejes y hay que cruzarlos a mano
+
+- **El art. 4 dice QUÉ NÚMERO SE TOMA**: el monto reclamado, seis meses de
+  alquiler, la valuación fiscal, los créditos verificados, la condena laboral.
+- **Los arts. 2 y 3 dicen QUÉ ALÍCUOTA SE LE APLICA**: 3 % general, o la mitad
+  en los seis supuestos de arriba, o las especiales.
+
+**Y las letras de los incisos no se corresponden entre los dos artículos**, así
+que el cruce hay que hacerlo a mano y es donde se pierden cosas. La reinscripción
+de hipotecas es el inc. f en los dos, y las tercerías el inc. h en los dos; pero
+los sucesorios son el **art. 3 inc. c** y el **art. 4 inc. g**. Coincide a veces
+y a veces no: no hay regla que ahorre leer.
+
+##### La propuesta que sale de ahí: dos desplegables por renglón
+
+En vez de un desplegable con la combinación ya hecha —que es lo que produce
+«Inmuebles CABA en sucesión» y la explosión de casos—, cada renglón pregunta las
+dos cosas por separado:
+
+1. **Qué se toma** (art. 4): sumas de dinero · seis meses de alquiler ·
+   valuación fiscal de inmueble · bienes muebles · créditos verificados ·
+   condena laboral · suma garantizada · valor del crédito o del bien…
+2. **Qué alícuota** (arts. 2 y 3, más las especiales): 3 % general · reducida
+   50 % con el motivo elegido de la lista de seis · 0,75 % de extraña
+   jurisdicción · las concursales.
+
+**Diez opciones más ocho, en vez de ochenta combinaciones.** El segundo
+desplegable arranca en «3 %, general — art. 2», que es el caso más común, así
+que en el juicio corriente no se toca. Y **filtra según el primero**, porque hay
+cruces imposibles: la reducción por extraña jurisdicción sólo existe en el
+sucesorio, y las concursales sólo con créditos verificados.
+
+**La sucesión deja de ser especial y pasa a ser una opción del segundo
+desplegable**, al lado de mensura, testamentos, reinscripción de hipotecas,
+recursos contra el PEN y tercerías. Que es lo que es en la ley.
+
+**Y la repetición se resuelve sin partir nada:** un renglón nuevo hereda la
+alícuota del anterior. En una sucesión con seis bienes se elige «reducida,
+sucesorio» una vez y los otros cinco renglones ya vienen con eso.
+
+##### Dos casos que no entran en los dos ejes, y hay que preverlos
+
+- **El monto fijo de los arts. 5 y 6** no tiene base ni alícuota: es un importe.
+  Ese renglón oculta el campo del monto y muestra el valor vigente.
+- **La tasa concursal del art. 3 es una escala de dos tramos y SÍ es
+  progresiva**, a diferencia de la de mediación: 0,75 % de los créditos
+  verificados comprendidos en el acuerdo preventivo, y **0,25 % sobre el
+  excedente** de $100.000.000. Un renglón con una alícuota sola no la
+  representa. Conviene además mirar si ese piso de $100.000.000, escrito en
+  2002, sigue vigente sin actualización.
+
 #### Lo que hay que decidir antes de escribir
 
 1. **`tasa` no tiene red sobre la rama de sucesión**, y es lo único que hay que
@@ -1319,11 +1408,11 @@ entrevista —decirte qué número va— sin cobrar el peaje cada vez.
    regla que ya se aplicó con `honorarios-mediacion` y con `prorrateo`.
    **Con una salvedad propia de este caso:** el cero es un bug, así que hay que
    fijarlo **como está y anotando que está mal**, o el fijado congela el error.
-2. **¿Sucesorio como interruptor o todo en el mismo desplegable?** Un proceso es
-   sucesión o no lo es. Poner «Sumas de dinero, 3 %» y «Sumas de dinero en
-   sucesión, 1,5 %» juntas en el mismo desplegable es correcto e invita a elegir
-   la alícuota equivocada. **Recomendado:** un interruptor arriba que filtre las
-   reglas, porque es un dato del proceso y no del bien. Sin decidir.
+2. **~~¿Sucesorio como interruptor?~~ Descartado el 27/8 por Javier**, y el
+   motivo es bueno: *«no sé para qué hay que separar sucesión de todo el resto,
+   parece darle más jerarquía… no sé cuál es el beneficio de dividir en dos algo
+   que tiene más divisiones»*. Ver
+   [abajo](#los-dos-ejes-de-la-ley-y-el-error-que-costó-no-verlos--278).
 3. **Si la titularidad muestra `100 %` escrito** además de aplicarlo. Es lo
    único que hace evidente qué se está usando, y es el campo que ya causó un
    cero silencioso. Sin decidir.
@@ -2285,10 +2374,31 @@ ni una calle con altura.
 
 ## Bugs abiertos
 
-**Ninguno.** Los dos que abrió la extracción del 26/8 —la caducidad venciendo
-adentro de la feria de enero y la regresiva contando fuera de la ventana de
-cobertura— se cerraron el mismo día, los dos por decisión de Javier y con el
-caso en la mano. Están en [`HISTORIA.md`](HISTORIA.md).
+**Dos, los dos en `tasa` y los dos encontrados el 27/8 preparando su
+refundación.** Ninguno de los dos lo puede ver el banco de pruebas actual,
+porque sus tres casos son de la pantalla que no es la de sucesiones.
+
+1. **Cobra el doble en las tercerías y en las reinscripciones de hipotecas.**
+   Abajo del rótulo «Otros» junta tres supuestos y les aplica 3 % a los tres,
+   pero el **art. 3 inc. h** reduce las tercerías al 50 % y el **art. 3 inc. f**
+   hace lo mismo con las reinscripciones de hipotecas y prendas. Probado en la
+   pantalla: una tercería de $10.000.000 muestra $300.000 y le corresponden
+   $150.000. **Es el que más urge**, porque devuelve un número plausible y el
+   doble del que va. Se arregla solo con la estructura de dos desplegables; si
+   la refundación va a tardar, se puede parchear antes.
+2. **Un campo de titularidad que nadie tocó devuelve $0,00.** En la pantalla de
+   sucesiones. **Escribir `0` y que dé cero está bien** —si el causante no era
+   titular no se tributa—; lo que está mal es que no haber escrito nada se lea
+   igual. Se arregla haciendo que el campo vacío valga 100 %, que es lo ya
+   decidido.
+
+Los dos están explicados con los números en
+[la sección de `tasa`](#tasa-el-diagnóstico-antes-de-refundarla-y-un-cero-en-silencio--278).
+
+Los dos que abrió la extracción del 26/8 —la caducidad venciendo adentro de la
+feria de enero y la regresiva contando fuera de la ventana de cobertura— se
+cerraron el mismo día, los dos por decisión de Javier y con el caso en la mano.
+Están en [`HISTORIA.md`](HISTORIA.md).
 
 ---
 
