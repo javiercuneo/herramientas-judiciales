@@ -111,58 +111,72 @@ const DRIVERS = {
     // -----------------------------------------------------------------------
     // prorrateo: art. 730 CCyC, el tope del 25 % de la condena.
     //
-    // El caso trae el monto del proceso, la UMA, las banderas de tasa y una
-    // lista de honorarios, cada uno con si esta expresado en UMA y si lleva
-    // IVA. Se leen los seis numeros de la pantalla y ademas el prorrateo de
-    // cada fila: el total puede quedar igual con las filas repartidas mal.
+    // Reescrito el 27/8 con la pantalla, que se refundo de cero. El driver
+    // viejo movia ids que ya no existen ---incluirTasaCheckbox, tope730,
+    // totalProrrateo--- y leia la columna 6 por posicion.
+    //
+    // UN CAMBIO QUE NO ES DE IDS Y CONVIENE VER: la casilla de la tasa ahora
+    // sigue a la pantalla. El driver anterior hacia `= !!campos.incluirTasa`,
+    // asi que tres de los cinco casos corrian con la tasa FUERA de la base
+    // ---que no es lo que la pantalla muestra al abrirse--- y la configuracion
+    // por omision no la probaba nadie. Ahora es `!== false`: se prueba lo que
+    // se ve, y el que quiera el otro camino lo pide con tasaEnBase: false.
     // -----------------------------------------------------------------------
     prorrateo: {
         archivo: '../calculadoras/prorrateo.html',
-        lista: (d) => !!d.getElementById('honorario-body') &&
-                      d.getElementById('honorario-body').rows.length > 0,
+        lista: (d) => !!d.getElementById('filas') &&
+                      d.getElementById('filas').rows.length > 0 &&
+                      !!d.defaultView.Prorrateo730,
         correr: async (d, campos) => {
             const w = d.defaultView;
-            // resetCalculator() va PRIMERO: limpia el monto del proceso y las
-            // dos casillas de la tasa, ademas de rehacer las cinco filas.
-            // Llamarlo despues de cargar los campos los borraba, y el sintoma
-            // era enganioso: los honorarios sumaban bien y el tope, el 25 % y
-            // el porcentaje daban cero, o sea que parecia un bug del prorrateo
-            // y era el driver.
-            w.resetCalculator();
+            // reiniciar() va PRIMERO: limpia el monto del proceso y las dos
+            // casillas de la tasa, ademas de rehacer las filas. Llamarlo
+            // despues de cargar los campos los borraba, y el sintoma era
+            // enganioso ---los honorarios sumaban bien y el resto daba cero, o
+            // sea que parecia un bug del prorrateo y era el driver---.
+            w.reiniciar();
 
-            d.getElementById('montoProcess').value = campos.monto;
+            d.getElementById('montoProceso').value = campos.monto;
             // La UMA se fija siempre: si se dejara la que trae el archivo, el
             // banco se pondria rojo cada vez que la CSJN publica un valor.
-            d.getElementById('umaInput').value = campos.uma;
+            d.getElementById('uma').value = campos.uma;
 
             const tasaManual = campos.tasaManual !== undefined;
-            d.getElementById('tasaManualCheckbox').checked = tasaManual;
-            d.getElementById('tasaManualInput').value = tasaManual ? campos.tasaManual : '';
-            d.getElementById('incluirTasaCheckbox').checked = !!campos.incluirTasa;
+            d.getElementById('tasaManual').checked = tasaManual;
+            d.getElementById('tasaImporte').value = tasaManual ? campos.tasaManual : '';
+            d.getElementById('tasaEnBase').checked = campos.tasaEnBase !== false;
 
-            const filas = d.querySelectorAll('#honorario-body tr');
+            // La pantalla arranca con tres filas; si el caso trae mas, se piden.
+            while (d.querySelectorAll('#filas tr').length < campos.honorarios.length) {
+                w.agregarFila();
+            }
+            const filas = d.querySelectorAll('#filas tr');
             campos.honorarios.forEach((h, i) => {
-                const fila = filas[i];
-                fila.querySelector('.honorario-input').value = h.monto;
-                fila.querySelector('.uma-checkbox').checked = !!h.uma;
-                fila.querySelector('.iva-checkbox').checked = !!h.iva;
+                filas[i].querySelector('.fila-monto').value = h.monto;
+                filas[i].querySelector('.fila-uma').checked = !!h.uma;
+                filas[i].querySelector('.fila-iva').checked = !!h.iva;
             });
-            w.calculate();
+            w.calcular();
             await pausa(60);
 
-            const t = (id) => d.getElementById(id).textContent.trim();
-            const porFila = Array.from(d.querySelectorAll('#honorario-body tr'))
+            const t = (id) => {
+                const el = d.getElementById(id);
+                return el ? el.textContent.trim() : '(falta ' + id + ')';
+            };
+            // El prorrateado de CADA fila, y no solo el total: el total puede
+            // quedar igual con las filas repartidas mal.
+            const porFila = Array.from(d.querySelectorAll('#filas tr'))
                 .slice(0, campos.honorarios.length)
-                .map((fila) => fila.querySelector('td:nth-child(6)').textContent.trim())
+                .map((fila) => fila.querySelector('.fila-prorrateado').textContent.trim())
                 .join(' | ');
 
             return [
-                'tasa ' + t('tasa'),
-                '25% ' + t('percent25'),
-                'tope ' + t('tope730'),
-                'honorarios ' + t('totalHonorarios'),
-                'sobre el proceso ' + t('percentTotal'),
-                'prorrateo ' + t('totalProrrateo'),
+                'tasa ' + t('dTasa'),
+                'techo ' + t('dTecho'),
+                'tope ' + t('dTope'),
+                'regulado ' + t('totalRegulado'),
+                'sobre el proceso ' + t('dPorcentaje'),
+                'cobrado ' + t('cifraCobrado'),
                 'por fila ' + porFila
             ].join(' · ');
         }
@@ -290,40 +304,74 @@ const DRIVERS = {
 // ---------------------------------------------------------------------------
 const FIJADOS = [
     // --- prorrateo ---------------------------------------------------------
+    //
+    // Refijados el 27/8, con la pantalla rehecha y el tope derivado de la tasa
+    // en vez de escrito duro en el 22 %. De los cinco que habia:
+    //
+    //   - el reparto POR FILA de los casos 2, 3 y 4 salio identico carácter por
+    //     carácter, que es lo que habia que probar: con la tasa del 3 % adentro
+    //     de la base ---que es como arranca la pantalla--- el tope da 22 % y no
+    //     se movio un centavo;
+    //   - el caso 5 SI cambia, y es el arreglo: con la tasa reducida del 1,5 %
+    //     el art. 730 deja $2.350.000 y la pantalla topeaba en $2.200.000;
+    //   - la columna «prorrateado» de los casos sin prorrateo pasó de «0.00» a
+    //     el importe regulado. Es a proposito: 0,00 se lee como que ese
+    //     profesional no cobra nada, y lo que pasa es lo contrario ---cobra
+    //     todo lo que le regularon---;
+    //   - el «sobre el proceso» de los casos 1 a 3 cambia por el driver y no
+    //     por la cuenta: antes corrian con la tasa fuera de la base.
+    //
+    // Y el «porque» del caso 5 estaba mal escrito: decia «acá NO llega al 25 %
+    // y no hay prorrateo» al lado de un esperado que prorrateaba $2.200.000.
+    // $2.400.000 mas $150.000 es 25,50 %, o sea que si llega.
     {
         calc: 'prorrateo',
-        rotulo: 'Sin tope: los honorarios no llegan al 25 %',
+        rotulo: 'Sin tope: las costas no llegan al 25 %',
         campos: { monto: '10000000', uma: '100000', honorarios: [{ monto: '1000000' }, { monto: '500000' }] },
-        esperado: 'tasa 300.000,00 · 25% 2.500.000,00 · tope 2.200.000,00 · honorarios 1.500.000,00 · sobre el proceso 15,00% · prorrateo 0.00 · por fila 0.00 | 0.00',
-        porque: 'La base es $1.500.000 sobre $10.000.000, o sea 15 %. Abajo del 25 % no hay prorrateo y las columnas quedan en cero.'
+        esperado: 'tasa $ 300.000,00 · techo $ 2.500.000,00 · tope $ 2.200.000,00 · regulado $ 1.500.000,00 · sobre el proceso 18,00 % · cobrado $ 1.500.000,00 · por fila $ 1.000.000,00 | $ 500.000,00',
+        porque: 'Honorarios $1.500.000 mas la tasa de $300.000 sobre $10.000.000, o sea 18 %. Abajo del 25 % no hay prorrateo y cada uno cobra lo que le regularon.'
     },
     {
         calc: 'prorrateo',
         rotulo: 'Con tope: dos honorarios que juntos pasan el 25 %',
         campos: { monto: '10000000', uma: '100000', honorarios: [{ monto: '2000000' }, { monto: '1000000' }] },
-        esperado: 'tasa 300.000,00 · 25% 2.500.000,00 · tope 2.200.000,00 · honorarios 3.000.000,00 · sobre el proceso 30,00% · prorrateo 2.200.000,00 · por fila 1.466.666,67 | 733.333,33',
-        porque: 'Base $3.000.000 sobre $10.000.000, o sea 30 %. El tope del art. 730 es el 22 % y se reparte 2:1.'
+        esperado: 'tasa $ 300.000,00 · techo $ 2.500.000,00 · tope $ 2.200.000,00 · regulado $ 3.000.000,00 · sobre el proceso 33,00 % · cobrado $ 2.200.000,00 · por fila $ 1.466.666,67 | $ 733.333,33',
+        porque: 'Costas $3.300.000 sobre $10.000.000, o sea 33 %. El techo es 25 %, la tasa se lleva 3 puntos y los 22 restantes se reparten 2:1. El reparto por fila es identico al de antes de refundar la pantalla.'
     },
     {
         calc: 'prorrateo',
         rotulo: 'Un honorario en UMA y otro con IVA',
         campos: { monto: '10000000', uma: '100000', honorarios: [{ monto: '30', uma: true }, { monto: '1000000', iva: true }] },
-        esperado: 'tasa 300.000,00 · 25% 2.500.000,00 · tope 2.200.000,00 · honorarios 4.210.000,00 · sobre el proceso 42,10% · prorrateo 2.200.000,00 · por fila 1.567.695,96 | 632.304,04',
-        porque: 'Los dos modificadores de la fila: 30 UMA son $3.000.000, y el segundo lleva el 21 %. Existe para que un cambio en el orden de los dos se vea.'
+        esperado: 'tasa $ 300.000,00 · techo $ 2.500.000,00 · tope $ 2.200.000,00 · regulado $ 4.210.000,00 · sobre el proceso 45,10 % · cobrado $ 2.200.000,00 · por fila $ 1.567.695,96 | $ 632.304,04',
+        porque: 'Los dos modificadores de la fila: 30 UMA son $3.000.000, y el segundo lleva el 21 %. Existe para que un cambio en el ORDEN de los dos se vea, porque el IVA va sobre el honorario ya pasado a pesos.'
     },
     {
         calc: 'prorrateo',
-        rotulo: 'La tasa de justicia contada dentro de la base',
-        campos: { monto: '10000000', uma: '100000', incluirTasa: true, honorarios: [{ monto: '2400000' }] },
-        esperado: 'tasa 300.000,00 · 25% 2.500.000,00 · tope 2.200.000,00 · honorarios 2.400.000,00 · sobre el proceso 27,00% · prorrateo 2.200.000,00 · por fila 2.200.000,00',
-        porque: 'La casilla suma la tasa a la base de comparación pero NO al total que se prorratea. $2.400.000 es 24 % y solo pasa el 25 % con la tasa adentro: es el caso que distingue las dos cosas.'
+        rotulo: 'La tasa es la que hace pasar el 25 %',
+        campos: { monto: '10000000', uma: '100000', honorarios: [{ monto: '2400000' }] },
+        esperado: 'tasa $ 300.000,00 · techo $ 2.500.000,00 · tope $ 2.200.000,00 · regulado $ 2.400.000,00 · sobre el proceso 27,00 % · cobrado $ 2.200.000,00 · por fila $ 2.200.000,00',
+        porque: '$2.400.000 es el 24 % y solo pasa el techo con la tasa adentro. Distingue las dos cosas: la tasa entra en la COMPARACION y ademas ocupa parte del tope, pero no se prorratea.'
     },
     {
         calc: 'prorrateo',
-        rotulo: 'Tasa cargada a mano en vez del 3 %',
-        campos: { monto: '10000000', uma: '100000', tasaManual: '150000', incluirTasa: true, honorarios: [{ monto: '2400000' }] },
-        esperado: 'tasa 150.000,00 · 25% 2.500.000,00 · tope 2.200.000,00 · honorarios 2.400.000,00 · sobre el proceso 25,50% · prorrateo 2.200.000,00 · por fila 2.200.000,00',
-        porque: 'Mismo caso con la tasa a mano y más chica que el 3 %: acá NO llega al 25 % y no hay prorrateo. Es el par del anterior.'
+        rotulo: 'Tasa reducida cargada a mano: el caso que estaba mal',
+        campos: { monto: '10000000', uma: '100000', tasaManual: '150000', honorarios: [{ monto: '2400000' }] },
+        esperado: 'tasa $ 150.000,00 · techo $ 2.500.000,00 · tope $ 2.350.000,00 · regulado $ 2.400.000,00 · sobre el proceso 25,50 % · cobrado $ 2.350.000,00 · por fila $ 2.350.000,00',
+        porque: 'La tasa reducida del art. 3 inc. c es el 1,5 %, asi que al techo del 25 % le quedan 23,5 puntos para honorarios. Hasta el 27/8 la pantalla topeaba en 22 % igual: prorrateaba $150.000 de menos. Es el unico de los cinco cuyo numero cambio.'
+    },
+    {
+        calc: 'prorrateo',
+        rotulo: 'La tasa fuera de la base: el techo queda entero',
+        campos: { monto: '10000000', uma: '100000', tasaEnBase: false, honorarios: [{ monto: '2400000' }] },
+        esperado: 'tasa $ 300.000,00 · techo $ 2.500.000,00 · tope $ 2.500.000,00 · regulado $ 2.400.000,00 · sobre el proceso 24,00 % · cobrado $ 2.400.000,00 · por fila $ 2.400.000,00',
+        porque: 'La otra mitad del mismo arreglo, y no la cubria ningun caso. Si la tasa no integra la base, no hay nada que descontarle al 25 %: el tope es el techo entero. La pantalla anterior seguia topeando en 22 %.'
+    },
+    {
+        calc: 'prorrateo',
+        rotulo: 'Una tasa a mano que se come el techo entero',
+        campos: { monto: '10000000', uma: '100000', tasaManual: '2600000', honorarios: [{ monto: '1000000' }] },
+        esperado: 'tasa $ 2.600.000,00 · techo $ 2.500.000,00 · tope $ 0,00 · regulado $ 1.000.000,00 · sobre el proceso 36,00 % · cobrado $ 0,00 · por fila $ 0,00',
+        porque: 'El borde de abajo del tope derivado. Con una tasa mayor al 25 % la resta da negativo, y un tope negativo repartido en proporcion devolveria honorarios NEGATIVOS. El maximo con cero es lo que lo evita, y la pantalla ademas avisa que el dato es raro.'
     },
 
     // --- honorarios-mediacion, pegados a los bordes de la escala -----------

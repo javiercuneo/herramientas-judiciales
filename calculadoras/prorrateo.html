@@ -3,657 +3,1118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Art. 730 - Prorrateo de Honorarios</title>
+    <title>Prorrateo del art. 730</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <script src="../assets/tema.js"></script>
     <style>
-        /* Estilos CSS (se mantienen igual) */
+        /* ==================================================================
+           Rehecha el 27/8/2026, con vencimientos.html de patron y
+           honorarios-mediacion.html de precedente. Es la segunda de las cuatro
+           que no son de plazos y van de cero.
+
+           QUE ESTABA MAL, Y ACA NO ERA SOLO DE FORMA.
+
+           De forma: una cabecera de color entero con un seudo-brillo rotado
+           adentro, dos paneles que se levantaban con :hover ---una tarjeta que
+           se mueve cuando el mouse pasa por arriba es un adorno de plantilla y
+           no una senal---, once numeros del mismo peso tipografico, y el
+           resultado ---que es lo unico que se vino a buscar--- repartido en
+           dos celdas de una tabla de totales.
+
+           De cuenta: el tope del art. 730 estaba escrito duro en el 22 %.
+           Ver TOPE, abajo, en el JS.
+
+           Los criterios son los de vencimientos y no se reinventan: cada
+           control ocupa lo que mide su contenido, lo unico grande es el
+           resultado, y nada se separa con una linea si alcanza con el espacio.
+
+           OJO: no redefinir aca --accent, --bg, --card ni --error. Los define
+           comun.css y siguen el tema. `--accent: var(--accent)` es un ciclo:
+           la propiedad queda invalida en tiempo de computo y var(--accent)
+           devuelve la cadena vacia.
+           ================================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: var(--font-sans);
             background: var(--bg);
-            min-height: 100vh;
-            padding: 20px;
             color: var(--fg);
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 28px 20px 64px;
         }
 
-        .header {
-            background-color: var(--accent);
+        .hoja { max-width: 1040px; margin: 0 auto; }
+
+        /* ---------------------------------------------------------- cabecera */
+        .cabecera {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .cabecera h1 {
+            font-family: var(--font-meter);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .cabecera h1 span { color: var(--accent); }
+
+        /* Este texto y el colofon son los unicos de la pagina que no se apoyan
+           en la tarjeta: van sobre --bg, donde --faint da 4,78. */
+        .cobertura {
+            font-size: 12px;
+            color: var(--faint);
+            max-width: 46ch;
+            text-align: right;
+        }
+
+        /* --------------------------------------------------- las dos columnas */
+        .tablero {
+            display: grid;
+            grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .tablero { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        /* ------------------------------------------------------------ panel */
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px 24px;
+        }
+
+        .panel + .panel, .tablero + .panel, .panel + .dibujo { margin-top: 20px; }
+
+        .grupo { margin-bottom: 20px; }
+        .grupo:last-child { margin-bottom: 0; }
+
+        .rotulo {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin-bottom: 8px;
+        }
+
+        /* Los importes pueden tener siete digitos con puntos: a diferencia de
+           un dia o un mes, aca el contenido SI es ancho. Van al ancho del
+           panel, con el signo de peso adelante para que se lea que es plata y
+           no una cantidad. */
+        .importe {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            padding: 0 12px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .importe:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+
+        .importe .signo {
+            font-family: var(--font-meter);
+            font-size: 15px;
+            color: var(--faint);
+            flex: none;
+        }
+
+        .importe input {
+            font-family: var(--font-meter);
+            font-size: 17px;
+            font-weight: 600;
+            padding: 10px 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--fg);
+            width: 100%;
+        }
+
+        .pie-campo { font-size: 11px; color: var(--faint); margin-top: 6px; }
+
+        /* Las dos decisiones sobre la tasa van juntas y detras de casillas,
+           que es el criterio de vencimientos para los modificadores del
+           computo: no son datos, son interruptores. */
+        .casilla {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 3px 0;
+        }
+        .casilla + .casilla { margin-top: 4px; }
+        .casilla input { margin-top: 3px; flex: none; accent-color: var(--accent); }
+        .casilla span { color: var(--muted-fg); }
+
+        .subcampo { margin-top: 9px; margin-left: 24px; }
+        .subcampo[hidden] { display: none; }
+
+        .error { color: var(--error); font-size: 12px; margin-top: 6px; display: none; }
+        .error.show { display: block; }
+
+        /* -------------------------------------------------------- acciones */
+        button {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 9px;
+            padding: 11px 22px;
+            cursor: pointer;
+            transition: transform 0.12s, box-shadow 0.15s, background 0.15s, color 0.15s;
+        }
+
+        .btn-suave {
+            background: transparent;
+            color: var(--muted-fg);
+            border: 1px solid var(--border);
+        }
+        .btn-suave:hover { color: var(--fg); background: var(--sunk); }
+
+        .btn-chico { font-size: 13px; padding: 8px 14px; }
+
+        /* --------------------------------------------------------- resultado */
+        .resultado { min-width: 0; }
+
+        /* El unico elemento grande de la pagina. */
+        .veredicto {
+            background: var(--accent);
             color: var(--on-accent);
-            padding: 25px;
+            border-radius: 14px;
+            padding: 26px 28px;
+        }
+
+        .veredicto .rotulo { color: inherit; opacity: 0.82; margin-bottom: 5px; }
+
+        .veredicto .cifra {
+            font-family: var(--font-meter);
+            font-size: clamp(26px, 3.6vw, 36px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+
+        .veredicto .equivale { font-size: 13px; opacity: 0.86; margin-top: 7px; }
+
+        /* Cuando no hay prorrateo el resultado no es un importe recortado: es
+           que la cuenta no se hace. Se dice con la misma caja grande, en
+           neutro, para que no parezca que algo fallo. */
+        .veredicto.neutro {
+            background: var(--card);
+            color: var(--fg);
+            border: 1px solid var(--border);
+        }
+        .veredicto.neutro .rotulo { color: var(--faint); opacity: 1; }
+        .veredicto.neutro .equivale { color: var(--muted-fg); opacity: 1; }
+
+        .tira {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1px;
+            margin-top: 1px;
+            background: var(--border);
             border-radius: 12px;
-            margin-bottom: 40px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            position: relative;
             overflow: hidden;
         }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            left: -50px;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.05);
-            transform: rotate(20deg);
+
+        .dato { background: var(--card); padding: 13px 16px; }
+
+        .dato .k {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--faint);
         }
-        .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 28px;
-            font-weight: 600;
-        }
-        .header p {
-            margin: 0;
+
+        .dato .v {
+            font-family: var(--font-meter);
             font-size: 15px;
-            color: var(--on-accent);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .dato .n { font-size: 11.5px; color: var(--muted-fg); margin-top: 3px; }
+
+        /* ------------------------------------------------- las regulaciones */
+        .encabezado-panel {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+
+        .encabezado-panel h2 {
+            font-family: var(--font-meter);
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .encabezado-panel p { font-size: 12px; color: var(--faint); }
+
+        .tabla-scroll { overflow-x: auto; margin: 14px -6px 0; padding: 0 6px; }
+
+        table.filas { border-collapse: collapse; width: 100%; min-width: 640px; }
+
+        table.filas th {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--faint);
+            text-align: left;
+            padding: 0 10px 9px;
+            border-bottom: 1px solid var(--hair);
+            white-space: nowrap;
+        }
+
+        table.filas th.num, table.filas td.num { text-align: right; }
+
+        table.filas td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--hair);
+            vertical-align: middle;
+        }
+
+        table.filas tr:last-child td { border-bottom: none; }
+
+        table.filas input[type="text"] {
+            font-family: inherit;
+            font-size: 13.5px;
+            color: var(--fg);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 7px 9px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        table.filas input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+
+        .celda-concepto { min-width: 170px; }
+
+        /* El monto y sus dos modificadores van en la MISMA celda. Antes eran
+           tres columnas ---monto, UMA, IVA--- y la tabla se leia como si los
+           tres fueran datos distintos: no lo son, los dos ultimos cambian como
+           se lee el primero. */
+        .celda-monto { min-width: 200px; }
+        .celda-monto .campo { display: flex; align-items: center; gap: 8px; }
+        .celda-monto input[type="text"] {
+            font-family: var(--font-meter);
+            font-weight: 600;
+            text-align: right;
+            min-width: 92px;
+        }
+
+        .chips { display: flex; gap: 5px; flex: none; }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: var(--faint);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 5px 7px;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .chip input { accent-color: var(--accent); margin: 0; }
+        /* Los radio/checkbox de adentro son el control real ---teclado y lector
+           de pantalla---; la clase es solo pintura. */
+        .chip.activo { color: var(--accent); border-color: var(--accent); background: var(--accent-tint); }
+
+        .cifra-celda { font-family: var(--font-meter); font-weight: 600; white-space: nowrap; }
+        .cifra-celda.apagada { color: var(--faint); font-weight: 400; }
+        .cifra-celda.recortada { color: var(--accent); }
+
+        .sec { font-size: 11.5px; color: var(--faint); font-family: var(--font-sans); font-weight: 400; }
+
+        .quitar {
+            border: none;
+            background: transparent;
+            color: var(--faint);
+            font-size: 17px;
+            line-height: 1;
+            padding: 4px 7px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .quitar:hover { color: var(--error); background: var(--error-tint); }
+
+        tfoot td {
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            font-weight: 700;
+            font-size: 13px;
+        }
+        tfoot .cifra-celda { font-size: 14px; }
+
+        .pie-tabla {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        /* --------------------------------------------------------- el dibujo
+
+           QUE EXPLICA ESTA PANTALLA, que es lo que el numero solo no dice.
+
+           En vencimientos el dibujo es un calendario y en mediacion la escala,
+           porque eso es lo que hay que explicar en cada una. Aca la pregunta es
+           OTRA: no como se llego a la fecha ni por que ese tramo, sino POR QUE
+           NO SE COBRA LO QUE SE REGULO ---o por que si---, y eso es una
+           comparacion entre dos cantidades: lo regulado contra el techo.
+
+           Asi que el dibujo son DOS BARRAS A LA MISMA ESCALA. Una comparacion
+           entre dos numeros que solo se escriben es la clase de cosa que se
+           lee tres veces; puestos uno encima del otro se ve de una. Y el
+           dibujo sirve para los dos desenlaces: cuando hay prorrateo la barra
+           de arriba se pasa, y cuando no hay, se queda corta. Ese "quedarse
+           corto" tambien es informacion ---dice cuanto margen queda--- y con
+           el HTML anterior no se veia en ningun lado. */
+        .dibujo {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px 24px;
+        }
+
+        .barra-fila { margin-bottom: 18px; }
+        .barra-fila:last-of-type { margin-bottom: 0; }
+
+        .barra-tope {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 7px;
+        }
+
+        .barra-tope .que { font-size: 12px; font-weight: 600; color: var(--muted-fg); }
+        .barra-tope .cuanto { font-family: var(--font-meter); font-size: 13px; font-weight: 700; }
+
+        .barra {
+            display: flex;
+            height: 30px;
+            border-radius: 7px;
+            overflow: hidden;
+            background: var(--sunk);
+            box-shadow: inset 0 0 0 1px var(--hair);
+        }
+
+        .tramo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            overflow: hidden;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        /* La tasa es plata que se va en costas igual que los honorarios, pero
+           no es honorarios: va en neutro y no en el acento. */
+        .tramo.tasa { background: var(--muted-fg); color: var(--card); }
+        .tramo.honorarios { background: var(--accent); color: var(--on-accent); }
+        /* Lo que se pasa del techo. --error es un token de estado del sistema
+           y no un acento nuevo: es exactamente lo que no se va a cobrar. */
+        .tramo.excedente { background: var(--error); color: var(--card); }
+        /* El techo dibujado como hueco: lo que sobra abajo del 25 %. */
+        .tramo.libre { background: transparent; color: var(--faint); }
+
+        .referencias {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 18px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--hair);
+            font-size: 11.5px;
+            color: var(--muted-fg);
+        }
+        .referencias span { display: inline-flex; align-items: center; gap: 6px; }
+        .referencias i {
+            width: 11px; height: 11px; border-radius: 3px; display: inline-block; flex: none;
+        }
+        .referencias .c-tasa { background: var(--muted-fg); }
+        .referencias .c-hon { background: var(--accent); }
+        .referencias .c-exc { background: var(--error); }
+        .referencias .c-lib { background: var(--sunk); box-shadow: inset 0 0 0 1px var(--border); }
+
+        .aclaracion {
+            margin-top: 14px;
+            font-size: 12px;
+            color: var(--muted-fg);
             line-height: 1.6;
         }
 
-        .container {
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-        .table-container {
-            /* Item de flex: sin min-width:0 no se encoge por debajo de su
-               contenido, asi que la tabla estira toda la pagina aunque el
-               contenedor de adentro tenga overflow-x. */
-            min-width: 0;
-            background: var(--card);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            padding: 30px;
-            margin-bottom: 25px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .table-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-        }
-        .table-container h3 {
-            margin: 0 0 20px 0;
-            color: var(--accent);
-            border-bottom: 3px solid var(--accent);
-            padding-bottom: 10px;
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            font-size: 14px;
-        }
-        th, td {
-            border: 1px solid var(--border);
-            padding: 12px;
-            text-align: left;
-            transition: background-color 0.3s ease;
-        }
-        th {
-            background-color: var(--sunk);
-            color: var(--accent);
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        tr:nth-child(even) td {
-            background-color: var(--sunk);
-        }
-        th:first-child { border-top-left-radius: 8px; }
-        th:last-child { border-top-right-radius: 8px; }
-        tr:last-child td:first-child { border-bottom-left-radius: 8px; }
-        tr:last-child td:last-child { border-bottom-right-radius: 8px; }
-
-        .label-cell {
-            background-color: var(--sunk);
-            font-weight: bold;
-            width: 180px;
-            color: var(--accent);
-        }
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            box-sizing: border-box;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        input[type="text"]:focus, input[type="number"]:focus {
-            border-color: var(--accent);
-            outline: none;
-            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
-        }
-        input[type="checkbox"] {
-            transform: scale(1.2);
-            margin: 0;
-            cursor: pointer;
-        }
-        .calculated {
-            background-color: var(--ok-tint);
-            font-weight: bold;
-            text-align: right;
-            color: var(--ok);
-        }
-        /* Tinte y no el color pleno: con el ambar de fondo y el texto claro
-           encima el contraste caia a 1.68, o sea ilegible en modo oscuro.
-           El borde superior es lo que marca que la fila es el total. */
-        .total-row {
-            background-color: var(--warn-tint);
-            color: var(--fg);
-            border-top: 2px solid var(--warn);
-            font-weight: bold;
-        }
-        .percentage {
-            color: var(--ok);
-            font-weight: bold;
-        }
-        .description-input {
-            background-color: transparent;
-            border: none;
-            padding: 0;
-            font-weight: bold;
-            color: var(--accent);
-        }
-        .description-input:focus {
-            box-shadow: none;
-        }
-        .small-checkbox {
-            text-align: center;
-            vertical-align: middle;
-        }
-        .button-container {
-            text-align: center;
-            margin-top: 25px;
-        }
-        .action-button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: bold;
-            margin: 0 8px;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s;
-        }
-        .add-button {
-            background-color: var(--ok);
-            color: var(--on-accent);
-        }
-        .add-button:hover {
-            background-color: var(--ok);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
-        }
-        .remove-button {
-            background-color: var(--error);
-            color: var(--on-accent);
-            padding: 6px 10px;
-            font-size: 13px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-        .remove-button:hover {
-            background-color: var(--error);
-            transform: scale(1.05);
-        }
-        .reset-button {
-            background-color: var(--muted-fg);
-            color: var(--on-accent);
-        }
-        .reset-button:hover {
-            background-color: var(--fg);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(23, 162, 184, 0.4);
-        }
-        #errorMessage {
-            display: none;
-            background-color: var(--error);
-            color: var(--on-accent);
-            padding: 18px;
-            border-radius: 8px;
-            margin-top: 20px;
-            text-align: center;
-            font-weight: bold;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        #instructions {
-            background-color: var(--warn-tint);
-            color: var(--warn);
+        .aviso {
+            background: var(--warn-tint);
             border: 1px solid var(--warn);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            text-align: center;
-            font-weight: 500;
+            border-left-width: 4px;
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: 12.5px;
+            line-height: 1.55;
+            color: var(--fg);
+            margin-top: 16px;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+
+        .colofon {
+            margin-top: 26px;
+            font-size: 12px;
+            color: var(--faint);
+            line-height: 1.6;
         }
-        .tooltip {
-            border-bottom: 1px dotted var(--accent);
-            cursor: help;
+        .colofon a { color: var(--accent); }
+        .colofon code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+
+        @media (max-width: 620px) {
+            body { padding: 20px 14px 48px; }
+            .panel, .dibujo { padding: 18px 16px; }
+            .cabecera { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .cobertura { text-align: left; }
         }
-        @media print {
-            body { background-color: var(--on-accent); padding: 0; }
-            .header, .button-container, .reset-button, #errorMessage, #instructions { display: none; }
-            .table-container { box-shadow: none; border: 1px solid #ccc; padding: 10px; }
-            input[type="text"] { border: none; background: transparent; font-weight: bold; padding: 0; }
-            .calculated { background-color: white !important; color: black; }
-            .total-row { background-color: #f0f0f0 !important; color: black !important; }
-            th, td { border: 1px solid #ccc; padding: 8px; }
-        }
-    
-        /* La tabla scrollea sola en pantalla chica; sin esto estira la pagina */
-        .tabla-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     </style>
 </head>
 <body>
-    <div class="app-wrapper">
-        <h1>Calculadora de Prorrateo (Art. 730 CCCN)</h1>
-        <p class="subtitle">Esta planilla permite realizar el cálculo del prorrateo del art. 730 del Código Civil y Comercial. <strong>NOTA:</strong> el cálculo no disminuye el monto de la tasa de justicia.</p>
+    <div class="hoja">
+        <header class="cabecera">
+            <h1>Prorrateo del <span>art. 730</span></h1>
+            <p class="cobertura" id="statusUma">Buscando el valor de la UMA…</p>
+        </header>
 
-    <div class="container">
-        <!-- Panel izquierdo: Datos del Proceso -->
-        <!-- flex-shrink 1 (y no 0): con 0 la columna no bajaba de 400px mas
-             padding y desbordaba la pantalla en celular. Ahora se encoge y,
-             si no entra, envuelve. -->
-        <div class="table-container" style="flex: 1 1 400px;">
-            <h3>Datos del Proceso</h3>
-            <div class="tabla-scroll"><table>
-                <tr>
-                    <td class="label-cell">MONTO DEL PROCESO</td>
-                    <td><input type="text" id="montoProcess" placeholder="Ingrese el monto" oninput="calculate()"></td>
-                </tr>
-                <tr>
-                    <td class="label-cell">TASA DE JUSTICIA</td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span><input type="checkbox" id="incluirTasaCheckbox" checked onchange="calculate()"> Incluir en la base</span>
-                            <span><input type="checkbox" id="tasaManualCheckbox" onchange="toggleTasaManual()"> Manual</span>
+        <div class="tablero">
+            <div class="panel">
+                <div class="grupo">
+                    <label class="rotulo" for="montoProceso">Monto del proceso</label>
+                    <div class="importe">
+                        <span class="signo" aria-hidden="true">$</span>
+                        <input type="text" id="montoProceso" inputmode="decimal" autocomplete="off"
+                               placeholder="0" aria-label="Monto del proceso en pesos">
+                    </div>
+                    <div class="pie-campo">La sentencia, el laudo o la transacción que puso fin
+                        al pleito. Es la base del 25 %.</div>
+                </div>
+
+                <div class="grupo">
+                    <span class="rotulo">Tasa de justicia</span>
+                    <label class="casilla">
+                        <input type="checkbox" id="tasaEnBase" checked>
+                        <span>Integra las costas, y por lo tanto ocupa parte del 25 %</span>
+                    </label>
+                    <label class="casilla">
+                        <input type="checkbox" id="tasaManual">
+                        <span>Cargar el importe a mano en vez del 3 %</span>
+                    </label>
+                    <div class="subcampo" id="campoTasa" hidden>
+                        <div class="importe">
+                            <span class="signo" aria-hidden="true">$</span>
+                            <input type="text" id="tasaImporte" inputmode="decimal" autocomplete="off"
+                                   placeholder="0" aria-label="Importe de la tasa de justicia">
                         </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="label-cell">TASA (3% o manual)</td>
-                    <td>
-                        <input type="text" id="tasaManualInput" placeholder="Monto manual" style="display: none; margin-bottom: 5px;" oninput="calculate()">
-                        <span class="calculated" id="tasa">0.00</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="label-cell">25% del proceso</td>
-                    <td class="calculated" id="percent25">0.00</td>
-                </tr>
-                <tr>
-                    <td class="label-cell">TOPE 730 (22%)</td>
-                    <td class="calculated" id="tope730">0.00</td>
-                </tr>
-                <tr>
-                    <td class="label-cell">VALOR UMA (pesos)</td>
-                    <td>
-                        <input type="text" id="umaInput" placeholder="Ingrese valor UMA" value="" oninput="calculate()">
-                        <div id="avisoUma" style="font-size: 12px; color: var(--muted-fg);">Cargando el valor de la UMA…</div>
-                    </td>
-                </tr>
-            </table></div>
-        </div>
+                    </div>
+                    <div class="pie-campo" id="pieTasa"></div>
+                </div>
 
-        <!-- Panel derecho: Honorarios y Prorrateo -->
-        <div class="table-container" style="flex: 1;">
-            <h3>Honorarios y Prorrateo</h3>
-            <div id="instructions">
-                <strong>Modo de ingreso:</strong> Los montos pueden ser ingresados con coma o punto decimal. Ejemplo: `1000.50` o `1000,50`. 
-                Marcar UMA para interpretar el valor como cantidad de UMAs (se multiplica por el valor UMA ingresado). Marcar IVA para agregar 21%.
-            </div>
-            <div class="tabla-scroll"><table>
-                <thead>
-                    <tr>
-                        <th>DESCRIPCIÓN</th>
-                        <th>MONTO (en $ o UMAs)</th>
-                        <th>UMA</th>
-                        <th>IVA</th>
-                        <th>% PARTICIPACIÓN</th>
-                        <th>HONORARIO PRORRATEADO</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="honorario-body">
-                    <!-- Las filas se generan dinámicamente con JS -->
-                </tbody>
-                <tbody id="honorario-totals">
-                    <tr class="total-row">
-                        <td>Total Honorarios</td>
-                        <td class="calculated" id="totalHonorarios">0.00</td>
-                        <td></td>
-                        <td></td>
-                        <td class="calculated" id="totalPercent">0.00%</td>
-                        <td class="calculated" id="totalProrrateo">0.00</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>% s/ Monto Proceso (con/sin tasa)</td>
-                        <td class="calculated percentage" id="percentTotal">0.00%</td>
-                        <td colspan="5"></td>
-                    </tr>
-                </tbody>
-            </table></div>
-            
-            <div class="button-container">
-                <button class="action-button add-button" onclick="addHonorario()">Añadir Honorario</button>
+                <div class="grupo">
+                    <label class="rotulo" for="uma">Valor de la UMA</label>
+                    <div class="importe">
+                        <span class="signo" aria-hidden="true">$</span>
+                        <input type="text" id="uma" inputmode="decimal" autocomplete="off"
+                               placeholder="Cargando…" aria-label="Valor de la UMA en pesos">
+                    </div>
+                    <div class="pie-campo">Se carga solo desde la serie del sitio. Sólo se usa
+                        para las regulaciones marcadas UMA.</div>
+                    <p class="error" id="msg" role="alert"></p>
+                </div>
             </div>
 
-            <div id="errorMessage">
-                <strong>ADVERTENCIA:</strong> La sumatoria de honorarios (incluyendo tasa si corresponde) es $<span id="errorTotalBase">0.00</span> 
-                y no supera el 25% del monto del proceso ($<span id="errorPercent25">0.00</span>). Por lo tanto, el prorrateo no aplica.
+            <div class="resultado" id="resultado"></div>
+        </div>
+
+        <div class="panel">
+            <div class="encabezado-panel">
+                <h2>Las regulaciones</h2>
+                <p>Marcá <strong>UMA</strong> si el monto está expresado en UMA,
+                   e <strong>IVA</strong> para agregarle el 21 %.</p>
+            </div>
+
+            <div class="tabla-scroll">
+                <table class="filas">
+                    <thead>
+                        <tr>
+                            <th>Profesional o concepto</th>
+                            <th>Monto regulado</th>
+                            <th class="num">En pesos</th>
+                            <th class="num">Participación</th>
+                            <th class="num">Prorrateado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="filas"></tbody>
+                    <tfoot>
+                        <tr>
+                            <td>Total regulado</td>
+                            <td></td>
+                            <td class="num"><span class="cifra-celda" id="totalRegulado">$ 0,00</span></td>
+                            <td class="num"><span class="cifra-celda" id="totalParticipacion">—</span></td>
+                            <td class="num"><span class="cifra-celda" id="totalProrrateado">—</span></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="pie-tabla">
+                <button type="button" class="btn-suave btn-chico" id="btnAgregar">Agregar regulación</button>
+                <button type="button" class="btn-suave btn-chico" id="btnReiniciar">Reiniciar</button>
             </div>
         </div>
+
+        <div id="dibujo"></div>
+
+        <p class="colofon">
+            El tope es el del <strong>art. 730 del Código Civil y Comercial</strong>: la
+            responsabilidad por el pago de las costas de primera o única instancia,
+            <em>incluidos los honorarios profesionales de todo tipo</em>, no puede exceder
+            del 25 % del monto de la sentencia, laudo o transacción. Por eso la tasa de
+            justicia, cuando integra las costas, ocupa parte de ese 25 % y el resto es lo
+            que queda para los honorarios. <strong>El prorrateo no reduce la tasa de
+            justicia</strong>, que se integra por su monto. La UMA sale de
+            <code>data/serie-uma.json</code>, leída de los actos de la CSJN y versionada
+            en este sitio: la página no le pide el valor a nadie. Si algo da mal,
+            <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.
+        </p>
     </div>
-    
-    <div style="text-align: center; margin-top: 20px;">
-        <button class="action-button reset-button" onclick="resetCalculator()">Reiniciar Calculadora</button>
-        </div>
-</div>
- <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
-      <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
-      <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-        <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
-        <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-        <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
-      </span>
-    </div>
-    <script>
-        // --- Elementos del DOM ---
-        const honorarioBody = document.getElementById('honorario-body');
 
-        // --- Funciones auxiliares de números ---
-        // Convierte un string a número, aceptando coma o punto decimal, y eliminando puntos de miles si se indica.
-        function parseNumber(value, removeThousandsSeparator = false) {
-            if (typeof value !== 'string') value = String(value);
-            if (removeThousandsSeparator) {
-                // Eliminar todos los puntos (separadores de miles)
-                value = value.replace(/\./g, '');
-            }
-            // Reemplazar coma por punto para decimal
-            value = value.replace(',', '.');
-            const num = parseFloat(value);
-            return isNaN(num) ? 0 : num;
-        }
+<script>
+(function () {
+    'use strict';
 
-        function formatNumber(num) {
-            return new Intl.NumberFormat('es-AR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(num);
-        }
+    var nf = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        // --- Obtener valor UMA actual desde el input (ya limpio de puntos) ---
-        function getValorUMA() {
-            const umaInput = document.getElementById('umaInput');
-            // Al obtener el valor, quitamos puntos (por si el usuario escribió con ellos)
-            return parseNumber(umaInput.value, true);
-        }
+    var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+                 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-        // --- Función para obtener el monto efectivo de una fila (considera UMA e IVA) ---
-        function getMontoEfectivoFila(row) {
-            const montoInput = row.querySelector('.honorario-input');
-            const umaCheck = row.querySelector('.uma-checkbox');
-            const ivaCheck = row.querySelector('.iva-checkbox');
-            let monto = parseNumber(montoInput ? montoInput.value : ''); // sin eliminar puntos (puede tener decimales)
-            
-            // Si UMA está marcado, multiplicar por valor UMA
-            if (umaCheck && umaCheck.checked) {
-                const umaValor = getValorUMA();
-                monto = monto * umaValor;
-            }
-            
-            // Si IVA está marcado, agregar 21%
-            if (ivaCheck && ivaCheck.checked) {
-                monto = monto * 1.21;
-            }
-            
-            return monto;
-        }
+    var TASA_LEY = 0.03;   // Ley 23.898, art. 2: alicuota general.
+    var IVA = 0.21;
+    var TOPE_COSTAS = 0.25; // art. 730 CCyC.
 
-        // --- Toggle de campo manual para tasa ---
-        function toggleTasaManual() {
-            const manualCheck = document.getElementById('tasaManualCheckbox');
-            const manualInput = document.getElementById('tasaManualInput');
-            if (manualCheck.checked) {
-                manualInput.style.display = 'block';
-            } else {
-                manualInput.style.display = 'none';
-            }
-            calculate();
-        }
+    function pesos(n) { return '$ ' + nf.format(n); }
 
-        // --- Añadir nueva fila de honorario ---
-        function addHonorario() {
-            const rowCount = honorarioBody.rows.length + 1;
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td><input type="text" class="description-input" placeholder="Descripción - Honorario ${rowCount}"></td>
-                <td><input type="text" class="honorario-input" placeholder="0.00" oninput="calculate()"></td>
-                <td class="small-checkbox"><input type="checkbox" class="uma-checkbox" onchange="calculate()"></td>
-                <td class="small-checkbox"><input type="checkbox" class="iva-checkbox" onchange="calculate()"></td>
-                <td class="calculated percentage">0.00%</td>
-                <td class="calculated">0.00</td>
-                <td><button class="action-button remove-button" onclick="removeHonorario(this)">-</button></td>
-            `;
-            honorarioBody.appendChild(newRow);
-            updateHonorarioPlaceholders();
-            calculate();
-        }
+    function parseFlexibleNumber(raw) {
+        if (raw === null || raw === undefined) return NaN;
+        var s = String(raw).trim();
+        if (!s) return NaN;
 
-        // --- Eliminar fila de honorario ---
-        function removeHonorario(button) {
-            const row = button.closest('tr');
-            if (honorarioBody.rows.length > 1) {
-                row.remove();
-                updateHonorarioPlaceholders();
-                calculate();
+        // Si hay coma, el punto es de miles y la coma decimal.
+        if (s.indexOf(',') > -1) {
+            s = s.replace(/\./g, '').replace(',', '.');
+        } else {
+            // Sin coma: un punto con tres digitos atras es de miles (10.800),
+            // y si no es decimal (10.8).
+            var partes = s.split('.');
+            if (partes.length > 1 && partes[partes.length - 1].length === 3) {
+                s = s.replace(/\./g, '');
             }
         }
+        return parseFloat(s.replace(/[^0-9.-]/g, ''));
+    }
 
-        // --- Actualizar placeholders de descripción ---
-        function updateHonorarioPlaceholders() {
-            const descriptionInputs = document.querySelectorAll('.description-input');
-            descriptionInputs.forEach((input, index) => {
-                input.placeholder = `Descripción - Honorario ${index + 1}`;
-            });
+    function numero(raw) {
+        var n = parseFlexibleNumber(raw);
+        return isNaN(n) ? 0 : n;
+    }
+
+    // ----------------------------------------------------------------------
+    // EL TOPE, que es lo unico de esta pantalla que cambio de valor el 27/8.
+    //
+    // El HTML anterior calculaba dos numeros:
+    //
+    //     percent25 = monto * 0.25   // el techo del art. 730
+    //     tope730   = monto * 0.22   // lo que se reparte entre los honorarios
+    //
+    // y el 22 % estaba ESCRITO DURO. De donde sale: el art. 730 topea las
+    // costas ---"incluidos los honorarios profesionales, de todo tipo"--- en el
+    // 25 % de la condena, y la tasa de justicia es costas. Si la tasa es el
+    // 3 % del art. 2 de la 23.898, a los honorarios les quedan 22 puntos. La
+    // cuenta es correcta EN ESE CASO Y SOLO EN ESE.
+    //
+    // Los dos casos en los que daba mal, y los dos los ofrece la propia
+    // pantalla:
+    //
+    //   - Tasa cargada a mano distinta del 3 %. Con una tasa reducida de
+    //     $150.000 sobre un proceso de $10.000.000 ---el 1,5 %, que es la del
+    //     art. 3 inc. c--- el art. 730 le deja a los honorarios $2.350.000 y la
+    //     pantalla los topeaba en $2.200.000: prorrateaba $150.000 de menos.
+    //   - La casilla de la tasa destildada. Si la tasa no integra la base, no
+    //     hay nada que descontarle al 25 %, y el tope seguia siendo el 22 %.
+    //
+    // Ahora el tope SE DERIVA, y con la tasa del 3 % adentro de la base da
+    // exactamente 22 %: el caso de siempre no se movio un centavo.
+    //
+    // El maximo con cero es para la tasa a mano absurda ---mayor al 25 % de la
+    // condena---: ahi no queda nada para honorarios y el resultado es cero, no
+    // un tope negativo repartido al reves.
+    // ----------------------------------------------------------------------
+    function prorratear(entrada) {
+        var monto = entrada.monto;
+        var tasa = entrada.tasa;
+        var tasaEnBase = !!entrada.tasaEnBase;
+        var regulados = entrada.regulados;
+
+        var techo = monto * TOPE_COSTAS;
+        var topeHonorarios = tasaEnBase ? Math.max(0, techo - tasa) : techo;
+
+        var totalRegulado = 0;
+        for (var i = 0; i < regulados.length; i++) totalRegulado += regulados[i];
+
+        var costas = totalRegulado + (tasaEnBase ? tasa : 0);
+        // Sin honorarios regulados no hay nada que prorratear, aunque la tasa
+        // sola pase el techo: el art. 730 reparte honorarios, no reduce la tasa.
+        var prorratea = monto > 0 && totalRegulado > 0 && costas > techo;
+
+        var reparto = regulados.map(function (r) {
+            if (!prorratea) return r;
+            if (totalRegulado <= 0) return 0;
+            return (r / totalRegulado) * topeHonorarios;
+        });
+
+        var cobrado = 0;
+        for (var j = 0; j < reparto.length; j++) cobrado += reparto[j];
+
+        return {
+            techo: techo,
+            tasa: tasa,
+            tasaEnBase: tasaEnBase,
+            topeHonorarios: topeHonorarios,
+            totalRegulado: totalRegulado,
+            costas: costas,
+            porcentajeProceso: monto > 0 ? (costas * 100) / monto : 0,
+            prorratea: prorratea,
+            reparto: reparto,
+            cobrado: cobrado,
+            recorte: Math.max(0, totalRegulado - cobrado)
+        };
+    }
+
+    // ----------------------------------------------------------------------
+    // La UMA sale de data/serie-uma.json, del propio repositorio.
+    //
+    // Hasta el 26/8/2026 esta pagina le pedia el valor a una planilla de Google
+    // en cada carga, y quedo afuera del barrido de "que sale del navegador" del
+    // 26/8 porque la llamada estaba a cuatrocientas lineas del calculo, adentro
+    // de un cargador de CSV.
+    //
+    // Se elige el ultimo valor cuya VIGENCIA ya empezo, y no el ultimo del
+    // archivo. La diferencia aparece el dia que se carga un valor por
+    // adelantado: el ultimo del archivo seria uno que todavia no rige.
+    // ----------------------------------------------------------------------
+    function umaVigente(valores) {
+        var hoy = new Date().toISOString().slice(0, 10);
+        var elegido = null;
+        for (var i = 0; i < valores.length; i++) {
+            var v = valores[i];
+            if (typeof v.valor !== 'number' || !v.vigencia) continue;
+            if (v.vigencia <= hoy) elegido = v;
         }
+        return elegido;
+    }
 
-        // --- Reiniciar calculadora ---
-        function resetCalculator() {
-            document.getElementById('montoProcess').value = '';
-            document.getElementById('incluirTasaCheckbox').checked = true;
-            document.getElementById('tasaManualCheckbox').checked = false;
-            document.getElementById('tasaManualInput').value = '';
-            document.getElementById('tasaManualInput').style.display = 'none';
-            // No reiniciamos el campo UMA para mantener el valor cargado o manual
-            
-            // Limpiar todas las filas y crear 5 por defecto
-            while (honorarioBody.firstChild) {
-                honorarioBody.removeChild(honorarioBody.firstChild);
-            }
-            for (let i = 0; i < 5; i++) {
-                addHonorario(); // crea filas con checkboxes
-            }
-            calculate();
-        }
+    function desdeCuando(vigencia) {
+        var partes = String(vigencia).split('-');
+        var mes = MESES[parseInt(partes[1], 10) - 1];
+        return mes ? mes + ' de ' + partes[0] : vigencia;
+    }
 
-        /*
-          El valor de la UMA sale de data/serie-uma.json, del propio
-          repositorio, y no de una planilla publicada de un tercero.
-
-          Hasta el 26/8/2026 esta pagina le pedia el valor a una planilla de
-          Google en cada carga. Quedo afuera del barrido de "que sale del
-          navegador" del 26/8, que reviso las once calculadoras y nombro a
-          honorarios-mediacion --arreglada ese dia-- y a distancia como las
-          unicas dos que consultaban afuera. Eran tres.
-
-          El archivo tiene la serie entera leida de los actos de la CSJN, uno
-          por uno, y la verifica npm run verificar-series. Es la misma serie
-          que publica uma-uhom.html y el mismo movimiento que ya se hizo con
-          los feriados y con el UHOM.
-
-          Se elige el ultimo valor cuya VIGENCIA ya empezo, y no el ultimo del
-          archivo. La diferencia aparece el dia que se carga un valor por
-          adelantado: el ultimo del archivo seria uno que todavia no rige.
-        */
-        function umaVigente(valores) {
-            const hoy = new Date().toISOString().slice(0, 10);
-            let elegido = null;
-            for (const v of valores) {
-                if (typeof v.valor !== 'number' || !v.vigencia) continue;
-                if (v.vigencia <= hoy) elegido = v;
-            }
-            return elegido;
-        }
-
-        async function cargarUMA() {
-            const umaInput = document.getElementById('umaInput');
-            const aviso = document.getElementById('avisoUma');
-            try {
-                // Rompe-cache: sin esto un valor nuevo puede tardar en
-                // aparecer y el usuario ve el anterior sin que nada se lo diga.
-                const response = await fetch('../data/serie-uma.json?v=' + Date.now());
-                if (!response.ok) throw new Error('HTTP ' + response.status);
-                const serie = await response.json();
-                const vigente = umaVigente(serie.valores || []);
+    function fetchUma() {
+        var input = document.getElementById('uma');
+        var status = document.getElementById('statusUma');
+        // Rompe-cache: sin esto un valor nuevo puede tardar en aparecer y el
+        // usuario ve el anterior sin que nada se lo diga.
+        return fetch('../data/serie-uma.json?v=' + Date.now())
+            .then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then(function (serie) {
+                var vigente = umaVigente(serie.valores || []);
                 if (!vigente) throw new Error('la serie no tiene ningún valor vigente');
+                input.value = vigente.valor.toLocaleString('es-AR');
+                // Se dice DESDE CUANDO rige, y no solo el numero: es el dato que
+                // permite notar que la serie quedo corta.
+                status.textContent = 'La UMA rige desde ' + desdeCuando(vigente.vigencia) +
+                    ' (' + vigente.norma + '), y sale de los actos de la CSJN.';
+                calcular();
+            })
+            .catch(function (e) {
+                // No se inventa un valor ni se deja el anterior: se dice que hay
+                // que cargarlo. Un prorrateo calculado con una UMA equivocada
+                // sale plausible y nadie lo nota.
+                status.textContent = 'No se pudo leer el valor de la UMA (' + e.message + '). Cargalo a mano.';
+            });
+    }
 
-                umaInput.value = vigente.valor;
-                // Se dice desde cuándo rige, y no sólo el número: es el dato
-                // que permite notar que la serie quedó corta.
-                aviso.textContent = 'Rige desde el ' + vigente.vigencia.split('-').reverse().join('/') +
-                    ' (' + vigente.norma + '). Se puede reemplazar a mano.';
-            } catch (e) {
-                // No se inventa un valor ni se deja el anterior: se dice que
-                // hay que cargarlo. Un prorrateo calculado con una UMA
-                // equivocada sale plausible y nadie lo nota.
-                umaInput.value = '';
-                aviso.textContent = 'No se pudo leer el valor de la UMA (' + e.message + '). Cargalo a mano, sin puntos.';
-            }
-            calculate(); // recalcular con el nuevo valor
+    // ----------------------------------------------------------------------
+    // Las filas.
+    // ----------------------------------------------------------------------
+    var cuerpo = document.getElementById('filas');
+
+    function agregarFila(concepto, monto, uma, iva) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td class="celda-concepto"><input type="text" class="fila-concepto" autocomplete="off"></td>' +
+            '<td class="celda-monto"><div class="campo">' +
+                '<input type="text" class="fila-monto" inputmode="decimal" autocomplete="off" placeholder="0">' +
+                '<span class="chips">' +
+                    '<label class="chip"><input type="checkbox" class="fila-uma">UMA</label>' +
+                    '<label class="chip"><input type="checkbox" class="fila-iva">IVA</label>' +
+                '</span>' +
+            '</div></td>' +
+            '<td class="num"><span class="cifra-celda apagada fila-regulado">—</span></td>' +
+            '<td class="num"><span class="cifra-celda apagada fila-participacion">—</span></td>' +
+            '<td class="num"><span class="cifra-celda apagada fila-prorrateado">—</span></td>' +
+            '<td><button type="button" class="quitar" aria-label="Quitar esta regulación">×</button></td>';
+
+        cuerpo.appendChild(tr);
+
+        if (concepto) tr.querySelector('.fila-concepto').value = concepto;
+        if (monto) tr.querySelector('.fila-monto').value = monto;
+        tr.querySelector('.fila-uma').checked = !!uma;
+        tr.querySelector('.fila-iva').checked = !!iva;
+
+        tr.querySelector('.quitar').addEventListener('click', function () {
+            if (cuerpo.rows.length > 1) tr.remove();
+            else limpiarFila(tr);
+            numerarConceptos();
+            calcular();
+        });
+
+        numerarConceptos();
+        return tr;
+    }
+
+    function limpiarFila(tr) {
+        tr.querySelector('.fila-concepto').value = '';
+        tr.querySelector('.fila-monto').value = '';
+        tr.querySelector('.fila-uma').checked = false;
+        tr.querySelector('.fila-iva').checked = false;
+    }
+
+    // El placeholder numera; el valor no. Escribir "Honorario 3" adentro del
+    // campo obliga a borrarlo para poner el nombre real.
+    function numerarConceptos() {
+        var campos = cuerpo.querySelectorAll('.fila-concepto');
+        for (var i = 0; i < campos.length; i++) {
+            campos[i].placeholder = 'Regulación ' + (i + 1);
+        }
+    }
+
+    // El monto efectivo de una fila: primero la UMA, despues el IVA. El orden
+    // importa y es el que tenia el HTML anterior ---el IVA se calcula sobre el
+    // honorario ya expresado en pesos---.
+    function reguladoDeFila(tr, uma) {
+        var monto = numero(tr.querySelector('.fila-monto').value);
+        if (tr.querySelector('.fila-uma').checked) monto = monto * uma;
+        if (tr.querySelector('.fila-iva').checked) monto = monto * (1 + IVA);
+        return monto;
+    }
+
+    // ----------------------------------------------------------------------
+    // El calculo y la pantalla.
+    // ----------------------------------------------------------------------
+    function calcular() {
+        var msg = document.getElementById('msg');
+        msg.textContent = '';
+        msg.classList.remove('show');
+
+        var monto = numero(document.getElementById('montoProceso').value);
+        var uma = numero(document.getElementById('uma').value);
+        var manual = document.getElementById('tasaManual').checked;
+        var enBase = document.getElementById('tasaEnBase').checked;
+        var tasa = manual ? numero(document.getElementById('tasaImporte').value) : monto * TASA_LEY;
+
+        document.getElementById('campoTasa').hidden = !manual;
+        // Sin monto cargado el importe seria "$ 0,00", que no informa nada: hasta
+        // que haya proceso el pie dice la regla y no la cuenta.
+        var pieTasa = document.getElementById('pieTasa');
+        if (manual) {
+            pieTasa.textContent = monto > 0
+                ? 'Se usa el importe cargado. El 3 % de este proceso sería ' + pesos(monto * TASA_LEY) + '.'
+                : 'Se usa el importe cargado en vez del 3 % del art. 2 de la Ley 23.898.';
+        } else {
+            pieTasa.textContent = monto > 0
+                ? 'El 3 % del art. 2 de la Ley 23.898: ' + pesos(tasa) + '.'
+                : 'El 3 % del art. 2 de la Ley 23.898.';
         }
 
-        // --- Cálculo principal ---
-        function calculate() {
-            // 1. Monto del proceso
-            const montoProcess = parseNumber(document.getElementById('montoProcess').value);
-            
-            // 2. Tasa de justicia
-            let tasa = 0;
-            const tasaManualCheck = document.getElementById('tasaManualCheckbox').checked;
-            const tasaManualInput = document.getElementById('tasaManualInput');
-            if (tasaManualCheck) {
-                tasa = parseNumber(tasaManualInput.value);
-            } else {
-                tasa = montoProcess * 0.03;
-            }
-            document.getElementById('tasa').textContent = formatNumber(tasa);
-            
-            // 3. 25% y tope
-            const percent25 = montoProcess * 0.25;
-            const tope730 = montoProcess * 0.22;
-            document.getElementById('percent25').textContent = formatNumber(percent25);
-            document.getElementById('tope730').textContent = formatNumber(tope730);
-            
-            // 4. Obtener todas las filas de honorarios
-            const filas = honorarioBody.querySelectorAll('tr');
-            const montosEfectivos = [];
-            let totalHonorariosEfectivos = 0;
-            
-            filas.forEach(row => {
-                const montoEf = getMontoEfectivoFila(row);
-                montosEfectivos.push(montoEf);
-                totalHonorariosEfectivos += montoEf;
-            });
-            
-            // 5. Incluir tasa en la base de comparación si el checkbox está marcado
-            const incluirTasa = document.getElementById('incluirTasaCheckbox').checked;
-            let baseComparacion = totalHonorariosEfectivos;
-            if (incluirTasa) {
-                baseComparacion += tasa;
-            }
-            
-            document.getElementById('totalHonorarios').textContent = formatNumber(totalHonorariosEfectivos);
-            
-            // Porcentaje sobre monto del proceso (con tasa si corresponde)
-            let percentOfProcess = 0;
-            if (montoProcess > 0) {
-                percentOfProcess = (baseComparacion * 100) / montoProcess;
-            }
-            document.getElementById('percentTotal').textContent = formatNumber(percentOfProcess) + '%';
-            
-            // 6. Lógica de prorrateo
-            const errorMessage = document.getElementById('errorMessage');
-            const errorTotalBaseSpan = document.getElementById('errorTotalBase');
-            const errorPercent25Span = document.getElementById('errorPercent25');
-            
-            function clearProrrateoResults() {
-                document.getElementById('totalPercent').textContent = '0.00%';
-                document.getElementById('totalProrrateo').textContent = '0.00';
-                
-                filas.forEach(row => {
-                    const percentageCell = row.querySelector('td:nth-child(5)');
-                    const prorrateoCell = row.querySelector('td:nth-child(6)');
-                    if (percentageCell) percentageCell.textContent = '0.00%';
-                    if (prorrateoCell) prorrateoCell.textContent = '0.00';
-                });
-            }
-            
-            // Si la base de comparación es <= 25%, no aplica prorrateo
-            if (baseComparacion <= percent25) {
-                errorMessage.style.display = 'block';
-                errorTotalBaseSpan.textContent = formatNumber(baseComparacion);
-                errorPercent25Span.textContent = formatNumber(percent25);
-                clearProrrateoResults();
+        // La pintura de los chips sigue a la casilla, que es el control real.
+        var chips = document.querySelectorAll('.chip');
+        for (var c = 0; c < chips.length; c++) {
+            chips[c].classList.toggle('activo', chips[c].querySelector('input').checked);
+        }
+
+        var filas = Array.prototype.slice.call(cuerpo.rows);
+        var hayUma = false;
+        var regulados = filas.map(function (tr) {
+            if (tr.querySelector('.fila-uma').checked) hayUma = true;
+            return reguladoDeFila(tr, uma);
+        });
+
+        if (hayUma && !(uma > 0)) {
+            msg.textContent = 'Hay regulaciones expresadas en UMA y no hay un valor de UMA cargado.';
+            msg.classList.add('show');
+        }
+
+        var r = prorratear({ monto: monto, tasa: tasa, tasaEnBase: enBase, regulados: regulados });
+
+        pintarFilas(filas, regulados, r);
+        pintarResultado(r, monto);
+        document.getElementById('dibujo').innerHTML = monto > 0 ? dibujar(r) : '';
+    }
+
+    function pintarFilas(filas, regulados, r) {
+        filas.forEach(function (tr, i) {
+            var reg = regulados[i];
+            var celdaReg = tr.querySelector('.fila-regulado');
+            var celdaPart = tr.querySelector('.fila-participacion');
+            var celdaPro = tr.querySelector('.fila-prorrateado');
+
+            celdaReg.textContent = reg > 0 ? pesos(reg) : '—';
+            celdaReg.classList.toggle('apagada', !(reg > 0));
+
+            if (!(reg > 0) || r.totalRegulado <= 0) {
+                celdaPart.textContent = '—';
+                celdaPart.classList.add('apagada');
+                celdaPro.textContent = '—';
+                celdaPro.classList.add('apagada');
+                celdaPro.classList.remove('recortada');
                 return;
             }
-            
-            // Aplica prorrateo
-            errorMessage.style.display = 'none';
-            
-            let totalPercent = 0;
-            let totalProrrateo = 0;
-            
-            filas.forEach((row, index) => {
-                const monto = montosEfectivos[index];
-                let percentage = 0;
-                let prorrateo = 0;
-                
-                const percentageCell = row.querySelector('td:nth-child(5)');
-                const prorrateoCell = row.querySelector('td:nth-child(6)');
-                
-                if (totalHonorariosEfectivos > 0) {
-                    percentage = (monto * 100) / totalHonorariosEfectivos;
-                    prorrateo = (monto / totalHonorariosEfectivos) * tope730;
-                }
-                
-                totalPercent += percentage;
-                totalProrrateo += prorrateo;
-                
-                if (percentageCell) percentageCell.textContent = formatNumber(percentage) + '%';
-                if (prorrateoCell) prorrateoCell.textContent = formatNumber(prorrateo);
-            });
-            
-            document.getElementById('totalPercent').textContent = formatNumber(totalPercent) + '%';
-            document.getElementById('totalProrrateo').textContent = formatNumber(totalProrrateo);
+
+            celdaPart.textContent = nf.format((reg * 100) / r.totalRegulado) + ' %';
+            celdaPart.classList.remove('apagada');
+
+            // Cuando no hay prorrateo la columna repite el regulado, y eso NO
+            // es redundante: dice que ese profesional cobra lo que le
+            // regularon. El HTML anterior ponia 0,00 en esa columna, que se lee
+            // como que no cobra nada.
+            celdaPro.textContent = pesos(r.reparto[i]);
+            celdaPro.classList.remove('apagada');
+            celdaPro.classList.toggle('recortada', r.prorratea);
+        });
+
+        document.getElementById('totalRegulado').textContent = pesos(r.totalRegulado);
+        document.getElementById('totalParticipacion').textContent =
+            r.totalRegulado > 0 ? '100,00 %' : '—';
+        var totalPro = document.getElementById('totalProrrateado');
+        totalPro.textContent = r.totalRegulado > 0 ? pesos(r.cobrado) : '—';
+        totalPro.classList.toggle('recortada', r.prorratea);
+    }
+
+    // El id va en el valor y no en la caja: el banco de pruebas lee lo que la
+    // pantalla MUESTRA, y lo que muestra es la cifra.
+    function dato(clave, valor, nota, id) {
+        return '<div class="dato"><div class="k">' + clave + '</div>' +
+            '<div class="v"' + (id ? ' id="' + id + '"' : '') + '>' + valor + '</div>' +
+            (nota ? '<div class="n">' + nota + '</div>' : '') + '</div>';
+    }
+
+    function pintarResultado(r, monto) {
+        var caja = document.getElementById('resultado');
+
+        if (!(monto > 0)) {
+            caja.innerHTML =
+                '<div class="veredicto neutro"><div class="rotulo">Los honorarios, después del art. 730</div>' +
+                '<div class="cifra">—</div>' +
+                '<div class="equivale">Cargá el monto del proceso y las regulaciones. ' +
+                'Abajo se dibujan las costas contra el techo del 25 %.</div></div>';
+            return;
         }
 
-        // --- Inicialización ---
-        document.addEventListener('DOMContentLoaded', function() {
-            cargarUMA(); // Intenta cargar UMA desde B1 y lo deja en el input
-            // Crear 5 filas iniciales
-            resetCalculator(); // esto llama a addHonorario 5 veces y calculate()
-        });
-    </script>
+        var html = '';
+        html += '<div class="veredicto' + (r.prorratea ? '' : ' neutro') + '">';
+        html += '<div class="rotulo">Los honorarios, después del art. 730</div>';
+        html += '<div class="cifra" id="cifraCobrado">' + pesos(r.cobrado) + '</div>';
+        html += '<div class="equivale" id="notaCobrado">' + (r.prorratea
+            ? 'Se prorratean. Se recortan ' + pesos(r.recorte) + ', que es el ' +
+              nf.format(r.totalRegulado > 0 ? (r.recorte * 100) / r.totalRegulado : 0) +
+              ' % de lo regulado.'
+            : 'No se prorratean: las costas no superan el 25 % del monto del proceso.') +
+            '</div>';
+        html += '</div>';
+
+        html += '<div class="tira">';
+        html += dato('Techo del art. 730', pesos(r.techo), '25 % del monto del proceso', 'dTecho');
+        html += dato('Tasa de justicia', pesos(r.tasa),
+            r.tasaEnBase ? 'ocupa parte del techo' : 'fuera de la base, por decisión de la casilla', 'dTasa');
+        html += dato('Tope de los honorarios', pesos(r.topeHonorarios),
+            r.tasaEnBase ? 'el techo menos la tasa' : 'el techo entero', 'dTope');
+        html += dato('Costas sobre el proceso', nf.format(r.porcentajeProceso) + ' %',
+            r.tasaEnBase ? 'honorarios regulados más la tasa' : 'sólo honorarios regulados', 'dPorcentaje');
+        html += '</div>';
+
+        if (r.tasaEnBase && r.topeHonorarios === 0 && r.tasa > 0) {
+            html += '<div class="aviso"><strong>La tasa sola ya llega al techo.</strong> ' +
+                'Con esta tasa no queda nada del 25 % para honorarios. Verificá el importe cargado: ' +
+                'el resultado es correcto para los datos, pero es un dato raro.</div>';
+        }
+
+        caja.innerHTML = html;
+    }
+
+    // ----------------------------------------------------------------------
+    // El dibujo: dos barras a la misma escala.
+    // ----------------------------------------------------------------------
+    function tramo(clase, ancho, texto) {
+        if (ancho <= 0) return '';
+        // El rotulo adentro del tramo se escribe siempre; si no entra, el
+        // overflow lo corta. Escribirlo solo cuando el tramo es ancho deja la
+        // barra muda justo en los casos apretados, que son los que hay que
+        // mirar.
+        return '<div class="tramo ' + clase + '" style="width:' + ancho + '%">' + texto + '</div>';
+    }
+
+    function dibujar(r) {
+        // La escala comun es la mayor de las dos cantidades: asi el desborde se
+        // ve como desborde y no como dos barras llenas.
+        var escala = Math.max(r.costas, r.techo);
+        if (!(escala > 0)) return '';
+        var pc = function (n) { return (n / escala) * 100; };
+
+        var tasaEnBarra = r.tasaEnBase ? r.tasa : 0;
+        var honorariosDentro = Math.min(r.totalRegulado, Math.max(0, r.topeHonorarios));
+        var excedente = Math.max(0, r.totalRegulado - honorariosDentro);
+
+        var html = '<div class="dibujo">';
+
+        html += '<div class="barra-fila">';
+        html += '<div class="barra-tope"><span class="que">Las costas reguladas</span>' +
+                '<span class="cuanto">' + pesos(r.costas) + '</span></div>';
+        html += '<div class="barra">';
+        html += tramo('tasa', pc(tasaEnBarra), 'Tasa');
+        html += tramo('honorarios', pc(honorariosDentro), 'Honorarios');
+        html += tramo('excedente', pc(excedente), 'Se recorta');
+        html += '</div></div>';
+
+        html += '<div class="barra-fila">';
+        html += '<div class="barra-tope"><span class="que">El techo del art. 730 — 25 % del proceso</span>' +
+                '<span class="cuanto">' + pesos(r.techo) + '</span></div>';
+        html += '<div class="barra">';
+        html += tramo('tasa', pc(tasaEnBarra), 'Tasa');
+        html += tramo('honorarios', pc(honorariosDentro), 'Honorarios');
+        html += tramo('libre', pc(Math.max(0, r.topeHonorarios - honorariosDentro)), r.prorratea ? '' : 'Margen');
+        html += '</div></div>';
+
+        html += '<div class="referencias">';
+        if (tasaEnBarra > 0) html += '<span><i class="c-tasa"></i>Tasa de justicia</span>';
+        html += '<span><i class="c-hon"></i>Honorarios que se cobran</span>';
+        if (excedente > 0) html += '<span><i class="c-exc"></i>Lo que el art. 730 recorta</span>';
+        if (!r.prorratea) html += '<span><i class="c-lib"></i>Margen que queda abajo del techo</span>';
+        html += '</div>';
+
+        html += '<p class="aclaracion" id="notaRegla">' + notaRegla(r) + '</p>';
+
+        return html + '</div>';
+    }
+
+    function notaRegla(r) {
+        var base = r.tasaEnBase
+            ? 'Del 25 % del proceso —' + pesos(r.techo) + '— la tasa de justicia ocupa ' +
+              pesos(r.tasa) + ', así que a los honorarios les quedan ' + pesos(r.topeHonorarios) + '.'
+            : 'La tasa de justicia quedó fuera de la base, así que el 25 % del proceso —' +
+              pesos(r.techo) + '— queda entero para los honorarios.';
+
+        if (!r.prorratea) {
+            return base + ' Las costas reguladas suman ' + pesos(r.costas) +
+                ', que no supera el techo: no hay prorrateo y cada profesional cobra lo que le regularon.';
+        }
+
+        return base + ' Las regulaciones suman ' + pesos(r.totalRegulado) +
+            ' y se reparten ese tope en proporción a cada una, que es lo que manda el art. 730. ' +
+            'El prorrateo no toca la tasa de justicia, que se integra por su monto.';
+    }
+
+    // ----------------------------------------------------------------------
+    // Arranque.
+    // ----------------------------------------------------------------------
+    function reiniciar() {
+        document.getElementById('montoProceso').value = '';
+        document.getElementById('tasaEnBase').checked = true;
+        document.getElementById('tasaManual').checked = false;
+        document.getElementById('tasaImporte').value = '';
+        // La UMA NO se reinicia: es un dato del sistema, no del caso.
+        cuerpo.innerHTML = '';
+        for (var i = 0; i < 3; i++) agregarFila();
+        calcular();
+    }
+
+    document.getElementById('btnAgregar').addEventListener('click', function () {
+        var tr = agregarFila();
+        tr.querySelector('.fila-concepto').focus();
+        calcular();
+    });
+    document.getElementById('btnReiniciar').addEventListener('click', reiniciar);
+
+    // Un solo oyente en el documento en vez de uno por campo: las filas se
+    // crean y se borran, y enganchar oyentes fila por fila es la forma de que
+    // una fila nueva quede muda.
+    document.addEventListener('input', calcular);
+    document.addEventListener('change', calcular);
+
+    for (var k = 0; k < 3; k++) agregarFila();
+    calcular();
+    fetchUma();
+
+    // Para el banco de pruebas: la cuenta, consultable sin tocar el DOM.
+    window.Prorrateo730 = {
+        TOPE_COSTAS: TOPE_COSTAS,
+        TASA_LEY: TASA_LEY,
+        IVA: IVA,
+        prorratear: prorratear
+    };
+    // Las usa el driver del banco para armar el caso.
+    window.agregarFila = agregarFila;
+    window.reiniciar = reiniciar;
+    window.calcular = calcular;
+})();
+</script>
 </body>
 </html>
-
-
-

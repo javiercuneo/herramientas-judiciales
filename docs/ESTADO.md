@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-26 · rama `main`
+Última actualización: 2026-08-27 · rama `main`
 
 Lleva sólo lo que sigue vivo: dónde está el trabajo, qué está abierto, qué se
 sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas ya
@@ -98,7 +98,7 @@ Las tres redes, en orden de lo que cubren: el banco de las pantallas
 `npm run verificar-red` controla **qué terceros nombra el sitio** —y existe
 porque el barrido de «qué sale del navegador» de esa misma mañana dio una lista
 incompleta: **`prorrateo` le pedía la UMA a una planilla de Google y no se
-vio**—; y `scripts/pruebas-no-plazos.html` pone **18 fijados** sobre las cuatro
+vio**—; y `scripts/pruebas-no-plazos.html` pone **20 fijados** sobre las cuatro
 calculadoras que no tenían ninguna comprobación, que era la condición para poder
 refundarlas. **Las tres se probaron rompiendo algo a propósito**, porque un
 control que nunca falló no es un control.
@@ -249,13 +249,23 @@ Ninguno urgente y ninguno bloqueante.
   revés, y las faltas de ortografía del texto que ve el usuario en `caducidad` y
   en `regresiva`. Lo que queda ahí es aspecto, no defecto.
   **Y las cuatro que van de cero ya tienen red**, que era la condición para
-  poder tocarlas: `scripts/pruebas-no-plazos.html`, 18 fijados. Antes del 26/8
+  poder tocarlas: `scripts/pruebas-no-plazos.html`, 20 fijados. Antes del 26/8
   no tenían ninguna comprobación y una reescritura no se habría podido
   distinguir de un error.
-  **De las cuatro ya está hecha `honorarios-mediacion`**, el 27/8, que era la
-  más chica y se eligió para estrenar el patrón con el riesgo más bajo: ver
-  [abajo](#honorarios-mediacion-rehecha-y-qué-explica-esta-pantalla--278).
-  **Quedan `prorrateo`, `tasa` y `ejecucion-estado`.**
+  **De las cuatro ya están hechas dos, las dos el 27/8**: `honorarios-mediacion`
+  —la más chica, elegida para estrenar el patrón con el riesgo más bajo: ver
+  [abajo](#honorarios-mediacion-rehecha-y-qué-explica-esta-pantalla--278)— y
+  `prorrateo`, que es la primera que además **movió un número**: ver
+  [abajo](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278).
+  **Quedan `tasa` y `ejecucion-estado`.**
+- **`prorrateo` no computa el art. 730 in fine.** El último párrafo excluye del
+  cómputo del 25 % los honorarios de los profesionales de la parte condenada en
+  costas, y la pantalla no tiene forma de marcarlos: hoy todas las regulaciones
+  entran en la base. En un pleito donde el condenado tuvo letrado propio, eso
+  infla las costas computadas y puede disparar un prorrateo que no corresponde.
+  Detectado el 27/8 al refundar la pantalla y **no se implementó ahí a
+  propósito**: es una función nueva y no una refundación de la forma. Ver
+  [abajo](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278).
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
   su propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -361,7 +371,7 @@ Ninguno urgente y ninguno bloqueante.
   corren contra la versión anterior de la calculadora, que es la peor forma de
   falla porque parece un bug del cambio que se acaba de hacer.
   **~~Falta cubrir el prorrateo, la tasa y las demás no-de-plazos~~ Hecho el
-  26/8:** `scripts/pruebas-no-plazos.html`, **18 fijados** sobre `prorrateo`,
+  26/8:** `scripts/pruebas-no-plazos.html`, **20 fijados** sobre `prorrateo`,
   `tasa`, `honorarios-mediacion` y `ejecucion-estado`. Va antes de refundarlas,
   que es lo que sigue. Ver
   [abajo](#la-red-de-las-que-no-son-de-plazos-que-va-antes-de-refundarlas--268).
@@ -890,6 +900,15 @@ Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío
    adaptación de todas las calculadoras… terminemos vencimientos y luego pasamos
    al resto»*. `vencimientos` quedó terminada ese mismo día, así que **esto ya
    está desbloqueado y es el frente grande que sigue.**
+   **Van dos de las cuatro que iban de cero**, las dos el 27/8:
+   [`honorarios-mediacion`](#honorarios-mediacion-rehecha-y-qué-explica-esta-pantalla--278)
+   y [`prorrateo`](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278).
+   **Siguen `tasa` y `ejecucion-estado`**, y de las dos la más grande es
+   `ejecucion-estado` (917 líneas). `tasa` tiene una particularidad que conviene
+   ver antes de empezar: **arma toda su pantalla desde JavaScript** —el
+   `<body>` no tiene más que un desplegable y un `<div>` vacío— y la rama de
+   sucesión agrega secciones anidadas, así que no es «la misma pantalla con
+   otro CSS» como fueron estas dos.
    No es sólo el aspecto. Lo que hay que uniformar, en orden de lo que más se
    nota: el aviso de cobertura —cada una nombra años distintos—, el tuteo suelto
    («envíanos un mail», «si crees»), los `max-width` de 240 a 1000 px, y los
@@ -1055,9 +1074,116 @@ tocó. Está anotado en las trampas.
 
 ---
 
+### `prorrateo` rehecha, y el tope que estaba escrito duro — 27/8
+
+**Es la segunda de las cuatro que van de cero, y la primera que además movió un
+número.** En `honorarios-mediacion` lo que estaba mal era de forma y ningún
+importe cambió; acá había las dos cosas.
+
+#### El 22 % estaba escrito duro, y por eso daba mal en dos casos que la propia pantalla ofrece
+
+El HTML anterior calculaba el techo y el tope como dos constantes separadas:
+
+```js
+const percent25 = montoProcess * 0.25;   // el techo del art. 730
+const tope730   = montoProcess * 0.22;   // lo que se reparte entre honorarios
+```
+
+**De dónde sale el 22 %:** el art. 730 topea las costas —«incluidos los
+honorarios profesionales, de todo tipo»— en el 25 % de la condena, y la tasa de
+justicia es costas. Con la tasa del 3 % del art. 2 de la Ley 23.898, a los
+honorarios les quedan 22 puntos. **La cuenta es correcta en ese caso y sólo en
+ése**, y la pantalla ofrece los otros dos:
+
+- **Tasa cargada a mano distinta del 3 %.** Con la tasa reducida del art. 3
+  inc. c —1,5 %, o sea $150.000 sobre un proceso de $10.000.000— el art. 730 le
+  deja a los honorarios $2.350.000 y la pantalla los topeaba en $2.200.000:
+  **prorrateaba $150.000 de menos.**
+- **La casilla de la tasa destildada.** Si la tasa no integra la base no hay
+  nada que descontarle al 25 %, y el tope seguía siendo el 22 %.
+
+**Ahora el tope se deriva:** `tasaEnBase ? max(0, techo − tasa) : techo`. Con la
+tasa del 3 % adentro de la base —que es como la pantalla arranca— da exactamente
+el 22 % de siempre. **Decidido por Javier el 27/8**, planteado antes de escribir
+una línea, porque cambia lo que una herramienta publicada le dice a un abogado.
+
+**El `max` con cero no es defensivo por las dudas:** una tasa a mano mayor al
+25 % de la condena hace la resta negativa, y un tope negativo repartido en
+proporción devuelve honorarios **negativos**. Hay un fijado pegado a ese borde.
+
+#### Qué explica esta pantalla, que no es lo mismo que explican las otras
+
+En `vencimientos` el dibujo es un calendario, en `caducidad` una línea de hitos y
+en `honorarios-mediacion` la escala. Acá la pregunta es otra otra vez: no *cómo
+se llegó a la fecha* ni *por qué ese tramo*, sino **por qué no se cobra lo que se
+reguló** —o por qué sí—, y eso es una comparación entre dos cantidades.
+
+Así que el dibujo son **dos barras a la misma escala**: las costas reguladas
+—tasa, honorarios que se cobran, y lo que el art. 730 recorta— contra el techo
+del 25 % —tasa, honorarios usados, y el margen que sobra—. Una comparación entre
+dos números que sólo se escriben es la clase de cosa que se lee tres veces;
+puestos uno encima del otro se ve de una.
+
+**Y el dibujo sirve para los dos desenlaces**, que es la prueba de que es el
+dibujo correcto: cuando hay prorrateo la barra de arriba se pasa, y cuando no
+hay, se queda corta. **Ese «quedarse corto» también es información** —dice cuánto
+margen queda abajo del techo— y con el HTML anterior no se veía en ningún lado:
+sin prorrateo la pantalla mostraba un cartel de advertencia y las columnas en
+cero.
+
+#### La columna «prorrateado» decía 0,00 cuando no había prorrateo
+
+Es el único otro cambio visible de números, y es una corrección de forma. Cuando
+las costas no llegaban al 25 %, la pantalla ponía **0,00** en la columna de cada
+profesional. **Se lee como que ese profesional no cobra nada, y lo que pasa es
+exactamente lo contrario**: cobra todo lo que le regularon. Ahora la columna
+repite el importe regulado, que no es redundante —es la respuesta—.
+
+#### El banco: 5 fijados pasaron a 7, y sólo uno cambió de número
+
+De los cinco que había, **el reparto por fila de tres salió idéntico carácter
+por carácter**, que es lo que había que probar: con la tasa del 3 % adentro de la
+base el tope da 22 % y no se movió un centavo. El que cambia es el de la tasa a
+mano, que es el arreglo. Se agregaron dos: la tasa fuera de la base —la otra
+mitad del mismo arreglo, que no cubría ningún caso— y la tasa que se come el
+techo entero.
+
+**Y apareció una cosa que el banco no podía cazar solo.** El driver anterior
+hacía `incluirTasaCheckbox.checked = !!campos.incluirTasa`, así que **tres de los
+cinco casos corrían con la tasa fuera de la base** —que no es lo que la pantalla
+muestra al abrirse— y la configuración por omisión **no la probaba nadie**. Ahora
+el driver hace `!== false`: se prueba lo que se ve, y el otro camino se pide
+explícito. Es la misma clase de error que el rompe-caché de los iframes: el banco
+corría, pasaba, y no estaba mirando la pantalla que el usuario abre.
+
+**Y el `porque` del quinto fijado estaba mal escrito.** Decía «acá NO llega al
+25 % y no hay prorrateo» al lado de un `esperado` que prorrateaba $2.200.000.
+$2.400.000 más $150.000 es 25,50 %: sí llega. La prosa contradecía al número
+que estaba en la misma línea.
+
+**Verificado:** 20 de 20 en `pruebas-no-plazos`, `npm run verificar-contraste` y
+`npm run verificar-red` sin novedad, sin desborde horizontal a 375 px —la tabla
+hace scroll adentro de su propia caja—, y embebida en el tablero con el alto
+exacto y sin errores de consola.
+
+#### Lo que queda abierto, y es del art. 730 y no de la pantalla
+
+**El art. 730 in fine no se computa.** El último párrafo dice que para el cómputo
+del 25 % *«no se tendrá en cuenta el monto de los honorarios de los profesionales
+que hubieran representado, patrocinado o asistido a la parte condenada en
+costas»*. La pantalla no tiene forma de marcar una regulación como del
+profesional del condenado, así que **hoy todas entran en la base**, y en un
+pleito donde el condenado tuvo letrado propio eso infla las costas computadas y
+puede disparar un prorrateo que no corresponde. No se agregó porque es una
+función nueva y no una refundación de la forma. **Va acá, que es donde va lo que
+está abierto.**
+
+---
+
 ### La red de las que no son de plazos, que va antes de refundarlas — 26/8
 
 **`scripts/pruebas-no-plazos.html`, 18 casos sobre las cuatro que no comparten
+(hoy 20: los de `prorrateo` se refijaron el 27/8 y entraron dos más)
 motor.** Hasta hoy `prorrateo`, `tasa`, `honorarios-mediacion` y
 `ejecucion-estado` **no tenían ni una comprobación**, y la decisión de Javier es
 refundarlas de cero. Un refactor sin red no se distingue de un error: la red va
