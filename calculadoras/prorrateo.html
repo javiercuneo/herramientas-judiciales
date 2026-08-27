@@ -227,9 +227,14 @@
         .veredicto.neutro .rotulo { color: var(--faint); opacity: 1; }
         .veredicto.neutro .equivale { color: var(--muted-fg); opacity: 1; }
 
+        /* Cuatro datos y auto-fit no se llevan bien: en los anchos donde entran
+           TRES, el cuarto queda solo con un hueco al lado del tamanio de dos.
+           Se ve feo y ademas sugiere que falta algo. Con dos columnas fijas
+           siempre son 2x2, que con cuatro datos es lo unico que nunca deja
+           huerfanos; a partir de 760px entran los cuatro en fila. */
         .tira {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 1px;
             margin-top: 1px;
             background: var(--border);
@@ -255,6 +260,10 @@
         }
 
         .dato .n { font-size: 11.5px; color: var(--muted-fg); margin-top: 3px; }
+
+        @media (min-width: 760px) {
+            .tira { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
 
         /* ------------------------------------------------- las regulaciones */
         .encabezado-panel {

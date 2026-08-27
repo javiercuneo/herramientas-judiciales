@@ -98,7 +98,7 @@ Las tres redes, en orden de lo que cubren: el banco de las pantallas
 `npm run verificar-red` controla **qué terceros nombra el sitio** —y existe
 porque el barrido de «qué sale del navegador» de esa misma mañana dio una lista
 incompleta: **`prorrateo` le pedía la UMA a una planilla de Google y no se
-vio**—; y `scripts/pruebas-no-plazos.html` pone **20 fijados** sobre las cuatro
+vio**—; y `scripts/pruebas-no-plazos.html` pone **30 fijados** sobre las cuatro
 calculadoras que no tenían ninguna comprobación, que era la condición para poder
 refundarlas. **Las tres se probaron rompiendo algo a propósito**, porque un
 control que nunca falló no es un control.
@@ -249,7 +249,7 @@ Ninguno urgente y ninguno bloqueante.
   revés, y las faltas de ortografía del texto que ve el usuario en `caducidad` y
   en `regresiva`. Lo que queda ahí es aspecto, no defecto.
   **Y las cuatro que van de cero ya tienen red**, que era la condición para
-  poder tocarlas: `scripts/pruebas-no-plazos.html`, 20 fijados. Antes del 26/8
+  poder tocarlas: `scripts/pruebas-no-plazos.html`, 30 fijados. Antes del 26/8
   no tenían ninguna comprobación y una reescritura no se habría podido
   distinguir de un error.
   **De las cuatro ya están hechas dos, las dos el 27/8**: `honorarios-mediacion`
@@ -275,13 +275,20 @@ Ninguno urgente y ninguno bloqueante.
   campo vacío valga 100 %, que es lo ya decidido, y el caso del `0` escrito
   queda igual. Ver
   [abajo](#tasa-el-diagnóstico-antes-de-refundarla-y-un-cero-en-silencio--278).
-- **`prorrateo` y `tasa` tienen que llevar imprimible.** Pedido de Javier el
-  27/8. No existe en ninguna de las once, así que lo que se decida acá fija el
-  patrón para el resto. Lo que hay que resolver antes de escribir CSS: **qué se
-  imprime**. En `prorrateo` el papel que sirve es el que se acompaña al
-  expediente —las regulaciones, el techo, el reparto y la norma—, y ahí el
-  dibujo de las dos barras y los controles de la pantalla no van. Va con el
-  rediseño de `tasa`, que es donde el pedido nació.
+- **El imprimible de `tasa` no es una comodidad: es un documento que la ley
+  exige.** Javier lo definió el 27/8, y cambia lo que hay que construir: el
+  art. 4 in fine dice que *«en todos los casos al momento de efectuarse el pago
+  de la tasa se acompañará la correspondiente liquidación detallada del monto
+  imponible»*. **El imprimible ES esa liquidación**, y por eso lleva además un
+  número de referencia para citarlo en el expediente. No es la pantalla en
+  papel: es el papel que se presenta.
+  **Lo que se sigue de ahí**, y conviene tenerlo a la vista antes de escribir:
+  tiene que mostrar el **monto imponible de cada renglón** —que es lo que la ley
+  manda detallar—, con el inciso del art. 4 del que sale y la alícuota aplicada;
+  las ampliaciones y reconvenciones **distinguidas y no sumadas sin más**,
+  porque el art. 8 las hace juicios independientes; y nada de los controles de
+  la pantalla. El de `prorrateo` es otra cosa —ahí no hay norma que lo pida— y
+  puede salir del mismo mecanismo pero sin esta exigencia.
 - **Anotado para explorar, sin decidir: enlace permanente con el caso cargado.**
   Planteado por Javier el 27/8 —*«quizás deberían llevar hiperlink (esto solo
   anotalo para explorar por ahora)»*—. Sería poner el estado del formulario en
@@ -302,22 +309,18 @@ Ninguno urgente y ninguno bloqueante.
   27/8.** Decía «Ley N° 23.889» y la ley es la **23.898**. No se tocó desde acá
   porque `raw` está fuera del alcance de escritura de los agentes por convención
   de los repos hermanos.
-- **La captura de `prorrateo` quedó pendiente, y el motivo no es que el panel
-  estuviera cerrado.** El 27/8 Javier tenía el panel del navegador abierto y con
-  la calculadora a la vista, y las capturas seguían fallando con «the Browser
-  pane is not displayed». Reiniciar el servidor local, refrescar y volver a
-  seleccionar la pestaña no lo destrabaron. Su conclusión, que es la que vale:
-  *«déjalo anotado para otra sesión limpia con panel porque el error persiste
-  acá»*. **Lo que sí se pudo verificar sin ver la pantalla** —y se verificó— es
-  todo lo que se lee por texto: los números, el HTML que se genera, el ancho a
-  375 px, los colores calculados en los dos temas y la ausencia de errores de
-  consola. **Lo que falta es sólo la mirada**: las dos barras del dibujo y la
-  densidad de la tabla, en claro y en oscuro.
-  **Y quedó a mitad de camino la corrida de `pruebas-calculadoras`**: 56 de 75,
-  todas pasando, con las cinco pantallas representadas. Se frenó por lo mismo
-  —con el panel trabado los iframes van a paso de hombre— y hay que terminarla
-  en esa sesión nueva. Las tres filas de `regresiva`, que eran las que se habían
-  roto con el cambio de textos, ya pasaron.
+- **~~La captura de `prorrateo`.~~ Hecha más tarde el 27/8**, cuando el panel
+  del navegador volvió a componer sin que se hiciera nada distinto: estuvo
+  trabado un rato largo con el panel abierto y a la vista, devolviendo «the
+  Browser pane is not displayed», y después anduvo. **Queda anotado como
+  síntoma**: ese mensaje no siempre quiere decir que el panel esté cerrado.
+  Mirada la pantalla, salió un defecto que ninguna medición había cazado: la
+  tira de cuatro datos usaba `auto-fit`, y en los anchos donde entran **tres**
+  el cuarto quedaba solo con un hueco al lado del tamaño de dos. Pasó a dos
+  columnas fijas, que con cuatro datos es lo único que nunca deja huérfanos, y
+  a los cuatro en fila arriba de 760 px.
+  **Sigue pendiente terminar `pruebas-calculadoras`**, que quedó en 56 de 75 con
+  todas pasando y las cinco pantallas representadas.
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
   su propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -423,7 +426,7 @@ Ninguno urgente y ninguno bloqueante.
   corren contra la versión anterior de la calculadora, que es la peor forma de
   falla porque parece un bug del cambio que se acaba de hacer.
   **~~Falta cubrir el prorrateo, la tasa y las demás no-de-plazos~~ Hecho el
-  26/8:** `scripts/pruebas-no-plazos.html`, **20 fijados** sobre `prorrateo`,
+  26/8:** `scripts/pruebas-no-plazos.html`, **30 fijados** sobre `prorrateo`,
   `tasa`, `honorarios-mediacion` y `ejecucion-estado`. Va antes de refundarlas,
   que es lo que sigue. Ver
   [abajo](#la-red-de-las-que-no-son-de-plazos-que-va-antes-de-refundarlas--268).
@@ -1475,7 +1478,12 @@ adorno: el momento cambia por completo según el caso.
 
 **Y el art. 9 trae dos supuestos que el art. 4 no tiene**: la separación de
 bienes (inc. e) y la petición de herencia (inc. f). No aparecen en el mapa de
-bases, así que hay que ver de dónde sale el monto en esos dos.
+bases, y **la petición de herencia la resolvió Javier el 27/8**: la base es lo
+que le toca al peticionario. *«Si para el heredero le corresponde, de los 3
+bienes que hay, 1, ese es el valor.»* O sea que no hace falta una base nueva:
+son los mismos bienes del art. 4, limitados a la porción del peticionario, que
+es exactamente lo que ya hace el campo de titularidad. **Queda abierta sólo la
+separación de bienes**, donde además cada cónyuge puede pagar su cuota parte.
 
 ##### Art. 13: las exenciones, con la forma que ya existe en Honorio
 
@@ -1497,15 +1505,62 @@ Cuando el renglón sea de monto indeterminable, la pantalla tiene que decir que
 los cinco días de la sentencia o del modo anormal de terminación. Hoy no lo dice
 nadie.
 
+#### Las diez pruebas de la pantalla de sucesiones — 27/8
+
+**Era la condición para tocar la pantalla, y ya está.** El banco pasó de 20 a 30
+casos. Hasta hoy los tres de `tasa` eran todos de la otra pantalla, así que la
+parte con más cuentas —tres alícuotas, la titularidad y la sobretasa— no la
+miraba nadie.
+
+Las cuentas están verificadas a mano una por una contra
+`valuación × titularidad × alícuota × (1 + sobretasa)`:
+
+| Caso | Da | Por qué está |
+|---|---|---|
+| Inmueble CABA, 100 %, con la sobretasa | $1.575.000 | Es lo que sale sin tocar nada: la sobretasa viene marcada de fábrica |
+| El mismo con la sobretasa destildada | $1.500.000 | Los dos juntos aíslan el único número que no sale de la ley |
+| **Campo de titularidad sin tocar** | **$0,00** | **Congela un error a propósito** |
+| Titularidad `0` escrita | $0,00 | Acá cero está bien, y el par con el anterior marca la diferencia que hoy no existe |
+| Titularidad `1/2` | $787.500 | Se escribe así en una hijuela |
+| Titularidad `50%` | $787.500 | Las tres formas de escribir la mitad tienen que dar lo mismo |
+| Inmueble fuera de jurisdicción nacional | $750.000 | La alícuota más fácil de romper: 3 % a la mitad, y a la mitad otra vez |
+| Un automóvil | $300.000 | **Mira las columnas**: lleva titularidad y NO sobretasa |
+| Sumas de dinero en la sucesión | $150.000 | El único de los cuatro sin titularidad ni sobretasa |
+| **Inmueble + automóvil** | $1.875.000 | El caso que disparó todo esto |
+
+##### Por qué el caso del cero se fija con el número equivocado
+
+Porque fijar el número correcto dejaría el banco **rojo desde el día uno**, y un
+banco que arranca en rojo deja de servir para lo único que sirve: avisar cuando
+se rompe algo nuevo. Así que se anota el valor de hoy con el porqué al lado, y
+el caso dice **qué esperado hay que poner cuando se arregle**: `total 1575000.00`.
+
+El caso de al lado —titularidad `0` escrita— existe para el día del arreglo:
+tiene que **seguir dando cero**. Es lo que va a probar que tratar el vacío como
+100 % no se llevó puesto el cero legítimo, que es el que Javier defendió.
+
+##### Dos casos miran las columnas y no sólo los números
+
+Que a los muebles les falte la columna de sobretasa **no se ve en ningún
+número**: si un refactor se la agrega, el total no cambia hasta que alguien la
+marque, y para entonces ya está cobrando de más. Al revés en sumas de dinero: si
+apareciera una titularidad, el campo vacío la pondría en cero y el resultado se
+caería a $0,00. Por eso esos dos casos fijan también los encabezados.
+
+##### El driver tuvo una trampa que conviene no volver a pisar
+
+El iframe se reusa entre casos y queda armado con el anterior. Hay que **pasar
+por la opción vacía del desplegable** antes de volver a elegir «Sucesión», que
+es lo que vacía el contenedor. Sin ese paso, el segundo caso hereda las
+secciones del primero y el total sale sumado: un síntoma que no se parece en
+nada a la causa. Es el mismo tipo de trampa que ya había aparecido en el driver
+de `ejecucion-estado`.
+
 #### Lo que hay que decidir antes de escribir
 
-1. **`tasa` no tiene red sobre la rama de sucesión**, y es lo único que hay que
-   hacer antes de tocar la pantalla. Los tres fijados de `pruebas-no-plazos` son
-   de la rama simple. La de sucesión es la que tiene la aritmética de verdad
-   —titularidad, sobretasa, tres alícuotas— y la que tiene el cero. Es la misma
-   regla que ya se aplicó con `honorarios-mediacion` y con `prorrateo`.
-   **Con una salvedad propia de este caso:** el cero es un bug, así que hay que
-   fijarlo **como está y anotando que está mal**, o el fijado congela el error.
+1. **~~`tasa` no tiene pruebas sobre la pantalla de sucesiones.~~ Hecho el
+   27/8**: diez casos nuevos, que llevan el banco de 20 a 30. Ver
+   [abajo](#las-diez-pruebas-de-la-pantalla-de-sucesiones--278).
 2. **~~¿Sucesorio como interruptor?~~ Descartado el 27/8 por Javier**, y el
    motivo es bueno: *«no sé para qué hay que separar sucesión de todo el resto,
    parece darle más jerarquía… no sé cuál es el beneficio de dividir en dos algo

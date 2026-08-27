@@ -242,6 +242,101 @@ const DRIVERS = {
     },
 
     // -----------------------------------------------------------------------
+    // tasa, la PANTALLA DE SUCESIONES. Es otra pantalla que la de arriba: al
+    // elegir "Sucesion" el desplegable arma una interfaz distinta, con una
+    // seccion por tipo de bien, un segundo desplegable adentro de cada seccion
+    // y una tabla propia.
+    //
+    // POR QUE HACIA FALTA, y es la unica de las cuatro que se agrega despues:
+    // aca esta la aritmetica de verdad ---tres alicuotas distintas, la
+    // titularidad y la sobretasa--- y hasta el 27/8 no la tocaba ninguna
+    // comprobacion. Los tres casos de `tasa` son todos de la otra pantalla.
+    // Refundar esto sin cubrirlo antes es reescribir a ciegas la parte que
+    // mas cuentas tiene.
+    //
+    // Las tres alicuotas, para que se lean sin abrir la ley:
+    //   inmueblesCABA      1,5 %   art. 3 inc. c (la general reducida al 50 %)
+    //   inmueblesProvincia 0,75 %  art. 4 inc. g, 2a parte (esa, otra vez a la mitad)
+    //   otrosBienes        1,5 %   art. 3 inc. c
+    //   sumasDineroSucesion 1,5 %  art. 3 inc. c
+    // y la cuenta de cada bien es
+    //   valuacion x titularidad x alicuota x (1 + sobretasa)
+    // con la sobretasa SOLO en los dos de inmuebles.
+    // -----------------------------------------------------------------------
+    'tasa-sucesion': {
+        archivo: '../calculadoras/tasa.html',
+        lista: (d) => !!d.getElementById('objetoJuicio'),
+        correr: async (d, campos) => {
+            const w = d.defaultView;
+            const ev = (el, t) => el.dispatchEvent(new w.Event(t, { bubbles: true }));
+
+            // El iframe se reusa entre casos y queda armado con el anterior.
+            // Pasar por la opcion vacia vacia el contenedor: el listener de
+            // `change` hace innerHTML = '' antes de rearmar. Sin este paso, el
+            // segundo caso hereda las secciones del primero y el total sale
+            // sumado, que es un sintoma que no se parece a la causa.
+            const sel = d.getElementById('objetoJuicio');
+            sel.value = ''; ev(sel, 'change');
+            await pausa(60);
+            sel.value = 'sucesion'; ev(sel, 'change');
+            await pausa(120);
+
+            for (let i = 0; i < campos.bienes.length; i++) {
+                // createSucesionUI() ya deja UNA seccion armada, asi que el
+                // boton se aprieta a partir del segundo bien.
+                if (i > 0) { d.getElementById('addSucesionSectionBtn').click(); await pausa(80); }
+                const sec = d.querySelectorAll('.sucesion-section')[i];
+                const b = campos.bienes[i];
+
+                const sub = sec.querySelector('.subTipoSucesion');
+                sub.value = b.tipo; ev(sub, 'change');
+                await pausa(100);
+
+                if (b.tipo === 'sumasDineroSucesion') {
+                    const inp = sec.querySelector('.montoInputSucesion');
+                    inp.value = b.monto; ev(inp, 'input');
+                } else {
+                    const val = sec.querySelector('.valuacion');
+                    val.value = b.valuacion; ev(val, 'input');
+
+                    // OJO: `titularidad` sin definir NO es lo mismo que '0'.
+                    // Sin definir deja el campo como viene la pantalla, que es
+                    // justo el caso que hay que poder distinguir.
+                    if (b.titularidad !== undefined) {
+                        const por = sec.querySelector('.porcentaje');
+                        por.value = b.titularidad; ev(por, 'input');
+                    }
+
+                    const chk = sec.querySelector('.incluirSobretasa');
+                    if (chk) {
+                        chk.checked = b.conSobretasa !== false;
+                        if (b.sobretasa !== undefined) sec.querySelector('.sobretasa').value = b.sobretasa;
+                        // La casilla no tiene listener propio: la tabla se
+                        // recalcula con el `input` de cualquier campo.
+                        ev(val, 'input');
+                    }
+                }
+                await pausa(100);
+            }
+            await pausa(120);
+
+            const subs = Array.from(d.querySelectorAll('.subtotal, .resultadoSucesion'))
+                .map((x) => x.value).join(' | ');
+            let salida = 'total ' + d.getElementById('totalTasaSucesion').value +
+                         ' \u00b7 por bien ' + subs;
+            // Solo donde el caso existe PARA mirar las columnas: que la
+            // sobretasa aparezca en los inmuebles y no en los muebles no se ve
+            // en ningun numero.
+            if (campos.verColumnas) {
+                salida += ' \u00b7 columnas ' +
+                    Array.from(d.querySelectorAll('.sucesion-section th'))
+                        .map((x) => x.textContent.trim().split('\n')[0].trim()).join(' / ');
+            }
+            return salida;
+        }
+    },
+
+    // -----------------------------------------------------------------------
     // ejecucion-estado: el asistente de cuatro pasos de la Ley 25.344. No es
     // una cuenta de plata sino de aniios, y depende de dos cosas: si la
     // notificacion cayo antes del 31 de julio y si se certifico el agotamiento
@@ -442,6 +537,91 @@ const FIJADOS = [
     },
 
     // --- ejecucion-estado, los cuatro cruces -------------------------------
+    // --- tasa, la pantalla de sucesiones -----------------------------------
+    //
+    // Agregados el 27/8, antes de refundar la pantalla. Cubren las tres
+    // alicuotas, las cuatro formas de escribir la titularidad, la sobretasa
+    // prendida y apagada, y la suma de dos bienes distintos.
+    //
+    // Las cuentas estan verificadas a mano una por una contra
+    // `valuacion x titularidad x alicuota x (1 + sobretasa)`. **Nueve de las
+    // diez estan bien; la del campo vacio esta MAL y se fija igual**, con el
+    // porque escrito: si se fijara el valor "correcto" el banco quedaria rojo
+    // desde el dia uno y nadie sabria si es este error o uno nuevo.
+    {
+        calc: 'tasa-sucesion',
+        rotulo: 'Inmueble en CABA, titularidad 100 %, con la sobretasa del 5 %',
+        campos: { bienes: [{ tipo: 'inmueblesCABA', valuacion: '100000000', titularidad: '100' }] },
+        esperado: 'total 1575000.00 \u00b7 por bien 1575000.00',
+        porque: '$100.000.000 x 1 x 1,5 % x 1,05. La sobretasa viene marcada de fabrica, asi que este es el caso que sale sin tocar nada.'
+    },
+    {
+        calc: 'tasa-sucesion',
+        rotulo: 'El mismo inmueble con la sobretasa destildada',
+        campos: { bienes: [{ tipo: 'inmueblesCABA', valuacion: '100000000', titularidad: '100', conSobretasa: false }] },
+        esperado: 'total 1500000.00 \u00b7 por bien 1500000.00',
+        porque: 'El par del anterior, y lo unico que cambia es la casilla: $1.500.000 es el 1,5 % pelado. Los dos juntos aislan la sobretasa, que es el unico numero de esta pantalla que no sale de la ley.'
+    },
+    {
+        calc: 'tasa-sucesion',
+        rotulo: 'BUG: el campo de titularidad SIN TOCAR devuelve cero',
+        campos: { bienes: [{ tipo: 'inmueblesCABA', valuacion: '100000000' }] },
+        esperado: 'total 0.00 \u00b7 por bien 0.00',
+        porque: 'ESTE FIJADO CONGELA UN ERROR A PROPOSITO. El campo arranca vacio y vacio se lee como 0, asi que un inmueble de $100.000.000 muestra $0,00 sin que nadie haya declarado nada. Lo correcto es $1.575.000, o sea tratar el vacio como 100 %, que es lo que Javier decidio el 27/8. Se fija el valor de hoy y no el correcto porque si no el banco arranca en rojo y deja de servir para ver lo que se rompa despues. CUANDO SE ARREGLE, este esperado cambia a total 1575000.00.'
+    },
+    {
+        calc: 'tasa-sucesion',
+        rotulo: 'Titularidad 0 escrita a mano: cero es la respuesta correcta',
+        campos: { bienes: [{ tipo: 'inmueblesCABA', valuacion: '100000000', titularidad: '0' }] },
+        esperado: 'total 0.00 \u00b7 por bien 0.00',
+        porque: 'El par del anterior, y existe para marcar la diferencia que hoy no existe. Aca cero ESTA BIEN: lo dijo Javier, si el causante no era titular no se tributa, y si ya se pago se puede pedir la devolucion. Cuando el vacio se arregle, este caso tiene que seguir dando cero: es lo que prueba que el arreglo no se llevo puesto el 0 legitimo.'
+    },
+    {
+        calc: 'tasa-sucesion',
+        rotulo: 'La titularidad como fraccion: 1/2',
+        campos: { bienes: [{ tipo: 'inmueblesCABA', valuacion: '100000000', titularidad: '1/2' }] },
+        esperado: 'total 787500.00 \u00b7 por bien 787500.00',
+        porque: 'La mitad del primer caso. El campo acepta fracciones, que es como se escribe una hijuela, y hay que probarlo aparte del numero suelto.'
+    },
+    {
+        calc: 'tasa-sucesion',
+        rotulo: 'La misma mitad escrita como porcentaje: 50%',
+        campos: { bienes: [{ tipo: 'inmueblesCABA', valuacion: '100000000', titularidad: '50%' }] },
+        esperado: 'total 787500.00 \u00b7 por bien 787500.00',
+        porque: 'Las tres formas de escribir la mitad ---50, 50% y 1/2--- tienen que dar lo mismo. Este y el anterior lo fijan; si un dia el signo de porcentaje se interpreta como 50 veces en vez de 50 por ciento, la cuenta se va cien veces y salta aca.'
+    },
+    {
+        calc: 'tasa-sucesion',
+        rotulo: 'Inmueble fuera de jurisdiccion nacional: 0,75 %',
+        campos: { bienes: [{ tipo: 'inmueblesProvincia', valuacion: '100000000', titularidad: '100', conSobretasa: false }] },
+        esperado: 'total 750000.00 \u00b7 por bien 750000.00',
+        porque: 'La tercera alicuota, y la mas facil de romper: el art. 4 inc. g, 2a parte, reduce A LA MITAD la ya reducida del art. 3 inc. c. O sea 3 % a la mitad es 1,5 %, y a la mitad otra vez es 0,75 %. Sin sobretasa para que el numero sea el de la alicuota sola.'
+    },
+    {
+        calc: 'tasa-sucesion',
+        rotulo: 'Un automovil: 1,5 % y SIN columna de sobretasa',
+        campos: { verColumnas: true, bienes: [{ tipo: 'otrosBienes', valuacion: '20000000', titularidad: '100' }] },
+        esperado: 'total 300000.00 \u00b7 por bien 300000.00 \u00b7 columnas Descripci\u00f3n del bien / Valuaci\u00f3n fiscal actualizada (Autom\u00f3viles) / Titularidad / Subtotales',
+        porque: 'Los muebles llevan titularidad pero NO sobretasa, y que una columna falte no se ve en ningun numero: por eso este caso mira las columnas. Si un refactor le agrega la sobretasa a los muebles, el total no cambia hasta que alguien la marque, y para entonces ya esta cobrando de mas.'
+    },
+    {
+        calc: 'tasa-sucesion',
+        rotulo: 'Sumas de dinero en la sucesion: 1,5 % y sin titularidad',
+        campos: { verColumnas: true, bienes: [{ tipo: 'sumasDineroSucesion', monto: '10000000' }] },
+        esperado: 'total 150000.00 \u00b7 por bien 150000.00 \u00b7 columnas Ingresar monto. Si es en d\u00f3lares convertir al valor oficial tipo vendedor del BNA al d\u00eda del pago / Subtotal',
+        porque: 'El cuarto tipo de bien, que es el unico de la pantalla de sucesiones SIN titularidad ni sobretasa: monto por 1,5 % y listo. Mira las columnas por lo mismo que el anterior, al reves: si aparece una titularidad aca, el vacio la pondria en cero y el resultado se caeria a $0,00.'
+    },
+    {
+        calc: 'tasa-sucesion',
+        rotulo: 'El caso de Javier: un inmueble y un automovil en la misma sucesion',
+        campos: { bienes: [
+            { tipo: 'inmueblesCABA', valuacion: '100000000', titularidad: '100' },
+            { tipo: 'otrosBienes', valuacion: '20000000', titularidad: '100' }
+        ] },
+        esperado: 'total 1875000.00 \u00b7 por bien 1575000.00 | 300000.00',
+        porque: 'El caso que disparo la refundacion: *"sucesion, pedis inscripcion de bien y automovil"*. Hoy son DOS SECCIONES con dos desplegables y un boton para agregar la segunda; en la pantalla nueva van a ser dos renglones de la misma lista. $1.575.000 mas $300.000. Este es el caso que tiene que seguir dando lo mismo despues de refundar: es la prueba de que la forma cambio y la cuenta no.'
+    },
+
     {
         calc: 'ejecucion-estado',
         rotulo: 'Notificación antes del 31 de julio, sin certificación',
