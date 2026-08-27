@@ -266,14 +266,15 @@ Ninguno urgente y ninguno bloqueante.
   Detectado el 27/8 al refundar la pantalla y **no se implementó ahí a
   propósito**: es una función nueva y no una refundación de la forma. Ver
   [abajo](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278).
-- **`tasa` devuelve $0,00 en silencio si no se carga la titularidad.** En la
-  rama de sucesión la cuenta es `base × titularidad × alícuota × (1 + sobretasa)`
-  y el campo de titularidad arranca vacío, que se parsea como 0 y no como 100 %.
-  Comprobado en la pantalla servida el 27/8: un inmueble de CABA de $100.000.000
-  sin titularidad cargada da **$ 0,00**, y con `100` da $1.575.000. **No hay
-  aviso.** Ninguno de los tres fijados lo cubre, porque los tres son de la rama
-  que no es sucesión. Se arregla con la refundación —o antes, si va a tardar—.
-  Ver [abajo](#tasa-el-diagnóstico-antes-de-refundarla-y-un-cero-en-silencio--278).
+- **En la pantalla de sucesiones de `tasa`, un campo que nadie tocó da $0,00.**
+  Probado el 27/8: un inmueble de CABA valuado en $100.000.000, con el campo de
+  titularidad **como viene**, muestra $ 0,00; escribiendo `100` muestra
+  $1.575.000. **Escribir `0` y que dé cero está bien** —lo marcó Javier: si el
+  causante no era titular no se tributa—; lo que está mal es que no haber
+  escrito nada se lea igual que haber escrito cero. Se arregla haciendo que el
+  campo vacío valga 100 %, que es lo ya decidido, y el caso del `0` escrito
+  queda igual. Ver
+  [abajo](#tasa-el-diagnóstico-antes-de-refundarla-y-un-cero-en-silencio--278).
 - **`prorrateo` y `tasa` tienen que llevar imprimible.** Pedido de Javier el
   27/8. No existe en ninguna de las once, así que lo que se decida acá fija el
   patrón para el resto. Lo que hay que resolver antes de escribir CSS: **qué se
@@ -297,6 +298,29 @@ Ninguno urgente y ninguno bloqueante.
   tablero no se distinguen, y la que tiene el nombre genérico es la que hace lo
   menos común de las dos. Es una decisión de nombre y no se tocó. Ver
   [abajo](#los-textos-de-las-cinco-de-plazos-unificados-contra-vencimientos--278).
+- **Para Javier, y no para un agente: renombrar el archivo de la ley de tasas.**
+  En `knowledge` el archivo se llama «Ley N° 23.889 - Tasas judiciales.md» y la
+  ley de tasas judiciales es la **23.898**. El contenido de adentro es el
+  correcto. **No se toca desde acá**: `raw` está fuera del alcance de escritura
+  de los agentes por convención de los repos hermanos, y Javier pidió
+  expresamente respetar el protocolo. Queda anotado para que el número mal no
+  vuelva a aparecer en un análisis.
+- **La captura de `prorrateo` quedó pendiente, y el motivo no es que el panel
+  estuviera cerrado.** El 27/8 Javier tenía el panel del navegador abierto y con
+  la calculadora a la vista, y las capturas seguían fallando con «the Browser
+  pane is not displayed». Reiniciar el servidor local, refrescar y volver a
+  seleccionar la pestaña no lo destrabaron. Su conclusión, que es la que vale:
+  *«déjalo anotado para otra sesión limpia con panel porque el error persiste
+  acá»*. **Lo que sí se pudo verificar sin ver la pantalla** —y se verificó— es
+  todo lo que se lee por texto: los números, el HTML que se genera, el ancho a
+  375 px, los colores calculados en los dos temas y la ausencia de errores de
+  consola. **Lo que falta es sólo la mirada**: las dos barras del dibujo y la
+  densidad de la tabla, en claro y en oscuro.
+  **Y quedó a mitad de camino la corrida de `pruebas-calculadoras`**: 56 de 75,
+  todas pasando, con las cinco pantallas representadas. Se frenó por lo mismo
+  —con el panel trabado los iframes van a paso de hombre— y hay que terminarla
+  en esa sesión nueva. Las tres filas de `regresiva`, que eran las que se habían
+  roto con el cambio de textos, ya pasaron.
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
   su propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -1120,24 +1144,36 @@ incómodo (ejemplo sucesión pedís inscripción de bien y automóvil)»*.
 **No se escribió una línea de la pantalla nueva.** Esto es el relevamiento, para
 decidir con el mapa a la vista.
 
-#### Lo que encontré primero, y no es de forma: un renglón puede dar cero
+#### El campo de titularidad devuelve cero sin que nadie haya escrito nada
 
-En la rama de sucesión, cada bien lleva un campo de **titularidad** —la parte que
-era del causante— y la cuenta es
-`base × titularidad × alícuota × (1 + sobretasa)`. El campo arranca **vacío**, y
-vacío se parsea como **0**, no como 100 %.
+En la pantalla de sucesiones cada bien lleva un campo de **titularidad** —qué
+parte del bien era del causante— y la cuenta es
+`valuación × titularidad × alícuota × (1 + sobretasa)`.
 
-Comprobado en la pantalla servida, con un inmueble de CABA de $100.000.000:
+Probado en la pantalla servida, con un inmueble de CABA valuado en
+$100.000.000:
 
-| Titularidad | Tasa que muestra |
+| Qué hay en el campo | Tasa que muestra |
 |---|---|
-| sin cargar | **$ 0,00** |
+| **nada, como arranca la pantalla** | **$ 0,00** |
+| `0` | $ 0,00 |
+| `50`, `50%` o `1/2` | $ 787.500,00 |
 | `100` | $ 1.575.000,00 |
 
-**Es el campo que uno no completa justamente cuando el bien es todo del
-causante.** No hay aviso: la pantalla contesta cero y se queda como si nada.
-Ninguno de los tres fijados de `tasa` lo cubre, porque los tres son de la rama
-que no es sucesión.
+**La primera fila es el problema y la segunda no.** Lo marcó Javier el 27/8 y
+tiene razón: *«si dejas 0 de titularidad entonces el causante no es titular y
+entonces no deberías tributar nada de tasa en ese caso»*. Escribir `0` y que dé
+cero es correcto, y con más razón porque si ya se pagó se puede pedir la
+devolución.
+
+**Lo que está mal es que un campo que nadie tocó se lea igual que un cero
+escrito.** Cargás la valuación, mirás el subtotal, dice $0,00, y vos no
+declaraste nada todavía. La decisión ya tomada —que el campo vacío valga
+100 %— arregla eso y **deja el caso de Javier intacto**: vacío da $1.575.000 y
+`0` escrito sigue dando cero.
+
+Ninguno de los tres casos de prueba de `tasa` lo cubre, porque los tres son de
+la otra pantalla.
 
 #### Por qué se siente incómoda: la pantalla modela mal el problema
 
@@ -1239,8 +1275,27 @@ Leída entera, esto es lo que la pantalla **no** cubre:
 - **Art. 4 inc. j** — el monto de la resolución que se apela, y si no tiene
   monto, indeterminable.
 - **Art. 5 — monto indeterminable** y **art. 6 — juicios sin valor pecuniario**.
-  El art. 6 no es una alícuota: es **una suma fija que actualiza la CSJN**, o sea
-  otra serie como la UMA y el UHOM, con el mismo problema de carga a mano.
+  El art. 6 no es una alícuota: es **una suma fija que actualiza la CSJN**.
+  **Hoy son $4.700, fijados por la Acordada CSJN 15/2022, de mayo de 2022** —dato
+  de Javier el 27/8—.
+
+  **Y no hay que inventar nada para manejarlo, porque el problema ya se resolvió
+  dos veces en este mismo repositorio.** Javier lo planteó así: *«no sé cómo
+  podríamos manejar el input para cambiarlo manualmente de forma sencilla sin
+  tocar código y sin hardcodearlo»*. La respuesta son las dos mitades que ya
+  usan `honorarios-mediacion` con el UHOM y `prorrateo` con la UMA:
+
+  1. **El valor vive en un archivo de datos, no en el código**: un
+     `data/tasa-monto-fijo.json` con la misma forma que `data/serie-uma.json`
+     —un valor, desde cuándo rige, y qué norma lo fijó—. Cambiarlo es editar
+     tres líneas de texto, y queda versionado con la norma al lado.
+  2. **La pantalla lo muestra en un campo que se puede pisar a mano**, para
+     liquidar con el valor de otra fecha sin tocar el archivo.
+
+  Que se actualice cada varios años lo hace **más fácil** que la UMA, no más
+  difícil: es el mismo mecanismo con menos ediciones. Y hereda gratis el aviso
+  que ya tienen las otras dos —dice desde cuándo rige el valor, que es lo que
+  permite notar que quedó viejo—.
 
 **Dos de esos no son «un inciso más»**: el art. 6 trae una serie nueva, y la
 25.972 trae alícuotas que la pantalla hoy no sabe representar.
