@@ -537,6 +537,35 @@ const FIJADOS = [
     },
 
     // --- ejecucion-estado, los cuatro cruces -------------------------------
+    // --- tasa, los tres supuestos que salieron de "Otros" ------------------
+    //
+    // Hasta el 27/8 los tres estaban juntos en una sola opcion con el 3 % para
+    // los tres, y a dos de los tres el art. 3 les reduce la tasa a la mitad.
+    // Estos tres casos existen para que no se vuelvan a juntar: el de muebles
+    // fija que ESE si va al 3 %, y los otros dos que van al 1,5 %. Todos con
+    // $10.000.000 para que la diferencia se lea de un vistazo.
+    {
+        calc: 'tasa',
+        rotulo: 'Bienes muebles: 3 % (art. 4 inc. d)',
+        campos: { objeto: 'muebles', monto: '10000000' },
+        esperado: '300000.00',
+        porque: 'El unico de los tres que si lleva la alicuota general del art. 2. Fija que el arreglo no bajo de mas.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Reinscripcion de hipotecas: 1,5 % (art. 3 inc. f)',
+        campos: { objeto: 'reinscripcion', monto: '10000000' },
+        esperado: '150000.00',
+        porque: 'Hasta el 27/8 mostraba $300.000. La base es la suma garantizada (art. 4 inc. f) y la alicuota va reducida al 50 % por el art. 3 inc. f, que es la mitad que la pantalla no leia.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Tercerias: 1,5 % (art. 3 inc. h)',
+        campos: { objeto: 'tercerias', monto: '10000000' },
+        esperado: '150000.00',
+        porque: 'Mismo caso: mostraba $300.000 y le corresponden $150.000. El art. 3 inc. h dice "Tercerias" sin distinguir, asi que vale tanto para las de dominio como para las de mejor derecho.'
+    },
+
     // --- tasa, la pantalla de sucesiones -----------------------------------
     //
     // Agregados el 27/8, antes de refundar la pantalla. Cubren las tres
@@ -564,17 +593,17 @@ const FIJADOS = [
     },
     {
         calc: 'tasa-sucesion',
-        rotulo: 'BUG: el campo de titularidad SIN TOCAR devuelve cero',
+        rotulo: 'El campo de titularidad sin tocar vale 100 %',
         campos: { bienes: [{ tipo: 'inmueblesCABA', valuacion: '100000000' }] },
-        esperado: 'total 0.00 \u00b7 por bien 0.00',
-        porque: 'ESTE FIJADO CONGELA UN ERROR A PROPOSITO. El campo arranca vacio y vacio se lee como 0, asi que un inmueble de $100.000.000 muestra $0,00 sin que nadie haya declarado nada. Lo correcto es $1.575.000, o sea tratar el vacio como 100 %, que es lo que Javier decidio el 27/8. Se fija el valor de hoy y no el correcto porque si no el banco arranca en rojo y deja de servir para ver lo que se rompa despues. CUANDO SE ARREGLE, este esperado cambia a total 1575000.00.'
+        esperado: 'total 1575000.00 \u00b7 por bien 1575000.00',
+        porque: 'ARREGLADO EL 27/8, unas horas despues de fijarse. Este caso nacio congelando un error ---el campo vacio se leia como 0 y este inmueble mostraba $0,00 sin que nadie hubiera declarado nada--- con el esperado que habia que poner al arreglarlo escrito al lado. Es ese esperado. Da lo mismo que el primer caso, y tiene que darlo: no escribir nada es lo mismo que escribir 100.'
     },
     {
         calc: 'tasa-sucesion',
         rotulo: 'Titularidad 0 escrita a mano: cero es la respuesta correcta',
         campos: { bienes: [{ tipo: 'inmueblesCABA', valuacion: '100000000', titularidad: '0' }] },
         esperado: 'total 0.00 \u00b7 por bien 0.00',
-        porque: 'El par del anterior, y existe para marcar la diferencia que hoy no existe. Aca cero ESTA BIEN: lo dijo Javier, si el causante no era titular no se tributa, y si ya se pago se puede pedir la devolucion. Cuando el vacio se arregle, este caso tiene que seguir dando cero: es lo que prueba que el arreglo no se llevo puesto el 0 legitimo.'
+        porque: 'El par del anterior, y ES EL QUE HIZO FALTA. Aca cero ESTA BIEN: lo dijo Javier, si el causante no era titular no se tributa, y si ya se pago se puede pedir la devolucion. Se escribio antes del arreglo justamente para esto, y despues del arreglo sigue dando cero: prueba que tratar el vacio como 100 % no se llevo puesto el 0 legitimo. Los dos casos juntos son la diferencia entre no declarar y declarar cero, que hasta el 27/8 la pantalla no distinguia.'
     },
     {
         calc: 'tasa-sucesion',

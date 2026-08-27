@@ -31,6 +31,14 @@ nueve documentos de dominio cerrados y verificados contra el motor;
 **`uma-uhom.html`**: el valor vigente de las dos unidades con las que se regulan
 honorarios y la serie entera de cada una, reconstruida de los actos.
 
+**El 27/8 fue día de las calculadoras que no son de plazos.** Se rehizo
+`prorrateo` entera —y el tope del art. 730 dejó de estar clavado en 22 %—, las
+cinco de plazos pasaron a declarar su cobertura con las mismas palabras, y
+`tasa` quedó lista para refundar: se le arreglaron dos cobros mal y un contraste
+que la hacía ilegible en tema oscuro, y se le construyeron las pruebas que no
+tenía. **Lo que sigue de ese frente está en
+[Para arrancar en frío en `tasa`](#para-arrancar-en-frío-en-tasa--278).**
+
 **El 25/8 la landing volvió a decir lo que Honorio hace.** Anunciaba la versión
 3.1.1 con la app en 3.4.1, publicaba los recorridos y los cruces de antes del
 exhorto, mostraba dos capturas del dashboard anterior al rediseño de la 3.4.1 y
@@ -98,7 +106,7 @@ Las tres redes, en orden de lo que cubren: el banco de las pantallas
 `npm run verificar-red` controla **qué terceros nombra el sitio** —y existe
 porque el barrido de «qué sale del navegador» de esa misma mañana dio una lista
 incompleta: **`prorrateo` le pedía la UMA a una planilla de Google y no se
-vio**—; y `scripts/pruebas-no-plazos.html` pone **30 fijados** sobre las cuatro
+vio**—; y `scripts/pruebas-no-plazos.html` pone **33 fijados** sobre las cuatro
 calculadoras que no tenían ninguna comprobación, que era la condición para poder
 refundarlas. **Las tres se probaron rompiendo algo a propósito**, porque un
 control que nunca falló no es un control.
@@ -249,7 +257,7 @@ Ninguno urgente y ninguno bloqueante.
   revés, y las faltas de ortografía del texto que ve el usuario en `caducidad` y
   en `regresiva`. Lo que queda ahí es aspecto, no defecto.
   **Y las cuatro que van de cero ya tienen red**, que era la condición para
-  poder tocarlas: `scripts/pruebas-no-plazos.html`, 30 fijados. Antes del 26/8
+  poder tocarlas: `scripts/pruebas-no-plazos.html`, 33 fijados. Antes del 26/8
   no tenían ninguna comprobación y una reescritura no se habría podido
   distinguir de un error.
   **De las cuatro ya están hechas dos, las dos el 27/8**: `honorarios-mediacion`
@@ -426,7 +434,7 @@ Ninguno urgente y ninguno bloqueante.
   corren contra la versión anterior de la calculadora, que es la peor forma de
   falla porque parece un bug del cambio que se acaba de hacer.
   **~~Falta cubrir el prorrateo, la tasa y las demás no-de-plazos~~ Hecho el
-  26/8:** `scripts/pruebas-no-plazos.html`, **30 fijados** sobre `prorrateo`,
+  26/8:** `scripts/pruebas-no-plazos.html`, **33 fijados** sobre `prorrateo`,
   `tasa`, `honorarios-mediacion` y `ejecucion-estado`. Va antes de refundarlas,
   que es lo que sigue. Ver
   [abajo](#la-red-de-las-que-no-son-de-plazos-que-va-antes-de-refundarlas--268).
@@ -1556,6 +1564,89 @@ secciones del primero y el total sale sumado: un síntoma que no se parece en
 nada a la causa. Es el mismo tipo de trampa que ya había aparecido en el driver
 de `ejecucion-estado`.
 
+#### Los dos bugs de `tasa`, cerrados — 27/8
+
+Los dos estuvieron abiertos unas horas: se encontraron preparando la
+refundación, se cubrieron con casos de prueba y se arreglaron el mismo día. **El
+banco pasó de 30 a 33 y las 33 pasan.**
+
+##### El cobro doble: «Otros» se partió en tres
+
+La opción «Otros» juntaba tres supuestos y les aplicaba 3 % a los tres. Ahora son
+tres opciones del desplegable, cada una con su base y su alícuota:
+
+| Opción nueva | Base | Alícuota |
+|---|---|---|
+| Bienes muebles y otros derechos | art. 4 inc. d | **3 %** — la general |
+| Reinscripción de hipotecas o prendas | art. 4 inc. f, la suma garantizada | **1,5 %** — art. 3 inc. f |
+| Tercerías de dominio o de mejor derecho | art. 4 inc. h, el valor del crédito o del bien | **1,5 %** — art. 3 inc. h |
+
+Una tercería de $10.000.000 pasó de $300.000 a $150.000. Hay un caso fijado por
+cada una de las tres, y el de muebles está **para que el arreglo no baje de
+más**.
+
+**Y esto ya es un pedazo de la estructura nueva.** Separar por alícuota es
+exactamente lo que van a hacer los dos desplegables; acá se hizo a mano para tres
+supuestos porque estaban cobrando mal hoy.
+
+##### La titularidad: vacío vale 100 %
+
+`parseTitularidad()` es la función nueva, y la distinción está escrita en el
+código para que no se pierda:
+
+- **campo vacío → 1** (100 %). Antes daba `NaN`, el `|| 0` lo volvía cero, y un
+  inmueble de $100.000.000 mostraba $0,00.
+- **`0` escrito → 0.** No es un bug: si el causante no era titular no se tributa.
+- **texto que no se puede leer como número → 0.** Eso sí es haber tocado el
+  campo, y no se adivina.
+
+El campo lleva ahora `placeholder="100 %"`, que dice qué se aplica si no se
+escribe nada **sin cargar un valor**: un valor cargado obligaría a borrarlo para
+poner otro.
+
+**Los dos casos de prueba que estaban puestos hicieron exactamente su trabajo:**
+el del campo vacío nació congelando el error con el esperado correcto escrito al
+lado, y el del `0` escrito —que se agregó el mismo día— confirmó después del
+arreglo que tratar el vacío como 100 % **no se llevó puesto el cero legítimo**.
+
+---
+
+### Para arrancar en frío en `tasa` — 27/8
+
+**Lo hecho hasta acá y lo que sigue, en orden.** Esta sección existe porque la
+sesión del 27/8 llegó al límite de contexto con la refundación sin empezar.
+
+**Lo que ya está:**
+
+1. Las 33 pruebas, con las 13 de `tasa` repartidas entre sus dos pantallas.
+2. El contraste arreglado: la pantalla se lee en los dos temas.
+3. Los dos bugs cerrados.
+4. La ley leída entera y el mapa escrito, con la lectura de Javier cruzada.
+
+**Lo que sigue, y el orden importa:**
+
+1. **La lista con los dos desplegables** —qué número se toma y qué alícuota se
+   aplica—, con herencia de la alícuota entre renglones y el hint pegado al
+   campo de base. Es la refundación propiamente dicha, y el caso que tiene que
+   dar lo mismo antes y después es el de «inmueble más automóvil»: **$1.875.000**.
+2. **El imprimible**, que sale directo de la estructura de renglones y **es la
+   liquidación detallada del monto imponible del art. 4 in fine**, no una
+   comodidad.
+3. **Los supuestos de la ley que faltan** —el art. 4 incs. e, i y j, y los
+   arts. 5 y 6—, que recién tienen dónde entrar cuando exista la lista.
+
+**Tres cosas que conviene tener a mano antes de empezar:**
+
+- **El driver del banco se va a romper y es esperado**, como pasó con
+  `honorarios-mediacion` y con `prorrateo`. Los casos están escritos en entradas
+  y salidas, no en identificadores de la pantalla: se reescribe el driver y los
+  casos quedan.
+- **La trampa del iframe que se reusa**: hay que pasar por la opción vacía del
+  desplegable antes de volver a elegir, o el caso hereda el anterior y el total
+  sale sumado.
+- **Con el panel del navegador oculto la corrida se arrastra** —de seis segundos
+  a varios minutos— porque los iframes no dibujan. No es que esté roto.
+
 #### Lo que hay que decidir antes de escribir
 
 1. **~~`tasa` no tiene pruebas sobre la pantalla de sucesiones.~~ Hecho el
@@ -2527,26 +2618,17 @@ ni una calle con altura.
 
 ## Bugs abiertos
 
-**Dos, los dos en `tasa` y los dos encontrados el 27/8 preparando su
-refundación.** Ninguno de los dos lo puede ver el banco de pruebas actual,
-porque sus tres casos son de la pantalla que no es la de sucesiones.
+**Ninguno.** Los dos de `tasa` que se abrieron el 27/8 se cerraron el mismo día,
+después de cubrirlos con casos de prueba:
 
-1. **Cobra el doble en las tercerías y en las reinscripciones de hipotecas.**
-   Abajo del rótulo «Otros» junta tres supuestos y les aplica 3 % a los tres,
-   pero el **art. 3 inc. h** reduce las tercerías al 50 % y el **art. 3 inc. f**
-   hace lo mismo con las reinscripciones de hipotecas y prendas. Probado en la
-   pantalla: una tercería de $10.000.000 muestra $300.000 y le corresponden
-   $150.000. **Es el que más urge**, porque devuelve un número plausible y el
-   doble del que va. Se arregla solo con la estructura de dos desplegables; si
-   la refundación va a tardar, se puede parchear antes.
-2. **Un campo de titularidad que nadie tocó devuelve $0,00.** En la pantalla de
-   sucesiones. **Escribir `0` y que dé cero está bien** —si el causante no era
-   titular no se tributa—; lo que está mal es que no haber escrito nada se lea
-   igual. Se arregla haciendo que el campo vacío valga 100 %, que es lo ya
-   decidido.
+1. **Cobraba el doble en tercerías y en reinscripciones de hipotecas.** Juntaba
+   tres supuestos bajo «Otros» con el 3 % para los tres, y el art. 3 reduce dos
+   de los tres al 50 %. Una tercería de $10.000.000 mostraba $300.000 y le
+   corresponden $150.000.
+2. **Un campo de titularidad que nadie había tocado devolvía $0,00**, igual que
+   si se hubiera escrito un cero.
 
-Los dos están explicados con los números en
-[la sección de `tasa`](#tasa-el-diagnóstico-antes-de-refundarla-y-un-cero-en-silencio--278).
+Ver [abajo](#los-dos-bugs-de-tasa-cerrados--278).
 
 Los dos que abrió la extracción del 26/8 —la caducidad venciendo adentro de la
 feria de enero y la regresiva contando fuera de la ventana de cobertura— se

@@ -220,7 +220,12 @@
             <option value="sumasDinero">Sumas de dinero</option>
             <option value="desalojo">Desalojo</option>
             <option value="inmuebles">Inmuebles (escrituración, prescripción adquisitiva, reivindicación etc.)</option>
-            <option value="otros">Otros</option>
+            <!-- Hasta el 27/8/2026 estos tres estaban juntos en un solo "Otros"
+                 con el 3 % para los tres, y a dos de los tres les corresponde la
+                 mitad. Ver el comentario del switch, abajo. -->
+            <option value="muebles">Bienes muebles y otros derechos apreciables en dinero</option>
+            <option value="reinscripcion">Reinscripción de hipotecas o prendas</option>
+            <option value="tercerias">Tercerías de dominio o de mejor derecho</option>
             <option value="sucesion">Sucesión</option>
         </select>
     </div>
@@ -258,6 +263,29 @@ document.addEventListener('DOMContentLoaded', function() {
         return value.replace(/[^\d.-]/g, '');
     }
     
+    // Devuelve la parte del bien que era del causante, como fraccion de 1.
+    //
+    // EL CAMPO VACIO VALE 100 %, y eso se decidio el 27/8/2026 arreglando un
+    // bug: antes un campo que nadie habia tocado se parseaba como NaN, el
+    // `|| 0` lo volvia CERO, y un inmueble de $100.000.000 mostraba $0,00 sin
+    // que nadie hubiera declarado nada. Es el campo que uno no completa
+    // justamente cuando el bien es todo del causante.
+    //
+    // ESCRIBIR `0` SIGUE DANDO CERO, y esa parte no es un bug: lo marco Javier
+    // ---si el causante no era titular no se tributa, y si ya se pago se puede
+    // pedir la devolucion---. Lo que estaba mal era que NO HABER ESCRITO NADA
+    // se leyera igual que haber escrito un cero. Hay un caso de prueba pegado a
+    // cada uno de los dos, justamente para que el arreglo de uno no se lleve
+    // puesto el otro.
+    //
+    // Lo que no es ninguna de las dos cosas ---texto que no se puede leer como
+    // numero--- sigue dando cero: eso SI es tocar el campo, y no se adivina.
+    function parseTitularidad(value) {
+        if (!value || !value.trim()) return 1;
+        const r = parseFractionAndPercentage(value);
+        return isNaN(r) ? 0 : r;
+    }
+
     function parseFractionAndPercentage(value) {
         let cleanedValue = value.trim();
         if (cleanedValue.endsWith('%')) {
@@ -305,12 +333,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 labelText = 'Ingresar Valuación fiscal actualizada o mayor valor del negocio jurídico sobre el cual versa el litigio (art. 4 inc. c)';
                 calculationFunction = (monto) => monto * 0.03;
                 break;
-            case 'otros':
-                labelText = 'Importe';
+            // ---------------------------------------------------------------
+            // ACA ESTABA EL COBRO DOBLE, arreglado el 27/8/2026.
+            //
+            // Estos tres supuestos vivian juntos en una sola opcion llamada
+            // "Otros", con `monto * 0.03` para los tres y los tres incisos
+            // nombrados en un texto de ayuda. Pero el art. 3 REDUCE AL 50 % dos
+            // de los tres:
+            //
+            //   art. 3 inc. f  reinscripcion de hipotecas o prendas  -> 1,5 %
+            //   art. 3 inc. h  tercerias                             -> 1,5 %
+            //
+            // Medido antes de tocar: una terceria de $10.000.000 mostraba
+            // $300.000 y le corresponden $150.000. Cobraba el doble, y devolvia
+            // un numero plausible.
+            //
+            // Y POR QUE PASO, que es lo que no hay que repetir: los agrupo
+            // PORQUE COMPARTIAN LA ALICUOTA DEL 3 %, y eso mismo tapo que dos
+            // de los tres no la comparten. La ley tiene dos ejes ---el art. 4
+            // dice que numero se toma y los arts. 2 y 3 que alicuota se le
+            // aplica--- y agrupar por uno solo pierde el otro. Ademas las
+            // letras no se corresponden entre los dos articulos: la
+            // reinscripcion es el inc. f en los dos y las tercerias el inc. h
+            // en los dos, pero los sucesorios son el 3 inc. c y el 4 inc. g.
+            // No hay regla que ahorre leer los dos.
+            // ---------------------------------------------------------------
+            case 'muebles':
+                labelText = 'Bienes muebles o derechos susceptibles de apreciación pecuniaria (art. 4 inc. d): ingresar la valuación fiscal o la estimación';
                 calculationFunction = (monto) => monto * 0.03;
-                infoText = `Reinscripciones de hipotecas y de prendas (art. 4 inc. f): ingresar importe de la suma garantizada;
-Tercerías de dominio o mejor derecho (art. 4 inc. h): ingresar valor del crédito o del bien;
-Bienes muebles o derechos susceptibles de apreciación pecuniaria (art. 4 inc. d) : ingresar valuación fiscal o estimación`;
+                infoText = 'Alícuota general del 3 % (art. 2). El art. 4 inc. d prevé que el monto lo determine el juez, previa estimación de la parte y vista al fisco.';
+                break;
+            case 'reinscripcion':
+                labelText = 'Importe de la suma garantizada con la hipoteca o la prenda (art. 4 inc. f)';
+                calculationFunction = (monto) => monto * 0.015;
+                infoText = 'Tasa reducida del 1,5 %: el art. 3 inc. f reduce al 50 % los procedimientos sobre reinscripción de hipotecas o prendas, y los oficios librados a ese efecto por jueces de otras jurisdicciones.';
+                break;
+            case 'tercerias':
+                labelText = 'Valor del crédito o del bien respecto del cual se pretende la prioridad (art. 4 inc. h)';
+                calculationFunction = (monto) => monto * 0.015;
+                infoText = 'Tasa reducida del 1,5 %: el art. 3 inc. h reduce al 50 % las tercerías, tanto las de dominio como las de mejor derecho.';
                 break;
         }
         
@@ -583,7 +644,7 @@ Bienes muebles o derechos susceptibles de apreciación pecuniaria (art. 4 inc. d
             row.innerHTML = `
                 <td><input type="text" class="descripcion"></td>
                 <td><input type="text" class="valuacion" step="0.01"></td>
-                <td><input type="text" class="porcentaje" step="0.01"></td>
+                <td><input type="text" class="porcentaje" step="0.01" placeholder="100 %"></td>
                 ${(type === 'inmueblesCABA' || type === 'inmueblesProvincia') ? 
                     `<td><input type="text" class="sobretasa" value="5"> %<input type="checkbox" class="incluirSobretasa" checked></td>` 
                     : ''
@@ -609,7 +670,7 @@ Bienes muebles o derechos susceptibles de apreciación pecuniaria (art. 4 inc. d
                 const subtotalInput = row.querySelector('.subtotal');
 
                 const b = parseFloat(normalizeNumberInput(valuacionInput.value)) || 0;
-                const c = parseFractionAndPercentage(porcentajeInput.value) || 0;
+                const c = parseTitularidad(porcentajeInput.value);
 
                 let rowTotal = b * c * tasa;
 
@@ -645,7 +706,7 @@ Bienes muebles o derechos susceptibles de apreciación pecuniaria (art. 4 inc. d
             newRow.innerHTML = `
                 <td><input type="text" class="descripcion"></td>
                 <td><input type="text" class="valuacion" step="0.01"></td>
-                <td><input type="text" class="porcentaje" step="0.01"></td>
+                <td><input type="text" class="porcentaje" step="0.01" placeholder="100 %"></td>
                 ${(type === 'inmueblesCABA' || type === 'inmueblesProvincia') ? 
                     `<td><input type="text" class="sobretasa" value="5"> %<input type="checkbox" class="incluirSobretasa" checked></td>` 
                     : ''
