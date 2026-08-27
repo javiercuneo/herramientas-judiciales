@@ -1181,25 +1181,103 @@ sino **de dónde sale cada peso del total**. Con el inciso y la alícuota en cad
 renglón, la tabla es la explicación, y es además exactamente la planilla que se
 acompaña al expediente: encaja con el imprimible que Javier pidió el mismo día.
 
+#### Decidido por Javier el 27/8
+
+**La forma va: una sola lista.** Y con una corrección suya que mejora la
+propuesta: *«la gracia de declarar el objeto del juicio antes es que te da una
+suerte de hint del valor que tenés que ingresar»* —como hace Honorio en parte—,
+con el ejemplo *«al elegir desalojo ya te dice que pongas un solo alquiler
+porque el sistema está calculando los 6 meses que son la base»*.
+
+**Eso no pelea con la lista: la mejora.** El hint es la función real del
+desplegable global, y en la lista vive mejor, porque aparece **en el renglón que
+se está cargando** y no arriba de toda la pantalla. Cada regla del desplegable
+trae su hint pegado al campo de base. Y el ejemplo sale textual del inciso: el
+art. 4 inc. b dice «el valor actualizado de seis (6) meses de alquiler», así que
+la base legal son seis meses y la pantalla pide uno.
+
+**La sobretasa se deja como está y no se escribe nada.** Javier: *«es más
+costumbre judicial que norma pura (difícil de encontrar fallo al respecto) pero
+nadie lo va a cuestionar y es opcional»*. O sea que **la ausencia de norma citada
+es deliberada y no un olvido**, y por eso queda anotada acá: la próxima lectura
+va a encontrar un 5 % sin artículo al lado y ésta es la explicación.
+
+**La titularidad va con 100 % por omisión.** Con una aclaración que importa,
+porque en el intercambio quedó al revés: **hoy vacío calcula CERO**, no 100 %.
+No es que esté bien y haya que confirmarlo; es un arreglo.
+
+**El permalink se toma de Honorio**, donde ya está resuelto sin que salga nada
+del navegador. Deja de ser una pregunta abierta de diseño y pasa a ser copiar un
+mecanismo que existe: hay que ir a leerlo a
+[`javiercuneo/honorio`](https://github.com/javiercuneo/honorio) antes de inventar
+nada.
+
+#### Cuánto de la ley cubre hoy, que es la respuesta a «que no sea sólo civil»
+
+Pedido de Javier el 27/8: *«en algún momento habría que hacer algo más piola y
+cubrir toda la ley de tasa… para que sea una calculadora completa referencia
+para todo y no solo civil»*. La ley está en
+`C:/IA/knowledge/raw/normativa`, **con el número mal en el nombre del
+archivo** —dice «Ley N° 23.889» y la de tasas judiciales es la **23.898**; el
+contenido es el correcto—.
+
+Leída entera, esto es lo que la pantalla **no** cubre:
+
+- **Art. 3, la reducción del 50 %, casi entero.** Hoy sólo se usa el inc. c
+  (sucesorios). Quedan el **b** (mensura y deslinde), el **d** (protocolización
+  e inscripción de testamentos extendidos fuera de jurisdicción nacional), el
+  **f** (reinscripción de hipotecas y prendas) y el **g** (recursos directos
+  contra resoluciones del PEN, provincial o municipal).
+- **Art. 4 inc. e — quiebras y concursos.** En la quiebra, el importe de la
+  liquidación de bienes; en el concurso preventivo, los créditos verificados. Y
+  la **Ley 25.972** pone alícuotas propias para los acuerdos homologados:
+  **0,75 % y 0,25 %**, que no son la del art. 2 ni la reducida.
+- **Art. 4 inc. i — laboral.** El monto de la condena según la primera
+  liquidación firme; y el desalojo laboral, que también es de seis meses pero
+  **del último salario**. **Este es el inciso que hace que hoy sea «sólo
+  civil».**
+- **Art. 4 inc. j** — el monto de la resolución que se apela, y si no tiene
+  monto, indeterminable.
+- **Art. 5 — monto indeterminable** y **art. 6 — juicios sin valor pecuniario**.
+  El art. 6 no es una alícuota: es **una suma fija que actualiza la CSJN**, o sea
+  otra serie como la UMA y el UHOM, con el mismo problema de carga a mano.
+
+**Dos de esos no son «un inciso más»**: el art. 6 trae una serie nueva, y la
+25.972 trae alícuotas que la pantalla hoy no sabe representar.
+
+#### Sobre la entrevista previa, que Javier dejó abierta
+
+Planteado por él: *«quizás hay que hacer una entrevista previa para llegar al
+número final, no lo sé»*. **Mi recomendación es que no**, y el motivo es de uso y
+no de gusto: una entrevista es buena la primera vez y estorba a partir de la
+segunda, y la tasa se calcula seguido. Honorio puede permitírsela porque una
+regulación es un acto ocasional. El hint en el renglón da lo mismo que la
+entrevista —decirte qué número va— sin cobrar el peaje cada vez.
+**Sin decidir.**
+
 #### Lo que hay que decidir antes de escribir
 
-1. **¿Sucesorio como interruptor o todo en el mismo desplegable?** Un proceso es
+1. **`tasa` no tiene red sobre la rama de sucesión**, y es lo único que hay que
+   hacer antes de tocar la pantalla. Los tres fijados de `pruebas-no-plazos` son
+   de la rama simple. La de sucesión es la que tiene la aritmética de verdad
+   —titularidad, sobretasa, tres alícuotas— y la que tiene el cero. Es la misma
+   regla que ya se aplicó con `honorarios-mediacion` y con `prorrateo`.
+   **Con una salvedad propia de este caso:** el cero es un bug, así que hay que
+   fijarlo **como está y anotando que está mal**, o el fijado congela el error.
+2. **¿Sucesorio como interruptor o todo en el mismo desplegable?** Un proceso es
    sucesión o no lo es. Poner «Sumas de dinero, 3 %» y «Sumas de dinero en
-   sucesión, 1,5 %» juntas en el mismo desplegable es correcto e invita a
-   elegir la alícuota equivocada. **Recomendado:** un interruptor arriba que
-   filtre las reglas, porque es un dato del proceso y no del bien.
-2. **La titularidad por omisión.** Con el arreglo obvio —vacío es 100 %— el
-   número deja de ser cero, pero conviene decidir si además se muestra `100 %`
-   escrito, que es lo único que hace evidente qué se está aplicando.
-3. **La sobretasa del 5 %.** El HTML actual **no nombra ninguna norma**: dice
-   «Puedes incluir una sobretasa de manera opcional» —tuteo peninsular, además—
-   y la trae marcada por omisión. Antes de reescribirla hay que saber de dónde
-   sale y escribirlo, porque es un 5 % que se suma sin que la pantalla diga por
-   qué.
-4. **`tasa` no tiene red sobre la rama de sucesión.** Los tres fijados de
-   `pruebas-no-plazos` son de la rama simple. **Antes de refundarla hay que
-   fijar la rama de sucesión**, que es la que tiene la aritmética de verdad
-   —y la que tiene el cero—. Es la misma regla que ya se aplicó dos veces.
+   sucesión, 1,5 %» juntas en el mismo desplegable es correcto e invita a elegir
+   la alícuota equivocada. **Recomendado:** un interruptor arriba que filtre las
+   reglas, porque es un dato del proceso y no del bien. Sin decidir.
+3. **Si la titularidad muestra `100 %` escrito** además de aplicarlo. Es lo
+   único que hace evidente qué se está usando, y es el campo que ya causó un
+   cero silencioso. Sin decidir.
+4. **El 0,75 % del inc. g conviene mirarlo con doctrina.** El texto dice que
+   «el **valor** establecido en el artículo 3º, inciso c) se reducirá a la
+   mitad», y el art. 3 inc. c no establece un valor sino una reducción. La
+   calculadora lee que se reduce la alícuota otra vez a la mitad —3 % → 1,5 % →
+   0,75 %—, que es la lectura corriente, pero la redacción se presta. No se
+   tocó ni se verificó contra doctrina.
 
 ---
 
