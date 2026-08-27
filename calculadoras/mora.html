@@ -264,7 +264,7 @@ button {
                     <button id="reset" class="ghost">Limpiar</button>
                     <button id="force" class="ghost">Forzar recarga (cache)</button>
                 </div>
-                <div style="flex:0 0 auto;text-align:right" class="small">Años soportados: <span id="anioRange"></span></div>
+                <div style="flex:0 0 auto;text-align:right" class="small"><span id="anioRange">Cargando el calendario judicial…</span></div>
             </div>
 
             <div id="statusMessage" class="status-message"></div>
@@ -332,7 +332,35 @@ button {
         function isBusinessDay(date) { return CalendarioJudicial.esDiaHabil(date) }
 
         // UI wiring
-        document.getElementById('anioRange').textContent = `${MIN_YEAR} - ${MAX_YEAR}`;
+        // El aviso de cobertura, con la MISMA formula que vencimientos.html, que es
+        // la pantalla de referencia. Antes el rotulo estaba fijo en el HTML y decia
+        // "Años soportados", que es calco de supported y no lo dice nadie en el
+        // fuero; y el span traia el rango pelado.
+        //
+        // ESTA ES LA UNICA DE LAS CINCO QUE NO CARGA EL CALENDARIO AL ARRANCAR:
+        // lo carga al calcular, con los anios que hagan falta segun la fecha que se
+        // cargo. Asi que el aviso no puede nombrar la feria faltante hasta que haya
+        // datos ---un primer intento lo hacia en el arranque y leia una lista
+        // vacia--- y por eso se dice en dos tiempos: el rango primero, y la
+        // salvedad de la feria despues del init, desde actualizarCobertura().
+        //
+        // El rango tambien cambio de valor. Decia 2021 - <anio actual>, o sea que
+        // SUBDECLARABA: yearsToFetch llega hasta y0 + 1 y esta pantalla calcula el
+        // anio que viene sin problema. Ahora dice lo mismo que las otras cuatro.
+        const MAX_ANUNCIADO = new Date().getFullYear() + 1;
+
+        function actualizarCobertura(carga) {
+            const sinFeria = ((carga && carga.missingFeriaYears) || []).slice().sort()
+                .filter((y) => y <= MAX_ANUNCIADO);
+            document.getElementById('anioRange').textContent =
+                'Calculadora disponible para los años ' + MIN_YEAR + ' - ' + MAX_ANUNCIADO +
+                (sinFeria.length
+                    ? ', salvo los plazos que caigan en la feria de invierno de ' +
+                      sinFeria.join(', ') + ': esa Acordada de la CSJN todavía no se dictó.'
+                    : '');
+        }
+
+        actualizarCobertura(null);
         const calcularBtn = document.getElementById('calcular');
         const resetBtn = document.getElementById('reset');
         const forceBtn = document.getElementById('force');
@@ -364,6 +392,9 @@ button {
             for (let y = Math.max(MIN_YEAR, y0 - 1); y <= Math.max(MAX_YEAR, y0 + 1); y++) yearsToFetch.push(y);
 
             const carga = await CalendarioJudicial.init(Array.from(new Set(yearsToFetch)).sort());
+            // Recien aca se sabe que Acordadas de feria faltan, asi que recien aca
+            // el aviso de arriba puede decirlo.
+            actualizarCobertura(carga);
             const statusElem = document.getElementById('statusMessage');
 
             // Se precarga y0+1 porque el cómputo puede cruzar de año, pero que

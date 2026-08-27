@@ -293,7 +293,7 @@
 <body>
     <div class="container">
         <h1>Calculadora de días entre fechas</h1>
-        <div class="available-years" id="availableYears">Cargando información de años disponibles...</div>
+        <div class="available-years" id="availableYears">Cargando el calendario judicial…</div>
         <div class="warning" id="apiWarning" style="display: none;"></div>
 
         <div class="section">
@@ -391,11 +391,31 @@
     });
 
     function updateAvailableYearsDisplay() {
+        // El aviso de cobertura, con la MISMA formula que vencimientos.html, que
+        // es la pantalla de referencia. Antes decia "para los anios" ---SIN TILDE,
+        // en texto que ve el usuario--- y enumeraba los siete anios uno por uno en
+        // vez de dar el rango.
+        //
+        // Y no nombraba la feria. El motor devuelve missingFeriaYears y hasta el
+        // 27/8 lo leia una sola de las cinco pantallas: las otras prometian el anio
+        // entero y el computo se negaba recien en julio.
+        //
+        // Esta es la unica de las cinco que ademas cuenta dias corridos, asi que sin
+        // calendario NO queda muerta: por eso el caso sin datos dice que funciona,
+        // y dice que le falta. Lo que no dice mas es que hay una API, que es
+        // implementacion y no le sirve a quien computa un plazo.
         var yearsEl = document.getElementById('availableYears');
+        var cargados = CalendarioJudicial.loadedYears.slice().sort();
+        var sinFeria = (CalendarioJudicial.missingFeriaYears || []).slice().sort();
         if (datosCargados) {
-            yearsEl.innerHTML = 'Calculadora disponible para los anios: <strong>' + CalendarioJudicial.loadedYears.sort().join(', ') + '</strong>.';
+            yearsEl.innerHTML = 'Calculadora disponible para los años ' +
+                cargados[0] + ' - ' + cargados[cargados.length - 1] +
+                (sinFeria.length
+                    ? ', salvo los plazos que caigan en la feria de invierno de ' +
+                      sinFeria.join(', ') + ': esa Acordada de la CSJN todavía no se dictó.'
+                    : '.');
         } else {
-            yearsEl.innerHTML = 'Calculadora disponible para dias corridos. La API de feriados no esta disponible.';
+            yearsEl.innerHTML = 'Calculadora disponible sólo para días corridos: no se pudo cargar el calendario judicial.';
         }
     }
 

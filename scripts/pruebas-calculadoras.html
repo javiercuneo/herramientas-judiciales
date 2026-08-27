@@ -398,7 +398,12 @@ const DRIVERS = {
     },
     regresiva: {
         archivo: '../calculadoras/regresiva.html',
-        lista: (d) => /Años disponibles|Error al cargar/i.test(
+        // El 27/8 las cinco pantallas pasaron a decir la cobertura con la misma
+        // formula que vencimientos. Este predicado buscaba "Años disponibles",
+        // que era el rotulo viejo de esta sola, y el sintoma fue "regresiva: no
+        // termino de cargar en 12 s" ---o sea, indistinguible de una pantalla
+        // rota---. Ahora los cinco buscan la formula unica.
+        lista: (d) => /Calculadora disponible|No se pudo cargar/i.test(
             d.getElementById('infoAnios').textContent),
         correr: async (d, campos) => {
             let alerta = null;

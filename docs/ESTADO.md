@@ -266,6 +266,29 @@ Ninguno urgente y ninguno bloqueante.
   Detectado el 27/8 al refundar la pantalla y **no se implementó ahí a
   propósito**: es una función nueva y no una refundación de la forma. Ver
   [abajo](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278).
+- **`prorrateo` y `tasa` tienen que llevar imprimible.** Pedido de Javier el
+  27/8. No existe en ninguna de las once, así que lo que se decida acá fija el
+  patrón para el resto. Lo que hay que resolver antes de escribir CSS: **qué se
+  imprime**. En `prorrateo` el papel que sirve es el que se acompaña al
+  expediente —las regulaciones, el techo, el reparto y la norma—, y ahí el
+  dibujo de las dos barras y los controles de la pantalla no van. Va con el
+  rediseño de `tasa`, que es donde el pedido nació.
+- **Anotado para explorar, sin decidir: enlace permanente con el caso cargado.**
+  Planteado por Javier el 27/8 —*«quizás deberían llevar hiperlink (esto solo
+  anotalo para explorar por ahora)»*—. Sería poner el estado del formulario en
+  el fragmento de la URL para poder pasarle a alguien el cálculo hecho. **Lo que
+  hay que mirar antes que el cómo:** hoy ninguna calculadora manda nada afuera
+  salvo `distancia`, y una URL con el caso adentro **se pega en un mail, en un
+  chat y en un historial**. Un monto de proceso y una fecha de notificación no
+  son datos personales, pero sí son datos de un expediente concreto, y la
+  promesa de que nada sale del navegador se sostiene hoy porque no hay nada que
+  copiar. El fragmento (`#…`) no viaja al servidor, que es el punto a favor.
+  Sin decidir.
+- **`regresiva` y `vencimientos` se llaman casi igual.** «Calculadora de plazos
+  judiciales» contra «Vencimiento de plazos judiciales»: puestas al lado en el
+  tablero no se distinguen, y la que tiene el nombre genérico es la que hace lo
+  menos común de las dos. Es una decisión de nombre y no se tocó. Ver
+  [abajo](#los-textos-de-las-cinco-de-plazos-unificados-contra-vencimientos--278).
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
   su propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -385,6 +408,11 @@ Ninguno urgente y ninguno bloqueante.
   disponible», «Formato de fecha invalido». Todos van en voseo y acentuados.
   **Falta lo mismo en las que no son de plazos**, y ahí conviene esperar: van de
   cero, así que arreglar su texto ahora es escribirlo dos veces.
+  **Y el 27/8 se hizo el barrido completo de los textos de las cinco de plazos**,
+  con `vencimientos` de referencia, a pedido de Javier: los cinco avisos de
+  cobertura decían lo mismo de cinco maneras y cuatro no nombraban la feria
+  faltante aunque el motor se los daba. Ver
+  [abajo](#los-textos-de-las-cinco-de-plazos-unificados-contra-vencimientos--278).
   **Y una distinción que vale para el barrido que queda:** el *usted*
   —«Ingrese», «Verifique»— **no es tuteo y no es un error**; es otro registro. Lo
   que hay que sacar es el imperativo de *tú*. Cambiar los ustedes a voseo es una
@@ -1071,6 +1099,97 @@ panel oculto el `ResizeObserver` tampoco dispara**, igual que
 `requestAnimationFrame` y las transiciones. Se comprobó midiendo `vencimientos`
 embebida en la misma corrida —642 contra 1092, el mismo desfase— y ésa no se
 tocó. Está anotado en las trampas.
+
+---
+
+### Los textos de las cinco de plazos, unificados contra `vencimientos` — 27/8
+
+**Pedido de Javier el 27/8:** *«hay que hacer además una revisión exhaustiva de
+los textos que muestran todas las calc con referencia a que la más actualizada es
+vencimientos. ejemplo regresiva dice "años disponibles..." que es distinto de
+como lo declara vencimientos»*.
+
+#### Lo mismo se llamaba de cinco maneras, y tres tenían un defecto propio
+
+| Pantalla | Lo que decía |
+|---|---|
+| `vencimientos` | «Calculadora disponible para los años 2021 - 2027, salvo los plazos que caigan en la feria de invierno de 2027: esa Acordada de la CSJN todavía no se dictó.» |
+| `caducidad` | «Calculadora disponible (feriados 2021-2027, 7 años)» |
+| `entre-fechas` | «Calculadora disponible para los **anios**: 2021, 2022, 2023, …» |
+| `regresiva` | «Años disponibles: 2021, 2022, … (según feriados y **adicionales**)» |
+| `mora` | «Años **soportados**: 2021 - 2026» |
+
+- **`entre-fechas` decía «anios», sin tilde, en texto que ve el usuario**, y
+  enumeraba los siete años uno por uno en vez de dar el rango. Su caso sin datos
+  decía «La API de feriados no esta disponible» —sin tildes, y contándole al
+  usuario que hay una API, que es implementación—.
+- **`regresiva` decía «adicionales»**, que es el nombre de un archivo del
+  repositorio y no una palabra del fuero.
+- **`mora` decía «soportados»**, calco de *supported*.
+
+#### Pero lo que importaba no era el rótulo
+
+**El motor devuelve `missingFeriaYears` —los años cuya Acordada de feria todavía
+no se dictó— y hasta hoy lo leía UNA SOLA de las cinco pantallas.** Las otras
+cuatro tenían el dato disponible y prometían el año entero; el cómputo se negaba
+recién en julio, con el caso ya cargado. Eso no es una diferencia de estilo: es
+una pantalla que promete algo que la de al lado sabe que no puede cumplir.
+
+Ahora las cinco arman el aviso con la fórmula de `vencimientos`, y las cinco
+nombran la feria faltante. Verificado en las cinco pantallas servidas: dicen el
+mismo renglón, carácter por carácter.
+
+#### Dos cosas que salieron al hacerlo
+
+**`mora` subdeclaraba su propia cobertura.** Anunciaba «2021 - <año actual>»
+mientras `yearsToFetch` llega hasta `y0 + 1`: calcula el año que viene sin
+problema y decía que no. Ahora anuncia lo mismo que las otras cuatro.
+
+**Y `mora` es la única de las cinco que no carga el calendario al arrancar**: lo
+carga al calcular, con los años que hagan falta según la fecha cargada. Un primer
+intento puso el aviso completo en el arranque y leía una lista vacía. Por eso
+el aviso se dice **en dos tiempos**: el rango primero, y la salvedad de la feria
+después del `init`, desde `actualizarCobertura()`.
+
+#### El banco de las pantallas se puso rojo, y estuvo bien
+
+`pruebas-calculadoras` reportó **«regresiva: no terminó de cargar en 12 s»** en
+las tres filas de esa pantalla. No era la pantalla: el predicado de «página
+lista» buscaba `/Años disponibles/`, que era **el rótulo viejo de esa sola**.
+El síntoma es el peor de todos —indistinguible de una pantalla rota— y es la
+misma clase de trampa que el rompe-caché de los iframes. Ahora los cinco
+predicados buscan la fórmula única.
+
+#### Lo que queda de este barrido, y es una decisión de nombre
+
+**`regresiva` se llama «Calculadora de plazos judiciales» y `vencimientos`
+«Vencimiento de plazos judiciales».** Puestas al lado en el tablero no se
+distinguen, y la que tiene el nombre genérico es la que hace lo menos común de
+las dos. Es una decisión de Javier y no se tocó.
+
+Y quedan las diferencias que son de rediseño y no de texto, que van con la
+pasada de aspecto de cada pantalla:
+
+- **Los títulos**: `vencimientos` dice «Vencimiento de plazos judiciales», sin la
+  palabra «Calculadora», que en un sitio de calculadoras no agrega nada. Las
+  otras cuatro la llevan.
+- **Los botones**: `vencimientos` dice «Calcular» / «Limpiar». Las otras dicen
+  «Calcular Vencimiento» —con mayúscula—, «Calcular fecha límite», y
+  `entre-fechas` dice **«Resetear»**, que es calco.
+- **`mora` tiene a la vista un botón «Forzar recarga (cache)»**, que es un
+  control de depuración.
+- **Los rótulos**: `caducidad` usa dos puntos («Meses (1-6):»), `regresiva` y
+  `mora` usan asteriscos de obligatorio y el formato entre paréntesis
+  («Fecha objetivo (DD/MM/AAAA) *»). `vencimientos` no usa ninguna de las tres
+  cosas: el campo es de tres cajas y el formato no hace falta explicarlo.
+- **Colores planos que el sistema no usa**, y que en tema oscuro pintan mal:
+  `caducidad` tenía `#059669` y `#dc2626` en el aviso de cobertura —cambiados a
+  `--ok` y `--error` de paso, que es un mapeo directo—; quedan `#ffe6e6`,
+  `#fcf8e3`, `#8a6d3b` y `#5a6268` en `entre-fechas`, y `#ff4d4f`, `#fff0f0` y
+  `#f8fdf8` en `mora`.
+
+**Lo de `tasa` y `ejecucion-estado` no se tocó a propósito**: van de cero, así
+que escribirles el texto ahora es escribirlo dos veces.
 
 ---
 

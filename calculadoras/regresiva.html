@@ -312,7 +312,9 @@
 
             const anioFecha = fechaObj.getFullYear();
             if (anosDisponibles.indexOf(anioFecha) === -1) {
-                alert('El año ' + anioFecha + ' no está en el calendario judicial cargado. Años disponibles: ' + anosDisponibles.sort().join(', ') + '.');
+                alert('El año ' + anioFecha + ' no está en el calendario judicial cargado. ' +
+                      'Calculadora disponible para los años ' + anosDisponibles[0] +
+                      ' - ' + anosDisponibles[anosDisponibles.length - 1] + '.');
                 return;
             }
 
@@ -440,14 +442,32 @@
                 datosCargados = true;
                 errorGlobalDiv.style.display = 'none';
                 calcularBtn.disabled = false;
-                anosDisponibles = [];
-                for (var y = 2021; y <= currentYear + 1; y++) anosDisponibles.push(y);
-                infoAniosDiv.innerHTML = 'Años disponibles: <strong>' + anosDisponibles.sort().join(', ') + '</strong> (según feriados y adicionales)';
+                // El aviso de cobertura, con la MISMA formula que vencimientos.html,
+                // que es la pantalla de referencia. Antes decia "Años disponibles:
+                // 2021, 2022, ... (segun feriados y adicionales)": otro rotulo, la
+                // lista enumerada en vez del rango, y "adicionales", que es el
+                // nombre de un archivo del repositorio y no una palabra del fuero.
+                //
+                // Y no nombraba la feria, que es lo que de verdad importaba: el
+                // motor devuelve missingFeriaYears y hasta el 27/8 lo leia una sola
+                // de las cinco pantallas. Esta prometia el anio entero y despues se
+                // negaba a contar un plazo de julio, con el caso ya cargado.
+                //
+                // La lista tambien pasa a salir de initResult y no de un for: se
+                // anuncia lo que el motor cargo, no lo que se le pidio.
+                anosDisponibles = initResult.loadedYears.slice();
+                var sinFeria = (initResult.missingFeriaYears || []).slice().sort();
+                infoAniosDiv.textContent = 'Calculadora disponible para los años ' +
+                    anosDisponibles[0] + ' - ' + anosDisponibles[anosDisponibles.length - 1] +
+                    (sinFeria.length
+                        ? ', salvo los plazos que caigan en la feria de invierno de ' +
+                          sinFeria.join(', ') + ': esa Acordada de la CSJN todavía no se dictó.'
+                        : '');
             } else {
                 datosCargados = false;
                 infoAniosDiv.innerHTML = 'No se pudo cargar el calendario judicial, así que esta herramienta no calcula. Recargá la página en un rato.';
                 errorGlobalDiv.style.display = 'block';
-                errorGlobalDiv.textContent = 'No se pudieron obtener los feriados o el archivo adicional.';
+                errorGlobalDiv.textContent = 'No se pudo cargar el calendario judicial.';
                 calcularBtn.disabled = true;
             }
 
