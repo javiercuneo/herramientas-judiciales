@@ -34,10 +34,16 @@ honorarios y la serie entera de cada una, reconstruida de los actos.
 **El 27/8 fue día de las calculadoras que no son de plazos.** Se rehizo
 `prorrateo` entera —y el tope del art. 730 dejó de estar clavado en 22 %—, las
 cinco de plazos pasaron a declarar su cobertura con las mismas palabras, y
-`tasa` quedó lista para refundar: se le arreglaron dos cobros mal y un contraste
-que la hacía ilegible en tema oscuro, y se le construyeron las pruebas que no
-tenía. **Lo que sigue de ese frente está en
-[Para arrancar en frío en `tasa`](#para-arrancar-en-frío-en-tasa--278).**
+**`tasa` se refundó entera**: se le arreglaron dos cobros mal y un contraste que
+la hacía ilegible en tema oscuro, se le construyeron las pruebas que no tenía,
+y con esa red encima se le cambió el modelo. **Dejó de ser un árbol y pasó a ser
+una lista de renglones con los dos ejes de la ley separados** —qué número se
+toma, art. 4, y qué alícuota se le aplica, arts. 2 y 3—, y de paso dejó de ser
+sólo civil: entraron el laboral, el concursal con su escala progresiva y los
+recursos directos. **Van tres de las cuatro que no son de plazos; queda
+`ejecucion-estado`.** Ver
+[`tasa` refundada](#tasa-refundada-los-dos-ejes-en-una-lista--278) y
+[lo que le falta](#lo-que-le-falta-a-tasa--278).
 
 **El 25/8 la landing volvió a decir lo que Honorio hace.** Anunciaba la versión
 3.1.1 con la app en 3.4.1, publicaba los recorridos y los cruces de antes del
@@ -106,7 +112,7 @@ Las tres redes, en orden de lo que cubren: el banco de las pantallas
 `npm run verificar-red` controla **qué terceros nombra el sitio** —y existe
 porque el barrido de «qué sale del navegador» de esa misma mañana dio una lista
 incompleta: **`prorrateo` le pedía la UMA a una planilla de Google y no se
-vio**—; y `scripts/pruebas-no-plazos.html` pone **33 fijados** sobre las cuatro
+vio**—; y `scripts/pruebas-no-plazos.html` pone **37 fijados** —33 el 26/8— sobre las cuatro
 calculadoras que no tenían ninguna comprobación, que era la condición para poder
 refundarlas. **Las tres se probaron rompiendo algo a propósito**, porque un
 control que nunca falló no es un control.
@@ -257,7 +263,7 @@ Ninguno urgente y ninguno bloqueante.
   revés, y las faltas de ortografía del texto que ve el usuario en `caducidad` y
   en `regresiva`. Lo que queda ahí es aspecto, no defecto.
   **Y las cuatro que van de cero ya tienen red**, que era la condición para
-  poder tocarlas: `scripts/pruebas-no-plazos.html`, 33 fijados. Antes del 26/8
+  poder tocarlas: `scripts/pruebas-no-plazos.html`, 37 fijados. Antes del 26/8
   no tenían ninguna comprobación y una reescritura no se habría podido
   distinguir de un error.
   **De las cuatro ya están hechas dos, las dos el 27/8**: `honorarios-mediacion`
@@ -434,7 +440,7 @@ Ninguno urgente y ninguno bloqueante.
   corren contra la versión anterior de la calculadora, que es la peor forma de
   falla porque parece un bug del cambio que se acaba de hacer.
   **~~Falta cubrir el prorrateo, la tasa y las demás no-de-plazos~~ Hecho el
-  26/8:** `scripts/pruebas-no-plazos.html`, **33 fijados** sobre `prorrateo`,
+  26/8:** `scripts/pruebas-no-plazos.html`, **37 fijados** sobre `prorrateo`,
   `tasa`, `honorarios-mediacion` y `ejecucion-estado`. Va antes de refundarlas,
   que es lo que sigue. Ver
   [abajo](#la-red-de-las-que-no-son-de-plazos-que-va-antes-de-refundarlas--268).
@@ -968,15 +974,11 @@ Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío
    adaptación de todas las calculadoras… terminemos vencimientos y luego pasamos
    al resto»*. `vencimientos` quedó terminada ese mismo día, así que **esto ya
    está desbloqueado y es el frente grande que sigue.**
-   **Van dos de las cuatro que iban de cero**, las dos el 27/8:
-   [`honorarios-mediacion`](#honorarios-mediacion-rehecha-y-qué-explica-esta-pantalla--278)
-   y [`prorrateo`](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278).
-   **Siguen `tasa` y `ejecucion-estado`**, y de las dos la más grande es
-   `ejecucion-estado` (917 líneas). `tasa` tiene una particularidad que conviene
-   ver antes de empezar: **arma toda su pantalla desde JavaScript** —el
-   `<body>` no tiene más que un desplegable y un `<div>` vacío— y la rama de
-   sucesión agrega secciones anidadas, así que no es «la misma pantalla con
-   otro CSS» como fueron estas dos.
+   **Van tres de las cuatro que iban de cero**, las tres el 27/8:
+   [`honorarios-mediacion`](#honorarios-mediacion-rehecha-y-qué-explica-esta-pantalla--278),
+   [`prorrateo`](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278) y
+   [`tasa`](#tasa-refundada-los-dos-ejes-en-una-lista--278).
+   **Sigue `ejecucion-estado`**, que es además la más grande (917 líneas).
    No es sólo el aspecto. Lo que hay que uniformar, en orden de lo que más se
    nota: el aviso de cobertura —cada una nombra años distintos—, el tuteo suelto
    («envíanos un mail», «si crees»), los `max-width` de 240 a 1000 px, y los
@@ -1568,7 +1570,7 @@ de `ejecucion-estado`.
 
 Los dos estuvieron abiertos unas horas: se encontraron preparando la
 refundación, se cubrieron con casos de prueba y se arreglaron el mismo día. **El
-banco pasó de 30 a 33 y las 33 pasan.**
+banco pasó de 30 a 33 y las 33 pasan.** (Con la refundación de esa misma tarde quedó en 37.)
 
 ##### El cobro doble: «Otros» se partió en tres
 
@@ -1611,61 +1613,284 @@ arreglo que tratar el vacío como 100 % **no se llevó puesto el cero legítimo*
 
 ---
 
-### Para arrancar en frío en `tasa` — 27/8
+### `tasa` refundada: los dos ejes en una lista — 27/8
 
-**Lo hecho hasta acá y lo que sigue, en orden.** Esta sección existe porque la
-sesión del 27/8 llegó al límite de contexto con la refundación sin empezar.
+**El pedido de Javier era de comodidad** —*«especialmente cuando querés sumar
+varios cálculos de tasa se muestra muy incómodo (ejemplo sucesión pedís
+inscripción de bien y automóvil)»*— **y abajo había un problema de modelo.** El
+diagnóstico entero está [arriba](#tasa-el-diagnóstico-antes-de-refundarla-y-un-cero-en-silencio--278);
+esto es lo que se construyó.
 
-**Lo que ya está:**
+#### Qué es ahora la pantalla
 
-1. Las 33 pruebas, con las 13 de `tasa` repartidas entre sus dos pantallas.
-2. El contraste arreglado: la pantalla se lee en los dos temas.
-3. Los dos bugs cerrados.
-4. La ley leída entera y el mapa escrito, con la lectura de Javier cruzada.
+Una **lista de renglones**, uno por pretensión, y cada renglón declara por
+separado las dos cosas que la ley separa:
 
-**Lo que sigue, y el orden importa:**
+| | Qué contesta | De dónde sale |
+|---|---|---|
+| Primer desplegable | **qué número se toma** | art. 4, once bases |
+| Segundo desplegable | **qué alícuota se le aplica** | arts. 2 y 3, nueve alícuotas |
 
-1. **La lista con los dos desplegables** —qué número se toma y qué alícuota se
-   aplica—, con herencia de la alícuota entre renglones y el hint pegado al
-   campo de base. Es la refundación propiamente dicha, y el caso que tiene que
-   dar lo mismo antes y después es el de «inmueble más automóvil»: **$1.875.000**.
-2. **El imprimible**, que sale directo de la estructura de renglones y **es la
-   liquidación detallada del monto imponible del art. 4 in fine**, no una
-   comodidad.
-3. **Los supuestos de la ley que faltan** —el art. 4 incs. e, i y j, y los
-   arts. 5 y 6—, que recién tienen dónde entrar cuando exista la lista.
+**Once opciones más nueve, en vez de las ochenta combinaciones** que produce
+tener la combinación ya hecha adentro de cada opción. El segundo desplegable
+arranca en «3 %, general — art. 2», que es el caso corriente, así que en el
+juicio común no se toca.
 
-**Tres cosas que conviene tener a mano antes de empezar:**
+**El caso de Javier son dos renglones de la misma tabla** y da lo mismo que
+antes: **$1.875.000**, comprobado en la pantalla servida y fijado en el banco.
+Antes eran dos secciones con dos desplegables y un botón para agregar la
+segunda.
 
-- **El driver del banco se va a romper y es esperado**, como pasó con
-  `honorarios-mediacion` y con `prorrateo`. Los casos están escritos en entradas
-  y salidas, no en identificadores de la pantalla: se reescribe el driver y los
-  casos quedan.
-- **La trampa del iframe que se reusa**: hay que pasar por la opción vacía del
-  desplegable antes de volver a elegir, o el caso hereda el anterior y el total
-  sale sumado.
-- **Con el panel del navegador oculto la corrida se arrastra** —de seis segundos
+**La sucesión dejó de ser una rama.** Es una opción del segundo desplegable, al
+lado de mensura y deslinde, testamentos de extraña jurisdicción, reinscripción
+de hipotecas, recursos directos contra el PEN y tercerías, que son los otros
+cinco supuestos que el art. 3 reduce al 50 %. Es lo que argumentó Javier al
+voltear el interruptor de sucesorio, y tenía razón.
+
+#### El filtro es el arreglo del cobro doble, hecho estructural
+
+El segundo desplegable **sólo ofrece los cruces que la ley admite**. Una tercería
+ofrece una sola alícuota —la reducida del art. 3 inc. h— y no hay forma de
+cobrarle el 3 %. Lo mismo la reinscripción de hipotecas, el recurso directo y los
+créditos verificados del concurso.
+
+**Eso es exactamente el bug del 27/8 a la mañana, pero cerrado por construcción
+en vez de a mano.** Aquel cobro doble salió de agrupar tres supuestos *porque
+compartían el 3 %*, que es lo que impidió ver que dos de los tres no lo comparten.
+Con los dos ejes en desplegables distintos, agrupar por el eje equivocado ya no
+es una opción disponible.
+
+**Hay un caso de prueba que pide el cruce mal a propósito** —una tercería al 3 %—
+y comprueba que la pantalla no se lo da: devuelve $150.000 y no $300.000.
+
+#### La herencia entre renglones, y el bug que apareció al probarla
+
+Un renglón nuevo **hereda la alícuota del anterior**: en una sucesión con seis
+bienes se elige «reducida, sucesorio» una vez y los otros cinco ya vienen con
+eso. Es lo que reemplaza a las secciones sin partir nada.
+
+**Y heredar sólo la alícuota no funcionaba.** El renglón nuevo nacía con la base
+por omisión —sumas de dinero, art. 4 inc. a—, que **no admite** la alícuota
+sucesoria, así que el filtro la tiraba abajo antes de que la persona tocara nada
+y el segundo bien de la sucesión aparecía al 3 %. **En el caso de Javier eso daba
+$2.175.000 en vez de $1.875.000: el automóvil cobrado al doble.**
+
+Lo encontró el caso de prueba de la herencia, escrito el mismo día. **Se hereda
+también la base**, y con eso el segundo renglón nace idéntico al primero y sólo
+hay que cambiarle lo que cambie.
+
+Vale anotar por qué el caso lo cazó y el de al lado no: **el par está armado para
+eso**. Un caso declara las dos alícuotas y el otro deja que la segunda se herede,
+y los dos tienen que dar el mismo total. Si la herencia se rompe, el segundo salta
+y el primero sigue verde.
+
+#### El hint en el renglón, que era la función real del desplegable global
+
+Cada base trae su pista pegada al campo del importe, que es la corrección de
+Javier: *«la gracia de declarar el objeto del juicio antes es que te da una
+suerte de hint del valor que tenés que ingresar… al elegir desalojo ya te dice
+que pongas un solo alquiler porque el sistema está calculando los 6 meses que
+son la base»*. **En la lista vive mejor que arriba de toda la pantalla**, porque
+aparece en el renglón que se está cargando y cambia con el desplegable de al
+lado.
+
+**Los dos multiplicadores que la ley pone adentro de la base están declarados y
+se aplican solos**: el desalojo son seis meses de alquiler (art. 4 inc. b) y el
+desalojo laboral seis del último salario (art. 4 inc. i). Cuando el importe
+cargado no es el imponible, el renglón escribe el imponible abajo del campo:
+«Imponible $3.000.000 — × 6 meses».
+
+#### La titularidad ahora se ve escrita, y cambió de eje
+
+**Se decidió que sí**, que era la pregunta abierta: el renglón escribe
+`× 100 % de titularidad` abajo del campo aunque nadie haya escrito nada. **Es el
+campo que ya causó un cero en silencio**, y mostrar el factor que se está usando
+es lo único que hace evidente que se aplicó un 100 % que nadie declaró. El campo
+sigue vacío con `placeholder="100 %"`: cargarle el valor obligaría a borrarlo
+para poner otro.
+
+**Y colgó del eje correcto.** Antes la titularidad aparecía en tres de los cuatro
+tipos de bien de la pantalla de sucesiones y no en el cuarto —las sumas de
+dinero—, sin ninguna razón legal: el dinero del acervo puede ser ganancial igual
+que el inmueble. Ahora **depende de la alícuota y no del tipo de bien**: aparece
+en las tres sucesorias (art. 3 incs. c y d, y el 0,75 % del art. 4 inc. g) y en
+ninguna otra. **De paso resuelve la petición de herencia del art. 9 inc. f**,
+donde la base es la porción que le toca al peticionario, que es exactamente lo
+que hace este campo.
+
+**La sobretasa, en cambio, se dejó donde estaba**: sólo sobre inmuebles de una
+sucesión, que es donde se usa. Hay un caso de prueba que mira qué modificadores
+muestra cada renglón, porque que a los muebles les falte la sobretasa **no se ve
+en ningún número**: si un refactor se la agrega, el total no cambia hasta que
+alguien la marque, y para entonces ya está cobrando de más.
+
+#### El dinero del acervo cambió de inciso, y el número no se movió
+
+La pantalla anterior tenía «Sucesión · Sumas de dinero» como cuarto tipo de bien.
+**El art. 4 inc. g dice que en los sucesorios el valor de los bienes «se
+determinará como lo establece en los incisos c) y d)»**: la plata del acervo es
+un bien mueble —inc. d—, no una suma de dinero reclamada —inc. a, que es una
+pretensión contenciosa—. Ahora se carga como bien mueble.
+
+Misma alícuota, mismo número —$150.000 sobre $10.000.000—, y la cita queda bien.
+El caso de prueba se conservó con el número intacto y el porqué reescrito.
+
+#### Dejó de ser sólo civil
+
+Con los dos ejes separados, agregar un supuesto es agregar una fila a una de las
+dos tablas. Entraron los que faltaban y no necesitaban maquinaria nueva:
+
+| Qué entró | Dónde |
+|---|---|
+| Quiebra: el importe de la liquidación de los bienes | base, art. 4 inc. e |
+| Concurso preventivo: los créditos verificados | base, art. 4 inc. e |
+| Laboral: el monto de la condena según la primera liquidación firme | base, art. 4 inc. i |
+| Desalojo laboral: seis meses del último salario | base, art. 4 inc. i |
+| Recurso directo: el monto de la resolución que se apela | base, art. 4 inc. j |
+| Mensura y deslinde, testamentos de extraña jurisdicción, recursos directos | alícuota, art. 3 incs. b, d y g |
+| La concursal: 0,75 %, y 0,25 % sobre el excedente | alícuota, art. 3, Ley 25.563 |
+
+**El inc. i era el que hacía que fuera «sólo civil»**, y era el pedido de Javier:
+*«cubrir toda la ley de tasa… para que sea una calculadora completa referencia
+para todo y no solo civil»*.
+
+**La concursal sí necesitó maquinaria: es la única escala progresiva de la ley.**
+0,75 % de los créditos verificados, y 0,25 % **sobre el excedente** de
+$100.000.000. Una alícuota sola no la representa, así que la alícuota puede
+declarar tramos. Con $200.000.000 son $750.000 más $250.000: **$1.000.000**.
+Leerla como no progresiva —0,25 % sobre todo— daría $500.000, la mitad, que es el
+error más probable y el que el caso de prueba caza. **El piso de $100.000.000 se
+toma textual**, escrito en 2002 y sin actualizar, por decisión de Javier.
+
+#### El art. 9 lo dice sola la pantalla
+
+Un panel abajo de la lista dice **cuándo se paga cada renglón cargado**, que es
+lo que propuso Javier y no es un adorno: el momento cambia por completo según el
+caso. Sale de los renglones y se deduplica.
+
+**Y depende del segundo eje, no del primero**, que es lo que hace que valga
+tenerlo derivado: un inmueble se paga al iniciar las actuaciones si es un juicio
+común (art. 9 inc. a) y **al inscribir la declaratoria de herederos** si es de una
+sucesión (inc. d). El mismo número, dos momentos distintos.
+
+#### Una red de seguridad que salió de una falla del banco
+
+Si el desplegable de la alícuota queda en un valor que la base no admite —pasa
+cuando algo le asigna un `value` que no existe entre las opciones: **el `<select>`
+se va a la cadena vacía y no avisa**— el renglón dejaba de calcular en silencio y
+el total no lo contaba. **Un renglón cargado que aporta cero es peor que un
+error: parece una cuenta.** Ahora `calcular()` revisa cada renglón antes de leerlo
+y lo resincroniza. Lo destapó el caso del cruce imposible.
+
+#### El banco: de 33 a 37, y el driver reescrito
+
+**El driver se reescribió entero, y eso estaba previsto**: es lo que pasa cuando
+se refunda una pantalla, y no invalida los casos. Los dos drivers de antes
+—`tasa` y `tasa-sucesion`, que existían porque la pantalla eran dos— son uno solo.
+
+**Los casos no se reescribieron: se remapearon.** Los números esperados son los
+mismos que fijaba el banco anterior, que es toda la gracia. Lo que cambió es cómo
+se pide el caso —`{tipo:'inmueblesCABA'}` pasa a ser
+`{base:'inmueble', alicuota:'sucesorio'}`— y el formato de la salida, porque la
+pantalla nueva muestra los importes formateados en vez de `1575000.00` pelado.
+
+Los cinco casos nuevos cubren lo que antes no existía: **la herencia de la
+alícuota** —que encontró el cobro doble del automóvil—, **los dos tramos de la
+escala concursal**, **el cruce imposible** y **el inmueble al 3 % en un juicio
+común**, que es el par que hace visible que la reducción la trae el supuesto y no
+el tipo de bien.
+
+**Y una decisión de la pantalla la fijó un caso viejo:** con la titularidad en `0`
+el total grande dice **$ 0,00 y no una raya**. La raya es «todavía no se cargó
+nada»; acá se cargó todo y la respuesta es cero, que es la que defendió Javier.
+
+#### Qué se tocó afuera de la calculadora
+
+**La prosa que la describe envejeció con el cambio**, que es la lección de
+[las cinco cifras](#las-cinco-cifras-que-este-repositorio-sigue-de-honorio). Tres
+lugares decían «orientada a procesos civiles» y ya no es cierto: `index.html`,
+`README.md` y `documentacion.html`. Los tres actualizados en el mismo commit.
+
+---
+
+### Lo que le falta a `tasa` — 27/8
+
+En orden, y con lo que hace falta saber para arrancar en frío.
+
+1. **El imprimible.** Sale directo de la estructura de renglones y **no es una
+   comodidad**: el art. 4 *in fine* dice que «en todos los casos al momento de
+   efectuarse el pago de la tasa se acompañará la correspondiente liquidación
+   detallada del monto imponible». La lista ya *es* esa planilla; falta poder
+   sacarla en papel.
+   **Y ahí entra el art. 8**, que hoy no está: las ampliaciones de demanda y las
+   reconvenciones se liquidan **como juicios independientes del principal**, así
+   que el renglón tiene que poder marcarse como tal y el imprimible tiene que
+   mostrarlas distinguidas o dice algo que la ley no dice. Se dejó para este
+   paso a propósito: sin imprimible, la marca no hace nada visible. El colofón de
+   la pantalla ya avisa que sumarlas sirve para el total y que cada una se
+   integra por separado.
+2. **El monto fijo de los arts. 5 y 6.** Es lo único de la ley que la pantalla
+   declara no cubrir, y no es una alícuota sino **una suma que actualiza la
+   CSJN**: hoy $4.700, Acordada 15/2022, para demandas presentadas desde el
+   1/7/2022.
+   **El mecanismo ya está resuelto dos veces en este repositorio** y no hay que
+   inventar nada: un `data/tasa-monto-fijo.json` con la forma de
+   `data/serie-uma.json` —un valor, desde cuándo rige, qué norma lo fijó— y un
+   campo en la pantalla que se puede pisar a mano para liquidar con el valor de
+   otra fecha. Hereda gratis el aviso de «desde cuándo rige» que ya tienen
+   `honorarios-mediacion` y `prorrateo`.
+   El renglón de monto fijo **oculta el campo del importe**: no tiene base ni
+   alícuota. Y el art. 5 pide además un aviso que hoy no da nadie: **eso es a
+   cuenta**, y la tasa se completa al terminar el proceso, dentro de los cinco
+   días de la sentencia o del modo anormal de terminación.
+   La base `Recurso directo` ya lo nombra en su hint, así que cuando exista hay
+   que sacarle el «todavía no calcula» de ahí y de la cabecera.
+3. **Las exenciones del art. 13, con la forma que ya existe en Honorio.** Diez
+   incisos. Javier: *«así como en Honorio están los mínimos y el buscador de
+   mínimos por término literal, las exenciones: un resumen de ese artículo y
+   búsqueda textual»*. **El patrón está construido del otro lado**: hay que ir a
+   mirarlo antes de escribir.
+4. **El permalink, también de Honorio**, donde ya está resuelto sin que salga
+   nada del navegador. No es una pregunta de diseño: es copiar un mecanismo que
+   existe en [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio).
+
+**Dos cosas de la ley que quedaron sin lugar, y no por olvido:**
+
+- **La separación de bienes del art. 9 inc. e.** No está en el mapa de bases del
+  art. 4 —el art. 9 trae dos supuestos que el art. 4 no tiene— y además **cada
+  cónyuge puede pagar su cuota parte**, que es una forma de reparto que la lista
+  no representa. La petición de herencia, el otro de los dos, sí quedó resuelta:
+  es la titularidad.
+- **La propiedad industrial.** El art. 4 inc. d remite a lo que «la Dirección
+  Nacional de la Propiedad Industrial perciba para la solicitud de registros», o
+  sea a un arancel externo. **No hay número que calcular desde acá.**
+
+**Lo que sigue abierto y no se tocó:**
+
+- **El 0,75 % del inc. g conviene mirarlo con doctrina.** El texto dice que «el
+  **valor** establecido en el artículo 3º, inciso c) se reducirá a la mitad», y
+  el art. 3 inc. c no establece un valor sino una reducción. La calculadora lee
+  que se reduce la alícuota otra vez a la mitad —3 % → 1,5 % → 0,75 %—, que es la
+  lectura corriente, pero la redacción se presta. **No se verificó contra
+  doctrina**, y está escrito así en el código para que la próxima lectura no
+  tenga que descubrirlo.
+- **La entrevista previa**, que Javier dejó abierta: *«quizás hay que hacer una
+  entrevista previa para llegar al número final, no lo sé»*. **La recomendación
+  sigue siendo que no**, y ahora con el hint funcionando hay una razón concreta:
+  una entrevista es buena la primera vez y estorba a partir de la segunda, y la
+  tasa se calcula seguido. El hint en el renglón da lo mismo —decirte qué número
+  va— sin cobrar el peaje cada vez. **Sin decidir.**
+
+**Tres cosas para tener a mano si se vuelve al banco:**
+
+- **La corrida se arrastra con el panel del navegador oculto** —de seis segundos
   a varios minutos— porque los iframes no dibujan. No es que esté roto.
-
-#### Lo que hay que decidir antes de escribir
-
-1. **~~`tasa` no tiene pruebas sobre la pantalla de sucesiones.~~ Hecho el
-   27/8**: diez casos nuevos, que llevan el banco de 20 a 30. Ver
-   [abajo](#las-diez-pruebas-de-la-pantalla-de-sucesiones--278).
-2. **~~¿Sucesorio como interruptor?~~ Descartado el 27/8 por Javier**, y el
-   motivo es bueno: *«no sé para qué hay que separar sucesión de todo el resto,
-   parece darle más jerarquía… no sé cuál es el beneficio de dividir en dos algo
-   que tiene más divisiones»*. Ver
-   [abajo](#los-dos-ejes-de-la-ley-y-el-error-que-costó-no-verlos--278).
-3. **Si la titularidad muestra `100 %` escrito** además de aplicarlo. Es lo
-   único que hace evidente qué se está usando, y es el campo que ya causó un
-   cero silencioso. Sin decidir.
-4. **El 0,75 % del inc. g conviene mirarlo con doctrina.** El texto dice que
-   «el **valor** establecido en el artículo 3º, inciso c) se reducirá a la
-   mitad», y el art. 3 inc. c no establece un valor sino una reducción. La
-   calculadora lee que se reduce la alícuota otra vez a la mitad —3 % → 1,5 % →
-   0,75 %—, que es la lectura corriente, pero la redacción se presta. No se
-   tocó ni se verificó contra doctrina.
+- **Los renglones se arman de a uno y en orden**, y no todos primero: el renglón
+  nuevo hereda del último que ya existe, así que crearlos todos al principio los
+  haría heredar del renglón vacío del arranque y la herencia quedaría sin probar.
+- **El `<select>` al que se le asigna un `value` inexistente se va a la cadena
+  vacía y no avisa.** Es lo que hace que el caso del cruce imposible pruebe algo
+  real, y es la razón de la red de seguridad de `calcular()`.
 
 ---
 
