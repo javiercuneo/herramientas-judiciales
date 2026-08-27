@@ -252,6 +252,10 @@ Ninguno urgente y ninguno bloqueante.
   poder tocarlas: `scripts/pruebas-no-plazos.html`, 18 fijados. Antes del 26/8
   no tenían ninguna comprobación y una reescritura no se habría podido
   distinguir de un error.
+  **De las cuatro ya está hecha `honorarios-mediacion`**, el 27/8, que era la
+  más chica y se eligió para estrenar el patrón con el riesgo más bajo: ver
+  [abajo](#honorarios-mediacion-rehecha-y-qué-explica-esta-pantalla--278).
+  **Quedan `prorrateo`, `tasa` y `ejecucion-estado`.**
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es
   su propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -970,6 +974,84 @@ faltaban](#el-dibujo-en-las-tres-que-faltaban--268). Los otros dos que estaban
 acá —el tablero rediseñado y sacar `honorarios`, `tasa` y `prorrateo` de la
 barra— se hicieron el mismo día: ver [el
 rediseño](#el-tablero-rediseñado-y-las-dos-regiones--268).
+
+---
+
+### `honorarios-mediacion` rehecha, y qué explica esta pantalla — 27/8
+
+**Es la primera de las cuatro que van de cero, y se empezó por acá a propósito:
+es la más chica de las cuatro.** El patrón que salga sirve para las otras tres, y
+el riesgo de estrenarlo es el más bajo posible.
+
+**Qué estaba mal, y era de forma y no de cuenta.** Dos campos del mismo peso que
+el resultado; el resultado adentro de un recuadro punteado, que lo hacía parecer
+provisorio; y la regla aplicada escrita en una línea de prosa al pie. **La
+escala, que es lo único que explica el número, no se veía por ningún lado.**
+
+#### Qué explica esta pantalla, que no es lo mismo que explican las otras
+
+En `vencimientos` el dibujo es un calendario y en `caducidad` una línea de hitos.
+Acá la pregunta es otra: no *cómo se llegó a la fecha* sino **por qué ese importe
+y no otro**, y la respuesta entera es la escala. Así que el equivalente del
+dibujo es **la escala misma, con el tramo aplicado marcado y los otros seis al
+lado**, cada uno con su importe en pesos al UHOM cargado.
+
+**Y no es decoración, porque esta escala se lee mal con la intuición que uno
+trae del art. 21 de la 27.423: no es progresiva.** Un asunto de 200 UHOM no paga
+«lo del tramo anterior más el excedente»: paga 12 UHOM y punto. Viendo los siete
+tramos juntos eso se entiende solo; con el importe suelto no hay forma de
+saberlo. Va escrito además en una línea, una sola vez, abajo de la tabla.
+
+Se agregó también **el monto del asunto expresado en UHOM**, que es el número que
+decide el tramo y que hasta ahora era invisible: el usuario cargaba pesos y la
+pantalla contestaba pesos, sin mostrar nunca la magnitud con la que la norma
+razona.
+
+#### La escala pasó de cadena de `if/else` a tabla, y por qué eso no es un refactor de gusto
+
+La pantalla ahora **muestra los siete tramos**, y con la cadena de `if/else` habría
+que escribirlos una segunda vez para dibujarlos. **Dos copias de una escala legal
+en el mismo archivo es exactamente lo que no puede pasar**, así que la tabla es
+la fuente única y el cómputo la recorre.
+
+**No es una simplificación y el orden se conservó:** se recorre de arriba abajo
+con la misma comparación `monto <= hasta * uhom` y en el mismo orden que tenían
+las ramas, así que los bordes caen donde caían —30 UHOM exactos es el ítem A y no
+el B—. El ítem G sigue siendo su propio caso, con `uhom: null`, que es la misma
+forma que tiene `ESCALA_MEDIACION` en Honorio.
+
+**Verificado con 32.352 pares (UHOM, monto)** cruzados entre la cadena vieja y la
+tabla nueva —los bordes exactos de cada tramo con un centavo y un peso a cada
+lado, más un barrido denso de medio UHOM en medio UHOM sobre ocho valores de
+UHOM—: **idénticos el honorario, la letra del ítem y si se aplicó el tope**. La
+implementación nueva no se copió al script de cruce: se lee del propio HTML, para
+no estar comparando una copia contra sí misma.
+
+#### El banco marcó cinco casos, y eso estuvo bien
+
+`pruebas-no-plazos` puso en rojo los cinco de mediación. **Los cinco importes son
+idénticos carácter por carácter**; lo único que cambió es la prosa de la regla,
+que se reescribió a propósito. Se volvieron a fijar comprobando que el importe y
+el valor en UHOM fueran los mismos que estaban.
+
+**Es la primera vez que el banco sirvió para lo que se construyó**, un día
+después de construirlo, y salió bien la parte difícil: no dijo «pasa» ni dijo
+«falla», dijo **qué** cambió, y leyendo el detalle se ve en un segundo que ningún
+número se movió.
+
+El driver hubo que tocarlo en dos puntos, que es lo previsto cuando una pantalla
+se refunda: el predicado de «página lista» —el texto del estado cambió— y la
+lectura del resultado, que miraba el atributo `hidden` de un bloque que ya no
+existe.
+
+#### Y una trampa más del panel oculto
+
+Probando la pantalla embebida en el tablero, el iframe medía 584 px con 1033 de
+contenido: parecía que la refundación había roto el ajuste de alto. **No: con el
+panel oculto el `ResizeObserver` tampoco dispara**, igual que
+`requestAnimationFrame` y las transiciones. Se comprobó midiendo `vencimientos`
+embebida en la misma corrida —642 contra 1092, el mismo desfase— y ésa no se
+tocó. Está anotado en las trampas.
 
 ---
 
@@ -1945,6 +2027,12 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   `vencimientos`, que en realidad da 5,59— y desaparecen al medir ese elemento
   solo. **Un valor computado sospechoso: fijarse si la regla tiene
   `transition`.**
+  **Y el `ResizeObserver` tampoco dispara**, que se vio el 27/8 midiendo la
+  mediación embebida en el tablero: el iframe quedaba en 584 px con 1033 de
+  contenido y parecía que la refundación había roto el ajuste de alto. No era
+  eso —`vencimientos` embebida daba 642 contra 1092 en la misma corrida, con el
+  mismo desfase, y no se había tocado—. **La forma de descartarlo es medir en la
+  misma corrida algo que no se tocó**, que es más rápido que abrir el panel.
   **Y esa comprobación no siempre alcanza, que es lo que se aprendió el mismo
   día midiendo los hitos de `caducidad`.** El elemento no tenía ninguna
   transición declarada, `getComputedStyle` igual reportó `transitionProperty:

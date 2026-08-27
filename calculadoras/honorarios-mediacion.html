@@ -1,274 +1,703 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Calculadora para fijar honorarios de mediación</title>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honorarios del mediador</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <script src="../assets/tema.js"></script>
-  <style>
-    /* OJO: no redefinir aca --accent, --bg, --card ni --error. Los define
-       comun.css y siguen el tema. `--accent: var(--accent)` es un ciclo:
-       la propiedad queda invalida en tiempo de computo y var(--accent)
-       devuelve la cadena vacia. Con eso .btn-primary se quedaba sin fondo
-       y conservaba su color --on-accent: blanco sobre blanco. */
-    :root {
-      --text: var(--fg);
-      --muted: var(--muted-fg);
-      --accent-weak: var(--accent-tint);
-      --ring: var(--accent);
-    }
-    html, body { height: 100%; }
-    body {
-      margin: 0; font-family: var(--font-sans);
-      background: var(--bg); color: var(--text);
-      display: grid; place-items: start center;
-    }
-    .wrap {
-      width: min(760px, 92vw);
-      margin: 24px auto; padding: 20px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgb(0 0 0 / .08);
-      box-sizing: border-box;
-    }
-    h1 { color: var(--accent); margin-bottom: 10px; font-size: 28px; text-align: center; }
-    p.sub { margin: 0 0 18px; color: var(--muted-fg); font-size: 13px; text-align: center; }
+    <style>
+        /* ==================================================================
+           Rehecha el 27/8/2026, con vencimientos.html de patron. Es la primera
+           de las cuatro que no son de plazos, y de las cuatro la mas chica: se
+           empezo por aca para fijar el patron con el riesgo mas bajo.
 
-    .grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
-    @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
+           Que estaba mal, y era de forma y no de cuenta: dos campos del mismo
+           peso que el resultado, el resultado adentro de un recuadro punteado
+           que lo hacia parecer provisorio, y la regla aplicada escrita en una
+           linea de prosa al pie. La escala ---que es lo unico que explica el
+           numero--- no se veia por ningun lado.
 
-    .field { display: grid; gap: 8px; }
-    label { font-weight: 600; }
-    input[type="text"] {
-      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
-      font-size: 1rem; background: var(--card); color: inherit;
-      outline: none; transition: box-shadow .15s ease, border-color .15s ease;
-      box-sizing: border-box;
-    }
-    input[type="text"]:focus { border-color: var(--ring); box-shadow: 0 0 0 4px var(--accent-weak); }
-    .hint { color: var(--muted); font-size: .85rem; }
+           Los criterios son los de vencimientos y no se reinventan: cada
+           control ocupa lo que mide su contenido, lo unico grande es el
+           resultado, y nada se separa con una linea si alcanza con el espacio.
 
-    .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
-    button {
-      appearance: none; border: none; cursor: pointer; border-radius: 999px; padding: 10px 20px;
-      font-weight: 600; font-size: .95rem;
-    }
-    .btn-primary { background: var(--accent); color: var(--on-accent); }
-    .btn-secondary { background: var(--accent-tint); color: var(--accent); }
+           OJO: no redefinir aca --accent, --bg, --card ni --error. Los define
+           comun.css y siguen el tema. `--accent: var(--accent)` es un ciclo:
+           la propiedad queda invalida en tiempo de computo y var(--accent)
+           devuelve la cadena vacia. Con eso el boton principal se quedaba sin
+           fondo y conservaba su color --on-accent: blanco sobre blanco.
+           ================================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    .result {
-      margin-top: 18px; padding: 14px; border: 1px dashed var(--border); border-radius: 12px; background: var(--sunk);
-      display: grid; gap: 10px;
-    }
-    .row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-    .key { color: var(--muted); }
-    .val { font-weight: 800; font-size: 1.15rem; }
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--fg);
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 28px 20px 64px;
+        }
 
-    .note { margin-top: 10px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--hair); padding-top: 8px; }
-    .error { color: var(--error); font-weight: 600; margin-top: 10px; }
-  </style>
+        .hoja { max-width: 940px; margin: 0 auto; }
+
+        /* ---------------------------------------------------------- cabecera */
+        .cabecera {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .cabecera h1 {
+            font-family: var(--font-meter);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .cabecera h1 span { color: var(--accent); }
+
+        /* Este texto y el colofon son los unicos de la pagina que no se apoyan
+           en la tarjeta: van sobre --bg, donde --faint da 4,78. */
+        .cobertura {
+            font-size: 12px;
+            color: var(--faint);
+            max-width: 46ch;
+            text-align: right;
+        }
+
+        /* --------------------------------------------------- las dos columnas */
+        .tablero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .tablero { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        /* La columna derecha antes de calcular. No es un adorno: si estuviera
+           vacia, calcular movería el formulario de lugar. */
+        .espera {
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            padding: 30px 26px;
+            color: var(--faint);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .espera b {
+            display: block;
+            font-family: var(--font-meter);
+            font-size: 15px;
+            color: var(--muted-fg);
+            margin-bottom: 6px;
+        }
+
+        /* ------------------------------------------------------------ panel */
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px 24px;
+        }
+
+        .grupo { margin-bottom: 22px; }
+        .grupo:last-child { margin-bottom: 0; }
+
+        .rotulo {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin-bottom: 8px;
+        }
+
+        /* Los dos campos son importes y pueden tener siete digitos con puntos:
+           a diferencia de un dia o un mes, aca el contenido SI es ancho. Van al
+           ancho del panel, con el signo de peso adelante para que se lea que es
+           plata y no una cantidad. */
+        .importe {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            padding: 0 12px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .importe:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+
+        .importe .signo {
+            font-family: var(--font-meter);
+            font-size: 15px;
+            color: var(--faint);
+            flex: none;
+        }
+
+        .importe input {
+            font-family: var(--font-meter);
+            font-size: 17px;
+            font-weight: 600;
+            padding: 10px 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--fg);
+            width: 100%;
+        }
+
+        .pie-campo { font-size: 11px; color: var(--faint); margin-top: 6px; }
+
+        .error { color: var(--error); font-size: 12px; margin-top: 6px; display: none; }
+        .error.show { display: block; }
+
+        /* -------------------------------------------------------- acciones */
+        .acciones { display: flex; gap: 10px; margin-top: 24px; }
+
+        button {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 9px;
+            padding: 11px 22px;
+            cursor: pointer;
+            transition: transform 0.12s, box-shadow 0.15s, background 0.15s, color 0.15s;
+        }
+
+        .btn-calcular {
+            background: var(--accent);
+            color: var(--on-accent);
+            box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+        }
+        .btn-calcular:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--accent-tint); }
+
+        .btn-suave {
+            background: transparent;
+            color: var(--muted-fg);
+            border: 1px solid var(--border);
+        }
+        .btn-suave:hover { color: var(--fg); background: var(--sunk); }
+
+        /* --------------------------------------------------------- resultado */
+        .resultado { min-width: 0; }
+
+        /* El unico elemento grande de la pagina. */
+        .veredicto {
+            background: var(--accent);
+            color: var(--on-accent);
+            border-radius: 14px;
+            padding: 26px 28px;
+        }
+
+        .veredicto .rotulo { color: inherit; opacity: 0.82; margin-bottom: 5px; }
+
+        .veredicto .cifra {
+            font-family: var(--font-meter);
+            font-size: clamp(26px, 3.6vw, 36px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+
+        .veredicto .equivale { font-size: 13px; opacity: 0.86; margin-top: 7px; }
+
+        .tira {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1px;
+            margin-top: 1px;
+            background: var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .dato { background: var(--card); padding: 13px 16px; }
+
+        .dato .k {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--faint);
+        }
+
+        .dato .v {
+            font-family: var(--font-meter);
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .dato .n { font-size: 11.5px; color: var(--muted-fg); margin-top: 3px; }
+
+        .sin-datos {
+            background: var(--warn-tint);
+            border: 1px solid var(--warn);
+            border-left-width: 4px;
+            border-radius: 10px;
+            padding: 16px 18px;
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--fg);
+        }
+
+        /* ------------------------------------------------------- la escala
+
+           QUE EXPLICA ESTA PANTALLA, que es lo que el numero solo no dice.
+
+           En vencimientos el dibujo es un calendario y en caducidad una linea
+           de hitos, porque eso es lo que hay que explicar en cada una. Aca la
+           pregunta es OTRA: no como se llego a la fecha sino POR QUE ESE
+           IMPORTE Y NO OTRO, y la respuesta entera es la escala del Anexo III.
+
+           Y esta escala se lee mal con la intuicion que uno trae del art. 21 de
+           la 27.423, asi que mostrarla no es decoracion: NO ES PROGRESIVA. Un
+           asunto de 200 UHOM no paga "lo del tramo anterior mas el excedente":
+           paga 12 UHOM y punto. Viendo los siete tramos juntos con el aplicado
+           marcado, eso se entiende sin que nadie lo escriba; con el importe
+           solo, no hay forma de saberlo.
+
+           Va a ancho completo y abajo del resultado, como el dibujo de
+           vencimientos: es la explicacion del numero, no otra herramienta. */
+        .escala {
+            margin-top: 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .escala table { border-collapse: collapse; width: 100%; }
+
+        .escala th {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--faint);
+            text-align: left;
+            padding: 0 12px 9px;
+            border-bottom: 1px solid var(--hair);
+        }
+
+        .escala th.num, .escala td.num { text-align: right; }
+
+        .escala td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--hair);
+            color: var(--muted-fg);
+        }
+
+        .escala tr:last-child td { border-bottom: none; }
+
+        .escala .letra {
+            font-family: var(--font-meter);
+            font-weight: 700;
+            color: var(--faint);
+            width: 1px;
+            white-space: nowrap;
+        }
+
+        .escala .num { font-family: var(--font-meter); white-space: nowrap; }
+
+        /* El tramo que se aplico. Relleno de --accent-tint y la letra en
+           --accent, igual que el dia contado del calendario: es el mismo
+           vocabulario visual y no un acento nuevo. */
+        .escala tr.aplica td { background: var(--accent-tint); color: var(--fg); font-weight: 600; }
+        .escala tr.aplica .letra { color: var(--accent); }
+
+        .escala tr.aplica td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .escala tr.aplica td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+        .escala .aclaracion {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--hair);
+            font-size: 12px;
+            color: var(--muted-fg);
+            line-height: 1.55;
+        }
+
+        /* A 620px la tabla de cuatro columnas no entra. Se hace scroll adentro
+           de su propia caja y NO se le pasa el desborde al body, que es la
+           regla del sistema. */
+        .escala-scroll { overflow-x: auto; }
+
+        .colofon {
+            margin-top: 26px;
+            font-size: 12px;
+            color: var(--faint);
+            line-height: 1.6;
+        }
+        .colofon a { color: var(--accent); }
+        .colofon code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+
+        @media (max-width: 620px) {
+            body { padding: 20px 14px 48px; }
+            .panel, .escala { padding: 18px 16px; }
+            .cabecera { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .cobertura { text-align: left; }
+            .acciones { flex-direction: column; }
+        }
+    </style>
 </head>
 <body>
+    <div class="hoja">
+        <header class="cabecera">
+            <h1>Honorarios del <span>mediador</span></h1>
+            <p class="cobertura" id="statusUhom">Buscando el valor del UHOM…</p>
+        </header>
 
-  <div class="wrap" role="application" aria-label="Calculadora para fijar honorarios de mediación">
-    <h1>Calculadora para fijar honorarios de mediación</h1>
-    <p class="sub">Complete los valores y presione <strong>Calcular</strong>. El valor del UHOM sale de <a href="../uma-uhom.html">la serie oficial</a>, versionada en este mismo sitio.</p>
+        <div class="tablero">
+            <div class="panel">
+                <div class="grupo">
+                    <label class="rotulo" for="monto">Monto del asunto</label>
+                    <div class="importe">
+                        <span class="signo" aria-hidden="true">$</span>
+                        <input type="text" id="monto" inputmode="decimal" autocomplete="off"
+                               placeholder="0" aria-label="Monto del asunto en pesos">
+                    </div>
+                    <div class="pie-campo">El valor del pleito, que es lo que decide el tramo de la escala.</div>
+                </div>
 
-    <div class="grid">
-      <div class="field">
-        <label for="uhom">Valor actualizado del UHOM</label>
-        <input id="uhom" type="text" inputmode="decimal" placeholder="Cargando..." autocomplete="off" />
-        <div id="statusUhom" class="hint">Obteniendo valor...</div>
-      </div>
-      <div class="field">
-        <label for="monto">Monto del asunto</label>
-        <input id="monto" type="text" inputmode="decimal" placeholder="Ej.: 1.000.000" autocomplete="off" />
-        <div class="hint">Importe total del asunto.</div>
-      </div>
+                <div class="grupo">
+                    <label class="rotulo" for="uhom">Valor del UHOM</label>
+                    <div class="importe">
+                        <span class="signo" aria-hidden="true">$</span>
+                        <input type="text" id="uhom" inputmode="decimal" autocomplete="off"
+                               placeholder="Cargando…" aria-label="Valor del UHOM en pesos">
+                    </div>
+                    <div class="pie-campo">Se carga solo desde la serie del sitio. Se puede reemplazar
+                        para regular con el valor de otra fecha.</div>
+                    <p class="error" id="msg" role="alert"></p>
+                </div>
+
+                <div class="acciones">
+                    <button type="button" class="btn-calcular" id="btnCalc">Calcular</button>
+                    <button type="button" class="btn-suave" id="btnClear">Limpiar</button>
+                </div>
+            </div>
+
+            <div class="resultado" id="result">
+                <div class="espera">
+                    <b>Acá va el honorario.</b>
+                    Cargá el monto del asunto y abajo se marca el tramo de la escala
+                    que se aplicó, con los otros seis al lado.
+                </div>
+            </div>
+        </div>
+
+        <div id="escala"></div>
+
+        <p class="colofon">
+            La escala es la del art. 2° del <strong>Anexo III del Decreto 1467/2011,
+            sustituido por el Anexo I del Decreto 2536/2015</strong>. El UHOM sale de
+            <code>data/serie-uhom.json</code>, leído de las tablas oficiales del
+            Ministerio y versionado en este sitio: la página no le pide el valor a
+            nadie. <strong>Los tres ítems que la escala tiene y esta herramienta no
+            calcula</strong> —monto indeterminable, asunto sin valor pecuniario y
+            mediación familiar de los incs. b) y c) del art. 31 de la Ley 26.589— no
+            dependen de un importe, así que no hay nada que calcular: son 20, 12 y
+            9 UHOM. Si algo da mal,
+            <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.
+        </p>
     </div>
 
-    <div class="actions">
-      <button class="btn-primary" id="btnCalc" type="button">Calcular</button>
-      <button class="btn-secondary" id="btnClear" type="button">Limpiar</button>
-    </div>
+<script>
+(function () {
+    'use strict';
 
-    <div class="result" id="result" hidden>
-      <div class="row"><span class="key">Honorario del mediador ($):</span> <span class="val" id="honorarioPesos">—</span></div>
-      <div class="row"><span class="key">Honorario en UHOM:</span> <span class="val" id="honorarioUhom">—</span></div>
-      <div class="note" id="notaRegla"></div>
-    </div>
+    var nf = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    <p id="msg" class="error" role="alert"></p>
-          <!-- FOOTER DE AUTORÍA -->
-      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
-        <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
-        <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
-          <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
-        </span>
-      </div>
-  </div>
-
-  <script>
-    const nf = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+                 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
     function parseFlexibleNumber(raw) {
-      if (!raw) return NaN;
-      let s = String(raw).trim();
-      
-      // Si hay coma, el punto es de miles y la coma decimal
-      if (s.includes(',')) {
-        s = s.replace(/\./g, '').replace(',', '.');
-      } else {
-        // Si no hay coma, verificamos si hay puntos de miles (ej: 10.800)
-        const parts = s.split('.');
-        if (parts.length > 1 && parts[parts.length - 1].length === 3) {
-          s = s.replace(/\./g, '');
+        if (!raw) return NaN;
+        var s = String(raw).trim();
+
+        // Si hay coma, el punto es de miles y la coma decimal
+        if (s.includes(',')) {
+            s = s.replace(/\./g, '').replace(',', '.');
+        } else {
+            // Si no hay coma, verificamos si hay puntos de miles (ej: 10.800)
+            var parts = s.split('.');
+            if (parts.length > 1 && parts[parts.length - 1].length === 3) {
+                s = s.replace(/\./g, '');
+            }
         }
-      }
-      return parseFloat(s.replace(/[^0-9.-]/g, ''));
+        return parseFloat(s.replace(/[^0-9.-]/g, ''));
     }
 
-    const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
-                   'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    // ----------------------------------------------------------------------
+    // LA ESCALA. Art. 2 del Anexo III del Decreto 1467/2011, sustituido por el
+    // Anexo I del Decreto 2536/2015.
+    //
+    // Estaba escrita como una cadena de if/else y ahora es una tabla, POR UN
+    // MOTIVO Y NO POR PROLIJIDAD: la pantalla la muestra entera, y con la
+    // cadena habria que escribir los siete tramos una segunda vez para
+    // dibujarlos. Dos copias de una escala legal en el mismo archivo es
+    // exactamente lo que no puede pasar.
+    //
+    // NO ES UNA SIMPLIFICACION Y EL ORDEN IMPORTA. Se recorre de arriba abajo
+    // con la misma comparacion `monto <= hasta * uhom` y en el mismo orden que
+    // tenian las ramas, asi que los bordes caen donde caian: 30 UHOM exactos es
+    // el item A y no el B. Es la misma forma que tiene ESCALA_MEDIACION en
+    // Honorio, incluido el honorarioUHOM nulo del item G.
+    //
+    // La escala NO ES PROGRESIVA: cada tramo da un numero entero, no "lo del
+    // tramo anterior mas el excedente". Y no es una banda: da un valor, no un
+    // minimo y un maximo. Toda la intuicion del art. 21 de la 27.423 falla aca.
+    // ----------------------------------------------------------------------
+    var ESCALA = [
+        { letra: 'A', hasta: 30,   uhom: 3,  rango: 'hasta 30 UHOM' },
+        { letra: 'B', hasta: 60,   uhom: 6,  rango: '> 30 y hasta 60 UHOM' },
+        { letra: 'C', hasta: 150,  uhom: 9,  rango: '> 60 y hasta 150 UHOM' },
+        { letra: 'D', hasta: 300,  uhom: 12, rango: '> 150 y hasta 300 UHOM' },
+        { letra: 'E', hasta: 600,  uhom: 16, rango: '> 300 y hasta 600 UHOM' },
+        { letra: 'F', hasta: 1000, uhom: 20, rango: '> 600 y hasta 1000 UHOM' },
+        // El unico tramo que no es una suma fija. `uhom: null` es lo que lo
+        // marca, igual que en Honorio.
+        { letra: 'G', hasta: Infinity, uhom: null, rango: '> 1000 UHOM' }
+    ];
 
-    /*
-      El UHOM sale de data/serie-uhom.json, del propio repositorio.
+    // El tope de 120 UHOM es del item G y NO de la escala. Ver
+    // docs/domain/09_MEDIACION.md: los items A a F topean en 20 UHOM, muy
+    // por debajo de 120, asi que aplicarlo como si fuera general devuelve
+    // SIEMPRE el mismo numero. Por eso el error vivio: ninguna comprobacion
+    // aritmetica podia cazarlo, porque la cuenta no cambia. Lo que estaba
+    // mal era lo que la pantalla decia de su propia cuenta.
+    var TOPE_ITEM_G_UHOM = 120;
 
-      Hasta el 26/8/2026 se lo pedia a una planilla publicada de Google Docs
-      en cada carga, y eso tenia dos problemas de distinto tamaño:
+    function honorarioDe(monto, uhom) {
+        for (var i = 0; i < ESCALA.length; i++) {
+            var item = ESCALA[i];
+            if (monto <= item.hasta * uhom) {
+                if (item.uhom !== null) {
+                    return { item: item, honorario: item.uhom * uhom, topeado: false };
+                }
+                var bruto = 0.02 * monto;
+                var topeado = bruto > TOPE_ITEM_G_UHOM * uhom;
+                return {
+                    item: item,
+                    honorario: topeado ? TOPE_ITEM_G_UHOM * uhom : bruto,
+                    topeado: topeado
+                };
+            }
+        }
+        return null; // inalcanzable: el ultimo tramo no tiene tope superior
+    }
 
-        - el chico, pero el que se ve: abrir esta calculadora le contaba a un
-          tercero que alguien la abrio. Ningun dato del usuario salia --lo
-          que se pedia era un valor, no se mandaba nada-- pero la IP y el
-          momento si. Ahora la pagina no habla con nadie fuera del sitio;
+    // Sin repetir la letra: el renglon ya empieza con "Se aplicó el ítem G".
+    function textoDeRegla(r) {
+        if (r.item.uhom !== null) {
+            return r.item.rango + ' ⇒ ' + r.item.uhom + ' UHOM';
+        }
+        return r.item.rango + ' ⇒ 2 % del monto, hasta ' + TOPE_ITEM_G_UHOM + ' UHOM';
+    }
 
-        - el grande: la planilla es una tabla suelta que se edita a mano y
-          nada la controla. data/serie-uhom.json tiene los 67 valores leidos
-          uno por uno de las 39 tablas oficiales del Ministerio, y
-          npm run verificar-series le exige en cada commit que ninguna
-          vigencia se repita, que la serie no baje y que cada valor tenga su
-          tabla al lado. Es la misma serie que publica uma-uhom.html.
+    function honorarioDelTramo(item) {
+        return item.uhom !== null
+            ? item.uhom + ' UHOM'
+            : '2 % del monto, tope ' + TOPE_ITEM_G_UHOM + ' UHOM';
+    }
 
-      Se elige el ultimo valor cuya VIGENCIA ya empezo, y no el ultimo del
-      archivo. La diferencia aparece el dia que se carga un valor por
-      adelantado: el ultimo del archivo seria uno que todavia no rige, y
-      esta calculadora fija honorarios de hoy.
-    */
+    // ----------------------------------------------------------------------
+    // El UHOM sale de data/serie-uhom.json, del propio repositorio.
+    //
+    // Hasta el 26/8/2026 se lo pedia a una planilla publicada de Google Docs en
+    // cada carga, con dos problemas de distinto tamaño: el chico, que abrir la
+    // calculadora le contaba a un tercero que alguien la abrio; y el grande,
+    // que una planilla suelta que se edita a mano no la controla nada.
+    //
+    // Se elige el ultimo valor cuya VIGENCIA ya empezo, y no el ultimo del
+    // archivo. La diferencia aparece el dia que se carga un valor por
+    // adelantado: el ultimo del archivo seria uno que todavia no rige, y esta
+    // calculadora fija honorarios de hoy.
+    // ----------------------------------------------------------------------
     function uhomVigente(valores) {
-      const hoy = new Date().toISOString().slice(0, 10);
-      let elegido = null;
-      for (const v of valores) {
-        if (typeof v.valor !== 'number' || !v.vigencia) continue;
-        if (v.vigencia <= hoy) elegido = v;
-      }
-      return elegido;
+        var hoy = new Date().toISOString().slice(0, 10);
+        var elegido = null;
+        for (var i = 0; i < valores.length; i++) {
+            var v = valores[i];
+            if (typeof v.valor !== 'number' || !v.vigencia) continue;
+            if (v.vigencia <= hoy) elegido = v;
+        }
+        return elegido;
     }
 
     function desdeCuando(vigencia) {
-      const partes = String(vigencia).split('-');
-      const mes = MESES[parseInt(partes[1], 10) - 1];
-      return mes ? mes + ' de ' + partes[0] : vigencia;
+        var partes = String(vigencia).split('-');
+        var mes = MESES[parseInt(partes[1], 10) - 1];
+        return mes ? mes + ' de ' + partes[0] : vigencia;
     }
 
-    async function fetchUhom() {
-      const inputUhom = document.getElementById('uhom');
-      const status = document.getElementById('statusUhom');
-      try {
+    function fetchUhom() {
+        var inputUhom = document.getElementById('uhom');
+        var status = document.getElementById('statusUhom');
         // Rompe-cache: sin esto un valor nuevo puede tardar en aparecer y el
         // usuario ve el anterior sin que nada se lo diga.
-        const response = await fetch('../data/serie-uhom.json?v=' + Date.now());
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const serie = await response.json();
-        const vigente = uhomVigente(serie.valores || []);
-        if (!vigente) throw new Error('la serie no tiene ningun valor vigente');
+        return fetch('../data/serie-uhom.json?v=' + Date.now())
+            .then(function (response) {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.json();
+            })
+            .then(function (serie) {
+                var vigente = uhomVigente(serie.valores || []);
+                if (!vigente) throw new Error('la serie no tiene ningún valor vigente');
 
-        inputUhom.value = vigente.valor.toLocaleString('es-AR');
-        // Se dice DESDE CUANDO rige, y no solo el numero. Es el dato que le
-        // permite a quien lo usa notar que la serie quedo corta: un UHOM que
-        // rige desde hace medio año seguramente ya no es el ultimo.
-        status.textContent = 'Rige desde ' + desdeCuando(vigente.vigencia) +
-          '. Sale de la tabla oficial del Ministerio, no de una estimación.';
-        if (document.getElementById('monto').value) calcular();
-      } catch (e) {
-        // No se inventa un valor ni se deja el anterior: se dice que hay que
-        // cargarlo. Un honorario calculado con un UHOM equivocado sale
-        // plausible y nadie lo nota.
-        status.textContent = 'No se pudo leer el valor del UHOM (' + e.message +
-          '). Cargalo a mano.';
-      }
+                inputUhom.value = vigente.valor.toLocaleString('es-AR');
+                // Se dice DESDE CUANDO rige, y no solo el numero. Es el dato
+                // que le permite a quien lo usa notar que la serie quedo corta:
+                // un UHOM que rige desde hace medio año seguramente ya no es el
+                // ultimo.
+                status.textContent = 'El UHOM rige desde ' + desdeCuando(vigente.vigencia) +
+                    ', y sale de la tabla oficial del Ministerio.';
+                if (document.getElementById('monto').value) calcular();
+            })
+            .catch(function (e) {
+                // No se inventa un valor ni se deja el anterior: se dice que
+                // hay que cargarlo. Un honorario calculado con un UHOM
+                // equivocado sale plausible y nadie lo nota.
+                status.textContent = 'No se pudo leer el valor del UHOM (' + e.message + '). Cargalo a mano.';
+            });
     }
 
+    // ----------------------------------------------------------------------
+    // El resultado.
+    // ----------------------------------------------------------------------
+    var HTML_ESPERA = document.getElementById('result').innerHTML;
+
     function calcular() {
-      const msg = document.getElementById('msg');
-      const resBox = document.getElementById('result');
-      const nota = document.getElementById('notaRegla');
-      msg.textContent = '';
+        var msg = document.getElementById('msg');
+        var resultado = document.getElementById('result');
+        var escala = document.getElementById('escala');
+        msg.textContent = '';
+        msg.classList.remove('show');
 
-      const uhom = parseFlexibleNumber(document.getElementById('uhom').value);
-      const monto = parseFlexibleNumber(document.getElementById('monto').value);
+        var uhom = parseFlexibleNumber(document.getElementById('uhom').value);
+        var monto = parseFlexibleNumber(document.getElementById('monto').value);
 
-      if (isNaN(uhom) || uhom <= 0) {
-        msg.textContent = 'Ingrese un UHOM válido.';
-        resBox.hidden = true;
-        return;
-      }
-      if (isNaN(monto) || monto < 0) {
-        resBox.hidden = true;
-        return;
-      }
+        if (isNaN(uhom) || uhom <= 0) {
+            msg.textContent = 'Ingrese un UHOM válido.';
+            msg.classList.add('show');
+            resultado.innerHTML = HTML_ESPERA;
+            escala.innerHTML = '';
+            return;
+        }
+        if (isNaN(monto) || monto < 0) {
+            resultado.innerHTML = HTML_ESPERA;
+            escala.innerHTML = '';
+            return;
+        }
 
-      let honorario = 0;
-      let regla = '';
-      let fueTopeado = false;
+        var r = honorarioDe(monto, uhom);
+        var enUhom = r.honorario / uhom;
+        var montoEnUhom = monto / uhom;
 
-      // El tope de 120 UHOM es del item G y NO de la escala. Ver
-      // docs/domain/09_MEDIACION.md: los items A a F topean en 20 UHOM, muy
-      // por debajo de 120, asi que aplicarlo como si fuera general devuelve
-      // SIEMPRE el mismo numero. Por eso el error vivio: ninguna comprobacion
-      // aritmetica podia cazarlo, porque la cuenta no cambia. Lo que estaba
-      // mal era lo que la pantalla decia de su propia cuenta.
-      const TOPE_ITEM_G_UHOM = 120;
+        var html = '';
+        html += '<div class="veredicto">';
+        html += '<div class="rotulo">Honorario del mediador</div>';
+        html += '<div class="cifra" id="honorarioPesos">$ ' + nf.format(r.honorario) + '</div>';
+        html += '<div class="equivale"><span id="honorarioUhom">' + nf.format(enUhom) + '</span> UHOM</div>';
+        html += '</div>';
 
-      if (monto <= 30 * uhom) { honorario = 3 * uhom; regla = 'hasta 30 UHOM ⇒ 3 UHOM (ítem A)'; }
-      else if (monto <= 60 * uhom) { honorario = 6 * uhom; regla = '> 30 y hasta 60 UHOM ⇒ 6 UHOM (ítem B)'; }
-      else if (monto <= 150 * uhom) { honorario = 9 * uhom; regla = '> 60 y hasta 150 UHOM ⇒ 9 UHOM (ítem C)'; }
-      else if (monto <= 300 * uhom) { honorario = 12 * uhom; regla = '> 150 y hasta 300 UHOM ⇒ 12 UHOM (ítem D)'; }
-      else if (monto <= 600 * uhom) { honorario = 16 * uhom; regla = '> 300 y hasta 600 UHOM ⇒ 16 UHOM (ítem E)'; }
-      else if (monto <= 1000 * uhom) { honorario = 20 * uhom; regla = '> 600 y hasta 1000 UHOM ⇒ 20 UHOM (ítem F)'; }
-      else {
-        honorario = 0.02 * monto;
-        regla = '> 1000 UHOM ⇒ 2 % del monto, hasta ' + TOPE_ITEM_G_UHOM + ' UHOM (ítem G)';
-        fueTopeado = honorario > TOPE_ITEM_G_UHOM * uhom;
-        if (fueTopeado) honorario = TOPE_ITEM_G_UHOM * uhom;
-      }
+        html += '<div class="tira">';
+        html += dato('Tramo aplicado', 'Ítem ' + r.item.letra, r.item.rango);
+        html += dato('El asunto, en UHOM', nf.format(montoEnUhom), 'es lo que decide el tramo');
+        html += '</div>';
 
-      document.getElementById('honorarioPesos').textContent = '$ ' + nf.format(honorario);
-      document.getElementById('honorarioUhom').textContent = nf.format(honorario / uhom);
-      
-      let txtNota = 'Regla aplicada: ' + regla + '.';
-      if (fueTopeado) txtNota += ' El 2 % superaba el tope del ítem G, así que se aplicó el tope de ' + TOPE_ITEM_G_UHOM + ' UHOM.';
-      nota.textContent = txtNota;
-      resBox.hidden = false;
+        resultado.innerHTML = html;
+
+        // La nota de la regla vive adentro de la escala, que es donde se
+        // entiende: al lado del tramo marcado y no al pie de la pantalla.
+        escala.innerHTML = dibujarEscala(r, uhom);
+        resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function dato(clave, valor, nota) {
+        return '<div class="dato"><div class="k">' + clave + '</div><div class="v">' + valor + '</div>' +
+            (nota ? '<div class="n">' + nota + '</div>' : '') + '</div>';
+    }
+
+    function dibujarEscala(r, uhom) {
+        var html = '<div class="escala"><div class="escala-scroll"><table>';
+        html += '<thead><tr><th>Ítem</th><th>Monto del asunto</th><th>Honorario</th>' +
+                '<th class="num">En pesos, con este UHOM</th></tr></thead><tbody>';
+
+        ESCALA.forEach(function (item) {
+            var esEste = item === r.item;
+            // Los tramos de suma fija se pueden mostrar en pesos porque no
+            // dependen del monto. El G si depende, asi que ahi va el importe
+            // que se calculo y no una cuenta general.
+            var enPesos = item.uhom !== null
+                ? '$ ' + nf.format(item.uhom * uhom)
+                : (esEste ? '$ ' + nf.format(r.honorario) : '—');
+
+            html += '<tr' + (esEste ? ' class="aplica"' : '') + '>' +
+                '<td class="letra">' + item.letra + '</td>' +
+                '<td>' + item.rango + '</td>' +
+                '<td>' + honorarioDelTramo(item) + '</td>' +
+                '<td class="num">' + enPesos + '</td></tr>';
+        });
+
+        html += '</tbody></table></div>';
+
+        var nota = 'Se aplicó el ítem ' + r.item.letra + ': ' + textoDeRegla(r) + '.';
+        if (r.topeado) {
+            nota += ' El 2 % superaba el tope del ítem G, así que se aplicó el tope de ' +
+                TOPE_ITEM_G_UHOM + ' UHOM.';
+        }
+        // La escala no es progresiva y eso se dice una vez, acá, que es donde
+        // se está mirando la tabla: sin esta línea, quien viene del art. 21 de
+        // la 27.423 lee los siete tramos como una escalera acumulativa.
+        nota += ' La escala no es progresiva: el tramo da el honorario entero, ' +
+            'no el del tramo anterior más un excedente.';
+        html += '<p class="aclaracion" id="notaRegla">' + nota + '</p>';
+
+        return html + '</div>';
+    }
+
+    function limpiar() {
+        document.getElementById('monto').value = '';
+        document.getElementById('result').innerHTML = HTML_ESPERA;
+        document.getElementById('escala').innerHTML = '';
+        var msg = document.getElementById('msg');
+        msg.textContent = '';
+        msg.classList.remove('show');
+        fetchUhom();
     }
 
     document.getElementById('btnCalc').addEventListener('click', calcular);
-    document.getElementById('btnClear').addEventListener('click', () => {
-      document.getElementById('monto').value = '';
-      document.getElementById('result').hidden = true;
-      document.getElementById('msg').textContent = '';
-      fetchUhom();
+    document.getElementById('btnClear').addEventListener('click', limpiar);
+
+    ['uhom', 'monto'].forEach(function (id) {
+        var campo = document.getElementById(id);
+        campo.addEventListener('input', calcular);
+        campo.addEventListener('keydown', function (e) { if (e.key === 'Enter') calcular(); });
     });
 
-    window.addEventListener('DOMContentLoaded', fetchUhom);
-    ['uhom', 'monto'].forEach(id => {
-      document.getElementById(id).addEventListener('input', calcular);
-      document.getElementById(id).addEventListener('keydown', (e) => { if(e.key === 'Enter') calcular(); });
-    });
-  </script>
+    fetchUhom();
+
+    // Para el banco de pruebas: la escala y el computo, consultables sin tocar
+    // el DOM. No los usa la pantalla.
+    window.MediacionEscala = { ESCALA: ESCALA, TOPE_ITEM_G_UHOM: TOPE_ITEM_G_UHOM, honorarioDe: honorarioDe };
+})();
+</script>
 </body>
 </html>

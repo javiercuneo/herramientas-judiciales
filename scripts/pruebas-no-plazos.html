@@ -184,7 +184,7 @@ const DRIVERS = {
         // UHOM del archivo y los demas con el del caso. El sintoma era el peor
         // posible ---fallaba solo el primero--- y el numero salia plausible.
         // Hay que exigir el texto del estado FINAL, que es distinto del inicial.
-        lista: (d) => /Rige desde|No se pudo leer/.test(
+        lista: (d) => /rige desde|No se pudo leer/i.test(
             d.getElementById('statusUhom').textContent),
         correr: async (d, campos) => {
             d.getElementById('uhom').value = campos.uhom;
@@ -193,8 +193,12 @@ const DRIVERS = {
             await pausa(60);
             const msg = d.getElementById('msg').textContent.trim();
             if (msg) return 'no calcula: ' + msg;
-            if (d.getElementById('result').hidden) return 'no calcula: sin mensaje';
-            return d.getElementById('honorarioPesos').textContent.trim() +
+            // El resultado se arma al calcular: si no hay importe, no calculo.
+            // Antes esto miraba el atributo `hidden` de un bloque que existia
+            // siempre, y con la pantalla rehecha ese bloque ya no esta.
+            const pesos = d.getElementById('honorarioPesos');
+            if (!pesos) return 'no calcula: sin mensaje';
+            return pesos.textContent.trim() +
                 ' · ' + d.getElementById('honorarioUhom').textContent.trim() + ' UHOM' +
                 ' · ' + d.getElementById('notaRegla').textContent.trim();
         }
@@ -327,35 +331,35 @@ const FIJADOS = [
         calc: 'honorarios-mediacion',
         rotulo: 'Ítem A: 30 UHOM exactos',
         campos: { uhom: '10000', monto: '300000' },
-        esperado: '$ 30.000,00 · 3,00 UHOM · Regla aplicada: hasta 30 UHOM ⇒ 3 UHOM (ítem A).',
+        esperado: '$ 30.000,00 · 3,00 UHOM · Se aplicó el ítem A: hasta 30 UHOM ⇒ 3 UHOM. La escala no es progresiva: el tramo da el honorario entero, no el del tramo anterior más un excedente.',
         porque: 'El borde de arriba del ítem A. Con "<" en vez de "<=" caería en el B y el honorario se duplicaría.'
     },
     {
         calc: 'honorarios-mediacion',
         rotulo: 'Ítem B: un peso arriba de 30 UHOM',
         campos: { uhom: '10000', monto: '300001' },
-        esperado: '$ 60.000,00 · 6,00 UHOM · Regla aplicada: > 30 y hasta 60 UHOM ⇒ 6 UHOM (ítem B).',
+        esperado: '$ 60.000,00 · 6,00 UHOM · Se aplicó el ítem B: > 30 y hasta 60 UHOM ⇒ 6 UHOM. La escala no es progresiva: el tramo da el honorario entero, no el del tramo anterior más un excedente.',
         porque: 'El par del anterior. Los dos juntos fijan dónde está el corte.'
     },
     {
         calc: 'honorarios-mediacion',
         rotulo: 'Ítem F: 1000 UHOM exactos',
         campos: { uhom: '10000', monto: '10000000' },
-        esperado: '$ 200.000,00 · 20,00 UHOM · Regla aplicada: > 600 y hasta 1000 UHOM ⇒ 20 UHOM (ítem F).',
+        esperado: '$ 200.000,00 · 20,00 UHOM · Se aplicó el ítem F: > 600 y hasta 1000 UHOM ⇒ 20 UHOM. La escala no es progresiva: el tramo da el honorario entero, no el del tramo anterior más un excedente.',
         porque: 'El último tramo de suma fija, antes de que empiece el 2 % del ítem G.'
     },
     {
         calc: 'honorarios-mediacion',
         rotulo: 'Ítem G: 2 % del monto, sin llegar al tope',
         campos: { uhom: '10000', monto: '20000000' },
-        esperado: '$ 400.000,00 · 40,00 UHOM · Regla aplicada: > 1000 UHOM ⇒ 2 % del monto, hasta 120 UHOM (ítem G).',
+        esperado: '$ 400.000,00 · 40,00 UHOM · Se aplicó el ítem G: > 1000 UHOM ⇒ 2 % del monto, hasta 120 UHOM. La escala no es progresiva: el tramo da el honorario entero, no el del tramo anterior más un excedente.',
         porque: 'Arriba de 1000 UHOM se pasa al 2 %. Acá da 40 UHOM, muy abajo de los 120 del tope.'
     },
     {
         calc: 'honorarios-mediacion',
         rotulo: 'Ítem G topeado en 120 UHOM',
         campos: { uhom: '10000', monto: '100000000' },
-        esperado: '$ 1.200.000,00 · 120,00 UHOM · Regla aplicada: > 1000 UHOM ⇒ 2 % del monto, hasta 120 UHOM (ítem G). El 2 % superaba el tope del ítem G, así que se aplicó el tope de 120 UHOM.',
+        esperado: '$ 1.200.000,00 · 120,00 UHOM · Se aplicó el ítem G: > 1000 UHOM ⇒ 2 % del monto, hasta 120 UHOM. El 2 % superaba el tope del ítem G, así que se aplicó el tope de 120 UHOM. La escala no es progresiva: el tramo da el honorario entero, no el del tramo anterior más un excedente.',
         porque: 'El 2 % daría 200 UHOM y el tope del ítem G lo corta en 120. Es el único caso donde el tope hace algo, y por eso el rótulo equivocado vivió tanto: la cuenta no cambiaba nunca.'
     },
     {
