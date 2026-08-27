@@ -266,6 +266,14 @@ Ninguno urgente y ninguno bloqueante.
   Detectado el 27/8 al refundar la pantalla y **no se implementó ahí a
   propósito**: es una función nueva y no una refundación de la forma. Ver
   [abajo](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278).
+- **`tasa` devuelve $0,00 en silencio si no se carga la titularidad.** En la
+  rama de sucesión la cuenta es `base × titularidad × alícuota × (1 + sobretasa)`
+  y el campo de titularidad arranca vacío, que se parsea como 0 y no como 100 %.
+  Comprobado en la pantalla servida el 27/8: un inmueble de CABA de $100.000.000
+  sin titularidad cargada da **$ 0,00**, y con `100` da $1.575.000. **No hay
+  aviso.** Ninguno de los tres fijados lo cubre, porque los tres son de la rama
+  que no es sucesión. Se arregla con la refundación —o antes, si va a tardar—.
+  Ver [abajo](#tasa-el-diagnóstico-antes-de-refundarla-y-un-cero-en-silencio--278).
 - **`prorrateo` y `tasa` tienen que llevar imprimible.** Pedido de Javier el
   27/8. No existe en ninguna de las once, así que lo que se decida acá fija el
   patrón para el resto. Lo que hay que resolver antes de escribir CSS: **qué se
@@ -1099,6 +1107,99 @@ panel oculto el `ResizeObserver` tampoco dispara**, igual que
 `requestAnimationFrame` y las transiciones. Se comprobó midiendo `vencimientos`
 embebida en la misma corrida —642 contra 1092, el mismo desfase— y ésa no se
 tocó. Está anotado en las trampas.
+
+---
+
+### `tasa`: el diagnóstico antes de refundarla, y un cero en silencio — 27/8
+
+**Pedido de Javier el 27/8:** *«la de tasa quiero que antes pensemos un poco en
+cómo se muestran los resultados, quiero que sea un aplicativo más cómodo y
+especialmente cuando querés sumar varios cálculos de tasa se muestra muy
+incómodo (ejemplo sucesión pedís inscripción de bien y automóvil)»*.
+
+**No se escribió una línea de la pantalla nueva.** Esto es el relevamiento, para
+decidir con el mapa a la vista.
+
+#### Lo que encontré primero, y no es de forma: un renglón puede dar cero
+
+En la rama de sucesión, cada bien lleva un campo de **titularidad** —la parte que
+era del causante— y la cuenta es
+`base × titularidad × alícuota × (1 + sobretasa)`. El campo arranca **vacío**, y
+vacío se parsea como **0**, no como 100 %.
+
+Comprobado en la pantalla servida, con un inmueble de CABA de $100.000.000:
+
+| Titularidad | Tasa que muestra |
+|---|---|
+| sin cargar | **$ 0,00** |
+| `100` | $ 1.575.000,00 |
+
+**Es el campo que uno no completa justamente cuando el bien es todo del
+causante.** No hay aviso: la pantalla contesta cero y se queda como si nada.
+Ninguno de los tres fijados de `tasa` lo cubre, porque los tres son de la rama
+que no es sucesión.
+
+#### Por qué se siente incómoda: la pantalla modela mal el problema
+
+Hoy hay **dos niveles de anidamiento**. Un desplegable de «objeto del juicio»
+arriba; si la respuesta es «sucesión», cada tipo de bien abre una **sección
+propia** con su segundo desplegable, su tabla y su `+`, y hay un tercer botón
+para agregar otra sección. El ejemplo de Javier —un inmueble y un automóvil—
+son hoy **dos secciones con dos desplegables**, y son dos renglones.
+
+Lo que hay abajo de todo eso son **siete reglas**, y nada más:
+
+| Regla | Base | Alícuota | Titularidad | Sobretasa |
+|---|---|---|---|---|
+| Sumas de dinero, art. 4 inc. a | reclamado con intereses | 3 % | — | — |
+| Desalojo, art. 4 inc. b | valor del alquiler | 3 % **× 6 cánones** | — | — |
+| Inmuebles, art. 4 inc. c | valuación fiscal o mayor valor | 3 % | — | — |
+| Otros (incs. d, f, h) | según el inciso | 3 % | — | — |
+| Sucesión · sumas de dinero | importe | 1,5 % (art. 3 inc. c) | — | — |
+| Sucesión · inmueble CABA | valuación fiscal | 1,5 % (art. 3 inc. c) | sí | sí, 5 % |
+| Sucesión · inmueble otras jurisdicciones | valuación fiscal | 0,75 % (art. 4 inc. g, 2ª parte) | sí | sí, 5 % |
+| Sucesión · automóvil, sociedad, otros | valuación o certificación | 1,5 % (art. 3 inc. c) | sí | — |
+
+Siete reglas y tres modificadores por renglón —el multiplicador del desalojo, la
+titularidad y la sobretasa—. **Eso es una lista, no un árbol.**
+
+#### La propuesta: una sola lista, como `prorrateo`
+
+Un renglón por concepto: **descripción · regla · base · [titularidad] ·
+[sobretasa] → tasa**, y el total grande arriba, que es lo que se vino a buscar.
+La regla es un desplegable **por renglón**, con el inciso escrito al lado; los
+dos campos que sólo tienen sentido en algunas reglas aparecen sólo ahí.
+
+El caso de Javier queda en dos renglones de la misma tabla, con reglas distintas
+y un total. Sin secciones, sin el segundo desplegable, sin los tres botones de
+agregar.
+
+Es la misma forma que ya funciona en `prorrateo` —tabla de filas con
+modificadores por fila, veredicto grande— y **eso también contesta qué explica
+esta pantalla**: no *por qué ese tramo* ni *por qué no se cobra lo regulado*,
+sino **de dónde sale cada peso del total**. Con el inciso y la alícuota en cada
+renglón, la tabla es la explicación, y es además exactamente la planilla que se
+acompaña al expediente: encaja con el imprimible que Javier pidió el mismo día.
+
+#### Lo que hay que decidir antes de escribir
+
+1. **¿Sucesorio como interruptor o todo en el mismo desplegable?** Un proceso es
+   sucesión o no lo es. Poner «Sumas de dinero, 3 %» y «Sumas de dinero en
+   sucesión, 1,5 %» juntas en el mismo desplegable es correcto e invita a
+   elegir la alícuota equivocada. **Recomendado:** un interruptor arriba que
+   filtre las reglas, porque es un dato del proceso y no del bien.
+2. **La titularidad por omisión.** Con el arreglo obvio —vacío es 100 %— el
+   número deja de ser cero, pero conviene decidir si además se muestra `100 %`
+   escrito, que es lo único que hace evidente qué se está aplicando.
+3. **La sobretasa del 5 %.** El HTML actual **no nombra ninguna norma**: dice
+   «Puedes incluir una sobretasa de manera opcional» —tuteo peninsular, además—
+   y la trae marcada por omisión. Antes de reescribirla hay que saber de dónde
+   sale y escribirlo, porque es un 5 % que se suma sin que la pantalla diga por
+   qué.
+4. **`tasa` no tiene red sobre la rama de sucesión.** Los tres fijados de
+   `pruebas-no-plazos` son de la rama simple. **Antes de refundarla hay que
+   fijar la rama de sucesión**, que es la que tiene la aritmética de verdad
+   —y la que tiene el cero—. Es la misma regla que ya se aplicó dos veces.
 
 ---
 
