@@ -29,7 +29,7 @@
             text-align: center;
         }
         a {
-            color: #598392;
+            color: var(--accent);
             text-decoration: none;
         }
         a:hover {
@@ -43,17 +43,25 @@
             margin-bottom: 8px;
             font-weight: bold;
         }
+        /* Los campos no declaraban ni fondo ni color: los pintaba el navegador
+           segun color-scheme, que acierta de casualidad. Ahora salen de los
+           tokens, igual que el resto del sitio. */
         select, input[type="text"] {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--border);
             border-radius: 4px;
             box-sizing: border-box;
-            transition: border-color 0.3s ease;
+            background: var(--card);
+            color: var(--fg);
+            font-family: inherit;
+            font-size: inherit;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
         select:focus, input[type="text"]:focus {
             outline: none;
-            border-color: #598392;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
         }
         table {
             width: 100%;
@@ -65,8 +73,18 @@
             border: 1px solid var(--border);
             text-align: left;
         }
+        /* ACA ESTABA EL PROBLEMA QUE REPORTO JAVIER EL 27/8: "un contraste que
+           no permite leer los campos".
+           El fondo era #f2f2f2 ---un gris claro escrito a mano--- y el texto
+           salia de var(--fg), que SI sigue el tema. En tema oscuro --fg pasa a
+           ser casi blanco y el fondo se queda casi blanco: medido, daba 1,03
+           de contraste contra el 4,5 que pide AA. Texto invisible, no "poco
+           legible".
+           Es exactamente el modo de falla que --sunk existe para evitar: la
+           superficie hundida del sistema, que cambia con el tema igual que el
+           texto que va encima. */
         th {
-            background-color: #f2f2f2;
+            background-color: var(--sunk);
             text-align: center;
         }
         .table-container {
@@ -94,7 +112,7 @@
             margin-top: 10px;
         }
         .add-row button, .add-section button {
-            background-color: #598392;
+            background-color: var(--accent);
             color: var(--on-accent);
             border: none;
             padding: 8px 12px;
@@ -104,14 +122,17 @@
             transition: background-color 0.3s ease;
         }
         .add-row button:hover, .add-section button:hover {
-            background-color: var(--accent);
+            filter: brightness(1.1);
         }
+        /* El mismo caso que th, y medido igual de mal: 1,04 en tema oscuro.
+           El verde #e9f7ef no existe en el sistema visual. */
         .info-text {
             margin-top: 15px;
             margin-bottom: 15px;
             padding: 10px;
-            background-color: #e9f7ef;
-            border-left: 4px solid #598392;
+            background-color: var(--accent-tint);
+            border-left: 4px solid var(--accent);
+            border-radius: 6px;
             white-space: pre-line;
         }
         .sucesion-section {
@@ -120,7 +141,7 @@
             margin-bottom: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            background-color: #fafafa;
+            background-color: var(--sunk);
         }
         .sucesion-section h3 {
             margin-top: 0;
@@ -155,13 +176,13 @@
                 left: -9999px;
             }
             tr {
-                border: 1px solid #ccc;
+                border: 1px solid var(--border);
                 margin-bottom: 15px;
                 border-radius: 4px;
             }
             td {
                 border: none;
-                border-bottom: 1px solid #eee;
+                border-bottom: 1px solid var(--hair);
                 position: relative;
                 padding-left: 50%;
                 text-align: right;

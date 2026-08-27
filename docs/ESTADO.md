@@ -298,13 +298,10 @@ Ninguno urgente y ninguno bloqueante.
   tablero no se distinguen, y la que tiene el nombre genérico es la que hace lo
   menos común de las dos. Es una decisión de nombre y no se tocó. Ver
   [abajo](#los-textos-de-las-cinco-de-plazos-unificados-contra-vencimientos--278).
-- **Para Javier, y no para un agente: renombrar el archivo de la ley de tasas.**
-  En `knowledge` el archivo se llama «Ley N° 23.889 - Tasas judiciales.md» y la
-  ley de tasas judiciales es la **23.898**. El contenido de adentro es el
-  correcto. **No se toca desde acá**: `raw` está fuera del alcance de escritura
-  de los agentes por convención de los repos hermanos, y Javier pidió
-  expresamente respetar el protocolo. Queda anotado para que el número mal no
-  vuelva a aparecer en un análisis.
+- **~~Renombrar el archivo de la ley de tasas.~~ Hecho a mano por Javier el
+  27/8.** Decía «Ley N° 23.889» y la ley es la **23.898**. No se tocó desde acá
+  porque `raw` está fuera del alcance de escritura de los agentes por convención
+  de los repos hermanos.
 - **La captura de `prorrateo` quedó pendiente, y el motivo no es que el panel
   estuviera cerrado.** El 27/8 Javier tenía el panel del navegador abierto y con
   la calculadora a la vista, y las capturas seguían fallando con «the Browser
@@ -1398,6 +1395,107 @@ sucesorio» una vez y los otros cinco renglones ya vienen con eso.
   excedente** de $100.000.000. Un renglón con una alícuota sola no la
   representa. Conviene además mirar si ese piso de $100.000.000, escrito en
   2002, sigue vigente sin actualización.
+
+#### El contraste que no dejaba leer, arreglado — 27/8
+
+Reportado por Javier: *«en este momento la app genera un contraste que no
+permite leer los campos»*. **Medido antes de tocar nada, en tema oscuro:**
+
+| | Antes | Después | Mínimo AA |
+|---|---|---|---|
+| Encabezado de tabla | **1,03** | 16,17 | 4,5 |
+| Cuadro de aviso | **1,04** | 12,43 | 4,5 |
+
+**1,03 no es «poco legible»: es invisible.** Y el mecanismo vale escribirlo
+porque se repite: el fondo estaba escrito a mano —`#f2f2f2` en los encabezados,
+`#e9f7ef` en los avisos— y **el texto sí salía de un token del sistema**. En tema
+claro los dos son claros y funciona de casualidad; al pasar a oscuro el texto se
+vuelve casi blanco y el fondo se queda casi blanco. **Un color fijo no rompe
+solo: rompe cuando está al lado de uno que sí sigue el tema.**
+
+Salieron los diez colores fijos que tenía la pantalla, mapeados a los tokens:
+`#f2f2f2` → `--sunk`, `#e9f7ef` → `--accent-tint`, `#598392` → `--accent`,
+`#ccc` → `--border`, `#eee` → `--hair`, `#fafafa` → `--sunk`. **Y los campos de
+carga no declaraban ni fondo ni color propios**: los venía pintando el navegador
+por su cuenta, que acertaba de casualidad. Ahora salen de `--card` y `--fg`.
+
+**Es un arreglo y no la refundación.** Verificado: los 20 casos de
+`pruebas-no-plazos` pasan, incluidos los tres de `tasa`. Ninguna cuenta se movió.
+
+#### La lectura de la ley de Javier, y tres artículos que faltaban — 27/8
+
+Javier hizo su propia lectura, independiente. **Coincide con la de acá en los
+dos ejes y en los seis supuestos de reducción**, y agrega cuatro cosas:
+
+- **El art. 3 inc. d es sucesión internacional.** Los «juicios voluntarios sobre
+  protocolización e inscripción de testamentos… extendidos fuera de jurisdicción
+  nacional» no son una categoría suelta: *«para inscribir esos actos tenés que
+  abrir la sucesión, no hay otra forma»*. Ese dato no está en el texto de la ley
+  y decide cómo se rotula la opción.
+- **El excedente concursal se toma textual.** Los $100.000.000 del art. 3 vienen
+  de 2002 y quedaron congelados. Decisión de Javier: *«yo lo tomaría textual (no
+  voy a buscar jurisprudencia de la Cámara Comercial ahora)»*. **La herramienta
+  aplica la ley como está escrita y no interpreta la erosión del monto.**
+- **La propiedad industrial no la declara la ley.** El art. 4 inc. d remite a lo
+  que «la Dirección Nacional de la Propiedad Industrial perciba para la
+  solicitud de registros», o sea a un arancel externo. No hay número que
+  calcular desde acá.
+- **El desalojo laboral no es un supuesto nuevo**: es el mismo «seis meses» del
+  desalojo común, cambiando alquiler por salario. Una opción de la lista de
+  bases, no una rama.
+
+##### Art. 8: las ampliaciones y las reconvenciones son juicios aparte
+
+*«Las ampliaciones de demanda y las reconvenciones estarán sujetas a la tasa,
+como si fueran juicios independientes del principal.»* Javier: *«hace que en la
+app debas poder combinar distintas pretensiones»*.
+
+**Y la lista de renglones ya sirve para eso**, con una precisión que conviene no
+perder: como se liquidan **por separado**, el renglón tiene que poder marcarse
+como ampliación o reconvención. Sumarlas para saber el total es útil, pero el
+imprimible tiene que mostrarlas distinguidas o dice algo que la ley no dice.
+
+##### Art. 9: la calculadora dice cuánto y no dice cuándo
+
+Ocho incisos de formas y oportunidades de pago, y **la pantalla puede decirlo
+sola en cuanto se eligió el supuesto**, que es lo que propuso Javier. No es un
+adorno: el momento cambia por completo según el caso.
+
+| Supuesto | Cuándo se paga |
+|---|---|
+| Art. 4 incs. a, b, c, d y h | Todo al iniciar las actuaciones, con reajuste posterior si la liquidación definitiva da más |
+| Quiebras y liquidaciones administrativas | Antes de cualquier pago o distribución de fondos de la venta |
+| Concursos preventivos | Al notificarse la homologación del acuerdo, o la resolución que verifica créditos después |
+| Reinscripción de hipotecas y prendas | Todo al iniciar |
+| Sucesorios y testamentos de extraña jurisdicción | **Al inscribir la declaratoria de herederos o el testamento aprobado** |
+| Separación de bienes | Al promover la liquidación de la sociedad conyugal, y **cada cónyuge puede pagar su cuota parte** |
+| Petición de herencia | Al determinarse el valor de la parte del peticionario |
+| Laboral | **Una vez firme la sentencia de condena y la primera liquidación** |
+| Recurso directo (art. 3 inc. g) | Dentro del quinto día de recibidos los autos, previa intimación por cédula |
+
+**Y el art. 9 trae dos supuestos que el art. 4 no tiene**: la separación de
+bienes (inc. e) y la petición de herencia (inc. f). No aparecen en el mapa de
+bases, así que hay que ver de dónde sale el monto en esos dos.
+
+##### Art. 13: las exenciones, con la forma que ya existe en Honorio
+
+Diez incisos. Javier: *«así como en Honorio están los mínimos y el buscador de
+mínimos por término literal, las exenciones: un resumen de ese artículo y
+búsqueda textual»*. Beneficio de litigar sin gastos, habeas corpus y amparo no
+denegados, derechos políticos, sede penal sin acción civil, trabajadores y
+sindicatos, jubilaciones y pensiones, rectificación de partidas, quien alega no
+ser parte, familia sin carácter patrimonial —alimentos y litisexpensas
+incluidos—, y ejecuciones fiscales.
+
+**El patrón ya está construido del otro lado**, así que acá hay que ir a mirarlo
+antes de escribir, igual que con el permalink.
+
+##### Y el hint del art. 5 que pidió Javier
+
+Cuando el renglón sea de monto indeterminable, la pantalla tiene que decir que
+**eso es a cuenta** y que la tasa se completa al terminar el proceso, dentro de
+los cinco días de la sentencia o del modo anormal de terminación. Hoy no lo dice
+nadie.
 
 #### Lo que hay que decidir antes de escribir
 
