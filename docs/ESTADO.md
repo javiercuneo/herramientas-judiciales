@@ -40,10 +40,16 @@ y con esa red encima se le cambió el modelo. **Dejó de ser un árbol y pasó a
 una lista de renglones con los dos ejes de la ley separados** —qué número se
 toma, art. 4, y qué alícuota se le aplica, arts. 2 y 3—, y de paso dejó de ser
 sólo civil: entraron el laboral, el concursal con su escala progresiva y los
-recursos directos. **Van tres de las cuatro que no son de plazos; queda
-`ejecucion-estado`.** Ver
-[`tasa` refundada](#tasa-refundada-los-dos-ejes-en-una-lista--278) y
-[lo que le falta](#lo-que-le-falta-a-tasa--278).
+recursos directos. **Y encima de eso, lo que la refundación desbloqueaba**: el
+**monto fijo de los arts. 5 y 6** —tercera serie cargada a mano, con su archivo
+y su control— y el **imprimible del art. 4 *in fine***, que no es una comodidad
+sino la liquidación detallada que la ley manda acompañar al pago, con las
+ampliaciones y las reconvenciones separadas como manda el art. 8. **`tasa` cubre
+ahora toda la ley salvo las exenciones del art. 13.**
+**Van tres de las cuatro que no son de plazos; queda `ejecucion-estado`.** Ver
+[`tasa` refundada](#tasa-refundada-los-dos-ejes-en-una-lista--278),
+[el monto fijo y el imprimible](#el-monto-fijo-y-el-imprimible-lo-que-la-lista-desbloqueaba--278)
+y [lo que le falta](#lo-que-le-falta-a-tasa--278).
 
 **El 25/8 la landing volvió a decir lo que Honorio hace.** Anunciaba la versión
 3.1.1 con la app en 3.4.1, publicaba los recorridos y los cruces de antes del
@@ -112,7 +118,7 @@ Las tres redes, en orden de lo que cubren: el banco de las pantallas
 `npm run verificar-red` controla **qué terceros nombra el sitio** —y existe
 porque el barrido de «qué sale del navegador» de esa misma mañana dio una lista
 incompleta: **`prorrateo` le pedía la UMA a una planilla de Google y no se
-vio**—; y `scripts/pruebas-no-plazos.html` pone **37 fijados** —33 el 26/8— sobre las cuatro
+vio**—; y `scripts/pruebas-no-plazos.html` pone **40 fijados** —33 el 26/8— sobre las cuatro
 calculadoras que no tenían ninguna comprobación, que era la condición para poder
 refundarlas. **Las tres se probaron rompiendo algo a propósito**, porque un
 control que nunca falló no es un control.
@@ -193,14 +199,22 @@ Ninguno urgente y ninguno bloqueante.
   correcto —no escribe medio archivo— pero **la alarma es indistinguible de una
   auténtica**. Si molesta, lo que hay que cambiar es el script, para que
   distinga «el año que viene todavía no existe» de «la API no contesta».
-- **`data/serie-uma.json` y `data/serie-uhom.json` se cargan a mano y no hay de
-  dónde automatizarlas.** Es el mismo caso que la feria: los actos de la CSJN y
-  las tablas del Ministerio son PDFs sin API. Cuando sale un valor nuevo hay que
-  agregar una línea, con su norma y la fecha del acto.
+- **`data/serie-uma.json`, `data/serie-uhom.json` y `data/tasa-monto-fijo.json`
+  se cargan a mano y no hay de dónde automatizarlas.** Es el mismo caso que la
+  feria: los actos de la CSJN y las tablas del Ministerio son PDFs sin API.
+  Cuando sale un valor nuevo hay que agregar una línea, con su norma y la fecha
+  del acto.
   **`npm run verificar-series` no puede detectar que falte el último**: detecta
   que lo cargado esté mal, no que falte algo. Lo que sí avisa es la propia
   página, que muestra desde cuándo no se revisan las series y pone un aviso a
   la vista si pasaron más de 45 días.
+  **La del monto fijo del art. 6 es la más lenta de las tres y por eso la más
+  fácil de olvidar**: se movió en 2018 y en 2022, y hoy tiene **un solo valor
+  cargado** —$4.700, Acordada 15/2022—. **El de la Acordada 41/2018 no está a
+  propósito**: la nota de Infoleg la nombra sin decir el importe, y cargar un
+  número que no se leyó es exactamente lo que el archivo existe para evitar. La
+  página de `tasa` dice desde cuándo rige el valor que muestra, que es lo que
+  permite notar que quedó viejo.
 - **Qué sale del navegador, y de dónde salió la pregunta.** Planteada por
   Javier el 26/8: *«no sé si en javiercuneo.com.ar prometemos que los datos no
   salen del navegador o sólo en Honorio»*. Verificado leyendo las once
@@ -263,7 +277,7 @@ Ninguno urgente y ninguno bloqueante.
   revés, y las faltas de ortografía del texto que ve el usuario en `caducidad` y
   en `regresiva`. Lo que queda ahí es aspecto, no defecto.
   **Y las cuatro que van de cero ya tienen red**, que era la condición para
-  poder tocarlas: `scripts/pruebas-no-plazos.html`, 37 fijados. Antes del 26/8
+  poder tocarlas: `scripts/pruebas-no-plazos.html`, 40 fijados. Antes del 26/8
   no tenían ninguna comprobación y una reescritura no se habría podido
   distinguir de un error.
   **De las cuatro ya están hechas dos, las dos el 27/8**: `honorarios-mediacion`
@@ -440,7 +454,7 @@ Ninguno urgente y ninguno bloqueante.
   corren contra la versión anterior de la calculadora, que es la peor forma de
   falla porque parece un bug del cambio que se acaba de hacer.
   **~~Falta cubrir el prorrateo, la tasa y las demás no-de-plazos~~ Hecho el
-  26/8:** `scripts/pruebas-no-plazos.html`, **37 fijados** sobre `prorrateo`,
+  26/8:** `scripts/pruebas-no-plazos.html`, **40 fijados** sobre `prorrateo`,
   `tasa`, `honorarios-mediacion` y `ejecucion-estado`. Va antes de refundarlas,
   que es lo que sigue. Ver
   [abajo](#la-red-de-las-que-no-son-de-plazos-que-va-antes-de-refundarlas--268).
@@ -1570,7 +1584,7 @@ de `ejecucion-estado`.
 
 Los dos estuvieron abiertos unas horas: se encontraron preparando la
 refundación, se cubrieron con casos de prueba y se arreglaron el mismo día. **El
-banco pasó de 30 a 33 y las 33 pasan.** (Con la refundación de esa misma tarde quedó en 37.)
+banco pasó de 30 a 33 y las 33 pasan.** (Con la refundación de esa misma tarde quedó en 40.)
 
 ##### El cobro doble: «Otros» se partió en tres
 
@@ -1813,38 +1827,136 @@ lugares decían «orientada a procesos civiles» y ya no es cierto: `index.html`
 
 ---
 
+### El monto fijo y el imprimible: lo que la lista desbloqueaba — 27/8
+
+Los dos estaban esperando a que existiera la lista de renglones, que es lo que
+decía el orden de trabajo. Con la lista hecha, los dos entraron el mismo día.
+
+#### El monto fijo de los arts. 5 y 6
+
+**No es una alícuota: es un importe, y no lo fija la ley sino la Corte.** El
+art. 6 dice AUSTRALES 250.000 a junio de 1990 y manda a la CSJN actualizarlo;
+hoy son **$4.700, Acordada 15/2022**, para las demandas y reconvenciones
+presentadas desde el 1/7/2022.
+
+**Javier lo planteó como un problema** —*«no sé cómo podríamos manejar el input
+para cambiarlo manualmente de forma sencilla sin tocar código y sin
+hardcodearlo»*— **y ya estaba resuelto dos veces en este repositorio.** Las dos
+mitades son las mismas que usan `honorarios-mediacion` con el UHOM y `prorrateo`
+con la UMA:
+
+1. **El valor vive en `data/tasa-monto-fijo.json`**, con la misma forma que
+   `data/serie-uma.json`: un valor, desde cuándo rige, qué norma lo fijó.
+   Cambiarlo es editar tres líneas de texto y queda versionado con la norma al
+   lado.
+2. **La pantalla lo muestra en un campo que se puede pisar a mano**, para
+   liquidar con el valor de otra fecha sin tocar el archivo.
+
+**El campo aparece sólo cuando hay un renglón que lo usa.** Es un dato de la ley
+que casi nadie va a tocar: tenerlo siempre a la vista lo pondría al mismo nivel
+que los renglones, que es donde está el trabajo.
+
+**El archivo arranca en 2022 y le falta un valor a propósito.** Hubo por lo
+menos una adecuación anterior —la Acordada 41/2018, que la nota de Infoleg
+nombra **sin decir el importe**— y no se cargó porque no se leyó el texto.
+Cargar un número que no se vio es exactamente lo que este archivo existe para
+evitar.
+
+**`npm run verificar-series` controla las tres.** Los controles ya eran
+genéricos, así que fue conectar la tercera: vigencia repetida, serie que baja,
+acto imposible. **Y se probó rompiéndolo**, porque un control que nunca falló no
+es un control: con un valor de 2020 pegado abajo del de 2022, el script marca las
+dos fallas —el orden y el valor que baja— y sale con 1.
+
+**Una diferencia con la UMA que hay que tener presente:** acá el acto es
+**anterior** a la vigencia, y no al revés. La Corte publicó la acordada en mayo y
+la aplicó desde julio. El control que exige que el acto no preceda a la vigencia
+se saltea con `sin_demora`, que es el mismo campo que ya usaba la serie de la UMA
+para sus tres casos raros.
+
+**El art. 5 no agrega una cuenta, agrega un aviso**, y era un pedido de Javier:
+la suma se paga **a cuenta**, y la tasa se completa al terminar el proceso,
+dentro de los cinco días de la sentencia definitiva o del modo anormal de
+terminación, con intimación por cédula. Vive en «Cuándo se paga», que es su lugar
+natural: es un hecho sobre el momento, no sobre el monto.
+
+**Y hubo que decidir qué hace la alícuota efectiva con esto.** Un renglón de
+monto fijo no tiene monto imponible, así que dividir el total por el imponible
+daría una alícuota que nadie aplicó: el numerador tendría plata que no salió de
+ninguna base. **La tira dice «no aplica: hay una suma fija en el total»** en vez
+de mostrar un número. El monto imponible del renglón se declara en cero a
+propósito y no en el valor de la suma fija, por lo mismo.
+
+#### El imprimible, que es la liquidación del art. 4 *in fine*
+
+*«En todos los casos al momento de efectuarse el pago de la tasa se acompañará
+la correspondiente liquidación detallada del monto imponible.»* **La planilla es
+parte del pago, no un adorno de la calculadora**, y la lista de renglones ya
+*era* esa planilla: lo único que faltaba era poder sacarla en papel.
+
+**Se imprime la página, no se descarga un archivo.** `window.print()` deja elegir
+impresora o PDF con el diálogo del sistema, y no hay que generar ni servir nada.
+El bloque vive en el DOM, oculto en pantalla, y `@media print` apaga todo lo
+demás. Se compone como un documento y no como una pantalla: negro sobre blanco,
+sin tarjetas y sin acento. **Los colores fijos son correctos ahí y sólo ahí**
+—el papel no tiene tema claro ni oscuro— y por eso viven adentro del `@media
+print` y no en `:root`, que es donde el bug del 27/8 a la mañana enseñó que no
+hay que ponerlos.
+
+La hoja lleva, por renglón: **concepto · qué se toma con su inciso · importe
+declarado · monto imponible · alícuota con su cita · tasa**, y abajo el total,
+la tabla del art. 9 con los momentos de pago que correspondan y la aclaración de
+que la sobretasa del 5 % es costumbre y no ley.
+
+#### El art. 8, que no es un tercer eje sino una etiqueta del renglón
+
+*«Las ampliaciones de demanda y las reconvenciones estarán sujetas a la tasa,
+como si fueran juicios independientes del principal.»* Y el art. 7 dice lo mismo
+de las tercerías.
+
+**No cambia ningún número: cambia cómo se presentan.** Cada renglón declara si es
+del juicio principal, una ampliación de demanda o una reconvención, y **el
+imprimible agrupa por eso, con un subtotal por grupo**. El total sigue estando
+—es lo que uno vino a buscar— pero con una línea al lado que dice que **no se
+integra de una sola vez**. Sumarlas sin decirlo afirmaría algo que la ley no
+dice: que se liquidan juntas.
+
+**Se dejó para este paso a propósito**, y esa decisión quedó escrita el mismo
+día: sin imprimible, la marca no hace nada visible.
+
+**El caso de prueba de esto no mira el total, mira la agrupación**, y es lo que
+lo hace valer: si la agrupación se pierde, los tres importes siguen siendo los
+mismos y el total también. Fija los encabezados de grupo con su subtotal.
+
+#### El banco: de 37 a 40
+
+Tres casos nuevos: el juicio sin valor pecuniario del art. 6, el monto
+indeterminable del art. 5 —**mismo número y por eso el par vale**: lo que cambia
+no es el monto sino lo que la pantalla dice en «Cuándo se paga»— y el imprimible
+con una reconvención.
+
+**Y el driver ganó una espera que ya había hecho falta antes.** La página lee el
+monto fijo con `fetch` y lo escribe en el campo cuando llega, o sea **después**
+de que el driver puso el suyo: es la misma trampa que ya había pisado el driver
+de `honorarios-mediacion` con el UHOM, y el síntoma es el peor posible —falla
+sólo el primer caso, con un número plausible—. La condición de «listo» ahora
+exige que el estado deje de decir que está buscando.
+
+**El monto fijo lo fija el caso, siempre**, aunque no lo use: si se dejara el del
+archivo, el banco se pondría en rojo el día que la Corte saque una acordada nueva
+sin que nada se haya roto. Es el mismo criterio que ya tenían la UMA y el UHOM.
+
+---
+
 ### Lo que le falta a `tasa` — 27/8
 
-En orden, y con lo que hace falta saber para arrancar en frío.
+En orden, y con lo que hace falta saber para arrancar en frío. **Los dos
+primeros de esta lista se hicieron el mismo 27/8**: ver
+[el monto fijo y el imprimible](#el-monto-fijo-y-el-imprimible-lo-que-la-lista-desbloqueaba--278).
 
-1. **El imprimible.** Sale directo de la estructura de renglones y **no es una
-   comodidad**: el art. 4 *in fine* dice que «en todos los casos al momento de
-   efectuarse el pago de la tasa se acompañará la correspondiente liquidación
-   detallada del monto imponible». La lista ya *es* esa planilla; falta poder
-   sacarla en papel.
-   **Y ahí entra el art. 8**, que hoy no está: las ampliaciones de demanda y las
-   reconvenciones se liquidan **como juicios independientes del principal**, así
-   que el renglón tiene que poder marcarse como tal y el imprimible tiene que
-   mostrarlas distinguidas o dice algo que la ley no dice. Se dejó para este
-   paso a propósito: sin imprimible, la marca no hace nada visible. El colofón de
-   la pantalla ya avisa que sumarlas sirve para el total y que cada una se
-   integra por separado.
-2. **El monto fijo de los arts. 5 y 6.** Es lo único de la ley que la pantalla
-   declara no cubrir, y no es una alícuota sino **una suma que actualiza la
-   CSJN**: hoy $4.700, Acordada 15/2022, para demandas presentadas desde el
-   1/7/2022.
-   **El mecanismo ya está resuelto dos veces en este repositorio** y no hay que
-   inventar nada: un `data/tasa-monto-fijo.json` con la forma de
-   `data/serie-uma.json` —un valor, desde cuándo rige, qué norma lo fijó— y un
-   campo en la pantalla que se puede pisar a mano para liquidar con el valor de
-   otra fecha. Hereda gratis el aviso de «desde cuándo rige» que ya tienen
-   `honorarios-mediacion` y `prorrateo`.
-   El renglón de monto fijo **oculta el campo del importe**: no tiene base ni
-   alícuota. Y el art. 5 pide además un aviso que hoy no da nadie: **eso es a
-   cuenta**, y la tasa se completa al terminar el proceso, dentro de los cinco
-   días de la sentencia o del modo anormal de terminación.
-   La base `Recurso directo` ya lo nombra en su hint, así que cuando exista hay
-   que sacarle el «todavía no calcula» de ahí y de la cabecera.
+1. **~~El imprimible del art. 4 *in fine*, con el art. 8 adentro.~~ Hecho el 27/8.**
+2. **~~El monto fijo de los arts. 5 y 6.~~ Hecho el 27/8**, con su archivo de
+   datos y su control. **Con eso `tasa` cubre toda la ley salvo el art. 13.**
 3. **Las exenciones del art. 13, con la forma que ya existe en Honorio.** Diez
    incisos. Javier: *«así como en Honorio están los mínimos y el buscador de
    mínimos por término literal, las exenciones: un resumen de ese artículo y

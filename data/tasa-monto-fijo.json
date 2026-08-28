@@ -1,0 +1,18 @@
+{
+  "_comentario": "Monto fijo del art. 6 de la Ley 23.898: lo que se integra en los juicios cuyo objeto litigioso no tiene valor pecuniario, y lo que se paga a cuenta en los de monto indeterminable del art. 5. No es una alicuota: es un importe, y no lo fija la ley sino la Corte, que lo actualiza por acordada. El ultimo elemento de \"valores\" es el vigente.",
+  "_por_que_arranca_en_2022": "La ley lo fijo en AUSTRALES 250.000 a junio de 1990 y mando a la CSJN actualizarlo. Hubo por lo menos una adecuacion anterior --la Acordada 41/2018, que la nota de Infoleg nombra sin decir el importe-- y su valor NO se cargo porque no se leyo el texto. La serie arranca donde arranca lo leido: cargar un numero que no se vio seria exactamente lo que este archivo existe para evitar.",
+  "_como_se_lee_la_vigencia": "La Acordada 15/2022 se publico el 27/5/2022 y dice que el monto nuevo se aplica a las demandas o reconvenciones presentadas A PARTIR DEL 1 DE JULIO DE 2022. O sea que el acto es anterior a la vigencia, que es lo contrario de lo que pasa con la UMA: aca la Corte avisa antes. Por eso lleva \"sin_demora\".",
+  "fuente": "https://servicios.infoleg.gob.ar/infolegInternet/anexos/0-4999/298/texact.htm",
+  "actualizado": "2026-08-27",
+  "valores": [
+    {
+      "valor": 4700,
+      "vigencia": "2022-07-01",
+      "norma": "Acordada CSJN 15/2022",
+      "acto": "2022-05-27",
+      "leido": "texto",
+      "sin_demora": "la acordada se publico el 27/5/2022 y difirio la aplicacion a las demandas presentadas desde el 1/7/2022",
+      "nota": "Puntos 2 y 3 de la acordada. Dato aportado por Javier el 27/8/2026 y cotejado contra la nota de Infoleg al art. 6."
+    }
+  ]
+}

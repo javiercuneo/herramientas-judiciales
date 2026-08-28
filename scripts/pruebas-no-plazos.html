@@ -249,14 +249,26 @@ const DRIVERS = {
     // -----------------------------------------------------------------------
     tasa: {
         archivo: '../calculadoras/tasa.html',
+        // NO alcanza con que existan los renglones: la pagina lee el monto
+        // fijo del art. 6 de data/tasa-monto-fijo.json y lo escribe en el
+        // campo cuando llega, o sea DESPUES de que el driver puso el suyo. Es
+        // exactamente la trampa que ya habia pisado el driver de mediacion con
+        // el UHOM, y el sintoma es el peor posible: falla solo el primer caso.
+        // Hay que esperar a que el estado deje de decir que esta buscando.
         lista: (d) => !!d.getElementById('renglones') &&
                       d.getElementById('renglones').rows.length > 0 &&
-                      !!d.defaultView.Tasa23898,
+                      !!d.defaultView.Tasa23898 &&
+                      !/Buscando/.test(d.getElementById('estadoMontoFijo').textContent),
         correr: async (d, campos) => {
             const w = d.defaultView;
             const ev = (el, t) => el.dispatchEvent(new w.Event(t, { bubbles: true }));
 
             w.reiniciar();
+
+            // El monto fijo se fija SIEMPRE, aunque el caso no lo use: si se
+            // dejara el del archivo, el banco se pondria rojo el dia que la
+            // Corte saque una acordada nueva, sin que nada se haya roto.
+            d.getElementById('montoFijo').value = campos.montoFijo || '4700';
 
             // LOS RENGLONES SE ARMAN DE A UNO Y EN ORDEN, y no todos primero:
             // el renglon nuevo HEREDA la alicuota del ultimo que ya existe, asi
@@ -267,6 +279,12 @@ const DRIVERS = {
             campos.renglones.forEach((r, i) => {
                 if (i > 0) w.agregarRenglon();
                 const tr = d.querySelectorAll('#renglones tr')[i];
+
+                if (r.concepto) tr.querySelector('.fila-concepto').value = r.concepto;
+                if (r.clase) {
+                    tr.querySelector('.fila-clase').value = r.clase;
+                    ev(tr.querySelector('.fila-clase'), 'change');
+                }
 
                 const base = tr.querySelector('.fila-base');
                 base.value = r.base;
@@ -280,9 +298,13 @@ const DRIVERS = {
                     ev(tr.querySelector('.fila-alicuota'), 'change');
                 }
 
-                const imp = tr.querySelector('.fila-importe');
-                imp.value = r.importe;
-                ev(imp, 'input');
+                // Los renglones de monto fijo no traen importe: el campo esta
+                // escondido y el numero sale del art. 6.
+                if (r.importe !== undefined) {
+                    const imp = tr.querySelector('.fila-importe');
+                    imp.value = r.importe;
+                    ev(imp, 'input');
+                }
 
                 // OJO: `titularidad` sin definir NO es lo mismo que '0'. Sin
                 // definir deja el campo como viene la pantalla, que es justo el
@@ -320,6 +342,20 @@ const DRIVERS = {
                     if (!tr.querySelector('.chips').hidden) m.push('sobretasa');
                     return m.length ? m.join(' + ') : '—';
                 }).join(' | ');
+            }
+
+            // El imprimible del art. 4 in fine. No se lee entero ---seria un
+            // esperado de dos mil caracteres--- sino los ENCABEZADOS DE GRUPO y
+            // los subtotales, que es lo que el art. 8 obliga a mostrar separado.
+            // Que el total sea el mismo NO prueba nada acá: la agrupacion se
+            // puede perder sin que ningun numero se mueva.
+            if (campos.verLiquidacion) {
+                const grupos = Array.from(d.querySelectorAll('#liquidacion h2.grupo-liq'))
+                    .map((h) => h.textContent.split('—')[0].trim());
+                const subs = Array.from(d.querySelectorAll('#liquidacion tfoot td.num'))
+                    .map((td) => td.textContent.trim());
+                salida += ' · liquidación ' +
+                    grupos.map((g, i) => g + ' ' + (subs[i] || '(sin subtotal)')).join(' | ');
             }
 
             // Para los casos de herencia y de cruce imposible: importa QUE
@@ -694,6 +730,32 @@ const FIJADOS = [
         campos: { verAlicuotas: true, renglones: [{ base: 'terceria', alicuota: 'general', importe: '10000000' }] },
         esperado: 'total $ 150.000,00 · por renglón $ 150.000,00 · alícuotas tercerias (1 posibles)',
         porque: 'ES LA PRUEBA DEL FILTRO, y el caso esta escrito PIDIENDO EL CRUCE MAL a proposito: el caso declara la alicuota general y la pantalla no se la da, porque el art. 3 inc. h reduce las tercerias sin excepcion. El segundo desplegable ofrece UNA sola opcion y el resultado es $150.000 y no $300.000. Este es el mecanismo que hace estructural el arreglo del cobro doble: antes los dos ejes vivian en un desplegable solo y por eso se podian mezclar.'
+    },
+
+    // --- tasa, el monto fijo y el imprimible -------------------------------
+    {
+        calc: 'tasa',
+        rotulo: 'Juicio sin valor pecuniario: la suma fija del art. 6',
+        campos: { renglones: [{ base: 'sinvalor' }] },
+        esperado: 'total $ 4.700,00 · por renglón $ 4.700,00',
+        porque: 'No es una alicuota: es un importe, y no lo fija la ley sino la Corte. El renglon no pide monto y el numero sale de data/tasa-monto-fijo.json, con la Acordada 15/2022 al lado. EL CASO FIJA EL VALOR A MANO ---4700--- por lo mismo que los de UMA y UHOM: si se dejara el del archivo, el banco se pondria rojo el dia que salga una acordada nueva sin que nada se haya roto.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Monto indeterminable: la misma suma, pero a cuenta',
+        campos: { renglones: [{ base: 'indeterminable' }] },
+        esperado: 'total $ 4.700,00 · por renglón $ 4.700,00',
+        porque: 'El art. 5 manda abonar la suma del art. 6 A CUENTA, y la tasa se completa al terminar el proceso. El numero es el mismo que el caso de arriba y el par existe porque LO QUE CAMBIA NO ES EL NUMERO: es lo que la pantalla dice en "Cuando se paga", que en este caso trae la intimacion por cedula dentro de los cinco dias. Un refactor que fusione los dos supuestos no movera ningun total.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'El imprimible separa la reconvencion del principal (art. 8)',
+        campos: { verLiquidacion: true, renglones: [
+            { concepto: 'Demanda', base: 'sumas', alicuota: 'general', importe: '10000000' },
+            { concepto: 'Reconvención', clase: 'reconvencion', base: 'sumas', importe: '4000000' }
+        ] },
+        esperado: 'total $ 420.000,00 · por renglón $ 300.000,00 | $ 120.000,00 · liquidación Juicio principal $ 300.000,00 | Reconvención $ 120.000,00',
+        porque: 'ESTE CASO NO MIRA EL TOTAL, mira la AGRUPACION. El art. 8 dice que las ampliaciones y las reconvenciones estan sujetas a la tasa "como si fueran juicios independientes del principal", asi que el imprimible ---que es la liquidacion detallada que el art. 4 in fine manda acompañar al pago--- tiene que mostrarlas separadas con su propio subtotal, o dice algo que la ley no dice. Y esto NO se ve en ningun numero: si la agrupacion se pierde, los tres importes siguen siendo los mismos y el total tambien.'
     },
 
     {

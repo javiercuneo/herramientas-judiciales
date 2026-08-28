@@ -214,6 +214,61 @@
 
         .encabezado-panel p { font-size: 12px; color: var(--faint); max-width: 62ch; }
 
+        .panel[hidden] { display: none; }
+
+        /* ---------------------------------------------- el campo del monto fijo
+
+           Es el mismo control que la UMA en prorrateo y el UHOM en mediacion:
+           un importe que sale de un archivo del repositorio y se puede pisar a
+           mano. Va al ancho del contenido y no al del panel: son cuatro
+           digitos. */
+        .grupo { margin-top: 16px; }
+
+        .rotulo {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin-bottom: 8px;
+        }
+
+        .importe {
+            max-width: 260px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            padding: 0 12px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .importe:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+        .importe .signo {
+            font-family: var(--font-meter);
+            font-size: 15px;
+            color: var(--faint);
+            flex: none;
+        }
+        .importe input {
+            font-family: var(--font-meter);
+            font-size: 17px;
+            font-weight: 600;
+            padding: 10px 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--fg);
+            width: 100%;
+        }
+
+        .pie-campo { font-size: 11.5px; color: var(--faint); margin-top: 6px; max-width: 62ch; }
+
         /* ---------------------------------------------------------- la lista */
         .tabla-scroll { overflow-x: auto; margin: 14px -6px 0; padding: 0 6px; }
 
@@ -257,6 +312,8 @@
             outline: none;
             transition: border-color 0.15s, box-shadow 0.15s;
         }
+        table.filas input[hidden], table.filas .cifra-celda[hidden] { display: none; }
+
         table.filas input[type="text"]:focus,
         table.filas select:focus {
             border-color: var(--accent);
@@ -414,6 +471,71 @@
         }
         .momentos .cuando { color: var(--muted-fg); }
 
+        .acciones-der { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        /* El selector del art. 8 va abajo del concepto y no es un dato del
+           mismo peso: casi siempre dice "Juicio principal" y no se toca. Va
+           chico y en el color apagado, para que se lea como una etiqueta del
+           renglon y no como un tercer eje. */
+        table.filas select.chiquito {
+            font-size: 11.5px;
+            color: var(--faint);
+            padding: 4px 6px;
+            margin-top: 5px;
+        }
+        table.filas select.chiquito:focus { color: var(--fg); }
+
+        /* =================================================== LA LIQUIDACION
+
+           Oculta en pantalla y lo unico que se imprime. Es la planilla que el
+           art. 4 in fine manda acompañar al pago, asi que se compone como un
+           documento y no como una pantalla: negro sobre blanco, sin tarjetas y
+           sin acento. Los colores fijos son correctos ACA y solo aca ---el
+           papel no tiene tema claro ni oscuro--- y por eso viven adentro del
+           @media print y no en :root. */
+        #liquidacion { display: none; }
+
+        @media print {
+            body { background: #fff; color: #000; padding: 0; font-size: 10.5pt; }
+            .hoja { max-width: none; }
+            .hoja > *:not(#liquidacion) { display: none !important; }
+            #liquidacion { display: block; }
+
+            #liquidacion h1 {
+                font-family: var(--font-meter);
+                font-size: 15pt;
+                margin-bottom: 4pt;
+            }
+            #liquidacion h2 {
+                font-family: var(--font-meter);
+                font-size: 11pt;
+                margin: 16pt 0 5pt;
+                border-bottom: 1px solid #000;
+                padding-bottom: 2pt;
+            }
+            #liquidacion h2 small { font-weight: 400; font-size: 9pt; }
+            #liquidacion .norma { font-size: 8.5pt; color: #333; margin-bottom: 3pt; max-width: 100%; }
+            #liquidacion table { width: 100%; border-collapse: collapse; margin-top: 4pt; }
+            #liquidacion th, #liquidacion td {
+                border-bottom: 1px solid #999;
+                padding: 4pt 6pt;
+                text-align: left;
+                vertical-align: top;
+                font-size: 9pt;
+            }
+            #liquidacion th { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.04em; }
+            #liquidacion .num { text-align: right; }
+            #liquidacion .sec { display: block; font-size: 7.5pt; color: #444; margin-top: 1pt; }
+            #liquidacion tfoot td { font-weight: 700; border-bottom: none; border-top: 1px solid #000; }
+            #liquidacion .total { font-size: 12pt; margin-top: 10pt; }
+            #liquidacion ul { margin: 4pt 0 0 16pt; font-size: 9pt; }
+            #liquidacion li { margin-bottom: 3pt; }
+            #liquidacion .pie { font-size: 8pt; color: #333; margin-top: 16pt; border-top: 1px solid #999; padding-top: 5pt; }
+            /* Un grupo del art. 8 partido entre dos hojas se lee como si
+               faltara algo: cada uno arranca junto o pasa entero. */
+            #liquidacion table { page-break-inside: avoid; }
+        }
+
         .colofon {
             margin-top: 26px;
             font-size: 12px;
@@ -438,9 +560,9 @@
         <header class="cabecera">
             <h1>Tasa de <span>justicia</span></h1>
             <p class="cobertura">Ley 23.898, para los tribunales nacionales.
-               Cubre los montos imponibles del art. 4 y las alícuotas de los
-               arts. 2 y 3. <strong>Todavía no calcula</strong> el monto fijo de
-               los arts. 5 y 6, que actualiza la Corte.</p>
+               Cubre los montos imponibles del art. 4, las alícuotas de los
+               arts. 2 y 3 y el monto fijo de los arts. 5 y 6. Civil, sucesorio,
+               laboral, concursal y recursos directos.</p>
         </header>
 
         <div id="resultado"></div>
@@ -485,7 +607,28 @@
 
             <div class="pie-tabla">
                 <button type="button" class="btn-suave btn-chico" id="btnAgregar">Agregar renglón</button>
-                <button type="button" class="btn-suave btn-chico" id="btnReiniciar">Reiniciar</button>
+                <span class="acciones-der">
+                    <button type="button" class="btn-suave btn-chico" id="btnImprimir">Imprimir la liquidación</button>
+                    <button type="button" class="btn-suave btn-chico" id="btnReiniciar">Reiniciar</button>
+                </span>
+            </div>
+        </div>
+
+        <div class="panel" id="panelMontoFijo" hidden>
+            <div class="encabezado-panel">
+                <h2>El monto fijo de los arts. 5 y 6</h2>
+                <p>No es una alícuota: es un importe, y no lo fija la ley sino la
+                   Corte. Se carga solo desde el sitio; se puede pisar a mano para
+                   liquidar con el valor de otra fecha.</p>
+            </div>
+            <div class="grupo">
+                <label class="rotulo" for="montoFijo">Suma fija</label>
+                <div class="importe">
+                    <span class="signo" aria-hidden="true">$</span>
+                    <input type="text" id="montoFijo" inputmode="decimal" autocomplete="off"
+                           placeholder="Cargando…" aria-label="Monto fijo del art. 6 en pesos">
+                </div>
+                <div class="pie-campo" id="estadoMontoFijo">Buscando el monto fijo…</div>
             </div>
         </div>
 
@@ -499,6 +642,10 @@
             <ul class="momentos" id="momentos"></ul>
         </div>
 
+        <!-- La liquidación del art. 4 in fine. Vive acá, oculta en pantalla:
+             @media print apaga todo lo demás y deja sólo esto. -->
+        <div id="liquidacion" aria-hidden="true"></div>
+
         <div class="colofon">
             <p>La ley es la <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/0-4999/298/texact.htm"><strong>Nº 23.898</strong></a>,
                con el texto actualizado de Infoleg. <strong>Las ampliaciones de demanda,
@@ -507,12 +654,13 @@
                para saber el total, pero cada una se integra por separado.
                <strong>La sobretasa del 5 %</strong> es costumbre judicial y no sale de
                la ley: por eso es opcional y no lleva artículo citado.</p>
-            <p>Lo que esta pantalla todavía no calcula: el <strong>monto fijo de los
-               arts. 5 y 6</strong> —los juicios de monto indeterminable y los que no
-               tienen valor pecuniario—, que no es una alícuota sino una suma que
-               actualiza la Corte. Y el art. 4 <em>in fine</em> exige acompañar al pago
-               la <strong>liquidación detallada del monto imponible</strong>: el
-               imprimible que sale de esta lista todavía no está hecho.
+            <p>El <strong>monto fijo de los arts. 5 y 6</strong> no es una alícuota
+               sino una suma que actualiza la Corte, y sale de
+               <code>data/tasa-monto-fijo.json</code>, leído de la acordada y versionado
+               en este sitio: la página no le pide el valor a nadie. El art. 4
+               <em>in fine</em> exige acompañar al pago la <strong>liquidación detallada
+               del monto imponible</strong>: el imprimible que sale de esta lista todavía
+               no está hecho.
                Si algo da mal, <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.</p>
         </div>
     </div>
@@ -628,8 +776,29 @@
             id: 'apelado',
             rotulo: 'Recurso directo: monto de la resolución que se apela',
             cita: 'art. 4 inc. j',
-            hint: 'El monto que surja de la resolución que se apela o se cuestiona. <strong>Si la resolución no tiene monto</strong>, el juicio es de monto indeterminable y va la suma fija del art. 6, que esta pantalla todavía no calcula.',
+            hint: 'El monto que surja de la resolución que se apela o se cuestiona. <strong>Si la resolución no tiene monto</strong>, el juicio es de monto indeterminable: se carga con la base de abajo.',
             alicuotas: ['recurso']
+        },
+
+        // Los dos de MONTO FIJO. No tienen base ni alicuota: tienen un
+        // importe, y no lo fija la ley sino la Corte. El renglon esconde el
+        // campo del importe y muestra el valor vigente, que sale de
+        // data/tasa-monto-fijo.json y se puede pisar a mano.
+        {
+            id: 'indeterminable',
+            rotulo: 'Monto indeterminable',
+            cita: 'art. 5',
+            montoFijo: true,
+            hint: 'Se abona la suma del art. 6 <strong>a cuenta</strong>. La tasa se completa al terminar el proceso: mirá «Cuándo se paga», abajo.',
+            alicuotas: ['fija']
+        },
+        {
+            id: 'sinvalor',
+            rotulo: 'Juicio sin valor pecuniario',
+            cita: 'art. 6',
+            montoFijo: true,
+            hint: 'El objeto litigioso no tiene valor pecuniario y no está exento. Se integra la suma fija, entera, al inicio de las actuaciones.',
+            alicuotas: ['fija']
         }
     ];
 
@@ -679,7 +848,12 @@
             // quedo congelado, y la decision de Javier es no interpretar su
             // erosion: la herramienta aplica la ley como esta escrita.
             tramos: [{ hasta: 100000000, tasa: 0.0075 }, { hasta: Infinity, tasa: 0.0025 }]
-        }
+        },
+        // No es una alicuota y por eso `fija`: no multiplica nada. Esta en esta
+        // lista porque el segundo desplegable no puede quedar vacio ---un
+        // control sin opciones se lee como que algo se rompio--- y porque decir
+        // de donde sale el numero es justamente lo que hay que decir.
+        { id: 'fija', rotulo: 'Suma fija, la que actualiza la Corte', cita: 'art. 6', fija: true }
     ];
 
     // Cuando se paga: art. 9. La oportunidad depende del supuesto, no del
@@ -693,6 +867,8 @@
         recurso:    ['art. 9 inc. h', 'Dentro del quinto día de recibidos los autos en el tribunal del recurso, previa intimación por cédula.']
     };
     var MOMENTOS_BASE = {
+        indeterminable: ['art. 5', 'La suma fija del art. 6 se paga al iniciar, y es <strong>a cuenta</strong>. La tasa se completa al terminar el proceso: dentro de los cinco días de la sentencia definitiva, del desistimiento, del allanamiento, de la transacción, de la conciliación o de la caducidad de la instancia, el secretario intima por cédula a estimar el valor reclamado.'],
+        sinvalor:       ['art. 6', 'La suma fija, entera, al inicio de las actuaciones.'],
         quiebra:  ['art. 9 inc. b', 'Antes de cualquier pago o distribución de fondos provenientes de la venta de los bienes. La liquida el síndico bajo supervisión del secretario.'],
         creditos: ['art. 9 inc. b', 'Al notificarse el auto de homologación del acuerdo, o la resolución que declara verificados los créditos después. La liquida el síndico bajo supervisión del secretario.'],
         hipoteca: ['art. 9 inc. c', 'Toda la tasa en el acto de iniciarse las actuaciones.'],
@@ -701,6 +877,24 @@
     };
     var MOMENTO_POR_OMISION =
         ['art. 9 inc. a', 'Toda la tasa en el acto de iniciación de las actuaciones, con reajuste posterior si la liquidación definitiva arroja un mayor valor.'];
+
+    // -----------------------------------------------------------------------
+    // EL ART. 8, que no es un tercer eje sino una clasificacion del renglon.
+    //
+    // "Las ampliaciones de demanda y las reconvenciones estaran sujetas a la
+    // tasa, como si fueran juicios independientes del principal." Y el art. 7
+    // dice lo mismo de las tercerias.
+    //
+    // No cambia ningun numero: cambia como se PRESENTAN. Sumarlas para saber
+    // cuanto hay que integrar en total es util ---es lo que uno viene a
+    // buscar---, pero el imprimible tiene que mostrarlas separadas o dice algo
+    // que la ley no dice: que se liquidan juntas.
+    // -----------------------------------------------------------------------
+    var CLASES = [
+        { id: 'principal',   rotulo: 'Juicio principal',       cita: '' },
+        { id: 'ampliacion',  rotulo: 'Ampliación de demanda',  cita: 'art. 8' },
+        { id: 'reconvencion', rotulo: 'Reconvención',          cita: 'art. 8' }
+    ];
 
     function porId(lista, id) {
         for (var i = 0; i < lista.length; i++) if (lista[i].id === id) return lista[i];
@@ -788,6 +982,27 @@
         var ali = porId(ALICUOTAS, entrada.alicuota);
         if (!base || !ali) return null;
 
+        // El renglon de monto fijo se va por arriba de toda la cuenta: no hay
+        // monto imponible al que aplicarle nada. Se declara `imponible: 0` a
+        // proposito y no `imponible: montoFijo`, porque el monto imponible es
+        // una figura del art. 4 y estos dos renglones justamente no la tienen:
+        // ponerlos ahi ensuciaria el total del imponible y la alicuota
+        // efectiva con un numero que no es una base.
+        if (base.montoFijo) {
+            var fijo = numero(entrada.montoFijo);
+            return {
+                concepto: entrada.concepto || '',
+                clase: porId(CLASES, entrada.clase) || CLASES[0],
+                base: base, alicuota: ali, montoFijo: true,
+                importe: 0, factor: 1, titularidad: 1,
+                llevaTitularidad: false, llevaSobretasa: false,
+                imponible: 0, tasaPelada: fijo,
+                puntosSobretasa: 0, sobretasa: 0,
+                tasa: fijo, efectiva: 0,
+                aporta: fijo > 0
+            };
+        }
+
         var importe = numero(entrada.importe);
         var factor = base.factor || 1;
         var llevaTitularidad = !!ali.sucesion;
@@ -802,6 +1017,8 @@
         var sobretasa = tasaPelada * (puntosSobretasa / 100);
 
         return {
+            concepto: entrada.concepto || '',
+            clase: porId(CLASES, entrada.clase) || CLASES[0],
             base: base,
             alicuota: ali,
             importe: importe,
@@ -817,7 +1034,8 @@
             // La alicuota efectiva del renglon: con la escala concursal no es
             // ninguna de las dos del texto, y con la sobretasa tampoco es la
             // del art. 3. Es el numero que hay que poder mirar.
-            efectiva: imponible > 0 ? (tasaPelada + sobretasa) / imponible : 0
+            efectiva: imponible > 0 ? (tasaPelada + sobretasa) / imponible : 0,
+            aporta: importe > 0
         };
     }
 
@@ -831,7 +1049,7 @@
         for (var i = 0; i < lista.length; i++) {
             html += '<option value="' + lista[i].id + '"' +
                 (lista[i].id === elegido ? ' selected' : '') + '>' +
-                lista[i].rotulo + ' — ' + lista[i].cita + '</option>';
+                lista[i].rotulo + (lista[i].cita ? ' — ' + lista[i].cita : '') + '</option>';
         }
         return html;
     }
@@ -857,7 +1075,10 @@
         var tr = document.createElement('tr');
         tr.innerHTML =
             '<td class="celda-concepto">' +
-                '<input type="text" class="fila-concepto" autocomplete="off"></td>' +
+                '<input type="text" class="fila-concepto" autocomplete="off">' +
+                '<select class="chiquito fila-clase" aria-label="Cómo se integra este renglón, art. 8">' +
+                    opciones(CLASES, datos.clase || 'principal') +
+                '</select></td>' +
             '<td class="celda-regla">' +
                 '<select class="fila-base" aria-label="Qué número se toma, art. 4">' +
                     opciones(BASES, datos.base || baseHeredada) +
@@ -865,6 +1086,7 @@
             '<td class="celda-importe">' +
                 '<input type="text" class="fila-importe" inputmode="decimal" autocomplete="off" ' +
                        'placeholder="0" aria-label="Importe">' +
+                '<span class="cifra-celda fila-importe-fijo" hidden></span>' +
                 '<span class="sec fila-imponible"></span></td>' +
             '<td class="celda-alicuota">' +
                 '<select class="fila-alicuota" aria-label="Qué alícuota se aplica, arts. 2 y 3"></select>' +
@@ -941,12 +1163,18 @@
 
     function leerRenglon(tr) {
         return {
+            concepto: tr.querySelector('.fila-concepto').value.trim(),
+            clase: tr.querySelector('.fila-clase').value,
             base: tr.querySelector('.fila-base').value,
             alicuota: tr.querySelector('.fila-alicuota').value,
             importe: tr.querySelector('.fila-importe').value,
             titularidad: tr.querySelector('.fila-titularidad').value,
             conSobretasa: tr.querySelector('.fila-consobretasa').checked,
-            sobretasa: tr.querySelector('.fila-sobretasa').value
+            sobretasa: tr.querySelector('.fila-sobretasa').value,
+            // Sale de un campo solo de la pagina y no de cada renglon: es un
+            // dato del sistema ---lo fija la Corte--- y no del caso. Mismo
+            // criterio que la UMA en prorrateo y el UHOM en mediacion.
+            montoFijo: document.getElementById('montoFijo').value
         };
     }
 
@@ -972,24 +1200,34 @@
 
         filas.forEach(function (tr, i) { pintarRenglon(tr, cuentas[i]); });
 
-        var imponible = 0, tasa = 0, pelada = 0, sobretasa = 0, cargados = 0;
+        var imponible = 0, tasa = 0, pelada = 0, sobretasa = 0, cargados = 0, fijos = 0;
         cuentas.forEach(function (c) {
             if (!c) return;
             imponible += c.imponible;
             tasa += c.tasa;
             pelada += c.tasaPelada;
             sobretasa += c.sobretasa;
-            if (c.importe > 0) cargados++;
+            if (c.aporta) cargados++;
+            if (c.montoFijo) fijos++;
         });
 
         document.getElementById('totalImponible').textContent = pesos(imponible);
         document.getElementById('totalTasa').textContent = pesos(tasa);
 
+        // El campo del monto fijo aparece SOLO cuando hay un renglon que lo
+        // usa. Es un dato de la ley que casi nadie va a tocar: tenerlo siempre
+        // a la vista lo pondria al mismo nivel que los renglones, que es donde
+        // esta el trabajo.
+        document.getElementById('panelMontoFijo').hidden = fijos === 0;
+
+        var art8 = cuentas.filter(function (c) { return c && c.aporta && c.clase.id !== 'principal'; });
+
         pintarResultado({
             imponible: imponible, tasa: tasa, pelada: pelada,
-            sobretasa: sobretasa, cargados: cargados
+            sobretasa: sobretasa, cargados: cargados, fijos: fijos, art8: art8.length
         });
-        pintarMomentos(cuentas);
+        armarLiquidacion(cuentas, pintarMomentos(cuentas));
+        document.getElementById('btnImprimir').disabled = cargados === 0;
     }
 
     function pintarRenglon(tr, c) {
@@ -1001,6 +1239,13 @@
         var celdaTasa = tr.querySelector('.fila-tasa');
 
         tr.querySelector('.fila-hint').innerHTML = c.base.hint;
+
+        // El renglon de monto fijo no pide un importe: lo muestra. Dejar el
+        // campo vacio y en blanco haria pensar que falta cargar algo.
+        tr.querySelector('.fila-importe').hidden = !!c.montoFijo;
+        var fijoEnFila = tr.querySelector('.fila-importe-fijo');
+        fijoEnFila.hidden = !c.montoFijo;
+        if (c.montoFijo) fijoEnFila.textContent = c.tasa > 0 ? pesos(c.tasa) : '—';
 
         // Los dos modificadores cuelgan del EJE DE LA ALICUOTA y no del tipo de
         // bien: existen porque el supuesto es sucesorio, no porque el bien sea
@@ -1023,7 +1268,10 @@
         // causo un cero en silencio: mostrar el factor que se esta usando es lo
         // unico que hace evidente que se aplico un 100 % que nadie escribio.
         var hayCambio = c.factor !== 1 || (c.llevaTitularidad && c.titularidad !== 1);
-        if (c.importe > 0 && hayCambio) {
+        if (c.montoFijo) {
+            celdaImponible.innerHTML = 'Sale de <strong>' + c.alicuota.cita +
+                '</strong>. No tiene monto imponible.';
+        } else if (c.importe > 0 && hayCambio) {
             var piezas = [];
             if (c.factor !== 1) piezas.push('× ' + c.factor + ' meses');
             if (c.llevaTitularidad && c.titularidad !== 1) piezas.push('× ' + porc(c.titularidad) + ' de titularidad');
@@ -1034,11 +1282,13 @@
             celdaImponible.textContent = '';
         }
 
-        tr.querySelector('.fila-cita').textContent = c.alicuota.tramos
-            ? 'Escala progresiva de dos tramos — ' + c.alicuota.cita
-            : porc(c.alicuota.tasa) + ' — ' + c.alicuota.cita;
+        tr.querySelector('.fila-cita').textContent = c.alicuota.fija
+            ? 'La actualiza la Corte por acordada — ' + c.alicuota.cita
+            : c.alicuota.tramos
+                ? 'Escala progresiva de dos tramos — ' + c.alicuota.cita
+                : porc(c.alicuota.tasa) + ' — ' + c.alicuota.cita;
 
-        if (c.importe > 0) {
+        if (c.aporta) {
             celdaTasa.textContent = pesos(c.tasa);
             celdaTasa.classList.remove('apagada');
         } else {
@@ -1055,7 +1305,7 @@
         if (c.alicuota.tramos && c.imponible > 0) {
             notas.push('alícuota efectiva ' + porc(c.efectiva));
         }
-        tr.querySelector('.fila-detalle').textContent = c.importe > 0 ? notas.join(' · ') : '';
+        tr.querySelector('.fila-detalle').textContent = c.aporta ? notas.join(' · ') : '';
     }
 
     function dato(clave, valor, nota, id) {
@@ -1085,17 +1335,35 @@
         html += '<div class="cifra" id="cifraTasa">' + pesos(t.tasa) + '</div>';
         html += '<div class="equivale" id="notaTasa">' +
             (t.cargados === 1 ? 'Un renglón' : t.cargados + ' renglones') +
-            ' sobre un monto imponible de ' + pesos(t.imponible) + '.' +
+            (t.imponible > 0
+                ? ' sobre un monto imponible de ' + pesos(t.imponible) + '.'
+                : '.') +
             (t.sobretasa > 0 ? ' Incluye ' + pesos(t.sobretasa) + ' de sobretasa.' : '') +
+            (t.fijos > 0 ? ' Incluye ' + (t.fijos === 1 ? 'una suma fija' : t.fijos + ' sumas fijas') +
+                ' del art. 6, que no sale de un monto imponible.' : '') +
+            // Cuando hay ampliaciones o reconvenciones, el total sigue siendo
+            // util ---es cuanto hay que integrar--- pero deja de ser un pago:
+            // decirlo aca evita que alguien lo lea como una sola boleta.
+            (t.art8 > 0 ? ' <strong>No se integra de una sola vez</strong>: ' +
+                (t.art8 === 1
+                    ? 'hay un renglón del art. 8, que se liquida como un juicio independiente.'
+                    : 'hay ' + t.art8 + ' renglones del art. 8, que se liquidan como juicios independientes.') : '') +
             '</div></div>';
 
         html += '<div class="tira">';
-        html += dato('Monto imponible', pesos(t.imponible), 'la suma de las bases del art. 4', 'dImponible');
+        html += dato('Monto imponible', t.imponible > 0 ? pesos(t.imponible) : '—',
+            t.imponible > 0 ? 'la suma de las bases del art. 4' : 'ningún renglón tiene base', 'dImponible');
         html += dato('Tasa de ley', pesos(t.pelada), 'sin la sobretasa', 'dPelada');
         html += dato('Sobretasa', t.sobretasa > 0 ? pesos(t.sobretasa) : '—',
             t.sobretasa > 0 ? 'costumbre judicial, no está en la ley' : 'ningún renglón la lleva', 'dSobretasa');
-        html += dato('Alícuota efectiva', porc(t.imponible > 0 ? t.tasa / t.imponible : 0),
-            'sobre el monto imponible total', 'dEfectiva');
+        // Con un renglon de monto fijo adentro, dividir la tasa por el
+        // imponible daria una alicuota que nadie aplico: el numerador tiene
+        // plata que no salio de ninguna base. Se dice que no aplica, y por que.
+        html += dato('Alícuota efectiva',
+            t.imponible > 0 && t.fijos === 0 ? porc(t.tasa / t.imponible) : '—',
+            t.fijos > 0 ? 'no aplica: hay una suma fija en el total'
+                        : (t.imponible > 0 ? 'sobre el monto imponible total' : 'sin monto imponible'),
+            'dEfectiva');
         html += '</div>';
 
         caja.innerHTML = html;
@@ -1118,6 +1386,186 @@
             return '<li><span class="cual">' + m[0] + '</span>' +
                    '<span class="cuando">' + m[1] + '</span></li>';
         }).join('');
+        // Se devuelve para el imprimible: la liquidacion que se acompaña al
+        // expediente tiene que decir cuando se paga, y armarla aparte seria
+        // una segunda implementacion de la misma tabla.
+        return lista;
+    }
+
+    // -----------------------------------------------------------------------
+    // EL IMPRIMIBLE, que no es una comodidad.
+    //
+    // El art. 4 in fine: "En todos los casos al momento de efectuarse el pago
+    // de la tasa se acompañara la correspondiente liquidacion detallada del
+    // monto imponible." O sea que la planilla es parte del pago, no un adorno
+    // de la calculadora. La lista de renglones YA ES esa planilla: lo unico
+    // que faltaba era poder sacarla en papel.
+    //
+    // Se imprime la pagina, no se descarga un archivo: `window.print()` deja
+    // elegir impresora o PDF con el dialogo del sistema, y no hay que generar
+    // ni servir nada. El bloque vive en el DOM, oculto en pantalla, y las
+    // reglas de @media print apagan todo lo demas.
+    //
+    // AGRUPA POR EL ART. 8. Las ampliaciones y las reconvenciones se liquidan
+    // como juicios independientes, asi que cada grupo lleva su propio subtotal
+    // y el total general dice, al lado, que no se integra de una sola vez.
+    // -----------------------------------------------------------------------
+    function esteMes() {
+        var d = new Date();
+        return d.getDate() + ' de ' + MESES[d.getMonth()] + ' de ' + d.getFullYear();
+    }
+
+    function filaLiquidacion(c, i) {
+        return '<tr>' +
+            '<td>' + (i + 1) + '</td>' +
+            '<td>' + (c.concepto || '—') + '</td>' +
+            '<td>' + c.base.rotulo + '<span class="sec">' + c.base.cita + '</span></td>' +
+            '<td class="num">' + (c.montoFijo ? '—' : pesos(c.importe)) + '</td>' +
+            '<td class="num">' + (c.montoFijo ? '—' : pesos(c.imponible)) +
+                (c.factor !== 1 ? '<span class="sec">× ' + c.factor + ' meses</span>' : '') +
+                (c.llevaTitularidad ? '<span class="sec">× ' + porc(c.titularidad) + ' de titularidad</span>' : '') +
+            '</td>' +
+            '<td>' + (c.alicuota.fija ? 'Suma fija'
+                        : c.alicuota.tramos ? '0,75 % y 0,25 %'
+                        : porc(c.alicuota.tasa)) +
+                '<span class="sec">' + c.alicuota.cita + '</span>' +
+                (c.sobretasa > 0 ? '<span class="sec">más ' + porc(c.puntosSobretasa / 100) + ' de sobretasa</span>' : '') +
+            '</td>' +
+            '<td class="num">' + pesos(c.tasa) + '</td>' +
+            '</tr>';
+    }
+
+    function armarLiquidacion(cuentas, momentos) {
+        var usados = cuentas.filter(function (c) { return c && c.aporta; });
+        var caja = document.getElementById('liquidacion');
+
+        if (!usados.length) {
+            caja.innerHTML = '<p>No hay ningún renglón cargado.</p>';
+            return;
+        }
+
+        var total = 0;
+        usados.forEach(function (c) { total += c.tasa; });
+
+        var html = '';
+        html += '<h1>Liquidación de la tasa de justicia</h1>';
+        html += '<p class="norma">Ley 23.898 · ' + esteMes() + '</p>';
+        html += '<p class="norma">Art. 4 <em>in fine</em>: «en todos los casos al momento de ' +
+            'efectuarse el pago de la tasa se acompañará la correspondiente liquidación ' +
+            'detallada del monto imponible».</p>';
+
+        var conArt8 = false;
+
+        CLASES.forEach(function (clase) {
+            var delGrupo = usados.filter(function (c) { return c.clase.id === clase.id; });
+            if (!delGrupo.length) return;
+            if (clase.id !== 'principal') conArt8 = true;
+
+            var subtotal = 0;
+            delGrupo.forEach(function (c) { subtotal += c.tasa; });
+
+            html += '<h2 class="grupo-liq">' + clase.rotulo +
+                (clase.id === 'principal' ? ''
+                    : ' <small>— se integra como juicio independiente del principal (art. 8)</small>') +
+                '</h2>';
+            html += '<table><thead><tr>' +
+                '<th>#</th><th>Concepto</th><th>Qué se toma</th>' +
+                '<th class="num">Importe declarado</th><th class="num">Monto imponible</th>' +
+                '<th>Alícuota</th><th class="num">Tasa</th>' +
+                '</tr></thead><tbody>';
+            delGrupo.forEach(function (c, i) { html += filaLiquidacion(c, i); });
+            html += '</tbody><tfoot><tr><td colspan="6">Subtotal — ' + clase.rotulo + '</td>' +
+                '<td class="num">' + pesos(subtotal) + '</td></tr></tfoot></table>';
+        });
+
+        html += '<p class="total">Total de lo liquidado: <strong>' + pesos(total) + '</strong></p>';
+        if (conArt8) {
+            html += '<p class="norma">El total es la suma de los grupos, pero <strong>no se integra ' +
+                'de una sola vez</strong>: las ampliaciones de demanda y las reconvenciones están ' +
+                'sujetas a la tasa como si fueran juicios independientes del principal (art. 8).</p>';
+        }
+
+        if (momentos.length) {
+            html += '<h2>Cuándo se paga — art. 9</h2><ul>';
+            momentos.forEach(function (m) {
+                html += '<li><strong>' + m[0] + '.</strong> ' + m[1] + '</li>';
+            });
+            html += '</ul>';
+        }
+
+        html += '<p class="pie">La sobretasa del 5 %, cuando aparece, es costumbre judicial y no ' +
+            'sale de la ley. Liquidación calculada en javiercuneo.com.ar: es una herramienta de ' +
+            'referencia y no sustituye el criterio del juez ni la liquidación del actuario.</p>';
+
+        caja.innerHTML = html;
+    }
+
+    // -----------------------------------------------------------------------
+    // El monto fijo, leido de data/tasa-monto-fijo.json.
+    //
+    // Es el mismo mecanismo que la UMA en prorrateo y el UHOM en mediacion, y
+    // por una razon que vale escribir: Javier lo planteo como "no se como
+    // podriamos manejar el input para cambiarlo manualmente de forma sencilla
+    // sin tocar codigo y sin hardcodearlo", y el problema ya estaba resuelto
+    // dos veces en este repositorio. El valor vive en un archivo de datos con
+    // la norma al lado, y la pantalla lo muestra en un campo que se puede
+    // pisar. Que se actualice cada varios anios lo hace MAS facil que la UMA,
+    // no mas dificil: el mismo mecanismo con menos ediciones.
+    //
+    // Se elige el ultimo valor cuya VIGENCIA ya empezo, y no el ultimo del
+    // archivo. La diferencia aparece el dia que se carga un valor por
+    // adelantado, que aca es el caso normal: la Acordada 15/2022 se publico en
+    // mayo y rige desde julio.
+    // -----------------------------------------------------------------------
+    var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+                 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+    function vigenteAlDia(valores) {
+        var hoy = new Date().toISOString().slice(0, 10);
+        var elegido = null;
+        for (var i = 0; i < valores.length; i++) {
+            var v = valores[i];
+            if (typeof v.valor !== 'number' || !v.vigencia) continue;
+            if (v.vigencia <= hoy) elegido = v;
+        }
+        return elegido;
+    }
+
+    function desdeCuando(vigencia) {
+        var partes = String(vigencia).split('-');
+        var mes = MESES[parseInt(partes[1], 10) - 1];
+        return mes ? mes + ' de ' + partes[0] : vigencia;
+    }
+
+    function traerMontoFijo() {
+        var input = document.getElementById('montoFijo');
+        var estado = document.getElementById('estadoMontoFijo');
+        // Rompe-cache: sin esto un valor nuevo puede tardar en aparecer y el
+        // usuario ve el anterior sin que nada se lo diga.
+        return fetch('../data/tasa-monto-fijo.json?v=' + Date.now())
+            .then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then(function (serie) {
+                var vigente = vigenteAlDia(serie.valores || []);
+                if (!vigente) throw new Error('la serie no tiene ningún valor vigente');
+                input.value = vigente.valor.toLocaleString('es-AR');
+                // Se dice DESDE CUANDO rige, y no solo el numero: es el dato
+                // que permite notar que el archivo quedo viejo.
+                estado.textContent = 'Rige desde ' + desdeCuando(vigente.vigencia) +
+                    ' (' + vigente.norma + '), y se aplica a las demandas y reconvenciones ' +
+                    'presentadas desde esa fecha.';
+                calcular();
+            })
+            .catch(function (e) {
+                // No se inventa un valor ni se deja el anterior: se dice que
+                // hay que cargarlo. Una tasa liquidada con un monto fijo
+                // equivocado sale plausible y nadie la mira dos veces.
+                estado.textContent = 'No se pudo leer el monto fijo (' + e.message +
+                    '). Cargalo a mano: sale de la última acordada de la Corte sobre el art. 6.';
+                calcular();
+            });
     }
 
     // -----------------------------------------------------------------------
@@ -1135,6 +1583,13 @@
         calcular();
     });
     document.getElementById('btnReiniciar').addEventListener('click', reiniciar);
+    // La hoja ya está armada ---se rehace en cada calcular()---, así que acá no
+    // hay nada que construir: se manda a imprimir y listo. El diálogo del
+    // sistema deja elegir impresora o PDF, que es lo que hace falta para
+    // acompañarla al expediente.
+    document.getElementById('btnImprimir').addEventListener('click', function () {
+        window.print();
+    });
 
     // Un solo oyente en el documento en vez de uno por campo: los renglones se
     // crean y se borran, y enganchar oyentes renglon por renglon es la forma de
@@ -1150,6 +1605,7 @@
 
     agregarRenglon();
     calcular();
+    traerMontoFijo();
 
     // Para el banco de pruebas y para el imprimible que viene: la cuenta y las
     // dos tablas de la ley, consultables sin tocar el DOM.

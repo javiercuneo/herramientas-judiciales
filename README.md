@@ -82,7 +82,7 @@ falla y deja el archivo como estaba.
 |---|---|
 | [Honorarios del mediador](https://javiercuneo.com.ar/calculadoras/honorarios-mediacion.html) | Ley 26.589. |
 | [Prorrateo (art. 730 CCyCN)](https://javiercuneo.com.ar/calculadoras/prorrateo.html) | Límite de responsabilidad del deudor por las costas. |
-| [Tasa de justicia](https://javiercuneo.com.ar/calculadoras/tasa.html) | Ley 23.898. Un renglón por pretensión, con la base del art. 4 y la alícuota de los arts. 2 y 3 elegidas por separado. |
+| [Tasa de justicia](https://javiercuneo.com.ar/calculadoras/tasa.html) | Ley 23.898. Un renglón por pretensión, con la base del art. 4 y la alícuota de los arts. 2 y 3 elegidas por separado, y la liquidación detallada del art. 4 <em>in fine</em> impresa. |
 
 ### Otras
 

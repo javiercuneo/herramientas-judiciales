@@ -1,9 +1,10 @@
 // ---------------------------------------------------------------
-// Controla data/serie-uma.json y data/serie-uhom.json.
+// Controla data/serie-uma.json, data/serie-uhom.json y
+// data/tasa-monto-fijo.json.
 //
 //   npm run verificar-series
 //
-// Estas dos series no las calcula nadie: se leyeron a mano de las
+// Estas tres series no las calcula nadie: se leyeron a mano de las
 // acordadas de la CSJN y de las tablas del Ministerio, y despues se
 // editan a mano cada vez que sale un valor nuevo. Un archivo asi se
 // rompe de tres formas, y las tres dan un numero plausible:
@@ -58,7 +59,7 @@ async function leer(nombre) {
   return datos
 }
 
-/** Lo que vale para las dos series. */
+/** Lo que vale para las tres series. */
 function controlarComun(nombre, valores) {
   const hoy = new Date().toISOString().slice(0, 10)
   const vistas = new Set()
@@ -104,6 +105,12 @@ function controlarComun(nombre, valores) {
 
 const uma = await leer('serie-uma.json')
 const uhom = await leer('serie-uhom.json')
+// El monto fijo del art. 6 de la Ley 23.898. Es la tercera serie que se carga
+// a mano y se rompe igual que las otras dos ---vigencia repetida, valor que
+// baja, acto imposible---, asi que pasa por los mismos controles. Que hoy
+// tenga UN solo valor no la exime: el dia que la Corte saque otra acordada,
+// el archivo se edita a mano y ahi es donde aparecen los tres errores.
+const montoFijo = await leer('tasa-monto-fijo.json')
 
 if (uma) {
   controlarComun('serie-uma', uma.valores)
@@ -119,6 +126,24 @@ if (uma) {
     }
     // La resolucion no puede ser anterior al dia desde el que rige el valor
     // que fija. Si aparece una, o la fecha se cargo mal o la vigencia si.
+    if (v.acto < v.vigencia && !v.sin_demora) {
+      mal(`${donde}: el acto (${v.acto}) es anterior a la vigencia (${v.vigencia})`)
+    }
+  })
+}
+
+if (montoFijo) {
+  controlarComun('tasa-monto-fijo', montoFijo.valores)
+
+  montoFijo.valores.forEach((v, i) => {
+    const donde = `tasa-monto-fijo[${i}]`
+    if (!v.norma) mal(`${donde}: sin "norma". Un valor sin el acto que lo fija no se publica.`)
+    if (v.acto === undefined) mal(`${donde}: sin "acto" (usa null si no se conoce)`)
+    if (v.acto === null) return
+    if (!esFechaValida(v.acto)) {
+      mal(`${donde}: "acto" no es una fecha AAAA-MM-DD (${v.acto})`)
+      return
+    }
     if (v.acto < v.vigencia && !v.sin_demora) {
       mal(`${donde}: el acto (${v.acto}) es anterior a la vigencia (${v.vigencia})`)
     }
@@ -157,7 +182,8 @@ if (uhom) {
 
 console.log(
   `\nserie-uma: ${uma ? uma.valores.length : 0} valores` +
-    ` | serie-uhom: ${uhom ? uhom.valores.length : 0} valores`,
+    ` | serie-uhom: ${uhom ? uhom.valores.length : 0} valores` +
+    ` | tasa-monto-fijo: ${montoFijo ? montoFijo.valores.length : 0} valor(es)`,
 )
 
 if (fallas.length) {
@@ -166,4 +192,4 @@ if (fallas.length) {
   process.exit(1)
 }
 
-console.log('Las dos series cierran.')
+console.log('Las tres series cierran.')
