@@ -600,8 +600,9 @@ const FIJADOS = [
     //   concursal  0,75 % y 0,25 % sobre lo que pase de $100.000.000
     // y la cuenta de cada renglon es
     //   importe x factor de la base x titularidad x alicuota x (1 + sobretasa)
-    // con la titularidad solo en las alicuotas sucesorias y la sobretasa solo
-    // sobre inmuebles de una sucesion.
+    // con la titularidad en las dos bases que valuan una COSA ---inmuebles del
+    // inc. c y muebles del inc. d, con cualquier alicuota--- y la sobretasa
+    // solo sobre inmuebles de una sucesion.
     {
         calc: 'tasa',
         rotulo: 'Sumas de dinero: el 3 % del art. 2',
@@ -619,9 +620,9 @@ const FIJADOS = [
     {
         calc: 'tasa',
         rotulo: 'Inmuebles: 3 % sobre la valuación (art. 4 inc. c)',
-        campos: { renglones: [{ base: 'inmueble', alicuota: 'general', importe: '25000000' }] },
-        esperado: 'total $ 750.000,00 · por renglón $ 750.000,00',
-        porque: 'La misma base que usan los cuatro casos sucesorios de abajo, pero en un juicio comun: el inmueble va al 3 % del art. 2 y no lleva ni titularidad ni sobretasa. Es el par que hace visible que la reduccion del art. 3 la trae el SUPUESTO y no el tipo de bien.'
+        campos: { verModificadores: true, renglones: [{ base: 'inmueble', alicuota: 'general', importe: '25000000' }] },
+        esperado: 'total $ 750.000,00 · por renglón $ 750.000,00 · modificadores titularidad',
+        porque: 'La misma base que usan los cuatro casos sucesorios de abajo, pero en un juicio comun: el inmueble va al 3 % del art. 2 y NO lleva sobretasa, que es de la sucesion. TITULARIDAD SI LLEVA, y desde el 27/8: la cosa comun se divide con o sin muerto. Es el par que hace visible que lo que trae el SUPUESTO es la reduccion del art. 3 y la sobretasa, y no la titularidad, que la trae el bien.'
     },
 
     // Los tres que hasta el 27/8 estaban juntos en una sola opcion llamada
@@ -719,7 +720,7 @@ const FIJADOS = [
         rotulo: 'El dinero del acervo va por el inc. d, no por el inc. a',
         campos: { verModificadores: true, renglones: [{ base: 'muebles', alicuota: 'sucesorio', importe: '10000000' }] },
         esperado: 'total $ 150.000,00 · por renglón $ 150.000,00 · modificadores titularidad',
-        porque: 'CAMBIO DE MAPEO EL 27/8, y el numero es el mismo. La pantalla anterior tenia "Sucesion / Sumas de dinero" como cuarto tipo de bien, SIN titularidad. Pero el art. 4 inc. g dice que en los sucesorios el valor de los bienes se determina "como lo establece en los incisos c) y d)": la plata del acervo es un bien mueble ---inc. d---, no una suma de dinero reclamada ---inc. a, que es una pretension contenciosa---. Y la titularidad ahora SI aparece, porque cuelga del supuesto y no del tipo de bien: el dinero puede ser ganancial igual que el inmueble. Con el campo vacio vale 100 %, asi que el numero no se movio.'
+        porque: 'CAMBIO DE MAPEO EL 27/8, y el numero es el mismo. La pantalla anterior tenia "Sucesion / Sumas de dinero" como cuarto tipo de bien, SIN titularidad. Pero el art. 4 inc. g dice que en los sucesorios el valor de los bienes se determina "como lo establece en los incisos c) y d)": la plata del acervo es un bien mueble ---inc. d---, no una suma de dinero reclamada ---inc. a, que es una pretension contenciosa---. Y la titularidad ahora SI aparece, porque el dinero del acervo puede ser ganancial igual que el inmueble. Con el campo vacio vale 100 %, asi que el numero no se movio.'
     },
     {
         calc: 'tasa',
@@ -730,6 +731,14 @@ const FIJADOS = [
         ] },
         esperado: 'total $ 1.875.000,00 · por renglón $ 1.575.000,00 | $ 300.000,00',
         porque: 'EL CASO QUE DISPARO LA REFUNDACION: *"sucesion, pedis inscripcion de bien y automovil"*. Antes eran DOS SECCIONES con dos desplegables y un boton para agregar la segunda; ahora son dos renglones de la misma lista. $1.575.000 mas $300.000, exactamente el mismo total que antes de refundar: es la prueba de que la forma cambio y la cuenta no.'
+    },
+
+    {
+        calc: 'tasa',
+        rotulo: 'Separación de bienes: el mismo inmueble, la mitad de cada cónyuge',
+        campos: { verModificadores: true, renglones: [{ base: 'inmueble', alicuota: 'general', importe: '25000000', titularidad: '1/2' }] },
+        esperado: 'total $ 375.000,00 · por renglón $ 375.000,00 · modificadores titularidad',
+        porque: 'EL CASO QUE CERRO JAVIER EL 27/8, y el ultimo supuesto de la ley que quedaba sin lugar. El art. 9 inc. e nombra la separacion de bienes y el art. 4 no la tiene: no hace falta que la tenga. Javier: "es lo mismo que la peticion de herencia, y cualquier otro caso de cosas comunes: es el valor de lo que se divide y luego juega el porcentaje de titularidad de cada uno". O sea la MISMA base del inc. c con la MISMA titularidad, pero al 3 % general, porque la reduccion del art. 3 es del sucesorio y esto no lo es. La mitad de los $750.000 del caso de arriba. Hasta el 27/8 este caso NO SE PODIA CARGAR: el campo de titularidad solo aparecia con las alicuotas sucesorias, asi que la pantalla cobraba los $750.000 enteros a cada conyuge.'
     },
 
     // --- tasa, lo que la pantalla nueva agrega -----------------------------

@@ -767,13 +767,22 @@
                para saber el total, pero cada una se integra por separado.
                <strong>La sobretasa del 5 %</strong> es costumbre judicial y no sale de
                la ley: por eso es opcional y no lleva artículo citado.</p>
+            <p>El campo de <strong>titularidad</strong> recorta la base a la parte de
+               quien paga, y aparece en las dos bases que valúan una cosa —inmuebles
+               del inc. c y muebles del inc. d—, con cualquier alícuota. Es el mismo
+               campo para los tres supuestos en que la ley divide una cosa común: la
+               porción del causante en el sucesorio, <strong>la cuota parte de cada
+               cónyuge</strong> en la separación de bienes (art. 9 inc. e) y lo que le
+               toca al peticionario en la petición de herencia (inc. f). Vacío vale
+               100 %.</p>
             <p>El <strong>monto fijo de los arts. 5 y 6</strong> no es una alícuota
                sino una suma que actualiza la Corte, y sale de
                <code>data/tasa-monto-fijo.json</code>, leído de la acordada y versionado
                en este sitio: la página no le pide el valor a nadie. El art. 4
                <em>in fine</em> exige acompañar al pago la <strong>liquidación detallada
-               del monto imponible</strong>: el imprimible que sale de esta lista todavía
-               no está hecho.
+               del monto imponible</strong>: eso es lo que imprime el botón
+               <strong>«Imprimir la liquidación»</strong>, con cada renglón, su cita y
+               los grupos del art. 8 separados.
                Si algo da mal, <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.</p>
         </div>
     </div>
@@ -805,6 +814,26 @@
     // directo--- y dejarlos elegibles es volver a poner la puerta por la que
     // entro el cobro doble.
     //
+    // `divisible` marca las dos bases que valuan UNA COSA ---el inmueble del
+    // inc. c y el mueble o derecho del inc. d--- y por eso son las dos que
+    // pueden ser de varios. Es el campo de TITULARIDAD, y cuelga de aca y no
+    // del supuesto sucesorio, que es donde estuvo hasta el 27/8. Lo corrigio
+    // Javier: "la separacion de bienes es lo mismo que la peticion de
+    // herencia, y cualquier otro caso de cosas comunes: es el valor de lo que
+    // se divide y luego juega el porcentaje de titularidad de cada uno". O
+    // sea que la titularidad NO es una figura del sucesorio: es una figura de
+    // la cosa comun, y el sucesorio es UNO de los casos en que aparece. Los
+    // otros dos que la ley nombra son la separacion de bienes del art. 9 inc.
+    // e ---donde ademas cada conyuge puede pagar su cuota parte--- y la
+    // peticion de herencia del inc. f, donde la base es la porcion que le toca
+    // al peticionario. Ninguno de los dos necesita una base propia: son estos
+    // mismos bienes, recortados por este mismo campo.
+    //
+    // NINGUN NUMERO SE MOVIO AL CAMBIARLO. El campo vacio vale 100 %, asi que
+    // lo unico que cambia es que ahora tambien aparece con la alicuota general
+    // del art. 2, que es donde vive el condominio que se divide sin que haya
+    // muerto nadie.
+    //
     // NO ESTA "SUMAS DE DINERO EN LA SUCESION" como base propia, y es a
     // proposito: el art. 4 inc. g dice que en los sucesorios el valor de los
     // bienes "se determinara como lo establece en los incisos c) y d)". La
@@ -832,6 +861,7 @@
             id: 'inmueble',
             rotulo: 'Inmuebles: valuación fiscal',
             cita: 'art. 4 inc. c',
+            divisible: true,
             hint: 'La valuación fiscal actualizada, salvo que del negocio jurídico sobre el que versa el litigio surja un mayor valor: entonces ése.',
             alicuotas: ['general', 'mensura', 'sucesorio', 'testamento', 'extranha']
         },
@@ -839,6 +869,7 @@
             id: 'muebles',
             rotulo: 'Bienes muebles y otros derechos',
             cita: 'art. 4 inc. d',
+            divisible: true,
             hint: 'El monto que fija el juez, previa estimación de la parte y vista al fisco. En un sucesorio: la valuación del automóvil, la certificación contable de la participación societaria, el dinero del acervo o la valuación agregada al expediente.',
             alicuotas: ['general', 'sucesorio', 'testamento', 'extranha']
         },
@@ -925,20 +956,19 @@
     // provincial o municipal (inc. g) y tercerias (inc. h). Los incs. a y e
     // estan derogados.
     //
-    // `sucesion: true` marca las tres alicuotas donde la TITULARIDAD tiene
-    // sentido ---que parte del bien era del causante---, y no las marca por el
-    // tipo de bien sino por el supuesto, que es el eje correcto. La pantalla
-    // anterior ofrecia titularidad en tres de los cuatro tipos de bien y no en
-    // el cuarto, sin ninguna razon legal: el dinero del acervo puede ser
-    // ganancial igual que el inmueble. De paso resuelve la peticion de herencia
-    // del art. 9 inc. f, donde la base es la porcion que le toca al
-    // peticionario, que es exactamente lo que hace este campo.
+    // `sucesion: true` marca las tres alicuotas del supuesto sucesorio, y hoy
+    // gobierna DOS cosas: la SOBRETASA ---que solo se usa sobre inmuebles de
+    // una sucesion--- y el momento de pago del art. 9 inc. d. Hasta el 27/8
+    // gobernaba tambien la titularidad, y eso estaba mal por defecto: la
+    // titularidad es de la cosa comun y no del sucesorio, asi que ahora cuelga
+    // de `divisible` en la lista de bases, arriba.
     //
-    // EL 0,75 % DEL INC. G ESTA SIN VERIFICAR CONTRA DOCTRINA. El texto dice
-    // que "el valor establecido en el articulo 3, inciso c) se reducira a la
-    // mitad", y el art. 3 inc. c no establece un valor sino una reduccion. Se
-    // lee que la alicuota ya reducida se reduce otra vez ---3 % a 1,5 % y a
-    // 0,75 %---, que es la lectura corriente, pero la redaccion se presta.
+    // EL 0,75 % DEL INC. G: el texto dice que "el valor establecido en el
+    // articulo 3, inciso c) se reducira a la mitad", y el art. 3 inc. c no
+    // establece un valor sino una reduccion, asi que la redaccion se presta a
+    // leerla de dos maneras. La calculadora lee que la alicuota ya reducida se
+    // reduce otra vez ---3 % a 1,5 % y a 0,75 %---, y esa lectura la confirmo
+    // Javier el 27/8: "es la interpretacion que se hace todos los dias".
     // -----------------------------------------------------------------------
     var ALICUOTAS = [
         { id: 'general',    rotulo: '3 %, general',                                                     cita: 'art. 2',                  tasa: 0.03 },
@@ -990,6 +1020,21 @@
     };
     var MOMENTO_POR_OMISION =
         ['art. 9 inc. a', 'Toda la tasa en el acto de iniciación de las actuaciones, con reajuste posterior si la liquidación definitiva arroja un mayor valor.'];
+
+    // LOS DOS SUPUESTOS DEL ART. 9 QUE EL ART. 4 NO TIENE, y que por eso no son
+    // ni una base ni una alicuota: la separacion de bienes (inc. e) y la
+    // peticion de herencia (inc. f). Los dos se cargan igual ---el valor de la
+    // cosa, recortado por la titularidad--- y la pantalla NO puede distinguir
+    // ninguno de los dos de un condominio comun, que se carga exactamente
+    // igual. Clavarles un momento seria inventarlo. Se dice como referencia
+    // cuando hay un renglon dividido, que es cuando el caso puede ser uno de
+    // los dos, y se dice que la pantalla no sabe cual es.
+    var MOMENTO_DIVISION = ['art. 9 incs. e y f',
+        'Si lo que se divide es una sociedad conyugal, al promover su liquidación, y ' +
+        '<strong>cada cónyuge puede pagar su cuota parte</strong>. Si es una petición de ' +
+        'herencia, al determinarse el valor de la parte del peticionario. Aparece porque ' +
+        'hay un renglón con titularidad menor al 100 %: de un condominio común, que se ' +
+        'carga igual, la pantalla no puede distinguirlos.'];
 
     // -----------------------------------------------------------------------
     // EL ART. 8, que no es un tercer eje sino una clasificacion del renglon.
@@ -1277,7 +1322,7 @@
 
         var importe = numero(entrada.importe);
         var factor = base.factor || 1;
-        var llevaTitularidad = !!ali.sucesion;
+        var llevaTitularidad = !!base.divisible;
         var llevaSobretasa = !!ali.sucesion && base.id === 'inmueble';
 
         var titularidad = llevaTitularidad ? parseTitularidad(entrada.titularidad) : 1;
@@ -1366,7 +1411,7 @@
             '<td class="celda-modificadores">' +
                 '<div class="titularidad" hidden>' +
                     '<input type="text" class="fila-titularidad" inputmode="decimal" ' +
-                           'autocomplete="off" placeholder="100 %" aria-label="Titularidad del causante">' +
+                           'autocomplete="off" placeholder="100 %" aria-label="Parte del bien que le toca a quien paga">' +
                 '</div>' +
                 '<div class="chips" hidden>' +
                     '<label class="chip"><input type="checkbox" class="fila-consobretasa" checked>' +
@@ -1530,16 +1575,24 @@
         fijoEnFila.hidden = !c.montoFijo;
         if (c.montoFijo) fijoEnFila.textContent = c.tasa > 0 ? pesos(c.tasa) : '—';
 
-        // Los dos modificadores cuelgan del EJE DE LA ALICUOTA y no del tipo de
-        // bien: existen porque el supuesto es sucesorio, no porque el bien sea
-        // un inmueble. La sobretasa, ademas, solo sobre inmuebles, que es donde
-        // se usa.
+        // LOS DOS MODIFICADORES CUELGAN DE EJES DISTINTOS, y eso es el arreglo
+        // del 27/8. La titularidad cuelga del BIEN: existe porque la cosa se
+        // puede dividir, en un sucesorio o en cualquier otro caso de cosas
+        // comunes. La sobretasa cuelga del SUPUESTO ---y ademas solo sobre
+        // inmuebles---: existe porque el juzgado la cobra en las sucesiones,
+        // que es la unica parte de esta pantalla que no sale de la ley.
         cajaTit.hidden = !c.llevaTitularidad;
         cajaChips.hidden = !c.llevaSobretasa;
         tr.querySelector('.chip').classList.toggle('activo',
             tr.querySelector('.fila-consobretasa').checked);
+        // La nota ya no dice "del causante": el campo ahora aparece tambien en
+        // una separacion de bienes y en un condominio, y ahi esa palabra hace
+        // dudar de si el campo es el que corresponde. Los tres supuestos se
+        // enumeran en el colofon y en "Cuando se paga", que es donde hay lugar:
+        // esta celda mide 169 px y cada renglon de mas la estira, en una
+        // sucesion, seis veces.
         tr.querySelector('.fila-nota-mod').textContent = c.llevaTitularidad
-            ? 'Parte del bien que era del causante. Se escribe 50, 50 % o 1/2.'
+            ? 'Parte del bien que le toca a quien paga. Se escribe 50, 50 % o 1/2.'
             : '';
 
         // El monto imponible se escribe SOLO cuando no es el importe cargado,
@@ -1664,6 +1717,11 @@
             vistos.push(m[0]);
             lista.push(m);
         });
+
+        var hayDivision = cuentas.some(function (c) {
+            return c && c.llevaTitularidad && c.titularidad !== 1;
+        });
+        if (hayDivision) lista.push(MOMENTO_DIVISION);
 
         document.getElementById('momentos').innerHTML = lista.map(function (m) {
             return '<li><span class="cual">' + m[0] + '</span>' +

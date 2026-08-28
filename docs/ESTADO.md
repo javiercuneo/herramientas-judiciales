@@ -49,11 +49,17 @@ entraron los dos que llevaban escrito «ir a mirarlo a Honorio antes de
 escribir»: **las exenciones del art. 13 con su buscador** y **el permalink en el
 fragmento de la URL**, que comparte el caso sin que nada viaje a ningún
 servidor. **`tasa` cubre ahora toda la Ley 23.898.**
+**Y quedó cerrada el mismo día**: Javier contestó las tres preguntas que le
+habían quedado, y la tercera movió código. La **titularidad dejó de colgar del
+supuesto sucesorio y pasó a colgar del bien** —*«la separación de bienes es lo
+mismo que la petición de herencia, y cualquier otro caso de cosas comunes»*—, y
+con eso una separación de bienes dejó de cobrarle el inmueble entero a cada
+cónyuge.
 **Van tres de las cuatro que no son de plazos; queda `ejecucion-estado`.** Ver
 [`tasa` refundada](#tasa-refundada-los-dos-ejes-en-una-lista--278),
 [el monto fijo y el imprimible](#el-monto-fijo-y-el-imprimible-lo-que-la-lista-desbloqueaba--278),
 [las exenciones y el permalink](#las-exenciones-del-art-13-y-el-permalink-los-dos-copiados-de-honorio--278)
-y [lo que queda abierto](#lo-que-le-falta-a-tasa--278).
+y [el cierre, con la titularidad cambiada de eje](#tasa-cerrada-las-tres-preguntas-contestadas-y-la-titularidad-cambió-de-eje--278).
 
 **El 25/8 la landing volvió a decir lo que Honorio hace.** Anunciaba la versión
 3.1.1 con la app en 3.4.1, publicaba los recorridos y los cruces de antes del
@@ -287,7 +293,7 @@ Ninguno urgente y ninguno bloqueante.
   revés, y las faltas de ortografía del texto que ve el usuario en `caducidad` y
   en `regresiva`. Lo que queda ahí es aspecto, no defecto.
   **Y las cuatro que van de cero ya tienen red**, que era la condición para
-  poder tocarlas: `scripts/pruebas-no-plazos.html`, 45 fijados. Antes del 26/8
+  poder tocarlas: `scripts/pruebas-no-plazos.html`, 46 fijados. Antes del 26/8
   no tenían ninguna comprobación y una reescritura no se habría podido
   distinguir de un error.
   **De las cuatro ya están hechas dos, las dos el 27/8**: `honorarios-mediacion`
@@ -295,7 +301,9 @@ Ninguno urgente y ninguno bloqueante.
   [abajo](#honorarios-mediacion-rehecha-y-qué-explica-esta-pantalla--278)— y
   `prorrateo`, que es la primera que además **movió un número**: ver
   [abajo](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278).
-  **Quedan `tasa` y `ejecucion-estado`.**
+  **Y `tasa`, refundada el 27/8 y cerrada el mismo día**: cubre toda la Ley
+  23.898 y no le quedan preguntas abiertas. **Queda `ejecucion-estado`**, la
+  última de las cuatro.
 - **`prorrateo` no computa el art. 730 in fine.** El último párrafo excluye del
   cómputo del 25 % los honorarios de los profesionales de la parte condenada en
   costas, y la pantalla no tiene forma de marcarlos: hoy todas las regulaciones
@@ -304,29 +312,17 @@ Ninguno urgente y ninguno bloqueante.
   Detectado el 27/8 al refundar la pantalla y **no se implementó ahí a
   propósito**: es una función nueva y no una refundación de la forma. Ver
   [abajo](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278).
-- **En la pantalla de sucesiones de `tasa`, un campo que nadie tocó da $0,00.**
-  Probado el 27/8: un inmueble de CABA valuado en $100.000.000, con el campo de
-  titularidad **como viene**, muestra $ 0,00; escribiendo `100` muestra
-  $1.575.000. **Escribir `0` y que dé cero está bien** —lo marcó Javier: si el
-  causante no era titular no se tributa—; lo que está mal es que no haber
-  escrito nada se lea igual que haber escrito cero. Se arregla haciendo que el
-  campo vacío valga 100 %, que es lo ya decidido, y el caso del `0` escrito
-  queda igual. Ver
-  [abajo](#tasa-el-diagnóstico-antes-de-refundarla-y-un-cero-en-silencio--278).
-- **El imprimible de `tasa` no es una comodidad: es un documento que la ley
-  exige.** Javier lo definió el 27/8, y cambia lo que hay que construir: el
-  art. 4 in fine dice que *«en todos los casos al momento de efectuarse el pago
-  de la tasa se acompañará la correspondiente liquidación detallada del monto
-  imponible»*. **El imprimible ES esa liquidación**, y por eso lleva además un
-  número de referencia para citarlo en el expediente. No es la pantalla en
-  papel: es el papel que se presenta.
-  **Lo que se sigue de ahí**, y conviene tenerlo a la vista antes de escribir:
-  tiene que mostrar el **monto imponible de cada renglón** —que es lo que la ley
-  manda detallar—, con el inciso del art. 4 del que sale y la alícuota aplicada;
-  las ampliaciones y reconvenciones **distinguidas y no sumadas sin más**,
-  porque el art. 8 las hace juicios independientes; y nada de los controles de
-  la pantalla. El de `prorrateo` es otra cosa —ahí no hay norma que lo pida— y
-  puede salir del mismo mecanismo pero sin esta exigencia.
+- **~~El campo de titularidad de `tasa` que nadie tocó daba $0,00.~~** y
+  **~~el imprimible del art. 4 *in fine*.~~ Los dos hechos el 27/8**, con la
+  refundación de la pantalla. El campo vacío vale 100 % y el `0` escrito a mano
+  sigue dando cero, que es la respuesta correcta; el imprimible es la
+  liquidación detallada que la ley manda acompañar al pago, con los grupos del
+  art. 8 separados. **El de `prorrateo` es otra cosa** —ahí no hay norma que lo
+  pida— y puede salir del mismo mecanismo sin esta exigencia. Sigue sin hacerse.
+- **~~Enlace permanente con el caso cargado.~~ Hecho el 27/8 en `tasa`**, y lo
+  que sigue vivo es extenderlo a las demás. Se resolvió como estaba anotado
+  abajo: el caso va en el **fragmento**, que no viaja al servidor. Lo de abajo se
+  deja porque la duda que plantea vale para cada pantalla nueva que lo copie.
 - **Anotado para explorar, sin decidir: enlace permanente con el caso cargado.**
   Planteado por Javier el 27/8 —*«quizás deberían llevar hiperlink (esto solo
   anotalo para explorar por ahora)»*—. Sería poner el estado del formulario en
@@ -2082,7 +2078,7 @@ cobertura sino criterio, y está abajo.
 
 ---
 
-### Lo que le falta a `tasa` — 27/8
+### `tasa` cerrada: las tres preguntas contestadas, y la titularidad cambió de eje — 27/8
 
 **La lista de cuatro que tenía esta sección se hizo entera el 27/8**, y lo que
 queda no es cobertura de la ley sino criterio. Los cuatro, para que la próxima
@@ -2095,34 +2091,84 @@ lectura no los busque:
    patrón de Honorio, ido a mirar antes de escribir como decía la indicación.
    Ver [las exenciones y el permalink](#las-exenciones-del-art-13-y-el-permalink-los-dos-copiados-de-honorio--278).
 
-**`tasa` cubre ahora toda la Ley 23.898.**
+**`tasa` cubre ahora toda la Ley 23.898**, y desde el cierre del 27/8 tampoco
+le quedan preguntas abiertas: Javier contestó las tres que le habían quedado.
 
-**Dos cosas de la ley que quedaron sin lugar, y no por olvido:**
+#### Las tres, contestadas
 
-- **La separación de bienes del art. 9 inc. e.** No está en el mapa de bases del
-  art. 4 —el art. 9 trae dos supuestos que el art. 4 no tiene— y además **cada
-  cónyuge puede pagar su cuota parte**, que es una forma de reparto que la lista
-  no representa. La petición de herencia, el otro de los dos, sí quedó resuelta:
-  es la titularidad.
-- **La propiedad industrial.** El art. 4 inc. d remite a lo que «la Dirección
-  Nacional de la Propiedad Industrial perciba para la solicitud de registros», o
-  sea a un arancel externo. **No hay número que calcular desde acá.**
+**1. El 0,75 % del art. 4 inc. g queda como está.** La duda era de redacción: el
+texto dice que «el **valor** establecido en el artículo 3º, inciso c) se
+reducirá a la mitad», y el art. 3 inc. c no establece un valor sino una
+reducción, así que se lee de dos maneras. La calculadora lee que la alícuota ya
+reducida se reduce otra vez —3 % → 1,5 % → 0,75 %—, y Javier: ***«es la
+interpretación que se hace todos los días, está bien así»***. El comentario del
+código dejó de pedir doctrina y dice eso.
 
-**Lo que sigue abierto y no se tocó:**
+**2. La entrevista previa se descarta.** Javier la había dejado abierta —*«quizás
+hay que hacer una entrevista previa para llegar al número final, no lo sé»*— y
+la cerró: **no**. La razón sigue siendo la que estaba escrita: una entrevista es
+buena la primera vez y estorba a partir de la segunda, y la tasa se calcula
+seguido. El hint del renglón da lo mismo sin cobrar el peaje cada vez.
 
-- **El 0,75 % del inc. g conviene mirarlo con doctrina.** El texto dice que «el
-  **valor** establecido en el artículo 3º, inciso c) se reducirá a la mitad», y
-  el art. 3 inc. c no establece un valor sino una reducción. La calculadora lee
-  que se reduce la alícuota otra vez a la mitad —3 % → 1,5 % → 0,75 %—, que es la
-  lectura corriente, pero la redacción se presta. **No se verificó contra
-  doctrina**, y está escrito así en el código para que la próxima lectura no
-  tenga que descubrirlo.
-- **La entrevista previa**, que Javier dejó abierta: *«quizás hay que hacer una
-  entrevista previa para llegar al número final, no lo sé»*. **La recomendación
-  sigue siendo que no**, y ahora con el hint funcionando hay una razón concreta:
-  una entrevista es buena la primera vez y estorba a partir de la segunda, y la
-  tasa se calcula seguido. El hint en el renglón da lo mismo —decirte qué número
-  va— sin cobrar el peaje cada vez. **Sin decidir.**
+**3. La separación de bienes NO necesitaba una base propia, y el que estaba mal
+era el eje de la titularidad.** Esta es la que movió código.
+
+#### La titularidad no es del sucesorio: es de la cosa común
+
+**La sección anterior había dado la separación de bienes por «sin lugar»**, con
+el argumento de que el art. 9 inc. e no está en el mapa de bases del art. 4.
+Javier lo corrigió de un tirón: ***«la separación de bienes es lo mismo que la
+petición de herencia, y cualquier otro caso de cosas comunes: es el valor de lo
+que se divide y luego juega el porcentaje de titularidad de cada uno»***.
+
+O sea que la base no falta —es el mismo inmueble del inc. c o el mismo mueble
+del inc. d— y el reparto ya lo hace el campo de titularidad. **Lo que estaba mal
+era de dónde colgaba ese campo.** La refundación lo había colgado del EJE DE LA
+ALÍCUOTA —aparecía sólo con las tres alícuotas sucesorias— y lo había escrito
+como una decisión pensada: *«no las marca por el tipo de bien sino por el
+supuesto, que es el eje correcto»*. **Era el eje equivocado**, y el error
+completo es más viejo: la pantalla anterior lo colgaba del tipo de bien pero
+sólo adentro de la sucesión, así que las dos versiones tenían el mismo techo.
+
+Ahora cuelga de la **base**: las dos que valúan una cosa —`inmueble` del inc. c
+y `muebles` del inc. d— llevan `divisible: true`, y son las dos que pueden ser
+de varios. El supuesto sigue gobernando lo que sí es suyo: **la sobretasa**
+—costumbre del juzgado en las sucesiones, y sólo sobre inmuebles— y el momento
+de pago del art. 9 inc. d.
+
+**Lo que se podía cargar mal, en un renglón:** una separación de bienes con un
+inmueble de $25.000.000 va al 3 % del art. 2 —la reducción del art. 3 es del
+sucesorio y esto no lo es—, y el campo de titularidad no aparecía. La pantalla
+cobraba **$750.000 a cada cónyuge en vez de $375.000**. Es el caso nuevo del
+banco, y el banco pasó de 45 a 46.
+
+**Ningún número existente se movió**, y esa es la parte que hacía segura la
+operación: el campo vacío vale 100 %, así que el cambio sólo agrega el campo
+donde antes no estaba.
+
+#### Lo que la pantalla no puede saber, y lo dice
+
+El art. 9 trae **dos supuestos que el art. 4 no tiene** —la separación de bienes
+del inc. e y la petición de herencia del inc. f— y los dos se cargan igual que
+un condominio común: el valor de la cosa, recortado por la titularidad.
+**Ninguna de las dos se distingue de la otra desde los dos ejes**, así que
+clavarles un momento de pago sería inventarlo. Cuando algún renglón tiene
+titularidad menor al 100 %, «Cuándo se paga» agrega un renglón que dice los dos
+—al promover la liquidación de la sociedad conyugal, y **cada cónyuge puede
+pagar su cuota parte**; al determinarse el valor de la parte del peticionario— y
+dice también que la pantalla no puede distinguirlos. Es la misma regla de la
+casa: el número no se oculta y la duda se escribe.
+
+#### Un renglón del colofón mentía
+
+Decía que *«el imprimible que sale de esta lista todavía no está hecho»*, y está
+hecho desde unas horas antes: es el botón «Imprimir la liquidación». Es el
+riesgo de escribir el colofón antes que la función. Ahora nombra el botón.
+
+**La única cosa de la ley que sigue sin lugar, y no por olvido:** la propiedad
+industrial. El art. 4 inc. d remite a lo que «la Dirección Nacional de la
+Propiedad Industrial perciba para la solicitud de registros», o sea a un arancel
+externo. **No hay número que calcular desde acá.**
 
 **Tres cosas para tener a mano si se vuelve al banco:**
 
