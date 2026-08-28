@@ -35,4 +35,27 @@ if [ -d "$raiz/honorio" ] && [ -f "$raiz/scripts/verificar-honorio.mjs" ]; then
   fi
 fi
 
+# --- El presupuesto de ESTADO.md ------------------------------------------
+# AVISA Y NO BLOQUEA mientras esta abajo del techo; BLOQUEA pasado el techo,
+# que es cuando el archivo ya se volvio caro para todas las sesiones que
+# vengan. La distincion importa: un aviso amarillo en cada commit es lo que
+# hace que la poda tenga momento, y el momento es lo que faltaba ---nadie
+# limpiaba porque limpiar no entraba en ningun commit en particular---.
+#
+# Solo corre si el commit toca docs/. Un commit de codigo no tiene por que
+# esperar a que se cuente un markdown.
+if git diff --cached --name-only | grep -q '^docs/'; then
+  if [ -f "$raiz/scripts/verificar-estado.mjs" ]; then
+    if ! salida=$(node "$raiz/scripts/verificar-estado.mjs" 2>&1); then
+      printf '\033[31m  BLOQUEA  docs/ESTADO.md se paso del presupuesto\033[0m\n'
+      printf '%s\n' "$salida" | sed 's/^/           /'
+      printf '           Muda a docs/HISTORIA.md lo que ya se cerro.\n'
+      printf '           Si es a proposito:  git commit --no-verify\n'
+      exit 1
+    fi
+    # El aviso de "queda poco margen" sale por stdout con el script en verde.
+    printf '%s\n' "$salida" | grep -q '!' && printf '%s\n' "$salida" | sed 's/^/  /'
+  fi
+fi
+
 exit 0

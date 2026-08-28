@@ -12,8 +12,40 @@ miente. Si cerrás una sesión, actualizalo.
 **Con este archivo y ése alcanza para empezar.** Lo que ya se cerró vive en
 [`docs/HISTORIA.md`](docs/HISTORIA.md), que **no se lee al arrancar**: se abre
 cuando hace falta saber por qué algo quedó como quedó, si algo ya se probó, o de
-dónde salió una regla. Cuando cierres algo en `ESTADO.md`, movelo ahí en vez de
-borrarlo.
+dónde salió una regla.
+
+### `ESTADO.md` tiene presupuesto, y hay un control que lo hace cumplir
+
+**`ESTADO.md` se lee entero al empezar cada sesión, así que cada línea de más se
+paga en todas las sesiones que vengan.** El 28/8 tenía 3766 líneas y 223 KB
+—unos 56 mil tokens por sesión—, y casi todo era crónica de trabajo ya cerrado,
+acumulada día por día sin que nadie la sacara.
+
+**La causa no es que nadie limpie: es que limpiar no tiene momento.** Cada sesión
+agrega su sección al final y ninguna tiene motivo para sacar la de la sesión
+anterior. Un documento que crece con cada commit y se poda cuando alguien se
+acuerda sólo puede crecer. Por eso hay un techo, y no una recomendación.
+
+`npm run verificar-estado` —en el `pre-commit` cuando el commit toca `docs/`, y
+en CI antes de publicar— controla cinco cosas:
+
+1. **El presupuesto: 1000 líneas**, con aviso a partir de 900. Pasado el techo,
+   falla. Lo que hay que mudar es siempre lo mismo: lo que ya se cerró.
+2. **Nada tachado.** Un `~~así~~` es algo cerrado que quedó escrito «para que se
+   vea que se hizo». Eso es historia: **se muda, no se tacha.** Es la forma más
+   común de engordar el archivo, porque cuesta cero y no se siente como agregar.
+3. **Ningún título con fecha.** Un encabezado que termina en `— 27/8` es la
+   crónica de una jornada, y **una crónica es historia desde que la jornada
+   termina**, aunque sea la de hoy. Es lo que llevó el archivo de 900 a 3766.
+4. **Ningún enlace interno roto**, y ningún enlace a un archivo que no existe.
+   Mudar una sección deja atrás los `](#ancla)` que le apuntaban.
+
+**Cómo se escribe entonces el trabajo de una sesión.** La crónica —qué se hizo,
+qué se rompió, qué se discutió, con las frases de Javier y el detalle— va a
+`HISTORIA.md`, en el mismo commit. En `ESTADO.md` va **sólo lo que el próximo
+que llegue necesita saber para seguir**: lo abierto, lo roto, la decisión que no
+hay que contradecir, la trampa que muerde. Si al escribir una línea en
+`ESTADO.md` no sabés a cuál de esas cuatro cosas pertenece, va en `HISTORIA.md`.
 
 ---
 

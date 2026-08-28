@@ -12,5 +12,10 @@ que el trabajo que describe.
 lleva lo que ya se cerró y **no se lee al arrancar**: se abre cuando aparece la
 pregunta «¿por qué esto quedó así?».
 
+`ESTADO.md` **tiene presupuesto de líneas y un control que lo hace cumplir**
+—`npm run verificar-estado`—, porque se lee entero en cada sesión. La crónica
+de lo que hiciste va a `HISTORIA.md`; en `ESTADO.md` va sólo lo que el
+próximo necesita para seguir. La regla completa está en `AGENTS.md`.
+
 No se duplica nada acá a propósito: dos archivos de instrucciones se
 desincronizan y aparece la duda de cuál vale.

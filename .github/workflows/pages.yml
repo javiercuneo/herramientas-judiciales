@@ -49,6 +49,14 @@ jobs:
       - name: Verificar citas de la documentacion de dominio
         run: npm run verificar-docs
 
+      # El presupuesto de docs/ESTADO.md. Se lee entero al empezar cada
+      # sesion de trabajo, asi que cada linea de mas se paga en todas las
+      # que vengan. Corre aca ---y no solo en el hook--- porque el hook se
+      # saltea con --no-verify y porque una rama que engorda el documento
+      # tiene que verse antes de mergearse, no despues.
+      - name: Verificar el presupuesto de ESTADO.md
+        run: npm run verificar-estado
+
       # El motor de Escribiente: conversion a Markdown, rechazo del PDF sin
       # OCR, anonimizacion y rangos de paginas. Corre aca por el mismo motivo
       # que el de arriba: la herramienta de la que salio estuvo meses
