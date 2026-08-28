@@ -3,915 +3,1177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Ejecución de Sentencias contra el Estado</title>
+    <title>Ejecución contra el Estado — arts. 170 Ley 11.672 y 22 Ley 23.982</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <script src="../assets/tema.js"></script>
     <style>
+        /* ==================================================================
+           Refundada el 27/8/2026. Es la CUARTA Y ULTIMA de las que no son de
+           plazos y van de cero, y la unica donde el problema no era la forma.
+
+           QUE ESTABA MAL, Y NO ERA LA ARITMETICA.
+
+           La pantalla anterior era un asistente de cuatro pasos y las tres
+           reglas que encadenaba estaban bien: antes del 31 de julio suma dos
+           anios, despues tres, y la certificacion de agotamiento suma uno.
+           Lo que estaba mal era A QUE SE DECLARABA APLICABLE.
+
+           1. SE DECLARABA APLICABLE A TODO LO POSTERIOR AL 1/4/1991, y frenaba
+              solo lo anterior por la consolidacion de la Ley 23.982. Pero hubo
+              una SEGUNDA consolidacion: el art. 13 de la Ley 25.344 consolido
+              las obligaciones de causa o titulo posterior al 31/3/1991 y
+              anterior al 1/1/2000, y el art. 58 de la Ley 25.725 corrio esa
+              fecha de corte al 31/12/2001. El regimen que esta pantalla modela
+              ---el pasivo corriente--- empieza recien el 1/1/2002.
+
+           2. Y GATILLABA SOBRE LA FECHA EQUIVOCADA. La consolidacion mira la
+              CAUSA O TITULO de la obligacion; la pantalla pedia y validaba la
+              FECHA DE NOTIFICACION, que es otra cosa y puede caer veinte anios
+              despues. Una sentencia notificada en 2024 por una obligacion de
+              1998 esta consolidada, y la pantalla contestaba "ejecutable el
+              01/01/2026" sin dudar. Es la peor forma de estar mal: una
+              respuesta plausible y redonda, dada a alguien que ---por
+              definicion de para quien es esta pantalla--- no tiene como saber
+              que no corresponde.
+
+           POR ESO LA PRIMERA PREGUNTA ES CUANDO NACIO LA OBLIGACION, y por eso
+           en dos de los tres regimenes la respuesta NO ES UNA FECHA.
+
+           LAS DOS FECHAS, que es la otra decision de fondo. La pantalla
+           anterior devolvia el 1 de enero y no decia de donde salia, porque no
+           sale de ningun texto. El art. 22 de la Ley 23.982 dice que el
+           acreedor queda legitimado "a partir de la clausura del periodo de
+           sesiones ordinario del Congreso de la Nacion en el que deberia
+           haberse tratado la ley de presupuesto que contuviese el credito
+           presupuestario respectivo", y esa clausura es el 30 de noviembre
+           (art. 63 CN).
+
+           NO SON DOS LECTURAS DE LO MISMO: SON DOS SITUACIONES. El art. 22 se
+           dispara cuando el credito NO ENTRO en la ley de presupuesto. El 1 de
+           enero supone que ENTRO y que el ejercicio paso sin pago. Por eso se
+           muestran las dos, cada una con su norma y con la situacion que la
+           abre, y no una sola presentada como la respuesta.
+
+           PARA QUIEN ES ESTA PANTALLA, que es lo que decide cuanto explica.
+           Javier: "es un supuesto poco comun en mi fuero... no tengo seniority
+           sobre el tema mas que las reglas generales como abogado. Pero eso
+           tambien es justo lo que necesita alguien ajeno al palo que puede ser
+           usuario de la calculadora: que cuando le toque tenga una
+           aproximacion al tema y no este en bolas".
+
+           O sea que ACA EL MAPA IMPORTA MAS QUE EL NUMERO. Las otras diez le
+           dan una cifra a alguien que ya sabe de que se trata; esta le tiene
+           que explicar el regimen a alguien que entra por primera vez. Por eso
+           cada hito lleva su norma pegada, incluso donde las otras la darian
+           por sabida, y por eso el panel del regimen no es un adorno.
+
+           NO ES UN ASISTENTE. La forma anterior eran cuatro pasos con una
+           pantalla de advertencia adelante. Se paso a una hoja sola por la
+           misma razon que en tasa: un asistente es bueno la primera vez y
+           estorba a partir de la segunda. Y aca hay una razon mas fuerte:
+           cambiar la fecha de la obligacion y VER SALTAR EL REGIMEN es lo que
+           mas ensenia de esta pantalla, y en un asistente eso queda tres pasos
+           atras.
+
+           OJO: no redefinir aca --accent, --bg, --card ni --error. Los define
+           comun.css y siguen el tema. Y ningun color escrito a mano: es el bug
+           que tuvo tasa el 27/8 a la maniana ---fondo fijo y texto de token, 1,03
+           de contraste en tema oscuro, que no es "poco legible" sino invisible.
+           ================================================================== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: var(--font-sans);
             background: var(--bg);
-            min-height: 100vh;
-            padding: 20px;
+            color: var(--fg);
             font-size: 14px;
+            line-height: 1.5;
+            padding: 28px 20px 64px;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+
+        .hoja { max-width: 1000px; margin: 0 auto; }
+
+        /* ---------------------------------------------------------- cabecera */
+        .cabecera {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .cabecera h1 {
+            font-family: var(--font-meter);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .cabecera h1 span { color: var(--accent); }
+
+        /* Este texto y el colofon van sobre --bg, donde --faint da 4,78. */
+        .cobertura {
+            font-size: 12px;
+            color: var(--faint);
+            max-width: 52ch;
+            text-align: right;
+        }
+
+        /* --------------------------------------------------------- veredicto */
+        /* Lo unico grande de la pagina. Con dos fechas no puede ser una cifra
+           sola: son dos cajas del mismo tamanio, porque ninguna de las dos es
+           "la respuesta" y la otra una nota al pie. */
+        .veredicto {
+            background: var(--accent);
+            color: var(--on-accent);
+            border-radius: 14px;
+            padding: 24px 26px;
+        }
+
+        .veredicto .rotulo {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: inherit;
+            opacity: 0.82;
+            margin-bottom: 5px;
+        }
+
+        .veredicto .cifra {
+            font-family: var(--font-meter);
+            font-size: clamp(24px, 3.2vw, 33px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+
+        .veredicto .equivale { font-size: 13px; opacity: 0.86; margin-top: 7px; }
+
+        /* Sin la fecha de la obligacion cargada no hay "cero": hay una cuenta
+           que todavia no se hizo. Y con una deuda consolidada tampoco hay
+           fecha, que es una respuesta distinta de las dos. Las dos usan la
+           misma caja grande, en neutro, para que no parezca que algo fallo. */
+        .veredicto.neutro {
             background: var(--card);
-            border-radius: 20px;
-            padding: 40px;
+            color: var(--fg);
             border: 1px solid var(--border);
         }
-        h1 {
-            color: var(--accent);
-            margin-bottom: 6px;
-            font-size: 26px;
-            text-align: center;
-        }
-        .subtitle {
-            text-align: center;
-            color: var(--faint);
-            margin-bottom: 30px;
-            font-size: 13px;
-        }
-        /* Step Indicator */
-        .step-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0;
-            margin-bottom: 32px;
-        }
-        .step-dot {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            font-weight: 700;
-            font-size: 14px;
-            border: 3px solid var(--border);
-            color: var(--muted-fg);
-            background: var(--card);
-            transition: all 0.3s;
-        }
-        .step-dot.active {
-            border-color: var(--accent);
-            background: var(--accent);
-            color: var(--on-accent);
-        }
-        .step-dot.completed {
-            border-color: var(--ok);
-            background: var(--ok);
-            color: var(--on-accent);
-        }
-        .step-line {
-            width: 60px;
-            height: 3px;
-            background: var(--border);
-            transition: background 0.3s;
-        }
-        .step-line.completed {
-            background: var(--ok);
-        }
-        /* Content */
-        .content-area {
-            min-height: 300px;
-        }
-        /* Step 0: Warning */
-        .warning-screen h2 {
-            color: var(--accent);
-            font-size: 22px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .warning-box {
-            background: var(--warn-tint);
-            border-left: 6px solid var(--warn);
-            padding: 20px 24px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-        .warning-box p, .warning-box li {
-            font-size: 13px;
-            color: var(--warn);
-            line-height: 1.7;
-        }
-        .warning-box ul {
-            margin: 10px 0 10px 20px;
-        }
-        .warning-box li { margin-bottom: 6px; }
-        .warning-box strong { color: var(--warn); }
-        .info-box {
-            background: var(--accent-tint);
-            border-left: 6px solid var(--accent);
-            padding: 18px 22px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-        .info-box p, .info-box li {
-            font-size: 13px;
-            color: var(--fg);
-            line-height: 1.7;
-        }
-        .info-box ul { margin: 10px 0 10px 20px; }
-        .info-box li { margin-bottom: 6px; }
-        .info-box strong { color: var(--fg); }
-        .btn-start-wrapper {
-            text-align: center;
-            margin-top: 28px;
-        }
-        /* Step 1: Date */
-        .date-screen h2 {
-            color: var(--accent);
-            font-size: 22px;
-            margin-bottom: 6px;
-            text-align: center;
-        }
-        .date-screen p {
-            text-align: center;
-            color: var(--faint);
-            margin-bottom: 24px;
-        }
-        .date-inputs {
+        .veredicto.neutro .rotulo { color: var(--faint); opacity: 1; }
+        .veredicto.neutro .equivale { color: var(--muted-fg); opacity: 1; }
+        .veredicto.neutro .cifra { font-size: clamp(19px, 2.4vw, 24px); }
+
+        .dos-fechas {
             display: grid;
-            grid-template-columns: 1fr 1fr 1.5fr;
-            gap: 10px;
-            max-width: 420px;
-            margin: 0 auto;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 18px;
         }
-        .date-inputs input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-family: var(--font-sans);
-            font-size: 16px;
-            text-align: center;
-            transition: border-color 0.3s;
+        @media (min-width: 700px) {
+            .dos-fechas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; }
         }
-        .date-inputs input:focus {
-            outline: none;
-            border-color: var(--accent);
+        .dos-fechas .norma {
+            display: block;
+            font-size: 11.5px;
+            opacity: 0.86;
+            margin-top: 6px;
         }
-        .date-inputs input.invalid {
-            border-color: var(--error);
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .input-group small {
-            color: var(--faint);
-            margin-top: 5px;
-            font-size: 11px;
-            text-align: center;
-        }
-        .checkpoint-note {
-            text-align: center;
-            margin-top: 20px;
-            padding: 14px;
-            background: var(--sunk);
-            border-radius: 10px;
-            font-size: 12px;
-            color: var(--muted-fg);
-            line-height: 1.6;
-        }
-        .checkpoint-note strong {
-            color: var(--accent);
-        }
-        .error-msg {
-            color: var(--error);
-            font-size: 13px;
-            text-align: center;
-            margin-top: 10px;
-            display: none;
-            font-weight: 600;
-        }
-        .error-msg.show { display: block; }
-        /* Step 2: Binary */
-        .binary-screen h2 {
-            color: var(--accent);
-            font-size: 22px;
-            margin-bottom: 6px;
-            text-align: center;
-        }
-        .binary-screen p {
-            text-align: center;
-            color: var(--faint);
-            margin-bottom: 24px;
-        }
-        .binary-options {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        .binary-card {
-            flex: 1;
-            min-width: 180px;
-            max-width: 240px;
-            background: var(--card);
-            border: 3px solid var(--border);
-            border-radius: 16px;
-            padding: 28px 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 12px;
-        }
-        .binary-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgb(0 0 0 / 0.10);
-        }
-        .binary-card.selected {
-            border-color: var(--accent);
-            background: var(--accent-tint);
-        }
-        .binary-card-label {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--fg);
-            line-height: 1.4;
-        }
-        .binary-card-desc {
-            font-size: 12px;
-            color: var(--faint);
-            line-height: 1.5;
-        }
-        /* Navigation */
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 32px;
-            gap: 12px;
-        }
-        .nav-buttons.center {
-            justify-content: center;
-        }
-        .nav-buttons .spacer {
-            flex: 1;
-        }
-        button {
-            padding: 13px 30px;
-            border: none;
-            border-radius: 8px;
-            font-family: var(--font-sans);
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-        .btn-primary {
-            background: var(--accent);
-            color: var(--on-accent);
-        }
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgb(0 0 0 / 0.18);
-        }
-        .btn-secondary {
+
+        /* ------------------------------------------------------------ tira */
+        .tira {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1px;
+            margin-top: 1px;
             background: var(--border);
-            color: var(--muted-fg);
-        }
-        .btn-secondary:hover:not(:disabled) {
-            background: var(--border);
-        }
-        .btn-success {
-            background: linear-gradient(135deg, var(--ok), var(--ok));
-            color: var(--on-accent);
-        }
-        .btn-success:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(72,187,120,0.4);
-        }
-        .btn-block {
-            min-width: 200px;
-        }
-        /* Step 3: Result */
-        .result-screen h2 {
-            color: var(--accent);
-            font-size: 22px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .result-date-box {
-            background: var(--accent);
-            color: var(--on-accent);
-            padding: 28px;
-            border-radius: 16px;
-            text-align: center;
-            margin-bottom: 28px;
-        }
-        .result-date-box .label {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 8px;
-        }
-        .result-date-box .date {
-            font-size: 36px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-        .result-date-box .sub {
-            font-size: 13px;
-            opacity: 0.85;
-            margin-top: 8px;
-        }
-        /* Timeline */
-        .timeline {
-            margin-bottom: 24px;
-        }
-        .timeline-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .timeline-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
-            border: 2px solid var(--border);
-            background: var(--card);
-        }
-        .timeline-icon.completed {
-            border-color: var(--accent);
-            background: var(--accent);
-            color: var(--on-accent);
-        }
-        .timeline-icon.warning {
-            border-color: var(--warn);
-            background: var(--warn-tint);
-            color: var(--warn);
-        }
-        .timeline-icon.success {
-            border-color: var(--ok);
-            background: var(--ok);
-            color: var(--on-accent);
-        }
-        .timeline-content {
-            flex: 1;
-            padding-top: 8px;
-        }
-        .timeline-content .step-label {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--fg);
-        }
-        .timeline-content .step-value {
-            font-size: 13px;
-            color: var(--faint);
-            margin-top: 2px;
-        }
-        .timeline-bar-wrapper {
-            margin-top: 8px;
-            background: var(--sunk);
-            border-radius: 10px;
-            height: 8px;
+            border-radius: 12px;
             overflow: hidden;
         }
-        .timeline-bar {
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.8s ease;
+
+        .dato { background: var(--card); padding: 13px 16px; }
+
+        .dato .k {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--faint);
         }
-        .timeline-bar.blue { background: var(--accent); }
-        .timeline-bar.green { background: linear-gradient(90deg, var(--ok), var(--ok)); }
-        .timeline-bar.yellow { background: linear-gradient(90deg, var(--warn), var(--warn)); }
-        .timeline-bar.full { width: 100%; }
-        .timeline-bar.half { width: 50%; }
-        .timeline-bar.threequarters { width: 75%; }
-        /* Legal explanation */
-        .legal-explain {
-            background: var(--sunk);
-            border-left: 4px solid var(--accent);
-            padding: 16px 20px;
-            border-radius: 10px;
-            margin-bottom: 24px;
+
+        .dato .v {
+            font-family: var(--font-meter);
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .dato .n { font-size: 11.5px; color: var(--muted-fg); margin-top: 3px; }
+
+        @media (min-width: 760px) {
+            .tira { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+
+        /* ------------------------------------------------------------ panel */
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px 24px;
+            margin-top: 20px;
+        }
+
+        .encabezado-panel {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+
+        .encabezado-panel h2 {
+            font-family: var(--font-meter);
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .encabezado-panel p { font-size: 12px; color: var(--faint); max-width: 62ch; }
+
+        .panel[hidden] { display: none; }
+
+        /* ----------------------------------------------------- los campos */
+        .campos {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 20px;
+            margin-top: 18px;
+        }
+        @media (min-width: 700px) {
+            .campos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+        }
+
+        .grupo.apagado { opacity: 0.45; }
+
+        .rotulo {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin-bottom: 8px;
+        }
+
+        /* La fecha en tres cajas, como vencimientos: el formato no hace falta
+           explicarlo si el campo lo muestra. */
+        .fecha {
+            display: flex;
+            align-items: stretch;
+            gap: 6px;
+            max-width: 260px;
+        }
+        .fecha input {
+            font-family: var(--font-meter);
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--fg);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 4px;
+            outline: none;
+            min-width: 0;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .fecha input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+        .fecha input.mal { border-color: var(--error); }
+        .fecha .dd { flex: 1 1 0; }
+        .fecha .mm { flex: 1 1 0; }
+        .fecha .aa { flex: 1.5 1 0; }
+
+        .pie-campo { font-size: 11.5px; color: var(--faint); margin-top: 7px; max-width: 62ch; line-height: 1.5; }
+        .pie-campo strong { color: var(--muted-fg); font-weight: 600; }
+        .pie-campo.error { color: var(--error); }
+
+        /* La certificacion es una casilla y no una pantalla entera: es un
+           modificador del computo, igual que la sobretasa en tasa. */
+        .chip {
+            display: inline-flex;
+            align-items: flex-start;
+            gap: 8px;
             font-size: 13px;
             color: var(--muted-fg);
-            line-height: 1.7;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 11px 13px;
+            cursor: pointer;
+            user-select: none;
+            max-width: 46ch;
+            line-height: 1.45;
         }
-        .legal-explain strong {
-            color: var(--accent);
+        .chip input[type="checkbox"] { accent-color: var(--accent); margin: 2px 0 0; flex: none; }
+        .chip.activo { color: var(--fg); border-color: var(--accent); background: var(--accent-tint); }
+
+        /* --------------------------------------------------- linea de tiempo */
+        .hitos { list-style: none; margin-top: 14px; }
+
+        .hito {
+            display: grid;
+            grid-template-columns: 26px minmax(0, 1fr);
+            gap: 0 14px;
+            padding-bottom: 18px;
+            position: relative;
         }
-        /* Footer */
-        .tool-footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-            text-align: center;
-            color: var(--faint);
+        .hito:last-child { padding-bottom: 0; }
+
+        .hito .punto {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-meter);
             font-size: 12px;
-            line-height: 1.8;
+            font-weight: 700;
+            background: var(--sunk);
+            color: var(--faint);
+            border: 1px solid var(--border);
+            flex: none;
         }
-        .tool-footer a {
-            color: var(--accent);
-            text-decoration: none;
+        .hito.hecho .punto { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+        .hito.alerta .punto { background: var(--warn-tint); color: var(--warn); border-color: var(--warn); }
+
+        /* La linea que une los hitos sale del punto y llega al de abajo. Con
+           ::before sobre el hito y no un elemento propio: un div vacio de
+           adorno se lo lee el lector de pantalla. */
+        .hito:not(:last-child)::before {
+            content: "";
+            position: absolute;
+            left: 12.5px;
+            top: 28px;
+            bottom: 4px;
+            width: 1px;
+            background: var(--border);
         }
-        .tool-footer a:hover {
-            text-decoration: underline;
-        }
-        .tool-footer .links {
-            display: inline-flex;
+
+        .hito .que { font-size: 13.5px; font-weight: 600; padding-top: 3px; }
+        .hito .cuando { font-size: 12.5px; color: var(--muted-fg); margin-top: 3px; line-height: 1.55; }
+        .hito .norma { font-size: 11.5px; color: var(--faint); margin-top: 3px; }
+        .hito .cuando strong { color: var(--fg); font-weight: 600; }
+
+        /* ------------------------------------------------- el regimen y la ley */
+        .regimen {
+            display: flex;
             gap: 12px;
-            margin-top: 4px;
+            align-items: flex-start;
+            border-radius: 11px;
+            padding: 14px 16px;
+            margin-top: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            background: var(--sunk);
+            border: 1px solid var(--border);
         }
-        @media (max-width: 600px) {
-            .container { padding: 20px; }
-            h1 { font-size: 20px; }
-            .step-line { width: 30px; }
-            .date-inputs { grid-template-columns: 1fr; max-width: 100%; }
-            .binary-options { flex-direction: column; align-items: center; }
-            .binary-card { width: 100%; max-width: none; }
-            .nav-buttons { flex-direction: column; gap: 10px; }
-            .nav-buttons .spacer { display: none; }
-            .result-date-box .date { font-size: 28px; }
-            .timeline-item { gap: 10px; }
-            .btn-block { width: 100%; }
+        .regimen.corriente { background: var(--ok-tint); border-color: var(--ok); }
+        .regimen.consolidada { background: var(--warn-tint); border-color: var(--warn); }
+        .regimen .marca {
+            font-family: var(--font-meter);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            flex: none;
+            width: 11ch;
+            padding-top: 2px;
+            color: var(--faint);
+        }
+        .regimen.corriente .marca { color: var(--ok); }
+        .regimen.consolidada .marca { color: var(--warn); }
+        .regimen .texto { color: var(--muted-fg); }
+        .regimen .texto strong { color: var(--fg); font-weight: 600; }
+        .regimen .texto p + p { margin-top: 8px; }
+
+        /* ------------------------------------------------------ el explicador */
+        .norma-item { border-bottom: 1px solid var(--hair); }
+        .norma-item:last-child { border-bottom: none; }
+
+        .norma-item summary {
+            display: grid;
+            grid-template-columns: 16ch minmax(0, 1fr);
+            gap: 2px 14px;
+            padding: 12px 0;
+            cursor: pointer;
+            list-style: none;
+        }
+        .norma-item summary::-webkit-details-marker { display: none; }
+        .norma-item summary:hover .que { color: var(--accent); }
+
+        .norma-item .cual {
+            grid-row: span 2;
+            font-family: var(--font-meter);
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--faint);
+            padding-top: 2px;
+        }
+        .norma-item .que { font-size: 13.5px; font-weight: 600; }
+        .norma-item .resumen { font-size: 12px; color: var(--faint); line-height: 1.5; }
+
+        .norma-item .cuerpo {
+            margin: 0 0 14px 16ch;
+            padding-left: 13px;
+            border-left: 2px solid var(--border);
+            font-size: 12.5px;
+            line-height: 1.65;
+            color: var(--muted-fg);
+        }
+        .norma-item .cuerpo p + p { margin-top: 9px; }
+        .norma-item .cuerpo strong { color: var(--fg); font-weight: 600; }
+        .norma-item .cuerpo em { color: var(--fg); font-style: italic; }
+
+        @media (max-width: 620px) {
+            .norma-item summary { grid-template-columns: minmax(0, 1fr); }
+            .norma-item .cual { grid-row: auto; }
+            .norma-item .cuerpo { margin-left: 0; }
+        }
+
+        /* ---------------------------------------------------------- botones */
+        button {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 9px;
+            padding: 11px 22px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .btn-suave {
+            background: transparent;
+            color: var(--muted-fg);
+            border: 1px solid var(--border);
+        }
+        .btn-suave:hover { color: var(--fg); background: var(--sunk); }
+        .btn-chico { font-size: 13px; padding: 8px 14px; }
+
+        .pie-panel {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .colofon {
+            margin-top: 26px;
+            font-size: 12px;
+            color: var(--faint);
+            line-height: 1.6;
+        }
+        .colofon a { color: var(--accent); }
+        .colofon p + p { margin-top: 10px; }
+
+        @media (max-width: 620px) {
+            body { padding: 20px 14px 48px; }
+            .panel, .veredicto { padding: 18px 16px; }
+            .cabecera { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .cobertura { text-align: left; }
+            .regimen { flex-direction: column; gap: 6px; }
+            .regimen .marca { width: auto; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Ejecución de Sentencias contra el Estado</h1>
-        <p class="subtitle">Ley 11.672 — Determinación de la fecha de ejecutabilidad</p>
+    <div class="hoja">
+        <header class="cabecera">
+            <h1>Ejecución contra el <span>Estado</span></h1>
+            <p class="cobertura">Desde cuándo es ejecutable una condena de dar
+               sumas de dinero contra el Estado Nacional. Art. 170 de la Ley
+               11.672 y art. 22 de la Ley 23.982. Reconoce además los dos
+               regímenes de consolidación, donde la respuesta no es una fecha.</p>
+        </header>
 
-        <!-- Step Indicator -->
-        <div class="step-indicator" id="stepIndicator"></div>
+        <div class="veredicto neutro" id="veredicto"></div>
+        <div class="tira" id="tira" hidden></div>
 
-        <!-- Content -->
-        <div class="content-area" id="contentArea"></div>
+        <div class="panel">
+            <div class="encabezado-panel">
+                <h2>El caso</h2>
+                <p>Tres datos. El primero decide el régimen, y es el que la
+                   pantalla anterior no preguntaba.</p>
+            </div>
 
-        <!-- Navigation -->
-        <div class="nav-buttons" id="navButtons">
-            <button class="btn-secondary" id="btnBack">← Atrás</button>
-            <div class="spacer"></div>
-            <button class="btn-primary" id="btnNext">Siguiente →</button>
+            <div class="campos">
+                <div class="grupo">
+                    <label class="rotulo" for="oblDia">Cuándo nació la obligación</label>
+                    <div class="fecha">
+                        <input type="text" id="oblDia" class="dd" inputmode="numeric" maxlength="2" placeholder="DD" aria-label="Día en que nació la obligación">
+                        <input type="text" id="oblMes" class="mm" inputmode="numeric" maxlength="2" placeholder="MM" aria-label="Mes en que nació la obligación">
+                        <input type="text" id="oblAnio" class="aa" inputmode="numeric" maxlength="4" placeholder="AAAA" aria-label="Año en que nació la obligación">
+                    </div>
+                    <p class="pie-campo" id="pieObligacion">La <strong>causa o
+                       título</strong>: el hecho, el contrato, el despido, el
+                       daño. <strong>No es la fecha de la sentencia ni la de la
+                       notificación</strong>, y esa diferencia es la que decide
+                       si la deuda está consolidada.</p>
+                </div>
+
+                <div class="grupo" id="grupoNotificacion">
+                    <label class="rotulo" for="notDia">Cuándo se notificó la condena firme</label>
+                    <div class="fecha">
+                        <input type="text" id="notDia" class="dd" inputmode="numeric" maxlength="2" placeholder="DD" aria-label="Día de la notificación">
+                        <input type="text" id="notMes" class="mm" inputmode="numeric" maxlength="2" placeholder="MM" aria-label="Mes de la notificación">
+                        <input type="text" id="notAnio" class="aa" inputmode="numeric" maxlength="4" placeholder="AAAA" aria-label="Año de la notificación">
+                    </div>
+                    <p class="pie-campo" id="pieNotificacion">La sentencia o la
+                       primera liquidación firme. Es la fecha desde la que el
+                       organismo puede tomar conocimiento de la condena, y la
+                       que ordena la cola de pago por antigüedad.</p>
+                </div>
+            </div>
+
+            <div class="grupo" id="grupoCert" style="margin-top:22px;">
+                <label class="rotulo">Partida agotada</label>
+                <label class="chip" id="chipCert">
+                    <input type="checkbox" id="certificacion">
+                    <span>El crédito entró en el presupuesto pero <strong>la partida se
+                          agotó</strong> antes de llegar a este acreedor.</span>
+                </label>
+                <p class="pie-campo">El art. 170 manda atender el remanente
+                   «con los recursos que se asignen en el siguiente ejercicio
+                   fiscal»: corre todo un año.</p>
+            </div>
+
+            <div class="pie-panel">
+                <button type="button" class="btn-suave btn-chico" id="btnEjemplo">Cargar un ejemplo</button>
+                <button type="button" class="btn-suave btn-chico" id="btnReiniciar">Reiniciar</button>
+            </div>
         </div>
 
-        <div class="tool-footer">
-            <span>L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
-            <span class="links">
-                <a href="https://github.com/javiercuneo" target="_blank">GitHub</a>
-                <a href="../index.html" target="_blank">Herramientas</a>
-                <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank">LinkedIn</a>
-            </span>
+        <div class="panel" id="panelRegimen">
+            <div class="encabezado-panel">
+                <h2>Qué régimen es</h2>
+                <p>Lo decide la fecha en que nació la obligación, y no la de la
+                   sentencia. Hay tres, y sólo uno termina en una fecha de
+                   ejecutabilidad.</p>
+            </div>
+            <div id="cajaRegimen"></div>
+        </div>
+
+        <div class="panel" id="panelHitos" hidden>
+            <div class="encabezado-panel">
+                <h2>La línea de tiempo</h2>
+                <p>Cada hito con la norma que lo pone. Es lo que hay que poder
+                   citar en el escrito.</p>
+            </div>
+            <ol class="hitos" id="hitos"></ol>
+        </div>
+
+        <div class="panel">
+            <div class="encabezado-panel">
+                <h2>El régimen, en cinco normas</h2>
+                <p>Se abre cada una. No es relleno: es la mitad de lo que esta
+                   pantalla tiene para dar.</p>
+            </div>
+            <div id="normas"></div>
+        </div>
+
+        <div class="colofon">
+            <p><strong>Esta pantalla dice cuándo, no cuánto.</strong> No calcula
+               capital ni intereses: calcula la fecha desde la que la condena se
+               puede ejecutar, que es una cuenta de años y de ejercicios
+               presupuestarios. Los intereses corren hasta el pago efectivo y la
+               previsión presupuestaria tiene que alcanzarlos: eso está afuera
+               de acá.</p>
+            <p><strong>Lo que queda expresamente afuera.</strong> Las deudas
+               <strong>previsionales</strong>, que tienen sus propias fechas de
+               corte en los dos regímenes de consolidación y un régimen de pago
+               distinto. Las <strong>provincias y los municipios</strong>, que
+               tienen cada uno su ley de consolidación y su propio artículo de
+               ejecución. Y lo que no sea una condena a <strong>dar sumas de
+               dinero</strong>: una condena de hacer no pasa por el presupuesto.</p>
+            <p>Todo lo que esta pantalla afirma sale del texto de las normas que
+               cita, enlazadas una por una arriba. <strong>Es una herramienta de
+               referencia y no sustituye el criterio del juez.</strong>
+               Si algo da mal, <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.</p>
         </div>
     </div>
 
-    <script>
-        (function() {
-            'use strict';
+<script>
+(function () {
+    'use strict';
 
-            // ===== State =====
-            var state = {
-                step: 0,
-                history: [0],
-                dia: '',
-                mes: '',
-                anio: '',
-                tieneCertificacion: null
-            };
+    // -----------------------------------------------------------------------
+    // LOS TRES REGIMENES, que es lo que la pantalla anterior no tenia.
+    //
+    // Las fechas de corte son de la CAUSA O TITULO de la obligacion, no de la
+    // sentencia ni de la notificacion. Los tres tramos no dejan hueco, y eso
+    // no es casualidad: la Ley 23.982 consolida lo "anterior al 1 de abril de
+    // 1991" y la Ley 25.344 lo "posterior al 31 de marzo de 1991", que es el
+    // dia siguiente. Encastran.
+    //
+    //   antes del 1/4/1991 ......... consolidada, Ley 23.982 art. 1
+    //   1/4/1991 al 31/12/2001 ..... consolidada, Ley 25.344 art. 13,
+    //                                con la fecha de corte corrida del
+    //                                1/1/2000 al 31/12/2001 por el art. 58 de
+    //                                la Ley 25.725
+    //   desde el 1/1/2002 .......... pasivo corriente: art. 170 de la Ley
+    //                                11.672 y art. 22 de la Ley 23.982
+    //
+    // OJO CON LAS PREVISIONALES: en los dos regimenes tienen fechas propias
+    // ---la 25.344 arranca en el 31/8/1992 y solo alcanza los beneficios
+    // otorgados antes de la Ley 24.241--- y un regimen de pago distinto. No
+    // se modelan, y el colofon lo dice con todas las letras. Meterlas con las
+    // fechas de las comunes seria contestar mal justo donde mas duele.
+    // -----------------------------------------------------------------------
+    var CORTE_23982 = Date.UTC(1991, 3, 1);   // 1 de abril de 1991
+    var CORTE_25344 = Date.UTC(2002, 0, 1);   // 1 de enero de 2002
 
-            var totalSteps = 4; // 0, 1, 2, 3
+    var REGIMENES = {
+        'consolidada-23982': {
+            id: 'consolidada-23982',
+            marca: 'Consolidada',
+            titulo: 'Consolidada por la Ley 23.982',
+            clase: 'consolidada',
+            fecha: false,
+            cita: 'Ley 23.982, art. 1',
+            texto: '<p>La obligación es <strong>de causa o título anterior al 1 de abril de 1991</strong>, ' +
+                   'así que quedó consolidada por el art. 1 de la Ley 23.982. <strong>Acá no hay una fecha ' +
+                   'de ejecutabilidad que calcular</strong>: la obligación original se sustituye y el crédito ' +
+                   'se cobra por el procedimiento de esa ley, en efectivo según la disponibilidad ' +
+                   'presupuestaria y el orden de prelación, o en bonos de consolidación.</p>' +
+                   '<p>La consolidación opera <strong>después del reconocimiento firme</strong> en sede ' +
+                   'administrativa o judicial, y el acreedor tiene que presentar la liquidación por la vía ' +
+                   'administrativa: no se ejecuta, se gestiona el pago. <strong>Esta herramienta no cubre ' +
+                   'ese trámite</strong> y no debería usarse para estimar cuándo se cobra.</p>'
+        },
+        'consolidada-25344': {
+            id: 'consolidada-25344',
+            marca: 'Consolidada',
+            titulo: 'Consolidada por la Ley 25.344',
+            clase: 'consolidada',
+            fecha: false,
+            cita: 'Ley 25.344, art. 13, y Ley 25.725, art. 58',
+            texto: '<p><strong>Es la consolidación que se pasa por alto.</strong> Hubo una ' +
+                   '<strong>segunda</strong>: el art. 13 de la Ley 25.344 consolidó, con los ' +
+                   'alcances de la Ley 23.982, las obligaciones de causa o título <strong>posterior al 31 de ' +
+                   'marzo de 1991</strong>, y el art. 58 de la Ley 25.725 corrió la fecha de corte hasta el ' +
+                   '<strong>31 de diciembre de 2001</strong>.</p>' +
+                   '<p>Son más de diez años de obligaciones. <strong>Tampoco acá hay una fecha de ' +
+                   'ejecutabilidad</strong>: el crédito se cobra por el régimen de consolidación, y la ' +
+                   'sentencia puede ser de cualquier año posterior sin que eso cambie nada. Lo que decide ' +
+                   'es <strong>cuándo nació la obligación</strong>.</p>'
+        },
+        'corriente': {
+            id: 'corriente',
+            marca: 'Corriente',
+            titulo: 'Pasivo corriente',
+            clase: 'corriente',
+            fecha: true,
+            cita: 'Ley 11.672, art. 170, y Ley 23.982, art. 22',
+            texto: '<p>La obligación es <strong>de causa o título posterior al 31 de diciembre de 2001</strong>, ' +
+                   'así que no la alcanza ninguna de las dos consolidaciones. Rige el <strong>pasivo ' +
+                   'corriente</strong>: la condena se atiende dentro de las autorizaciones para gastar del ' +
+                   'presupuesto, y si el ejercicio no tiene crédito suficiente, el Poder Ejecutivo tiene que ' +
+                   'preverla en el del ejercicio siguiente.</p>' +
+                   '<p>Es el único de los tres donde <strong>la respuesta es una fecha</strong>, y son dos: ' +
+                   'la línea de tiempo, abajo, dice de dónde sale cada una.</p>'
+        }
+    };
 
-            // ===== DOM refs =====
-            var stepIndicator = document.getElementById('stepIndicator');
-            var contentArea = document.getElementById('contentArea');
-            var btnBack = document.getElementById('btnBack');
-            var btnNext = document.getElementById('btnNext');
-            var navButtons = document.getElementById('navButtons');
+    function regimenDe(f) {
+        var t = Date.UTC(f.a, f.m - 1, f.d);
+        if (t < CORTE_23982) return REGIMENES['consolidada-23982'];
+        if (t < CORTE_25344) return REGIMENES['consolidada-25344'];
+        return REGIMENES['corriente'];
+    }
 
-            // ===== Helpers =====
-            function formatFecha(dia, mes, anio) {
-                return String(dia).padStart(2, '0') + '/' + String(mes).padStart(2, '0') + '/' + anio;
-            }
+    // -----------------------------------------------------------------------
+    // LA CUENTA, en una funcion sola y sin tocar el DOM: es lo que consulta el
+    // banco de pruebas.
+    //
+    // EL 31 DE JULIO (art. 170). La jurisdiccion demandada tiene que tomar
+    // conocimiento fehaciente de la condena "antes del dia 31 de julio del anio
+    // correspondiente al envio del proyecto" para que entre en el presupuesto
+    // que se manda ese anio, o sea en el del ejercicio siguiente. El 31 mismo
+    // ya no entra: la ley dice ANTES del 31, y un ">=" por un ">" mueve un anio
+    // entero.
+    //
+    //   notificada en el anio N, antes del 31/7  -> ejercicio N+1
+    //   notificada en el anio N, el 31/7 o despues -> ejercicio N+2
+    //
+    // LA PARTIDA AGOTADA (art. 170, segunda parte). Los recursos se aplican
+    // "siguiendo un estricto orden de antiguedad conforme la fecha de
+    // notificacion judicial y hasta su agotamiento, atendiendose el remanente
+    // con los recursos que se asignen en el siguiente ejercicio fiscal". O sea
+    // que corre un ejercicio entero.
+    //
+    // LAS DOS FECHAS, Y POR QUE SON DOS. Esta es la parte que la pantalla
+    // anterior daba resuelta sin decir como.
+    //
+    //   - LA DEL ART. 22 DE LA LEY 23.982 es la que esta escrita: el acreedor
+    //     queda legitimado "a partir de la clausura del periodo de sesiones
+    //     ordinario del Congreso de la Nacion en el que deberia haberse tratado
+    //     la ley de presupuesto que contuviese el credito presupuestario
+    //     respectivo". La clausura de las ordinarias es el 30 de noviembre
+    //     (art. 63 CN), y la ley del ejercicio E se trata durante las sesiones
+    //     del anio E-1.
+    //
+    //   - LA DEL 1 DE ENERO no esta en ningun texto. Es la lectura
+    //     conservadora: que el ejercicio en el que la condena debia atenderse
+    //     tiene que haber transcurrido entero sin pago.
+    //
+    // NO SON DOS LECTURAS DE LO MISMO: SON DOS SITUACIONES DISTINTAS. El art.
+    // 22 se dispara cuando el credito NO ENTRO en la ley de presupuesto ---por
+    // eso el propio articulo manda al Poder Ejecutivo comunicar al Congreso los
+    // reconocimientos que "carezcan de creditos presupuestarios"---. El 1 de
+    // enero supone que ENTRO y que el ejercicio paso sin que le pagaran. Por
+    // eso se muestran las dos con la situacion que abre cada una, y no una
+    // presentada como LA respuesta.
+    // -----------------------------------------------------------------------
+    var CLAUSURA_ORDINARIAS = [30, 11]; // art. 63 CN
 
-            function parseNum(v) { var n = parseInt(v, 10); return isNaN(n) ? null : n; }
+    function computar(entrada) {
+        var obl = entrada.obligacion;
+        if (!obl) return null;
 
-            function esFechaValida(dia, mes, anio) {
-                var d = parseNum(dia), m = parseNum(mes), a = parseNum(anio);
-                if (!d || !m || !a) return false;
-                if (m < 1 || m > 12) return false;
-                if (d < 1) return false;
-                var f = new Date(a, m - 1, d);
-                if (f.getFullYear() !== a || f.getMonth() !== m - 1 || f.getDate() !== d) return false;
-                return true;
-            }
+        var reg = regimenDe(obl);
+        var base = { regimen: reg, obligacion: obl };
 
-            function esFechaPostConsolidacion(dia, mes, anio) {
-                if (anio > 1991) return true;
-                if (anio < 1991) return false;
-                if (mes > 4) return true;
-                if (mes < 4) return false;
-                return dia >= 1;
-            }
+        if (!reg.fecha) return base;
 
-            function esAntesDeHoy(dia, mes, anio) {
-                var hoy = new Date();
-                var f = new Date(anio, mes - 1, dia);
-                f.setHours(23, 59, 59);
-                return f <= hoy;
-            }
+        var not = entrada.notificacion;
+        if (!not) return base;
 
-            function esAntesDel31Julio(dia, mes, anio) {
-                // 31/julio inclusive = DESPUÉS
-                if (mes < 7) return true;
-                if (mes > 7) return false;
-                return dia < 31;
-            }
+        // ANTES del 31 de julio. El 31 mismo cuenta como despues.
+        var antes31 = not.m < 7 || (not.m === 7 && not.d < 31);
+        var ejercicio = not.a + (antes31 ? 1 : 2);
+        if (entrada.agotamiento) ejercicio += 1;
 
-            function calcularFechaEjecutabilidad(dia, mes, anio, tieneCert) {
-                var notifYear = parseInt(anio, 10);
-                var antes31Julio = esAntesDel31Julio(dia, mes, anio);
+        // La ley de presupuesto del ejercicio E se trata en las ordinarias del
+        // anio anterior, que cierran el 30 de noviembre.
+        var anioSesiones = ejercicio - 1;
 
-                var baseYear;
-                if (antes31Julio) {
-                    baseYear = notifYear + 2;
-                } else {
-                    baseYear = notifYear + 3;
+        base.notificacion = not;
+        base.antes31 = antes31;
+        base.agotamiento = !!entrada.agotamiento;
+        base.ejercicio = ejercicio;
+        base.anioSesiones = anioSesiones;
+        base.fechaArt22 = { d: CLAUSURA_ORDINARIAS[0], m: CLAUSURA_ORDINARIAS[1], a: anioSesiones };
+        base.fechaPractica = { d: 1, m: 1, a: ejercicio + 1 };
+        return base;
+    }
+
+    // -----------------------------------------------------------------------
+    // LAS CINCO NORMAS DEL REGIMEN.
+    //
+    // No es un anexo de cortesia: es la mitad de lo que esta pantalla da. El
+    // usuario esperado es alguien que no litiga esto y que necesita saber en
+    // que esta parado, no solo que fecha poner en el escrito.
+    //
+    // LA 3.952 VA PRIMERA Y NO SE PUEDE CITAR SOLA. La pantalla anterior decia
+    // que las sentencias contra el Estado son "meramente declarativas" y se lo
+    // atribuia a la Ley 11.672, que no es. Es el art. 7 de la Ley 3.952, de
+    // 1900. Y dicho solo deja al lector peor de lo que estaba: la CSJN en
+    // "Pietranera" resolvio que ese articulo no es una autorizacion para no
+    // cumplir. Las dos cosas van juntas o ninguna.
+    // -----------------------------------------------------------------------
+    var NORMAS = [
+        {
+            cual: 'Ley 3.952, art. 7',
+            que: 'La condena es «meramente declaratoria»',
+            resumen: '1900 — y no significa lo que parece',
+            cuerpo: '<p>«<em>Las decisiones que se pronuncien en estos juicios cuando sean condenatorios ' +
+                    'contra la Nación tendrán carácter meramente declaratorio, limitándose al simple ' +
+                    'reconocimiento del derecho que se pretenda.</em>»</p>' +
+                    '<p><strong>Leído solo, parece que contra el Estado no hay nada que hacer.</strong> No es ' +
+                    'eso. La CSJN, en <strong>«Pietranera» (1966)</strong>, resolvió que el art. 7 <strong>no ' +
+                    'es una autorización para no cumplir las sentencias judiciales</strong>, y que cabe la ' +
+                    'intervención del juez cuando la demora en cumplir es irrazonable. Su propósito es evitar ' +
+                    'que un mandato perentorio deje a la Administración sin poder pagar por no tener fondos ' +
+                    'previstos, no darle una excusa indefinida.</p>' +
+                    '<p>Lo que sigue —el presupuesto, el 31 de julio, los ejercicios— es justamente el ' +
+                    'procedimiento que reemplazó a esa demora sin plazo por una con fecha.</p>'
+        },
+        {
+            cual: 'Ley 11.672, art. 170',
+            que: 'Cómo entra la condena al presupuesto',
+            resumen: 'el 31 de julio, el ejercicio siguiente y el orden de antigüedad',
+            cuerpo: '<p>Las condenas a pagar sumas de dinero <strong>se satisfacen dentro de las ' +
+                    'autorizaciones para efectuar gastos</strong> del Presupuesto General, sin perjuicio de ' +
+                    'los regímenes de las Leyes 23.982 y 25.344.</p>' +
+                    '<p>Si el presupuesto del ejercicio en que la condena debe atenderse <strong>no tiene ' +
+                    'crédito suficiente</strong>, el Poder Ejecutivo debe preverla en el del ejercicio ' +
+                    'siguiente, y para eso la jurisdicción demandada tiene que tomar conocimiento fehaciente ' +
+                    'de la condena <strong>antes del 31 de julio</strong> del año del envío del proyecto.</p>' +
+                    '<p>Los recursos asignados se aplican <strong>por estricto orden de antigüedad según la ' +
+                    'fecha de notificación judicial, y hasta su agotamiento</strong>: el remanente se atiende ' +
+                    'con los recursos del siguiente ejercicio fiscal. De ahí sale la casilla de la partida ' +
+                    'agotada, y de ahí sale también por qué la fecha de notificación importa dos veces: fija ' +
+                    'el ejercicio y fija el lugar en la cola.</p>'
+        },
+        {
+            cual: 'Ley 23.982, art. 22',
+            que: 'Desde cuándo se puede ejecutar',
+            resumen: 'la clausura de las sesiones ordinarias, que es el 30 de noviembre',
+            cuerpo: '<p>«<em>A partir de la entrada en vigencia de la presente ley, el Poder Ejecutivo ' +
+                    'nacional deberá comunicar al Congreso de la Nación todos los reconocimientos ' +
+                    'administrativos o judiciales firmes de obligaciones de causa o título posterior al 1 de ' +
+                    'abril de 1991 que carezcan de créditos presupuestarios para su cancelación en la ley de ' +
+                    'presupuesto del año siguiente al del reconocimiento. El acreedor estará legitimado para ' +
+                    'solicitar la ejecución judicial de su crédito a partir de la clausura del período de ' +
+                    'sesiones ordinario del Congreso de la Nación en el que debería haberse tratado la ley de ' +
+                    'presupuesto que contuviese el crédito presupuestario respectivo.</em>»</p>' +
+                    '<p>Las sesiones ordinarias cierran el <strong>30 de noviembre</strong> (art. 63 de la ' +
+                    'Constitución), y la ley de presupuesto de un ejercicio se trata durante las sesiones del ' +
+                    'año anterior. <strong>Ésta es la única fecha de ejecutabilidad que está escrita en una ' +
+                    'norma</strong>, y se dispara en un caso preciso: que el crédito <strong>no haya sido ' +
+                    'incluido</strong> en la ley de presupuesto que debía contenerlo.</p>'
+        },
+        {
+            cual: 'El 1 de enero',
+            que: 'La fecha que no está en ninguna norma',
+            resumen: 'la lectura conservadora, y la que la pantalla anterior daba sola',
+            cuerpo: '<p>La otra fecha —el 1 de enero siguiente al ejercicio en que la condena debía ' +
+                    'atenderse— <strong>no sale de ningún texto</strong>. Es la lectura conservadora: que ' +
+                    'para reclamar la ejecución forzada hay que dejar transcurrir entero el ejercicio ' +
+                    'presupuestario en el que el crédito estaba previsto, sin que se haya pagado.</p>' +
+                    '<p><strong>No es una lectura peor: es otra situación.</strong> El art. 22 mira el caso ' +
+                    'en que el crédito nunca entró al presupuesto; el 1 de enero mira el caso en que entró y ' +
+                    'no alcanzó el tiempo. Por eso esta pantalla muestra las dos con su etiqueta, y no una ' +
+                    'sola presentada como la respuesta: cuál corresponde depende de qué pasó con la partida, ' +
+                    'que es un hecho del expediente y no una cuenta.</p>'
+        },
+        {
+            cual: 'Consolidación',
+            que: 'Las dos leyes que sacan el caso de acá',
+            resumen: 'Leyes 23.982 y 25.344, corrida por la 25.725',
+            cuerpo: '<p>La <strong>Ley 23.982</strong> consolidó las obligaciones de causa o título ' +
+                    '<strong>anterior al 1 de abril de 1991</strong>. La <strong>Ley 25.344</strong>, en su ' +
+                    'art. 13, consolidó con los mismos alcances las <strong>posteriores al 31 de marzo de ' +
+                    '1991 y anteriores al 1 de enero de 2000</strong>, y el <strong>art. 58 de la Ley ' +
+                    '25.725</strong> corrió esa fecha de corte al <strong>31 de diciembre de 2001</strong>.</p>' +
+                    '<p>Consolidada la deuda, <strong>no hay fecha de ejecutabilidad</strong>: la obligación ' +
+                    'original se sustituye y el crédito se cobra por el procedimiento de esas leyes. Por eso ' +
+                    'la primera pregunta de esta pantalla es cuándo nació la obligación y no cuándo se dictó ' +
+                    'la sentencia: <strong>una sentencia de 2024 sobre un hecho de 1998 está consolidada</strong>, ' +
+                    'y contestarle con una fecha sería contestarle mal.</p>'
+        }
+    ];
+
+    // -----------------------------------------------------------------------
+    // Lectura de los campos. Una fecha incompleta no es una fecha invalida: es
+    // una fecha que todavia no se termino de escribir, y avisar ahi seria
+    // ponerse en rojo mientras alguien tipea.
+    // -----------------------------------------------------------------------
+    var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio',
+                 'agosto','septiembre','octubre','noviembre','diciembre'];
+
+    function ddmmaaaa(f) {
+        return String(f.d).padStart(2, '0') + '/' + String(f.m).padStart(2, '0') + '/' + f.a;
+    }
+    function enLetras(f) {
+        return f.d + ' de ' + MESES[f.m - 1] + ' de ' + f.a;
+    }
+
+    function leerFecha(pre) {
+        var d = document.getElementById(pre + 'Dia').value.trim();
+        var m = document.getElementById(pre + 'Mes').value.trim();
+        var a = document.getElementById(pre + 'Anio').value.trim();
+        if (!d && !m && !a) return { estado: 'vacia' };
+        if (!d || !m || a.length < 4) return { estado: 'incompleta' };
+
+        var nd = parseInt(d, 10), nm = parseInt(m, 10), na = parseInt(a, 10);
+        if (!nd || !nm || !na) return { estado: 'invalida' };
+        // El constructor de Date corrige solo: el 31 de febrero se vuelve el 3
+        // de marzo y no avisa. Se compara contra lo escrito.
+        var t = new Date(Date.UTC(na, nm - 1, nd));
+        if (t.getUTCFullYear() !== na || t.getUTCMonth() !== nm - 1 || t.getUTCDate() !== nd) {
+            return { estado: 'invalida' };
+        }
+        return { estado: 'ok', valor: { d: nd, m: nm, a: na } };
+    }
+
+    function marcar(pre, mal) {
+        ['Dia', 'Mes', 'Anio'].forEach(function (p) {
+            document.getElementById(pre + p).classList.toggle('mal', mal);
+        });
+    }
+
+    // ------------------------------------------------------------- pintura
+    function pintar() {
+        var obl = leerFecha('obl');
+        var not = leerFecha('not');
+        marcar('obl', obl.estado === 'invalida');
+        marcar('not', not.estado === 'invalida');
+
+        var pieObl = document.getElementById('pieObligacion');
+        pieObl.classList.toggle('error', obl.estado === 'invalida');
+        if (obl.estado === 'invalida') {
+            pieObl.innerHTML = 'Esa fecha no existe. Revisá el día y el mes.';
+        } else {
+            pieObl.innerHTML = 'La <strong>causa o título</strong>: el hecho, el contrato, el despido, ' +
+                'el daño. <strong>No es la fecha de la sentencia ni la de la notificación</strong>, y esa ' +
+                'diferencia es la que decide si la deuda está consolidada.';
+        }
+
+        var pieNot = document.getElementById('pieNotificacion');
+        pieNot.classList.toggle('error', not.estado === 'invalida');
+        if (not.estado === 'invalida') {
+            pieNot.innerHTML = 'Esa fecha no existe. Revisá el día y el mes.';
+        } else {
+            pieNot.innerHTML = 'La sentencia o la primera liquidación firme. Es la fecha desde la que el ' +
+                'organismo puede tomar conocimiento de la condena, y la que ordena la cola de pago por ' +
+                'antigüedad.';
+        }
+
+        var c = computar({
+            obligacion: obl.estado === 'ok' ? obl.valor : null,
+            notificacion: not.estado === 'ok' ? not.valor : null,
+            agotamiento: document.getElementById('certificacion').checked
+        });
+
+        pintarRegimen(c);
+        pintarVeredicto(c);
+        pintarTira(c);
+        pintarHitos(c);
+
+        // La notificacion y la partida agotada no juegan si la deuda esta
+        // consolidada. Se apagan en vez de esconderse: esconder un campo que
+        // estaba lleno hace pensar que se perdio el dato.
+        var apagar = !!c && !c.regimen.fecha;
+        document.getElementById('grupoNotificacion').classList.toggle('apagado', apagar);
+        document.getElementById('grupoCert').classList.toggle('apagado', apagar);
+
+        document.getElementById('chipCert').classList.toggle('activo',
+            document.getElementById('certificacion').checked);
+    }
+
+    function pintarRegimen(c) {
+        var caja = document.getElementById('cajaRegimen');
+        if (!c) {
+            caja.innerHTML = '<div class="regimen"><span class="marca">Sin datos</span>' +
+                '<div class="texto"><p>Cargá <strong>cuándo nació la obligación</strong> y la pantalla dice ' +
+                'de cuál de los tres regímenes se trata. Es la pregunta que decide todo lo demás.</p></div></div>';
+            return;
+        }
+        var r = c.regimen;
+        caja.innerHTML = '<div class="regimen ' + r.clase + '">' +
+            '<span class="marca">' + r.marca + '</span>' +
+            '<div class="texto"><p><strong>' + r.titulo + '</strong> — ' + r.cita + '</p>' + r.texto + '</div></div>';
+    }
+
+    function pintarVeredicto(c) {
+        var v = document.getElementById('veredicto');
+
+        if (!c) {
+            v.className = 'veredicto neutro';
+            v.innerHTML = '<span class="rotulo">Desde cuándo se puede ejecutar</span>' +
+                '<div class="cifra">Falta la fecha de la obligación</div>' +
+                '<p class="equivale">Es el primer campo, y es el que decide si acá hay una fecha que ' +
+                'calcular o si la deuda está consolidada.</p>';
+            return;
+        }
+
+        if (!c.regimen.fecha) {
+            v.className = 'veredicto neutro';
+            v.innerHTML = '<span class="rotulo">Desde cuándo se puede ejecutar</span>' +
+                '<div class="cifra">No hay fecha: la deuda está consolidada</div>' +
+                '<p class="equivale">' + c.regimen.titulo + ' — ' + c.regimen.cita + '. El crédito no se ' +
+                'ejecuta por esta vía: se cobra por el procedimiento de esa ley.</p>';
+            return;
+        }
+
+        if (!c.notificacion) {
+            v.className = 'veredicto neutro';
+            v.innerHTML = '<span class="rotulo">Desde cuándo se puede ejecutar</span>' +
+                '<div class="cifra">Falta la fecha de notificación</div>' +
+                '<p class="equivale">Es pasivo corriente, así que acá sí hay una fecha. Falta el dato que ' +
+                'decide en qué ejercicio entra la condena.</p>';
+            return;
+        }
+
+        v.className = 'veredicto';
+        v.innerHTML = '<div class="dos-fechas">' +
+            '<div>' +
+                '<span class="rotulo">Si el crédito no entró al presupuesto</span>' +
+                '<div class="cifra">' + ddmmaaaa(c.fechaArt22) + '</div>' +
+                '<span class="norma">Clausura de las sesiones ordinarias en las que debía tratarse la ley ' +
+                'de presupuesto del ejercicio ' + c.ejercicio + ' — art. 22 de la Ley 23.982</span>' +
+            '</div>' +
+            '<div>' +
+                '<span class="rotulo">Si entró y el ejercicio pasó sin pago</span>' +
+                '<div class="cifra">' + ddmmaaaa(c.fechaPractica) + '</div>' +
+                '<span class="norma">Vencido entero el ejercicio ' + c.ejercicio + '. No sale de ningún ' +
+                'texto: es la lectura conservadora, y es la que se usa</span>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function dato(k, v, n) {
+        return '<div class="dato"><div class="k">' + k + '</div><div class="v">' + v + '</div>' +
+               (n ? '<div class="n">' + n + '</div>' : '') + '</div>';
+    }
+
+    function pintarTira(c) {
+        var tira = document.getElementById('tira');
+        // Se VACIA ademas de esconderse. Esconder un contenedor y dejarle el
+        // contenido adentro es dejar los datos del caso anterior en el DOM:
+        // no se ven, pero estan, y cualquier cosa que lea el documento sin
+        // mirar el hidden ---una impresion, un lector de pantalla, el banco de
+        // pruebas--- los toma por buenos. El banco lo caza el 28/8: una deuda
+        // consolidada mostraba el ejercicio presupuestario del caso anterior.
+        if (!c || !c.regimen.fecha || !c.notificacion) {
+            tira.hidden = true;
+            tira.innerHTML = '';
+            return;
+        }
+        tira.hidden = false;
+        tira.innerHTML =
+            dato('El 31 de julio',
+                 c.antes31 ? 'Antes' : 'El 31 o después',
+                 c.antes31 ? 'Llega al proyecto de presupuesto que se envía ese año'
+                           : 'Pierde ese proyecto y va al del año siguiente') +
+            dato('Ejercicio en que se atiende',
+                 String(c.ejercicio),
+                 c.agotamiento ? 'Corrido un año por la partida agotada — art. 170'
+                               : 'Art. 170 de la Ley 11.672') +
+            dato('Lugar en la cola',
+                 ddmmaaaa(c.notificacion),
+                 'Los recursos se aplican por estricto orden de antigüedad según esta fecha');
+    }
+
+    function pintarHitos(c) {
+        var panel = document.getElementById('panelHitos');
+        if (!c || !c.regimen.fecha || !c.notificacion) {
+            panel.hidden = true;
+            document.getElementById('hitos').innerHTML = '';
+            return;
+        }
+        panel.hidden = false;
+
+        var h = [];
+        h.push(['hecho', '1', 'Nació la obligación',
+                enLetras(c.obligacion) + '. Posterior al 31 de diciembre de 2001, así que ' +
+                'no la alcanza ninguna consolidación.',
+                'Leyes 23.982 y 25.344, a contrario']);
+
+        h.push([c.antes31 ? 'hecho' : 'alerta', '2', 'Notificación de la condena firme',
+                enLetras(c.notificacion) + ' — <strong>' + (c.antes31 ? 'antes del 31 de julio' : 'el 31 de julio o después') +
+                '</strong>. ' + (c.antes31
+                    ? 'El organismo llega a tomar conocimiento a tiempo para el proyecto de presupuesto que se envía ese año.'
+                    : 'Ya no llega al proyecto de ese año: la previsión se corre al proyecto del año siguiente.'),
+                'Art. 170 de la Ley 11.672']);
+
+        if (c.agotamiento) {
+            h.push(['alerta', '3', 'La partida se agotó',
+                    'El crédito estaba previsto pero los recursos se agotaron antes de llegar a este ' +
+                    'acreedor. El remanente se atiende con los del ejercicio siguiente: <strong>corre un año</strong>.',
+                    'Art. 170 de la Ley 11.672']);
+        }
+
+        h.push(['hecho', String(h.length + 1), 'Ejercicio en el que debe atenderse',
+                'La condena tiene que estar prevista en el presupuesto del ejercicio <strong>' + c.ejercicio +
+                '</strong>, cuya ley se trata durante las sesiones ordinarias de ' + c.anioSesiones + '.',
+                'Art. 170 de la Ley 11.672']);
+
+        h.push(['hecho', String(h.length + 1), 'Si el crédito no entró: ' + ddmmaaaa(c.fechaArt22),
+                'Clausura del período de sesiones ordinarias de ' + c.anioSesiones + ', que es el <strong>30 de ' +
+                'noviembre</strong> (art. 63 CN). Desde ahí el acreedor está legitimado para pedir la ' +
+                'ejecución judicial.',
+                'Art. 22 de la Ley 23.982']);
+
+        h.push(['hecho', String(h.length + 1), 'Si entró y no pagaron: ' + ddmmaaaa(c.fechaPractica),
+                'Transcurrido entero el ejercicio ' + c.ejercicio + ' sin que el crédito se haya cancelado. ' +
+                '<strong>Esta fecha no sale de ningún texto</strong>: es la lectura conservadora, y es la que ' +
+                'se usa en la práctica.',
+                'Sin norma que la fije']);
+
+        document.getElementById('hitos').innerHTML = h.map(function (x) {
+            return '<li class="hito ' + x[0] + '">' +
+                '<span class="punto">' + x[1] + '</span>' +
+                '<div><div class="que">' + x[2] + '</div>' +
+                '<div class="cuando">' + x[3] + '</div>' +
+                '<div class="norma">' + x[4] + '</div></div></li>';
+        }).join('');
+    }
+
+    function pintarNormas() {
+        document.getElementById('normas').innerHTML = NORMAS.map(function (n) {
+            return '<details class="norma-item">' +
+                '<summary><span class="cual">' + n.cual + '</span>' +
+                '<span class="que">' + n.que + '</span>' +
+                '<span class="resumen">' + n.resumen + '</span></summary>' +
+                '<div class="cuerpo">' + n.cuerpo + '</div></details>';
+        }).join('');
+    }
+
+    // -------------------------------------------------------------- eventos
+    function ponerFecha(pre, f) {
+        document.getElementById(pre + 'Dia').value = f ? String(f.d).padStart(2, '0') : '';
+        document.getElementById(pre + 'Mes').value = f ? String(f.m).padStart(2, '0') : '';
+        document.getElementById(pre + 'Anio').value = f ? String(f.a) : '';
+    }
+
+    function reiniciar() {
+        ponerFecha('obl', null);
+        ponerFecha('not', null);
+        document.getElementById('certificacion').checked = false;
+        pintar();
+    }
+
+    ['obl', 'not'].forEach(function (pre) {
+        ['Dia', 'Mes', 'Anio'].forEach(function (p, i) {
+            var el = document.getElementById(pre + p);
+            el.addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                // Salto al campo siguiente cuando este se lleno. Solo hacia
+                // adelante y solo al llenarse: saltar al borrar deja el cursor
+                // donde nadie lo puso.
+                var largo = p === 'Anio' ? 4 : 2;
+                if (this.value.length === largo && i < 2) {
+                    document.getElementById(pre + ['Dia', 'Mes', 'Anio'][i + 1]).focus();
                 }
-                if (tieneCert) {
-                    baseYear++;
-                }
-                return { year: baseYear, antes: antes31Julio };
-            }
+                pintar();
+            });
+        });
+    });
 
-            var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    document.getElementById('certificacion').addEventListener('change', pintar);
+    document.getElementById('btnReiniciar').addEventListener('click', reiniciar);
 
-            function mesNombre(m) { return meses[m - 1] || ''; }
+    // El ejemplo carga un caso corriente completo. Existe porque esta pantalla
+    // se usa una vez cada mucho: ver una respuesta armada explica mas rapido
+    // que leer tres rotulos.
+    document.getElementById('btnEjemplo').addEventListener('click', function () {
+        ponerFecha('obl', { d: 12, m: 5, a: 2019 });
+        ponerFecha('not', { d: 15, m: 3, a: 2024 });
+        document.getElementById('certificacion').checked = false;
+        pintar();
+    });
 
-            // ===== Render Stepper =====
-            function renderStepper() {
-                var labels = ['Advertencia', 'Notificación', 'Certificación', 'Resultado'];
-                var html = '';
-                for (var i = 0; i < totalSteps; i++) {
-                    var cls = 'step-dot';
-                    if (i === state.step) cls += ' active';
-                    else if (i < state.step) cls += ' completed';
-                    html += '<div class="' + cls + '">' + (i < state.step ? '✓' : (i + 1)) + '</div>';
-                    if (i < totalSteps - 1) {
-                        html += '<div class="step-line' + (i < state.step ? ' completed' : '') + '"></div>';
-                    }
-                }
-                stepIndicator.innerHTML = html;
-            }
+    pintarNormas();
+    pintar();
 
-            // ===== Navigation =====
-            function navigateTo(step) {
-                if (state.step === 3 && step === 3) return; // already on result
-                state.step = step;
-                if (state.history[state.history.length - 1] !== step) {
-                    state.history.push(step);
-                }
-                renderStepper();
-                renderScreen();
-                updateNav();
-            }
-
-            function goBack() {
-                if (state.history.length > 1) {
-                    state.history.pop();
-                    state.step = state.history[state.history.length - 1];
-                }
-                renderStepper();
-                renderScreen();
-                updateNav();
-            }
-
-            function goNext() {
-                if (state.step === 0) {
-                    navigateTo(1);
-                } else if (state.step === 1) {
-                    var d = state.dia, m = state.mes, a = state.anio;
-                    if (!esFechaValida(d, m, a)) {
-                        mostrarError('errorFecha', 'Fecha inválida. Verifique el día, mes y año.');
-                        marcarInvalido();
-                        return;
-                    }
-                    if (!esFechaPostConsolidacion(d, m, a)) {
-                        mostrarError('errorFecha', 'Esta herramienta solo aplica para deudas posteriores al 1 de abril de 1991 (Régimen de Pasivo Corriente, Ley 11.672).');
-                        marcarInvalido();
-                        return;
-                    }
-                    if (!esAntesDeHoy(d, m, a)) {
-                        mostrarError('errorFecha', 'La fecha de notificación no puede ser posterior a hoy.');
-                        marcarInvalido();
-                        return;
-                    }
-                    ocultarError('errorFecha');
-                    desmarcarInvalido();
-                    navigateTo(2);
-                } else if (state.step === 2) {
-                    if (state.tieneCertificacion === null) {
-                        mostrarError('errorCert', 'Debe seleccionar una opción.');
-                        return;
-                    }
-                    ocultarError('errorCert');
-                    navigateTo(3);
-                }
-            }
-
-            function mostrarError(id, msg) {
-                var el = document.getElementById(id);
-                if (el) { el.textContent = msg; el.classList.add('show'); }
-            }
-
-            function ocultarError(id) {
-                var el = document.getElementById(id);
-                if (el) el.classList.remove('show');
-            }
-
-            function marcarInvalido() {
-                var dia = document.getElementById('inputDia');
-                var mes = document.getElementById('inputMes');
-                var anio = document.getElementById('inputAnio');
-                if (dia) dia.classList.add('invalid');
-                if (mes) mes.classList.add('invalid');
-                if (anio) anio.classList.add('invalid');
-            }
-
-            function desmarcarInvalido() {
-                var dia = document.getElementById('inputDia');
-                var mes = document.getElementById('inputMes');
-                var anio = document.getElementById('inputAnio');
-                if (dia) dia.classList.remove('invalid');
-                if (mes) mes.classList.remove('invalid');
-                if (anio) anio.classList.remove('invalid');
-            }
-
-            function updateNav() {
-                if (state.step === 0) {
-                    btnBack.style.display = 'none';
-                    btnNext.style.display = 'none';
-                } else if (state.step === 3) {
-                    btnBack.style.display = 'flex';
-                    btnNext.style.display = 'none';
-                } else {
-                    btnBack.style.display = 'flex';
-                    btnNext.style.display = 'flex';
-                }
-            }
-
-            // ===== Render Screens =====
-            function renderScreen() {
-                switch (state.step) {
-                    case 0: renderStep0(); break;
-                    case 1: renderStep1(); break;
-                    case 2: renderStep2(); break;
-                    case 3: renderStep3(); break;
-                }
-            }
-
-            // ------ Step 0: Warning ------
-            function renderStep0() {
-                contentArea.innerHTML = `
-                    <div class="warning-screen">
-                        <h2>Advertencia sobre el alcance de esta herramienta</h2>
-
-                        <div class="warning-box">
-                            <p><strong>Régimen NO contemplado: Consolidación de deudas (Ley 23.982)</strong></p>
-                            <p>Se aplica a obligaciones vencidas o de causa anterior al <strong>1 de abril de 1991</strong>. Implica que la obligación original se extingue y es reemplazada por derechos según un orden de prelación (prioridades) por categorías sociales. El pago puede ser en efectivo (según disponibilidad presupuestaria y orden cronológico) o mediante Bonos de Consolidación.</p>
-                            <p style="margin-top:8px;"><strong>Esta herramienta no cubre este régimen.</strong></p>
-                        </div>
-
-                        <div class="info-box">
-                            <p><strong>Régimen contemplado: Pasivo Corriente (Ley 11.672 — Art. 170)</strong></p>
-                            <p>Para obligaciones de causa posterior al <strong>1 de abril de 1991</strong> (deudas post-consolidación). El sistema funciona así:</p>
-                            <ul>
-                                <li>Las sentencias condenatorias contra el Estado tienen carácter <strong>meramente declarativo</strong>: el juez reconoce el derecho, pero el pago no es inmediato ni ejecutable por embargos comunes.</li>
-                                <li>El Estado debe incluir la deuda en el proyecto de presupuesto del año siguiente si la notificación se produce <strong>antes del 31 de julio</strong>; caso contrario, se desplaza al año subsiguiente.</li>
-                                <li>Recién una vez <strong>transcurrido el período fiscal</strong> sin que el crédito se haya cancelado, el acreedor puede ejecutar forzadamente (embargo).</li>
-                                <li>Si el organismo emite <strong>certificación de agotamiento de partida</strong>, el plazo se extiende un año fiscal adicional.</li>
-                            </ul>
-                        </div>
-
-                        <div class="btn-start-wrapper">
-                            <button class="btn-primary btn-block" id="btnEntendido">Entendido, continuar →</button>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('btnEntendido').addEventListener('click', function() {
-                    navigateTo(1);
-                });
-            }
-
-            // ------ Step 1: Date ------
-            function renderStep1() {
-                contentArea.innerHTML = `
-                    <div class="date-screen">
-                        <h2>Fecha de Notificación</h2>
-                        <p>Ingresá la fecha de notificación judicial de la liquidación firme, sentencia o regulación de honorarios</p>
-                        <div class="date-inputs">
-                            <div class="input-group">
-                                <input type="text" id="inputDia" placeholder="DD" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="${state.dia}">
-                                <small>Día</small>
-                            </div>
-                            <div class="input-group">
-                                <input type="text" id="inputMes" placeholder="MM" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="${state.mes}">
-                                <small>Mes</small>
-                            </div>
-                            <div class="input-group">
-                                <input type="text" id="inputAnio" placeholder="YYYY" maxlength="4" pattern="[0-9]*" inputmode="numeric" value="${state.anio}">
-                                <small>Año</small>
-                            </div>
-                        </div>
-                        <div class="error-msg" id="errorFecha"></div>
-                        <div class="checkpoint-note">
-                            <strong>Hito legal — 31 de julio:</strong> Si la notificación es <strong>ANTES</strong> del 31 de julio, la deuda se incluye en el presupuesto del año siguiente. Si es el <strong>31 de julio o después</strong>, se desplaza al año subsiguiente.
-                        </div>
-                    </div>
-                `;
-
-                state.dia = document.getElementById('inputDia').value;
-                state.mes = document.getElementById('inputMes').value;
-                state.anio = document.getElementById('inputAnio').value;
-
-                ['inputDia', 'inputMes', 'inputAnio'].forEach(function(id) {
-                    document.getElementById(id).addEventListener('input', function(e) {
-                        this.value = this.value.replace(/[^0-9]/g, '');
-                        if (id === 'inputDia') state.dia = this.value;
-                        else if (id === 'inputMes') state.mes = this.value;
-                        else if (id === 'inputAnio') state.anio = this.value;
-                        ocultarError('errorFecha');
-                        desmarcarInvalido();
-                    });
-                });
-
-                // auto-tab
-                document.getElementById('inputDia').addEventListener('input', function() {
-                    if (this.value.length === 2) document.getElementById('inputMes').focus();
-                });
-                document.getElementById('inputMes').addEventListener('input', function() {
-                    if (this.value.length === 2) document.getElementById('inputAnio').focus();
-                });
-            }
-
-            // ------ Step 2: Certification ------
-            function renderStep2() {
-                contentArea.innerHTML = `
-                    <div class="binary-screen">
-                        <h2>Certificación de Agotamiento de Partida</h2>
-                        <p>¿El Servicio Administrativo Financiero emitió certificación de agotamiento de la partida presupuestaria?</p>
-                        <div class="binary-options">
-                            <div class="binary-card ${state.tieneCertificacion === true ? 'selected' : ''}" data-cert="si">
-                                <div class="binary-card-label">Sí, existe certificación</div>
-                                <div class="binary-card-desc">El Estado acreditó que se agotaron los fondos y cumplió con la comunicación al Congreso (Art. 22, Ley 23.982)</div>
-                            </div>
-                            <div class="binary-card ${state.tieneCertificacion === false ? 'selected' : ''}" data-cert="no">
-                                <div class="binary-card-label">No existe certificación</div>
-                                <div class="binary-card-desc">No se emitió certificación, o el crédito presupuestario fue suficiente y se pagó en término</div>
-                            </div>
-                        </div>
-                        <div class="error-msg" id="errorCert"></div>
-                    </div>
-                `;
-
-                document.querySelectorAll('[data-cert]').forEach(function(card) {
-                    card.addEventListener('click', function() {
-                        document.querySelectorAll('[data-cert]').forEach(function(c) {
-                            c.classList.remove('selected');
-                        });
-                        card.classList.add('selected');
-                        state.tieneCertificacion = card.dataset.cert === 'si';
-                        ocultarError('errorCert');
-                    });
-                });
-            }
-
-            // ------ Step 3: Result ------
-            function renderStep3() {
-                var d = parseInt(state.dia, 10);
-                var m = parseInt(state.mes, 10);
-                var a = parseInt(state.anio, 10);
-                var cert = state.tieneCertificacion;
-
-                var result = calcularFechaEjecutabilidad(d, m, a, cert);
-                var resultYear = result.year;
-                var antes = result.antes;
-
-                var fechaNotifStr = formatFecha(d, m, a);
-                var checkpointStr = antes ? 'Antes del 31 de julio' : '31 de julio o después';
-                var checkpointColor = antes ? 'completed' : 'warning';
-                var presupuestoYear = antes ? (a + 1) : (a + 2);
-                var certYearExtra = cert ? (', +1 año por certificación') : '';
-                var explicacion = '';
-
-                if (antes && !cert) {
-                    explicacion = 'Notificación anterior al 31 de julio → incluida en presupuesto ' + presupuestoYear + ' → sin certificación → ejecutable desde 01/01/' + resultYear + '.';
-                } else if (!antes && !cert) {
-                    explicacion = 'Notificación posterior al 31 de julio → presupuestada para ' + presupuestoYear + ' → sin certificación → ejecutable desde 01/01/' + resultYear + '.';
-                } else if (antes && cert) {
-                    explicacion = 'Notificación anterior al 31 de julio → presupuestada para ' + presupuestoYear + ' → se certificó agotamiento → +1 año de espera → ejecutable desde 01/01/' + resultYear + '.';
-                } else {
-                    explicacion = 'Notificación posterior al 31 de julio → presupuestada para ' + presupuestoYear + ' → se certificó agotamiento → +1 año de espera → ejecutable desde 01/01/' + resultYear + '.';
-                }
-
-                var barClass1 = 'full';
-                var barClass2 = antes ? 'full' : 'full';
-                var barClass3 = 'full';
-                var barClass4 = 'full';
-
-                contentArea.innerHTML = `
-                    <div class="result-screen">
-                        <h2>Resultado del Cálculo</h2>
-
-                        <div class="result-date-box">
-                            <div class="label">Fecha de ejecutabilidad (embargo viable)</div>
-                            <div class="date">01/01/${resultYear}</div>
-                            <div class="sub">A partir de esta fecha puede solicitarse la ejecución forzada</div>
-                        </div>
-
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline-icon completed">1</div>
-                                <div class="timeline-content">
-                                    <div class="step-label">Notificación judicial</div>
-                                    <div class="step-value">${fechaNotifStr}</div>
-                                    <div class="timeline-bar-wrapper"><div class="timeline-bar blue ${barClass1}"></div></div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-icon ${checkpointColor}">2</div>
-                                <div class="timeline-content">
-                                    <div class="step-label">Checkpoint presupuestario — 31 de julio</div>
-                                    <div class="step-value">${checkpointStr}</div>
-                                    <div class="timeline-bar-wrapper"><div class="timeline-bar blue ${barClass2}"></div></div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-icon completed">3</div>
-                                <div class="timeline-content">
-                                    <div class="step-label">Ejercicio presupuestario</div>
-                                    <div class="step-value">El Estado debe prever la partida para el ejercicio ${presupuestoYear}${cert ? ' (pero certificó agotamiento)' : ''}</div>
-                                    <div class="timeline-bar-wrapper"><div class="timeline-bar ${cert ? 'yellow' : 'green'} ${barClass3}"></div></div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-icon success">4</div>
-                                <div class="timeline-content">
-                                    <div class="step-label">Ejecutable desde</div>
-                                    <div class="step-value">01/01/${resultYear} — Vía judicial habilitada para embargar</div>
-                                    <div class="timeline-bar-wrapper"><div class="timeline-bar green ${barClass4}"></div></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="legal-explain">
-                            <strong>Resumen:</strong> ${explicacion}
-                        </div>
-
-                        <div style="text-align: center;">
-                            <button class="btn-success btn-block" id="btnReiniciarCalc">Nuevo cálculo</button>
-                        </div>
-                    </div>
-                `;
-
-                document.getElementById('btnReiniciarCalc').addEventListener('click', function() {
-                    state.step = 0;
-                    state.history = [0];
-                    state.dia = '';
-                    state.mes = '';
-                    state.anio = '';
-                    state.tieneCertificacion = null;
-                    renderStepper();
-                    renderScreen();
-                    updateNav();
-                });
-            }
-
-            // ===== Init =====
-            btnBack.addEventListener('click', goBack);
-            btnNext.addEventListener('click', goNext);
-
-            renderStepper();
-            renderScreen();
-            updateNav();
-
-        })();
-    </script>
+    // Para el banco de pruebas: la cuenta y las tres tablas, consultables sin
+    // tocar el DOM.
+    window.EjecucionEstado = {
+        REGIMENES: REGIMENES,
+        NORMAS: NORMAS,
+        computar: computar,
+        regimenDe: regimenDe,
+        ddmmaaaa: ddmmaaaa
+    };
+    window.pintar = pintar;
+    window.reiniciar = reiniciar;
+    window.ponerFecha = ponerFecha;
+})();
+</script>
 </body>
 </html>

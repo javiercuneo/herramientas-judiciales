@@ -55,12 +55,15 @@ supuesto sucesorio y pasó a colgar del bien** —*«la separación de bienes es
 mismo que la petición de herencia, y cualquier otro caso de cosas comunes»*—, y
 con eso una separación de bienes dejó de cobrarle el inmueble entero a cada
 cónyuge.
-**Van tres de las cuatro que no son de plazos; queda `ejecucion-estado`**, que
-esa misma tarde recibió **su diagnóstico y ningún cambio**: leídas las normas
-contra el texto, la pantalla se declara aplicable a un régimen que en diez años
-de obligaciones no le corresponde —la segunda consolidación, la de la Ley 25.344
-corrida por la 25.725— y devuelve una fecha que no está en ninguna norma. Ver
-[el diagnóstico](#ejecucion-estado-el-diagnóstico-antes-de-refundarla--278). Ver
+**Van las cuatro que no son de plazos.** La última, `ejecucion-estado`, recibió
+su diagnóstico el 27/8 y se refundó el 28/8, y fue la única cuyo defecto no era
+de forma: **se declaraba aplicable a un régimen que en diez años de obligaciones
+no le corresponde** —la segunda consolidación, la de la Ley 25.344 corrida por la
+25.725— y devolvía una fecha que no está en ninguna norma. Ahora pregunta cuándo
+nació la obligación, frena donde la deuda está consolidada, y devuelve **dos
+fechas con la norma de cada una**. Ver
+[el diagnóstico](#ejecucion-estado-el-diagnóstico-antes-de-refundarla--278) y
+[la refundación](#ejecucion-estado-refundada-la-puerta-de-entrada-y-las-dos-fechas--288). Ver
 [`tasa` refundada](#tasa-refundada-los-dos-ejes-en-una-lista--278),
 [el monto fijo y el imprimible](#el-monto-fijo-y-el-imprimible-lo-que-la-lista-desbloqueaba--278),
 [las exenciones y el permalink](#las-exenciones-del-art-13-y-el-permalink-los-dos-copiados-de-honorio--278)
@@ -298,7 +301,7 @@ Ninguno urgente y ninguno bloqueante.
   revés, y las faltas de ortografía del texto que ve el usuario en `caducidad` y
   en `regresiva`. Lo que queda ahí es aspecto, no defecto.
   **Y las cuatro que van de cero ya tienen red**, que era la condición para
-  poder tocarlas: `scripts/pruebas-no-plazos.html`, 46 fijados. Antes del 26/8
+  poder tocarlas: `scripts/pruebas-no-plazos.html`, 50 fijados. Antes del 26/8
   no tenían ninguna comprobación y una reescritura no se habría podido
   distinguir de un error.
   **De las cuatro ya están hechas dos, las dos el 27/8**: `honorarios-mediacion`
@@ -307,8 +310,9 @@ Ninguno urgente y ninguno bloqueante.
   `prorrateo`, que es la primera que además **movió un número**: ver
   [abajo](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278).
   **Y `tasa`, refundada el 27/8 y cerrada el mismo día**: cubre toda la Ley
-  23.898 y no le quedan preguntas abiertas. **Queda `ejecucion-estado`**, la
-  última de las cuatro.
+  23.898 y no le quedan preguntas abiertas. **Y `ejecucion-estado` el 28/8**, que
+  cierra las cuatro: fue la única cuyo defecto no era de forma, y la única que
+  llevó un diagnóstico aparte antes de tocarla.
 - **`prorrateo` no computa el art. 730 in fine.** El último párrafo excluye del
   cómputo del 25 % los honorarios de los profesionales de la parte condenada en
   costas, y la pantalla no tiene forma de marcarlos: hoy todas las regulaciones
@@ -1003,13 +1007,12 @@ Lo de este frente, en orden y con lo que hace falta saber para arrancar en frío
    [`honorarios-mediacion`](#honorarios-mediacion-rehecha-y-qué-explica-esta-pantalla--278),
    [`prorrateo`](#prorrateo-rehecha-y-el-tope-que-estaba-escrito-duro--278) y
    [`tasa`](#tasa-refundada-los-dos-ejes-en-una-lista--278).
-   **Sigue `ejecucion-estado`**, que es además la más grande (917 líneas).
-   **Su diagnóstico está hecho el 27/8 y hay que leerlo antes de tocarla**: no es
-   una refundación de forma como las otras tres, porque la pantalla se declara
-   aplicable a un régimen que no le corresponde en diez años de obligaciones, y
-   arreglarlo es una pregunta nueva y no un rótulo. Ver
-   [abajo](#ejecucion-estado-el-diagnóstico-antes-de-refundarla--278).
-   **Y hay tres decisiones esperando a Javier**, que están ahí abajo.
+   **Y `ejecucion-estado`, refundada el 28/8: están las cuatro.** Fue la única
+   donde el problema no era la forma sino a qué se declaraba aplicable, y por eso
+   fue la única que llevó un diagnóstico aparte antes de tocarla. Ver
+   [el diagnóstico](#ejecucion-estado-el-diagnóstico-antes-de-refundarla--278) y
+   [la refundación](#ejecucion-estado-refundada-la-puerta-de-entrada-y-las-dos-fechas--288).
+   **Este punto queda cerrado.**
    No es sólo el aspecto. Lo que hay que uniformar, en orden de lo que más se
    nota: el aviso de cobertura —cada una nombra años distintos—, el tuteo suelto
    («envíanos un mail», «si crees»), los `max-width` de 240 a 1000 px, y los
@@ -2259,17 +2262,20 @@ Ley 23.982** —que es el que fija cuándo se puede ejecutar— dice otra cosa:
 > que contuviese el crédito presupuestario respectivo.»*
 
 Y la clausura de las sesiones ordinarias es el **30 de noviembre** (art. 63 CN).
-**No es un detalle de un mes:** en un escrito, la diferencia entre poder pedir la
-ejecución el 30 de noviembre o el 1 de enero es la diferencia entre llegar y no
-llegar a la cola de antigüedad que el propio art. 170 ordena por fecha de
-notificación.
+
+> **Corregido el 28/8, al construir.** Este párrafo decía que la diferencia era
+> «un mes entero de anticipo». **Son trece meses** —30/11/2024 contra
+> 01/01/2026 para una condena notificada en marzo de 2024— y, sobre todo,
+> **no son dos lecturas de lo mismo sino dos situaciones distintas**: el art. 22
+> se dispara cuando el crédito NO entró en la ley de presupuesto, y el 1 de
+> enero supone que entró y que el ejercicio pasó sin pago. Eso terminó
+> ordenando el diseño: ver
+> [la refundación](#ejecucion-estado-refundada-la-puerta-de-entrada-y-las-dos-fechas--288).
 
 **La lectura del 1 de enero no es un invento**: es la conservadora —que el
 ejercicio presupuestario tiene que haber transcurrido entero sin pago— y es la
 que se usa. **Pero la pantalla la da como si fuera la única y no cita ninguna
-norma para el día que devuelve.** Acá hay una decisión, y es de las que se pueden
-tomar sin litigar el tema: qué fecha va en el número grande, y si las dos
-lecturas se muestran juntas.
+norma para el día que devuelve.**
 
 #### Hallazgo 3: tres citas mal puestas
 
@@ -2318,9 +2324,124 @@ no contempla. Es un rótulo mal puesto, no un caso mal calculado.)*
    diez** y que cada número lleve su norma pegada, incluso donde las otras la
    darían por sabida.
 
-**Nada de esto se tocó todavía.** La pantalla sigue como estaba y los cuatro
-casos del banco pasan: fijan la aritmética de los tres cruces, que es correcta
-adentro del régimen que la pantalla cree estar aplicando.
+**Las tres se contestaron y la pantalla se refundó el 28/8**, el día siguiente:
+ver [abajo](#ejecucion-estado-refundada-la-puerta-de-entrada-y-las-dos-fechas--288).
+
+---
+
+### `ejecucion-estado` refundada: la puerta de entrada y las dos fechas — 28/8
+
+**La cuarta y última de las que no son de plazos, y la única donde el problema
+no era la forma.** El diagnóstico está [arriba](#ejecucion-estado-el-diagnóstico-antes-de-refundarla--278);
+acá está lo que se hizo, y las dos decisiones de Javier que lo ordenaron.
+
+#### Primero, una corrección de lo que este mismo documento decía ayer
+
+**El diagnóstico decía que la diferencia entre el 30 de noviembre y el 1 de
+enero era «un mes entero de anticipo». Está mal por dos motivos**, y los dos
+salieron al construir:
+
+- **No es un mes: son trece.** El art. 22 dispara en la clausura de las sesiones
+  ordinarias del año en que *debía tratarse* la ley de presupuesto del ejercicio;
+  el 1 de enero llega recién cuando ese ejercicio ya transcurrió entero. Para
+  una condena notificada en marzo de 2024: **30/11/2024** contra **01/01/2026**.
+- **Y no son dos lecturas de lo mismo: son dos situaciones distintas.** El art.
+  22 se dispara cuando el crédito **no entró** en la ley de presupuesto —el
+  propio artículo manda al Ejecutivo comunicar al Congreso los reconocimientos
+  que «carezcan de créditos presupuestarios»—. El 1 de enero supone que **entró**
+  y que el ejercicio pasó sin que le pagaran.
+
+**Eso cambió el diseño**, y para mejor: no hay que elegir entre dos lecturas ni
+mostrarlas como una duda doctrinaria. Se muestran las dos **con la situación que
+abre cada una**, que es un hecho del expediente y no una cuenta. La pantalla
+pregunta lo que puede saber y no finge saber lo que no.
+
+#### Las dos decisiones de Javier
+
+Con el aviso de que éste es el tema donde menos piso tiene, se le pusieron dos
+preguntas y contestó las dos:
+
+1. **Con la deuda consolidada, la pantalla frena y explica en dos párrafos**:
+   qué régimen es, por qué ahí no hay fecha de ejecutabilidad, y que el crédito
+   se cobra por el procedimiento de esa ley. No calcula nada. La alternativa
+   —modelar los dos regímenes de consolidación, con bonos, prelación y plazos de
+   16 y 10 años— es una calculadora entera aparte.
+2. **El número grande son las dos fechas, cada una con su norma.** No una
+   presentada como la respuesta y la otra como nota al pie.
+
+#### Lo que se construyó
+
+**Dejó de ser un asistente.** Eran cuatro pasos con una pantalla de advertencia
+adelante; ahora es una hoja sola, como las otras diez. La razón es la misma que
+en `tasa` —una entrevista es buena la primera vez y estorba a partir de la
+segunda— y acá hay una más fuerte: **cambiar la fecha de la obligación y ver
+saltar el régimen es lo que más enseña de esta pantalla**, y en un asistente eso
+queda tres pasos atrás.
+
+**Tres campos, y el primero es el que no existía:** cuándo nació la obligación,
+cuándo se notificó la condena firme, y una casilla para la partida agotada. Los
+tres regímenes salen del primero:
+
+| Causa o título de la obligación | Régimen | Respuesta |
+|---|---|---|
+| Anterior al 1/4/1991 | Consolidada, Ley 23.982 art. 1 | **No hay fecha** |
+| Del 1/4/1991 al 31/12/2001 | Consolidada, Ley 25.344 art. 13, con el corte corrido por la Ley 25.725 art. 58 | **No hay fecha** |
+| Posterior al 31/12/2001 | Pasivo corriente, art. 170 Ley 11.672 y art. 22 Ley 23.982 | Dos fechas |
+
+**Los tres tramos no dejan hueco, y no es casualidad:** la 23.982 consolida lo
+«anterior al 1 de abril de 1991» y la 25.344 lo «posterior al 31 de marzo de
+1991», que es el día siguiente. Encastran, y está escrito al lado del corte para
+que la próxima lectura no lo tenga que descubrir.
+
+**Y abajo del veredicto, la línea de tiempo con la norma de cada hito.** Es la
+mitad de lo que esta pantalla da: para el usuario que se describió —alguien que
+no litiga esto y que necesita saber en qué está parado— **el mapa importa más
+que el número**. Cinco normas desplegables cierran la página, y la primera es la
+que la pantalla anterior citaba mal.
+
+#### Las tres citas, arregladas
+
+- **El «carácter meramente declaratorio» es el art. 7 de la Ley 3.952**, no la
+  11.672. Y **no se puede citar solo**: va con «Pietranera» (1966), donde la
+  CSJN resolvió que ese artículo no es una autorización para no cumplir las
+  sentencias. Dicho a secas, el lector se lleva que contra el Estado no hay nada
+  que hacer, que es lo contrario de lo que dice la ley.
+- **La partida agotada sale del art. 170 de la Ley 11.672**, no del art. 22 de
+  la 23.982. Y dejó de llamarse «certificación de agotamiento», que sonaba a un
+  acto formal que hay que conseguir: es que los recursos se aplican por orden de
+  antigüedad «hasta su agotamiento», y el remanente va al ejercicio siguiente.
+- **El 31 de julio es del conocimiento fehaciente del organismo**, no de la
+  notificación. La notificación es el vehículo normal y por eso la aproximación
+  funciona, pero la pantalla ahora dice cuál es cuál —y de paso dice que esa
+  fecha importa **dos veces**: fija el ejercicio y fija el lugar en la cola.
+
+#### El banco, de 46 a 50, y uno se puso rojo con razón
+
+Los cuatro casos viejos se reescribieron —la aritmética es la misma y las fechas
+del 1 de enero no se movieron, que era la prueba de que la cuenta seguía
+igual— y entraron cuatro nuevos: **los tres de la puerta de entrada**, que
+llevan la misma notificación y sólo cambian la fecha de la obligación, y uno que
+**no mira ningún número** y fija las cinco normas que cita la línea de tiempo.
+Ese último existe porque una cita que se despega no mueve ninguna fecha.
+
+**Y el caso de la deuda consolidada se puso rojo, y estaba bien.** La tira de
+datos se escondía pero **se quedaba con el contenido del caso anterior adentro**:
+para una obligación de 1998 mostraba, oculto en el DOM, el ejercicio
+presupuestario de otra cuenta. Se arreglaron las dos puntas —la pantalla ahora
+vacía además de esconder, y el driver pregunta por `hidden` en vez de contar
+nodos—. **La lección se repite**: esconder no es limpiar, y lo que queda en el
+DOM lo lee todo lo que no mire el `hidden`.
+
+#### Lo que queda expresamente afuera, y está escrito en el colofón
+
+Las deudas **previsionales**, que tienen fechas de corte propias en los dos
+regímenes de consolidación y otro régimen de pago. Las **provincias y los
+municipios**, cada uno con su ley. Y lo que no sea una condena a **dar sumas de
+dinero**. Nada de eso se aproxima: se dice que no está.
+
+**Sigue marcada «en desarrollo» en el tablero**, y a propósito: el bug está
+cerrado y la cobertura declarada es la que la pantalla cumple, pero es el tema
+donde Javier avisó que no puede dar fe, y bajarle el cartel es una decisión suya.
 
 ---
 
@@ -2550,8 +2671,11 @@ Qué cubre cada una, y por qué esos casos:
 - **`tasa`** (3): los tres incisos del art. 4 de la Ley 23.898 que la pantalla
   arma distinto. El de desalojo existe por el multiplicador por seis cánones,
   que es lo que un refactor pierde sin que se note.
-- **`ejecucion-estado`** (4): los cuatro cruces —antes o después
-  del 31 de julio, con o sin certificación—, más el 31 exacto, que es el borde.
+- **`ejecucion-estado`** (8 desde el 28/8): los cuatro cruces —antes o después
+  del 31 de julio, con o sin la partida agotada— más el 31 exacto, que es el
+  borde; los tres de la puerta de entrada, que llevan la misma notificación y
+  sólo cambian la fecha de la obligación; y uno que no mira ningún número y fija
+  las cinco normas que cita la línea de tiempo.
 
 **Cada caso carga su propia UMA y su propio UHOM.** Las dos calculadoras que los
 usan los leen de `data/`, así que un caso que no los fijara pondría el banco en
@@ -3273,19 +3397,13 @@ ni una calle con altura.
 
 ## Bugs abiertos
 
-**Uno, y está en `ejecucion-estado`.**
+**Ninguno.**
 
-- **Contesta con una fecha donde la deuda está consolidada, y son diez años.**
-  La pantalla se declara aplicable a todo lo posterior al 1/4/1991, y el art. 13
-  de la **Ley 25.344** consolidó las obligaciones de causa o título anterior al
-  1/1/2000, corrido al **31/12/2001** por el art. 58 de la **Ley 25.725**.
-  Además la pantalla gatilla sobre la **fecha de notificación** y la
-  consolidación mira la **causa o título de la obligación**, que son dos fechas
-  distintas: una sentencia notificada hoy por una obligación de 1998 recibe un
-  «ejecutable el 01/01/…» que no corresponde. **No se arregló todavía porque el
-  arreglo es una pregunta nueva en la pantalla** —cuándo nació la obligación— y
-  entra con la refundación. Está marcada «en desarrollo» en el tablero. Ver
-  [abajo](#ejecucion-estado-el-diagnóstico-antes-de-refundarla--278).
+El de `ejecucion-estado` —que contestaba con una fecha de ejecutabilidad donde
+la deuda estaba consolidada, y eran diez años de obligaciones— **se abrió el
+27/8 y se cerró el 28/8 con la refundación**, que le agregó la pregunta que le
+faltaba: cuándo nació la obligación. Está cubierto por tres casos del banco. Ver
+[abajo](#ejecucion-estado-refundada-la-puerta-de-entrada-y-las-dos-fechas--288).
 
 Los dos de `tasa` que se abrieron el 27/8 se cerraron el mismo día,
 después de cubrirlos con casos de prueba:

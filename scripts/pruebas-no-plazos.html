@@ -405,65 +405,98 @@ const DRIVERS = {
     },
 
     // -----------------------------------------------------------------------
-    // ejecucion-estado: el asistente de cuatro pasos. LA LEY NO ES LA 25.344,
-    // que es lo que decia este comentario hasta el 27/8: la 25.344 es la ley
-    // de CONSOLIDACION, o sea justamente el regimen que esta pantalla no
-    // contempla y que la hace contestar de mas. El regimen que si modela son
-    // dos normas: el art. 170 de la Ley 11.672 pone la condena en el
-    // presupuesto ---el 31 de julio, el ejercicio siguiente, el agotamiento---
-    // y el art. 22 de la Ley 23.982 dice desde cuando se puede ejecutar. Los
-    // cuatro casos fijan la aritmetica de los tres cruces, que es correcta
-    // adentro de ese regimen: no es una cuenta de plata sino de anios, y
-    // depende de dos cosas: si la notificacion cayo antes del 31 de julio y si
-    // se certifico el agotamiento de la partida.
+    // ejecucion-estado: refundada el 27/8 y ya no es un asistente, asi que
+    // este driver se reescribio entero. Lo de antes: cuatro pasos, un boton
+    // "Entendido" adelante, dos tarjetas con data-cert y tres clicks en
+    // "Siguiente". Ahora son tres campos en una hoja sola.
+    //
+    // LA LEY NO ES LA 25.344, que es lo que decia este comentario hasta el
+    // 27/8: la 25.344 es la ley de CONSOLIDACION, o sea justamente el regimen
+    // que la pantalla anterior no contemplaba y que la hacia contestar de mas.
+    // El regimen que si modela son dos normas: el art. 170 de la Ley 11.672
+    // pone la condena en el presupuesto ---el 31 de julio, el ejercicio
+    // siguiente, la partida agotada--- y el art. 22 de la Ley 23.982 dice
+    // desde cuando se puede ejecutar.
+    //
+    // LA SALIDA LLEVA EL REGIMEN ADELANTE, y no es decoracion: la aritmetica
+    // de los tres cruces ya estaba bien antes de refundar, y lo que estaba mal
+    // era a que se declaraba aplicable. Un fijado que solo mirara la fecha
+    // volveria a pasar el dia que alguien rompa la puerta de entrada.
+    //
+    // Y LLEVA LAS DOS FECHAS. La pantalla ya no devuelve una: devuelve la del
+    // art. 22 ---la clausura de las sesiones ordinarias, 30 de noviembre--- y
+    // la del 1 de enero, que es la lectura conservadora y no sale de ningun
+    // texto. Fijar una sola dejaria pasar que la otra desaparezca.
     // -----------------------------------------------------------------------
     'ejecucion-estado': {
         archivo: '../calculadoras/ejecucion-estado.html',
-        lista: (d) => !!d.getElementById('btnNext') || !!d.getElementById('btnEntendido'),
+        lista: (d) => !!d.getElementById('oblDia') && !!d.defaultView.EjecucionEstado,
         correr: async (d, campos) => {
             const w = d.defaultView;
-            // El iframe se reusa entre casos y el asistente queda parado en el
-            // resultado del anterior. Sin este reinicio corria el primer caso y
-            // los otros tres decian "no aparecio el paso de la fecha": el
-            // sintoma no se parece en nada a la causa.
-            const reiniciar = d.getElementById('btnReiniciarCalc');
-            if (reiniciar) { reiniciar.click(); await pausa(120); }
 
-            // El paso 0 es un aviso con su propio boton. Se lo pasa si esta.
-            const entendido = d.getElementById('btnEntendido');
-            if (entendido) { entendido.click(); await pausa(80); }
+            // El iframe se reusa entre casos. Con el asistente eso dejaba la
+            // pantalla parada en el resultado del anterior y los casos 2 a 4
+            // decian "no aparecio el paso de la fecha": el sintoma no se
+            // parecia en nada a la causa. Con una hoja sola alcanza reiniciar,
+            // pero se sigue haciendo por lo mismo.
+            w.reiniciar();
 
-            const puso = await esperar(() => !!d.getElementById('inputDia'), 3000);
-            if (!puso) return 'no calcula: no aparecio el paso de la fecha';
-            // El asistente NO lee los campos al avanzar: lee su propio estado,
-            // que un listener de `input` mantiene. Poner .value sin disparar el
-            // evento dejaba el estado vacio, la fecha salia invalida y el
-            // asistente se quedaba en el paso 1 sin decir nada al driver.
-            [['inputDia', campos.dia], ['inputMes', campos.mes], ['inputAnio', campos.anio]]
-                .forEach(([id, valor]) => {
-                    const campo = d.getElementById(id);
-                    campo.value = valor;
-                    campo.dispatchEvent(new w.Event('input', { bubbles: true }));
-                });
-            d.getElementById('btnNext').click();
-            await pausa(120);
+            const ev = (el) => el.dispatchEvent(new w.Event('input', { bubbles: true }));
+            const cargar = (pre, f) => {
+                if (!f) return;
+                d.getElementById(pre + 'Dia').value = f[0];
+                d.getElementById(pre + 'Mes').value = f[1];
+                d.getElementById(pre + 'Anio').value = f[2];
+                ev(d.getElementById(pre + 'Anio'));
+            };
 
-            // El paso de la certificacion son dos tarjetas con data-cert, no
-            // radios: se eligen por ese atributo, que es el que lee la propia
-            // pantalla para decidir. Un ancla estructural sobrevive a que
-            // cambie la redaccion de la tarjeta; una sobre su texto, no.
-            const elegida = d.querySelector('[data-cert="' + (campos.certificacion ? 'si' : 'no') + '"]');
-            if (!elegida) return 'no calcula: no se encontro la opcion de certificacion';
-            elegida.click();
-            await pausa(80);
-            d.getElementById('btnNext').click();
-            await pausa(120);
-            d.getElementById('btnNext').click();
-            await pausa(150);
+            cargar('obl', campos.obligacion);
+            cargar('not', campos.notificacion);
 
-            const caja = d.querySelector('.result-date-box .date');
-            if (!caja) return '(no se pudo leer) ' + d.getElementById('contentArea').innerText.replace(/\s+/g, ' ').slice(0, 80);
-            return caja.textContent.trim();
+            if (campos.certificacion) {
+                const chk = d.getElementById('certificacion');
+                chk.checked = true;
+                chk.dispatchEvent(new w.Event('change', { bubbles: true }));
+            }
+
+            w.pintar();
+            await pausa(60);
+
+            // El regimen se lee del texto de la caja y no de una clase: es lo
+            // que ve el usuario. Las dos fechas salen del veredicto, en orden.
+            const marca = d.querySelector('#cajaRegimen .marca');
+            const fechas = Array.from(d.querySelectorAll('#veredicto .cifra'))
+                .map((e) => e.textContent.trim());
+
+            let salida = 'régimen ' + (marca ? marca.textContent.trim() : '(sin caja)') +
+                ' · ' + fechas.join(' | ');
+
+            // El ejercicio y el lugar en la cola salen de la tira, y existen
+            // para que un caso que da la misma fecha por el camino equivocado
+            // no pase igual.
+            // SE MIRA EL hidden Y NO SI HAY NODOS. Es la diferencia que puso
+            // este caso en rojo el 28/8: la tira quedaba escondida pero CON EL
+            // CONTENIDO DEL CASO ANTERIOR adentro, asi que leer los nodos daba
+            // el ejercicio presupuestario de otra cuenta. La pantalla se
+            // arreglo ---ahora se vacia ademas de esconderse--- y el driver
+            // pregunta lo que el caso quiere saber, que es si se ve.
+            if (campos.verTira) {
+                const tira = d.getElementById('tira');
+                const t = Array.from(tira.querySelectorAll('.dato'))
+                    .map((e) => e.querySelector('.v').textContent.trim());
+                salida += ' · tira ' + (tira.hidden || !t.length ? '(oculta)' : t.join(' / '));
+            }
+
+            // Los hitos son la mitad de lo que esta pantalla da, y ninguno se
+            // ve en las fechas: si la linea de tiempo pierde un hito o le
+            // cambia la norma citada, los dos numeros siguen iguales.
+            if (campos.verHitos) {
+                const hs = Array.from(d.querySelectorAll('#hitos .norma'))
+                    .map((e) => e.textContent.trim());
+                salida += ' · normas ' + (hs.length ? hs.join(' | ') : '(sin hitos)');
+            }
+
+            return salida;
         }
     }
 };
@@ -847,33 +880,89 @@ const FIJADOS = [
         porque: 'El art. 13 enumera diez exenciones y no admite otras: un sucesorio NO esta exento ---tiene la tasa reducida del art. 3 inc. c, que es otra cosa---. Que el buscador devuelva cero es la respuesta correcta, y la pantalla lo dice con todas las letras en vez de mostrar una lista vacia. Si un dia alguien agrega un inciso que no esta en la ley, este caso salta.'
     },
 
+    // --- ejecucion-estado, arts. 170 Ley 11.672 y 22 Ley 23.982 ------------
+    //
+    // REESCRITOS EL 28/8 CON LA PANTALLA REFUNDADA. Los cuatro cruces de la
+    // aritmetica son los mismos de antes y dan las mismas fechas del 1 de
+    // enero ---esa es toda la gracia: la cuenta no se movio---. Lo que cambio
+    // es que ahora cada caso declara ADEMAS cuando nacio la obligacion, que es
+    // la pregunta que la pantalla anterior no hacia, y que la salida trae el
+    // regimen adelante y las DOS fechas.
+    //
+    // La cuenta, para que se lea sin abrir la ley:
+    //   notificada en el anio N, antes del 31/7 ....... ejercicio N+1
+    //   notificada en el anio N, el 31/7 o despues .... ejercicio N+2
+    //   partida agotada .............................. un ejercicio mas
+    // y de ahi salen las dos fechas:
+    //   art. 22 ...... 30/11 del anio en que se trata la ley de ese ejercicio,
+    //                  o sea 30/11/(ejercicio-1)
+    //   practica ..... 01/01/(ejercicio+1)
     {
         calc: 'ejecucion-estado',
-        rotulo: 'Notificación antes del 31 de julio, sin certificación',
-        campos: { dia: '15', mes: '3', anio: '2024', certificacion: false },
-        esperado: '01/01/2026',
-        porque: 'Entra en el presupuesto del año siguiente: dos años.'
+        rotulo: 'Notificación antes del 31 de julio, sin agotamiento',
+        campos: { verTira: true, obligacion: ['12', '5', '2019'], notificacion: ['15', '3', '2024'] },
+        esperado: 'régimen Corriente · 30/11/2024 | 01/01/2026 · tira Antes / 2025 / 15/03/2024',
+        porque: 'El caso corriente y el mas comun. Notificada en marzo de 2024, o sea antes del 31 de julio: el organismo llega a tomar conocimiento para el proyecto que se envia ese anio, y la condena tiene que estar prevista en el ejercicio 2025. El 01/01/2026 es exactamente lo que devolvia la pantalla anterior; el 30/11/2024 es lo que la pantalla anterior no decia, y es la unica de las dos que esta escrita en una norma.'
     },
     {
         calc: 'ejecucion-estado',
-        rotulo: 'Notificación después del 31 de julio, sin certificación',
-        campos: { dia: '15', mes: '9', anio: '2024', certificacion: false },
-        esperado: '01/01/2027',
-        porque: 'Pierde el presupuesto del año siguiente y va al subsiguiente: tres años.'
+        rotulo: 'Notificación después del 31 de julio: pierde el proyecto de ese año',
+        campos: { obligacion: ['12', '5', '2019'], notificacion: ['15', '9', '2024'] },
+        esperado: 'régimen Corriente · 30/11/2025 | 01/01/2027',
+        porque: 'La misma obligacion notificada en septiembre. Ya no llega al proyecto de presupuesto que se envia en 2024, asi que la prevision se corre al proyecto del anio siguiente y el ejercicio pasa a ser el 2026. Un anio entero de diferencia por seis semanas de notificacion, que es el hito que el art. 170 pone en el 31 de julio.'
     },
     {
         calc: 'ejecucion-estado',
-        rotulo: 'Antes del 31 de julio, con certificación de agotamiento',
-        campos: { dia: '15', mes: '3', anio: '2024', certificacion: true },
-        esperado: '01/01/2027',
-        porque: 'La certificación suma un año más de espera.'
+        rotulo: 'La partida agotada corre un ejercicio entero',
+        campos: { verTira: true, obligacion: ['12', '5', '2019'], notificacion: ['15', '3', '2024'], certificacion: true },
+        esperado: 'régimen Corriente · 30/11/2025 | 01/01/2027 · tira Antes / 2026 / 15/03/2024',
+        porque: 'El par del primer caso, y lo unico que cambia es la casilla. El credito estaba previsto en el ejercicio 2025 pero los recursos se agotaron antes de llegar a este acreedor: el art. 170 manda atender el remanente "con los recursos que se asignen en el siguiente ejercicio fiscal", asi que el ejercicio pasa a ser el 2026 y las DOS fechas corren un anio. Da lo mismo que notificar tarde, y por caminos distintos: la tira lo distingue ---este dice "Antes" y el de arriba tambien, pero los ejercicios son 2026 y 2025---.'
     },
     {
         calc: 'ejecucion-estado',
         rotulo: 'El 31 de julio exacto: es el borde y cuenta como después',
-        campos: { dia: '31', mes: '7', anio: '2024', certificacion: false },
-        esperado: '01/01/2027',
-        porque: 'El corte es "antes del 31", así que el 31 mismo ya no entra. Un ">" cambiado por ">=" mueve un año entero.'
+        campos: { obligacion: ['12', '5', '2019'], notificacion: ['31', '7', '2024'] },
+        esperado: 'régimen Corriente · 30/11/2025 | 01/01/2027',
+        porque: 'El art. 170 dice ANTES del 31 de julio, asi que el 31 mismo ya no entra. Un ">" cambiado por ">=" mueve un anio entero y no se ve en ningun otro caso: los dos de al lado caen lejos del borde a proposito.'
+    },
+
+    // --- ejecucion-estado, la puerta de entrada ----------------------------
+    //
+    // LOS TRES CASOS QUE LA PANTALLA ANTERIOR NO PODIA TENER, porque no
+    // preguntaba cuando nacio la obligacion. Son el arreglo del bug: la
+    // consolidacion mira la CAUSA O TITULO y la pantalla anterior gatillaba
+    // sobre la NOTIFICACION, que puede caer veinte anios despues.
+    //
+    // Los tres llevan LA MISMA NOTIFICACION ---15/3/2024--- y lo unico que
+    // cambia es la fecha de la obligacion. Si la puerta de entrada se rompe,
+    // los tres devuelven la fecha del caso corriente y los tres saltan juntos.
+    {
+        calc: 'ejecucion-estado',
+        rotulo: 'Obligación de 1998: consolidada por la Ley 25.344, y no hay fecha',
+        campos: { verTira: true, obligacion: ['10', '6', '1998'], notificacion: ['15', '3', '2024'] },
+        esperado: 'régimen Consolidada · No hay fecha: la deuda está consolidada · tira (oculta)',
+        porque: 'ES EL BUG QUE ABRIO LA REFUNDACION, congelado. El art. 13 de la Ley 25.344 consolido las obligaciones de causa o titulo posterior al 31/3/1991, y el art. 58 de la Ley 25.725 corrio ese corte al 31/12/2001: una obligacion de 1998 esta consolidada aunque la sentencia sea de 2024. La pantalla anterior contestaba "01/01/2026" con toda confianza, que es la peor forma de estar mal: una respuesta plausible y redonda dada a alguien que ---por definicion de para quien es esta pantalla--- no tiene como saber que no corresponde. La tira tiene que estar OCULTA: si aparece, la pantalla esta calculando un ejercicio presupuestario para una deuda que no pasa por el presupuesto.'
+    },
+    {
+        calc: 'ejecucion-estado',
+        rotulo: 'Obligación de 1990: consolidada por la Ley 23.982',
+        campos: { obligacion: ['3', '2', '1990'], notificacion: ['15', '3', '2024'] },
+        esperado: 'régimen Consolidada · No hay fecha: la deuda está consolidada',
+        porque: 'El otro regimen de consolidacion, el unico que la pantalla anterior SI frenaba. Existe para que el arreglo del de al lado no lo rompa: los dos dicen lo mismo en el veredicto y se distinguen por la ley que cita la caja del regimen, que este caso no mira. Anterior al 1/4/1991, art. 1 de la Ley 23.982.'
+    },
+    {
+        calc: 'ejecucion-estado',
+        rotulo: 'El borde de la consolidación: 31/12/2001 y 1/1/2002',
+        campos: { obligacion: ['1', '1', '2002'], notificacion: ['15', '3', '2024'] },
+        esperado: 'régimen Corriente · 30/11/2024 | 01/01/2026',
+        porque: 'EL BORDE, y es el que decide diez anios de obligaciones. El 31/12/2001 esta consolidado y el 1/1/2002 no: un "<" cambiado por un "<=" en el corte manda al regimen equivocado un dia entero de deudas, y el error se ve solo aca. Da lo mismo que el primer caso corriente, y tiene que darlo: lo unico que cambia es la fecha de la obligacion, un dia despues del corte.'
+    },
+    {
+        calc: 'ejecucion-estado',
+        rotulo: 'La línea de tiempo cita las tres normas, y ninguna se ve en las fechas',
+        campos: { verHitos: true, obligacion: ['12', '5', '2019'], notificacion: ['15', '3', '2024'] },
+        esperado: 'régimen Corriente · 30/11/2024 | 01/01/2026 · normas Leyes 23.982 y 25.344, a contrario | Art. 170 de la Ley 11.672 | Art. 170 de la Ley 11.672 | Art. 22 de la Ley 23.982 | Sin norma que la fije',
+        porque: 'ESTE CASO NO MIRA NINGUN NUMERO. Con el aviso de Javier sobre su propio piso en este tema, la mitad de lo que esta pantalla da es DECIR DE DONDE SALE CADA HITO, y eso no se ve en ninguna fecha: si un hito pierde su cita o se le pega la norma equivocada, los dos numeros siguen exactamente iguales. El ultimo renglon dice "Sin norma que la fije" a proposito y es el mas importante de los cinco: el 1 de enero NO sale de ningun texto, y el dia que alguien le ponga una cita inventada este caso salta.'
     }
 ];
 
