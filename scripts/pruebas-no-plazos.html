@@ -405,10 +405,17 @@ const DRIVERS = {
     },
 
     // -----------------------------------------------------------------------
-    // ejecucion-estado: el asistente de cuatro pasos de la Ley 25.344. No es
-    // una cuenta de plata sino de aniios, y depende de dos cosas: si la
-    // notificacion cayo antes del 31 de julio y si se certifico el agotamiento
-    // de la partida. Los cuatro cruces estan cubiertos.
+    // ejecucion-estado: el asistente de cuatro pasos. LA LEY NO ES LA 25.344,
+    // que es lo que decia este comentario hasta el 27/8: la 25.344 es la ley
+    // de CONSOLIDACION, o sea justamente el regimen que esta pantalla no
+    // contempla y que la hace contestar de mas. El regimen que si modela son
+    // dos normas: el art. 170 de la Ley 11.672 pone la condena en el
+    // presupuesto ---el 31 de julio, el ejercicio siguiente, el agotamiento---
+    // y el art. 22 de la Ley 23.982 dice desde cuando se puede ejecutar. Los
+    // cuatro casos fijan la aritmetica de los tres cruces, que es correcta
+    // adentro de ese regimen: no es una cuenta de plata sino de anios, y
+    // depende de dos cosas: si la notificacion cayo antes del 31 de julio y si
+    // se certifico el agotamiento de la partida.
     // -----------------------------------------------------------------------
     'ejecucion-estado': {
         archivo: '../calculadoras/ejecucion-estado.html',
