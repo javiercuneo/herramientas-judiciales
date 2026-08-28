@@ -44,12 +44,16 @@ recursos directos. **Y encima de eso, lo que la refundación desbloqueaba**: el
 **monto fijo de los arts. 5 y 6** —tercera serie cargada a mano, con su archivo
 y su control— y el **imprimible del art. 4 *in fine***, que no es una comodidad
 sino la liquidación detallada que la ley manda acompañar al pago, con las
-ampliaciones y las reconvenciones separadas como manda el art. 8. **`tasa` cubre
-ahora toda la ley salvo las exenciones del art. 13.**
+ampliaciones y las reconvenciones separadas como manda el art. 8. Y al final
+entraron los dos que llevaban escrito «ir a mirarlo a Honorio antes de
+escribir»: **las exenciones del art. 13 con su buscador** y **el permalink en el
+fragmento de la URL**, que comparte el caso sin que nada viaje a ningún
+servidor. **`tasa` cubre ahora toda la Ley 23.898.**
 **Van tres de las cuatro que no son de plazos; queda `ejecucion-estado`.** Ver
 [`tasa` refundada](#tasa-refundada-los-dos-ejes-en-una-lista--278),
-[el monto fijo y el imprimible](#el-monto-fijo-y-el-imprimible-lo-que-la-lista-desbloqueaba--278)
-y [lo que le falta](#lo-que-le-falta-a-tasa--278).
+[el monto fijo y el imprimible](#el-monto-fijo-y-el-imprimible-lo-que-la-lista-desbloqueaba--278),
+[las exenciones y el permalink](#las-exenciones-del-art-13-y-el-permalink-los-dos-copiados-de-honorio--278)
+y [lo que queda abierto](#lo-que-le-falta-a-tasa--278).
 
 **El 25/8 la landing volvió a decir lo que Honorio hace.** Anunciaba la versión
 3.1.1 con la app en 3.4.1, publicaba los recorridos y los cruces de antes del
@@ -118,7 +122,7 @@ Las tres redes, en orden de lo que cubren: el banco de las pantallas
 `npm run verificar-red` controla **qué terceros nombra el sitio** —y existe
 porque el barrido de «qué sale del navegador» de esa misma mañana dio una lista
 incompleta: **`prorrateo` le pedía la UMA a una planilla de Google y no se
-vio**—; y `scripts/pruebas-no-plazos.html` pone **40 fijados** —33 el 26/8— sobre las cuatro
+vio**—; y `scripts/pruebas-no-plazos.html` pone **45 fijados** —33 el 26/8— sobre las cuatro
 calculadoras que no tenían ninguna comprobación, que era la condición para poder
 refundarlas. **Las tres se probaron rompiendo algo a propósito**, porque un
 control que nunca falló no es un control.
@@ -225,6 +229,12 @@ Ninguno urgente y ninguno bloqueante.
     promesa incumplida.
   - **`vencimientos`, `caducidad`, `entre-fechas`, `regresiva` y `mora` no
     hablan con nadie**: sólo piden los JSON de `data/` del propio sitio.
+  - **`tasa` es desde el 27/8 la única que arma una URL con lo que el usuario
+    escribió, y no sale del navegador igual**: el permalink va en el
+    **fragmento** y no en la query, y el fragmento no viaja en ningún request.
+    Es la decisión que se copió de Honorio y el motivo por el que se copió. Un
+    barrido futuro que busque «qué se manda afuera» la va a encontrar por el
+    `location.hash` y conviene que sepa que ya se miró.
   - **~~`honorarios-mediacion` le pide el UHOM a una planilla de Google~~
     Arreglado el 26/8:** lee `data/serie-uhom.json`, del propio repositorio.
     Ver [abajo](#tres-arreglos-que-salieron-de-preguntar-qué-sale-del-navegador--268).
@@ -277,7 +287,7 @@ Ninguno urgente y ninguno bloqueante.
   revés, y las faltas de ortografía del texto que ve el usuario en `caducidad` y
   en `regresiva`. Lo que queda ahí es aspecto, no defecto.
   **Y las cuatro que van de cero ya tienen red**, que era la condición para
-  poder tocarlas: `scripts/pruebas-no-plazos.html`, 40 fijados. Antes del 26/8
+  poder tocarlas: `scripts/pruebas-no-plazos.html`, 45 fijados. Antes del 26/8
   no tenían ninguna comprobación y una reescritura no se habría podido
   distinguir de un error.
   **De las cuatro ya están hechas dos, las dos el 27/8**: `honorarios-mediacion`
@@ -454,7 +464,7 @@ Ninguno urgente y ninguno bloqueante.
   corren contra la versión anterior de la calculadora, que es la peor forma de
   falla porque parece un bug del cambio que se acaba de hacer.
   **~~Falta cubrir el prorrateo, la tasa y las demás no-de-plazos~~ Hecho el
-  26/8:** `scripts/pruebas-no-plazos.html`, **40 fijados** sobre `prorrateo`,
+  26/8:** `scripts/pruebas-no-plazos.html`, **45 fijados** sobre `prorrateo`,
   `tasa`, `honorarios-mediacion` y `ejecucion-estado`. Va antes de refundarlas,
   que es lo que sigue. Ver
   [abajo](#la-red-de-las-que-no-son-de-plazos-que-va-antes-de-refundarlas--268).
@@ -1584,7 +1594,7 @@ de `ejecucion-estado`.
 
 Los dos estuvieron abiertos unas horas: se encontraron preparando la
 refundación, se cubrieron con casos de prueba y se arreglaron el mismo día. **El
-banco pasó de 30 a 33 y las 33 pasan.** (Con la refundación de esa misma tarde quedó en 40.)
+banco pasó de 30 a 33 y las 33 pasan.** (Con la refundación de esa misma tarde quedó en 45.)
 
 ##### El cobro doble: «Otros» se partió en tres
 
@@ -1948,23 +1958,144 @@ sin que nada se haya roto. Es el mismo criterio que ya tenían la UMA y el UHOM.
 
 ---
 
+### Las exenciones del art. 13 y el permalink, los dos copiados de Honorio — 27/8
+
+Los dos últimos pendientes de `tasa`, y los dos tenían la misma indicación
+escrita: **el patrón está construido del otro lado, hay que ir a mirarlo antes
+de escribir.** Se hizo así, y en los dos casos lo que se copió no fue el código
+—Honorio es React y esto es un HTML suelto— sino **las decisiones**.
+
+#### Las exenciones: una tabla de referencia, no un trámite
+
+Pedido de Javier: *«así como en Honorio están los mínimos y el buscador de
+mínimos por término literal, las exenciones: un resumen de ese artículo y
+búsqueda textual»*.
+
+Lo que se trajo de `minimos-view.tsx` y de `lib/minimos-buscar.ts`:
+
+- **Se abre mostrando los diez incisos y se filtra escribiendo.** No hay que
+  elegir una categoría para ver algo.
+- **Búsqueda textual y no semántica, a propósito.** Son diez incisos fijos que
+  sólo cambian cuando cambia la ley. Un índice semántico traería un modelo, un
+  build y una desincronización posible, para resolver algo que se resuelve
+  normalizando tildes.
+- **Insensible a tildes, mayúsculas y orden de las palabras**, con una
+  normalización que **conserva la posición de cada carácter**: es lo que permite
+  resaltar la coincidencia sobre el texto original, con sus tildes puestas.
+- **Tolerancia de raíz para el plural y el género**, que es casi toda la
+  distancia entre cómo se busca y cómo está escrita la ley. Un token coincide
+  entero o sin sus últimas una o dos letras, y cuanto más se recorta, más larga
+  tiene que quedar la raíz: así `art` o `bis` no se vuelven comodines.
+- **`alias`, sólo donde el nombre de tribunal no coincide con el de la ley.**
+
+**Los alias son el mecanismo que más conviene entender, y hay un caso de prueba
+que existe sólo para eso:** la palabra **«apremio» no aparece en ninguna parte
+del art. 13** —el inc. j dice «ejecuciones fiscales»— y es como se lo llama en
+el tribunal. Sin el alias, el buscador devuelve cero justo cuando alguien busca
+bien. **Los alias no son contenido jurídico**: lo que el inciso dice lo dice su
+texto, que está entero y a un clic.
+
+**Con una búsqueda puesta los incisos se abren solos.** Si el que busca escribió
+«alimentos», esconderle detrás de un clic el texto donde aparece la palabra es
+hacerle buscar dos veces.
+
+**Y hay un caso que fija que el buscador devuelva CERO**: buscar «sucesión» no
+trae nada, y está bien. **Un sucesorio no está exento**: tiene la tasa reducida
+del art. 3 inc. c, que es otra cosa. El art. 13 enumera diez exenciones y no
+admite otras, y la pantalla lo dice con todas las letras en vez de mostrar una
+lista vacía.
+
+#### El permalink: el caso en el fragmento de la URL
+
+Copiado de `lib/compartir.ts`, con su decisión central intacta:
+
+> **Va en el fragmento (`#`) y no en la query (`?`) a propósito. El fragmento no
+> viaja al servidor**: ningún request lleva el caso, ni al host que sirve el
+> sitio ni a nadie en el camino.
+
+Eso es lo que hace que compartir una liquidación **no contradiga** la promesa de
+que nada de lo que se escribe sale del navegador. En la query, la misma
+funcionalidad la rompería. Es además la única forma de que el enlace sea
+compatible con
+[la promesa que se demuestra y no se declara](#una-promesa-de-privacidad-se-demuestra-no-se-declara).
+
+**El formato lleva versión (`t1`).** Si alguna vez cambia la forma de codificar,
+el número sube y los enlaces viejos siguen abriendo con el lector viejo en vez de
+decodificarse mal en silencio: **un enlace que se abre torcido es peor que uno
+que no abre.**
+
+**Se decodifica con desconfianza**, igual que allá: el fragmento lo escribe
+cualquiera y puede venir cortado por un cliente de mail. Se descartan las bases
+que no existen, y lo que se devuelve son renglones **candidatos**: que la base y
+la alícuota se puedan cruzar no lo decide el decodificador sino el filtro, igual
+que cuando los elige una persona.
+
+**Dos cosas que acá se resolvieron distinto que en Honorio, y por qué:**
+
+- **El enlace se mantiene al día solo**, con `history.replaceState` en cada
+  cálculo, así que la barra de direcciones **siempre** tiene el caso y el botón
+  sólo lo copia. Con `location.hash` directo quedaría una entrada de historial
+  por cada tecla y volver atrás sería inusable.
+- **El monto fijo del art. 6 viaja adentro del enlace.** Es un dato del sistema y
+  no del caso, pero **una liquidación tiene fecha**: la del art. 6 que regía el
+  día que se hizo. Si no viajara, el mismo enlace abierto después de la próxima
+  acordada daría otro total, y el enlace existe justamente para que el que lo
+  recibe vea el mismo número. Cuando el enlace trae un valor distinto del del
+  archivo, la pantalla lo dice en vez de pisarlo en silencio.
+
+**El enlace también se imprime**, al pie de la liquidación. Es la mitad del
+permalink que importa en papel, y es el motivo que está escrito en Honorio: quien
+lee la liquidación puede volver a la pantalla que la produjo y ver de dónde salió
+cada peso.
+
+#### El caso del enlace está armado para que pierda algo
+
+Prueba la ida y la vuelta: se codifica, se borra todo y se vuelve a armar desde
+el código. **Es la única forma de probar un permalink sin recargar la página**
+—el iframe se reusa entre casos y recargarlo rompe el resto de la corrida—.
+
+Y el caso lleva **dos renglones, una titularidad escrita como fracción, un
+concepto con tilde y una alícuota heredada que el segundo renglón no declara**.
+Cualquiera de esas cuatro cosas se puede caer sin que el total del primer renglón
+se mueva.
+
+**Se probó rompiéndolo**, y las dos veces:
+
+| Qué se rompió | Qué dijo el banco |
+|---|---|
+| El concepto deja de viajar en el enlace | `conceptos Departamento, Automóvil` → `(sin nombre), (sin nombre)` |
+| Se saca el alias «apremio» | `1 de 10 incisos · inc. j` → `0 de 10 incisos · ninguno` |
+
+**El primero es el que vale la pena mirar**, porque el total no se movió: ida y
+vuelta seguían dando $1.087.500 y los dos renglones seguían estando. Un caso que
+mirara sólo la cifra habría pasado en verde con el enlace perdiendo la mitad de
+lo que lleva.
+
+#### El banco: de 40 a 45
+
+Cinco casos nuevos: el enlace de ida y vuelta, y cuatro del buscador —lo que
+está escrito en la ley, lo que llega por alias, el plural y el género, y lo que
+tiene que devolver cero—.
+
+**Con esto `tasa` cubre toda la ley 23.898.** Lo que queda abierto no es
+cobertura sino criterio, y está abajo.
+
+---
+
 ### Lo que le falta a `tasa` — 27/8
 
-En orden, y con lo que hace falta saber para arrancar en frío. **Los dos
-primeros de esta lista se hicieron el mismo 27/8**: ver
-[el monto fijo y el imprimible](#el-monto-fijo-y-el-imprimible-lo-que-la-lista-desbloqueaba--278).
+**La lista de cuatro que tenía esta sección se hizo entera el 27/8**, y lo que
+queda no es cobertura de la ley sino criterio. Los cuatro, para que la próxima
+lectura no los busque:
 
-1. **~~El imprimible del art. 4 *in fine*, con el art. 8 adentro.~~ Hecho el 27/8.**
-2. **~~El monto fijo de los arts. 5 y 6.~~ Hecho el 27/8**, con su archivo de
-   datos y su control. **Con eso `tasa` cubre toda la ley salvo el art. 13.**
-3. **Las exenciones del art. 13, con la forma que ya existe en Honorio.** Diez
-   incisos. Javier: *«así como en Honorio están los mínimos y el buscador de
-   mínimos por término literal, las exenciones: un resumen de ese artículo y
-   búsqueda textual»*. **El patrón está construido del otro lado**: hay que ir a
-   mirarlo antes de escribir.
-4. **El permalink, también de Honorio**, donde ya está resuelto sin que salga
-   nada del navegador. No es una pregunta de diseño: es copiar un mecanismo que
-   existe en [`javiercuneo/honorio`](https://github.com/javiercuneo/honorio).
+1. **~~El imprimible del art. 4 *in fine*, con el art. 8 adentro.~~** y
+   **~~el monto fijo de los arts. 5 y 6.~~** Ver
+   [el monto fijo y el imprimible](#el-monto-fijo-y-el-imprimible-lo-que-la-lista-desbloqueaba--278).
+2. **~~Las exenciones del art. 13.~~** y **~~el permalink.~~** Los dos con el
+   patrón de Honorio, ido a mirar antes de escribir como decía la indicación.
+   Ver [las exenciones y el permalink](#las-exenciones-del-art-13-y-el-permalink-los-dos-copiados-de-honorio--278).
+
+**`tasa` cubre ahora toda la Ley 23.898.**
 
 **Dos cosas de la ley que quedaron sin lugar, y no por olvido:**
 

@@ -276,7 +276,8 @@ const DRIVERS = {
             // vacio del arranque y la herencia quedaria sin probar. Este orden
             // es ademas el que hace la persona: carga un renglon y aprieta
             // "Agregar renglon".
-            campos.renglones.forEach((r, i) => {
+            const pedidos = campos.renglones || [];
+            pedidos.forEach((r, i) => {
                 if (i > 0) w.agregarRenglon();
                 const tr = d.querySelectorAll('#renglones tr')[i];
 
@@ -325,7 +326,7 @@ const DRIVERS = {
             await pausa(80);
 
             const usadas = Array.from(d.querySelectorAll('#renglones tr'))
-                .slice(0, campos.renglones.length);
+                .slice(0, Math.max(1, pedidos.length));
 
             let salida = 'total ' + d.getElementById('cifraTasa').textContent.trim() +
                 ' · por renglón ' +
@@ -356,6 +357,38 @@ const DRIVERS = {
                     .map((td) => td.textContent.trim());
                 salida += ' · liquidación ' +
                     grupos.map((g, i) => g + ' ' + (subs[i] || '(sin subtotal)')).join(' | ');
+            }
+
+            // EL ENLACE, IDA Y VUELTA. Se codifica el caso, se borra todo y se
+            // vuelve a armar desde el codigo: si el total de la vuelta no es
+            // el de la ida, el enlace pierde algo. Es la unica forma de probar
+            // un permalink sin recargar la pagina ---el iframe se reusa entre
+            // casos y recargarlo rompe el resto de la corrida---, y prueba lo
+            // que importa: que codificar y decodificar sean inversas.
+            if (campos.verEnlace) {
+                const T = w.Tasa23898;
+                const codigo = T.codificarCaso();
+                const ida = d.getElementById('cifraTasa').textContent.trim();
+                T.cargarCaso(T.decodificarCaso('#' + codigo));
+                await pausa(60);
+                const vuelta = d.getElementById('cifraTasa').textContent.trim();
+                salida = 'ida ' + ida + ' · vuelta ' + vuelta +
+                    ' · renglones ' + d.querySelectorAll('#renglones tr').length +
+                    ' · conceptos ' + Array.from(d.querySelectorAll('.fila-concepto'))
+                        .map((i) => i.value || '(sin nombre)').join(', ');
+                return salida;
+            }
+
+            // Las exenciones del art. 13: es un buscador textual y lo que hay
+            // que fijar es A QUE INCISO LLEGA una palabra que la ley no usa.
+            if (campos.buscarExencion !== undefined) {
+                const campo = d.getElementById('buscarExencion');
+                campo.value = campos.buscarExencion;
+                ev(campo, 'input');
+                await pausa(60);
+                return d.getElementById('cuentaExenciones').textContent.trim() + ' · ' +
+                    (Array.from(d.querySelectorAll('#exenciones .exencion'))
+                        .map((e) => e.querySelector('.inc').textContent.trim()).join(' ') || 'ninguno');
             }
 
             // Para los casos de herencia y de cruce imposible: importa QUE
@@ -756,6 +789,46 @@ const FIJADOS = [
         ] },
         esperado: 'total $ 420.000,00 · por renglón $ 300.000,00 | $ 120.000,00 · liquidación Juicio principal $ 300.000,00 | Reconvención $ 120.000,00',
         porque: 'ESTE CASO NO MIRA EL TOTAL, mira la AGRUPACION. El art. 8 dice que las ampliaciones y las reconvenciones estan sujetas a la tasa "como si fueran juicios independientes del principal", asi que el imprimible ---que es la liquidacion detallada que el art. 4 in fine manda acompañar al pago--- tiene que mostrarlas separadas con su propio subtotal, o dice algo que la ley no dice. Y esto NO se ve en ningun numero: si la agrupacion se pierde, los tres importes siguen siendo los mismos y el total tambien.'
+    },
+
+    // --- tasa, el enlace y las exenciones ----------------------------------
+    {
+        calc: 'tasa',
+        rotulo: 'El enlace lleva el caso entero y lo devuelve igual',
+        campos: { verEnlace: true, renglones: [
+            { concepto: 'Departamento', base: 'inmueble', alicuota: 'sucesorio', importe: '100000000', titularidad: '1/2' },
+            { concepto: 'Automóvil', base: 'muebles', importe: '20000000' }
+        ] },
+        esperado: 'ida $ 1.087.500,00 · vuelta $ 1.087.500,00 · renglones 2 · conceptos Departamento, Automóvil',
+        porque: 'Se codifica el caso, se borra todo y se vuelve a armar desde el codigo: si la vuelta no da lo mismo que la ida, el enlace pierde algo. Y el caso esta elegido para que pierda: lleva DOS renglones, una titularidad escrita como fraccion, un concepto con tilde y una alicuota heredada que el segundo renglon no declara. Cualquiera de esas cuatro cosas se puede caer sin que el total del primer renglon se mueva. El enlace va en el FRAGMENTO y no en la query, asi que el caso no viaja a ningun servidor: es lo que permite compartir una liquidacion sin contradecir que nada de lo que se escribe sale del navegador.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Exenciones: "alimentos" llega al inc. i',
+        campos: { buscarExencion: 'alimentos' },
+        esperado: '1 de 10 incisos · inc. i',
+        porque: 'Busqueda textual sobre los diez incisos del art. 13, con el patron del buscador de minimos de Honorio. "Alimentos" esta en el texto del inciso, asi que este caso fija lo mas basico: que el buscador encuentra lo que esta escrito y que descarta los otros nueve.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Exenciones: "apremio" llega a las ejecuciones fiscales por alias',
+        campos: { buscarExencion: 'apremio' },
+        esperado: '1 de 10 incisos · inc. j',
+        porque: 'ESTE ES EL CASO QUE JUSTIFICA LOS ALIAS. La palabra "apremio" NO aparece en ningun lado del art. 13: el inc. j dice "ejecuciones fiscales". Es como se llama en el tribunal, y sin el alias el buscador devolveria cero justo cuando alguien busca bien. Los alias no son contenido juridico ---lo que el inciso dice lo dice su texto, que esta entero--- sino el puente entre como se busca y como esta escrita la ley.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Exenciones: el plural y el genero no rompen la busqueda',
+        campos: { buscarExencion: 'sindicales' },
+        esperado: '1 de 10 incisos · inc. e',
+        porque: 'El inciso dice "asociaciones sindicales", asi que este entra derecho; lo que fija es que la tolerancia de raiz no se pase de rosca y traiga incisos de mas. La regla es la de Honorio: un token coincide entero o sin sus ultimas una o dos letras, y cuanto mas se recorta mas larga tiene que quedar la raiz, para que "art" o "bis" no se vuelvan comodines.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Exenciones: lo que no esta en el art. 13 no aparece',
+        campos: { buscarExencion: 'sucesion' },
+        esperado: '0 de 10 incisos · ninguno',
+        porque: 'El art. 13 enumera diez exenciones y no admite otras: un sucesorio NO esta exento ---tiene la tasa reducida del art. 3 inc. c, que es otra cosa---. Que el buscador devuelva cero es la respuesta correcta, y la pantalla lo dice con todas las letras en vez de mostrar una lista vacia. Si un dia alguien agrega un inciso que no esta en la ley, este caso salta.'
     },
 
     {

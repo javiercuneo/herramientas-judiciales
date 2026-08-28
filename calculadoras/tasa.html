@@ -473,6 +473,93 @@
 
         .acciones-der { display: flex; gap: 10px; flex-wrap: wrap; }
 
+        /* ------------------------------------------- exenciones del art. 13 */
+        .buscador {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .buscador input {
+            flex: 1 1 320px;
+            font-family: inherit;
+            font-size: 13.5px;
+            color: var(--fg);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .buscador input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+        .buscador input::-webkit-search-cancel-button { display: none; }
+
+        .buscador .cuenta {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--faint);
+            flex: none;
+        }
+
+        .exencion { border-bottom: 1px solid var(--hair); }
+        .exencion:last-child { border-bottom: none; }
+
+        .exencion summary {
+            display: grid;
+            grid-template-columns: 7ch minmax(0, 1fr);
+            gap: 2px 12px;
+            padding: 11px 0;
+            cursor: pointer;
+            list-style: none;
+        }
+        .exencion summary::-webkit-details-marker { display: none; }
+        .exencion summary:hover .que { color: var(--accent); }
+
+        .exencion .inc {
+            grid-row: span 2;
+            font-family: var(--font-meter);
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--faint);
+            padding-top: 2px;
+        }
+        .exencion .que { font-size: 13.5px; font-weight: 600; }
+        .exencion .sec { margin-top: 0; }
+
+        /* El texto de la ley va con su sangria, en la columna del resumen: se
+           lee como la continuacion del inciso y no como un bloque suelto. */
+        .exencion .norma {
+            margin: 0 0 13px 7ch;
+            padding-left: 12px;
+            border-left: 2px solid var(--border);
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: var(--muted-fg);
+        }
+
+        mark {
+            background: var(--accent-tint);
+            color: inherit;
+            border-radius: 2px;
+            padding: 0 1px;
+        }
+
+        .vacio { font-size: 13px; color: var(--muted-fg); padding: 22px 0 6px; }
+
+        @media (max-width: 620px) {
+            .exencion summary { grid-template-columns: minmax(0, 1fr); }
+            .exencion .inc { grid-row: auto; }
+            .exencion .norma { margin-left: 0; }
+        }
+
         /* El selector del art. 8 va abajo del concepto y no es un dato del
            mismo peso: casi siempre dice "Juicio principal" y no se toca. Va
            chico y en el color apagado, para que se lea como una etiqueta del
@@ -531,6 +618,13 @@
             #liquidacion ul { margin: 4pt 0 0 16pt; font-size: 9pt; }
             #liquidacion li { margin-bottom: 3pt; }
             #liquidacion .pie { font-size: 8pt; color: #333; margin-top: 16pt; border-top: 1px solid #999; padding-top: 5pt; }
+            #liquidacion .enlace {
+                font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                font-size: 6.5pt;
+                color: #555;
+                margin-top: 5pt;
+                word-break: break-all;
+            }
             /* Un grupo del art. 8 partido entre dos hojas se lee como si
                faltara algo: cada uno arranca junto o pasa entero. */
             #liquidacion table { page-break-inside: avoid; }
@@ -608,6 +702,7 @@
             <div class="pie-tabla">
                 <button type="button" class="btn-suave btn-chico" id="btnAgregar">Agregar renglón</button>
                 <span class="acciones-der">
+                    <button type="button" class="btn-suave btn-chico" id="btnEnlace">Copiar el enlace</button>
                     <button type="button" class="btn-suave btn-chico" id="btnImprimir">Imprimir la liquidación</button>
                     <button type="button" class="btn-suave btn-chico" id="btnReiniciar">Reiniciar</button>
                 </span>
@@ -640,6 +735,24 @@
                    renglones cargados.</p>
             </div>
             <ul class="momentos" id="momentos"></ul>
+        </div>
+
+        <div class="panel">
+            <div class="encabezado-panel">
+                <h2>Exenciones — art. 13</h2>
+                <p>Diez supuestos, y la lista no admite otros: lo que no está acá,
+                   o en otra ley, tributa. Es una tabla de referencia y no entra
+                   en la cuenta de arriba.</p>
+            </div>
+
+            <div class="buscador">
+                <input type="search" id="buscarExencion" autocomplete="off"
+                       placeholder="Buscar: alimentos, amparo, laboral, apremio, partida…"
+                       aria-label="Buscar una exención del art. 13">
+                <span class="cuenta" id="cuentaExenciones"></span>
+            </div>
+
+            <div id="exenciones"></div>
         </div>
 
         <!-- La liquidación del art. 4 in fine. Vive acá, oculta en pantalla:
@@ -895,6 +1008,165 @@
         { id: 'ampliacion',  rotulo: 'Ampliación de demanda',  cita: 'art. 8' },
         { id: 'reconvencion', rotulo: 'Reconvención',          cita: 'art. 8' }
     ];
+
+    // -----------------------------------------------------------------------
+    // LAS EXENCIONES DEL ART. 13.
+    //
+    // Es una tabla de referencia y no un tramite: se abre mostrando los diez
+    // incisos y se filtra escribiendo. Es la forma que pidio Javier ---"asi
+    // como en Honorio estan los minimos y el buscador de minimos por termino
+    // literal, las exenciones: un resumen de ese articulo y busqueda
+    // textual"--- y el patron esta copiado de alla, no reinventado.
+    //
+    // `resumen` esta escrito con las palabras de la ley. `alias` NO es
+    // contenido juridico: son las palabras con las que se busca en un
+    // tribunal y que la ley no usa ---"apremio" por ejecucion fiscal, "carta
+    // de pobreza" por beneficio de litigar sin gastos---. Sirven para llegar
+    // al inciso; lo que el inciso dice lo dice su texto, que esta entero.
+    // -----------------------------------------------------------------------
+    var EXENCIONES = [
+        {
+            inc: 'a', titulo: 'Beneficio de litigar sin gastos',
+            resumen: 'Quien actúa con el beneficio no paga, y el trámite para obtenerlo tampoco. Si se deniega, la tasa se paga después de esa resolución.',
+            alias: ['carta de pobreza', 'gratuidad', 'sin gastos', 'pobreza'],
+            texto: 'Las personas que actuaren con beneficio de litigar sin gastos. El trámite tendiente a obtener el beneficio también estará exento de tributar. Será parte en dicho trámite el representante del fisco de la Dirección General Impositiva. Si la resolución sobre el beneficio fuere denegatoria, se pagará la tasa de justicia correspondiente al juicio luego de dictarse esa resolución. Recaída la sentencia definitiva en el juicio, la parte que no gozare del beneficio, si resultare vencida con imposición de costas, deberá abonar la tasa de justicia calculada a valores actualizados al momento de su ingreso.'
+        },
+        {
+            inc: 'b', titulo: 'Habeas corpus y amparo',
+            resumen: 'Sólo cuando no fueren denegados.',
+            alias: ['garantías', 'medida cautelar'],
+            texto: 'Los recursos de habeas corpus y las acciones de amparo cuando no fueren denegados.'
+        },
+        {
+            inc: 'c', titulo: 'Ejercicio de un derecho político',
+            resumen: 'Peticiones formuladas ante el Poder Judicial en ejercicio de un derecho político.',
+            alias: ['electoral', 'voto', 'padrón'],
+            texto: 'Las peticiones formuladas ante el Poder Judicial, en el ejercicio de un derecho político.'
+        },
+        {
+            inc: 'd', titulo: 'Sede penal sin acción civil',
+            resumen: 'Paga el imputado si hay condena, y el querellante si hay sobreseimiento o absolución. Se intima al dictarse la resolución definitiva.',
+            alias: ['querella', 'criminal', 'correccional'],
+            texto: 'Los escritos y actuaciones en sede penal en las que no se ejercite acción civil, sin perjuicio del pago de la tasa de justicia, a cargo del imputado, en caso de condena, y a cargo del querellante, en caso de sobreseimiento o absolución. El pago se intimará al dictarse la resolución definitiva.'
+        },
+        {
+            inc: 'e', titulo: 'Trabajadores y asociaciones sindicales',
+            resumen: 'Los trabajadores en relación de dependencia y sus causahabientes en los juicios originados en la relación laboral, y los sindicatos cuando actúan en ejercicio de su representación gremial.',
+            alias: ['laboral', 'despido', 'gremio', 'obrero'],
+            texto: 'Los trabajadores en relación de dependencia y sus causahabientes, en los juicios originados en la relación laboral, las asociaciones sindicales de trabajadores, cuando actuaren en ejercicio de su representación gremial.'
+        },
+        {
+            inc: 'f', titulo: 'Jubilaciones, pensiones y aportes',
+            resumen: 'Y también el organismo previsional cuando reclama aportes, contribuciones y demás obligaciones de la seguridad social.',
+            alias: ['previsional', 'ANSES', 'reajuste', 'retiro'],
+            texto: 'Las actuaciones motivadas por jubilaciones, pensiones y devolución de aportes; como, asimismo el Instituto Nacional de Previsión Social respecto de las actuaciones tendientes al cobro de aportes, contribuciones y demás obligaciones de la seguridad social. (Texto incorporado por el art. 34 de la Ley 23.966.)'
+        },
+        {
+            inc: 'g', titulo: 'Rectificación de partidas',
+            resumen: 'Aclaraciones o rectificaciones de partidas del Registro Civil.',
+            alias: ['registro civil', 'partida de nacimiento', 'acta'],
+            texto: 'Las actuaciones motivadas por aclaraciones o rectificaciones de partidas del Registro Civil.'
+        },
+        {
+            inc: 'h', titulo: 'Quien alega no ser parte en el juicio',
+            resumen: 'Mientras se sustancia la incidencia. Demostrado lo contrario, se paga la tasa que corresponda.',
+            alias: ['homónimo', 'excepción de falta de legitimación'],
+            texto: 'Las actuaciones en las que se alegue no ser parte en juicio, mientras se sustancia la incidencia. Demostrado lo contrario, se deberá pagar la tasa correspondiente.'
+        },
+        {
+            inc: 'i', titulo: 'Familia sin carácter patrimonial',
+            resumen: 'Incluye las demandas por alimentos y litisexpensas, y lo atinente al estado y la capacidad de las personas.',
+            alias: ['divorcio', 'cuota alimentaria', 'tenencia', 'filiación', 'insania', 'restricción a la capacidad'],
+            texto: 'Las actuaciones derivadas de las relaciones de familia que no tengan carácter patrimonial, las demandas por alimentos y litisexpensas, y las atinentes al estado y capacidad de las personas.'
+        },
+        {
+            inc: 'j', titulo: 'Ejecuciones fiscales',
+            resumen: 'Incorporado por el art. 37 de la Ley 24.073.',
+            alias: ['apremio', 'AFIP', 'ARCA', 'impuestos', 'rentas'],
+            texto: 'Las ejecuciones fiscales. (Inciso incorporado por el art. 37 de la Ley 24.073.)'
+        }
+    ];
+
+    // Minusculas y sin tildes, CONSERVANDO LA POSICION DE CADA CARACTER. La
+    // correspondencia uno a uno es lo que permite resaltar la coincidencia
+    // sobre el texto original, con sus tildes puestas.
+    function normalizar(texto) {
+        var out = '';
+        var chars = String(texto).toLowerCase().split('');
+        for (var i = 0; i < chars.length; i++) {
+            var base = chars[i].normalize('NFD').replace(/[̀-ͯ]/g, '');
+            out += base.length === 1 ? base : chars[i];
+        }
+        return out;
+    }
+
+    function tokenizar(consulta) {
+        return normalizar(consulta).split(/\s+/).filter(Boolean);
+    }
+
+    // Un token coincide si aparece entero, o si aparece sin sus ultimas una o
+    // dos letras. En castellano ahi viven el plural y el genero, que es casi
+    // toda la distancia entre como se busca y como esta escrita la ley:
+    // "alimentos" contra "alimentaria", "sindical" contra "sindicales".
+    //
+    // Cuanto mas se recorta, mas larga tiene que quedar la raiz: asi "art" o
+    // "bis" no se vuelven comodines.
+    var RAIZ_MINIMA = { 1: 4, 2: 5 };
+
+    function raices(token) {
+        var out = [token];
+        [1, 2].forEach(function (corte) {
+            var raiz = token.slice(0, token.length - corte);
+            if (raiz.length >= RAIZ_MINIMA[corte]) out.push(raiz);
+        });
+        return out;
+    }
+
+    function escapar(s) {
+        return String(s).replace(/[&<>]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
+        });
+    }
+
+    function resaltar(texto, tokens) {
+        if (!tokens.length) return escapar(texto);
+        var norm = normalizar(texto);
+        var marcas = [];
+        tokens.forEach(function (tok) {
+            raices(tok).forEach(function (r) {
+                if (!r) return;
+                var desde = 0, i;
+                while ((i = norm.indexOf(r, desde)) > -1) {
+                    for (var k = i; k < i + r.length; k++) marcas[k] = true;
+                    desde = i + r.length;
+                }
+            });
+        });
+        var out = '', abierto = false;
+        for (var j = 0; j < texto.length; j++) {
+            if (marcas[j] && !abierto) { out += '<mark>'; abierto = true; }
+            if (!marcas[j] && abierto) { out += '</mark>'; abierto = false; }
+            out += escapar(texto.charAt(j));
+        }
+        return out + (abierto ? '</mark>' : '');
+    }
+
+    // El inciso entra si TODOS los tokens aparecen en alguna parte suya: el
+    // titulo, el resumen, el texto de la ley, los alias o la letra del inciso.
+    // Consulta vacia devuelve los diez: la pantalla arranca mostrando todo, no
+    // esperando que el lector elija algo.
+    function buscarExenciones(consulta) {
+        var tokens = tokenizar(consulta);
+        if (!tokens.length) return EXENCIONES;
+        return EXENCIONES.filter(function (e) {
+            var heno = normalizar([
+                'inc. ' + e.inc, e.titulo, e.resumen, e.texto, (e.alias || []).join(' ')
+            ].join(' '));
+            return tokens.every(function (tok) {
+                return raices(tok).some(function (r) { return heno.indexOf(r) > -1; });
+            });
+        });
+    }
 
     function porId(lista, id) {
         for (var i = 0; i < lista.length; i++) if (lista[i].id === id) return lista[i];
@@ -1228,6 +1500,17 @@
         });
         armarLiquidacion(cuentas, pintarMomentos(cuentas));
         document.getElementById('btnImprimir').disabled = cargados === 0;
+        document.getElementById('btnEnlace').disabled = cargados === 0;
+
+        // El enlace se mantiene al dia solo, con replaceState y no con
+        // location.hash: escribir el hash directo deja una entrada de historial
+        // por cada tecla, y volver atras se vuelve inusable. Asi la barra de
+        // direcciones SIEMPRE tiene el caso, y el boton solo lo copia.
+        if (window.history && window.history.replaceState) {
+            var destino = window.location.pathname + window.location.search +
+                (cargados > 0 ? '#' + codificarCaso() : '');
+            window.history.replaceState(null, '', destino);
+        }
     }
 
     function pintarRenglon(tr, c) {
@@ -1392,6 +1675,132 @@
         return lista;
     }
 
+    function pintarExenciones() {
+        var consulta = document.getElementById('buscarExencion').value;
+        var tokens = tokenizar(consulta);
+        var encontradas = buscarExenciones(consulta);
+
+        document.getElementById('cuentaExenciones').textContent = tokens.length
+            ? encontradas.length + ' de ' + EXENCIONES.length + ' incisos'
+            : EXENCIONES.length + ' incisos';
+
+        var caja = document.getElementById('exenciones');
+        if (!encontradas.length) {
+            caja.innerHTML = '<p class="vacio">Ningún inciso coincide con «' +
+                escapar(consulta) + '». El art. 13 enumera diez exenciones y no ' +
+                'admite otras: lo que no está ahí, o en otra ley, tributa.</p>';
+            return;
+        }
+
+        // Con una busqueda puesta los incisos se abren solos: si el que
+        // busca escribio "alimentos", esconderle detras de un clic el texto
+        // donde aparece la palabra es hacerle buscar dos veces.
+        var abrir = tokens.length > 0 ? ' open' : '';
+        caja.innerHTML = encontradas.map(function (e) {
+            return '<details class="exencion"' + abrir + '>' +
+                '<summary><span class="inc">inc. ' + e.inc + '</span>' +
+                '<span class="que">' + resaltar(e.titulo, tokens) + '</span>' +
+                '<span class="sec">' + resaltar(e.resumen, tokens) + '</span></summary>' +
+                '<p class="norma">' + resaltar(e.texto, tokens) + '</p>' +
+                '</details>';
+        }).join('');
+    }
+
+    // -----------------------------------------------------------------------
+    // EL PERMALINK, copiado de lib/compartir.ts de Honorio.
+    //
+    // VA EN EL FRAGMENTO (`#`) Y NO EN LA QUERY (`?`) A PROPOSITO. El
+    // fragmento no viaja al servidor: ningun request lleva el caso, ni al host
+    // que sirve el sitio ni a nadie en el camino. Eso es lo que hace que
+    // compartir una liquidacion no contradiga que nada de lo que se escribe
+    // sale del navegador. En la query, la misma funcionalidad la romperia.
+    //
+    // El formato lleva version (`t1`). Si alguna vez cambia la forma de
+    // codificar, el numero sube y los enlaces viejos siguen abriendo con el
+    // lector viejo en vez de decodificarse mal en silencio: un enlace que se
+    // abre torcido es peor que uno que no abre.
+    //
+    // EL MONTO FIJO VIAJA ADENTRO DEL ENLACE. Es un dato del sistema y no del
+    // caso, pero una liquidacion tiene fecha: la del art. 6 que regia el dia
+    // que se hizo. Si no viajara, el mismo enlace abierto despues de la
+    // proxima acordada daria otro total, y el enlace existe justamente para
+    // que el que lo recibe vea el mismo numero.
+    //
+    // Las claves son de una letra porque esto se pega en un WhatsApp.
+    // -----------------------------------------------------------------------
+    var VERSION_ENLACE = 't1';
+
+    function aBase64Url(texto) {
+        var bytes = new TextEncoder().encode(texto);
+        var binario = '';
+        for (var i = 0; i < bytes.length; i++) binario += String.fromCharCode(bytes[i]);
+        return btoa(binario).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function desdeBase64Url(dato) {
+        var normalizado = dato.replace(/-/g, '+').replace(/_/g, '/');
+        var relleno = normalizado + '='.repeat((4 - (normalizado.length % 4)) % 4);
+        var binario = atob(relleno);
+        var bytes = new Uint8Array(binario.length);
+        for (var i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
+        return new TextDecoder().decode(bytes);
+    }
+
+    function codificarCaso() {
+        var filas = Array.prototype.slice.call(cuerpo.rows);
+        var renglones = filas.map(function (tr) {
+            var r = leerRenglon(tr);
+            var o = { b: r.base, a: r.alicuota };
+            if (r.concepto) o.c = r.concepto;
+            if (r.clase !== 'principal') o.k = r.clase;
+            if (r.importe) o.i = r.importe;
+            if (r.titularidad) o.t = r.titularidad;
+            if (!r.conSobretasa) o.s = 0;
+            else if (r.sobretasa !== '5') o.s = r.sobretasa;
+            return o;
+        });
+        var caso = { r: renglones };
+        var fijo = document.getElementById('montoFijo').value;
+        if (fijo) caso.f = fijo;
+        return VERSION_ENLACE + '=' + aBase64Url(JSON.stringify(caso));
+    }
+
+    // El camino inverso, con desconfianza: el fragmento lo escribe cualquiera
+    // y puede venir cortado por un cliente de mail. Devuelve null si no hay
+    // nada que leer, y lo que devuelve son renglones CANDIDATOS: que la base y
+    // la alicuota se puedan cruzar no lo decide esta funcion sino el filtro,
+    // igual que cuando los elige una persona.
+    function decodificarCaso(fragmento) {
+        var crudo = fragmento.charAt(0) === '#' ? fragmento.slice(1) : fragmento;
+        if (crudo.indexOf(VERSION_ENLACE + '=') !== 0) return null;
+        try {
+            var datos = JSON.parse(desdeBase64Url(crudo.slice(VERSION_ENLACE.length + 1)));
+            if (!datos || typeof datos !== 'object' || !Array.isArray(datos.r)) return null;
+            var renglones = datos.r.filter(function (o) {
+                return o && typeof o === 'object' && porId(BASES, o.b);
+            }).map(function (o) {
+                return {
+                    concepto: typeof o.c === 'string' ? o.c : '',
+                    clase: porId(CLASES, o.k) ? o.k : 'principal',
+                    base: o.b,
+                    alicuota: porId(ALICUOTAS, o.a) ? o.a : undefined,
+                    importe: o.i === undefined ? '' : String(o.i),
+                    titularidad: o.t === undefined ? '' : String(o.t),
+                    conSobretasa: o.s !== 0,
+                    sobretasa: (o.s === undefined || o.s === 0) ? '5' : String(o.s)
+                };
+            });
+            if (!renglones.length) return null;
+            return { renglones: renglones, montoFijo: datos.f === undefined ? null : String(datos.f) };
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function enlaceDelCaso() {
+        return window.location.origin + window.location.pathname + '#' + codificarCaso();
+    }
+
     // -----------------------------------------------------------------------
     // EL IMPRIMIBLE, que no es una comodidad.
     //
@@ -1496,6 +1905,10 @@
         html += '<p class="pie">La sobretasa del 5 %, cuando aparece, es costumbre judicial y no ' +
             'sale de la ley. Liquidación calculada en javiercuneo.com.ar: es una herramienta de ' +
             'referencia y no sustituye el criterio del juez ni la liquidación del actuario.</p>';
+        // El enlace al caso, impreso. Es la mitad del permalink que importa en
+        // papel: quien lee la liquidacion puede volver a la pantalla que la
+        // produjo y ver de donde salio cada peso.
+        html += '<p class="enlace">' + escapar(enlaceDelCaso()) + '</p>';
 
         caja.innerHTML = html;
     }
@@ -1537,6 +1950,12 @@
         return mes ? mes + ' de ' + partes[0] : vigencia;
     }
 
+    // Si el caso vino de un enlace, el monto fijo que trae MANDA sobre el del
+    // archivo: la liquidacion se hizo con ese valor y el enlace existe para
+    // que el que lo recibe vea el mismo numero. El fetch llega despues, asi
+    // que sin esta bandera lo pisaria.
+    var montoFijoDelEnlace = false;
+
     function traerMontoFijo() {
         var input = document.getElementById('montoFijo');
         var estado = document.getElementById('estadoMontoFijo');
@@ -1550,12 +1969,18 @@
             .then(function (serie) {
                 var vigente = vigenteAlDia(serie.valores || []);
                 if (!vigente) throw new Error('la serie no tiene ningún valor vigente');
-                input.value = vigente.valor.toLocaleString('es-AR');
+                var delArchivo = vigente.valor.toLocaleString('es-AR');
                 // Se dice DESDE CUANDO rige, y no solo el numero: es el dato
                 // que permite notar que el archivo quedo viejo.
                 estado.textContent = 'Rige desde ' + desdeCuando(vigente.vigencia) +
                     ' (' + vigente.norma + '), y se aplica a las demandas y reconvenciones ' +
                     'presentadas desde esa fecha.';
+                if (montoFijoDelEnlace && input.value !== delArchivo) {
+                    estado.textContent += ' El enlace trae ' + pesos(numero(input.value)) +
+                        ', que es con lo que se liquidó: se respeta.';
+                } else {
+                    input.value = delArchivo;
+                }
                 calcular();
             })
             .catch(function (e) {
@@ -1603,7 +2028,47 @@
     });
     document.addEventListener('input', calcular);
 
-    agregarRenglon();
+    document.getElementById('btnEnlace').addEventListener('click', function () {
+        var boton = this;
+        var enlace = enlaceDelCaso();
+        var avisar = function (texto) {
+            boton.textContent = texto;
+            setTimeout(function () { boton.textContent = 'Copiar el enlace'; }, 2600);
+        };
+        // El enlace ya está en la barra de direcciones ---calcular() lo
+        // mantiene al día---, así que si el portapapeles no está disponible
+        // no hay nada roto: hay que decir dónde está.
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(enlace)
+                .then(function () { avisar('Copiado'); })
+                .catch(function () { avisar('Copialo de la barra de direcciones'); });
+        } else {
+            avisar('Copialo de la barra de direcciones');
+        }
+    });
+
+    document.getElementById('buscarExencion').addEventListener('input', pintarExenciones);
+
+    // Un caso entero, de un enlace o de donde sea. Lo usan el arranque y el
+    // banco de pruebas, y es una función sola a propósito: dos caminos para
+    // armar el mismo caso es la forma de que uno de los dos se quede atrás.
+    function cargarCaso(caso) {
+        cuerpo.innerHTML = '';
+        if (caso && caso.montoFijo) {
+            document.getElementById('montoFijo').value = caso.montoFijo;
+            montoFijoDelEnlace = true;
+        }
+        var renglones = (caso && caso.renglones) || [];
+        if (!renglones.length) agregarRenglon();
+        else renglones.forEach(function (r) { agregarRenglon(r); });
+        calcular();
+    }
+
+    // El caso del enlace, ANTES del primer renglón vacío: si se armara
+    // después habría que borrarlo, y el parpadeo se ve.
+    cargarCaso(decodificarCaso(window.location.hash || ''));
+
+    pintarExenciones();
     calcular();
     traerMontoFijo();
 
@@ -1612,8 +2077,14 @@
     window.Tasa23898 = {
         BASES: BASES,
         ALICUOTAS: ALICUOTAS,
+        CLASES: CLASES,
+        EXENCIONES: EXENCIONES,
         liquidar: liquidar,
-        parseTitularidad: parseTitularidad
+        parseTitularidad: parseTitularidad,
+        buscarExenciones: buscarExenciones,
+        codificarCaso: codificarCaso,
+        decodificarCaso: decodificarCaso,
+        cargarCaso: cargarCaso
     };
     window.agregarRenglon = agregarRenglon;
     window.reiniciar = reiniciar;
