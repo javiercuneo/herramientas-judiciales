@@ -18,6 +18,7 @@
     "feriados": "node scripts/actualizar-feriados.mjs",
     "barrer-plazos": "node scripts/barrer-plazos-cpccn.mjs",
     "barrer-plazos-json": "node scripts/barrer-plazos-cpccn.mjs --json",
+    "og-uma": "node scripts/armar-og-uma.mjs",
     "conector-http": "node conectores/http.mjs",
     "conector-mcp": "node conectores/mcp.mjs"
   },

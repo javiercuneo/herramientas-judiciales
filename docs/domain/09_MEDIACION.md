@@ -193,7 +193,7 @@ aplicadas.
 **Es una interpretación, y se aparta del decreto a propósito.** El decreto define
 una base propia para el mediador que en cuatro supuestos da distinto —demanda
 desestimada, desalojo, alimentos y reconvención—. La tabla completa está en
-[`PLAN_MEDIACION.md`](../PLAN_MEDIACION.md).
+[`PLAN_MEDIACION.md`](../planes-cerrados/PLAN_MEDIACION.md).
 
 **El motivo de apartarse** es el art. 1°, segundo párrafo, de la Ley 27.423: el
 arancel se aplica supletoriamente a todos los auxiliares de la Justicia. La

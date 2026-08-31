@@ -119,13 +119,18 @@ cualquier número que se mueva sea porque se decidió moverlo.
 
 ### Lo que está abierto en el cálculo
 
-- **`prorrateo` no computa el art. 730 in fine.** El último párrafo excluye del
-  cómputo del 25 % los honorarios de los profesionales de la parte condenada en
-  costas, y la pantalla no tiene forma de marcarlos: hoy todas las regulaciones
-  entran en la base. En un pleito donde el condenado tuvo letrado propio, eso
-  infla las costas computadas y puede disparar un prorrateo que no corresponde.
-  Detectado el 27/8 al refundar la pantalla y **no se implementó ahí a
-  propósito**: es una función nueva y no una refundación de la forma.
+- **`prorrateo` no computa el art. 730 in fine, y no lo va a computar.**
+  Decisión de Javier del 31/8: **la herramienta no puede resolver qué entra en
+  la base.** El último párrafo excluye del cómputo del 25 % los honorarios de
+  los profesionales de la parte condenada en costas, pero si además entra el
+  mediador es criterio de cada juzgado ---«todo concepto» de costas contra
+  honorarios de la mediación *prejudicial*, o sea anteriores a la instancia---.
+  Donde la ley no resuelve sola, esta casa muestra los criterios y decide el que
+  firma. **Lo que falta entonces no es una función: es un aviso al lado del
+  campo** que diga que los honorarios de la condenada en costas no van, y que
+  con el mediador hay dos criterios. Lo que sí es función nueva ---mostrar
+  cuándo el recorte excede el 33 %, que es el umbral con el que se argumenta
+  confiscatoriedad--- está en `IDEAS.md`.
 - **La ampliación por distancia se ofrece con cualquier cédula, y sólo
   corresponde con algunas.** El art. 158 condiciona a que la diligencia deba
   practicarse «fuera del lugar del asiento del juzgado», y el art. 40 manda
@@ -173,10 +178,22 @@ cualquier número que se mueva sea porque se decidió moverlo.
 - **`caducidad` sigue calculando algo que no muestra.** `.hidden-computation`
   tiene `display: none` y el JavaScript igual le escribe el cómputo con inhábiles
   y feriados. Sacarlo es una decisión y por eso el rediseño no lo tocó.
-- **`vencimientos` es la única de las seis sin el pie de autoría.** Las otras
-  cinco lo llevan; se le fue en algún momento y no está escrito por qué. El
-  rediseño del 31/8 se lo dejó a las tres que tocó, porque sacárselo a tres para
-  emparejar con la que puede estar equivocada es la forma más cara de uniformar.
+- **El pie de autoría va en todas, y `vencimientos` es la única que no lo
+  tiene.** Decisión de Javier del 31/8. **Pero no se puede poner sin resolver el
+  tablero primero:** nueve iframes con el mismo pie son el mismo pie nueve
+  veces, así que hay que esconderlo adentro del marco. El tablero ya inyecta CSS
+  en cada iframe para anular el `min-height: 100vh`, así que es el mismo
+  mecanismo y no uno nuevo.
+- **El tablero pasa a ser la puerta de todo, y hoy no lo es.** Decisión de
+  Javier del 31/8 ---«ahí debe vivir todo, y no herramientas sueltas en links
+  sueltos»---. Cambia el orden del trabajo que viene y **el plan está en
+  `IDEAS.md`**: falta meter `ejecucion-estado`, que es la única de las diez vivas
+  que quedó afuera sin motivo escrito; que deje de llamarse «Tablero de plazos»
+  cuando adentro hay tasa, prorrateo y mediación; que `index.html` lleve ahí
+  primero; y decidir si Escribiente y `uma-uhom` entran, que no son
+  calculadoras. Las páginas sueltas **no se borran**: una URL publicada no se
+  rompe, y además son las que el banco corre por separado para comprobar que
+  embeber no mueva un número.
 - **El permalink existe sólo en `tasa`**, desde el 27/8, y extenderlo a las demás
   está abierto. **Lo que hay que mirar antes que el cómo:** una URL con el caso
   adentro se pega en un mail, en un chat y en un historial. Un monto de proceso y
@@ -250,10 +267,12 @@ cualquier número que se mueva sea porque se decidió moverlo.
   mentir sobre el archivo; las de acá están a mano. **Una de las dos está mal y
   no se resolvió**: puede que dos PDF declaren la misma norma. Sin abrirlos no
   se sabe, y no se afirma.
-- **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es su
-  propio número grande y hay que hacerla; poner la captura de Honorio sería
-  anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
-  descripción.
+- **La imagen de enlace de la UMA no está en Archivo.** `npm run og-uma` la arma
+  desde las series, pero escribe el PNG a mano y dibuja las letras con un
+  tipografiado de trazos: rendir Archivo pediría un motor de fuentes en Node o
+  un paso por el navegador. **Se regenera cuando se carga un valor nuevo en las
+  series**, y lleva la vigencia al lado del número para que una imagen vieja
+  compartida en un chat siga diciendo algo cierto.
 - **`www.javiercuneo.com.ar` no resuelve**, si se lo quiere: va un CNAME `www` →
   `javiercuneo.github.io` en Cloudflare, gris.
 
@@ -765,7 +784,7 @@ con un redirect en `pages.yml`, y la landing dice el motivo.
 catálogo de decisiones, y describe el motor **clásico**: donde dice
 `calculations.js` o `core.js` se habla de `asistente-honorarios-clasico/`.
 
-[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) **está hecho entero desde el
+[`PLAN_COBERTURA_LEY.md`](planes-cerrados/PLAN_COBERTURA_LEY.md) **está hecho entero desde el
 7/8**, y lo dice en su encabezado. Hasta el 31/8 este archivo pedía «los seis
 puntos que quedan», que era al revés: seis están hechos y cuatro quedaron
 anotados sin fecha. Los cuatro son trabajo de Honorio y **desde el 31/8 viven en

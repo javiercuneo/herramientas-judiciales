@@ -220,7 +220,7 @@ mueven el número —salvo `desalojo` con vivienda, `posesorias_interdictos` con
 beneficio exclusivo e `incidencia_colectiva`—: sirven para saber qué monto
 ingresar. En el asistente clásico cada opción mostraba la regla completa arriba
 del campo; **eso se perdió en parte al migrar y es la primera cosa a recuperar**
-(ver [`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), punto 1).
+(ver [`PLAN_COBERTURA_LEY.md`](../planes-cerrados/PLAN_COBERTURA_LEY.md), punto 1).
 
 ---
 

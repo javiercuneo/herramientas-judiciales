@@ -4565,3 +4565,74 @@ con la autoridad de una respuesta.
 `vencimientos` es la única de las seis sin el pie de autoría. Las otras cinco lo
 llevan. El rediseño se lo dejó a las tres que tocó: sacárselo a tres para
 emparejar con la que puede estar equivocada es la forma más cara de uniformar.
+
+---
+
+## Limpieza del repositorio y la imagen de enlace de la UMA — 31/8
+
+Javier: «me gustaría hacer limpieza profunda del repo: los planes tiene sentido
+guardarlos? un ejemplo es lo que acaba de ocurrir con el plan de cobertura de la
+ley, ya estaba».
+
+**El ejemplo que dio es exactamente el diagnóstico.** `PLAN_COBERTURA_LEY.md`
+está hecho entero desde el 7/8 y lo dice en su propio encabezado; `ESTADO.md`
+igual pedía «los seis puntos que quedan», que era al revés —seis hechos y cuatro
+anotados sin fecha—. **Un documento cerrado que vive junto a los vivos se lee
+como cola de trabajo**, y basta con que nadie vuelva a abrirlo para que la
+confusión dure meses.
+
+- **Los cuatro planes** —cobertura, cálculo directo, mediación y regulación en
+  prosa, 2.024 líneas— pasaron a `docs/planes-cerrados/` con un `LEEME.md` que
+  dice de cada uno qué decidió y cuándo se cerró. **Se archivan y no se borran
+  porque lo que valen no es la lista de tareas sino el razonamiento**: por qué
+  se resolvió cada punto de una forma y no de otra. La regla que queda escrita
+  en `AGENTS.md`: un plan nuevo va en `docs/`, y se muda el día que se cierra.
+- **`INFORME_REFACTOR_SHARED_CSS.md` se borró.** Era un análisis del 31/7 que
+  nunca se ejecutó, sin una sola referencia, y describía los `h1` de 26-28 px y
+  los `container` de 700-900 px de las once calculadoras. O sea: era el plan del
+  rediseño que se terminó ese mismo día por otro camino. Un documento que
+  describe un estado del código que ya no existe sólo puede confundir.
+- **Cuatro de los cinco PDF de `docs/mediacion/` se fueron**, 1,6 MB. Cada uno
+  tenía su `.md` al lado con el texto, y además el de la ley está en el
+  repositorio `indice`. **Quedó la tabla 39 del Ministerio**, que no tiene `.md`
+  y es de la que se lee el UHOM de agosto: sacarla sería perder la evidencia de
+  un número que el sitio publica.
+
+**De ahí salió una excepción escrita a una regla de `AGENTS.md`.** La regla dice
+que los binarios ofimáticos no entran porque viajan con metadatos del documento
+de origen. **Ese motivo no aplica a un decreto bajado de Infoleg**, así que la
+regla queda con su excepción y sus dos condiciones: que no haya un `.md` al lado
+que diga lo mismo, y que el archivo sea la evidencia de un número que el
+repositorio publica. Una regla cuyo motivo no se cumple en un caso concreto se
+afloja *ahí* y se escribe por qué; lo que no se puede es ignorarla en silencio.
+
+**Lo que se revisó y se queda.** Las trece plantillas limpias de
+`docs/modelos/`: el `.gitignore` ya documentaba que se versionan a propósito
+—son la materia prima de la regulación en prosa y están sin datos de nadie—, y
+los nombres que llevan adentro son citas de jurisprudencia publicada, que
+`AGENTS.md` permite expresamente. `pruebas-locales/` sólo tiene un `LEEME.md`: el
+material real está ignorado y fuera del árbol, como corresponde. Y `site/` es
+salida de build, ignorada: los assets no están duplicados en git, que era la
+duda.
+
+### La imagen de enlace de la UMA
+
+`uma-uhom.html` era la única página del sitio sin `og:image`, y a propósito: la
+que le corresponde es su propio número grande, y poner la captura de Honorio
+sería anunciar otra cosa.
+
+La arma `npm run og-uma` desde `data/serie-uma.json` y `data/serie-uhom.json`,
+así que sale de la misma fuente que la página. **Lleva la vigencia pegada al
+número**, y ésa es la decisión que importa: la UMA se mueve casi todos los
+meses, así que la imagen queda vieja sola. Con la vigencia al lado, una imagen
+vieja compartida en un chat sigue diciendo algo cierto —«rige desde julio de
+2026»— en vez de un número equivocado con cara de actual.
+
+**El PNG se escribe a mano, sin dependencias**: el script arma la grilla de
+píxeles, la comprime con `zlib` —que viene en Node— y le pone las cabeceras del
+formato. **La contra, y es real: la tipografía no es Archivo.** Dibujar texto
+con la tipografía del sitio necesita un motor de fuentes en Node o un paso por
+el navegador, y para una imagen de vista previa ninguna de las dos cosas parecía
+valer una dependencia nueva. Se probó la vía del navegador —un `<canvas>` con
+Archivo de verdad— y salía mejor, pero el archivo sólo se puede sacar de ahí a
+mano. Queda como alternativa si la letra molesta.

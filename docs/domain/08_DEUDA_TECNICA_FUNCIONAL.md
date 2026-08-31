@@ -6,7 +6,7 @@ orientado a quien mantenga o evolucione el sistema.
 
 **Esto no es una lista de trabajo pendiente.** Lo que falta hacer —qué de la ley
 la herramienta todavía no cubre, qué conviene implementar y qué conviene solo
-declarar— está en [`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), con el
+declarar— está en [`PLAN_COBERTURA_LEY.md`](../planes-cerrados/PLAN_COBERTURA_LEY.md), con el
 orden recomendado. Son dos cosas distintas y mezclarlas hace que ninguna de las
 dos se pueda leer entera.
 
@@ -240,7 +240,7 @@ muestra la banda del 5-10 % y no implementa la excepción, en ninguna de las dos
 direcciones. **No hay dato que la determine**: es una facultad discrecional del
 juez, fundada en el mérito de la labor. Una herramienta que calcula no tiene con
 qué, así que corresponde declararlo y no implementarlo
-([`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), punto 7).
+([`PLAN_COBERTURA_LEY.md`](../planes-cerrados/PLAN_COBERTURA_LEY.md), punto 7).
 
 ---
 
@@ -465,7 +465,7 @@ hace el usuario.
 
 **No se cambió nada al descubrirlo**, porque implementar un piso mueve números y
 eso no se hace sin pedido explícito. Es el punto 8 de
-[`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), y el único de esa lista que
+[`PLAN_COBERTURA_LEY.md`](../planes-cerrados/PLAN_COBERTURA_LEY.md), y el único de esa lista que
 puede mover un número **hacia arriba**.
 
 ---

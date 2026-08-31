@@ -234,7 +234,7 @@ cautelar— que en el motor nuevo ya se corrigieron al art. 37.
 `components/interview/minimos-view.tsx`, que es la pantalla de consulta.
 
 Esa ausencia de dependencia **es el punto 8 del
-[plan](../PLAN_COBERTURA_LEY.md)**: los pisos que la ley fija no se comparan
+[plan](../planes-cerrados/PLAN_COBERTURA_LEY.md)**: los pisos que la ley fija no se comparan
 nunca contra el resultado del cálculo.
 
 ---

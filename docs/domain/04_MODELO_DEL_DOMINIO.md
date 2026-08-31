@@ -401,7 +401,7 @@ no hay escala, no hay reducciones.
 **Y el motor no los compara contra el resultado.** `calculate.ts` no importa
 `minimos-data.ts` y no hay ninguna verificación de piso en toda la cadena, así
 que **un resultado puede quedar por debajo de un mínimo legal sin que la app lo
-diga**. Está en [`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), punto 8.
+diga**. Está en [`PLAN_COBERTURA_LEY.md`](../planes-cerrados/PLAN_COBERTURA_LEY.md), punto 8.
 
 ---
 
@@ -428,7 +428,7 @@ modeladas.
 **Y hay una inconsistencia conocida:** si la entrevista ya contestó que el
 proceso terminó **antes de la apertura a prueba**, la etapa de prueba no
 existió, y la app igual muestra las tres fracciones. Está en el
-[`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), punto 3a.
+[`PLAN_COBERTURA_LEY.md`](../planes-cerrados/PLAN_COBERTURA_LEY.md), punto 3a.
 
 **El reparto entre dos profesionales** que la pantalla ofrece al lado no sale de
 ningún artículo: es una calculadora auxiliar, con proporción ajustable que

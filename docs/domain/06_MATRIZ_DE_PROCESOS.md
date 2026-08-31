@@ -148,7 +148,7 @@ incapacidad que dictamine.
 **El motor no compara estos mínimos contra el resultado del cálculo.**
 `calculate.ts` no importa `minimos-data.ts` y no hay ninguna verificación de
 piso: un resultado puede quedar por debajo de un mínimo legal sin que la app lo
-diga. Está en [`PLAN_COBERTURA_LEY.md`](../PLAN_COBERTURA_LEY.md), punto 8.
+diga. Está en [`PLAN_COBERTURA_LEY.md`](../planes-cerrados/PLAN_COBERTURA_LEY.md), punto 8.
 
 Y una advertencia más: **estas cifras están verificadas contra
 `minimos-data.ts`, no contra la ley.** Ese archivo dice ser copia fiel del

@@ -278,8 +278,13 @@ Lo que quedó acá y sigue compartido:
 - **`docs/domain/`** documenta la Ley 27.423 para los dos. Si algún día el
   clásico se retira, esos nueve documentos se van con Honorio.
 - **Los planes de features de Honorio** —`PLAN_COBERTURA_LEY.md` y los tres que
-  salieron de él— viven en `docs/` de este lado, porque la materia prima
-  —calculadoras, textos legales— está acá. Acá va la decisión; allá el código.
+  salieron de él— viven de este lado, porque la materia prima —calculadoras,
+  textos legales— está acá. Acá va la decisión; allá el código. **Los cuatro
+  están cerrados y desde el 31/8/2026 viven en
+  [`docs/planes-cerrados/`](docs/planes-cerrados/LEEME.md)**: sueltos en `docs/`
+  se leían como cola de trabajo, y eso ya hizo que `ESTADO.md` pidiera «los seis
+  puntos que quedan» de un plan que estaba hecho. **Un plan nuevo va en `docs/`,
+  y se muda el día que se cierra.**
 - **Las cifras de Honorio que este repositorio publica** —la versión, las
   validaciones, los tipos de proceso, los recorridos de la entrevista y los
   cruces del barrido— están escritas a mano en `index.html`, `README.md`,
@@ -390,6 +395,14 @@ Tres consecuencias que hay que tener presentes:
   la relación de la causa con esta oficina**: esa anotación no funda nada y ubica todo.
 - Binarios ofimáticos: `.docx`, `.pdf`, `.xlsx`. Viajan con metadatos, encabezados e
   identificadores del documento de origen que no se ven al abrir el archivo.
+  **La excepción, escrita el 31/8/2026: una norma oficial publicada sí puede
+  entrar** —un decreto de Infoleg, una tabla del Ministerio—, porque el motivo de
+  la regla es el metadato del documento *de la oficina*, y eso no existe en un
+  PDF que cualquiera baja de un sitio público. **Con dos condiciones:** que no
+  haya un `.md` al lado que diga lo mismo, y que el archivo sea la evidencia de
+  un número que el repositorio publica. Ese mismo día se sacaron cuatro PDF de
+  `docs/mediacion/` que sí tenían su `.md`, y quedó sólo la tabla del Ministerio
+  de la que se lee el UHOM.
 - Enlaces al visor de expedientes, ni vocabulario de sistemas internos.
 - El material de trabajo del que salen las plantillas. Vive fuera del árbol, no
   ignorado adentro: un `.gitignore` no saca lo que ya entró.
