@@ -4092,3 +4092,381 @@ probaba el filtro se reescribió para probar eso.
   único peor que uno que abre torcido.
 - **Contraste sobre estilos computados**, veintitrés elementos, los dos temas: el
   más bajo da 4,78 y el umbral es 4,5. **A 390 px no hay desborde horizontal.**
+
+---
+
+## Los atajos, la barra de lo que queda y el barrido del CPCCN — cerrado el 31/8
+
+Sesión de pedidos sueltos de Javier sobre tres pantallas. Lo que la ordenó no
+fue ninguno de los pedidos: fue darse cuenta de que dos de ellos —los atajos de
+plazo y el buscador— eran el mismo, y que hacerlos por separado dejaba los días
+de un traslado escritos en dos lugares.
+
+### Lo chico primero: la fecha de hoy y los dos atajos de fecha
+
+`vencimientos.html` no decía en ningún lado qué día era. Javier: «se me ocurre
+que muestre la fecha de hoy arriba de todo, como ubicando al usuario dónde
+está». Se puso, y se le agregó lo único que la página sabe de hoy y el usuario
+puede no saber: **si hoy cuenta**. Cuando es inhábil lo dice con el motivo, y el
+motivo sale del mismo calendario que dibuja el plazo abajo, así que la cabecera y
+el dibujo no pueden decir cosas distintas del mismo día.
+
+Se pinta dos veces a propósito: la fecha sola apenas carga la página, y otra vez
+cuando llegó el calendario, recién ahí con el hábil o inhábil. Al revés la
+cabecera arranca vacía por lo que tarde un `fetch`, y la fecha de hoy no depende
+de ningún dato.
+
+Los botones **Hoy** y **Ayer** llenan los tres campos de la fecha de
+notificación. Es la fecha que más se carga —la cédula que llegó hoy o ayer— y no
+valida nada: una fecha armada del reloj de la máquina siempre existe.
+
+### Los atajos de plazo, y por qué no van escritos en el HTML
+
+El pedido eran cuatro botones que llenaran el campo del plazo: 15 para el
+traslado del ordinario, 10 para el del recurso extraordinario, 5 para apelación
+y traslados, 3 para revocatoria y sumarísimo.
+
+Escribir esos números adentro de `vencimientos.html` habría sido diez líneas.
+**No se hizo, y ése es el punto de toda la sesión:** el buscador que Javier pidió
+en el mismo mensaje iba a necesitar la misma tabla, y dos listas del mismo plazo
+se desincronizan. Cuántos días tiene un traslado no puede depender de cuál de las
+dos miraste. Así que los atajos leen `data/plazos-cpccn.json` desde el día uno,
+que es el archivo que va a alimentar el buscador, y la página **no tiene ningún
+número de plazo escrito adentro**. Si el archivo no carga, la fila de atajos no
+aparece y el campo se escribe a mano: es una comodidad, no el cálculo.
+
+Cada entrada del archivo lleva los días, el artículo y **la oración literal**
+del Código. El botón afirma cuántos días tiene un plazo, así que al elegirlo la
+pantalla dice de qué artículo sale, a la vista y no detrás de un globo. Es el
+mismo criterio que el 31/8 a la mañana rescató los hints de `tasa`: lo que se
+esconde es la explicación larga, nunca el mapeo.
+
+**Una corrección al pedido, y es de fondo.** Javier había puesto «excepciones»
+en el botón de 5 días. Contra el texto: los cinco días de excepciones son los
+del **ejecutivo** (art. 542); en el ordinario las excepciones van en el mismo
+escrito que la contestación de la demanda (art. 346), o sea dentro de los quince
+del art. 338. El rótulo del botón no tiene lugar para esa distinción, así que
+quedó en «Apelación, traslados y vistas» y la precisión entera va en la línea
+que aparece al elegirlo. **Un rótulo que dice de menos no miente; uno que
+redondea una regla, sí.**
+
+### La barra de lo que queda
+
+Javier: «si se calcula un plazo de 15 días, una barra podría mostrar un tercio
+de completada si faltan 10 días… desde el lado del abogado le está diciendo
+cuánto tiempo te queda».
+
+Se hizo, con un ajuste: **la barra sola es decoración.** Lo que vale es el número
+que la calculadora no contestaba —*quedan 11 días hábiles de los 15*—, que es una
+pregunta distinta de «cuándo vence». El número va grande y la barra al lado.
+
+**No cuenta nada por su cuenta.** Los días restantes salen de filtrar
+`diasContados` —el array que devolvió el motor— contra la fecha de hoy. Recorrer
+el calendario ahí habría sido una segunda implementación del conteo, que es el
+modo de falla que produjo el bug de la feria.
+
+Tres estados, y están separados porque los tres se leen distinto:
+
+- **vencido** — hoy pasó el día del vencimiento *con* gracia. Recién ahí el plazo
+  está muerto: hasta las 9:30 de ese día todavía se presenta, así que cortar en
+  el vencimiento sin gracia daría por vencido un plazo que no lo está.
+- **último** — no queda ningún día contado por delante y el día de gracia todavía
+  no pasó. Es el único estado donde «quedan cero días» diría menos que la fecha,
+  así que dice «vence hoy» o «queda el plazo de gracia».
+- **corriendo** — el caso normal.
+
+**No dice hace cuánto venció**, y lo decidió Javier: «sin calcular hace cuánto
+venció». El dato no cambia lo que hay que hacer y convierte un aviso en un
+reproche. Dos colores y no tres: vivo en `--accent`, que es el color de «día
+contado» en el dibujo de abajo, así que la barra y la grilla hablan del mismo
+tramo con el mismo color; vencido en `--error`, que es lo único de la pantalla
+que hay que ver aunque se esté mirando otra cosa.
+
+### El barrido del CPCCN, y el modelo que tenía razón
+
+Javier había hecho una pasada previa con otro modelo y avisó: «conociéndote
+seguro vas a querer auditarlo». La primera reacción fue no necesitarlo: el
+repositorio hermano `indice` tiene `cpccn.jsonl`, los 805 artículos con el texto
+exacto, y barrer eso con una expresión regular da la oración literal al lado de
+cada plazo. Un modelo devuelve la tabla completa y bien ordenada, y ahí está el
+problema: una fila inventada es indistinguible de una buena.
+
+**Ese barrido encontró 112 artículos, y estaba mal.** Cruzarlo contra la pasada
+del otro modelo mostró 63 artículos que él tenía y el barrido no. La causa: el
+Código escribe los plazos de cuatro formas y la expresión regular cubría una.
+
+1. `QUINCE (15) días` — palabra y numeral entre paréntesis.
+2. `será de cinco días` — el número con letras y sin numeral.
+3. `dentro de tercero día` — el ordinal en singular, que es como el Código
+   escribe los plazos cortos de trámite.
+4. `dentro de las DOS (2) primeras horas` — con un adjetivo metido entre el
+   número y la unidad.
+
+**Entre lo que perdía estaba el art. 150**, que es *el* plazo de traslados y uno
+de los cuatro atajos, y el art. 124, que es el plazo de gracia que esta misma
+calculadora cita en cada resultado. Cubriendo las cuatro formas: **165 artículos
+y 205 menciones**.
+
+La moraleja no es la que uno esperaría. El barrido mecánico tiene mejor precisión
+—cada fila arrastra la oración del artículo, así que una fila mal leída se ve al
+leerla— y el modelo tenía **mejor cobertura**, porque lee «dentro de tercero día»
+como un plazo sin que nadie le enseñe la forma. Los dos hacían falta, y ninguno
+de los dos solo alcanzaba.
+
+Después de arreglarlo quedan tres artículos que el otro modelo declara y el
+barrido no: el art. 183 —«máximo 5 por parte», que son testigos y no un plazo—,
+el art. 285 —que remite al plazo del art. 282 y no lo escribe— y el art. 453,
+que directamente no tiene ningún número. Las tres son inferencias, no texto.
+
+Y una que costó ver: sin `\b` al final de cada unidad, «en un **dia**rio de los
+de mayor circulación» del art. 146 sale como un plazo de un día. Es la clase de
+fila que en una tabla de doscientas parece un plazo más.
+
+El barrido quedó en `scripts/barrer-plazos-cpccn.mjs` (`npm run barrer-plazos`).
+**No corre en CI** —la fuente vive en otro repositorio— y lo que se versiona es
+el resultado curado.
+
+### La UMA y el UHOM dejaron de hablar de demoras
+
+Javier: «quiero eliminar toda la referencia a demoras: suena como que le critico
+a la Corte lo que tardó en actualizarla y prefiero no caer en esa».
+
+Salieron la columna «Demora» de la tabla de UMA, su nota al pie, la frase de
+Procedencia que la explicaba, y las tres cifras grandes de la franja, que eran
+las tres sobre lo mismo: cuántos valores salieron tarde, la mediana y la peor.
+En su lugar van tres neutrales, derivadas del JSON en cada carga —67 + 67
+valores, 49 normas de la Corte, 38 tablas del Ministerio—, que dicen el mismo
+argumento que la página siempre quiso decir: *esto está leído de las fuentes*.
+
+**La fecha del acto se quedó.** Es un dato y no una demora, y sirve para lo único
+para lo que hace falta: saber si un valor ya existía el día en que se dictó una
+regulación. El dato crudo sigue entero en `data/serie-uma.json`.
+
+Y apareció algo que no se resolvió: las cifras derivadas dan **49 normas y 38
+tablas**, y `ESTADO.md` venía diciendo «50 PDF de la CSJN» y «39 tablas». Se
+dejaron las derivadas, porque no pueden mentir sobre el archivo, y la
+discrepancia quedó anotada como abierta.
+
+### El nombre de la línea en `tasa`, atado a la cosa correcta
+
+Javier: «creo que hay que eliminar el campo nombre cuando no es una sucesión. O
+bien, evaluar agregarlo sólo en los casos que es necesario identificar, o si no
+un + que permita "agregar campo para identificar la pretensión". ¿Cómo la ves?».
+
+Ninguna de las dos. El «+» es un mecanismo más que aprender para un campo de
+texto que vacío no cuesta nada. Y atarlo a «es sucesión o no» lo ata a la cosa
+equivocada: dejaría el campo en la sucesión de una sola línea y lo sacaría del
+ejecutivo de tres.
+
+**La regla que quedó sale de para qué existe el campo.** El nombre existe para
+distinguir dos líneas en la liquidación que va al expediente —el inmueble de tal
+calle y el automóvil—. Con una sola línea no hay nada que distinguir, sea una
+sucesión o sea un ordinario. Así que el campo aparece cuando hay más de una
+línea, y se autoadministra: apretás «Agregar» y aparecen solos.
+
+Esto **no deshace la regresión del 31/8 a la mañana**. Ahí el problema fue que no
+había *ningún* lugar donde escribir qué era cada línea cuando había varias. El
+lugar sigue estando, y aparece cuando hay varias.
+
+**El valor no se borra al esconderse: se deja de leer.** Borrarlo castigaría un
+clic —agregás una línea, la sacás, y perdiste lo que habías escrito en la otra—.
+Lo que no puede pasar es que un nombre invisible salga impreso o viaje en el
+permalink, así que la condición se vuelve a comprobar al *leer* y no se confía en
+que el campo esté oculto. Es el mismo criterio con el que `vencimientos.html` lee
+la ampliación por distancia, y por el mismo motivo.
+
+Y la columna «Detalle» sale de la liquidación impresa cuando ninguna línea tiene
+nombre: un encabezado sobre una fila de guiones no es información, y es el
+criterio que la propia pantalla ya aplicaba —un campo que no aplica no ocupa
+lugar, ni siquiera el de su rótulo—.
+
+### Lo que quedó anotado y no hecho
+
+**Plazos en horas**, a pedido de Javier, en `IDEAS.md`. No es «lo mismo con otra
+unidad»: un plazo en horas tiene hora de arranque, y con eso entran tres
+preguntas que el motor hoy puede ignorar —si el reloj se detiene de noche y el
+fin de semana, qué pasa fuera del horario de tribunal, si el plazo de gracia se
+aplica igual—. Ninguna la contesta el código que hay, y las tres mueven la
+respuesta. Además obliga a revisar que las fechas viajen como `AAAA-MM-DD`, que
+hoy es lo que evita que un conector devuelva una hora con un huso que el que la
+lee no conoce.
+
+---
+
+## Escribiente: las seis fugas que encontró un documento largo — cerrado el 21/8
+
+Estuvo en `ESTADO.md` hasta el 31/8, marcado como crónica que le correspondía a
+este archivo. No se mudaba porque el control de datos personales del
+`pre-commit` bloquea el commit: los cuatro valores de ejemplo que documenta —un
+DNI sin puntos, uno con puntos y dos matrículas— son exactamente las formas que
+ese control busca, y al mudarlos aparecen como líneas nuevas acá. **No entró
+nada nuevo al repositorio**: los cuatro estaban versionados desde el 21/8 y son
+sintéticos. Javier autorizó la mudanza el 31/8 —«no le veo daño»— y se hizo con
+`git commit --no-verify`.
+
+**El 21/8 pasó un documento largo y encontró tres fugas.**
+un documento largo —hasta ese día lo más largo que había pasado por la herramienta
+eran 5 fojas sintéticas—. El `.md` se revisó línea por línea contra el PDF. Las
+tres están arregladas, con las cadenas exactas como regresión, y cada una lleva
+en el código el comentario de dónde salió:
+
+- **La constancia publicaba los nombres.** La clave del conteo de cada reemplazo
+  elegido era `elegido: ${nombre}`, y la constancia imprime las claves: el `.md`
+  terminaba con varios nombres y la cantidad de apariciones de cada uno.
+  **El archivo anonimizado traía abajo el diccionario para deshacerlo.** Es el
+  mismo bug que `documento.js` fue escrito para evitar —el nombre del archivo en
+  el título— una función más abajo y en el otro extremo del `.md`. Ahora la
+  clave lleva la etiqueta (`nombre propio → [TESTIGO]: 4`) y el detalle por
+  nombre queda en la pantalla, que es donde no sale de la máquina. **Ninguna
+  clave del conteo puede llevar texto del documento**, y eso está escrito arriba
+  de `anonimizar()`.
+- **Un nombre de dos palabras no se ofrecía nunca.** Los cuatro patrones de
+  candidatos exigían tres palabras o una coma, así que un nombre de dos palabras
+  —diez apariciones en claro, más cuatro sin tilde y una en mayúsculas— no se
+  vio ni una vez en la lista. No es que se dejó pasar: no se ofreció. Y
+  «Nombre Apellido» es la forma más frecuente que hay, porque el nombre completo
+  aparece una vez y ése aparece en cada foja. Entraron dos patrones de dos
+  palabras, y con ellos tres cosas que los hacen usables: `NO_SON_PERSONAS` casi
+  duplicada, el recorte de las palabras de los extremos que no son nombre
+  —«Compareció Hector Ernesto» perdía el nombre entero por el verbo de adelante—
+  y el descarte del candidato que es pedazo de otro.
+- **El DNI sin puntos no tenía regla.** La única que había exigía el formato
+  `30.119.078` porque tiene que distinguirse de un monto. Un informe del
+  un formulario oficial lo escribe sin puntos, y **cinco documentos
+  de identidad salieron enteros y rotulados** (`DNI: 5432109`). La regla nueva
+  se ancla en la palabra, que es lo que la hace segura: siete dígitos pelados no
+  tienen forma propia, pero lo que viene después de «DNI» es un DNI.
+
+**Y una decisión que cambió: los candidatos ya no vienen tildados.** Salvo las
+dos partes de la carátula, que salen de una forma fija y no son una adivinanza.
+El argumento es el mismo expediente: con todo tildado de fábrica se procesó con
+40 reemplazos elegidos, de los cuales **27 no eran nombres de nadie** —
+encabezados de tabla («Responsable Inscripto Fecha», 15 veces), títulos en
+mayúsculas, un monto en letras—, y el texto quedó con «SOLICITA SE `[PERSONA]`»
+y «PERSONAL DE LA `[PERSONA]` Y AFINES». Nadie destildó nada, y era esperable:
+con cuarenta casillas ya tildadas gana el default. **Lo que decide es el modo de
+fallar**: tildado de fábrica falla en silencio y corrompe el documento; sin
+tildar falla a la vista, porque el nombre queda en el texto *y* la constancia lo
+nombra.
+
+**El segundo pase sobre el mismo expediente, el 21/8, cerró las otras tres.**
+Salieron de la misma revisión y no eran fugas de una regla: eran materia que el
+motor no miraba.
+
+- **Los formularios `Etiqueta: valor`, que es donde estaba lo más sensible.** El
+  motor estaba escrito para prosa, y la ficha del Registro Nacional de las
+  Personas adjunta al exhorto no es prosa: `Apellidos:`, `Nombres:`,
+  `Fecha Nac:`, `Clase:`, `Domicilio: Calle :…`, `Datos del Trámite:`, cada uno
+  en su renglón. De todo eso el motor anonimizaba el teléfono. **Se reemplazan
+  solos, y eso no contradice la regla de preguntar por los nombres**: la
+  etiqueta hace inequívoca la forma, que es el criterio de siempre —detrás de
+  `Apellidos:` no hay una cita de doctrina—, y es el mismo argumento que sostiene
+  la regla de la firma. Tampoco le esconden nada a la lista de candidatos, que
+  se arma sobre el texto crudo. **Las dos guardas son lo que las hace seguras:**
+  los dos puntos son obligatorios —en prosa no hay— y el valor tiene que empezar
+  en mayúscula, sin lo cual «Nombres: los que surgen del poder» quedaba como
+  `Nombres: [PERSONA]`.
+- **El domicilio sin piso.** La regla exigía piso o departamento después de la
+  altura, y así se escribe la minoría: «Av. San Juan 640 CABA» y «Rivera 3120 CABA»
+  pasaban enteras. Ahora hay dos reglas: la vieja, donde el piso es lo que acota,
+  y una nueva anclada en la palabra —«domicilio», «sito», «calle»—. **El ancla no
+  es un adorno:** sin ella la regla dice «cualquier palabra capitalizada seguida
+  de un número», y eso también describe «el expediente 48210» y «el art. 431».
+  De paso se arregló que el bloque de piso cortaba la palabra al medio
+  (`[DOMICILIO]amento 2`).
+- **La matrícula aceptaba una sola forma de escribirse.** Entran los dos puntos
+  (`T: 62 F: 415`), la `O` que deja el OCR donde va el ordinal (`T°22 FO371`), el
+  tomo con la palabra entera, y el campo de formulario `Matrícula N°: XXXV,
+  FOLIO 271`.
+- Y con ellas, **el tratamiento en mayúsculas y con dos puntos**: `SR :RODOLFO
+  CÓRDOBA`, de una cédula, fallaba por las dos cosas a la vez. La regla pasó a
+  correr con `i`, así que ahora también agarra «el perito Juan Pérez» en medio de
+  la prosa. Como `i` apaga la distinción de mayúsculas, la guarda se mudó a una
+  función: el nombre tiene que empezar en mayúscula y no puede llevar ninguna
+  palabra de `NO_SON_PERSONAS`.
+
+Sobre el mismo `.md` ya anonimizado —o sea, sobre un piso— las reglas nuevas
+hacen **82 reemplazos más**, y no queda a la vista ni un DNI, ni una matrícula,
+ni una calle con altura.
+
+---
+
+## El buscador de plazos del CPCCN, publicado en desarrollo — 31/8
+
+Javier: «agregá la búsqueda de plazos, y ponele un botoncito, o chip que diga
+"en desarrollo" así lo voy verificando en producción. Igual dudo que le
+erremos… es texto de ley, a lo sumo podrá faltar un plazo».
+
+**Ese es exactamente el riesgo que tiene y el que no**, y por eso se pudo
+publicar sin curar. Los 198 plazos salen de un barrido mecánico sobre el texto
+exacto del Código: un número mal es improbable, una ausencia no. El chip dice
+justamente eso, y cambia qué hace el que no encuentra su plazo —sigue buscando
+en el Código— en vez de concluir que no existe.
+
+**Lo que el barrido no distingue es de quién es el plazo.** El art. 34 fija los
+plazos en que el juez tiene que dictar resoluciones, y el art. 469 los del
+perito para aceptar el cargo: son plazos, pero no son los de la parte. Por eso
+cada resultado muestra **la oración literal del artículo**, entera y sin
+recortar. Leída, no se confunde con nada; un resultado que dijera «10 días,
+art. 34» y nada más estaría contestando otra pregunta. Media oración de una
+norma dice otra cosa que la oración entera, así que tampoco se recorta con
+puntos suspensivos.
+
+**Sólo los plazos en días llenan el campo.** De los 198, hay nueve en meses
+—las caducidades de instancia del art. 310— y cinco en horas. Se muestran y no
+se pueden apretar, con el motivo escrito al lado: esta pantalla cuenta días
+hábiles, y escribirle 6 a un plazo de seis *meses* daría una fecha plausible y
+equivocada, que es la peor clase de resultado que puede dar.
+
+**Los años y los minutos no entran al archivo, y no es un descuido.** Los siete
+casos de años son edades —arts. 234 y 426—, antigüedad de matrícula —art. 563—
+y términos que nadie escribe en un campo de días hábiles; el único de minutos es
+la media hora de espera en una audiencia del art. 125. Están en el barrido en
+markdown, que es donde se los mira.
+
+**La búsqueda normaliza tildes y mayúsculas de los dos lados.** Hacía falta por
+una razón concreta: la rúbrica de cada artículo —que es el mejor nombre para
+buscarlo— viene en el Código en mayúsculas y sin acentuar, «CITACION». Sirve de
+clave de búsqueda y **no se muestra como rótulo**, porque este repositorio no
+publica texto sin acentuar. Lo que se muestra es la oración, que sí viene
+acentuada porque es el texto de la ley. Todas las palabras tienen que estar, en
+cualquier orden: «traslado demanda» encuentra el art. 338 y no los ciento y pico
+que dicen «traslado».
+
+**El resaltado se arma con nodos de texto y no con `innerHTML`.** La oración es
+texto de la ley y no markup, y pegarla como HTML sería la única forma de que un
+archivo de datos escribiera etiquetas en esa página.
+
+### El archivo se regenera, no se parchea
+
+`npm run barrer-plazos-json` rehace `data/plazos-cpccn.json` entero desde el
+texto del Código. Lo único escrito a mano es la constante `CURADO` del script
+—los cuatro atajos y dos notas—, que se aplica por `cita|cantidad|unidad`. **Si
+una entrada curada deja de matchear ninguna fila, el script aborta** en vez de
+seguir: una curación que apunta a un texto que cambió es un atajo que se pierde,
+y perdido en silencio no se vería.
+
+De paso el campo `dias` pasó a ser `cantidad` más `unidad`. Un campo llamado
+`dias` con un 6 adentro que significa seis meses es exactamente la clase de cosa
+que después mueve un número.
+
+### Dos afirmaciones falsas en la guía publicada
+
+Aparecieron al pasar por `documentacion.html` para describir el buscador, y las
+dos eran sobre cosas que habían cambiado hacía semanas:
+
+- **«El receso de invierno es estimado: doce días corridos desde el tercer lunes
+  de julio».** Dejó de ser cierto el 17/8, cuando la feria pasó a salir de
+  `data/feria-judicial.json` con la acordada citada. La guía seguía describiendo
+  la fórmula que se había sacado *porque estaba mal*: contra las acordadas
+  cargadas acierta poco más de la mitad de las veces y no puede producir 2020,
+  cuando la feria se suspendió.
+- **«Si la API de feriados no responde, esos días no se excluyen y el resultado
+  puede quedar corrido».** Tampoco: los feriados están versionados en el
+  repositorio y no se le pide nada a nadie durante el uso, y si falta un año la
+  herramienta **no calcula** y dice cuál falta.
+
+Las dos describían el comportamiento anterior con la misma seguridad con la que
+habrían descrito el actual, que es lo que las hacía peligrosas. **Una guía no
+tiene control automático que la contraste con el motor**, y `verificar-docs`
+sólo comprueba que las normas y los artículos que nombra existan.

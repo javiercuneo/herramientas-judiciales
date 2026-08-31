@@ -321,7 +321,6 @@ tbody tr.actual td { background: var(--accent-tint); }
               <th>Rige desde</th>
               <th>Norma</th>
               <th>Fecha del acto</th>
-              <th class="num">Demora</th>
             </tr>
           </thead>
           <tbody id="uma-filas"></tbody>
@@ -356,9 +355,6 @@ tbody tr.actual td { background: var(--accent-tint); }
       <li><span class="marca">&sect;</span>Acordadas con la fecha del acto escrita
         a mano en el original. El valor y su vigencia están impresos y se leen del
         texto; la fecha se leyó a ojo.</li>
-      <li><span class="marca">&curren;</span>Sin demora computable: la acordada
-        27/2018 no fijó esos valores, los consolidó. Su propio texto los atribuye
-        a las acordadas 3/2018, 11/2018 y 23/18, que son anteriores.</li>
     </ul>
   </section>
 
@@ -372,7 +368,7 @@ tbody tr.actual td { background: var(--accent-tint); }
       valores de la UMA salen de las acordadas y resoluciones de la Corte,
       leídos del punto resolutivo de cada acto. Los del UHOM salen de las tablas
       históricas que publica el Ministerio de Justicia. De ahí sale también la
-      columna de la demora, que no se puede armar sin tener los dos documentos.
+      fecha del acto, que no se puede armar sin tener los dos documentos.
     </p>
     <p>
       Cada valor del UHOM se leyó por su forma y no por su etiqueta: es el único
@@ -432,7 +428,6 @@ tbody tr.actual td { background: var(--accent-tint); }
     return MES[d.getMonth()] + ' de ' + d.getFullYear();
   }
   function pesos(n) { return '$' + n.toLocaleString('es-AR'); }
-  function dias(a, b) { return Math.round((partir(a) - partir(b)) / 86400000); }
 
   function escapar(t) {
     return String(t).replace(/[&<>"]/g, function (c) {
@@ -488,14 +483,11 @@ tbody tr.actual td { background: var(--accent-tint); }
       var f = valores[i];
       var desde = f.etiqueta || dmy(f.vigencia);
       var acto = f.acto ? dmy(f.acto) + (f.fecha_leida_a_mano ? '<span class="marca">&sect;</span>' : '') : '';
-      var dem = (f.acto && !f.sin_demora) ? dias(f.acto, f.vigencia) + ' d'
-                                          : '<span class="marca">&curren;</span>';
       html += '<tr' + (i === valores.length - 1 ? ' class="actual"' : '') + '>' +
         '<td class="val">' + pesos(f.valor) + '</td>' +
         '<td class="fecha">' + escapar(desde) + '</td>' +
         '<td class="norma-celda">' + escapar(f.norma) + '</td>' +
-        '<td class="fecha">' + acto + '</td>' +
-        '<td class="num">' + dem + '</td></tr>';
+        '<td class="fecha">' + acto + '</td></tr>';
     }
     document.getElementById('uma-filas').innerHTML = html;
     document.getElementById('uma-cuantos').textContent = valores.length + ' valores';
@@ -518,30 +510,29 @@ tbody tr.actual td { background: var(--accent-tint); }
   }
 
   // ---- La franja ----
-
-  function pintarFranja(valores) {
-    // Solo los que tienen fecha de acto Y demora computable. Los cuatro que
-    // consolido la acordada 27/2018 quedan afuera: restarle la vigencia a la
-    // fecha de esa acordada no mide cuanto tardo el valor en publicarse, mide
-    // cuanto tardo la acordada que los junto.
-    var con = valores.filter(function (f) { return f.acto && !f.sin_demora; });
-    var ds = con.map(function (f) { return dias(f.acto, f.vigencia); });
-    var tarde = ds.filter(function (d) { return d > 0; }).length;
-    var ordenados = ds.slice().sort(function (a, b) { return a - b; });
-    var mediana = ordenados[Math.floor(ordenados.length / 2)];
-    var peor = Math.max.apply(null, ds);
-    var peorF = con[ds.indexOf(peor)];
+  //
+  // Las tres cifras dicen de donde sale la serie y no cuanto tardo en salir un
+  // valor. Hasta el 31/8 median la distancia entre la vigencia y el acto que la
+  // fija ---cuantos valores salieron tarde, la mediana y la peor---, y eso se
+  // leia como un reproche a la Corte, que no es lo que la pagina quiere decir.
+  // El dato sigue estando: la fecha del acto es una columna de la tabla, y
+  // sirve para lo unico para lo que hace falta, que es saber si un valor ya
+  // existia el dia en que se dicto una regulacion.
+  function pintarFranja(uma, uhom) {
+    var normas = new Set(uma.map(function (f) { return f.norma; })).size;
+    var tablas = new Set(uhom.map(function (f) { return f.fuente; }).filter(Boolean)).size;
 
     document.getElementById('franja').innerHTML =
-      '<div><div class="n">' + tarde + ' de ' + con.length + '</div>' +
-      '<div class="q">valores de UMA que se publicaron <strong>después</strong> del día ' +
-      'desde el que rigen.</div></div>' +
-      '<div><div class="n">' + mediana + ' días</div>' +
-      '<div class="q">de demora mediana entre el día desde el que rige un valor y el ' +
-      'día en que salió el acto que lo fija.</div></div>' +
-      '<div><div class="n">' + peor + ' días</div>' +
-      '<div class="q">la demora más larga: ' + mesAnio(peorF.vigencia) + ', fijado ' +
-      'recién por la ' + escapar(peorF.norma) + '.</div></div>';
+      '<div><div class="n">' + uma.length + ' + ' + uhom.length + '</div>' +
+      '<div class="q">valores cargados: la serie entera de la UMA desde ' +
+      mesAnio(uma[0].vigencia) + ' y la del UHOM desde ' + mesAnio(uhom[0].vigencia) +
+      '.</div></div>' +
+      '<div><div class="n">' + normas + '</div>' +
+      '<div class="q">acordadas y resoluciones distintas de la Corte que cita la ' +
+      'serie de la UMA, cada una leída de su texto.</div></div>' +
+      '<div><div class="n">' + tablas + '</div>' +
+      '<div class="q">tablas oficiales distintas del Ministerio de Justicia de ' +
+      'las que sale la del UHOM.</div></div>';
   }
 
   // ---- Frescura ----
@@ -585,7 +576,7 @@ tbody tr.actual td { background: var(--accent-tint); }
                 'Vigente para ' + mesAnio(ultimoUhom.vigencia) + '.',
                 'Tabla del Ministerio de Justicia');
 
-      pintarFranja(uma.valores);
+      pintarFranja(uma.valores, uhom.valores);
       pintarUma(uma.valores);
       pintarUhom(uhom.valores);
       pintarFrescura(uma, uhom);

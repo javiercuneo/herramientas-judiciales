@@ -197,6 +197,48 @@ Los tres, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
      un signo: esconder los hints **borró de la pantalla** el único lugar que
      decía que el dinero de una sucesión va por el inc. d. Lo que se esconde es
      la explicación larga, nunca el mapeo.
+- **El buscador de plazos salió con el chip «en desarrollo», y es lo único de
+  este repositorio publicado sin curar.** Es decisión de Javier del 31/8 —«lo voy
+  verificando en producción… es texto de ley, a lo sumo podrá faltar un plazo»—.
+  **Ese es exactamente el riesgo que tiene y el que no:** los 198 plazos salen de
+  un barrido mecánico sobre el texto, así que un número mal es improbable y una
+  ausencia no lo es. Lo que el barrido **no** distingue es qué plazo corre contra
+  la parte y cuál contra el juez —art. 34— o contra el perito, y por eso cada
+  resultado muestra **la oración literal del artículo**: leída, no se confunde.
+  Cuando Javier termine de verificarlo, sale el chip.
+- **Los atajos y el buscador leen un solo archivo, y eso es la decisión.**
+  `data/plazos-cpccn.json` tiene la cantidad, la unidad, el artículo y la oración
+  literal; `vencimientos.html` **no tiene ningún número de plazo escrito
+  adentro**. Dos listas del mismo plazo se desincronizan, y cuántos días tiene un
+  traslado no puede depender de cuál se miró. Si el archivo no carga, ni los
+  atajos ni el buscador aparecen y el campo se escribe a mano: son comodidades,
+  no el cálculo.
+- **El archivo se regenera y no se parchea.** `npm run barrer-plazos-json` lo
+  rehace entero desde el texto del Código; lo único a mano es la constante
+  `CURADO` de `scripts/barrer-plazos-cpccn.mjs` —los cuatro atajos y dos notas—,
+  que se aplica por `cita|cantidad|unidad`. **Si una entrada curada deja de
+  matchear, el script aborta** en vez de seguir: un atajo perdido en silencio no
+  se vería.
+- **Sólo los plazos en días llenan el campo.** Los nueve en meses y los cinco en
+  horas se muestran y no se pueden apretar, con el motivo al lado. Escribirle 6 a
+  un plazo de seis **meses** daría una fecha plausible y equivocada, que es la
+  peor clase de resultado que esta pantalla puede dar.
+- **Un rótulo de atajo no puede redondear una regla.** El botón de 5 días dice
+  «apelación, traslados y vistas» y no nombra las excepciones, aunque el pedido
+  las incluía: los 5 días de excepciones son los del **ejecutivo** (art. 542) y
+  en el ordinario van con la contestación de la demanda (art. 346), o sea dentro
+  de los 15 del art. 338. La precisión entra en la línea que aparece al elegir
+  el atajo, que es donde hay lugar. **Decir de menos no miente; redondear sí.**
+- **`uma-uhom` ya no habla de demoras, por decisión de Javier del 31/8**
+  —«suena como que le critico a la Corte lo que tardó»—. Salieron la columna, su
+  nota, la prosa y las tres cifras grandes. **La fecha del acto se quedó**: es
+  un dato y no una demora, y dice si un valor ya existía el día de la
+  regulación. El crudo sigue en `data/serie-uma.json`, con `sin_demora` y todo.
+- **`uma-uhom` dice 49 normas y 38 tablas, y este archivo dice «50 PDF» y «39
+  tablas».** Las de la página se derivan del JSON en cada carga y no pueden
+  mentir sobre el archivo; las de acá están a mano. **Una de las dos está mal y
+  no se resolvió**: puede que dos PDF declaren la misma norma. Sin abrirlos no
+  se sabe, y no se afirma.
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es su
   propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -367,12 +409,6 @@ UTC— y `mora.html` usa `new Date(y, m, d)` con `setHours(0,0,0,0)` —medianoc
 local—. **No se unificaron**, y están las dos en el archivo con el comentario de
 por qué: unificarlas es elegante y mueve un número de algún lado.
 
-**El 25/8 las calculadoras no se tocaron, y sirvieron de referencia. El 26/8
-pasaron a consumir el motor.** Esa segunda mitad es la que importa: mientras las
-pantallas tenían su copia, había **dos implementaciones vivas** de una cuenta
-que puede hacer perder un derecho, y dos copias no se mantienen iguales solas.
-El estado del 25/8 era la transición, no el destino. Cómo se migró está en [`HISTORIA.md`](HISTORIA.md).
-
 **`npm run verificar-plazos`**, 34 comprobaciones, corre en Node. Lleva como
 regresión el caso con el que el hermano pidió esto —notificación 18/6/2026, diez
 hábiles del art. 257 CPCCN, firme, diez corridos del art. 54 de la ley 27.423,
@@ -380,12 +416,6 @@ hábiles del art. 257 CPCCN, firme, diez corridos del art. 54 de la ley 27.423,
 invariantes: el vencimiento nunca cae en inhábil, el sábado a las 23 hs. suma un
 día y no dos, la ampliación del art. 158 se cuenta en hábiles y no en corridos,
 y la notificación automática siempre cae en martes o viernes hábil.
-
-**Lo que todavía NO cubre:** la comparación pantalla contra motor. Ese cruce va
-en `scripts/pruebas-calculadoras.html`, que es el único que puede manejar las
-calculadoras reales, y es el próximo paso. Hasta que exista, lo que sostiene
-la extracción es la transcripción leída y los 34 casos, no una corrida contra la
-pantalla.
 
 ### `conectores/`
 
@@ -470,105 +500,12 @@ servidor local, así que sin publicar no hay forma de probarlo donde se usa.
   `comun.css` y `tema.js` están en `../`. La configuración `sitio-estatico` de
   `.claude/launch.json` ya lo hace.
 
-**El 21/8 pasó un documento largo y encontró tres fugas.**
-un documento largo —hasta ese día lo más largo que había pasado por la herramienta
-eran 5 fojas sintéticas—. El `.md` se revisó línea por línea contra el PDF. Las
-tres están arregladas, con las cadenas exactas como regresión, y cada una lleva
-en el código el comentario de dónde salió:
+**Lo que queda abierto, y ninguno es bloqueante.** Salió de pasar un documento
+largo el 21/8, que además destapó seis fugas ya arregladas; la crónica de ese
+día está en [`HISTORIA.md`](HISTORIA.md).
 
-- **La constancia publicaba los nombres.** La clave del conteo de cada reemplazo
-  elegido era `elegido: ${nombre}`, y la constancia imprime las claves: el `.md`
-  terminaba con varios nombres y la cantidad de apariciones de cada uno.
-  **El archivo anonimizado traía abajo el diccionario para deshacerlo.** Es el
-  mismo bug que `documento.js` fue escrito para evitar —el nombre del archivo en
-  el título— una función más abajo y en el otro extremo del `.md`. Ahora la
-  clave lleva la etiqueta (`nombre propio → [TESTIGO]: 4`) y el detalle por
-  nombre queda en la pantalla, que es donde no sale de la máquina. **Ninguna
-  clave del conteo puede llevar texto del documento**, y eso está escrito arriba
-  de `anonimizar()`.
-- **Un nombre de dos palabras no se ofrecía nunca.** Los cuatro patrones de
-  candidatos exigían tres palabras o una coma, así que un nombre de dos palabras
-  —diez apariciones en claro, más cuatro sin tilde y una en mayúsculas— no se
-  vio ni una vez en la lista. No es que se dejó pasar: no se ofreció. Y
-  «Nombre Apellido» es la forma más frecuente que hay, porque el nombre completo
-  aparece una vez y ése aparece en cada foja. Entraron dos patrones de dos
-  palabras, y con ellos tres cosas que los hacen usables: `NO_SON_PERSONAS` casi
-  duplicada, el recorte de las palabras de los extremos que no son nombre
-  —«Compareció Hector Ernesto» perdía el nombre entero por el verbo de adelante—
-  y el descarte del candidato que es pedazo de otro.
-- **El DNI sin puntos no tenía regla.** La única que había exigía el formato
-  `30.119.078` porque tiene que distinguirse de un monto. Un informe del
-  un formulario oficial lo escribe sin puntos, y **cinco documentos
-  de identidad salieron enteros y rotulados** (`DNI: 5432109`). La regla nueva
-  se ancla en la palabra, que es lo que la hace segura: siete dígitos pelados no
-  tienen forma propia, pero lo que viene después de «DNI» es un DNI.
-
-**Y una decisión que cambió: los candidatos ya no vienen tildados.** Salvo las
-dos partes de la carátula, que salen de una forma fija y no son una adivinanza.
-El argumento es el mismo expediente: con todo tildado de fábrica se procesó con
-40 reemplazos elegidos, de los cuales **27 no eran nombres de nadie** —
-encabezados de tabla («Responsable Inscripto Fecha», 15 veces), títulos en
-mayúsculas, un monto en letras—, y el texto quedó con «SOLICITA SE `[PERSONA]`»
-y «PERSONAL DE LA `[PERSONA]` Y AFINES». Nadie destildó nada, y era esperable:
-con cuarenta casillas ya tildadas gana el default. **Lo que decide es el modo de
-fallar**: tildado de fábrica falla en silencio y corrompe el documento; sin
-tildar falla a la vista, porque el nombre queda en el texto *y* la constancia lo
-nombra.
-
-**El segundo pase sobre el mismo expediente, el 21/8, cerró las otras tres.**
-Salieron de la misma revisión y no eran fugas de una regla: eran materia que el
-motor no miraba.
-
-- **Los formularios `Etiqueta: valor`, que es donde estaba lo más sensible.** El
-  motor estaba escrito para prosa, y la ficha del Registro Nacional de las
-  Personas adjunta al exhorto no es prosa: `Apellidos:`, `Nombres:`,
-  `Fecha Nac:`, `Clase:`, `Domicilio: Calle :…`, `Datos del Trámite:`, cada uno
-  en su renglón. De todo eso el motor anonimizaba el teléfono. **Se reemplazan
-  solos, y eso no contradice la regla de preguntar por los nombres**: la
-  etiqueta hace inequívoca la forma, que es el criterio de siempre —detrás de
-  `Apellidos:` no hay una cita de doctrina—, y es el mismo argumento que sostiene
-  la regla de la firma. Tampoco le esconden nada a la lista de candidatos, que
-  se arma sobre el texto crudo. **Las dos guardas son lo que las hace seguras:**
-  los dos puntos son obligatorios —en prosa no hay— y el valor tiene que empezar
-  en mayúscula, sin lo cual «Nombres: los que surgen del poder» quedaba como
-  `Nombres: [PERSONA]`.
-- **El domicilio sin piso.** La regla exigía piso o departamento después de la
-  altura, y así se escribe la minoría: «Av. San Juan 640 CABA» y «Rivera 3120 CABA»
-  pasaban enteras. Ahora hay dos reglas: la vieja, donde el piso es lo que acota,
-  y una nueva anclada en la palabra —«domicilio», «sito», «calle»—. **El ancla no
-  es un adorno:** sin ella la regla dice «cualquier palabra capitalizada seguida
-  de un número», y eso también describe «el expediente 48210» y «el art. 431».
-  De paso se arregló que el bloque de piso cortaba la palabra al medio
-  (`[DOMICILIO]amento 2`).
-- **La matrícula aceptaba una sola forma de escribirse.** Entran los dos puntos
-  (`T: 62 F: 415`), la `O` que deja el OCR donde va el ordinal (`T°22 FO371`), el
-  tomo con la palabra entera, y el campo de formulario `Matrícula N°: XXXV,
-  FOLIO 271`.
-- Y con ellas, **el tratamiento en mayúsculas y con dos puntos**: `SR :RODOLFO
-  CÓRDOBA`, de una cédula, fallaba por las dos cosas a la vez. La regla pasó a
-  correr con `i`, así que ahora también agarra «el perito Juan Pérez» en medio de
-  la prosa. Como `i` apaga la distinción de mayúsculas, la guarda se mudó a una
-  función: el nombre tiene que empezar en mayúscula y no puede llevar ninguna
-  palabra de `NO_SON_PERSONAS`.
-
-Sobre el mismo `.md` ya anonimizado —o sea, sobre un piso— las reglas nuevas
-hacen **82 reemplazos más**, y no queda a la vista ni un DNI, ni una matrícula,
-ni una calle con altura.
-
-> **Este bloque se quedó acá y no debería.** Es crónica del 21/8 y le
-> corresponde `HISTORIA.md` por la regla de arriba. Moverlo hace que el control
-> de datos personales del `pre-commit` bloquee el commit: los cuatro valores de
-> ejemplo que documenta —un DNI sin puntos, uno con puntos, dos matrículas— son
-> exactamente las formas que ese control busca, y al mudarlos aparecen como
-> líneas nuevas en `HISTORIA.md`. **No entra nada nuevo al repositorio**: los
-> cuatro ya están versionados en este archivo desde el 21/8, y son sintéticos.
-> **Es una decisión de Javier**, y son las dos únicas salidas: mudarlo con
-> `git commit --no-verify`, o enseñarle al patrón a no mirarse a sí mismo.
-
-**Lo que queda abierto, y ninguno es bloqueante:**
-
-- **Un nombre que el OCR ensució no lo agarra nada.** En el mismo exhorto,
-  `SR :ERNESTO QU1ROGA` queda como `SR [PERSONA] QU1ROGA`: la `Ó` salió como
+- **Un nombre que el OCR ensució no lo agarra nada.** `SR :ERNESTO QU1ROGA`
+  queda como `SR [PERSONA] QU1ROGA`: la `Ó` salió como
   `6`, y ningún patrón de nombre puede aceptar dígitos adentro de una palabra
   sin empezar a comerse números. Un humano lo lee igual. **No tiene arreglo por
   patrón**, y es una razón más para leer el `.md` antes de mandarlo.
@@ -583,7 +520,7 @@ ni una calle con altura.
   de», «valor de», «monto de». Un monto escrito de otra manera todavía puede
   salir como `[DNI]`. **Se eligió que el falso positivo sea visible** —queda en
   el texto y en la constancia— antes que dejar pasar un documento.
-- **Varias paginas salieron en blanco.** Son escaneos sin OCR intercalados,
+- **Varias páginas salieron en blanco.** Son escaneos sin OCR intercalados,
   y el aviso funcionó exactamente como tenía que funcionar: las lista una por
   una y dice que lo que decían no está en el archivo. Pero conviene tenerlo
   presente al leer una constancia: **la anonimización sólo vio el 40% del
@@ -905,10 +842,12 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   localhost:4180` lo dice en un segundo.** `honorio-dev` conserva el `autoPort`
   a propósito: ahí el puerto lo elige Next y el 3000 se ocupa seguido.
 - **Son dos proyectos npm distintos: fijarse en cuál se está parado.** El de la
-  raíz tiene **doce scripts y nada más**: `docs`, `verificar-docs`,
+  raíz tiene **trece scripts y nada más**: `docs`, `verificar-docs`,
   `verificar-calculos`, `verificar-plazos`, `verificar-series`,
   `verificar-contraste`, `verificar-conectores`, `verificar-escribiente`,
-  `verificar-honorio`, `feriados`, `conector-http` y `conector-mcp`. `check`,
+  `verificar-honorio`, `feriados`, `barrer-plazos` ---que necesita el clon del
+  repositorio `indice` y por eso tampoco corre en CI---, `conector-http` y
+  `conector-mcp`. `check`,
   `build`, `validate` y `typecheck` son de Honorio y **solo corren desde
   `honorio/`**, que es un clon de otro repositorio. Pedirlos acá da «Missing
   script», que se lee fácil como que algo está roto y no lo está.
@@ -952,6 +891,15 @@ lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
   **antes de medir, comprobar que el código que corre es el que se acaba de
   escribir** —que la función nueva exista—, en vez de confiar en un parámetro
   de la URL.
+- **El CPCCN escribe los plazos de cuatro formas, y barrer una sola
+  pierde la mitad.** «QUINCE (15) días», «será de cinco días», «dentro de
+  tercero día» y «DOS (2) **primeras** horas» —el plazo de gracia del art. 124—
+  son el mismo dato. El primer barrido cubría sólo la del numeral: 112 artículos
+  contra 165, y **entre lo que perdía estaba el art. 150**, que es *el* plazo de
+  traslados. Lo cazó cruzarlo contra una pasada hecha con otro modelo: peor
+  precisión, mejor cobertura. Está escrito en
+  `scripts/barrer-plazos-cpccn.mjs`, con el `\b` del final de cada unidad
+  comentado —sin él «en un **dia**rio» sale como un plazo de un día—.
 - **Al leer un diff grande de un HTML, mirar primero si es de contenido.**
   `git diff --ignore-cr-at-eol` lo despeja en un segundo.
 - **La consola de Next acumula errores viejos y no los limpia al recargar.**

@@ -1534,6 +1534,44 @@
 
     function filas() { return Array.prototype.slice.call(cuerpo.rows); }
 
+    // -----------------------------------------------------------------------
+    // El nombre de la línea aparece cuando hay más de una línea.
+    //
+    // POR QUÉ ESA REGLA Y NO "SI ES SUCESIÓN". El nombre existe para una sola
+    // cosa: distinguir dos líneas en la liquidación que va al expediente ---el
+    // inmueble de tal calle y el automóvil---. Con una sola línea no hay nada
+    // que distinguir, sea una sucesión o sea un ordinario, así que el campo
+    // pide un dato que no se usa. Y en una sucesión de seis bienes hace falta
+    // igual que en cualquier otro juicio de seis líneas.
+    //
+    // Atarlo al tipo de juicio ---que fue la primera idea--- lo ata a la cosa
+    // equivocada: dejaría el campo en la sucesión de una sola línea y lo
+    // sacaría del ejecutivo de tres.
+    //
+    // ESTO NO DESHACE LA REGRESIÓN DEL 31/8. Ahí el problema fue que no había
+    // NINGÚN lugar donde escribir qué era cada línea cuando había varias. Acá
+    // el lugar sigue estando, y aparece solo cuando hay varias.
+    //
+    // EL VALOR NO SE BORRA AL ESCONDERSE, se deja de leer. Borrarlo castigaría
+    // un clic ---agregás una línea, la sacás, y perdiste lo que habías escrito
+    // en la otra---. Lo que no puede pasar es que un nombre invisible salga
+    // impreso o viaje en el enlace, así que la condición se vuelve a comprobar
+    // al LEER, y no se confía en que el campo esté oculto. Es el mismo criterio
+    // con el que vencimientos.html lee la ampliación por distancia.
+    // -----------------------------------------------------------------------
+    function hayNombres() { return cuerpo.rows.length > 1; }
+
+    function nombreDe(tr) {
+        return hayNombres() ? tr.querySelector('.fila-nombre').value.trim() : '';
+    }
+
+    function acomodarNombres() {
+        var visible = hayNombres();
+        filas().forEach(function (tr) {
+            tr.querySelector('.fila-nombre').hidden = !visible;
+        });
+    }
+
     function opcionesItems(sup, elegido) {
         var html = '';
         for (var i = 0; i < sup.items.length; i++) {
@@ -1675,7 +1713,7 @@
             item: item,
             base: item.base,
             alicuota: alicuotaDe(sup, item, banderas),
-            nombre: tr.querySelector('.fila-nombre').value.trim(),
+            nombre: nombreDe(tr),
             clase: tr.querySelector('.fila-clase').value,
             importe: tr.querySelector('.fila-importe').value,
             titularidad: tr.querySelector('.fila-titularidad').value,
@@ -1693,6 +1731,9 @@
     // -----------------------------------------------------------------------
     function calcular() {
         var sup = supuestoActual();
+        // Antes de leer nada: agregar o quitar una línea cambia si el nombre
+        // corresponde, y calcular() corre en cada cambio de la pantalla.
+        acomodarNombres();
         var lista = filas();
         var entradas = lista.map(leerRenglon);
         var cuentas = entradas.map(function (e) { return liquidar(e); });
@@ -2026,7 +2067,7 @@
     function codificarCaso() {
         var renglones = filas().map(function (tr) {
             var o = { m: tr.querySelector('.fila-item').value };
-            var nombre = tr.querySelector('.fila-nombre').value.trim();
+            var nombre = nombreDe(tr);
             var imp = tr.querySelector('.fila-importe').value;
             var tit = tr.querySelector('.fila-titularidad').value;
             if (nombre) o.n = nombre;
@@ -2170,10 +2211,10 @@
         return d.getDate() + ' de ' + MESES[d.getMonth()] + ' de ' + d.getFullYear();
     }
 
-    function filaLiquidacion(c, i) {
+    function filaLiquidacion(c, i, conNombre) {
         return '<tr>' +
             '<td>' + (i + 1) + '</td>' +
-            '<td>' + escapar(c.nombre || '—') + '</td>' +
+            (conNombre ? '<td>' + escapar(c.nombre || '—') + '</td>' : '') +
             '<td>' + escapar(c.item ? c.item.rotulo : '') + '<span class="sec">' + c.base.cita + '</span></td>' +
             '<td class="num">' + (c.montoFijo ? '—' : pesos(c.importe)) + '</td>' +
             '<td class="num">' + (c.montoFijo ? '—' : pesos(c.imponible)) +
@@ -2199,6 +2240,12 @@
         var total = 0;
         usados.forEach(function (c) { total += c.tasa; });
 
+        // La columna del detalle sale de la planilla cuando ninguna línea tiene
+        // nombre: un encabezado sobre siete guiones no es información, y es el
+        // mismo criterio con el que esta pantalla saca de la tabla los campos
+        // que no aplican ---no ocupan ni el lugar de su rótulo---.
+        var conNombre = usados.some(function (c) { return c.nombre; });
+
         var html = '';
         html += '<h1>Liquidación de la tasa de justicia</h1>';
         html += '<p class="norma">Ley 23.898 · ' + escapar(sup.rotulo) + ' · ' + esteMes() + '</p>';
@@ -2221,12 +2268,12 @@
                     : ' <small>— se integra como juicio independiente del principal (art. 8)</small>') +
                 '</h2>';
             html += '<table><thead><tr>' +
-                '<th>#</th><th>Detalle</th><th>Qué se valúa</th>' +
+                '<th>#</th>' + (conNombre ? '<th>Detalle</th>' : '') + '<th>Qué se valúa</th>' +
                 '<th class="num">Importe declarado</th><th class="num">Monto imponible</th>' +
                 '<th>Alícuota</th><th class="num">Tasa</th>' +
                 '</tr></thead><tbody>';
-            delGrupo.forEach(function (c, i) { html += filaLiquidacion(c, i); });
-            html += '</tbody><tfoot><tr><td colspan="6">Subtotal — ' + clase.rotulo + '</td>' +
+            delGrupo.forEach(function (c, i) { html += filaLiquidacion(c, i, conNombre); });
+            html += '</tbody><tfoot><tr><td colspan="' + (conNombre ? 6 : 5) + '">Subtotal — ' + clase.rotulo + '</td>' +
                 '<td class="num">' + pesos(subtotal) + '</td></tr></tfoot></table>';
         });
 

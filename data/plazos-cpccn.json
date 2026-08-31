@@ -1,0 +1,1625 @@
+{
+  "_lo_que_es": "Plazos del CPCCN, cada uno con el artículo del que sale y la oración literal que lo dice. Lo consumen los atajos y el buscador de calculadoras/vencimientos.html.",
+  "_de_donde_sale": "Generado por scripts/barrer-plazos-cpccn.mjs --json sobre el texto exacto por artículo. El campo texto es transcripción y no resumen: es lo que permite discutir una entrada sin abrir el Código.",
+  "_sobre_la_rubrica": "El campo rubrica es el encabezado del artículo tal como viene en el Código: en mayúsculas y sin tildes. Se usa para buscar y no se muestra como rótulo, porque nada sin acentuar se publica.",
+  "_lo_que_no_entra": "Los años y los minutos. Los siete casos de años son edades (arts. 234 y 426), antigüedad de matrícula (art. 563) y términos que nadie escribe en un campo de días hábiles; el único de minutos es la media hora de espera del art. 125.",
+  "_ojo": "Es un barrido mecánico y está EN DESARROLLO. Los números salen del texto, así que lo que puede pasar es que falte un plazo, no que uno esté mal. Lo que el barrido no distingue es qué plazo corre contra la PARTE y cuál contra el juez (art. 34) o el perito: por eso cada entrada se muestra con su oración literal, que lo dice sola.",
+  "estado": "en desarrollo",
+  "actualizado": "2026-08-31",
+  "plazos": [
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 11 CPCCN",
+      "rubrica": "TRAMITE DE LA INHIBITORIA ANTE EL TRIBUNAL SUPERIOR",
+      "texto": "Dentro de los cinco (5) días de recibidas las actuaciones de ambos jueces, el tribunal superior resolverá la contienda sin más sustanciación y las devolverá al que declare competente, informando al otro por oficio o exhorto.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 15,
+      "unidad": "días",
+      "cita": "art. 11 CPCCN",
+      "rubrica": "TRAMITE DE LA INHIBITORIA ANTE EL TRIBUNAL SUPERIOR",
+      "texto": "Si el juez que requirió la inhibitoria no remitiere las actuaciones dentro de un plazo prudencial a juicio del tribunal superior, éste lo intimará para que lo haga en un plazo de DIEZ (10) a QUINCE (15) días, según la distancia, bajo apercibimiento de tenerlo por desistido de su pretensión.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 1,
+      "unidad": "días",
+      "cita": "art. 16 CPCCN",
+      "rubrica": "CONSECUENCIAS",
+      "texto": "Deducida la recusación sin expresión de causa, el juez recusado se inhibirá pasando las actuaciones, dentro del primer día hábil siguiente, al que le sigue en el orden del turno, sin que por ello se suspendan el trámite, los plazos, ni el cumplimiento de las diligencias ya ordenadas.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 18 CPCCN",
+      "rubrica": "OPORTUNIDAD",
+      "texto": "Si la causal fuere sobreviniente, sólo podrá hacerse valer dentro de quinto día de haber llegado a conocimiento del recusante y antes de quedar el expediente en estado de sentencia.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 24 CPCCN",
+      "rubrica": "APERTURA A PRUEBA",
+      "texto": "La Corte Suprema o cámara de apelaciones, integradas al efecto si procediere, recibirán al incidente a prueba por DIEZ (10) días, si hubiere de producirse dentro de la ciudad donde tiene su asiento el tribunal.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 25 CPCCN",
+      "rubrica": "RESOLUCION",
+      "texto": "Vencido el plazo de prueba y agregadas las producidas, se dará vista al juez recusado y se resolverá el incidente dentro de CINCO (5) días de contestada aquélla o vencido el plazo para hacerlo.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 26 CPCCN",
+      "rubrica": "INFORME DE LOS JUECES DE PRIMERA INSTANCIA",
+      "texto": "Cuando el recusado fuera UN (1) juez de primera instancia, remitirá a la cámara de apelaciones dentro de los CINCO (5) días, el escrito de recusación con un informe sobre las causas alegadas, y pasará el expediente al juez que sigue en el orden del turno o, donde no lo hubiere, al subrogante legal para que continúe su sustanciación.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 30,
+      "unidad": "días",
+      "cita": "art. 34 CPCCN",
+      "rubrica": "DEBERES",
+      "texto": "Los términos del expediente judicial quedarán suspendidos por treinta (30) días contados a partir de la notificación del mediador a impulso de cualquiera de las partes y se reanudará una vez vencido.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 34 CPCCN",
+      "rubrica": "DEBERES",
+      "texto": "Dictar las resoluciones con sujeción a los siguientes plazos: a) Las providencias simples, dentro de los tres (3) días de presentadas las peticiones por las partes o del vencimiento del plazo conforme a lo prescripto en el artículo 36, inciso 1) e inmediatamente, si debieran ser dictadas en una audiencia o revistieran carácter urgente; b) Las sentencias interlocutorias y las sentencias homologatorias, salvo disposición en contrario, dentro de los diez (10) o quince (15) días de quedar el expediente a despacho, según se trate de juez unipersonal o de tribunal colegiado; c) Las sentencias definitivas en juicio ordinario salvo disposición en contrario, dentro de los cuarenta (40) o sesenta (60) días, según se trate de juez unipersonal o de tribunal colegiado.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 15,
+      "unidad": "días",
+      "cita": "art. 34 CPCCN",
+      "rubrica": "DEBERES",
+      "texto": "Dictar las resoluciones con sujeción a los siguientes plazos: a) Las providencias simples, dentro de los tres (3) días de presentadas las peticiones por las partes o del vencimiento del plazo conforme a lo prescripto en el artículo 36, inciso 1) e inmediatamente, si debieran ser dictadas en una audiencia o revistieran carácter urgente; b) Las sentencias interlocutorias y las sentencias homologatorias, salvo disposición en contrario, dentro de los diez (10) o quince (15) días de quedar el expediente a despacho, según se trate de juez unipersonal o de tribunal colegiado; c) Las sentencias definitivas en juicio ordinario salvo disposición en contrario, dentro de los cuarenta (40) o sesenta (60) días, según se trate de juez unipersonal o de tribunal colegiado.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 60,
+      "unidad": "días",
+      "cita": "art. 34 CPCCN",
+      "rubrica": "DEBERES",
+      "texto": "Dictar las resoluciones con sujeción a los siguientes plazos: a) Las providencias simples, dentro de los tres (3) días de presentadas las peticiones por las partes o del vencimiento del plazo conforme a lo prescripto en el artículo 36, inciso 1) e inmediatamente, si debieran ser dictadas en una audiencia o revistieran carácter urgente; b) Las sentencias interlocutorias y las sentencias homologatorias, salvo disposición en contrario, dentro de los diez (10) o quince (15) días de quedar el expediente a despacho, según se trate de juez unipersonal o de tribunal colegiado; c) Las sentencias definitivas en juicio ordinario salvo disposición en contrario, dentro de los cuarenta (40) o sesenta (60) días, según se trate de juez unipersonal o de tribunal colegiado.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 30,
+      "unidad": "días",
+      "cita": "art. 35 CPCCN",
+      "rubrica": "POTESTADES DISCIPLINARIAS",
+      "texto": "La falta de ejecución dentro de los treinta días de quedar firme la resolución que las impuso, el retardo en el trámite o el abandono injustificado de éste, será considerado falta grave.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 38 ter CPCCN",
+      "rubrica": "",
+      "texto": "Dentro del plazo de tres días, las partes podrán requerir al juez que deje sin efecto lo dispuesto por el secretario, el prosecretario administrativo o el jefe de despacho.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 20,
+      "unidad": "días",
+      "cita": "art. 46 CPCCN",
+      "rubrica": "JUSTIFICACION DE LA PERSONERIA",
+      "texto": "Si se invocare la imposibilidad de presentar el documento, ya otorgado, que justifique la representación y el juez considerase atendibles las razones que se expresen, podrá acordar un plazo de hasta VEINTE (20) días para que se acompañe dicho documento, bajo apercibimiento de tener por inexistente la representación invocada.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 40,
+      "unidad": "días",
+      "cita": "art. 48 CPCCN",
+      "rubrica": "GESTOR",
+      "texto": "Si dentro de los CUARENTA (40) días hábiles, contados desde la primera presentación del gestor, no fueren acompañados los instrumentos que acrediten la personalidad o la parte no ratificase la gestión, será nulo todo lo actuado por el gestor y éste deberá satisfacer el importe de las costas, sin perjuicio de su responsabilidad por el daño que hubiere producido.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 2,
+      "unidad": "días",
+      "cita": "art. 53 CPCCN",
+      "rubrica": "CESACION DE LA REPRESENTACION",
+      "texto": "Mientras tanto, comprobado el deceso o la incapacidad, el juez señalará un plazo para que los interesados concurran a estar a derecho, citándolos directamente si se conocieran sus domicilios, o por edictos durante DOS (2) días consecutivos, si no fuesen conocidos, bajo apercibimiento de continuar el juicio en rebeldía en el primer caso y de nombrarles defensor en el segundo.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 53 CPCCN",
+      "rubrica": "CESACION DE LA REPRESENTACION",
+      "texto": "Cuando el deceso o la incapacidad hubieren llegado a conocimiento del mandatario, éste deberá hacerlo presente al juez o tribunal dentro del plazo de DIEZ (10) días, bajo pena de perder el derecho a cobrar los honorarios que se devengaren con posterioridad.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 54 CPCCN",
+      "rubrica": "UNIFICACION DE LA PERSONERIA",
+      "texto": "A ese efecto, fijará una audiencia dentro de los DIEZ (10) días y si los interesados no concurriesen o no se aviniesen en el nombramiento de representante único, el juez lo designará eligiendo entre los que intervienen en el proceso.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 2,
+      "unidad": "días",
+      "cita": "art. 57 CPCCN",
+      "rubrica": "FALTA DE FIRMA DEL LETRADO",
+      "texto": "Se tendrá por no presentado y se devolverá al firmante, sin más trámite ni recursos, todo escrito que debiendo llevar firma de letrado no la tuviese, si dentro del segundo día de notificada por ministerio de la ley la providencia que exige el cumplimiento de ese requisito no fuese suplida la omisión.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 2,
+      "unidad": "días",
+      "cita": "art. 59 CPCCN",
+      "rubrica": "REBELDIA. INCOMPARENCIA DEL DEMANDADO NO DECLARADO REBELDE",
+      "texto": "Esta resolución se notificará por cédula o, en su caso, por edictos durante DOS (2) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 70 CPCCN",
+      "rubrica": "ALLANAMIENTO",
+      "texto": "2) Cuando se allanare dentro del quinto día de tener conocimiento de los títulos e instrumentos tardíamente presentados.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 81 CPCCN",
+      "rubrica": "TRASLADO Y RESOLUCION",
+      "texto": "Producida la prueba se dará traslado por cinco días comunes al peticionario, a la otra parte, y al organismo de determinación y recaudación de la tasa de justicia.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 92 CPCCN",
+      "rubrica": "PROCEDIMIENTO PREVIO",
+      "texto": "La resolución se dictará dentro de los DIEZ (10) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 97 CPCCN",
+      "rubrica": "FUNDAMENTO Y OPORTUNIDAD",
+      "texto": "Si el tercerista dedujere la demanda después de DIEZ (10) días desde que tuvo o debió tener conocimiento del embargo o desde que se rechazó el levantamiento sin tercería, abonará las costas que originare su presentación extemporánea, aunque correspondiere imponer las del proceso a la otra parte por declararse procedente la tercería.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 110 CPCCN",
+      "rubrica": "CITACION DE OTROS CAUSANTES",
+      "texto": "Si el citado pretendiese, a su vez, citar a su causante, podrá hacerlo en los primeros CINCO (5) días de haber sido notificado, sin perjuicio de la carga de proseguir el proceso por sí.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 112 CPCCN",
+      "rubrica": "CITACION",
+      "texto": "Antes de conferirse traslado al demandado, se citará al deudor por el plazo de DIEZ (10) días, durante el cual éste podrá: 1) Formular oposición, fundada en que ya ha interpuesto la demanda o en la manifiesta improcedencia de la subrogación.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 2,
+      "unidad": "días",
+      "cita": "art. 120 CPCCN",
+      "rubrica": "COPIAS",
+      "texto": "Se tendrá por no presentado el escrito o el documento, según el caso, y se devolverá al presentante, sin más trámite ni recurso, salvo la petición ante el juez que autoriza el artículo 38, si dentro de los DOS (2) días siguientes a los de la notificación, por ministerio de la ley, de la providencia que exige el cumplimiento del requisito establecido en el párrafo anterior, no fuere suplida la omisión.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 2,
+      "unidad": "horas",
+      "cita": "art. 124 CPCCN",
+      "rubrica": "CARGO",
+      "texto": "El escrito no presentado dentro del horario judicial del día en que venciere un plazo, sólo podrá ser entregado válidamente en la secretaría que corresponda, el día hábil inmediato y dentro de las DOS (2) primeras horas del despacho.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 125 CPCCN",
+      "rubrica": "REGLAS GENERALES",
+      "texto": "2) Serán señaladas con anticipación no menor de tres días, salvo por razones especiales que exigieren mayor brevedad, lo que deberá expresarse en la resolución.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 129 CPCCN",
+      "rubrica": "PROCEDIMIENTO DE RECONSTRUCCION",
+      "texto": "2) El juez intimará a la parte actora, o iniciadora de las actuaciones, en su caso, para que dentro del plazo de CINCO (5) días presente las copias de los escritos, documentos y diligencias que se encontraren en su poder y correspondieren a actuaciones cumplidas en el expediente perdido.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "meses",
+      "cita": "art. 135 CPCCN",
+      "rubrica": "NOTIFICACION PERSONAL O POR CEDULA",
+      "texto": "8) La primera providencia que se dicte después que un expediente haya vuelto del archivo de los tribunales, o haya estado paralizado o fuera de secretaría más de tres meses.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 135 CPCCN",
+      "rubrica": "NOTIFICACION PERSONAL O POR CEDULA",
+      "texto": "Deberán devolverlo dentro del tercer día, bajo apercibimiento de las medidas disciplinarias a que hubiere lugar.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 24,
+      "unidad": "horas",
+      "cita": "art. 138 CPCCN",
+      "rubrica": "DILIGENCIAMIENTO",
+      "texto": "Las cédulas se enviarán directamente a la oficina de notificaciones, dentro de las veinticuatro horas, debiendo ser diligenciadas y devueltas en la forma y en los plazos que disponga la reglamentación de superintendencia.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 150 CPCCN",
+      "rubrica": "PLAZO Y CARACTER",
+      "texto": "El plazo para contestar vistas y traslados, salvo disposición en contrario de la ley, será de cinco días.",
+      "forma": "letras",
+      "rotulo": "Traslados y vistas, salvo disposición en contrario"
+    },
+    {
+      "cantidad": 20,
+      "unidad": "días",
+      "cita": "art. 157 CPCCN",
+      "rubrica": "SUSPENSION Y ABREVIACION CONVENCIONAL. DECLARACION DE INTERRUPCION Y SUSPENSION",
+      "texto": "Los apoderados no podrán acordar una suspensión mayor de VEINTE (20) días sin acreditar ante el juez o tribunal la conformidad de sus mandantes.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 1,
+      "unidad": "días",
+      "cita": "art. 158 CPCCN",
+      "rubrica": "AMPLIACION",
+      "texto": "Para toda diligencia que deba practicarse dentro de la República y fuera del lugar del asiento del juzgado o tribunal, quedarán ampliados los plazos fijados por este Código a razón de UN (1) día por cada DOSCIENTOS (200) kilómetros o fracción que no baje de CIEN (100).",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 166 CPCCN",
+      "rubrica": "ACTUACION DEL JUEZ POSTERIOR A LA SENTENCIA",
+      "texto": "2) Corregir, a pedido de parte, formulado dentro de los tres días de la notificación y sin substanciación, cualquier error material; aclarar algún concepto oscuro sin alterar lo sustancial de la decisión y suplir cualquier omisión en que hubiese incurrido sobre algunas de las pretensiones deducidas y discutidas en el litigio.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 167 CPCCN",
+      "rubrica": "DEMORA EN PRONUNCIAR LAS RESOLUCIONES",
+      "texto": "2) Si la sentencia definitiva no pudiere ser pronunciada dentro del plazo establecido en el artículo 34 u otra disposición legal, el juez o tribunal deberá hacerlo saber a la cámara de apelaciones que corresponda o, en su caso, a la Corte Suprema de Justicia de la Nación, con anticipación de diez días al del vencimiento de aquél si se tratare de juicio ordinario, y de cinco días en los demás casos, expresando las razones que determinan la imposibilidad.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 167 CPCCN",
+      "rubrica": "DEMORA EN PRONUNCIAR LAS RESOLUCIONES",
+      "texto": "2) Si la sentencia definitiva no pudiere ser pronunciada dentro del plazo establecido en el artículo 34 u otra disposición legal, el juez o tribunal deberá hacerlo saber a la cámara de apelaciones que corresponda o, en su caso, a la Corte Suprema de Justicia de la Nación, con anticipación de diez días al del vencimiento de aquél si se tratare de juicio ordinario, y de cinco días en los demás casos, expresando las razones que determinan la imposibilidad.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 170 CPCCN",
+      "rubrica": "SUBSANACION",
+      "texto": "Se entenderá que media consentimiento tácito cuando no se promoviere incidente de nulidad dentro de los CINCO (5) días subsiguientes al conocimiento del acto.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 180 CPCCN",
+      "rubrica": "TRASLADO Y CONTESTACION",
+      "texto": "Si el juez resolviere admitir el incidente, dará traslado por CINCO (5) días a la otra parte, quien al contestarlo deberá ofrecer la prueba.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 180 CPCCN",
+      "rubrica": "TRASLADO Y CONTESTACION",
+      "texto": "El traslado se notificará personalmente o por cédula dentro de tercero día de dictada la providencia que lo ordenare.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 181 CPCCN",
+      "rubrica": "RECEPCION DE LA PRUEBA",
+      "texto": "Si hubiere de producirse prueba que requiriese audiencia, el juez la señalará para una fecha que no podrá exceder de DIEZ (10) días desde que se hubiere contestado el traslado o vencido el plazo para hacerlo; citará los testigos que las partes no puedan hacer comparecer por sí y adoptará las medidas necesarias para el diligenciamiento de la prueba que no pueda recibirse en dicha audiencia.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 182 CPCCN",
+      "rubrica": "PRORROGA O SUSPENSION DE LA AUDIENCIA",
+      "texto": "La audiencia podrá postergarse o suspenderse una sola vez por un plazo no mayor de DIEZ (10) días, cuando hubiere imposibilidad material de producir la prueba que deba recibirse en ella.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 198 CPCCN",
+      "rubrica": "CUMPLIMIENTO Y RECURSOS",
+      "texto": "Si el afectado no hubiese tomado conocimiento de las medidas con motivo de su ejecución, se le notificarán personalmente o por cédula dentro de los TRES (3) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 203 CPCCN",
+      "rubrica": "MODIFICACION",
+      "texto": "La resolución se dictará previo traslado a la otra parte por el plazo de CINCO (5) días, que el juez podrá abreviar según las circunstancias.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 207 CPCCN",
+      "rubrica": "CADUCIDAD",
+      "texto": "Se producirá la caducidad de pleno derecho de las medidas cautelares que se hubieren ordenado y hecho efectivas antes del proceso, dentro de los diez (10) días siguientes al de su traba, si tratándose de obligación exigible no se interpusiere la demanda o no se iniciare el procedimiento de mediación prejudicial obligatoria, según el caso, aunque la otra parte hubiese deducido recurso.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 20,
+      "unidad": "días",
+      "cita": "art. 207 CPCCN",
+      "rubrica": "CADUCIDAD",
+      "texto": "Cuando se hubiera iniciado el procedimiento de la mediación, el plazo se reiniciará una vez vencidos los veinte (20) días de la fecha en que el mediador expida el acta con su firma certificada por el Ministerio de Justicia, Seguridad y Derechos Humanos, con la constancia de que no se llegó a acuerdo alguno o que la mediación no pudo efectuarse por algunas de las causales autorizadas.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 225 CPCCN",
+      "rubrica": "DISPOSICIONES COMUNES A TODA CLASE DE INTERVENCION",
+      "texto": "5) Los gastos extraordinarios serán autorizados por el juez previo traslado a las partes, salvo cuando la demora pudiere ocasionar perjuicios; en este caso, el interventor deberá informar al juzgado dentro de tercero día de realizados.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 231 CPCCN",
+      "rubrica": "PROHIBICION DE CONTRATAR",
+      "texto": "La medida quedará sin efecto si quien la obtuvo no dedujere la demanda dentro del plazo de CINCO (5) días de haber sido dispuesta, y en cualquier momento en que se demuestre su improcedencia.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 30,
+      "unidad": "días",
+      "cita": "art. 237 CPCCN",
+      "rubrica": "MEDIDAS COMPLEMENTARIAS",
+      "texto": "Ordenará, asimismo, que se le provea de alimentos por el plazo de TREINTA (30) días, a cuyo vencimiento quedarán sin efecto si no se iniciare el juicio correspondiente.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 239 CPCCN",
+      "rubrica": "PLAZO Y FORMA",
+      "texto": "El recurso se interpondrá y fundará por escrito dentro de los TRES (3) días siguientes al de la notificación de la resolución; pero cuando ésta se dictare en una audiencia, deberá interponerse verbalmente en el mismo acto.",
+      "forma": "numeral",
+      "rotulo": "Revocatoria (reposición)",
+      "atajo": {
+        "orden": 4,
+        "rotulo": "Revocatoria y plazos del sumarísimo",
+        "detalle": "revocatoria o reposición (art. 239 CPCCN) y los plazos del juicio sumarísimo (art. 498, inc. 3 CPCCN), que excluye la contestación de la demanda y el memorial de apelación"
+      }
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 240 CPCCN",
+      "rubrica": "TRAMITE",
+      "texto": "El juez dictará resolución, previo traslado al solicitante de la providencia recurrida, quien deberá contestarlo dentro del plazo de TRES (3) días si el recurso se hubiese interpuesto por escrito, y en el mismo acto si lo hubiese sido en una audiencia.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 244 CPCCN",
+      "rubrica": "PLAZO",
+      "texto": "No habiendo disposiciones en contrario, el plazo para apelar será CINCO (5) días.",
+      "forma": "numeral",
+      "rotulo": "Apelación",
+      "atajo": {
+        "orden": 3,
+        "rotulo": "Apelación, traslados y vistas",
+        "detalle": "apelación (art. 244 CPCCN), traslados y vistas salvo disposición en contrario (art. 150 CPCCN) y excepciones en el juicio ejecutivo (art. 542 CPCCN). En el ordinario las excepciones van con la contestación de la demanda, o sea dentro de los quince del art. 338"
+      }
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 246 CPCCN",
+      "rubrica": "",
+      "texto": "Cuando procediere la apelación en relación sin efecto diferido, el apelante deberá fundar el recurso dentro de los CINCO (5) días de notificada la providencia que lo acuerde.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 246 CPCCN",
+      "rubrica": "",
+      "texto": "Si cualquiera de las partes pretendiese que el recurso ha debido otorgarse libremente, podrá solicitar, dentro de TRES (3) días, que el juez rectifique el error.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 249 CPCCN",
+      "rubrica": "CONSTITUCION DE DOMICILIO",
+      "texto": "Cuando el tribunal que haya de conocer del recurso tuviere su asiento en distinta localidad, y aquél procediere libremente, en el escrito o diligencia a que se refiere el artículo 245 el apelante, y el apelado dentro de quinto día de concedido el recurso, deberán constituir domicilio en dicha localidad.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 250 CPCCN",
+      "rubrica": "EFECTO DEVOLUTIVO",
+      "texto": "3) Se declarará desierto el recurso si dentro del quinto día de concedido, el apelante no presentare las copias que se indican en este artículo, y que estuvieren a su cargo.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 251 CPCCN",
+      "rubrica": "REMISION DEL EXPEDIENTE O ACTUACION",
+      "texto": "En los casos de los artículos 245 y 250, el expediente o las actuaciones se remitirán a la cámara dentro de quinto día de concedido el recurso o de formada la pieza separada, en su caso, mediante constancia y bajo la responsabilidad del oficial primero.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 257 CPCCN",
+      "rubrica": "FORMA, PLAZO Y TRAMITE",
+      "texto": "El recurso extraordinario deberá ser interpuesto por escrito, fundado con arreglo a lo establecido en el artículo 15 de la ley 48, ante el juez, tribunal u organismo administrativo que dictó la resolución que lo motiva, dentro del plazo de DIEZ (10) días contados a partir de la notificación.",
+      "forma": "numeral",
+      "rotulo": "Recurso extraordinario federal: interposición y traslado",
+      "atajo": {
+        "orden": 2,
+        "rotulo": "Traslado del recurso extraordinario",
+        "detalle": "traslado del recurso extraordinario federal (art. 257 CPCCN, párrafo segundo). El plazo para interponerlo también es de diez, por el primer párrafo"
+      }
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 257 CPCCN",
+      "rubrica": "FORMA, PLAZO Y TRAMITE",
+      "texto": "Si lo concediere, previa notificación personal o por cédula de su decisión, deberá remitir las actuaciones a la Corte Suprema dentro de CINCO (5) días contados desde la última notificación.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 257 ter CPCCN",
+      "rubrica": "FORMA, PLAZO, TRAMITE Y EFECTOS",
+      "texto": "El recurso extraordinario por salto de instancia deberá interponerse directamente ante la Corte Suprema mediante escrito fundado y autónomo, dentro de los diez (10) días de notificada la resolución impugnada.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 257 ter CPCCN",
+      "rubrica": "FORMA, PLAZO, TRAMITE Y EFECTOS",
+      "texto": "Del escrito presentado se dará traslado a las partes interesadas por el plazo de cinco (5) días notificándolas personalmente o por cédula.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 259 CPCCN",
+      "rubrica": "TRAMITE PREVIO. EXPRESION DE AGRAVIOS",
+      "texto": "El apelante deberá expresar agravios dentro del plazo de DIEZ (10) días o de CINCO (5) días, según se tratase de juicio ordinario o sumario.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 259 CPCCN",
+      "rubrica": "TRAMITE PREVIO. EXPRESION DE AGRAVIOS",
+      "texto": "El apelante deberá expresar agravios dentro del plazo de DIEZ (10) días o de CINCO (5) días, según se tratase de juicio ordinario o sumario.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 260 CPCCN",
+      "rubrica": "",
+      "texto": "Dentro de quinto día de notificada la providencia a que se refiere el artículo anterior y en un solo escrito, las partes deberán: 1) Fundar los recursos que se hubiesen concedido en efecto diferido.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 261 CPCCN",
+      "rubrica": "TRASLADO",
+      "texto": "De las presentaciones y peticiones a que se refieren los incisos 1, 3 y 5 a), del artículo anterior, se correrá traslado a la parte contraria, quien deberá contestarlo dentro de quinto día.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 6,
+      "unidad": "días",
+      "cita": "art. 262 CPCCN",
+      "rubrica": "PRUEBA Y ALEGATOS",
+      "texto": "El plazo para presentar el alegato será SEIS (6) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 264 CPCCN",
+      "rubrica": "INFORME 'IN VOCE'",
+      "texto": "Si se pretendiere producir prueba en segunda instancia, dentro de quinto día de notificada la providencia a que se refiere el artículo 259, las partes manifestarán si van a informar in voce.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 265 CPCCN",
+      "rubrica": "CONTENIDO DE LA EXPRESION DE AGRAVIOS. TRASLADO",
+      "texto": "De dicho escrito se dará traslado por DIEZ (10) o CINCO (5) días al apelado, según se trate de juicio ordinario o sumario.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 272 CPCCN",
+      "rubrica": "SENTENCIA",
+      "texto": "Podrá pedirse aclaratoria en el plazo de CINCO (5) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 276 CPCCN",
+      "rubrica": "EXAMEN DE LA FORMA DE CONCESION DEL RECURSO",
+      "texto": "Si la apelación se hubiese concedido libremente, debiendo serlo en relación, el tribunal de oficio o a petición de parte hecha dentro de tercero día, así lo declarará, mandando poner el expediente en secretaría para la presentación de memoriales en los términos del artículo 246.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 280 CPCCN",
+      "rubrica": "LLAMAMIENTO DE AUTOS Y MEMORIALES",
+      "texto": "El apelante deberá presentar memorial dentro del término de DIEZ (10) días, del que se dará traslado a la otra parte por el mismo plazo.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 282 CPCCN",
+      "rubrica": "DENEGACION DE LA APELACION",
+      "texto": "El plazo para interponer la queja será de CINCO (5) días, con la ampliación que corresponda por razón de la distancia, de acuerdo con lo dispuesto en el artículo 158.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 286 CPCCN",
+      "rubrica": "DEPOSITO",
+      "texto": "Si se omitiere el depósito o se lo efectuare en forma insuficiente, se hará saber al recurrente que deberá integrarlo en el término de CINCO (5) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 292 CPCCN",
+      "rubrica": "Plazo. Fundamentación",
+      "texto": "El recurso se interpondrá dentro de los diez (10) días de notificada la sentencia definitiva, ante la sala que la pronunció.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 295 CPCCN",
+      "rubrica": "Cuestiones a decidir",
+      "texto": "El presidente hará llegar en forma simultánea a cada uno de los integrantes del tribunal copias del memorial y de su contestación, si la hubiere, y un (1) pliego que contenga la o las cuestiones a decidir, requiriéndole para que dentro del plazo de diez (10) días exprese conformidad o, en su caso, formule objeciones respecto de la forma como han sido redactadas.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 40,
+      "unidad": "días",
+      "cita": "art. 297 CPCCN",
+      "rubrica": "Mayoría. Minoría",
+      "texto": "Fijadas definitivamente las cuestiones, el presidente convocará a un acuerdo, dentro del plazo de cuarenta (40) días, para determinar si existe unanimidad de opiniones o, en su caso, cómo quedarán constituidas la mayoría y la minoría.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 50,
+      "unidad": "días",
+      "cita": "art. 298 CPCCN",
+      "rubrica": "Voto conjunto. Ampliación de fundamentos",
+      "texto": "La mayoría y la minoría expresarán en voto conjunto e impersonal y dentro del plazo de cincuenta (50) días la respectiva fundamentación.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 298 CPCCN",
+      "rubrica": "Voto conjunto. Ampliación de fundamentos",
+      "texto": "Los jueces de cámara que estimaren pertinente ampliar los fundamentos, podrán hacerlo dentro del plazo común de diez (10) días, computados desde el vencimiento del plazo anterior.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 6,
+      "unidad": "meses",
+      "cita": "art. 310 CPCCN",
+      "rubrica": "PLAZOS",
+      "texto": "Se producirá la caducidad de instancia cuando no se instare su curso dentro de los siguientes plazos: 1) De seis meses, en primera o única instancia.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "meses",
+      "cita": "art. 310 CPCCN",
+      "rubrica": "PLAZOS",
+      "texto": "2) De tres meses, en segunda o tercera instancia y en cualquiera de las instancias en el juicio sumarísimo, en el juicio ejecutivo, en las ejecuciones especiales y en los incidentes.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 1,
+      "unidad": "meses",
+      "cita": "art. 310 CPCCN",
+      "rubrica": "PLAZOS",
+      "texto": "4) De un mes, en el incidente de caducidad de instancia.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 323 CPCCN",
+      "rubrica": "ENUMERACION. CADUCIDAD",
+      "texto": "8) Que si el eventual demandado tuviere que ausentarse del país, constituya domicilio dentro de los CINCO (5) días de notificado, bajo apercibimiento de lo dispuesto en el artículo 41.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 30,
+      "unidad": "días",
+      "cita": "art. 323 CPCCN",
+      "rubrica": "ENUMERACION. CADUCIDAD",
+      "texto": "Salvo en los casos de los incisos 9, 10 y 11, y del artículo 326, no podrán invocarse las diligencias decretadas a pedido de quien pretende demandar, si no se dedujere la demanda dentro de los TREINTA (30) días de su realización.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 334 CPCCN",
+      "rubrica": "HECHOS NO INVOCADOS EN LA DEMANDA O CONTRADEMANDA",
+      "texto": "Cuando en el responde de la demanda o de la reconvención se alegaren hechos no invocados en la demanda o contrademanda, los demandantes o reconvinientes según el caso podrán ofrecer prueba y agregar la documental referente a esos hechos, dentro de los 5 días de notificada la providencia respectiva.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 15,
+      "unidad": "días",
+      "cita": "art. 338 CPCCN",
+      "rubrica": "TRASLADO DE LA DEMANDA",
+      "texto": "Presentada la demanda en la forma prescripta, el juez dará traslado de ella al demandado para que comparezca y la conteste dentro de QUINCE (15) días.",
+      "forma": "numeral",
+      "rotulo": "Traslado de la demanda",
+      "atajo": {
+        "orden": 1,
+        "rotulo": "Traslado de la demanda",
+        "detalle": "traslado de la demanda en el juicio ordinario (art. 338 CPCCN). Contra el Estado nacional, una provincia o una municipalidad son sesenta, por el mismo artículo"
+      }
+    },
+    {
+      "cantidad": 60,
+      "unidad": "días",
+      "cita": "art. 338 CPCCN",
+      "rubrica": "TRASLADO DE LA DEMANDA",
+      "texto": "Cuando la parte demandada fuere la Nación, UNA (1) provincia o UNA (1) municipalidad, el plazo para comparecer y contestar la demanda será de SESENTA (60) días.",
+      "forma": "numeral",
+      "rotulo": "Traslado de la demanda contra el Estado nacional, una provincia o un municipio"
+    },
+    {
+      "cantidad": 15,
+      "unidad": "días",
+      "cita": "art. 342 CPCCN",
+      "rubrica": "AMPLIACION Y FIJACION DE PLAZO",
+      "texto": "En los casos del artículo 340, el plazo de QUINCE (15) días se ampliará en la forma prescripta en el artículo 158.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 2,
+      "unidad": "días",
+      "cita": "art. 343 CPCCN",
+      "rubrica": "DEMANDADO INCIERTO O CON DOMICILIO O RESIDENCIA IGNORADOS",
+      "texto": "La citación a personas inciertas o cuyo domicilio o residencia se ignorare se hará por edictos publicados por dos días en la forma prescrita por los artículos 145, 146, 147 y 148.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 351 CPCCN",
+      "rubrica": "AUDIENCIA DE PRUEBA",
+      "texto": "Vencido el plazo con o sin respuesta, el juez designará audiencia dentro de DIEZ (10) días para recibir la prueba ofrecida, si lo estimare necesario.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 358 CPCCN",
+      "rubrica": "TRASLADO DE LA RECONVENCION Y DE LOS DOCUMENTOS",
+      "texto": "Propuesta la reconvención, o presentándose documentos por el demandado, se dará traslado al actor quien deberá responder dentro de QUINCE (15) o CINCO (5) días respectivamente, observando las normas establecidas para la contestación de la demanda.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 30,
+      "unidad": "días",
+      "cita": "art. 360 CPCCN",
+      "rubrica": "AUDIENCIA PRELIMINAR",
+      "texto": "En este supuesto, se suspenderá el procedimiento por treinta (30) días contados a partir de la notificación del mediador a impulso de cualquiera de las partes.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 365 CPCCN",
+      "rubrica": "HECHOS NUEVOS",
+      "texto": "Cuando con posterioridad a la contestación de la demanda o reconvención, ocurriese o llegase a conocimiento de las partes algún hecho que tuviese relación con la cuestión que se ventila, podrán alegarlo hasta cinco días después de notificada la audiencia prevista en el artículo 360 del presente Código, acompañando la prueba documental y ofreciendo las demás de las que intenten valerse.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 40,
+      "unidad": "días",
+      "cita": "art. 367 CPCCN",
+      "rubrica": "PLAZO DE PRODUCCION DE PRUEBA",
+      "texto": "El plazo de producción de prueba será fijado por el juez, y no excederá de cuarenta días.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 383 CPCCN",
+      "rubrica": "PLAZO PARA EL LIBRAMIENTO Y DILIGENCIAMIENTO DE OFICIOS Y EXHORTOS",
+      "texto": "En el supuesto de que el requerimiento consistiese en la designación de audiencias o cualquier otra diligencia respecto de la cual se posibilita el contralor de la otra parte, la fecha designada deberá ser informada en el plazo de CINCO (5) días contados desde la notificación, por ministerio de la ley, de la providencia que la fijó.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 395 CPCCN",
+      "rubrica": "REDARGUCION DE FALSEDAD",
+      "texto": "La redargución de falsedad de un instrumento público tramitará por incidente que deberá promoverse dentro del plazo de DIEZ (10) días de realizada la impugnación, bajo apercibimiento de tenerla por desistida.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 397 CPCCN",
+      "rubrica": "SUSTITUCION O AMPLIACION DE OTROS MEDIOS PROBATORIOS",
+      "texto": "Cuando el requerimiento fuere procedente, el informe o remisión del expediente sólo podrá ser negado si existiere justa causa de reserva o de secreto, circunstancia que deberá ponerse en conocimiento del juzgado dentro de quinto día de recibido el oficio.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 398 CPCCN",
+      "rubrica": "RECAUDOS. PLAZOS PARA LA CONTESTACION",
+      "texto": "Las oficinas públicas y las entidades privadas deberán contestar el pedido de informes o remitir el expediente dentro de los diez días hábiles, salvo que la providencia que lo haya ordenado hubiere fijado otro plazo en razón de la naturaleza del juicio o de circunstancias especiales.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 402 CPCCN",
+      "rubrica": "CADUCIDAD",
+      "texto": "Si vencido el plazo fijado para contestar el informe, la oficina pública o entidad privada no lo hubiere remitido, se tendrá por desistida de esa prueba a la parte que la pidió, sin sustanciación alguna, si dentro de quinto día no solicitare al juez la reiteración del oficio.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 403 CPCCN",
+      "rubrica": "IMPUGNACION POR FALSEDAD",
+      "texto": "La impugnación sólo podrá ser formulada dentro de quinto día de notificada por ministerio de la ley la providencia que ordena la agregación del informe.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 406 CPCCN",
+      "rubrica": "ELECCION DEL ABSOLVENTE",
+      "texto": "La persona jurídica, sociedad o entidad colectiva podrá oponerse, dentro de quinto día de notificada la audiencia, a que absuelva posiciones el representante elegido por el ponente, siempre que: 1) Alegare que aquél no intervino personalmente o no tuvo conocimiento directo de los hechos.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 409 CPCCN",
+      "rubrica": "FORMA DE LA CITACION",
+      "texto": "La cédula deberá diligenciarse con TRES (3) días de anticipación por lo menos.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 1,
+      "unidad": "días",
+      "cita": "art. 409 CPCCN",
+      "rubrica": "FORMA DE LA CITACION",
+      "texto": "En casos de urgencia debidamente justificada ese plazo podrá ser reducido por el juez, mediante resolución que en su parte pertinente se transcribirá en la cédula; en este supuesto la anticipación en su diligenciamiento no podrá ser inferior a UN(1) día.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 432 CPCCN",
+      "rubrica": "CADUCIDAD DE LA PRUEBA",
+      "texto": "3) Fracasada la segunda audiencia por motivos no imputables a la parte, ésta no solicitare nueva audiencia dentro de quinto día.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 433 CPCCN",
+      "rubrica": "FORMA DE LA CITACION",
+      "texto": "Esta deberá diligenciarse con TRES (3) días de anticipación por lo menos, y en ella se transcribirá la parte del artículo 431 que se refiere a la obligación de comparecer y a su sanción.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 436 CPCCN",
+      "rubrica": "TESTIGO IMPOSIBILITADO DE COMPARECER",
+      "texto": "000) y, ante el informe del secretario, se fijará audiencia de inmediato, que deberá realizarse dentro de quinto día, notificándose a las partes con habilitación de días y horas y disponiendo la comparecencia del testigo por medio de la fuerza pública.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 454 CPCCN",
+      "rubrica": "DEPOSITO Y EXAMEN DE LOS INTERROGATORIOS",
+      "texto": "En el caso del artículo anterior el interrogatorio quedará a disposición de la parte contraria, la que podrá, dentro de quinto día, proponer preguntas.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 455 CPCCN",
+      "rubrica": "EXCEPCIONES A LA OBLIGACION DE COMPARECER",
+      "texto": "Dichos testigos declararán por escrito, con la manifestación de que lo hacen bajo juramento o promesa de decir verdad, dentro del plazo que fije el juzgado, debiendo entenderse que no excederá de DIEZ (10) días si no se lo hubiese indicado especialmente.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 15,
+      "unidad": "días",
+      "cita": "art. 460 CPCCN",
+      "rubrica": "DETERMINACION DE LOS PUNTOS DE PERICIA. PLAZO",
+      "texto": "Si la resolución no fijase dicho plazo se entenderá que es de quince días.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 463 CPCCN",
+      "rubrica": "ANTICIPO DE GASTOS",
+      "texto": "Si el perito lo solicitare dentro de tercero día de haber aceptado el cargo, y si correspondiere por la índole de la pericia, la o las partes que han ofrecido la prueba deberán depositar la suma que el juzgado fije para gastos de las diligencias.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 465 CPCCN",
+      "rubrica": "RECUSACION",
+      "texto": "El perito podrá ser recusado por justa causa, dentro del quinto día de la audiencia preliminar.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 467 CPCCN",
+      "rubrica": "TRAMITE. RESOLUCION",
+      "texto": "Deducida la recusación se hará saber al perito para que en el acto de la notificación o dentro de tercero día manifieste si es o no cierta la causal.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 469 CPCCN",
+      "rubrica": "ACEPTACION DEL CARGO",
+      "texto": "El perito aceptará el cargo ante el oficial primero, dentro de tercero día de notificado de su designación; en el caso de no tener título habilitante, bajo juramento o promesa de desempeñar fielmente el cargo.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 473 CPCCN",
+      "rubrica": "TRASLADO. EXPLICACIONES. NUEVA PERICIA",
+      "texto": "Si las explicaciones debieran presentarse por escrito, las observaciones a las dadas por el perito podrán ser formuladas por los consultores técnicos o, en su defecto, por las partes dentro de quinto día de notificadas por ministerio de la ley.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 1,
+      "unidad": "días",
+      "cita": "art. 479 CPCCN",
+      "rubrica": "MEDIDAS ADMISIBLES",
+      "texto": "Si hubiere urgencia, la notificación se hará de oficio y con UN (1) día de anticipación.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 6,
+      "unidad": "días",
+      "cita": "art. 482 CPCCN",
+      "rubrica": "AGREGACION DE LAS PRUEBAS. ALEGATOS",
+      "texto": "Cumplido este trámite el prosecretario administrativo pondrá los autos en secretaría para alegar; esta providencia se notificará por cédula y una vez firme se entregará el expediente a los letrados por su orden y por el plazo de seis días a cada uno, sin necesidad de petición escrita y bajo su responsabilidad para que presenten, si lo creyesen conveniente el escrito alegando sobre el mérito de la prueba.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 485 CPCCN",
+      "rubrica": "NOTIFICACION DE LA SENTENCIA",
+      "texto": "La sentencia será notificada de oficio, dentro de tercero día.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 498 CPCCN",
+      "rubrica": "TRAMITE",
+      "texto": "3) Todos los plazos serán de tres días, con excepción del de contestación de demanda, y el otorgado para fundar la apelación y contestar el traslado memorial, que será de cinco días.",
+      "forma": "letras",
+      "rotulo": "Plazos del juicio sumarísimo",
+      "_ojo": "El propio inciso excluye la contestación de la demanda y el memorial de apelación: no todo plazo del sumarísimo es de tres días."
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 498 CPCCN",
+      "rubrica": "TRAMITE",
+      "texto": "3) Todos los plazos serán de tres días, con excepción del de contestación de demanda, y el otorgado para fundar la apelación y contestar el traslado memorial, que será de cinco días.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 498 CPCCN",
+      "rubrica": "TRAMITE",
+      "texto": "La audiencia prevista en el artículo 360 deberá ser señalada dentro de los diez días de contestada la demanda o de vencido el plazo para hacerlo.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 503 CPCCN",
+      "rubrica": "LIQUIDACION",
+      "texto": "Cuando la sentencia condenare al pago de cantidad ilíquida y el vencedor no hubiese presentado la liquidación, dentro de DIEZ (10) días contados desde que aquélla fuere ejecutable, podrá hacerlo el vencido.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 503 CPCCN",
+      "rubrica": "LIQUIDACION",
+      "texto": "Presentada la liquidación se dará traslado a la otra parte por CINCO (5) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 505 CPCCN",
+      "rubrica": "CITACION DE VENTA",
+      "texto": "Las excepciones deberá oponerlas y probarlas dentro de quinto día.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 508 CPCCN",
+      "rubrica": "RESOLUCION",
+      "texto": "Vencido los CINCO (5) días sin que se dedujere oposición, se mandará continuar la ejecución sin recurso alguno.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 15,
+      "unidad": "días",
+      "cita": "art. 529 CPCCN",
+      "rubrica": "CADUCIDAD DE LAS MEDIDAS PREPARATORIAS",
+      "texto": "Se producirá la caducidad de las medidas preparatorias del juicio ejecutivo, sin necesidad de declaración judicial, si no se dedujere la demanda dentro de los QUINCE (15) días de su realización.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 1,
+      "unidad": "días",
+      "cita": "art. 531 CPCCN",
+      "rubrica": "INTIMACION DE PAGO Y PROCEDIMIENTO PARA EL EMBARGO",
+      "texto": "El dinero deberá ser depositado dentro del primer día hábil siguiente en el banco de depósitos judiciales.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 531 CPCCN",
+      "rubrica": "INTIMACION DE PAGO Y PROCEDIMIENTO PARA EL EMBARGO",
+      "texto": "En este caso, se le hará saber dentro de los TRES (3) días siguientes al de la traba.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 48,
+      "unidad": "horas",
+      "cita": "art. 538 CPCCN",
+      "rubrica": "EMBARGO DE INMUEBLES O MUEBLES REGISTRABLES",
+      "texto": "Los oficios o exhortos serán librados dentro de las CUARENTA Y OCHO (48) horas de la providencia que ordenare el embargo.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 541 CPCCN",
+      "rubrica": "AMPLIACION POSTERIOR A LA SENTENCIA",
+      "texto": "Si durante el juicio, pero con posterioridad a la sentencia, vencieren nuevos plazos o cuotas de la obligación en cuya virtud se procede, la ejecución podrá ser ampliada pidiéndose que el deudor exhiba dentro de quinto día los recibos correspondientes o documentos que acrediten la extinción de la obligación, bajo apercibimiento de hacerse extensiva la sentencia a los nuevos plazos y cuotas vencidos.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 542 CPCCN",
+      "rubrica": "INTIMACION DE PAGO. OPOSICION DE EXCEPCIONES",
+      "texto": "Las excepciones se propondrán, dentro de CINCO (5) días, en UN (1) solo escrito, conjuntamente con el ofrecimiento de prueba.",
+      "forma": "numeral",
+      "rotulo": "Excepciones en el juicio ejecutivo",
+      "_ojo": "En el ordinario las excepciones no tienen plazo propio: van en el mismo escrito de contestación de la demanda (art. 346), o sea dentro de los quince del art. 338. Los cinco días son del ejecutivo."
+    },
+    {
+      "cantidad": 15,
+      "unidad": "días",
+      "cita": "art. 546 CPCCN",
+      "rubrica": "SUBSISTENCIA DEL EMBARGO",
+      "texto": "Si se anulare el procedimiento ejecutivo o se declarare la incompetencia, el embargo trabado se mantendrá, con carácter preventivo, durante QUINCE (15) días contados desde que la resolución quedó firme.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 547 CPCCN",
+      "rubrica": "TRAMITE",
+      "texto": "Si se hallaren cumplidos los requisitos pertinentes, dará traslado de las excepciones al ejecutante por CINCO (5) días quien al contestarlo ofrecerá la prueba de que intente valerse.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 548 CPCCN",
+      "rubrica": "EXCEPCIONES DE PURO DERECHO. FALTA DE PRUEBA",
+      "texto": "Si las excepciones fueren de puro derecho o se fundasen exclusivamente en constancias del expediente, o no se hubiere ofrecido prueba, el juez pronunciará sentencia dentro de DIEZ (10) días de contestado el traslado; si no se lo hubiere contestado, el plazo se contará desde que se hubiere requerido la resolución.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 550 CPCCN",
+      "rubrica": "SENTENCIA",
+      "texto": "Producida la prueba se declarará clausurado el período correspondiente; el juez pronunciará sentencia dentro de los DIEZ (10) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 555 CPCCN",
+      "rubrica": "EFECTO. FIANZA",
+      "texto": "Si no se prestase dentro de los CINCO (5) días de haber sido concedido el recurso, se elevará el expediente a la cámara.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 15,
+      "unidad": "días",
+      "cita": "art. 556 CPCCN",
+      "rubrica": "FIANZA REQUERIDA POR EL EJECUTADO",
+      "texto": "Quedará cancelada: 1) Si el ejecutado no promoviere el juicio dentro de los QUINCE (15) días de haber sido otorgada.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 563 CPCCN",
+      "rubrica": "MARTILLERO. DESIGNACION. CARACTER DE SU ACTUACION. REMOCION",
+      "texto": "De dicha lista se sorteará el o los profesionales a designar, quienes deberán aceptar el cargo dentro de tercero día de notificados.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 563 CPCCN",
+      "rubrica": "MARTILLERO. DESIGNACION. CARACTER DE SU ACTUACION. REMOCION",
+      "texto": "No podrá ser recusado; sin embargo, cuando circunstancias graves lo aconsejaren, el juez, dentro de quinto día de hecho el nombramiento, podrá dejarlo sin efecto.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 564 CPCCN",
+      "rubrica": "DEPOSITO DE LOS IMPORTES PERCIBIDOS POR EL MARTILLERO. RENDICION DE CUENTAS",
+      "texto": "El martillero deberá depositar las sumas recibidas y rendir cuentas del remate al juzgado, dentro de los TRES (3) días de realizado.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 565 CPCCN",
+      "rubrica": "COMISION. ANTICIPO DE FONDOS",
+      "texto": "Si el remate se anulare por culpa del martillero, éste deberá reintegrar el importe de la comisión que percibió, dentro de tercero día de notificado por cédula de la resolución que decreta la nulidad.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 2,
+      "unidad": "días",
+      "cita": "art. 566 CPCCN",
+      "rubrica": "EDICTOS",
+      "texto": "El remate se anunciará por edictos, que se publicarán por DOS (2) días en el Boletín Oficial y en otro diario, en la forma indicada en los artículos 145, 146 y 147.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 1,
+      "unidad": "días",
+      "cita": "art. 566 CPCCN",
+      "rubrica": "EDICTOS",
+      "texto": "Si se tratare de bienes de escaso valor, sólo se publicarán en el Boletín Oficial, por UN (1) día y podrá prescindirse de la Publicación si el costo de la misma no guardare relación con el valor de los bienes.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 48,
+      "unidad": "horas",
+      "cita": "art. 566 CPCCN",
+      "rubrica": "EDICTOS",
+      "texto": "En todos los casos, la última publicación deberá realizarse cuando menos CUARENTA Y OCHO (48) horas antes del remate.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 566 CPCCN",
+      "rubrica": "EDICTOS",
+      "texto": "No podrán denunciarse defectos de publicidad de la subasta vencidos CINCO (5) días contados desde la última publicación.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 571 CPCCN",
+      "rubrica": "COMPRA EN COMISION",
+      "texto": "El comprador deberá indicar, dentro de tercero día de realizada la subasta, el nombre de su comitente, en escrito firmado por ambos.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 573 CPCCN",
+      "rubrica": "SUBASTA DE MUEBLES O SEMOVIENTES",
+      "texto": "2) En la resolución que dispone la venta se requerirá al deudor para que, dentro del plazo de CINCO (5) días, manifieste si los bienes están prendados o embargados.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 573 CPCCN",
+      "rubrica": "SUBASTA DE MUEBLES O SEMOVIENTES",
+      "texto": "5) La providencia que decrete la venta será comunicada a los jueces embargantes; se notificará por cédula a los acreedores prendarios, quienes podrán formular las peticiones que estimaren pertinentes, dentro de tercero día de notificados.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 575 CPCCN",
+      "rubrica": "EMBARGOS DECRETADOS POR OTROS JUZGADOS. ACREEDORES HIPOTECARIOS",
+      "texto": "Se citará a los acreedores hipotecarios para que dentro de tercero día presenten sus títulos.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 60,
+      "unidad": "días",
+      "cita": "art. 576 CPCCN",
+      "rubrica": "RECAUDOS",
+      "texto": "Los informes tendrán una vigencia de SESENTA (60) días, a cuyo vencimiento deberán ser actualizados.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 576 CPCCN",
+      "rubrica": "RECAUDOS",
+      "texto": "Asimismo, intimará al deudor para que dentro de tercero día presente el título de propiedad del inmueble, bajo apercibimiento de obtener testimonio a su costa.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 578 CPCCN",
+      "rubrica": "BASE. TASACION",
+      "texto": "De la tasación se dará traslado a las partes, quienes dentro de CINCO (5) días comunes expresarán su conformidad o disconformidad.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 580 CPCCN",
+      "rubrica": "PAGO DEL PRECIO. SUSPENSION DEL PLAZO",
+      "texto": "Dentro de los CINCO (5) días de aprobado el remate, el comprador deberá depositar el importe del precio que corresponda al contado, en el banco de depósitos judiciales; si no lo hiciere en esa oportunidad y no invocare motivos fundados para obtener la suspensión del plazo, se ordenará nueva subasta en los términos del artículo 584.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 591 CPCCN",
+      "rubrica": "LIQUIDACION. PAGO. FIANZA",
+      "texto": "Dentro de los CINCO (5) días contados desde que se pagó el precio o desde la aprobación del remate, en su caso, el ejecutante presentará la liquidación del capital, intereses y costas; de ella se dará traslado al ejecutado.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 15,
+      "unidad": "días",
+      "cita": "art. 591 CPCCN",
+      "rubrica": "LIQUIDACION. PAGO. FIANZA",
+      "texto": "Dicha fianza quedará cancelada, sin que se requiera declaración expresa, si el deudor no promoviere el proceso ordinario dentro del plazo de QUINCE (15) días desde que aquélla se constituyó.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 592 CPCCN",
+      "rubrica": "NULIDAD DE LA SUBASTA A PEDIDO DE PARTE",
+      "texto": "La nulidad del remate, a pedido de parte, sólo podrá plantearse hasta dentro de quinto día de realizado.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 598 CPCCN",
+      "rubrica": "INFORME SOBRE CONDICIONES DEL INMUEBLE HIPOTECADO",
+      "texto": "Si de esa diligencia resulta que el inmueble se encuentra ocupado, en el mismo acto se intimará a su desocupación en el plazo de diez (10) días, bajo apercibimiento de lanzamiento por la fuerza pública.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 598 CPCCN",
+      "rubrica": "INFORME SOBRE CONDICIONES DEL INMUEBLE HIPOTECADO",
+      "texto": "El pago se podrá realizar directamente al acreedor, quien deberá depositar el remanente dentro del quinto día de verificado el cobro.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 599 CPCCN",
+      "rubrica": "TERCER POSEEDOR",
+      "texto": "Si del informe o de la denuncia a que se refiere el artículo anterior, resultare que el deudor transfirió el inmueble hipotecado, dictada la sentencia de remate contra aquél, se intimará al tercer poseedor para que dentro del plazo de CINCO (5) días pague la deuda o haga abandono del inmueble, bajo apercibimiento de que la ejecución se seguirá también contra él.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 48,
+      "unidad": "horas",
+      "cita": "art. 625 CPCCN",
+      "rubrica": "MEDICOS FORENSES",
+      "texto": "Cuando no fuere posible acompañar dichos certificados, el juez requerirá la opinión de DOS (2) médicos forenses, quienes deberán expedirse dentro de CUARENTA Y OCHO (48) horas.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 30,
+      "unidad": "días",
+      "cita": "art. 626 CPCCN",
+      "rubrica": "RESOLUCION",
+      "texto": "2) La fijación de un plazo no mayor de TREINTA (30) días, dentro del cual deberán producirse todas las pruebas.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 632 CPCCN",
+      "rubrica": "TRASLADO DE LAS ACTUACIONES",
+      "texto": "Producido el informe de los facultativos y demás pruebas, se dará traslado por CINCO (5) días al denunciante, al presunto insano y al curador provisional y, con su resultado, se dará vista al asesor de menores e incapaces.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 15,
+      "unidad": "días",
+      "cita": "art. 633 CPCCN",
+      "rubrica": "SENTENCIA. SUPUESTO DE INHABILITACION. RECURSOS. CONSULTA",
+      "texto": "La sentencia se dictará en el plazo de QUINCE (15) días a partir de la contestación de la vista conferida al asesor de menores e incapaces o, en su caso, del acto a que se refiere el párrafo anterior.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 633 CPCCN",
+      "rubrica": "SENTENCIA. SUPUESTO DE INHABILITACION. RECURSOS. CONSULTA",
+      "texto": "La sentencia será apelable dentro de quinto día por el denunciante, el presunto demente o inhabilitado, el curador provisional y el asesor de menores.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 639 CPCCN",
+      "rubrica": "AUDIENCIA PRELIMINAR",
+      "texto": "El juez, sin perjuicio de ordenar inmediatamente las medidas probatorias que fueren solicitadas, señalará una audiencia que tendrá lugar dentro de un plazo que no podrá exceder de DIEZ (10) días, contado desde la fecha de la presentación.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 640 CPCCN",
+      "rubrica": "INCOMPARECENCIA INJUSTIFICADA DEL ALIMENTANTE. EFECTOS",
+      "texto": "000) y cuyo importe deberá depositarse dentro de tercero día contado desde la fecha en que se notificó la providencia que la impuso.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 640 CPCCN",
+      "rubrica": "INCOMPARECENCIA INJUSTIFICADA DEL ALIMENTANTE. EFECTOS",
+      "texto": "2) La fijación de una nueva audiencia que tendrá lugar dentro de quinto día, la que se notificará con habilitación de día y hora, bajo apercibimiento de establecer la cuota alimentaria de acuerdo con las pretensiones de la parte actora y lo que resulte del expediente.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 644 CPCCN",
+      "rubrica": "SENTENCIA",
+      "texto": "Cuando en la oportunidad prevista en el artículo 639 no se hubiere llegado a un acuerdo, el juez, sin necesidad de petición de parte, deberá dictar sentencia dentro de cinco (5) días, contados desde que se hubiese producido la prueba ofrecida por la parte actora.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 648 CPCCN",
+      "rubrica": "CUMPLIMIENTO DE LA SENTENCIA",
+      "texto": "Si dentro de quinto día de intimado el pago, la parte vencida no lo hubiere hecho efectivo, sin otra sustanciación se procederá al embargo y se decretará la venta de los bienes necesarios para cubrir el importe de la deuda.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 661 CPCCN",
+      "rubrica": "NOMBRAMIENTO DEL PERITO. EDICTOS",
+      "texto": "2) Ordenar se publiquen edictos por TRES (3) días, citando a quienes tuvieren interés en la mensura.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 30,
+      "unidad": "días",
+      "cita": "art. 670 CPCCN",
+      "rubrica": "DICTAMEN TECNICO ADMINISTRATIVO",
+      "texto": "Dentro de los TREINTA (30) días contados desde la recepción del acta y diligencia de mensura o, en su caso, del expediente requerido al juez, remitirá a éste UNO (1) de los ejemplares del acta, el plano y UN (1) informe acerca del valor técnico de la operación efectuada.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 674 CPCCN",
+      "rubrica": "DESLINDE JUDICIAL",
+      "texto": "Presentada la mensura, se dará traslado a las partes por DIEZ (10) días, y si expresaren su conformidad, el juez la aprobará juez, previo traslado y producción de prueba por los plazos que fijare, dictará sentencia.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 680 ter CPCCN",
+      "rubrica": "RECONOCIMIENTO JUDICIAL",
+      "texto": "Cuando el desalojo se fundare en las causales de cambio de destino, deterioro del inmueble, obras nocivas o uso abusivo o deshonesto, el juez deberá realizar antes del traslado de la demanda un reconocimiento judicial dentro de los cinco días de dictada la primera providencia, con asistencia del Defensor Oficial.",
+      "forma": "letras"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 686 CPCCN",
+      "rubrica": "LANZAMIENTO",
+      "texto": "El lanzamiento se ordenará: 1) Tratándose de quienes entraron en la tenencia u ocupación del inmueble con título legítimo, a los DIEZ (10) días de la notificación de la sentencia si la condena de desalojo se fundare en vencimiento del plazo, falta de pago de los alquileres o resolución del contrato por uso abusivo u otra causa imputable al locatario; en los casos de condena de futuro, a los DIEZ (10) días del vencimiento del plazo.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 90,
+      "unidad": "días",
+      "cita": "art. 686 CPCCN",
+      "rubrica": "LANZAMIENTO",
+      "texto": "En los demás supuestos, a los NOVENTA (90) días de la notificación de la sentencia, a menos que una ley especial estableciera plazos diferentes.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 686 CPCCN",
+      "rubrica": "LANZAMIENTO",
+      "texto": "2) Respecto de quienes no tuvieron título legítimo para la ocupación del inmueble, el plazo será de CINCO (5) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 690 CPCCN",
+      "rubrica": "MEDIDAS PRELIMINARES Y DE SEGURIDAD",
+      "texto": "Dentro de tercero día de iniciado el procedimiento, el presentante deberá comunicarlo al Registro de Juicios Universales, en la forma y con los recaudos que establece la reglamentación respectiva.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 4,
+      "unidad": "meses",
+      "cita": "art. 694 CPCCN",
+      "rubrica": "INTERVENCION DE LOS ACREEDORES",
+      "texto": "Sin perjuicio de lo dispuesto en el artículo 3314 del Código Civil, los acreedores sólo podrán iniciar el proceso sucesorio después de transcurridos CUATRO (4) meses desde el fallecimiento del causante.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 30,
+      "unidad": "días",
+      "cita": "art. 699 CPCCN",
+      "rubrica": "PROVIDENCIA DE APERTURA Y CITACION A LOS INTERESADOS",
+      "texto": "Cuando el causante no hubiere testado o el testamento no contuviere institución de heredero, en la providencia de apertura del proceso sucesorio, el juez dispondrá la citación de todos los que se consideraren con derecho a los bienes dejados por el causante, para que dentro del plazo de TREINTA (30) días lo acrediten.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 699 CPCCN",
+      "rubrica": "PROVIDENCIA DE APERTURA Y CITACION A LOS INTERESADOS",
+      "texto": "2) La publicación de edictos por TRES (3) días en el Boletín Oficial y en otro diario del lugar del juicio, salvo que el monto del haber hereditario no excediere, prima facie, de la cantidad máxima que correspondiere para la inscripción del bien de familia, en cuyo caso sólo se publicarán en el Boletín Oficial.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 30,
+      "unidad": "días",
+      "cita": "art. 707 CPCCN",
+      "rubrica": "CITACION",
+      "texto": "Presentado el testamento, o protocolizado en su caso, el juez dispondrá la notificación personal de los herederos instituidos, de los demás beneficiarios y del albacea, para que se presenten dentro de TREINTA (30) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 713 CPCCN",
+      "rubrica": "RENDICION DE CUENTAS",
+      "texto": "Tanto las rendiciones de cuentas parciales como la final se pondrán en secretaría a disposición de los interesados durante CINCO (5) y DIEZ (10) días, respectivamente, notificándoseles cédula.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 6,
+      "unidad": "meses",
+      "cita": "art. 715 CPCCN",
+      "rubrica": "HONORARIOS",
+      "texto": "Cuando ésta excediere de SEIS (6) meses, el administrador podrá ser autorizado a percibir periódicamente sumas, con carácter de anticipos provisionales, las que deberán guardar proporción con el monto aproximado del honorario total.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 724 CPCCN",
+      "rubrica": "IMPUGNACION AL INVENTARIO O AL AVALUO",
+      "texto": "Agregados al proceso el inventario y el avalúo, se los pondrá de manifiesto en la secretaría por CINCO (5) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 731 CPCCN",
+      "rubrica": "PRESTACION DE LA CUENTA PARTICIONARIA",
+      "texto": "Presentada la partición, el juez la pondrá de manifiesto en la secretaría por DIEZ (10) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 732 CPCCN",
+      "rubrica": "TRAMITE DE OPOSICION",
+      "texto": "Si los interesados no pudieren ponerse de acuerdo, el juez resolverá dentro de los DIEZ (10) días de celebrada la audiencia.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 742 CPCCN",
+      "rubrica": "DEMANDA",
+      "texto": "Presentada la demanda con los requisitos del artículo 330, en lo pertinente, ante el juez que hubiese sido competente para conocer en la causa, se conferirá traslado al demandado por DIEZ (10) días y se designará audiencia para que las partes concurran a formalizar el compromiso.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 747 CPCCN",
+      "rubrica": "TRAMITE DE RECUSACION",
+      "texto": "La recusación deberá deducirse ante los mismos árbitros, dentro de los CINCO (5) días de conocido el nombramiento.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "meses",
+      "cita": "art. 748 CPCCN",
+      "rubrica": "EXTINCION DEL COMPROMISO",
+      "texto": "3) Si durante TRES (3) meses las partes o los árbitros no hubiesen realizado ningún acto tendiente a impulsar el procedimiento.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 30,
+      "unidad": "días",
+      "cita": "art. 755 CPCCN",
+      "rubrica": "PLAZO",
+      "texto": "Si UNA (1) de las partes falleciere, se considerará prorrogado por TREINTA (30) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 759 CPCCN",
+      "rubrica": "INTERPOSICION",
+      "texto": "Los recursos deberán deducirse ante el tribunal arbitral, dentro de los CINCO (5) días, por escrito fundado.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "meses",
+      "cita": "art. 770 CPCCN",
+      "rubrica": "PLAZO",
+      "texto": "Si las partes no hubiesen fijado plazo, los amigables componedores deberán pronunciar el laudo dentro de los TRES (3) meses de la última aceptación.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 771 CPCCN",
+      "rubrica": "NULIDAD",
+      "texto": "El laudo de los amigables componedores no será recurrible, pero si se hubiese pronunciado fuera del plazo o sobre puntos no comprometidos, las partes podrán demandar su nulidad dentro de CINCO (5) días de notificado.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 1,
+      "unidad": "meses",
+      "cita": "art. 773 CPCCN",
+      "rubrica": "REGIMEN",
+      "texto": "Si no hubiere plazo fijado, deberán pronunciarse dentro de UN (1) mes a partir de la última aceptación.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 5,
+      "unidad": "días",
+      "cita": "art. 775 CPCCN",
+      "rubrica": "APELACION",
+      "texto": "La resolución será apelable dentro de quinto día.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 10,
+      "unidad": "días",
+      "cita": "art. 775 CPCCN",
+      "rubrica": "APELACION",
+      "texto": "El tribunal de alzada deberá pronunciarse, sin sustanciación alguna, en el plazo de DIEZ (10) días.",
+      "forma": "numeral"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 780 CPCCN",
+      "rubrica": "TRAMITE",
+      "texto": "Cuando la persona interesada, o el ministerio pupilar a su instancia, solicitare autorización para comparecer en juicio y ejercer actos jurídicos, se citará inmediatamente a aquélla, a quien deba otorgarla y al representante del ministerio pupilar, a una audiencia que tendrá lugar dentro de tercero día y en la que se recibirá toda la prueba.",
+      "forma": "ordinal"
+    },
+    {
+      "cantidad": 3,
+      "unidad": "días",
+      "cita": "art. 783 CPCCN",
+      "rubrica": "ADQUISICION DE MERCADERIAS POR CUENTA DEL VENDEDOR",
+      "texto": "Cuando la ley faculta al comprador para adquirir mercaderías por cuenta del vendedor, la autorización se concederá con citación de éste, quien podrá alegar sus defensas dentro de TRES (3) días.",
+      "forma": "numeral"
+    }
+  ]
+}

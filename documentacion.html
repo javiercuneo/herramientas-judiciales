@@ -547,16 +547,31 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
   <p>
     Se elige la modalidad de notificación —cédula, ministerio de la ley, etc.—,
     la fecha y la cantidad de días. A partir de ahí aplica el calendario
-    judicial descrito <a href="#dias">más abajo</a> y muestra el listado de días
-    excluidos, para que el cómputo se pueda auditar y no haya que creerle.
+    judicial descrito <a href="#dias">más abajo</a> y dibuja el plazo entero
+    sobre el calendario: qué día se contó, cuál se salteó y por qué. El cómputo
+    se puede auditar y no hay que creerle.
+  </p>
+  <p>
+    Arriba de todo dice qué día es hoy y si hoy cuenta, y con el resultado
+    muestra cuántos días hábiles quedan del plazo.
+  </p>
+  <h3>Si no sabés de cuántos días es el plazo</h3>
+  <p>
+    Hay cuatro atajos para los plazos más frecuentes —traslado de la demanda,
+    traslado del recurso extraordinario, apelación y revocatoria— y un
+    <strong>buscador sobre el texto del Código</strong>: se escribe «traslado»,
+    «perito» o «art. 150» y devuelve los artículos que fijan un plazo, cada uno
+    con la oración literal de la norma, para poder decidir si ése es el plazo
+    que se busca. Un clic lo carga en el campo.
   </p>
   <div class="aviso">
     <span class="label">Límites</span>
     <p>Funciona para períodos desde 2021 en adelante.</p>
     <p>
-      <strong>El receso de invierno es estimado.</strong> Las fechas las fija la
-      CSJN cada año; la herramienta asume doce días corridos desde el tercer
-      lunes de julio. Conviene verificarlo contra la acordada del año.
+      <strong>El buscador está en desarrollo y lo dice en la pantalla.</strong>
+      Los plazos salen de un barrido mecánico sobre el texto del Código, así que
+      lo que puede pasar es que falte un plazo, no que uno esté mal. Que no
+      aparezca no quiere decir que no exista.
     </p>
   </div>
   <a class="btn" href="calculadoras/vencimientos.html">Abrir calculadora</a>
@@ -816,13 +831,18 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
   <ul>
     <li>Fin de semana.</li>
     <li>
-      Feriado nacional, según la API pública de
+      Feriado nacional. Salen de un archivo versionado en el repositorio, que se
+      regenera cada mes desde la API pública de
       <a href="https://argentinadatos.com/docs/operations/get-feriados.html" target="_blank" rel="noopener">argentinadatos.com</a>.
+      Las calculadoras no le preguntan nada a nadie mientras se usan.
     </li>
-    <li><strong>Feria de enero</strong>, completa, todos los años.</li>
     <li>
-      <strong>Receso de invierno</strong>, estimado en doce días corridos desde
-      el tercer lunes de julio.
+      <strong>Feria de enero</strong>, completa, todos los años, por el art. 2
+      del Reglamento para la Justicia Nacional.
+    </li>
+    <li>
+      <strong>Feria de invierno</strong>, con la Acordada de la CSJN de cada año
+      al lado. <strong>No se calcula con una fórmula.</strong>
     </li>
     <li>
       Días inhábiles por ley o acordada: el 16 de noviembre (día del judicial,
@@ -832,15 +852,21 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
   <div class="aviso">
     <span class="label">Dos cosas que conviene saber</span>
     <p>
-      <strong>El receso de invierno es una estimación.</strong> Lo fija la CSJN
-      cada año por acordada, y la regla del tercer lunes es una aproximación
-      razonable, no la norma. En julio, verificar.
+      <strong>Ningún día inhábil se deduce con una fórmula.</strong> La feria de
+      invierno la fija la CSJN por acordada cada año, y hasta agosto de 2026 la
+      herramienta la calculaba —doce días desde el tercer lunes de julio—.
+      Contra las acordadas cargadas esa regla acierta poco más de la mitad de
+      las veces, y no puede producir 2020, cuando la feria se
+      <strong>suspendió</strong>. Ahora cada año sale de un archivo con su
+      acordada citada.
     </p>
     <p>
-      <strong>Si la API de feriados no responde</strong>, esos días no se
-      excluyen y el resultado puede quedar corrido. Las herramientas muestran
-      qué días excluyeron: si la lista se ve rara, es el primer lugar donde
-      mirar.
+      <strong>Si falta un año, la herramienta no calcula y dice cuál falta.</strong>
+      No hay medio resultado: una fecha con un año de feriados faltante sería un
+      número plausible y equivocado, que es peor que ninguno. La acordada de la
+      feria de un año la dicta la Corte dentro de ese mismo año, así que en los
+      primeros meses es normal que los plazos que caen en julio todavía no
+      devuelvan fecha.
     </p>
   </div>
   <p class="fuente">

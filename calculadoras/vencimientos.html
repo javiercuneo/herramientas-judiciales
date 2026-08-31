@@ -58,6 +58,16 @@
 
         .cabecera h1 span { color: var(--accent); }
 
+        /* El titulo y la fecha de hoy son un solo bloque: la cabecera es un
+           flex de dos extremos y un tercer hijo suelto lo partia en tres. */
+        .titulo { display: flex; flex-direction: column; gap: 5px; }
+
+        .hoy { font-size: 12.5px; color: var(--muted-fg); }
+        .hoy b { color: var(--fg); font-weight: 600; }
+        /* Mismo token con el que el dibujo marca feria, feriado y asueto, y por
+           el mismo motivo: es el color de "este dia no cuenta". */
+        .hoy .no-cuenta { color: var(--warn); font-weight: 600; }
+
         /* Este texto y el colofon son los unicos de la pagina que no se apoyan
            en la tarjeta: van sobre --bg. Hasta el 26/8 llevaban --muted-fg
            porque --faint reprobaba AA ahi ---4,30--- y pasaba solo sobre
@@ -221,6 +231,170 @@
 
         .pie-campo { font-size: 11px; color: var(--faint); margin-top: 6px; }
 
+        /* ---------------------------------------------------------- atajos
+
+           Rellenan un campo y no calculan nada: por eso son botones chicos y
+           planos, y no comparten nada con .btn-calcular. El criterio del resto
+           de la pantalla vale igual ---cada control ocupa lo que mide su
+           contenido---, asi que no se estiran ni se reparten el ancho. */
+        .atajos-fecha { display: flex; gap: 6px; margin-top: 8px; }
+
+        .atajo {
+            font-family: inherit;
+            font-size: 12px;
+            padding: 5px 11px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: transparent;
+            color: var(--muted-fg);
+            cursor: pointer;
+            transition: color 0.15s, background 0.15s, border-color 0.15s;
+        }
+        .atajo:hover { color: var(--fg); background: var(--sunk); }
+        .atajo:focus-visible {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+
+        .atajos-plazo { margin-top: 18px; }
+        .botones-atajo { display: flex; flex-wrap: wrap; gap: 7px; }
+
+        /* El numero grande y la frase chica, y no al reves: el numero es lo que
+           el boton escribe en el campo y la frase es por que. */
+        .atajo-plazo {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1px;
+            padding: 7px 12px;
+            text-align: left;
+        }
+        .atajo-plazo .n {
+            font-family: var(--font-meter);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--fg);
+            line-height: 1.1;
+        }
+        .atajo-plazo .q { font-size: 11px; color: var(--faint); }
+        .atajo-plazo.elegido {
+            border-color: var(--accent);
+            background: var(--accent-tint);
+        }
+        .atajo-plazo.elegido .n { color: var(--accent); }
+
+        /* La cita del articulo aparece al elegir, y no en cada boton: cuatro
+           botones con dos renglones y una cita cada uno es una tabla. Pero
+           aparece A LA VISTA y no detras de un globo: el boton afirma cuantos
+           dias tiene un plazo, y de donde sale esa afirmacion es parte de la
+           respuesta. */
+        .cual-atajo { margin-top: 9px; }
+
+        /* ------------------------------------------------------- el buscador
+
+           Contesta una pregunta que la calculadora no contestaba: cuantos dias
+           poner cuando la providencia hace un traslado y no lo dice.
+
+           CADA RESULTADO MUESTRA LA ORACION DEL ARTICULO, y no un resumen. Es
+           lo que hace que el usuario pueda decidir si ESE es su plazo ---el
+           art. 34 tiene plazos que corren contra el juez y no contra la parte,
+           y leido no se confunde con nada---. Un buscador que dijera "10 dias,
+           art. 34" y nada mas estaria contestando otra pregunta. */
+        .buscador { margin-top: 18px; }
+
+        .chip {
+            display: inline-block;
+            margin-left: 7px;
+            padding: 2px 7px;
+            border: 1px solid var(--warn);
+            border-radius: 999px;
+            background: var(--warn-tint);
+            color: var(--warn);
+            font-size: 9.5px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            vertical-align: 1px;
+        }
+
+        .campo-buscar {
+            width: 100%;
+            font-family: var(--font-sans);
+            font-size: 13.5px;
+            font-weight: 400;
+            text-align: left;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--fg);
+        }
+        .campo-buscar:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+
+        .hallazgos { margin-top: 8px; }
+        .hallazgos:empty { display: none; }
+
+        .hallazgo {
+            display: block;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            padding: 9px 11px;
+            margin-bottom: 5px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            cursor: pointer;
+        }
+        .hallazgo:hover { background: var(--sunk); }
+        .hallazgo:focus-visible {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+
+        .hallazgo .encabezado {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .hallazgo .n {
+            font-family: var(--font-meter);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .hallazgo .art { font-size: 11.5px; color: var(--faint); }
+        /* La oracion del articulo, que es la respuesta. No se recorta con
+           puntos suspensivos: media oracion de una norma dice otra cosa que la
+           oracion entera. */
+        .hallazgo .frase {
+            display: block;
+            margin-top: 4px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: var(--muted-fg);
+        }
+        .hallazgo mark {
+            background: var(--accent-tint);
+            color: inherit;
+            border-radius: 2px;
+        }
+
+        .sin-hallazgos { font-size: 12px; color: var(--faint); padding: 6px 2px; }
+
+        .aviso-buscador {
+            margin-top: 8px;
+            font-size: 11.5px;
+            line-height: 1.5;
+            color: var(--faint);
+        }
+
         /* ------------------------------------------------------ casillas */
         .casilla {
             display: flex;
@@ -307,6 +481,55 @@
         .btn-suave:hover { color: var(--fg); background: var(--sunk); }
 
         .btn-chico { padding: 7px 14px; font-size: 12.5px; }
+
+        /* ------------------------------------------------------- lo que queda
+
+           La barra contesta una pregunta distinta de la del veredicto. "Vence
+           el 22 de septiembre" es una fecha; "quedan seis dias habiles" es
+           cuanto tiempo tenes, que es lo que uno realmente quiere saber cuando
+           mira un plazo ajeno en un expediente.
+
+           EL NUMERO ES LO QUE VALE Y LA BARRA LO ACOMPANIA, no al reves: una
+           barra sin el numero al lado obliga a estimar a ojo una cantidad que
+           el motor ya conta exacta.
+
+           DOS COLORES Y NO TRES. Vivo va en --accent, que es el color de "dia
+           contado" en el dibujo de abajo, asi que la barra y la grilla hablan
+           del mismo tramo con el mismo color. Vencido va en --error, que es el
+           unico token que en esta pagina significa "pare": no es un error de
+           carga, pero es lo unico de la pantalla que hay que ver aunque se este
+           mirando otra cosa. */
+        .queda {
+            margin-top: 14px;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: var(--card);
+        }
+
+        .queda .cuanto {
+            font-family: var(--font-meter);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--fg);
+        }
+        .queda .cuanto b { color: var(--accent); }
+        .queda.vencido .cuanto b { color: var(--error); }
+
+        .queda .de-cuanto { font-size: 12px; color: var(--faint); margin-top: 3px; }
+
+        .barra {
+            margin-top: 10px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--sunk);
+            overflow: hidden;
+        }
+        /* Sin transition: con el panel del navegador oculto una transicion deja
+           el color anterior en getComputedStyle por tiempo indefinido, y esta
+           barra es de las cosas que se miden. */
+        .barra i { display: block; height: 100%; background: var(--accent); }
+        .queda.vencido .barra i { background: var(--error); }
 
         /* --------------------------------------------------------- resultado
            Siempre presente, nunca display:none. Antes aparecia al calcular y
@@ -433,7 +656,14 @@
 <body>
     <div class="hoja">
         <header class="cabecera">
-            <h1>Vencimiento de <span>plazos judiciales</span></h1>
+            <div class="titulo">
+                <h1>Vencimiento de <span>plazos judiciales</span></h1>
+                <!-- Ubica al que llega, y de paso dice lo unico que la pagina
+                     sabe de hoy y el usuario capaz que no: si hoy cuenta. El
+                     motivo del inhabil sale del mismo calendario que el dibujo,
+                     asi que no puede discrepar con el. -->
+                <p class="hoy" id="hoy"></p>
+            </div>
             <p class="cobertura" id="yearsAvailable">Cargando el calendario judicial…</p>
         </header>
 
@@ -469,6 +699,12 @@
                             <span class="separador">/</span>
                             <input type="text" id="anio" class="mide-4" placeholder="AAAA" maxlength="4" inputmode="numeric" aria-label="Año">
                         </div>
+                        <!-- Tres campos que se llenan solos. Es la fecha que
+                             mas se carga: la cedula que llego hoy o ayer. -->
+                        <div class="atajos-fecha">
+                            <button type="button" class="atajo" data-atras="0">Hoy</button>
+                            <button type="button" class="atajo" data-atras="1">Ayer</button>
+                        </div>
                         <div class="error" id="errorFecha">Esa fecha no existe en el calendario.</div>
                     </div>
 
@@ -481,6 +717,35 @@
                         <div class="error" id="errorPlazo">El plazo tiene que ser un número de días mayor que cero.</div>
                     </div>
 
+                </div>
+
+                <!-- Los atajos NO tienen los numeros escritos aca: salen de
+                     data/plazos-cpccn.json, que es el mismo archivo que va a
+                     leer el buscador. Dos listas del mismo plazo se
+                     desincronizan, y los dias de un plazo procesal son de las
+                     cosas que no pueden estar en dos lados.
+                     Si el archivo no carga, la fila no aparece y el campo se
+                     escribe a mano como siempre: es una comodidad, no el
+                     calculo. -->
+                <div class="atajos-plazo" id="atajosPlazo" hidden>
+                    <span class="rotulo">Plazos frecuentes</span>
+                    <div class="botones-atajo" id="botonesAtajo"></div>
+                    <p class="apunte cual-atajo" id="cualAtajo" hidden></p>
+                </div>
+
+                <!-- El buscador. Para cuando la providencia hace un traslado y
+                     no dice de cuantos dias es. Lee el mismo archivo que los
+                     atajos, asi que no hay una segunda lista de plazos. -->
+                <div class="buscador" id="buscador" hidden>
+                    <span class="rotulo">
+                        Buscar un plazo en el Código
+                        <span class="chip">en desarrollo</span>
+                    </span>
+                    <input type="search" id="q" class="campo-buscar" autocomplete="off"
+                           placeholder="traslado, apelación, perito, art. 150…"
+                           aria-label="Buscar un plazo en el CPCCN">
+                    <div class="hallazgos" id="hallazgos" role="listbox"
+                         aria-label="Plazos encontrados"></div>
                 </div>
             </div>
 
@@ -609,7 +874,140 @@
         // Recién ahora se puede saber si una fecha es hábil, así que se
         // reevalúa por si el usuario ya escribió mientras cargaban los datos.
         actualizarSeccionHorario();
+        pintarHoy();
     })();
+
+    // ----------------------------------------------------------------------
+    // La fecha de hoy, arriba de todo.
+    //
+    // Se pinta DOS veces a proposito: la fecha sola apenas carga la pagina, y
+    // otra vez cuando llego el calendario, recien ahi con el habil o inhabil.
+    // Al reves ---esperar al calendario para escribir tambien la fecha--- la
+    // cabecera arranca vacia por lo que tarde un fetch, y la fecha de hoy no
+    // depende de ningun dato.
+    //
+    // Toca el calendario, y eso NO ensucia la auditoria de un calculo
+    // posterior: todas las entradas de Plazos llaman a reiniciarAuditoria()
+    // antes de contar.
+    // ----------------------------------------------------------------------
+    function pintarHoy() {
+        var caja = document.getElementById('hoy');
+        var hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        var dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+        var meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+                     'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        var largo = dias[hoy.getDay()] + ' ' + hoy.getDate() + ' de ' +
+                    meses[hoy.getMonth()] + ' de ' + hoy.getFullYear();
+
+        var b = document.createElement('b');
+        b.textContent = largo;
+        caja.textContent = 'Hoy es ';
+        caja.appendChild(b);
+
+        if (!datosCargados) return;
+
+        if (CalendarioJudicial.esDiaHabil(hoy)) {
+            caja.appendChild(document.createTextNode(', día hábil.'));
+            return;
+        }
+        // El motivo sale del mismo calendario que dibuja el plazo, asi que la
+        // cabecera y el dibujo no pueden decir cosas distintas del mismo dia.
+        var motivo = CalendarioJudicial.obtenerMotivoInhabil(hoy);
+        var marca = document.createElement('span');
+        marca.className = 'no-cuenta';
+        marca.textContent = 'no cuenta';
+        caja.appendChild(document.createTextNode(': '));
+        caja.appendChild(marca);
+        caja.appendChild(document.createTextNode(motivo ? ' (' + motivo.toLowerCase() + ').' : '.'));
+    }
+
+    // ----------------------------------------------------------------------
+    // Los atajos de plazo.
+    //
+    // Los numeros y las citas salen de data/plazos-cpccn.json y NO estan
+    // escritos aca. Es el mismo archivo que va a leer el buscador: dos listas
+    // del mismo plazo se desincronizan, y cuantos dias tiene un traslado no
+    // puede depender de cual de las dos miraste.
+    //
+    // Un boton afirma cuantos dias tiene un plazo, asi que al elegirlo la
+    // pantalla dice de que articulo sale. Eso NO es prosa opcional: es la
+    // unica forma de que la afirmacion se pueda discutir.
+    // ----------------------------------------------------------------------
+    var ATAJOS = [];
+    var PLAZOS = [];
+
+    (async function cargarAtajos() {
+        var datos;
+        try {
+            var resp = await fetch('../data/plazos-cpccn.json?v=' + Date.now());
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            datos = await resp.json();
+        } catch (e) {
+            // Sin el archivo no hay atajos y no pasa nada mas: el campo del
+            // plazo se escribe a mano, que es como se escribia antes. No se
+            // avisa nada porque no falta un dato del calculo, falta una
+            // comodidad.
+            return;
+        }
+
+        PLAZOS = datos.plazos || [];
+        armarBuscador();
+
+        ATAJOS = PLAZOS
+            .filter(function (pl) { return pl.atajo; })
+            .sort(function (a, b) { return a.atajo.orden - b.atajo.orden; });
+        if (!ATAJOS.length) return;
+
+        var caja = document.getElementById('botonesAtajo');
+        ATAJOS.forEach(function (pl, i) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'atajo atajo-plazo';
+            b.dataset.indice = i;
+            var n = document.createElement('span');
+            n.className = 'n';
+            n.textContent = pl.cantidad;
+            var q = document.createElement('span');
+            q.className = 'q';
+            q.textContent = pl.atajo.rotulo;
+            b.appendChild(n);
+            b.appendChild(q);
+            b.addEventListener('click', function () { elegirAtajo(i); });
+            caja.appendChild(b);
+        });
+        document.getElementById('atajosPlazo').hidden = false;
+    })();
+
+    function elegirAtajo(i) {
+        var pl = ATAJOS[i];
+        document.getElementById('plazo').value = pl.cantidad;
+        document.getElementById('errorPlazo').classList.remove('show');
+        document.getElementById('plazo').classList.remove('invalid');
+
+        // El boton lleva el rotulo corto y la linea lleva el detalle, que es
+        // donde hay lugar para la precision que el rotulo no puede: que los
+        // cinco dias de excepciones son los del ejecutivo y no los del
+        // ordinario, o que sesenta es contra el Estado. Un rotulo de boton que
+        // dice de menos no miente; uno que redondea una regla, si.
+        var linea = document.getElementById('cualAtajo');
+        linea.textContent = pl.cantidad + (pl.cantidad === 1 ? ' día hábil' : ' días hábiles') +
+            ' — ' + (pl.atajo.detalle || pl.atajo.rotulo.toLowerCase() + ', ' + pl.cita) + '.';
+        linea.hidden = false;
+
+        marcarAtajo(i);
+    }
+
+    // Escribir el plazo a mano APAGA el atajo. Un boton que se queda encendido
+    // al lado de un numero que ya no es el suyo dice que el 7 que hay en el
+    // campo sale del art. 244, y no sale de ningun lado.
+    function marcarAtajo(i) {
+        document.querySelectorAll('.atajo-plazo').forEach(function (b, j) {
+            b.classList.toggle('elegido', i !== null && j === i);
+        });
+        if (i === null) document.getElementById('cualAtajo').hidden = true;
+    }
 
     // ----------------------------------------------------------------------
     // La modalidad, en un control segmentado.
@@ -944,11 +1342,261 @@
 
         html += '</div>';
 
+        html += loQueQueda(datos);
+
         resultsDiv.innerHTML = html;
         // El dibujo va afuera de la grilla de dos columnas: es lo unico de la
         // pantalla que quiere todo el ancho que haya.
         dibujoDiv.innerHTML = dibujarPlazo(datos);
         resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ----------------------------------------------------------------------
+    // Cuanto queda del plazo.
+    //
+    // NO CUENTA NADA POR SU CUENTA: los dias restantes salen de filtrar
+    // diasContados, que es el array que devolvio el motor, contra la fecha de
+    // hoy. Recorrer el calendario aca seria una segunda implementacion del
+    // conteo, que es el modo de falla que produjo el bug de la feria.
+    //
+    // LOS TRES ESTADOS, y por que estan separados:
+    //
+    //   vencido    hoy paso el dia del vencimiento CON gracia. Recien ahi el
+    //              plazo esta muerto: hasta las 9:30 de ese dia todavia se
+    //              presenta, asi que cortar en el vencimiento sin gracia daria
+    //              por vencido un plazo que no lo esta.
+    //   ultimo     no queda ningun dia contado por delante y el dia de gracia
+    //              todavia no paso. Es el unico estado donde el numero de dias
+    //              restantes ---cero--- diria menos que la fecha.
+    //   corriendo  quedan dias contados. Es el caso normal.
+    //
+    // Y NO SE DICE HACE CUANTO VENCIO, por decision de Javier: el dato no
+    // cambia lo que hay que hacer y convierte un aviso en un reproche.
+    // ----------------------------------------------------------------------
+    function loQueQueda(datos) {
+        var D = window.DibujoPlazo;
+        var hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        var hoyYMD = D.clave(hoy);
+
+        var total = datos.diasContados.length;
+        var restantes = datos.diasContados.filter(function (f) {
+            return D.clave(f) >= hoyYMD;
+        }).length;
+
+        var vencido = hoyYMD > D.clave(datos.fechaVencimientoConGracia);
+        var clase = 'queda' + (vencido ? ' vencido' : '');
+
+        var cuanto, decuanto;
+        if (vencido) {
+            cuanto = 'El plazo está <b>vencido</b>.';
+            decuanto = 'Venció el ' + formatearFechaCorta(datos.fechaVencimientoConGracia) + '.';
+        } else if (restantes === 0) {
+            var esHoy = hoyYMD === D.clave(datos.fechaVencimientoConGracia);
+            cuanto = esHoy ? 'Vence <b>hoy</b>.' : 'Queda <b>el plazo de gracia</b>.';
+            decuanto = 'Hasta las 9:30 del ' +
+                formatearFechaCorta(datos.fechaVencimientoConGracia) +
+                ', por el art. 124 CPCCN.';
+        } else {
+            cuanto = 'Quedan <b>' + restantes +
+                (restantes === 1 ? ' día hábil' : ' días hábiles') + '</b>.';
+            decuanto = 'De los ' + total + ' que se contaron' +
+                (restantes === total ? ', y todavía no empezó a correr.' : '.');
+        }
+
+        // La barra se llena con lo consumido. Con el plazo vencido va entera:
+        // no hay fraccion que mostrar y media barra roja se lee como "todavia
+        // queda algo".
+        var llenado = vencido ? 100 : Math.round(((total - restantes) / total) * 100);
+
+        return '<div class="' + clase + '">' +
+            '<div class="cuanto">' + cuanto + '</div>' +
+            '<div class="de-cuanto">' + decuanto + '</div>' +
+            '<div class="barra" role="img" aria-label="' +
+                (vencido ? 'Plazo vencido' : restantes + ' de ' + total + ' días hábiles por delante') +
+            '"><i style="width:' + llenado + '%"></i></div>' +
+        '</div>';
+    }
+
+    // ----------------------------------------------------------------------
+    // El buscador de plazos.
+    //
+    // PARA QUE ESTA: una providencia que corre traslado sin decir de cuántos
+    // días es. Javier: «que el usuario pueda verificar cuántos días tiene que
+    // colocar en el campo, cuando no lo sabe».
+    //
+    // LO QUE MUESTRA CADA RESULTADO ES LA ORACIÓN DEL ARTÍCULO, entera y sin
+    // recortar. Es lo que permite decidir si ése es tu plazo: el art. 34 tiene
+    // plazos que corren contra el juez y no contra la parte, y leídos no se
+    // confunden con nada. Un resultado que dijera «10 días, art. 34» y nada más
+    // contestaría otra pregunta.
+    //
+    // SE BUSCA SIN TILDES Y SIN MAYÚSCULAS de los dos lados. La rúbrica del
+    // Código viene en mayúsculas y sin acentuar ---«CITACION»--- así que sirve
+    // de clave de búsqueda y no se muestra; normalizar es lo que hace que
+    // «apelación» encuentre «APELACION» y al revés.
+    //
+    // ESTÁ EN DESARROLLO Y LO DICE. El chip no es modestia: el barrido es
+    // mecánico sobre el texto de la ley, así que lo que puede pasar es que
+    // FALTE un plazo, no que uno esté mal. Decirlo cambia qué hace el que no lo
+    // encuentra ---sigue buscando en el Código--- en vez de concluir que no
+    // existe.
+    // ----------------------------------------------------------------------
+    function pelar(t) {
+        return t.toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    function armarBuscador() {
+        if (!PLAZOS.length) return;
+        // El texto sobre el que se busca se calcula UNA vez y no en cada tecla.
+        PLAZOS.forEach(function (pl) {
+            pl._buscable = pelar([pl.rotulo || '', pl.rubrica || '', pl.cita, pl.texto].join(' ')) +
+                ' ' + pl.cantidad + ' ' + pelar(pl.unidad);
+        });
+        document.getElementById('buscador').hidden = false;
+        document.getElementById('q').addEventListener('input', buscar);
+    }
+
+    function buscar() {
+        var caja = document.getElementById('hallazgos');
+        var crudo = document.getElementById('q').value;
+        var q = pelar(crudo);
+        caja.innerHTML = '';
+        if (q.length < 2) return;
+
+        // Todas las palabras tienen que estar, en cualquier orden: «traslado
+        // demanda» encuentra el art. 338 y no los ciento y pico que dicen
+        // «traslado».
+        var partes = q.split(' ').filter(Boolean);
+        var hallados = PLAZOS.filter(function (pl) {
+            return partes.every(function (w) { return pl._buscable.indexOf(w) !== -1; });
+        });
+
+        if (!hallados.length) {
+            var vacio = document.createElement('p');
+            vacio.className = 'sin-hallazgos';
+            vacio.textContent = 'Ningún artículo del Código con esas palabras. ' +
+                'El barrido está en desarrollo: puede faltar el plazo, no está dicho que no exista.';
+            caja.appendChild(vacio);
+            return;
+        }
+
+        // Primero los curados ---los que alguien nombró--- y después por
+        // artículo, que es el orden del Código.
+        hallados.sort(function (a, b) {
+            if (!!b.rotulo !== !!a.rotulo) return b.rotulo ? 1 : -1;
+            return parseInt(a.cita.slice(5), 10) - parseInt(b.cita.slice(5), 10);
+        });
+
+        var tope = hallados.slice(0, 12);
+        tope.forEach(function (pl) { caja.appendChild(unHallazgo(pl, partes)); });
+
+        if (hallados.length > tope.length) {
+            var mas = document.createElement('p');
+            mas.className = 'sin-hallazgos';
+            mas.textContent = 'Y ' + (hallados.length - tope.length) +
+                ' más. Agregá una palabra para achicar la lista.';
+            caja.appendChild(mas);
+        }
+    }
+
+    function unHallazgo(pl, partes) {
+        var esDias = pl.unidad === 'días';
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'hallazgo';
+
+        var enc = document.createElement('div');
+        enc.className = 'encabezado';
+
+        var n = document.createElement('span');
+        n.className = 'n';
+        n.textContent = pl.cantidad + ' ' +
+            (pl.cantidad === 1 ? pl.unidad.replace(/s$/, '').replace('mese', 'mes') : pl.unidad);
+
+        var art = document.createElement('span');
+        art.className = 'art';
+        art.textContent = pl.cita + (pl.rotulo ? ' · ' + pl.rotulo : '');
+
+        enc.appendChild(n);
+        enc.appendChild(art);
+        b.appendChild(enc);
+
+        var frase = document.createElement('span');
+        frase.className = 'frase';
+        resaltar(frase, pl.texto, partes);
+        b.appendChild(frase);
+
+        // Sólo los plazos en días llenan el campo: la pantalla cuenta días
+        // hábiles y escribirle 6 a un plazo de seis MESES daría una fecha
+        // plausible y equivocada, que es la peor clase de resultado.
+        if (esDias) {
+            b.addEventListener('click', function () {
+                document.getElementById('plazo').value = pl.cantidad;
+                document.getElementById('errorPlazo').classList.remove('show');
+                document.getElementById('plazo').classList.remove('invalid');
+                marcarAtajo(null);
+                var linea = document.getElementById('cualAtajo');
+                linea.textContent = pl.cantidad +
+                    (pl.cantidad === 1 ? ' día hábil' : ' días hábiles') + ' — ' + pl.cita + '.';
+                linea.hidden = false;
+            });
+        } else {
+            // No es un botón que no hace nada: es una respuesta que esta
+            // pantalla no puede computar, y lo dice.
+            b.disabled = true;
+            b.style.cursor = 'default';
+            var aviso = document.createElement('span');
+            aviso.className = 'frase';
+            aviso.textContent = 'Esta calculadora cuenta días hábiles: un plazo en ' +
+                pl.unidad + ' no se carga acá.';
+            b.appendChild(aviso);
+        }
+
+        return b;
+    }
+
+    // Resalta las palabras buscadas sobre la oración. Se arma con nodos de
+    // texto y no con innerHTML: la oración es texto de la ley y no markup, y
+    // pegarla como HTML sería la única forma de que un archivo de datos
+    // escribiera etiquetas en esta página.
+    function resaltar(destino, texto, partes) {
+        var pelado = pelar(texto);
+        var marcas = [];
+        partes.forEach(function (w) {
+            var desde = 0, i;
+            while ((i = pelado.indexOf(w, desde)) !== -1) {
+                marcas.push([i, i + w.length]);
+                desde = i + w.length;
+            }
+        });
+        if (!marcas.length) { destino.textContent = texto; return; }
+
+        marcas.sort(function (a, b) { return a[0] - b[0]; });
+        var juntas = [marcas[0]];
+        for (var k = 1; k < marcas.length; k++) {
+            var u = juntas[juntas.length - 1];
+            if (marcas[k][0] <= u[1]) u[1] = Math.max(u[1], marcas[k][1]);
+            else juntas.push(marcas[k]);
+        }
+
+        // pelar() no cambia el largo del texto ---saca diacríticos y baja
+        // mayúsculas, no borra ni agrega caracteres--- así que los índices del
+        // texto pelado valen sobre el original. Si eso dejara de ser cierto, el
+        // resaltado se correría; por eso no se recorta ni se colapsan espacios
+        // acá adentro.
+        var pos = 0;
+        juntas.forEach(function (m) {
+            if (m[0] > pos) destino.appendChild(document.createTextNode(texto.slice(pos, m[0])));
+            var mk = document.createElement('mark');
+            mk.textContent = texto.slice(m[0], m[1]);
+            destino.appendChild(mk);
+            pos = m[1];
+        });
+        if (pos < texto.length) destino.appendChild(document.createTextNode(texto.slice(pos)));
     }
 
     function dato(clave, valor, nota) {
@@ -1093,6 +1741,9 @@
         document.querySelectorAll('input').forEach(function(i) { i.classList.remove('invalid'); });
         document.getElementById('results').innerHTML = HTML_ESPERA;
         document.getElementById('dibujo').innerHTML = '';
+        marcarAtajo(null);
+        document.getElementById('q').value = '';
+        document.getElementById('hallazgos').innerHTML = '';
         actualizarLabelFecha();
         mostrarDiasDeNota();
         actualizarSeccionHorario();
@@ -1232,7 +1883,34 @@
     document.getElementById('btnCalcular').addEventListener('click', calcular);
     document.getElementById('btnResetear').addEventListener('click', resetear);
 
+    // Hoy y ayer llenan los tres campos. No se valida nada: una fecha armada
+    // del reloj de la maquina siempre existe.
+    document.querySelectorAll('.atajos-fecha .atajo').forEach(function (b) {
+        b.addEventListener('click', function () {
+            var f = new Date();
+            f.setHours(0, 0, 0, 0);
+            f.setDate(f.getDate() - parseInt(b.dataset.atras, 10));
+            document.getElementById('dia').value = String(f.getDate()).padStart(2, '0');
+            document.getElementById('mes').value = String(f.getMonth() + 1).padStart(2, '0');
+            document.getElementById('anio').value = f.getFullYear();
+            document.getElementById('errorFecha').classList.remove('show');
+            ['dia', 'mes', 'anio'].forEach(function (id) {
+                document.getElementById(id).classList.remove('invalid');
+            });
+            mostrarDiasDeNota();
+            actualizarSeccionHorario();
+        });
+    });
+
+    document.getElementById('plazo').addEventListener('input', function () {
+        var elegido = document.querySelector('.atajo-plazo.elegido');
+        if (elegido && ATAJOS[elegido.dataset.indice].cantidad !== parseInt(this.value, 10)) {
+            marcarAtajo(null);
+        }
+    });
+
     // Estado inicial. Se llama todo para no depender de lo que diga el markup.
+    pintarHoy();
     pintarModalidad();
     actualizarLabelFecha();
     actualizarSeccionAmpliacion();
