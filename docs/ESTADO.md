@@ -81,9 +81,7 @@ Los tres, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
    ocupa lo que mide su contenido, lo único grande es el resultado, los
    modificadores del cómputo van juntos y detrás de una casilla, y nada se separa
    con una línea si alcanza con el espacio.
-2. **Terminar `pruebas-calculadoras`**, que quedó en 56 de 75 filas con todas
-   pasando y las cinco pantallas representadas.
-3. **Los seis puntos que quedan de
+2. **Los seis puntos que quedan de
    [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md)**, con el orden recomendado
    adentro: uno para hacer ya sin tocar números, tres que sí los mueven —uno
    hacia arriba: los pisos mínimos que el motor no verifica—, dos para declarar
@@ -326,7 +324,11 @@ Y dos que corren en el navegador, con el sitio servido y no con `file://`:
 
 - **`scripts/pruebas-calculadoras.html`** cubre **las pantallas** de plazos: 75
   filas —21 verificados a mano, 6 invariantes, 3 fijados, los 24 cruzados contra
-  el motor, y los 21 verificados otra vez adentro del tablero—. Maneja las cinco
+  el motor, y los 21 verificados otra vez adentro del tablero—, **las 75
+  escritas y las 75 pasando**. Hasta el 31/8 «Por dónde seguir» decía que había
+  quedado en 56 de 75, y contradecía a esta misma tabla: corrido el banco, están
+  las 75. **Un número escrito a mano en dos lugares de un documento se
+  desincroniza igual que en dos archivos.** Maneja las cinco
   por iframe y compara lo que muestran. **Los iframes llevan rompe-caché**: sin
   él las pruebas corren contra la versión anterior de la calculadora, que es la
   peor forma de falla porque parece un bug del cambio que se acaba de hacer.
