@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-08-28 · rama `main`
+Última actualización: 2026-08-31 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -175,12 +175,28 @@ Los tres, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
 - **El imprimible existe sólo en `tasa`**, donde lo exige el art. 4 *in fine*.
   El de `prorrateo` es otra cosa —ahí no hay norma que lo pida— y puede salir del
   mismo mecanismo sin esa exigencia. Sin hacer.
-- **Falta el barrido de texto en las cuatro que no son de plazos.** En las cinco
-  de plazos ya se hizo, el 26 y el 27/8. **Una distinción que vale para lo que
-  queda:** el *usted* —«Ingrese», «Verifique»— **no es tuteo y no es un error**;
-  es otro registro. Lo que hay que sacar es el imperativo de *tú*. Cambiar los
-  ustedes a voseo es una decisión de estilo y no una corrección, así que va con
-  el rediseño.
+- **Falta el barrido de texto en tres de las cuatro que no son de plazos**
+  —`tasa` se despejó el 31/8—. En las cinco de plazos ya se hizo, el 26 y el
+  27/8. **Una distinción que vale para lo que queda:** el *usted* —«Ingrese»,
+  «Verifique»— **no es tuteo y no es un error**; es otro registro. Lo que hay
+  que sacar es el imperativo de *tú*.
+- **Los cuatro criterios con los que se despejó `tasa`, que valen para las otras
+  tres.** Salieron del pedido de Javier —«el que quiere leer, lee y el que no,
+  va directo a sacar el número»— y cada uno está escrito con su porqué en el
+  `<style>` de `tasa.html`:
+  1. **Se pregunta el caso, no la mecánica.** Primero *qué juicio es*, y de ahí
+     salen la base y la alícuota. Nadie llega pensando «art. 4 inc. c».
+     Tampoco se nombra la mecánica: «renglón» no le dice nada a nadie.
+  2. **Lo que el sistema puede decidir, lo decide.** Un desplegable con una
+     sola opción es una decisión ya tomada disfrazada de pregunta.
+  3. **Un campo que no aplica no ocupa lugar**, ni siquiera el de su rótulo en
+     el encabezado de la tabla.
+  4. **Un hint que dice a qué inciso corresponde lo que estás cargando no es
+     prosa opcional: es parte de la respuesta, y va a la vista.** Esto corrige
+     al criterio del 31/8 a la mañana, que mandaba todas las frases detrás de
+     un signo: esconder los hints **borró de la pantalla** el único lugar que
+     decía que el dinero de una sucesión va por el inc. d. Lo que se esconde es
+     la explicación larga, nunca el mapeo.
 - **La página de la UMA no tiene `og:image`.** La imagen que le corresponde es su
   propio número grande y hay que hacerla; poner la captura de Honorio sería
   anunciar otra cosa. Sin imagen el enlace igual se comparte, con título y
@@ -273,9 +289,17 @@ Y dos que corren en el navegador, con el sitio servido y no con `file://`:
   él las pruebas corren contra la versión anterior de la calculadora, que es la
   peor forma de falla porque parece un bug del cambio que se acaba de hacer.
 - **`scripts/pruebas-no-plazos.html`** cubre las cuatro que no son de plazos:
-  **50 fijados** sobre `prorrateo`, `tasa`, `honorarios-mediacion` y
+  **60 fijados** sobre `prorrateo`, `tasa`, `honorarios-mediacion` y
   `ejecucion-estado`. Se construyó el 26/8 porque era la condición para poder
   refundarlas: una reescritura sin red no se puede distinguir de un error.
+  **Los casos de `tasa` se remapearon dos veces sin que un solo número se
+  moviera** —el 27/8 al separar los dos ejes y el 31/8 al invertir la
+  pregunta—, y eso es exactamente para lo que están. Los diez del 31/8 cubren
+  **cómo se lee un importe pegado**, las tres reducciones del art. 3 que no
+  tenían ninguno —mensura, recurso directo y quiebra contra concurso—, y las
+  **dos cosas que no se ven en ningún importe**: la casilla del testamento de
+  extraña jurisdicción, que cambia la cita y nada más, y los dos momentos de la
+  suma fija.
 
 **Las dos se arrastran con el panel del navegador oculto** —de seis segundos a
 varios minutos— porque los iframes no dibujan. No es que estén rotas.

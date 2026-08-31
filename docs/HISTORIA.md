@@ -3848,3 +3848,247 @@ Se escribió porque el mecanismo ya había fallado dos veces:
 
 Mediación y la prosa, en cambio, no movieron recorridos ni cruces, y eso era el
 resultado buscado: ninguna de las dos agrega una pregunta a la entrevista.
+
+---
+
+## `tasa` despejada: el ruido que la pantalla correcta seguía teniendo — 31/8
+
+La pantalla estaba **bien de modelo desde el 27/8** —los dos ejes de la ley
+separados, el cobro doble arreglado, los fijados en verde— y seguía siendo
+incómoda de usar. Javier lo mandó entero, y el pedido no era una lista de
+retoques sino una frase:
+
+> «El que quiere leer, lee y el que no, va directo a sacar el número.»
+
+Es el mismo criterio con el que se ordenó Honorio —los números no se ocultan
+nunca, las frases siempre, y el «por qué» es un único signo— y esta pantalla no
+lo cumplía en ningún lado: todo lo que la ley obliga a explicar estaba **a la
+vista y al mismo tiempo**.
+
+### Lo que estaba de más, en el orden en que lo señaló
+
+- **«Tasa de justicia» decía dos veces.** El `<h1>` y, tres centímetros abajo, el
+  rótulo de la caja grande: «Tasa de justicia a integrar». Se fue el segundo. Una
+  cifra grande arriba de todo no necesita que le digan qué es.
+- **El párrafo de cobertura al lado del título** —qué artículos cubre, qué
+  fueros— es documentación y se fue al desplegable del final. Arriba quedó una
+  línea: «Ley 23.898 · tribunales nacionales».
+- **La palabra «renglón».** Javier: *«nadie nunca jamás preguntó cuántos
+  renglones tenía una liquidación de tasa»*. Con la palabra se fue la columna
+  «Concepto», que era texto libre numerado como «Renglón 3».
+- **La columna «Titularidad · sobretasa»**, que en la mayoría de los casos estaba
+  vacía y ocupaba 150 px igual. *«La titularidad debería aparecer SOLO si se
+  trata de casos susceptibles de titularidad»*: el campo ya aparecía sólo en las
+  dos bases que valúan una cosa, pero **su rótulo estaba siempre**.
+- **El desplegable de alícuota con una sola opción.** *«No tiene sentido, el
+  sistema ya solito te dice la alícuota; está bien que te la muestre pero no que
+  te permita (pero impida) elegir.»*
+- **La fila de monto indeterminable decía `$ 4.700` dos veces y «art. 6» tres**,
+  entre la columna de importe, el desplegable y la nota de abajo.
+
+### Lo que se agregó, que no es una simplificación
+
+**«Pretensión» en lugar de «renglón», y es un cambio de modelo y no de palabra.**
+Lo razonó Javier solo, en el mismo mensaje: el juicio principal se da por sentado
+y no se dice; lo que se suma aparte es la **ampliación de demanda**; y lo que de
+verdad se suma en una misma liquidación son **pretensiones distintas del mismo
+actor** —*«reclama sumas de dinero por daños pero también reclama la restitución
+de un inmueble: son cosas distintas, la alícuota la misma pero las bases
+distintas»*—.
+
+**Y la reconvención se sacó de la lista, razonándola en voz alta:** *«es en
+realidad un juicio principal para el demandado y no tiene sentido sumarlo; la que
+paga el actor y la que paga el demandado son distintas y no van en la misma
+liquidación»*. Es correcto y el art. 8 no lo contradice: la norma dice que la
+reconvención tributa como juicio independiente, no que se liquide en la planilla
+de la contraparte. **El artículo se sigue citando** en el desplegable del final;
+lo que se sacó es la opción de cargarla donde no va.
+
+### La alícuota: cuándo preguntar y cuándo no
+
+De las trece bases del art. 4, **once determinan la alícuota solas**: una
+tercería sólo puede ir al 1,5 % del art. 3 inc. h, y ofrecer un desplegable de
+una opción es una decisión ya tomada disfrazada de pregunta. En esas once ahora
+se escribe el número con su cita, y no se pregunta nada.
+
+**Las dos que sí preguntan son las dos que valúan una cosa** —el inmueble del
+inc. c y el mueble del inc. d—, y ahí la elección es real: el mismo inmueble va
+al 3 % en un juicio común, al 1,5 % en una sucesión o una mensura y al 0,75 % si
+está en extraña jurisdicción. Eso no lo puede adivinar la pantalla.
+
+**Los dos ejes siguen separados por dentro y eso no se tocó**, que era el riesgo
+del cambio: el cobro doble del 27/8 salió justamente de agrupar bases por la
+alícuota que compartían. El desplegable **sigue existiendo siempre en el DOM** y
+sigue siendo la única fuente del dato; cuando tiene una sola opción se esconde y
+en su lugar se escribe el número. Un segundo camino para decidir la alícuota
+sería un segundo lugar donde se puede perder.
+
+**Es el mismo arreglo que el desplegable de modalidad de `vencimientos` el 17/8**,
+y conviene verlo como un patrón y no como dos casos sueltos: ahí el casillero de
+la hora pasó a aparecer sólo cuando el día es hábil, *que es cuando la hora
+decide algo*. Acá la alícuota se pregunta sólo cuando hay algo que elegir, y la
+titularidad aparece sólo cuando hay una cosa que dividir.
+
+### El importe: lo único que cambió por dentro
+
+Era el otro pedido: *«asegurate que parsee todas las posibilidades —la gente
+copia y pega montos, a veces vienen con comas, a veces con puntos— y los
+decimales admitidos. Además una frase de error si está mal»*.
+
+El lector viejo tenía **dos agujeros y los dos eran silenciosos**:
+
+- **`1,234,567.89` daba `$ 0,04`.** Borraba los puntos —o sea el separador
+  decimal— y después cambiaba la primera coma por un punto: `$1.234.567,89` se
+  volvía `$1,23`. Un importe pegado de un sistema en inglés entraba **mil veces
+  más chico** y la pantalla no decía nada.
+- **`diez mil` valía cero**, igual que `1.234.56` valía `1,234`. La fila quedaba
+  cargada, aportaba nada, y el total parecía completo. **Una fila que aporta cero
+  es peor que un error, porque parece una cuenta.**
+
+Ahora hay una regla sola que ordena todos los formatos: **el separador decimal es
+el último que aparece, y sólo si aparece una vez.** Un separador repetido
+—`$1.234.567`, `$1,234,567`— es de miles por definición: ningún número tiene dos
+comas decimales. Los grupos de miles se verifican —el primero de uno a tres
+dígitos, los demás de tres exactos—, y por eso `1.234.56` es **un error y no
+`123.456`**: ese texto no es un número en ningún formato, y adivinarle uno es
+exactamente lo que no hay que hacer con un importe que va a una boleta.
+
+**La única lectura ambigua que queda se resuelve como se escribe acá:** un punto
+con tres dígitos atrás es de miles —`10.800`— y con menos es decimal —`10.8`—.
+Hay un caso de prueba pegado a cada uno de los dos.
+
+**Cinco fijados nuevos, de 50 a 55**, y son los únicos del banco que miran cómo se
+lee un importe: los dos formatos que tienen que dar lo mismo, los dos que
+resuelven la ambigüedad del punto, y el que tiene que avisar.
+
+### Lo que se midió, y lo que no se movió
+
+- **Los 50 fijados anteriores siguen dando el mismo número.** Es lo que había que
+  probar: el despeje es de forma, y el único cambio de cálculo —el lector de
+  importes— no toca ningún caso escrito con dígitos pelados.
+- **Contraste sobre estilos computados**, en los dos temas, sobre los elementos
+  nuevos: el signo, el aviso de error, la alícuota escrita, el rótulo de
+  titularidad, el chip de sobretasa y los tres desplegables. El más bajo da 4,78
+  y el umbral es 4,5.
+- **A 390 px la página no se corre de costado**, y hubo que arreglarlo para que no
+  lo hiciera: un `<select>` con opciones largas no baja de su contenido adentro de
+  un flex, y empujaba la página 60 px. Es el `min-width: 0` que `comun.css` avisa.
+  La tabla además pasa a tarjetas, con el rótulo de cada dato sacado del
+  `data-rotulo` de la celda: así no hay una segunda lista de rótulos que se pueda
+  desincronizar de los encabezados.
+
+**Y una trampa de medición que costó tiempo, para no volver a pisarla:** el signo
+abierto parecía no pintarse —`getComputedStyle` devolvía el color viejo mientras
+el borde sí cambiaba—. No era la cascada: `button` lleva `transition: background,
+color`, y **una transición no avanza con el panel del navegador oculto, porque la
+página no dibuja**. Es lo mismo que hace lentos a los dos bancos de pruebas con
+el panel cerrado. Lo que no transiciona —el borde— sí se actualizaba, y ese
+contraste es lo que delata el caso.
+
+### La pregunta invertida, y las dos regresiones silenciosas — 31/8, a la tarde
+
+**El despeje de la mañana mejoró la pantalla y le rompió dos cosas**, y las dos
+las encontró Javier usándola. Ninguna se veía en un número, que es exactamente
+por qué son las peores:
+
+- **El nombre del bien.** Sacar la columna de concepto junto con la palabra
+  «renglón» dejó la liquidación impresa sin dónde escribir cuál bien es cuál.
+  *«Vos tenés que presentar esa liquidación y no tenés dónde poner que lo que
+  pagaste en una parte es por el inmueble de tal y lo que pagaste en otra por el
+  automóvil.»* La planilla del art. 4 *in fine* va al expediente: una sucesión
+  con dos inmuebles imprimía dos líneas idénticas.
+- **El dinero de una sucesión.** *«Se fue silenciosa una regresión: para la
+  sucesión ya no es posible calcular montos de sumas de dinero con tasa
+  reducida.»* Acá la mitad de la respuesta era que sí se podía —va por el
+  inc. d, y había un fijado que lo cubría desde el 27/8— y la otra mitad, la que
+  importa, es que **había dejado de ser encontrable**: lo único que lo decía era
+  un hint, y esa mañana los hints se habían escondido detrás de un signo.
+
+**De ahí salió la regla que ahora gobierna el texto de esa pantalla:** un hint
+que dice a qué inciso corresponde lo que estás cargando **no es prosa opcional,
+es parte de la respuesta**, y va a la vista. Lo que se esconde es la explicación
+larga, nunca el mapeo. Corrige al criterio de la mañana, que había mandado todas
+las frases detrás de un signo por igual.
+
+#### Y el modelo estaba al revés
+
+*«Siento que invertimos el modelo anterior, que el usuario elegía sucesión y
+luego eso definía qué pagar… iría al revés: elegiría el tipo de juicio o lo que
+se reclama y luego eso gobierna los números.»* Tenía razón, y el argumento que
+lo cierra es de vocabulario: **«pretensión» en un sucesorio, que es voluntario,
+no se puede sostener**. Nadie llega pensando «art. 4 inc. c»; llega pensando
+«tengo una sucesión».
+
+**Lo que hay que entender para no deshacerlo:** esto **vuelve sobre la versión
+de julio, que era la que tenía el bug del cobro doble**, y no la repite. Ahí la
+combinación estaba *escrita a mano* adentro de cada opción, y por eso se podía
+escribir mal: tres supuestos agrupados abajo de «Otros» porque compartían el
+3 %, cuando a dos de los tres el art. 3 les reduce la alícuota a la mitad.
+Ahora el supuesto **nombra** un par (base, alícuota) de las dos tablas de la
+ley, que siguen intactas y separadas; `liquidar()` recibe una base del art. 4 y
+una alícuota de los arts. 2 y 3 y **no sabe que existen los supuestos**.
+Agrupar dos bases que comparten alícuota no es representable: cada ítem trae la
+suya. El caso de la quiebra y el concurso preventivo lo fija —salen del **mismo**
+inc. e del art. 4 y llevan alícuotas distintas—.
+
+Y el cruce imposible dejó de necesitar un filtro: **no existe la manera de pedir
+una tercería al 3 %**, porque la alícuota sale del supuesto. El fijado que
+probaba el filtro se reescribió para probar eso.
+
+#### Las decisiones de Javier sobre la lista de supuestos
+
+- **Testamento e hijuela de extraña jurisdicción (art. 3 inc. d): absorbido por
+  sucesión.** El argumento es de derecho internacional privado y lo dio con la
+  norma: el art. 2609 inc. a del CCyCN da jurisdicción **exclusiva** a los jueces
+  argentinos sobre derechos reales de inmuebles situados en la República, así que
+  *«no podés meter una inscripción de declaratoria extranjera como exequátur»*:
+  si hay que inscribir bienes, se abre la sucesión acá. **Y con una casilla que
+  avisa que no mueve ningún número**, idea suya: la reducción del inc. d es la
+  misma que la del inc. c, así que se marca sólo para que el imprimible cite el
+  inciso correcto. Hay un fijado que existe justamente para que ese total **no**
+  se mueva.
+- **Mensura y deslinde: juicio propio.** *«Es lo que es. Agregar subopciones a
+  bienes creo que no ayuda.»*
+- **Monto indeterminable y sin valor pecuniario: un supuesto solo.** *«Muestran
+  exactamente lo mismo»* —y lo muestran porque **pagan** lo mismo—. Lo único que
+  los separa es cuándo, así que el hint es doble y «Cuándo se paga» trae los dos
+  momentos. Hay un fijado sobre eso, porque si un día la pantalla dice uno solo
+  ningún número se mueve y el que lee elige mal sin saberlo.
+- **El botón de tema.** Abrió las otras diez y la landing: en ninguna tapa texto,
+  porque el cuerpo queda más angosto y centrado. *«Asumo que el cambio más barato
+  es que la calc de tasa quede con un cuerpo un poco más chico y centrado.»* Es
+  lo que se hizo —de 1040 a 940 px, como `vencimientos` y `mediación`— en vez de
+  mover un botón que está en las once. Adentro del tablero el problema no existe:
+  ahí el botón de cada iframe se esconde.
+
+#### Los dos bugs de la captura
+
+- **El campo de titularidad medía 450 px**, se salía de su celda y se montaba
+  encima de la cita de la alícuota de al lado: en la captura, «art. 2» aplastado
+  adentro del recuadro del porcentaje. **No era la cita la que estaba mal
+  ubicada** —está debajo de Alícuota, que es donde va—: era el campo de al lado
+  tapándola. La causa es de especificidad y vale anotarla: la regla general de la
+  lista es `table.filas input[type="text"]` y pesa (0,2,2); un
+  `.titularidad input[type="text"]` pesa (0,2,1) y **pierde**, así que ganaba el
+  `width: 100%`. Ahora la regla lleva el `table.filas` adelante.
+- **A 390 px la página se corría 60 px de costado**, y era un `<select>` con
+  opciones largas que no baja de su contenido adentro de un flex. Es el
+  `min-width: 0` que `comun.css` avisa.
+
+#### Lo que se midió
+
+- **Los fijados pasaron de 55 a 60 y ninguno de los anteriores se movió.** Es la
+  tercera vez que los casos de `tasa` se remapean —27/8, 31/8 a la mañana y 31/8
+  a la tarde— y los números esperados son los mismos que fijaba el banco de
+  julio. Si un remapeo mueve un número, no es un remapeo: es un error.
+- **Los diez nuevos** cubren cómo se lee un importe pegado, las tres reducciones
+  del art. 3 que no tenían ninguno —mensura, recurso directo, y quiebra contra
+  concurso preventivo— y las dos cosas que no se ven en ningún importe: la
+  casilla del testamento y los dos momentos de la suma fija.
+- **El permalink subió a `t2` y los enlaces `t1` se siguen abriendo**, traducidos
+  por una tabla inversa. Se probó con un enlace del formato viejo armado a mano:
+  abre en Sucesión, con el nombre puesto y el mismo total, y la barra de
+  direcciones se actualiza sola al formato nuevo. Un enlace que no abre es lo
+  único peor que uno que abre torcido.
+- **Contraste sobre estilos computados**, veintitrés elementos, los dos temas: el
+  más bajo da 4,78 y el umbral es 4,5. **A 390 px no hay desborde horizontal.**

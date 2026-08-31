@@ -229,23 +229,23 @@ const DRIVERS = {
     // declara las dos cosas que la ley separa: que numero se toma (art. 4) y
     // que alicuota se le aplica (arts. 2 y 3). Un driver solo alcanza.
     //
-    // LOS CASOS NO SE REESCRIBIERON, SE REMAPEARON: los numeros esperados son
-    // los mismos que fijaba el banco anterior, y ese es el punto de todo esto.
-    // Lo que cambia es como se pide el caso ---`{tipo:'inmueblesCABA'}` pasa a
-    // ser `{base:'inmueble', alicuota:'sucesorio'}`--- y el formato de la
-    // salida, porque la pantalla nueva muestra los importes formateados en vez
-    // de "1575000.00" pelado. El banco lee lo que la pantalla MUESTRA.
+    // Y REMAPEADO OTRA VEZ EL 31/8, cuando la pregunta se invirtio: la
+    // pantalla ya no pide una base del art. 4 sino QUE JUICIO ES, y la base y
+    // la alicuota salen de ahi. El caso pasa de `{base:'inmueble',
+    // alicuota:'sucesorio'}` a `{supuesto:'sucesion', item:'inmueble'}`.
     //
-    // LA TRAMPA DEL IFRAME QUE SE REUSA sigue existiendo y se resuelve mejor:
-    // antes habia que pasar por la opcion vacia del desplegable global o el
-    // caso heredaba las secciones del anterior y el total salia sumado. Ahora
-    // alcanza con reiniciar(), que deja UN renglon limpio.
+    // LOS CASOS NO SE REESCRIBIERON NINGUNA DE LAS DOS VECES, SE REMAPEARON:
+    // los numeros esperados son los mismos que fijaba el banco de julio, y ese
+    // es el punto de todo esto. Si un remapeo mueve un numero, no es un
+    // remapeo: es un error, y salta acá.
     //
-    // OJO CON EL SEGUNDO DESPLEGABLE: se rearma cuando cambia el primero, asi
-    // que hay que despachar el `change` de la base ANTES de poner la alicuota.
-    // Y si el caso pide una alicuota que la base no admite, el `value` no
-    // engancha y el select se queda en la que estaba: por eso `verAlicuotas`
-    // imprime la que quedo aplicada, que es como se prueba el filtro.
+    // LA TRAMPA DEL IFRAME QUE SE REUSA se resuelve con reiniciar(), que
+    // ademas devuelve el supuesto al primero: sin eso un caso de sucesion le
+    // dejaria la sucesion puesta al siguiente.
+    //
+    // EL ORDEN IMPORTA Y ES EL DE LA PERSONA: primero el supuesto ---que
+    // rearma los items de todas las lineas--- y despues cada linea. Poner el
+    // item antes que el supuesto lo pierde, porque el desplegable se rehace.
     // -----------------------------------------------------------------------
     tasa: {
         archivo: '../calculadoras/tasa.html',
@@ -270,37 +270,54 @@ const DRIVERS = {
             // Corte saque una acordada nueva, sin que nada se haya roto.
             d.getElementById('montoFijo').value = campos.montoFijo || '4700';
 
-            // LOS RENGLONES SE ARMAN DE A UNO Y EN ORDEN, y no todos primero:
-            // el renglon nuevo HEREDA la alicuota del ultimo que ya existe, asi
-            // que crearlos todos al principio los haria heredar la del renglon
-            // vacio del arranque y la herencia quedaria sin probar. Este orden
-            // es ademas el que hace la persona: carga un renglon y aprieta
-            // "Agregar renglon".
-            const pedidos = campos.renglones || [];
+            // EL SUPUESTO VA PRIMERO Y ES GLOBAL: gobierna que items existen en
+            // cada linea, asi que ponerlo despues los rearma y pierde el que el
+            // caso pidio.
+            if (campos.supuesto) {
+                const s = d.getElementById('supuesto');
+                s.value = campos.supuesto;
+                ev(s, 'change');
+            }
+            // La casilla del testamento de extraña jurisdiccion NO MUEVE
+            // NINGUN NUMERO ---art. 3 inc. d, misma reduccion que el inc. c---
+            // y por eso hay un caso que mira la CITA y no el total.
+            if (campos.testamento) {
+                const t = d.getElementById('esTestamento');
+                t.checked = true;
+                ev(t, 'change');
+            }
+
+            // LAS LINEAS SE ARMAN DE A UNA Y EN ORDEN, y no todas primero: la
+            // linea nueva HEREDA el item de la ultima que ya existe, asi que
+            // crearlas todas al principio las haria heredar la de la linea
+            // vacia del arranque y la herencia quedaria sin probar. Este orden
+            // es ademas el que hace la persona.
+            const pedidos = campos.lineas || [];
             pedidos.forEach((r, i) => {
                 if (i > 0) w.agregarRenglon();
                 const tr = d.querySelectorAll('#renglones tr')[i];
 
-                if (r.concepto) tr.querySelector('.fila-concepto').value = r.concepto;
+                if (r.nombre !== undefined) {
+                    const n = tr.querySelector('.fila-nombre');
+                    n.value = r.nombre;
+                    ev(n, 'input');
+                }
                 if (r.clase) {
                     tr.querySelector('.fila-clase').value = r.clase;
                     ev(tr.querySelector('.fila-clase'), 'change');
                 }
 
-                const base = tr.querySelector('.fila-base');
-                base.value = r.base;
-                ev(base, 'change');
-
-                // `alicuota` sin declarar NO es un olvido: es el caso que
-                // prueba la HERENCIA entre renglones, donde el renglon nuevo
-                // tiene que venir con la del anterior.
-                if (r.alicuota !== undefined) {
-                    tr.querySelector('.fila-alicuota').value = r.alicuota;
-                    ev(tr.querySelector('.fila-alicuota'), 'change');
+                // `item` sin declarar NO es un olvido: es el caso que prueba la
+                // HERENCIA entre lineas, donde la nueva tiene que venir con el
+                // item de la anterior.
+                if (r.item !== undefined) {
+                    const it = tr.querySelector('.fila-item');
+                    it.value = r.item;
+                    ev(it, 'change');
                 }
 
-                // Los renglones de monto fijo no traen importe: el campo esta
-                // escondido y el numero sale del art. 6.
+                // Las lineas de suma fija no traen importe: el campo esta
+                // escondido y el numero sale de los arts. 5 y 6.
                 if (r.importe !== undefined) {
                     const imp = tr.querySelector('.fila-importe');
                     imp.value = r.importe;
@@ -316,6 +333,12 @@ const DRIVERS = {
                     ev(tit, 'input');
                 }
 
+                // El bien fuera de la jurisdiccion nacional: art. 4 inc. g, 2a
+                // parte. Es POR BIEN y no del juicio.
+                const ext = tr.querySelector('.fila-extranha');
+                ext.checked = !!r.extranha;
+                ev(ext, 'change');
+
                 const chk = tr.querySelector('.fila-consobretasa');
                 chk.checked = r.conSobretasa !== false;
                 if (r.sobretasa !== undefined) tr.querySelector('.fila-sobretasa').value = r.sobretasa;
@@ -329,7 +352,7 @@ const DRIVERS = {
                 .slice(0, Math.max(1, pedidos.length));
 
             let salida = 'total ' + d.getElementById('cifraTasa').textContent.trim() +
-                ' · por renglón ' +
+                ' · por línea ' +
                 usadas.map((tr) => tr.querySelector('.fila-tasa').textContent.trim()).join(' | ');
 
             // Solo donde el caso existe PARA mirar los modificadores: que a los
@@ -340,9 +363,17 @@ const DRIVERS = {
                 salida += ' · modificadores ' + usadas.map((tr) => {
                     const m = [];
                     if (!tr.querySelector('.titularidad').hidden) m.push('titularidad');
-                    if (!tr.querySelector('.chips').hidden) m.push('sobretasa');
+                    if (!tr.querySelector('.fila-caja-sobretasa').hidden) m.push('sobretasa');
                     return m.length ? m.join(' + ') : '—';
                 }).join(' | ');
+            }
+
+            // La frase de error del importe. Lo que no se puede leer NO vale
+            // cero en silencio, y esa es la mitad que hay que mirar: el total
+            // de un caso mal leido es indistinguible de uno vacio.
+            if (campos.verAvisos) {
+                salida += ' · aviso ' + usadas.map((tr) =>
+                    tr.querySelector('.fila-aviso').textContent.trim() || '—').join(' | ');
             }
 
             // El imprimible del art. 4 in fine. No se lee entero ---seria un
@@ -372,10 +403,19 @@ const DRIVERS = {
                 T.cargarCaso(T.decodificarCaso('#' + codigo));
                 await pausa(60);
                 const vuelta = d.getElementById('cifraTasa').textContent.trim();
+                // Lo que tiene que volver entero es LO QUE MUEVE EL NUMERO ---el
+                // supuesto, el item, la titularidad como se escribio--- Y EL
+                // NOMBRE, que no mueve ningun numero y sin embargo es la mitad
+                // de para que sirve el imprimible: la liquidacion tiene que
+                // decir cual de los dos inmuebles es cual.
+                const partes = Array.from(d.querySelectorAll('#renglones tr')).map((tr) =>
+                    tr.querySelector('.fila-item').value +
+                    (tr.querySelector('.fila-titularidad').value
+                        ? ' ' + tr.querySelector('.fila-titularidad').value : '') +
+                    ' «' + (tr.querySelector('.fila-nombre').value || 'sin nombre') + '»');
                 salida = 'ida ' + ida + ' · vuelta ' + vuelta +
-                    ' · renglones ' + d.querySelectorAll('#renglones tr').length +
-                    ' · conceptos ' + Array.from(d.querySelectorAll('.fila-concepto'))
-                        .map((i) => i.value || '(sin nombre)').join(', ');
+                    ' · ' + d.getElementById('supuesto').value +
+                    ': ' + partes.join(', ');
                 return salida;
             }
 
@@ -391,13 +431,23 @@ const DRIVERS = {
                         .map((e) => e.querySelector('.inc').textContent.trim()).join(' ') || 'ninguno');
             }
 
-            // Para los casos de herencia y de cruce imposible: importa QUE
-            // ALICUOTA QUEDO, y no solo cuanto dio.
+            // Para los casos de herencia y de cruce imposible: importa QUE ITEM
+            // QUEDO y CON QUE ALICUOTA, y no solo cuanto dio. Desde el 31/8 la
+            // alicuota no se elige por linea ---sale del supuesto--- asi que lo
+            // que se imprime es la que la pantalla MUESTRA, con su cita.
             if (campos.verAlicuotas) {
-                salida += ' · alícuotas ' + usadas.map((tr) => {
-                    const sel = tr.querySelector('.fila-alicuota');
-                    return sel.value + ' (' + sel.options.length + ' posibles)';
-                }).join(' | ');
+                salida += ' · alícuotas ' + usadas.map((tr) =>
+                    tr.querySelector('.fila-item').value + ' → ' +
+                    tr.querySelector('.fila-alicuota-texto').textContent.trim() + ' ' +
+                    tr.querySelector('.fila-cita').textContent.trim()).join(' | ');
+            }
+
+            // "Cuando se paga" es lo unico que separa al art. 5 del art. 6:
+            // pagan la misma suma. Si un dia la pantalla dice uno solo, ningun
+            // total se mueve y el que lee elige mal sin saberlo.
+            if (campos.verMomentos) {
+                salida += ' · momentos ' + Array.from(d.querySelectorAll('#momentos .cual'))
+                    .map((e) => e.textContent.trim()).join(' | ');
             }
 
             return salida;
@@ -623,233 +673,309 @@ const FIJADOS = [
 
     // --- tasa, Ley 23.898 --------------------------------------------------
     //
-    // REMAPEADOS EL 27/8 CON LA PANTALLA REFUNDADA. Los numeros esperados son
-    // los mismos que fijaba el banco anterior ---esa es toda la gracia--- y lo
-    // que cambio es como se pide el caso y el formato de la salida, porque
-    // ahora la pantalla muestra los importes formateados. Los cuatro casos
-    // nuevos del final cubren cosas que antes no existian: la herencia de la
-    // alicuota entre renglones, la escala concursal y el filtro del segundo
-    // desplegable.
+    // REMAPEADOS DOS VECES Y CON LOS MISMOS NUMEROS LAS DOS. El 27/8 con la
+    // pantalla refundada, y el 31/8 cuando la pregunta se invirtio: antes el
+    // caso declaraba una base del art. 4 y una alicuota de los arts. 2 y 3;
+    // ahora declara QUE JUICIO ES ---el supuesto--- y QUE SE VALUA ---el item---
+    // y la base y la alicuota salen de ahi. Que ningun esperado se haya movido
+    // es toda la gracia: la pregunta cambio y la cuenta no.
     //
     // Las alicuotas, para que se lean sin abrir la ley:
     //   general    3 %      art. 2
     //   sucesorio  1,5 %    art. 3 inc. c (la general reducida al 50 %)
+    //   testamento 1,5 %    art. 3 inc. d (la misma reduccion, otro inciso)
     //   tercerias  1,5 %    art. 3 inc. h
     //   hipotecas  1,5 %    art. 3 inc. f
+    //   mensura    1,5 %    art. 3 inc. b
+    //   recurso    1,5 %    art. 3 inc. g
     //   extranha   0,75 %   art. 4 inc. g, 2a parte (esa, otra vez a la mitad)
     //   concursal  0,75 % y 0,25 % sobre lo que pase de $100.000.000
-    // y la cuenta de cada renglon es
+    // y la cuenta de cada linea es
     //   importe x factor de la base x titularidad x alicuota x (1 + sobretasa)
     // con la titularidad en las dos bases que valuan una COSA ---inmuebles del
-    // inc. c y muebles del inc. d, con cualquier alicuota--- y la sobretasa
-    // solo sobre inmuebles de una sucesion.
+    // inc. c y muebles del inc. d--- y la sobretasa solo sobre inmuebles de una
+    // sucesion.
     {
         calc: 'tasa',
         rotulo: 'Sumas de dinero: el 3 % del art. 2',
-        campos: { renglones: [{ base: 'sumas', alicuota: 'general', importe: '10000000' }] },
-        esperado: 'total $ 300.000,00 · por renglón $ 300.000,00',
-        porque: 'El juicio corriente, que es el caso mas comun de todos y que hasta hoy no cubria ningun fijado. La base es el monto reclamado con intereses (art. 4 inc. a) y la alicuota la general del art. 2.'
+        campos: { supuesto: 'demanda', lineas: [{ item: 'sumas', importe: '10000000' }] },
+        esperado: 'total $ 300.000,00 · por línea $ 300.000,00',
+        porque: 'El juicio corriente, que es el caso mas comun de todos. La base es el monto reclamado con intereses (art. 4 inc. a) y la alicuota la general del art. 2. Es ademas el supuesto por omision: la pantalla abre asi.'
     },
     {
         calc: 'tasa',
         rotulo: 'Desalojo: la pantalla multiplica por seis sola',
-        campos: { renglones: [{ base: 'alquiler', alicuota: 'general', importe: '500000' }] },
-        esperado: 'total $ 90.000,00 · por renglón $ 90.000,00',
+        campos: { supuesto: 'desalojo', lineas: [{ item: 'civil', importe: '500000' }] },
+        esperado: 'total $ 90.000,00 · por línea $ 90.000,00',
         porque: 'Se carga UN canon de $500.000 y la base legal son seis (art. 4 inc. b): $3.000.000 al 3 % son $90.000. Fija el multiplicador que la pantalla aplica sola, que es justo el que no se ve en el campo y que si alguien lo carga a mano cobra seis veces de mas.'
     },
     {
         calc: 'tasa',
         rotulo: 'Inmuebles: 3 % sobre la valuación (art. 4 inc. c)',
-        campos: { verModificadores: true, renglones: [{ base: 'inmueble', alicuota: 'general', importe: '25000000' }] },
-        esperado: 'total $ 750.000,00 · por renglón $ 750.000,00 · modificadores titularidad',
-        porque: 'La misma base que usan los cuatro casos sucesorios de abajo, pero en un juicio comun: el inmueble va al 3 % del art. 2 y NO lleva sobretasa, que es de la sucesion. TITULARIDAD SI LLEVA, y desde el 27/8: la cosa comun se divide con o sin muerto. Es el par que hace visible que lo que trae el SUPUESTO es la reduccion del art. 3 y la sobretasa, y no la titularidad, que la trae el bien.'
+        campos: { supuesto: 'demanda', verModificadores: true, lineas: [{ item: 'inmueble', importe: '25000000' }] },
+        esperado: 'total $ 750.000,00 · por línea $ 750.000,00 · modificadores titularidad',
+        porque: 'La misma base que usan los casos sucesorios de abajo, pero en un juicio comun: el inmueble va al 3 % del art. 2 y NO lleva sobretasa, que es de la sucesion. TITULARIDAD SI LLEVA, y desde el 27/8: la cosa comun se divide con o sin muerto. Es el par que hace visible que lo que trae el SUPUESTO es la reduccion del art. 3 y la sobretasa, y no la titularidad, que la trae el bien.'
     },
-
-    // Los tres que hasta el 27/8 estaban juntos en una sola opcion llamada
-    // "Otros" con el 3 % para los tres, cuando a dos de los tres el art. 3 les
-    // reduce la tasa a la mitad. Existen para que no se vuelvan a juntar: el de
-    // muebles fija que ESE si va al 3 %, y los otros dos que van al 1,5 %.
-    // Todos con $10.000.000 para que la diferencia se lea de un vistazo.
     {
         calc: 'tasa',
-        rotulo: 'Bienes muebles: 3 % (art. 4 inc. d)',
-        campos: { renglones: [{ base: 'muebles', alicuota: 'general', importe: '10000000' }] },
-        esperado: 'total $ 300.000,00 · por renglón $ 300.000,00',
-        porque: 'El unico de los tres que si lleva la alicuota general del art. 2. Fija que el arreglo no bajo de mas.'
+        rotulo: 'Bienes muebles en un juicio común: 3 % (art. 4 inc. d)',
+        campos: { supuesto: 'demanda', lineas: [{ item: 'mueble', importe: '10000000' }] },
+        esperado: 'total $ 300.000,00 · por línea $ 300.000,00',
+        porque: 'El mueble reclamado en un contencioso lleva la alicuota general del art. 2. Fija que la reduccion del art. 3 no se filtre a un supuesto que no la tiene: hasta el 27/8 este caso y los dos de abajo estaban juntos en una opcion llamada "Otros" con el 3 % para los tres, y a dos de los tres el art. 3 les reduce la tasa a la mitad.'
     },
     {
         calc: 'tasa',
         rotulo: 'Reinscripcion de hipotecas: 1,5 % (art. 3 inc. f)',
-        campos: { renglones: [{ base: 'hipoteca', alicuota: 'hipotecas', importe: '10000000' }] },
-        esperado: 'total $ 150.000,00 · por renglón $ 150.000,00',
-        porque: 'Hasta el 27/8 mostraba $300.000. La base es la suma garantizada (art. 4 inc. f) y la alicuota va reducida al 50 % por el art. 3 inc. f, que es la mitad que la pantalla no leia.'
+        campos: { supuesto: 'hipoteca', lineas: [{ importe: '10000000' }] },
+        esperado: 'total $ 150.000,00 · por línea $ 150.000,00',
+        porque: 'Hasta el 27/8 mostraba $300.000. La base es la suma garantizada (art. 4 inc. f) y la alicuota va reducida al 50 % por el art. 3 inc. f, que es la mitad que la pantalla no leia. El caso NO declara item a proposito: el supuesto tiene uno solo y la pantalla no pregunta nada.'
     },
     {
         calc: 'tasa',
         rotulo: 'Tercerias: 1,5 % (art. 3 inc. h)',
-        campos: { renglones: [{ base: 'terceria', alicuota: 'tercerias', importe: '10000000' }] },
-        esperado: 'total $ 150.000,00 · por renglón $ 150.000,00',
+        campos: { supuesto: 'terceria', lineas: [{ importe: '10000000' }] },
+        esperado: 'total $ 150.000,00 · por línea $ 150.000,00',
         porque: 'Mismo caso: mostraba $300.000 y le corresponden $150.000. El art. 3 inc. h dice "Tercerias" sin distinguir, asi que vale tanto para las de dominio como para las de mejor derecho.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Mensura o deslinde: 1,5 % (art. 3 inc. b)',
+        campos: { supuesto: 'mensura', lineas: [{ importe: '10000000' }] },
+        esperado: 'total $ 150.000,00 · por línea $ 150.000,00',
+        porque: 'ES UN JUICIO PROPIO Y NO UNA VARIANTE DE INMUEBLES, y lo decidio Javier el 31/8: "como juicio aparte, es lo que es". La base es la valuacion fiscal del inc. c y la alicuota la del art. 3 inc. b. Hasta el 31/8 no habia ningun fijado sobre esta reduccion: era la unica de las seis del art. 3 sin cubrir.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Recurso directo: 1,5 % (art. 3 inc. g)',
+        campos: { supuesto: 'recurso', lineas: [{ importe: '10000000' }] },
+        esperado: 'total $ 150.000,00 · por línea $ 150.000,00',
+        porque: 'La base es el monto de la resolucion que se apela (art. 4 inc. j) y la alicuota la reducida del art. 3 inc. g, contra el PEN, provincial o municipal. Tampoco tenia fijado hasta el 31/8.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Laboral: el monto de la condena al 3 %',
+        campos: { supuesto: 'laboral', lineas: [{ importe: '10000000' }] },
+        esperado: 'total $ 300.000,00 · por línea $ 300.000,00',
+        porque: 'El art. 4 inc. i con la alicuota general. El trabajador esta exento por el art. 13 inc. e, asi que la tasa la soporta la demandada vencida: eso no cambia el numero y por eso lo dice la pantalla y no lo prueba este caso.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Quiebra: el producido de la liquidación al 3 %',
+        campos: { supuesto: 'concurso', lineas: [{ item: 'quiebra', importe: '10000000' }] },
+        esperado: 'total $ 300.000,00 · por línea $ 300.000,00',
+        porque: 'EL PAR DEL CONCURSO PREVENTIVO, y existe porque los dos salen del MISMO inciso del art. 4 ---el inc. e--- y NO llevan la misma alicuota: la quiebra va por la general del art. 2 y el concurso por la especial de la Ley 25.563. Juntarlos en un supuesto solo es comodo y por eso mismo peligroso: este caso fija que el item elegido cambia la alicuota.'
     },
 
     // --- tasa, los bienes de una sucesion ----------------------------------
     //
     // Escritos el 27/8 ANTES de refundar la pantalla, cuando la sucesion era
-    // una interfaz aparte. Cubren las tres alicuotas sucesorias, las cuatro
-    // formas de escribir la titularidad, la sobretasa prendida y apagada, y la
-    // suma de dos bienes distintos. Las cuentas estan verificadas a mano una
-    // por una contra `valuacion x titularidad x alicuota x (1 + sobretasa)`.
+    // una interfaz aparte, y remapeados dos veces sin que ninguno se moviera.
+    // Cubren las tres alicuotas sucesorias, las cuatro formas de escribir la
+    // titularidad, la sobretasa prendida y apagada, y la suma de dos bienes
+    // distintos. Las cuentas estan verificadas a mano una por una contra
+    // `valuacion x titularidad x alicuota x (1 + sobretasa)`.
     {
         calc: 'tasa',
         rotulo: 'Inmueble en CABA, titularidad 100 %, con la sobretasa del 5 %',
-        campos: { renglones: [{ base: 'inmueble', alicuota: 'sucesorio', importe: '100000000', titularidad: '100' }] },
-        esperado: 'total $ 1.575.000,00 · por renglón $ 1.575.000,00',
+        campos: { supuesto: 'sucesion', lineas: [{ item: 'inmueble', importe: '100000000', titularidad: '100' }] },
+        esperado: 'total $ 1.575.000,00 · por línea $ 1.575.000,00',
         porque: '$100.000.000 x 1 x 1,5 % x 1,05. La sobretasa viene marcada de fabrica, asi que este es el caso que sale sin tocar nada.'
     },
     {
         calc: 'tasa',
         rotulo: 'El mismo inmueble con la sobretasa destildada',
-        campos: { renglones: [{ base: 'inmueble', alicuota: 'sucesorio', importe: '100000000', titularidad: '100', conSobretasa: false }] },
-        esperado: 'total $ 1.500.000,00 · por renglón $ 1.500.000,00',
+        campos: { supuesto: 'sucesion', lineas: [{ item: 'inmueble', importe: '100000000', titularidad: '100', conSobretasa: false }] },
+        esperado: 'total $ 1.500.000,00 · por línea $ 1.500.000,00',
         porque: 'El par del anterior, y lo unico que cambia es la casilla: $1.500.000 es el 1,5 % pelado. Los dos juntos aislan la sobretasa, que es el unico numero de esta pantalla que no sale de la ley.'
     },
     {
         calc: 'tasa',
         rotulo: 'El campo de titularidad sin tocar vale 100 %',
-        campos: { renglones: [{ base: 'inmueble', alicuota: 'sucesorio', importe: '100000000' }] },
-        esperado: 'total $ 1.575.000,00 · por renglón $ 1.575.000,00',
+        campos: { supuesto: 'sucesion', lineas: [{ item: 'inmueble', importe: '100000000' }] },
+        esperado: 'total $ 1.575.000,00 · por línea $ 1.575.000,00',
         porque: 'ARREGLADO EL 27/8, unas horas despues de fijarse. Este caso nacio congelando un error ---el campo vacio se leia como 0 y este inmueble mostraba $0,00 sin que nadie hubiera declarado nada--- con el esperado que habia que poner al arreglarlo escrito al lado. Es ese esperado. Da lo mismo que el primer caso, y tiene que darlo: no escribir nada es lo mismo que escribir 100.'
     },
     {
         calc: 'tasa',
         rotulo: 'Titularidad 0 escrita a mano: cero es la respuesta correcta',
-        campos: { renglones: [{ base: 'inmueble', alicuota: 'sucesorio', importe: '100000000', titularidad: '0' }] },
-        esperado: 'total $ 0,00 · por renglón $ 0,00',
+        campos: { supuesto: 'sucesion', lineas: [{ item: 'inmueble', importe: '100000000', titularidad: '0' }] },
+        esperado: 'total $ 0,00 · por línea $ 0,00',
         porque: 'El par del anterior, y ES EL QUE HIZO FALTA. Aca cero ESTA BIEN: lo dijo Javier, si el causante no era titular no se tributa, y si ya se pago se puede pedir la devolucion. Se escribio antes del arreglo justamente para esto, y despues del arreglo sigue dando cero. Y el total grande dice $ 0,00 y no una raya: la raya es "todavia no se cargo nada", y aca se cargo todo y la respuesta es cero.'
     },
     {
         calc: 'tasa',
         rotulo: 'La titularidad como fraccion: 1/2',
-        campos: { renglones: [{ base: 'inmueble', alicuota: 'sucesorio', importe: '100000000', titularidad: '1/2' }] },
-        esperado: 'total $ 787.500,00 · por renglón $ 787.500,00',
+        campos: { supuesto: 'sucesion', lineas: [{ item: 'inmueble', importe: '100000000', titularidad: '1/2' }] },
+        esperado: 'total $ 787.500,00 · por línea $ 787.500,00',
         porque: 'La mitad del primer caso. El campo acepta fracciones, que es como se escribe una hijuela, y hay que probarlo aparte del numero suelto.'
     },
     {
         calc: 'tasa',
         rotulo: 'La misma mitad escrita como porcentaje: 50%',
-        campos: { renglones: [{ base: 'inmueble', alicuota: 'sucesorio', importe: '100000000', titularidad: '50%' }] },
-        esperado: 'total $ 787.500,00 · por renglón $ 787.500,00',
+        campos: { supuesto: 'sucesion', lineas: [{ item: 'inmueble', importe: '100000000', titularidad: '50%' }] },
+        esperado: 'total $ 787.500,00 · por línea $ 787.500,00',
         porque: 'Las tres formas de escribir la mitad ---50, 50% y 1/2--- tienen que dar lo mismo. Este y el anterior lo fijan; si un dia el signo de porcentaje se interpreta como 50 veces en vez de 50 por ciento, la cuenta se va cien veces y salta aca.'
     },
     {
         calc: 'tasa',
         rotulo: 'Inmueble fuera de jurisdiccion nacional: 0,75 %',
-        campos: { renglones: [{ base: 'inmueble', alicuota: 'extranha', importe: '100000000', titularidad: '100', conSobretasa: false }] },
-        esperado: 'total $ 750.000,00 · por renglón $ 750.000,00',
-        porque: 'La tercera alicuota, y la mas facil de romper: el art. 4 inc. g, 2a parte, reduce A LA MITAD la ya reducida del art. 3 inc. c. O sea 3 % a la mitad es 1,5 %, y a la mitad otra vez es 0,75 %. Sin sobretasa para que el numero sea el de la alicuota sola.'
+        campos: { supuesto: 'sucesion', lineas: [{ item: 'inmueble', importe: '100000000', titularidad: '100', extranha: true, conSobretasa: false }] },
+        esperado: 'total $ 750.000,00 · por línea $ 750.000,00',
+        porque: 'La tercera alicuota, y la mas facil de romper: el art. 4 inc. g, 2a parte, reduce A LA MITAD la ya reducida del art. 3 inc. c. O sea 3 % a la mitad es 1,5 %, y a la mitad otra vez es 0,75 %. Desde el 31/8 se pide con una CASILLA POR BIEN y no eligiendo una alicuota: una sucesion puede tener un inmueble aca y otro afuera, asi que es del bien y no del juicio. El numero es el mismo que fijaba el banco del 27/8.'
     },
     {
         calc: 'tasa',
         rotulo: 'Un automovil: 1,5 % y SIN sobretasa',
-        campos: { verModificadores: true, renglones: [{ base: 'muebles', alicuota: 'sucesorio', importe: '20000000', titularidad: '100' }] },
-        esperado: 'total $ 300.000,00 · por renglón $ 300.000,00 · modificadores titularidad',
+        campos: { supuesto: 'sucesion', verModificadores: true, lineas: [{ item: 'mueble', importe: '20000000', titularidad: '100' }] },
+        esperado: 'total $ 300.000,00 · por línea $ 300.000,00 · modificadores titularidad',
         porque: 'Los muebles de una sucesion llevan titularidad pero NO sobretasa, y que un modificador falte no se ve en ningun numero: por eso este caso los mira. Si un refactor le agrega la sobretasa a los muebles, el total no cambia hasta que alguien la marque, y para entonces ya esta cobrando de mas.'
     },
     {
         calc: 'tasa',
         rotulo: 'El dinero del acervo va por el inc. d, no por el inc. a',
-        campos: { verModificadores: true, renglones: [{ base: 'muebles', alicuota: 'sucesorio', importe: '10000000' }] },
-        esperado: 'total $ 150.000,00 · por renglón $ 150.000,00 · modificadores titularidad',
-        porque: 'CAMBIO DE MAPEO EL 27/8, y el numero es el mismo. La pantalla anterior tenia "Sucesion / Sumas de dinero" como cuarto tipo de bien, SIN titularidad. Pero el art. 4 inc. g dice que en los sucesorios el valor de los bienes se determina "como lo establece en los incisos c) y d)": la plata del acervo es un bien mueble ---inc. d---, no una suma de dinero reclamada ---inc. a, que es una pretension contenciosa---. Y la titularidad ahora SI aparece, porque el dinero del acervo puede ser ganancial igual que el inmueble. Con el campo vacio vale 100 %, asi que el numero no se movio.'
+        campos: { supuesto: 'sucesion', verModificadores: true, lineas: [{ item: 'dinero', importe: '10000000' }] },
+        esperado: 'total $ 150.000,00 · por línea $ 150.000,00 · modificadores titularidad',
+        porque: 'CAMBIO DE MAPEO EL 27/8 Y DE NOMBRE EL 31/8, y el numero es el mismo las dos veces. El art. 4 inc. g dice que en los sucesorios el valor de los bienes se determina "como lo establece en los incisos c) y d)": la plata del acervo es un bien mueble ---inc. d---, no una suma de dinero reclamada ---inc. a, que es una pretension contenciosa---. EL 31/8 PASO A SER UN ITEM CON NOMBRE PROPIO, y eso arregla una regresion que no era de calculo sino de hallazgo: se podia cargar, pero lo unico que lo decia era un hint escondido detras de un signo, y Javier lo reporto como "ya no es posible calcular sumas de dinero en la sucesion". Se podia; no se encontraba.'
     },
     {
         calc: 'tasa',
         rotulo: 'El caso de Javier: un inmueble y un automovil en la misma sucesion',
-        campos: { renglones: [
-            { base: 'inmueble', alicuota: 'sucesorio', importe: '100000000', titularidad: '100' },
-            { base: 'muebles', alicuota: 'sucesorio', importe: '20000000', titularidad: '100' }
+        campos: { supuesto: 'sucesion', lineas: [
+            { item: 'inmueble', importe: '100000000', titularidad: '100' },
+            { item: 'mueble', importe: '20000000', titularidad: '100' }
         ] },
-        esperado: 'total $ 1.875.000,00 · por renglón $ 1.575.000,00 | $ 300.000,00',
-        porque: 'EL CASO QUE DISPARO LA REFUNDACION: *"sucesion, pedis inscripcion de bien y automovil"*. Antes eran DOS SECCIONES con dos desplegables y un boton para agregar la segunda; ahora son dos renglones de la misma lista. $1.575.000 mas $300.000, exactamente el mismo total que antes de refundar: es la prueba de que la forma cambio y la cuenta no.'
+        esperado: 'total $ 1.875.000,00 · por línea $ 1.575.000,00 | $ 300.000,00',
+        porque: 'EL CASO QUE DISPARO LA REFUNDACION: *"sucesion, pedis inscripcion de bien y automovil"*. Antes eran DOS SECCIONES con dos desplegables y un boton para agregar la segunda; ahora son dos lineas de la misma lista, abajo del mismo supuesto. $1.575.000 mas $300.000, exactamente el mismo total que antes de refundar: es la prueba de que la forma cambio dos veces y la cuenta ninguna.'
     },
-
     {
         calc: 'tasa',
         rotulo: 'Separación de bienes: el mismo inmueble, la mitad de cada cónyuge',
-        campos: { verModificadores: true, renglones: [{ base: 'inmueble', alicuota: 'general', importe: '25000000', titularidad: '1/2' }] },
-        esperado: 'total $ 375.000,00 · por renglón $ 375.000,00 · modificadores titularidad',
-        porque: 'EL CASO QUE CERRO JAVIER EL 27/8, y el ultimo supuesto de la ley que quedaba sin lugar. El art. 9 inc. e nombra la separacion de bienes y el art. 4 no la tiene: no hace falta que la tenga. Javier: "es lo mismo que la peticion de herencia, y cualquier otro caso de cosas comunes: es el valor de lo que se divide y luego juega el porcentaje de titularidad de cada uno". O sea la MISMA base del inc. c con la MISMA titularidad, pero al 3 % general, porque la reduccion del art. 3 es del sucesorio y esto no lo es. La mitad de los $750.000 del caso de arriba. Hasta el 27/8 este caso NO SE PODIA CARGAR: el campo de titularidad solo aparecia con las alicuotas sucesorias, asi que la pantalla cobraba los $750.000 enteros a cada conyuge.'
+        campos: { supuesto: 'demanda', verModificadores: true, lineas: [{ item: 'inmueble', importe: '25000000', titularidad: '1/2' }] },
+        esperado: 'total $ 375.000,00 · por línea $ 375.000,00 · modificadores titularidad',
+        porque: 'EL CASO QUE CERRO JAVIER EL 27/8, y el ultimo supuesto de la ley que quedaba sin lugar. El art. 9 inc. e nombra la separacion de bienes y el art. 4 no la tiene: no hace falta que la tenga. Javier: "es lo mismo que la peticion de herencia, y cualquier otro caso de cosas comunes: es el valor de lo que se divide y luego juega el porcentaje de titularidad de cada uno". O sea la MISMA base del inc. c con la MISMA titularidad, pero al 3 % general, porque la reduccion del art. 3 es del sucesorio y esto no lo es. La mitad de los $750.000 del caso de arriba.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'El testamento de extraña jurisdicción no mueve el número: cambia la cita',
+        campos: { supuesto: 'sucesion', testamento: true, verAlicuotas: true,
+                  lineas: [{ item: 'inmueble', importe: '100000000', titularidad: '100' }] },
+        esperado: 'total $ 1.575.000,00 · por línea $ 1.575.000,00 · alícuotas inmueble → 1,5 % art. 3 inc. d',
+        porque: 'ES EL UNICO CASO DEL BANCO QUE EXISTE PARA QUE UN NUMERO NO SE MUEVA. El art. 3 inc. d ---testamentos e hijuelas de extraña jurisdiccion--- lleva la MISMA reduccion al 50 % que el inc. c, asi que la casilla no puede cambiar el total: da lo mismo que el primer caso sucesorio, y tiene que darlo. Lo unico que cambia es que la liquidacion impresa cita el inciso correcto, y eso NO se ve en ningun importe. Javier lo pidio asi el 31/8, con el aviso puesto al lado de la casilla: "que le avise al usuario que ningun calculo se mueve y que si lo clickea es al efecto de que el imprimible muestre el inciso correcto". Si un dia el inc. d se lee como una segunda reduccion, el total baja a la mitad y este caso salta.'
     },
 
     // --- tasa, lo que la pantalla nueva agrega -----------------------------
     {
         calc: 'tasa',
-        rotulo: 'El segundo renglon HEREDA la alicuota del primero',
-        campos: { verAlicuotas: true, renglones: [
-            { base: 'inmueble', alicuota: 'sucesorio', importe: '100000000', titularidad: '100' },
-            { base: 'muebles', importe: '20000000', titularidad: '100' }
+        rotulo: 'La segunda línea HEREDA el ítem de la primera',
+        campos: { supuesto: 'sucesion', verAlicuotas: true, lineas: [
+            { item: 'mueble', importe: '20000000', titularidad: '100' },
+            { importe: '20000000', titularidad: '100' }
         ] },
-        esperado: 'total $ 1.875.000,00 · por renglón $ 1.575.000,00 | $ 300.000,00 · alícuotas sucesorio (5 posibles) | sucesorio (4 posibles)',
-        porque: 'El mismo caso de arriba, pero el segundo renglon NO declara alicuota: la hereda. Es lo que reemplaza a las secciones de la pantalla anterior ---en una sucesion con seis bienes se elige "reducida, sucesorio" una vez--- y lo que hace que el par valga es que da el mismo total que el caso de al lado, que si la declara. Si un dia la herencia se rompe, el segundo renglon cae al 3 % general y este caso salta mientras el otro sigue verde.'
+        esperado: 'total $ 600.000,00 · por línea $ 300.000,00 | $ 300.000,00 · alícuotas mueble → 1,5 % art. 3 inc. c | mueble → 1,5 % art. 3 inc. c',
+        porque: 'La segunda linea NO declara item: lo hereda. Es lo que hace comoda la sucesion con seis bienes ---se elige "bien mueble" una vez--- y lo que hay que probar es que hereda el ELEGIDO y no el primero de la lista, que seria "inmueble" y llevaria sobretasa. Si la herencia se rompe, la segunda linea cae en inmueble y el total sube a $615.000 por la sobretasa: salta con un numero, no con un rotulo.'
     },
     {
         calc: 'tasa',
         rotulo: 'Concursal abajo del piso: 0,75 % y nada mas',
-        campos: { renglones: [{ base: 'creditos', alicuota: 'concursal', importe: '80000000' }] },
-        esperado: 'total $ 600.000,00 · por renglón $ 600.000,00',
+        campos: { supuesto: 'concurso', lineas: [{ item: 'creditos', importe: '80000000' }] },
+        esperado: 'total $ 600.000,00 · por línea $ 600.000,00',
         porque: 'Los creditos verificados del acuerdo preventivo (art. 4 inc. e) al 0,75 % de la tasa especial del art. 3. Abajo de $100.000.000 el segundo tramo no existe, y este caso lo fija para que el dia que alguien toque la escala se vea si el primer tramo se movio.'
     },
     {
         calc: 'tasa',
         rotulo: 'Concursal arriba del piso: la unica escala progresiva de la ley',
-        campos: { renglones: [{ base: 'creditos', alicuota: 'concursal', importe: '200000000' }] },
-        esperado: 'total $ 1.000.000,00 · por renglón $ 1.000.000,00',
+        campos: { supuesto: 'concurso', lineas: [{ item: 'creditos', importe: '200000000' }] },
+        esperado: 'total $ 1.000.000,00 · por línea $ 1.000.000,00',
         porque: 'ES PROGRESIVA, a diferencia de la escala de mediacion: $100.000.000 al 0,75 % son $750.000, y los $100.000.000 de excedente al 0,25 % son $250.000. Total $1.000.000. Si alguien la leyera como no progresiva ---0,25 % sobre TODO--- darian $500.000, que es la mitad: el error mas probable y el que este caso caza. El piso de $100.000.000 se toma textual, escrito en 2002 y sin actualizar, por decision de Javier.'
     },
     {
         calc: 'tasa',
-        rotulo: 'El cruce imposible no se puede elegir: una terceria al 3 %',
-        campos: { verAlicuotas: true, renglones: [{ base: 'terceria', alicuota: 'general', importe: '10000000' }] },
-        esperado: 'total $ 150.000,00 · por renglón $ 150.000,00 · alícuotas tercerias (1 posibles)',
-        porque: 'ES LA PRUEBA DEL FILTRO, y el caso esta escrito PIDIENDO EL CRUCE MAL a proposito: el caso declara la alicuota general y la pantalla no se la da, porque el art. 3 inc. h reduce las tercerias sin excepcion. El segundo desplegable ofrece UNA sola opcion y el resultado es $150.000 y no $300.000. Este es el mecanismo que hace estructural el arreglo del cobro doble: antes los dos ejes vivian en un desplegable solo y por eso se podian mezclar.'
+        rotulo: 'El cruce imposible ya no se puede ni pedir: la terceria al 3 %',
+        campos: { supuesto: 'terceria', verAlicuotas: true, lineas: [{ importe: '10000000' }] },
+        esperado: 'total $ 150.000,00 · por línea $ 150.000,00 · alícuotas terceria → 1,5 % art. 3 inc. h',
+        porque: 'ES LA PRUEBA DE QUE EL COBRO DOBLE NO PUEDE VOLVER, y cambio de forma dos veces. Hasta el 27/8 los dos ejes vivian en un desplegable solo y se podian mezclar: una terceria salia al 3 % y cobraba el doble. El 27/8 se separaron y un filtro impedia el cruce. El 31/8 el filtro dejo de hacer falta: la alicuota sale del supuesto, asi que NO EXISTE LA MANERA DE PEDIR una terceria al 3 %. El caso ya no puede declarar el cruce mal ---no hay donde---, asi que lo que fija es lo que la pantalla MUESTRA: 1,5 % del art. 3 inc. h, y $150.000 en vez de $300.000.'
     },
 
-    // --- tasa, el monto fijo y el imprimible -------------------------------
+    // --- tasa, la suma fija y el imprimible --------------------------------
     {
         calc: 'tasa',
-        rotulo: 'Juicio sin valor pecuniario: la suma fija del art. 6',
-        campos: { renglones: [{ base: 'sinvalor' }] },
-        esperado: 'total $ 4.700,00 · por renglón $ 4.700,00',
-        porque: 'No es una alicuota: es un importe, y no lo fija la ley sino la Corte. El renglon no pide monto y el numero sale de data/tasa-monto-fijo.json, con la Acordada 15/2022 al lado. EL CASO FIJA EL VALOR A MANO ---4700--- por lo mismo que los de UMA y UHOM: si se dejara el del archivo, el banco se pondria rojo el dia que salga una acordada nueva sin que nada se haya roto.'
+        rotulo: 'Monto indeterminable o sin valor pecuniario: la suma fija',
+        campos: { supuesto: 'fija', lineas: [{}] },
+        esperado: 'total $ 4.700,00 · por línea $ 4.700,00',
+        porque: 'No es una alicuota: es un importe, y no lo fija la ley sino la Corte. La linea no pide monto y el numero sale de data/tasa-monto-fijo.json, con la Acordada 15/2022 al lado. EL CASO FIJA EL VALOR A MANO ---4700--- por lo mismo que los de UMA y UHOM: si se dejara el del archivo, el banco se pondria rojo el dia que salga una acordada nueva sin que nada se haya roto. HASTA EL 31/8 ERAN DOS CASOS ---art. 5 y art. 6--- con el mismo esperado, porque pagan lo mismo; se unieron cuando se unieron los dos supuestos en la pantalla, y lo que los distinguia se mudo al caso de abajo, que es donde se ve.'
     },
     {
         calc: 'tasa',
-        rotulo: 'Monto indeterminable: la misma suma, pero a cuenta',
-        campos: { renglones: [{ base: 'indeterminable' }] },
-        esperado: 'total $ 4.700,00 · por renglón $ 4.700,00',
-        porque: 'El art. 5 manda abonar la suma del art. 6 A CUENTA, y la tasa se completa al terminar el proceso. El numero es el mismo que el caso de arriba y el par existe porque LO QUE CAMBIA NO ES EL NUMERO: es lo que la pantalla dice en "Cuando se paga", que en este caso trae la intimacion por cedula dentro de los cinco dias. Un refactor que fusione los dos supuestos no movera ningun total.'
+        rotulo: 'La suma fija trae LOS DOS momentos: el art. 5 y el art. 6',
+        campos: { supuesto: 'fija', verMomentos: true, lineas: [{}] },
+        esperado: 'total $ 4.700,00 · por línea $ 4.700,00 · momentos art. 5 | art. 6',
+        porque: 'ESTE CASO NO MIRA EL TOTAL, y es el par del de arriba. Los arts. 5 y 6 pagan la MISMA suma y lo unico que los separa es CUANDO: el art. 5 la manda pagar A CUENTA ---la tasa se completa al terminar el proceso, con intimacion por cedula dentro de los cinco dias--- y el art. 6 es la tasa entera y definitiva al inicio. Javier los unio en un supuesto solo el 31/8 porque en la pantalla eran indistinguibles, con la condicion de que el hint fuera doble: "si es art. 5 blabla y si es art. 6 blabla". Si un dia la pantalla dice un momento solo, NINGUN numero se mueve y el que lee elige mal sin saberlo. Por eso hay un caso.'
     },
     {
         calc: 'tasa',
-        rotulo: 'El imprimible separa la reconvencion del principal (art. 8)',
-        campos: { verLiquidacion: true, renglones: [
-            { concepto: 'Demanda', base: 'sumas', alicuota: 'general', importe: '10000000' },
-            { concepto: 'Reconvención', clase: 'reconvencion', base: 'sumas', importe: '4000000' }
+        rotulo: 'El imprimible separa la ampliación de demanda del principal (art. 8)',
+        campos: { supuesto: 'demanda', verLiquidacion: true, lineas: [
+            { item: 'sumas', importe: '10000000' },
+            { clase: 'ampliacion', importe: '4000000' }
         ] },
-        esperado: 'total $ 420.000,00 · por renglón $ 300.000,00 | $ 120.000,00 · liquidación Juicio principal $ 300.000,00 | Reconvención $ 120.000,00',
-        porque: 'ESTE CASO NO MIRA EL TOTAL, mira la AGRUPACION. El art. 8 dice que las ampliaciones y las reconvenciones estan sujetas a la tasa "como si fueran juicios independientes del principal", asi que el imprimible ---que es la liquidacion detallada que el art. 4 in fine manda acompañar al pago--- tiene que mostrarlas separadas con su propio subtotal, o dice algo que la ley no dice. Y esto NO se ve en ningun numero: si la agrupacion se pierde, los tres importes siguen siendo los mismos y el total tambien.'
+        esperado: 'total $ 420.000,00 · por línea $ 300.000,00 | $ 120.000,00 · liquidación Juicio principal $ 300.000,00 | Ampliación de demanda $ 120.000,00',
+        porque: 'ESTE CASO NO MIRA EL TOTAL, mira la AGRUPACION. El art. 8 dice que las ampliaciones y las reconvenciones estan sujetas a la tasa "como si fueran juicios independientes del principal", asi que el imprimible ---que es la liquidacion detallada que el art. 4 in fine manda acompañar al pago--- tiene que mostrarlas separadas con su propio subtotal, o dice algo que la ley no dice. Y esto NO se ve en ningun numero: si la agrupacion se pierde, los tres importes siguen siendo los mismos y el total tambien. HASTA EL 31/8 ESTE CASO USABA UNA RECONVENCION, que ya no es una opcion de la pantalla: la paga el demandado y es su propia liquidacion. Los tres importes son los mismos ---el art. 8 no mueve ningun numero, solo agrupa--- y lo unico que cambio es el rotulo del grupo.'
+    },
+
+    // --- tasa, como se lee el importe pegado -------------------------------
+    //
+    // ESCRITOS EL 31/8 CON EL LECTOR REHECHO. La gente no escribe el monto: lo
+    // pega, de una planilla, de un PDF o de un sistema en ingles, y llega con
+    // puntos, con comas, con simbolo o con las tres cosas. Los cinco casos
+    // cubren las cuatro formas que tienen que dar lo mismo y la quinta, que
+    // tiene que avisar. Todos con el supuesto mas comun ---sumas de dinero al
+    // 3 %--- para que el numero se lea de memoria.
+    {
+        calc: 'tasa',
+        rotulo: 'El importe pegado con puntos de miles y coma decimal',
+        campos: { supuesto: 'demanda', lineas: [{ item: 'sumas', importe: '1.234.567,89' }] },
+        esperado: 'total $ 37.037,04 · por línea $ 37.037,04',
+        porque: 'La forma en que se escribe un monto acá, y la que mas se pega. El 3 % de $1.234.567,89. Hasta el 31/8 se leia bien, pero por un camino distinto al del formato ingles de abajo: ahora los dos salen de la misma regla ---el separador decimal es el ultimo que aparece, y solo si aparece una vez---.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'El mismo importe en formato inglés',
+        campos: { supuesto: 'demanda', lineas: [{ item: 'sumas', importe: '1,234,567.89' }] },
+        esperado: 'total $ 37.037,04 · por línea $ 37.037,04',
+        porque: 'EL PAR DEL ANTERIOR, y hasta el 31/8 daba $0,04: el lector viejo borraba los puntos ---o sea el separador DECIMAL--- y despues cambiaba la primera coma por un punto, con lo que $1.234.567,89 se volvia $1,23. Un importe pegado de un sistema en ingles entraba mil veces mas chico y la pantalla no decia nada.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Con símbolo, y un punto con tres dígitos atrás es de miles',
+        campos: { supuesto: 'demanda', lineas: [{ item: 'sumas', importe: '$ 10.800' }] },
+        esperado: 'total $ 324,00 · por línea $ 324,00',
+        porque: 'El signo, el espacio y el punto de miles: es lo que sale de copiar una celda de una planilla. $10.800 al 3 % son $324.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Un punto con menos de tres dígitos atrás es decimal',
+        campos: { supuesto: 'demanda', lineas: [{ item: 'sumas', importe: '10.8' }] },
+        esperado: 'total $ 0,32 · por línea $ 0,32',
+        porque: 'EL PAR DEL ANTERIOR, y la unica lectura ambigua que queda: "10.800" son diez mil ochocientos y "10.8" son diez con ocho. Los dos juntos fijan la regla de los tres digitos, que es la que decide. Si un dia se toca, uno de los dos salta.'
+    },
+    {
+        calc: 'tasa',
+        rotulo: 'Lo que no se puede leer avisa, y no vale cero en silencio',
+        campos: { supuesto: 'demanda', verAvisos: true, lineas: [{ item: 'sumas', importe: 'diez mil' }] },
+        esperado: 'total — · por línea — · aviso No se entiende ese importe. Se escribe 1.234.567,89 o 1234567.89.',
+        porque: 'EL QUE IMPORTA. Hasta el 31/8 un importe ilegible valia CERO y nadie lo decia: la linea quedaba cargada, aportaba nada y el total parecia completo. Una linea que aporta cero es peor que un error porque parece una cuenta. El total vuelve al neutro ---una raya, no $0,00, porque no es que la tasa sea cero sino que todavia no hay cuenta--- y la frase dice como se escribe.'
     },
 
     // --- tasa, el enlace y las exenciones ----------------------------------
     {
         calc: 'tasa',
         rotulo: 'El enlace lleva el caso entero y lo devuelve igual',
-        campos: { verEnlace: true, renglones: [
-            { concepto: 'Departamento', base: 'inmueble', alicuota: 'sucesorio', importe: '100000000', titularidad: '1/2' },
-            { concepto: 'Automóvil', base: 'muebles', importe: '20000000' }
+        campos: { supuesto: 'sucesion', verEnlace: true, lineas: [
+            { item: 'inmueble', nombre: 'Departamento', importe: '100000000', titularidad: '1/2' },
+            { item: 'mueble', nombre: 'Automóvil', importe: '20000000' }
         ] },
-        esperado: 'ida $ 1.087.500,00 · vuelta $ 1.087.500,00 · renglones 2 · conceptos Departamento, Automóvil',
-        porque: 'Se codifica el caso, se borra todo y se vuelve a armar desde el codigo: si la vuelta no da lo mismo que la ida, el enlace pierde algo. Y el caso esta elegido para que pierda: lleva DOS renglones, una titularidad escrita como fraccion, un concepto con tilde y una alicuota heredada que el segundo renglon no declara. Cualquiera de esas cuatro cosas se puede caer sin que el total del primer renglon se mueva. El enlace va en el FRAGMENTO y no en la query, asi que el caso no viaja a ningun servidor: es lo que permite compartir una liquidacion sin contradecir que nada de lo que se escribe sale del navegador.'
+        esperado: 'ida $ 1.087.500,00 · vuelta $ 1.087.500,00 · sucesion: inmueble 1/2 «Departamento», mueble «Automóvil»',
+        porque: 'Se codifica el caso, se borra todo y se vuelve a armar desde el codigo: si la vuelta no da lo mismo que la ida, el enlace pierde algo. Y el caso esta elegido para que pierda: lleva el supuesto, DOS lineas con items distintos, una titularidad escrita como fraccion y dos nombres, uno con tilde. EL NOMBRE ES LA PARTE QUE NO MUEVE NINGUN NUMERO Y HAY QUE MIRAR IGUAL: es el dato que se perdio el 31/8 a la mañana al sacar la columna de concepto, y sin el la liquidacion impresa no puede decir cual de los dos bienes es cual. El enlace va en el FRAGMENTO y no en la query, asi que el caso no viaja a ningun servidor: es lo que permite compartir una liquidacion sin contradecir que nada de lo que se escribe sale del navegador.'
     },
     {
         calc: 'tasa',
