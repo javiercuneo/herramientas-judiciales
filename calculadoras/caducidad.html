@@ -3,178 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Caducidad de Instancia - Art. 310 CPCCN</title>
+    <title>Caducidad de instancia</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <script src="../assets/tema.js"></script>
     <style>
+        /* ==================================================================
+           caducidad.html — rediseño del 31/8/2026
 
+           TOMA LA FORMA DE vencimientos.html, que es la pantalla de patrón, con
+           sus mismos criterios: cada control ocupa lo que mide su contenido, lo
+           único grande es el resultado, el formulario a la izquierda y la
+           respuesta a la derecha, y nada se separa con una línea si alcanza con
+           el espacio.
+
+           NO TOCA NI UN ID NI EL CÓMPUTO, y tampoco toca los hitos, que es lo
+           mejor que tiene esta pantalla: el bloque de abajo se conserva entero,
+           comentario incluido. Los 75 casos de
+           scripts/pruebas-calculadoras.html leen esta pantalla por id
+           ---#calculatorForm por submit, #resultDate por texto--- y que sigan
+           pasando es la prueba de que nada se movió.
+
+           LO QUE SE FUE:
+
+           - `body { display:flex; align-items:center }`. Era la única de las
+             once centrada verticalmente: con el resultado abierto la página
+             saltaba, porque el contenido crecía y el centrado lo reacomodaba.
+           - `.container` de 700 px. Los otros cuatro de plazos miden 940 y van
+             en dos columnas.
+           - El `<h1>` de 28 px, que le daba a un título el tamaño que le
+             corresponde al resultado.
+           - Los rótulos «Día», «Mes» y «Año» abajo de cada casillero. El
+             placeholder ya dice DD, MM y AAAA: eran seis palabras para explicar
+             un formato de fecha que nadie necesita que le expliquen.
+           - `.date-input-group { flex: 1 }`, que estiraba tres campos de dos
+             dígitos hasta ocupar el ancho de la tarjeta.
+           - «Calcular Vencimiento» y «Calculadora de Caducidad», con las
+             mayúsculas de título en inglés.
+
+           LO QUE NO SE FUE, y es a propósito: `.hidden-computation`, que sigue
+           con `display:none`. Es un cómputo que la pantalla no muestra y que el
+           JavaScript igual escribe; sacarlo es una decisión y está anotada en
+           docs/ESTADO.md, no es parte de un rediseño visual.
+
+           OJO CON LOS TOKENS: no redefinir acá --accent, --bg, --card ni
+           --error. `--accent: var(--accent)` es un ciclo y deja la variable en
+           la cadena vacía, sin ningún error visible.
+           ================================================================== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: var(--font-sans);
             background: var(--bg);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: calc(var(--radius) * 2);
-            max-width: 700px;
-            width: 100%;
-            padding: 40px;
-        }
-
-        /* Era la unica calculadora sin ninguna media query. No llegaba a
-           desbordar, pero 40px de padding a cada lado se comen un tercio
-           del ancho util en un telefono. */
-        @media (max-width: 600px) {
-            body { padding: 12px; }
-            .container { padding: 22px 18px; border-radius: 14px; }
-        }
-
-        h1 {
-            color: var(--fg);
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-align: center;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            color: var(--muted-fg);
+            padding: 26px 20px 40px;
             font-size: 14px;
-            text-align: center;
-            margin-bottom: 15px;
+            color: var(--fg);
         }
+
+        .hoja { max-width: 940px; margin: 0 auto; }
+
+        /* ---------------------------------------------------------- cabecera */
+        .cabecera {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .titulo { display: flex; flex-direction: column; gap: 5px; }
+
+        .cabecera h1 {
+            font-family: var(--font-meter);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .cabecera h1 span { color: var(--accent); }
+
+        .subtitle { font-size: 12.5px; color: var(--muted-fg); }
 
         #apiStatus {
-            text-align: center;
             font-size: 12px;
-            margin-bottom: 20px;
-            padding: 8px;
-            border-radius: 8px;
-            background: var(--sunk);
-            color: var(--muted-fg);
-            font-weight: 600;
+            color: var(--faint);
+            max-width: 46ch;
+            text-align: right;
         }
 
-        .form-group { margin-bottom: 25px; }
-        label {
+        /* ------------------------------------------------- las dos columnas */
+        .tablero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .tablero { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px 24px;
+        }
+
+        .form-group { margin-bottom: 22px; }
+        .form-group:last-child { margin-bottom: 0; }
+
+        .rotulo, .form-group > label {
             display: block;
-            color: var(--fg);
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin-bottom: 8px;
         }
 
         select {
-            width: 100%;
-            padding: 12px 15px;
+            font-family: var(--font-sans);
+            font-size: 13.5px;
+            padding: 10px 12px;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-family: inherit;
-            font-size: 14px;
-            color: var(--fg);
+            border-radius: 8px;
             background: var(--card);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .custom-months { display: none; margin-top: 15px; }
-        .custom-months.show { display: block; }
-        .custom-months input {
-            width: 100px;
-            padding: 10px 15px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            text-align: center;
-        }
-
-        .date-inputs { display: flex; gap: 10px; align-items: center; }
-        .date-input-group { flex: 1; }
-        .date-input-group label {
-            font-size: 12px;
-            color: var(--muted-fg);
-            margin-bottom: 5px;
-        }
-        .date-input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-family: inherit;
-            font-size: 16px;
-            font-weight: 600;
-            text-align: center;
             color: var(--fg);
-        }
-
-        .date-separator {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--faint);
-            padding-top: 20px;
-        }
-
-        .buttons { display: flex; gap: 15px; margin-top: 30px; }
-        button {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: var(--radius);
-            font-family: inherit;
-            font-size: 16px;
-            font-weight: 600;
+            max-width: 100%;
             cursor: pointer;
-            transition: all 0.3s ease;
+        }
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
         }
 
+        .custom-months { display: none; margin-top: 12px; }
+        .custom-months.show { display: flex; align-items: center; gap: 8px; }
+        .custom-months label {
+            font-size: 11px;
+            color: var(--faint);
+            text-transform: none;
+            letter-spacing: 0;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .date-inputs { display: flex; gap: 6px; align-items: center; }
+        .date-input-group { display: flex; }
+        /* Los rótulos «Día», «Mes» y «Año» de abajo de cada casillero se fueron:
+           el placeholder ya dice DD, MM y AAAA. */
+        .date-input-group label { display: none; }
+
+        input[type="text"], input[type="number"] {
+            font-family: var(--font-meter);
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            padding: 9px 6px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--fg);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+        #day, #month { width: 4.4ch; }
+        #year { width: 6.8ch; }
+        #customValue { width: 5.2ch; padding: 7px 6px; font-size: 15px; }
+
+        .date-separator { color: var(--faint); font-weight: 600; }
+
+        .error-message {
+            display: none;
+            font-size: 11.5px;
+            color: var(--error);
+            margin-top: 8px;
+        }
+        .error-message.show { display: block; }
+
+        /* --------------------------------------------------------- acciones */
+        .buttons { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+
+        button {
+            font-family: var(--font-sans);
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 11px 22px;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+        }
         .btn-calculate {
             background: var(--accent);
             color: var(--on-accent);
+            box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
         }
+        .btn-calculate:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--accent-tint); }
         .btn-clear {
-            background: var(--sunk);
+            background: transparent;
             color: var(--muted-fg);
             border: 1px solid var(--border);
         }
+        .btn-clear:hover { color: var(--fg); background: var(--sunk); }
 
-        .result {
-            display: none;
-            margin-top: 30px;
-            padding: 25px;
-            background: var(--accent-tint);
-            border-radius: var(--radius);
-            border-left: 3px solid var(--accent);
-        }
-        .result.show { display: block; }
+        /* -------------------------------------------------------- resultado */
+        .resultado { min-width: 0; }
 
-        .result-title {
-            color: var(--fg);
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        .result-date {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 10px;
-        }
-        .result-details {
-            color: var(--muted-fg);
-            font-size: 14px;
+        .espera {
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            padding: 30px 26px;
+            color: var(--faint);
+            font-size: 13px;
             line-height: 1.6;
         }
+        .espera b {
+            display: block;
+            font-family: var(--font-meter);
+            font-size: 15px;
+            color: var(--muted-fg);
+            margin-bottom: 6px;
+        }
+
+        .result { display: none; }
+        .result.show { display: block; }
+
+        .veredicto {
+            background: var(--accent);
+            color: var(--on-accent);
+            border-radius: 14px;
+            padding: 26px 28px;
+        }
+        .result-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            opacity: 0.82;
+            margin-bottom: 5px;
+        }
+        .result-date {
+            font-family: var(--font-meter);
+            font-size: clamp(30px, 4.6vw, 44px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.01em;
+        }
+        .result-details { font-size: 12.5px; opacity: 0.86; margin-top: 8px; line-height: 1.5; }
+
+        /* La negativa NO se pinta como un resultado: una fecha en la caja del
+           acento se lee como la respuesta aunque diga que no la hay. */
+        .result.negativa .veredicto {
+            background: var(--warn-tint);
+            color: var(--warn);
+            border: 1px solid var(--warn);
+        }
+        .result.negativa .result-date { font-size: 17px; line-height: 1.4; }
 
         .hidden-computation { display: none; }
+
+        /* --------------------------------------------------------- colofón */
+        .firma {
+            margin-top: 26px;
+            padding-top: 14px;
+            border-top: 1px solid var(--hair);
+            font-size: 11.5px;
+            color: var(--faint);
+        }
+        .firma .enlaces { display: inline-flex; gap: 12px; margin-left: 4px; }
+        .firma a { color: var(--accent); text-decoration: none; }
+        .firma a:hover { text-decoration: underline; }
+
+        @media (max-width: 600px) {
+            body { padding: 18px 14px 30px; }
+            .panel { padding: 18px 16px; }
+            .cabecera { flex-direction: column; align-items: flex-start; gap: 8px; }
+            #apiStatus { text-align: left; }
+            .firma .enlaces { display: flex; margin: 6px 0 0; }
+        }
 
         /* ------------------------------------------------------ los hitos
 
@@ -271,14 +384,19 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Calculadora de Caducidad</h1>
-        <p class="subtitle">Art. 310 del Código Procesal Civil y Comercial de la Nación</p>
-        <div id="apiStatus">Cargando base de datos de feriados...</div>
+    <div class="hoja">
+        <header class="cabecera">
+            <div class="titulo">
+                <h1>Caducidad de <span>instancia</span></h1>
+                <p class="subtitle">Art. 310 del Código Procesal Civil y Comercial de la Nación</p>
+            </div>
+            <p id="apiStatus">Cargando el calendario judicial…</p>
+        </header>
 
-        <form id="calculatorForm">
+        <div class="tablero">
+        <form class="panel" id="calculatorForm">
             <div class="form-group">
-                <label for="plazo">Plazo a computar (art. 310 CPCCN)</label>
+                <label for="plazo">Plazo a computar</label>
                 <select id="plazo" required>
                     <option value="">Elegí un plazo…</option>
                     <option value="6">6 meses (primera o única instancia)</option>
@@ -287,51 +405,66 @@
                     <option value="1">1 mes (incidente de caducidad)</option>
                 </select>
                 <div class="custom-months" id="customMonths">
-                    <label>Meses (1-6):</label>
-                    <input type="number" id="customValue" min="1" max="6">
+                    <input type="number" id="customValue" min="1" max="6" aria-label="Meses, de 1 a 6">
+                    <label for="customValue">meses, de 1 a 6</label>
                 </div>
             </div>
 
             <div class="form-group">
                 <label>Último acto impulsor</label>
                 <div class="date-inputs">
-                    <div class="date-input-group"><label>Día</label><input type="text" id="day" maxlength="2" placeholder="DD" required></div>
+                    <div class="date-input-group"><label for="day">Día</label><input type="text" id="day" maxlength="2" placeholder="DD" inputmode="numeric" aria-label="Día" required></div>
                     <span class="date-separator">/</span>
-                    <div class="date-input-group"><label>Mes</label><input type="text" id="month" maxlength="2" placeholder="MM" required></div>
+                    <div class="date-input-group"><label for="month">Mes</label><input type="text" id="month" maxlength="2" placeholder="MM" inputmode="numeric" aria-label="Mes" required></div>
                     <span class="date-separator">/</span>
-                    <div class="date-input-group"><label>Año</label><input type="text" id="year" maxlength="4" placeholder="AAAA" required></div>
+                    <div class="date-input-group"><label for="year">Año</label><input type="text" id="year" maxlength="4" placeholder="AAAA" inputmode="numeric" aria-label="Año" required></div>
                 </div>
-                <div class="error-message" id="dateError">Fecha no válida</div>
+                <div class="error-message" id="dateError">Esa fecha no existe en el calendario.</div>
             </div>
 
             <div class="buttons">
-                <button type="submit" class="btn-calculate">Calcular Vencimiento</button>
+                <button type="submit" class="btn-calculate">Calcular</button>
                 <button type="button" class="btn-clear" id="clearBtn">Limpiar</button>
             </div>
         </form>
 
-        <div class="result" id="result">
-            <div class="result-title">La caducidad se produce el día:</div>
-            <div class="result-date" id="resultDate"></div>
-            <div class="result-details" id="resultDetails"></div>
-            <ol class="hitos" id="hitos"></ol>
-            <div class="hidden-computation">
-                <hr class="hr-divider">
-                <div class="result-title">Cómputo con Días Inhábiles y Feriados:</div>
-                <div class="result-date" id="resultDateFull"></div>
-                <div class="result-details" id="resultDetailsFull"></div>
+        <div class="resultado">
+            <div class="espera" id="espera">
+                <b>La fecha de caducidad aparece acá.</b>
+                Cargá el plazo y la fecha del último acto impulsor, y abajo se
+                arma la línea de hitos: desde cuándo corre, qué lo suspendió y
+                hasta cuándo llega.
+            </div>
+
+            <div class="result" id="result">
+                <div class="veredicto">
+                    <div class="result-title">La caducidad se produce el día</div>
+                    <div class="result-date" id="resultDate"></div>
+                    <div class="result-details" id="resultDetails"></div>
+                </div>
+                <div class="hidden-computation">
+                    <div class="result-title">Cómputo con días inhábiles y feriados</div>
+                    <div class="result-date" id="resultDateFull"></div>
+                    <div class="result-details" id="resultDetailsFull"></div>
+                </div>
             </div>
         </div>
-
-        <!-- FOOTER DE AUTORÍA -->
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--hair); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
-            <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
-            <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-                <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
-                <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-                <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
-            </span>
         </div>
+
+        <!-- Los hitos van a ancho completo y abajo, como el dibujo del
+             calendario en las otras tres: son el porqué del número, y quieren
+             todo el ancho que haya. -->
+        <ol class="hitos" id="hitos"></ol>
+
+        <p class="firma">
+            L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el
+            criterio del juez.
+            <span class="enlaces">
+                <a href="https://github.com/javiercuneo" target="_blank" rel="noopener">GitHub</a>
+                <a href="../index.html">Herramientas</a>
+                <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener">LinkedIn</a>
+            </span>
+        </p>
     </div>
     <script src="js/calendario-judicial.js"></script>
     <script src="js/plazos.js"></script>
@@ -417,6 +550,8 @@
             // con la explicacion de otra fecha debajo, y la explicacion es lo
             // que se lee con mas confianza.
             document.getElementById('hitos').innerHTML = '';
+            document.getElementById('espera').hidden = true;
+            result.classList.add('negativa');
             result.classList.add('show');
         };
 
@@ -441,6 +576,8 @@
             return;
         }
 
+        document.getElementById('espera').hidden = true;
+        result.classList.remove('negativa');
         document.getElementById('resultDate').innerText = r.vencimiento.toLocaleDateString('es-AR');
         document.getElementById('resultDetails').textContent =
             'Desde el último acto impulsor del ' + r.inicio.toLocaleDateString('es-AR') +
@@ -556,8 +693,14 @@
     document.getElementById('clearBtn').addEventListener('click', function() {
         form.reset();
         result.classList.remove('show');
+        // Vuelve el aviso de espera. Sin esto la columna derecha queda VACIA
+        // despues de limpiar, que es peor que antes del rediseno: el formulario
+        // se corre de lugar y no queda nada diciendo donde va a salir la
+        // respuesta.
+        document.getElementById('espera').hidden = false;
         document.getElementById('hitos').innerHTML = '';
         document.getElementById('customMonths').classList.remove('show');
+        document.getElementById('dateError').classList.remove('show');
     });
 </script>
 </body>

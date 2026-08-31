@@ -4470,3 +4470,98 @@ Las dos describían el comportamiento anterior con la misma seguridad con la que
 habrían descrito el actual, que es lo que las hacía peligrosas. **Una guía no
 tiene control automático que la contraste con el motor**, y `verificar-docs`
 sólo comprueba que las normas y los artículos que nombra existan.
+
+---
+
+## El rediseño de `caducidad`, `entre-fechas` y `regresiva` — cerrado el 31/8
+
+Era lo último que quedaba del pedido de uniformar las once calculadoras. Las
+tres habían migrado al motor compartido el 26/8 sin que se les tocara la forma,
+así que seguían con la de antes: una tarjeta centrada de 700 u 900 px, cajas
+hundidas por grupo de campos, títulos de 28 px y botones que decían «Resetear».
+
+**Las tres tomaron la forma de `vencimientos.html`**, con sus mismos criterios:
+cada control ocupa lo que mide su contenido, lo único grande de la página es el
+resultado, el formulario a la izquierda y la respuesta a la derecha, y nada se
+separa con una línea si alcanza con el espacio.
+
+### La regla que ordenó el trabajo: forma sí, comportamiento no
+
+**Antes de tocar una línea se leyó qué selectores usa
+`scripts/pruebas-calculadoras.html` sobre cada pantalla**, porque romperlos es
+la forma fácil de arruinar un rediseño sin que se note. El contrato es por `id`
+y hay que conservarlo entero: `#calculatorForm` recibe un `submit` en
+`caducidad`, `#availableYears` tiene que seguir diciendo «disponible para» en
+`entre-fechas`, `#infoAnios` tiene que seguir diciendo «Calculadora disponible»
+en `regresiva`, y las tres tienen que seguir devolviendo el resultado en el
+mismo elemento.
+
+De ahí sale la única decisión de fondo del trabajo: **los errores siguen
+saliendo por `alert()`**. Un cuadro de diálogo tapa la pantalla, no se puede
+releer y no señala el campo, así que es peor que el error al lado del campo que
+usa `vencimientos`. Pero el banco captura el `alert()` para distinguir «no
+calcula» de un resultado: cambiarlo es un cambio coordinado de dos pantallas y
+del banco, o sea comportamiento, y esto era forma. Quedó anotado como abierto.
+
+**Que el banco siga en 75 de 75 es la prueba de que no se movió un número**, y
+eso incluye las 21 filas que corren las mismas pantallas embebidas en el
+tablero. Los iframes miden ahora 647, 738 y 659 px contra 647, 737 y 658 de
+contenido: el mecanismo de alto no se rompió con el cambio de layout.
+
+### Lo que se fue de cada una, y por qué
+
+**`entre-fechas`.** Tres `.section` con fondo `--sunk`: la página parecía tres
+formularios y no uno. Los `<input>` de 50 px fijos, que ahora miden lo que mide
+su contenido. Y dos elementos **muertos**: `#apiWarning`, que existía en el
+markup con su CSS y al que ningún JavaScript le escribía nunca, y `.api-fallback`,
+que sólo existía en el CSS. Con ellos se fueron dos colores planos, `#fcf8e3` y
+`#8a6d3b`. Los otros dos que quedaban eran `#ffe6e6` —el fondo del campo con
+error, que en tema oscuro pintaba rosa claro debajo de texto casi blanco— y
+`#5a6268`, el hover del botón de limpiar.
+
+El número grande ahora dice **en qué se contó**: «58 · días corridos» o «18 ·
+días hábiles». Son respuestas distintas a preguntas distintas y el número solo
+no lo decía.
+
+**`regresiva`.** El `.panel` hundido para el único grupo de campos que hay, y
+los inputs con `flex: 1 1 250px` —un campo que pide un número de días no mide
+250 px—. Se fue `#errorGlobal`, que sólo se usaba para repetir lo que el aviso
+de cobertura ya decía cuando el calendario no cargaba: dos carteles para un
+problema. Y `.badge`, que estaba en el CSS sin que ningún elemento la usara.
+
+**`caducidad`.** `body { display: flex; align-items: center }` — era la única de
+las once centrada verticalmente, y con el resultado abierto la página saltaba,
+porque el contenido crecía y el centrado lo reacomodaba. Los rótulos «Día»,
+«Mes» y «Año» debajo de cada casillero, que eran seis palabras para explicar un
+formato que el placeholder ya dice. Y `.date-input-group { flex: 1 }`, que
+estiraba tres campos de dos dígitos hasta el ancho de la tarjeta.
+
+**Los hitos de `caducidad` no se tocaron**, comentario incluido. Son lo mejor
+que tiene esa pantalla y explican por qué es la única de las cuatro que no
+dibuja un calendario. Lo que sí se hizo fue mudarlos abajo y a ancho completo,
+que es donde va el «porqué» en las otras tres.
+
+Y una cosa que el rediseño **agregó**: la negativa de `caducidad` ya no se pinta
+como un resultado. Antes «No se puede calcular» salía en la misma caja de acento
+y con la misma tipografía grande que una fecha, o sea que una negativa se leía
+con la autoridad de una respuesta.
+
+### Dos bugs que aparecieron al probar, y no antes
+
+- **La columna derecha quedaba vacía después de «Limpiar»** en `caducidad`. El
+  handler escondía el resultado y no devolvía el aviso de espera, así que el
+  formulario se corría de lugar y no quedaba nada diciendo dónde iba a salir la
+  respuesta: peor que antes del rediseño. Se encontró probando el ciclo entero
+  —calcular, limpiar— y no mirando la pantalla recién cargada, que es donde se
+  ve bien.
+- **El `<title>` de `vencimientos` era el nombre genérico.** Decía «Calculadora
+  de Plazos Judiciales», que es además el `<h1>` de `regresiva`: en una pestaña
+  y en el historial las dos se llamaban casi igual, y la genérica era la que
+  hace lo más común. Ahora dice lo mismo que su propio `<h1>`. La decisión de
+  nombre de fondo sigue abierta.
+
+### Y una que no se hizo a propósito
+
+`vencimientos` es la única de las seis sin el pie de autoría. Las otras cinco lo
+llevan. El rediseño se lo dejó a las tres que tocó: sacárselo a tres para
+emparejar con la que puede estar equivocada es la forma más cara de uniformar.

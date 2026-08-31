@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Calculadora de días entre fechas</title>
+    <title>Días entre dos fechas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,363 +14,433 @@
     <link rel="stylesheet" href="css/dibujo-plazo.css">
     <script src="../assets/tema.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* ==================================================================
+           entre-fechas.html — rediseño del 31/8/2026
+
+           TOMA LA FORMA DE vencimientos.html, que es la pantalla de patrón, y
+           los criterios que la ordenaron se repiten acá:
+
+             - cada control ocupa lo que mide su contenido;
+             - lo único grande de la página es el resultado;
+             - nada se separa con una línea si alcanza con el espacio;
+             - el formulario a la izquierda y la respuesta a la derecha.
+
+           LO QUE ESTE REDISEÑO NO TOCA: ni un id, ni el cómputo, ni el
+           contrato de errores. Los errores siguen saliendo por alert() ---que
+           es peor que un error al lado del campo y está anotado como pendiente,
+           pero cambiarlo es cambiar comportamiento y esto es forma---. Los
+           75 casos de scripts/pruebas-calculadoras.html leen esta pantalla por
+           id, y que sigan pasando es la prueba de que nada se movió.
+
+           LO QUE SE FUE, y por qué cada uno:
+
+           - `.section` con fondo `--sunk` y borde redondeado. Tres cajas
+             hundidas para tres grupos de campos: la página parecía tres
+             formularios y no uno.
+           - Los `<h1>` de 28 px centrados, que le daban a un título el tamaño
+             que le corresponde al resultado.
+           - `#apiWarning` y `.api-fallback`, MUERTOS: el markup existía, el CSS
+             existía, y ningún JavaScript les escribía nunca. Con ellos se
+             fueron dos colores planos, #fcf8e3 y #8a6d3b.
+           - Los otros dos colores planos: #ffe6e6, el fondo del campo con
+             error, que en tema oscuro pintaba rosa claro debajo de texto casi
+             blanco; y #5a6268, el hover del botón de limpiar.
+           - "Resetear", que no es una palabra que alguien use.
+           - Los `<input>` de 50 px fijos: ahora miden lo que mide su contenido,
+             dos caracteres o cuatro.
+
+           OJO CON LOS TOKENS: no redefinir acá --accent, --bg, --card ni
+           --error. Los define comun.css. `--accent: var(--accent)` es un ciclo:
+           la propiedad queda inválida en tiempo de cómputo y var() devuelve la
+           cadena vacía, sin ningún error visible.
+           ================================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: var(--font-sans);
             background: var(--bg);
             min-height: 100vh;
-            padding: 20px;
+            padding: 26px 20px 40px;
             font-size: 14px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            padding: 40px;
-        }
-
-        h1 {
-            color: var(--accent);
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .available-years {
-            text-align: center;
-            color: var(--fg); /* Color cambiado para el texto principal */
-            font-size: 13px; /* Tamaño ligeramente aumentado */
-            margin-bottom: 30px;
-            padding: 10px;
-            background: var(--sunk);
-            border-radius: 8px;
-        }
-        .available-years strong {
-             font-weight: 700;
-        }
-
-        .warning {
-            background: var(--warn-tint);
-            color: var(--warn);
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 11px;
-            border-left: 4px solid var(--warn);
-        }
-
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: var(--sunk);
-            border-radius: 12px;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
             color: var(--fg);
-            margin-bottom: 15px;
         }
 
-        .date-inputs {
+        .hoja { max-width: 940px; margin: 0 auto; }
+
+        /* ---------------------------------------------------------- cabecera */
+        .cabecera {
             display: flex;
-            gap: 10px;
-            align-items: center;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
             flex-wrap: wrap;
+            margin-bottom: 20px;
         }
 
-        .date-group {
-            display: flex;
-            gap: 8px;
-            align-items: center;
+        .cabecera h1 {
+            font-family: var(--font-meter);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
         }
+        .cabecera h1 span { color: var(--accent); }
+
+        /* Este texto y el colofón son los únicos de la página que no se apoyan
+           en la tarjeta: van sobre --bg, donde --faint da 4,78. */
+        .cobertura {
+            font-size: 12px;
+            color: var(--faint);
+            max-width: 46ch;
+            text-align: right;
+        }
+
+        /* ------------------------------------------------- las dos columnas */
+        .tablero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .tablero { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px 24px;
+        }
+
+        .grupo { margin-bottom: 22px; }
+        .grupo:last-child { margin-bottom: 0; }
+
+        .rotulo {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin-bottom: 8px;
+        }
+
+        /* Las dos fechas van una al lado de la otra y no en dos cajas: son la
+           misma pregunta hecha dos veces, y a lo ancho entran. */
+        .campos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 22px 30px;
+            align-items: flex-start;
+        }
+        .campo { display: flex; flex-direction: column; }
+
+        .trio { display: flex; gap: 6px; align-items: center; }
 
         input[type="text"] {
-            width: 50px;
-            padding: 10px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 13px;
+            font-family: var(--font-meter);
+            font-size: 17px;
+            font-weight: 600;
             text-align: center;
-            font-family: var(--font-sans);
-            transition: border-color 0.3s;
+            padding: 9px 6px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--fg);
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
-
-        input[type="text"].year-input {
-            width: 70px;
-        }
-
         input[type="text"]:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
         }
-
+        /* Sólo el borde y su tinte. El fondo plano rosa que había acá era de
+           tema claro: en oscuro quedaba texto casi blanco sobre casi blanco. */
         input[type="text"].error {
             border-color: var(--error);
-            background: #ffe6e6;
+            box-shadow: 0 0 0 3px var(--error-tint);
         }
 
-        .input-separator {
-            color: var(--faint);
-            font-weight: 600;
-        }
+        input.mide-2 { width: 4.4ch; }
+        input.mide-4 { width: 6.8ch; }
 
-        .checkbox-group {
+        .separador { color: var(--faint); font-weight: 600; }
+
+        /* ------------------------------------------------------- casillas */
+        .casilla {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .checkbox-item label {
-            cursor: pointer;
+            align-items: flex-start;
+            gap: 9px;
             font-size: 13px;
             color: var(--muted-fg);
+            cursor: pointer;
+            line-height: 1.45;
+        }
+        .casilla + .casilla { margin-top: 10px; }
+        .casilla input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            margin-top: 1px;
+            flex: 0 0 auto;
+            accent-color: var(--accent);
+            cursor: pointer;
         }
 
-        .buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-        }
+        /* --------------------------------------------------------- acciones */
+        .acciones { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
 
         button {
-            padding: 15px 40px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
             font-family: var(--font-sans);
-            transition: all 0.3s;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 11px 22px;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
         }
 
-        .btn-calculate {
+        .btn-calcular {
             background: var(--accent);
             color: var(--on-accent);
+            box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
         }
+        .btn-calcular:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--accent-tint); }
 
-        .btn-calculate:hover {
-            transform: translateY(-2px);
+        .btn-suave {
+            background: transparent;
+            color: var(--muted-fg);
             border: 1px solid var(--border);
         }
+        .btn-suave:hover { color: var(--fg); background: var(--sunk); }
 
-        .btn-reset {
-            background: var(--muted-fg);
-            color: var(--on-accent);
+        /* -------------------------------------------------------- resultado */
+        .resultado { min-width: 0; }
+
+        /* La columna derecha antes de calcular. Si estuviera vacía, calcular
+           movería el formulario de lugar. */
+        .espera {
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            padding: 30px 26px;
+            color: var(--faint);
+            font-size: 13px;
+            line-height: 1.6;
         }
-
-        .btn-reset:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        .results {
-            margin-top: 30px;
-            padding: 25px;
-            background: var(--accent-tint);
-            border-radius: 12px;
-            display: none;
-        }
-
-        .results.show {
+        .espera b {
             display: block;
+            font-family: var(--font-meter);
+            font-size: 15px;
+            color: var(--muted-fg);
+            margin-bottom: 6px;
         }
 
-        .result-item {
-            margin-bottom: 20px;
-        }
+        .results { display: none; }
+        .results.show { display: block; }
 
-        .result-label {
-            font-weight: 600;
-            color: var(--accent);
-            font-size: 14px;
-            margin-bottom: 5px;
+        /* Lo único grande de la página. Acá la respuesta es un número y no una
+           fecha, así que es el número el que va grande: es por lo que se abrió
+           la herramienta. */
+        .veredicto {
+            background: var(--accent);
+            color: var(--on-accent);
+            border-radius: 14px;
+            padding: 26px 28px;
         }
-
-        .result-value {
-            font-size: 24px;
+        .veredicto .rotulo { color: inherit; opacity: 0.82; margin-bottom: 5px; }
+        .veredicto .cifra {
+            font-family: var(--font-meter);
+            font-size: clamp(34px, 5vw, 48px);
             font-weight: 700;
-            color: var(--fg);
+            line-height: 1;
+            letter-spacing: -0.02em;
         }
+        .veredicto .unidad { font-size: 13px; opacity: 0.86; margin-top: 8px; }
 
-        /* El dibujo del plazo --la grilla, las fichas de motivo y las
-           referencias-- vive en css/dibujo-plazo.css, compartido con las otras
-           tres pantallas que dibujan.
-
-           Aca vivia la lista de dias NO contados, una fila por dia. La
-           reemplaza el dibujo, que dice lo mismo agrupado por tramo y ademas
-           muestra donde cayeron. */
-
-        /* Cuando el periodo es largo el dibujo no sale, y eso hay que decirlo:
-           a diferencia de las otras pantallas, aca SI hay un resultado. */
-        .sin-dibujo {
-            margin-top: 20px;
-            font-size: 12px;
+        .tira {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1px;
+            margin-top: 1px;
+            background: var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .dato { background: var(--card); padding: 13px 16px; }
+        .dato .k {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
             color: var(--faint);
         }
-
-        .error-report {
-            margin-top: 20px;
-            padding: 15px;
-            background: var(--warn-tint);
-            border-radius: 8px;
-            border-left: 4px solid var(--warn);
-            font-size: 11px;
-            color: var(--warn);
-        }
-
-        .error-report strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .loading {
-            text-align: center;
-            color: var(--accent);
+        .dato .v {
+            font-family: var(--font-meter);
+            font-size: 15px;
             font-weight: 600;
-            padding: 20px;
+            margin-top: 3px;
+        }
+
+        .cargando {
             display: none;
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            padding: 30px 26px;
+            color: var(--faint);
+            font-size: 13px;
         }
+        .cargando.show { display: block; }
 
-        .loading.show {
-            display: block;
+        /* El dibujo va afuera de la grilla de dos columnas: es lo único de la
+           página que quiere todo el ancho que haya. La grilla, las fichas de
+           motivo y las referencias viven en css/dibujo-plazo.css. */
+        #dibujo { margin-top: 20px; }
+
+        /* Cuando el período es largo el dibujo no sale, y eso hay que decirlo:
+           a diferencia de las otras pantallas, acá SÍ hay un resultado. */
+        .sin-dibujo { margin-top: 16px; font-size: 12px; color: var(--faint); }
+
+        /* --------------------------------------------------------- colofón */
+        .colofon {
+            margin-top: 26px;
+            font-size: 11.5px;
+            line-height: 1.65;
+            color: var(--faint);
+            max-width: 78ch;
         }
-        
-        /* Estilo para el warning de fallback */
-        .api-fallback {
-            background: #fcf8e3 !important; /* Color de advertencia más suave */
-            border-left: 4px solid #8a6d3b !important;
+        .colofon code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+        .colofon a { color: var(--accent); }
+
+        .firma {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--hair);
+            font-size: 11.5px;
+            color: var(--faint);
         }
+        .firma .enlaces { display: inline-flex; gap: 12px; margin-left: 4px; }
+        .firma a { color: var(--accent); text-decoration: none; }
+        .firma a:hover { text-decoration: underline; }
 
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 22px;
-            }
-
-            .date-inputs {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .buttons {
-                flex-direction: column;
-            }
-
-            button {
-                width: 100%;
-            }
+        @media (max-width: 600px) {
+            body { padding: 18px 14px 30px; }
+            .panel { padding: 18px 16px; }
+            .cabecera { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .cobertura { text-align: left; }
+            .firma .enlaces { display: flex; margin: 6px 0 0; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Calculadora de días entre fechas</h1>
-        <div class="available-years" id="availableYears">Cargando el calendario judicial…</div>
-        <div class="warning" id="apiWarning" style="display: none;"></div>
+    <div class="hoja">
+        <header class="cabecera">
+            <h1>Días <span>entre dos fechas</span></h1>
+            <p class="cobertura" id="availableYears">Cargando el calendario judicial…</p>
+        </header>
 
-        <div class="section">
-            <div class="section-title">Fecha de Inicio</div>
-            <div class="date-inputs">
-                <div class="date-group">
-                    <input type="text" id="startDay" maxlength="2" placeholder="DD" aria-label="Día inicio">
-                    <span class="input-separator">/</span>
-                    <input type="text" id="startMonth" maxlength="2" placeholder="MM" aria-label="Mes inicio">
-                    <span class="input-separator">/</span>
-                    <input type="text" class="year-input" id="startYear" maxlength="4" placeholder="AAAA" aria-label="Año inicio">
+        <div class="tablero">
+        <div class="panel">
+            <!-- Las dos fechas juntas y no en dos cajas hundidas: son la misma
+                 pregunta hecha dos veces y a lo ancho entran. -->
+            <div class="grupo">
+                <div class="campos">
+                    <div class="campo">
+                        <span class="rotulo">Desde</span>
+                        <div class="trio">
+                            <input type="text" id="startDay" class="mide-2" maxlength="2" placeholder="DD" inputmode="numeric" aria-label="Día de inicio">
+                            <span class="separador">/</span>
+                            <input type="text" id="startMonth" class="mide-2" maxlength="2" placeholder="MM" inputmode="numeric" aria-label="Mes de inicio">
+                            <span class="separador">/</span>
+                            <input type="text" id="startYear" class="mide-4" maxlength="4" placeholder="AAAA" inputmode="numeric" aria-label="Año de inicio">
+                        </div>
+                    </div>
+
+                    <div class="campo">
+                        <span class="rotulo">Hasta</span>
+                        <div class="trio">
+                            <input type="text" id="endDay" class="mide-2" maxlength="2" placeholder="DD" inputmode="numeric" aria-label="Día de fin">
+                            <span class="separador">/</span>
+                            <input type="text" id="endMonth" class="mide-2" maxlength="2" placeholder="MM" inputmode="numeric" aria-label="Mes de fin">
+                            <span class="separador">/</span>
+                            <input type="text" id="endYear" class="mide-4" maxlength="4" placeholder="AAAA" inputmode="numeric" aria-label="Año de fin">
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="section">
-            <div class="section-title">Fecha de Fin</div>
-            <div class="date-inputs">
-                <div class="date-group">
-                    <input type="text" id="endDay" maxlength="2" placeholder="DD" aria-label="Día fin">
-                    <span class="input-separator">/</span>
-                    <input type="text" id="endMonth" maxlength="2" placeholder="MM" aria-label="Mes fin">
-                    <span class="input-separator">/</span>
-                    <input type="text" class="year-input" id="endYear" maxlength="4" placeholder="AAAA" aria-label="Año fin">
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-title">Opciones de cálculo</div>
-            <div class="checkbox-group">
-                <div class="checkbox-item">
+            <!-- Las tres casillas mueven el total sin mover nada más en
+                 pantalla, así que van juntas y con el rótulo que lo dice. -->
+            <div class="grupo">
+                <span class="rotulo">Qué se cuenta</span>
+                <label class="casilla">
                     <input type="checkbox" id="includeStart" checked>
-                    <label for="includeStart">Incluir fecha de inicio en el conteo</label>
-                </div>
-                <div class="checkbox-item">
+                    Contar el día de inicio
+                </label>
+                <label class="casilla">
                     <input type="checkbox" id="includeEnd" checked>
-                    <label for="includeEnd">Incluir fecha de fin en el conteo</label>
-                </div>
-                <div class="checkbox-item">
+                    Contar el día de fin
+                </label>
+                <label class="casilla">
                     <input type="checkbox" id="businessDays">
-                    <label for="businessDays">Calcular solo días hábiles (excluye fines de semana, feriados y días inhábiles especiales)</label>
+                    Sólo días hábiles: descuenta fines de semana, feriados, ferias y asuetos
+                </label>
+            </div>
+
+            <div class="acciones">
+                <button class="btn-calcular" onclick="calculate()">Calcular</button>
+                <button class="btn-suave" onclick="resetForm()">Limpiar</button>
+            </div>
+        </div>
+
+        <div class="resultado">
+            <div class="espera" id="espera">
+                <b>El total aparece acá.</b>
+                Cargá las dos fechas, y abajo se dibuja el período entero sobre
+                el calendario: qué día entró en la cuenta, cuál no y por qué.
+            </div>
+
+            <div class="cargando" id="loading">Calculando…</div>
+
+            <div class="results" id="results">
+                <div class="veredicto">
+                    <div class="rotulo">Total</div>
+                    <div class="cifra" id="totalDays"></div>
+                    <div class="unidad" id="unidadConteo">días</div>
+                </div>
+                <div class="tira">
+                    <div class="dato">
+                        <div class="k">Se empieza a contar el</div>
+                        <div class="v" id="countStartDate"></div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="buttons">
-            <button class="btn-calculate" onclick="calculate()">Calcular</button>
-            <button class="btn-reset" onclick="resetForm()">Resetear</button>
         </div>
 
-        <div class="loading" id="loading">Calculando...</div>
+        <div id="dibujo"></div>
 
-        <div class="results" id="results">
-            <div class="result-item">
-                <div class="result-label">Fecha de Inicio del Conteo:</div>
-                <div id="countStartDate" style="font-size: 16px; color: var(--fg); margin-top: 5px;"></div>
-            </div>
-            <div class="result-item">
-                <div class="result-label">Total de días:</div>
-                <div class="result-value" id="totalDays"></div>
-            </div>
-            <div id="dibujo"></div>
-            <div class="error-report">
-                <strong>Reportar error</strong>
-                Si creés que hay un error, escribime a <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo qué salió mal.
-            </div>
-        </div>
-         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 12px; line-height: 1.8; font-family: var(--font-sans);">
-        <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
-        <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
-          <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
-        </span>
-      </div>
+        <p class="colofon">
+            El conteo sale de <code>js/plazos.js</code>, el mismo motor que
+            consultan la calculadora de vencimientos, la de mora y los
+            conectores. Los días inhábiles salen de
+            <code>data/feriados.json</code>,
+            <code>data/feria-judicial.json</code> —una Acordada de la CSJN por
+            año— y <code>data/dias-inhabiles.json</code>. Ninguno se deduce con
+            una fórmula. Si algo da mal,
+            <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.
+        </p>
+
+        <p class="firma">
+            L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el
+            criterio del juez.
+            <span class="enlaces">
+                <a href="https://github.com/javiercuneo" target="_blank" rel="noopener">GitHub</a>
+                <a href="../index.html">Herramientas</a>
+                <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener">LinkedIn</a>
+            </span>
+        </p>
     </div>
+
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>
 <script src="js/dibujo-plazo.js"></script>
@@ -534,6 +604,12 @@
         document.getElementById('totalDays').textContent = r.total;
 
         document.getElementById('dibujo').innerHTML = dibujarConteo(r);
+        // El rotulo de la unidad dice en que se conto, que es la unica forma de
+        // que el numero grande no sea ambiguo: 43 dias corridos y 43 habiles
+        // son respuestas distintas a preguntas distintas.
+        document.getElementById('unidadConteo').textContent =
+            (r.total === 1 ? 'día ' : 'días ') + (businessDays ? 'hábiles' : 'corridos');
+        document.getElementById('espera').hidden = true;
         document.getElementById('results').classList.add('show');
     }
 
@@ -632,6 +708,7 @@
 
         document.getElementById('results').classList.remove('show');
         document.getElementById('loading').classList.remove('show');
+        document.getElementById('espera').hidden = false;
         document.getElementById('dibujo').innerHTML = '';
 
         document.querySelectorAll('input[type="text"]').forEach(function(input) {

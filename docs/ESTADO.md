@@ -70,22 +70,15 @@ Los tres, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
 
 ## Por dónde seguir
 
-**El orden y el método, para arrancar una sesión nueva.**
+**No hay nada en la cola, y es la primera vez.** El 31/8 se cerró lo último que
+estaba anotado acá —el rediseño de `caducidad`, `entre-fechas` y `regresiva`, que
+era lo que quedaba del pedido de uniformar las once—. Lo que sigue abierto no es
+trabajo encolado sino lo de [Pendientes](#pendientes), y lo de Honorio vive en el
+`ESTADO.md` de aquel repositorio.
 
-1. **El rediseño de las tres de plazos recién migradas** —`caducidad`,
-   `entre-fechas` y `regresiva`—, con `vencimientos` de patrón. Es lo único que
-   queda del pedido de uniformar las once. Lo que hay que emparejar, en orden de
-   lo que más se nota: los rótulos, los botones, los `max-width` de 240 a 1000 px
-   y los colores planos que el sistema no usa. **Los criterios que ordenaron
-   `vencimientos` están escritos en su `<style>`** y se repiten: cada control
-   ocupa lo que mide su contenido, lo único grande es el resultado, los
-   modificadores del cómputo van juntos y detrás de una casilla, y nada se separa
-   con una línea si alcanza con el espacio.
-2. **Los seis puntos que quedan de
-   [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md)**, con el orden recomendado
-   adentro: uno para hacer ya sin tocar números, tres que sí los mueven —uno
-   hacia arriba: los pisos mínimos que el motor no verifica—, dos para declarar
-   y no implementar.
+**Cuando entre algo nuevo, el método es el de siempre:** leer este archivo,
+correr el control que cubre lo que se va a tocar *antes* de tocarlo, y que
+cualquier número que se mueva sea porque se decidió moverlo.
 
 ---
 
@@ -160,10 +153,30 @@ Los tres, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
 
 ### Lo que está abierto en las pantallas
 
-- **`regresiva` y `vencimientos` se llaman casi igual.** «Calculadora de plazos
-  judiciales» contra «Vencimiento de plazos judiciales»: puestas al lado en el
-  tablero no se distinguen, y la que tiene el nombre genérico es la que hace lo
-  menos común de las dos. Es una decisión de nombre y no se tocó.
+- **`regresiva` y `vencimientos` se llaman casi igual, y sigue sin decidirse.**
+  Los `<h1>` son «Calculadora de plazos judiciales» contra «Vencimiento de plazos
+  judiciales»: puestas al lado en el tablero no se distinguen, y la que tiene el
+  nombre genérico es la que hace lo menos común de las dos. **Renombrar una
+  herramienta publicada no es parte de un rediseño visual, así que el 31/8 no se
+  tocó**; lo que sí se hizo son dos parches que la hacen menos molesta: los
+  `<title>` ahora son distintos —`Plazos judiciales hacia atrás` y `Vencimiento
+  de plazos judiciales`, que además es lo que dice el `<h1>` de esa página, cosa
+  que antes no— y `regresiva` lleva abajo del título una línea que dice hacia
+  dónde cuenta.
+- **Los errores de `entre-fechas` y de `regresiva` siguen saliendo por
+  `alert()`**, y es lo único del patrón de `vencimientos` que el rediseño del
+  31/8 **no** copió. Un cuadro de diálogo tapa la pantalla, no se puede releer y
+  no señala el campo. **No se cambió porque es comportamiento y no forma**: el
+  banco captura el `alert()` para distinguir «no calcula» de un resultado, así
+  que moverlo a un error al lado del campo es un cambio coordinado de las dos
+  pantallas y del banco, no un cambio de CSS.
+- **`caducidad` sigue calculando algo que no muestra.** `.hidden-computation`
+  tiene `display: none` y el JavaScript igual le escribe el cómputo con inhábiles
+  y feriados. Sacarlo es una decisión y por eso el rediseño no lo tocó.
+- **`vencimientos` es la única de las seis sin el pie de autoría.** Las otras
+  cinco lo llevan; se le fue en algún momento y no está escrito por qué. El
+  rediseño del 31/8 se lo dejó a las tres que tocó, porque sacárselo a tres para
+  emparejar con la que puede estar equivocada es la forma más cara de uniformar.
 - **El permalink existe sólo en `tasa`**, desde el 27/8, y extenderlo a las demás
   está abierto. **Lo que hay que mirar antes que el cómo:** una URL con el caso
   adentro se pega en un mail, en un chat y en un historial. Un monto de proceso y
@@ -746,11 +759,18 @@ landing diga «retirada» no la saca de internet, y el que llega por un enlace n
 ve la tarjeta. Si hay que retirar algo: el archivo se queda, la URL sigue viva
 con un redirect en `pages.yml`, y la landing dice el motivo.
 
-### `08_DEUDA_TECNICA_FUNCIONAL.md` no es una lista de trabajo pendiente
+### Ninguno de los dos planes de Honorio es trabajo de este repositorio
 
-Es un catálogo de decisiones, y describe el motor **clásico**: donde dice
-`calculations.js` o `core.js` se habla de `asistente-honorarios-clasico/`. La
-lista de trabajo es [`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md).
+[`08_DEUDA_TECNICA_FUNCIONAL.md`](domain/08_DEUDA_TECNICA_FUNCIONAL.md) es un
+catálogo de decisiones, y describe el motor **clásico**: donde dice
+`calculations.js` o `core.js` se habla de `asistente-honorarios-clasico/`.
+
+[`PLAN_COBERTURA_LEY.md`](PLAN_COBERTURA_LEY.md) **está hecho entero desde el
+7/8**, y lo dice en su encabezado. Hasta el 31/8 este archivo pedía «los seis
+puntos que quedan», que era al revés: seis están hechos y cuatro quedaron
+anotados sin fecha. Los cuatro son trabajo de Honorio y **desde el 31/8 viven en
+el `ESTADO.md` de aquel repositorio**, que es donde se van a cerrar. El
+documento se queda acá porque acá está la materia prima; el pendiente, no.
 
 ---
 
