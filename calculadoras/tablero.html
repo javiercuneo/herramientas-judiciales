@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tablero de plazos</title>
+<title>Tablero de herramientas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -69,6 +69,24 @@
         color: var(--fg);
     }
     .aviso-prueba a { color: inherit; }
+
+    /* El rotulo de la region de arriba. Existe desde el 31/8: el tablero
+       dejo de ser "de plazos" y paso a ser la puerta de todo, asi que las dos
+       mitades ---plazos arriba, honorarios y otros abajo--- tienen que decir
+       cual es cual. Sin este titulo la barra de pestañas quedaba colgando del
+       h1 y la unica region con nombre era la de abajo. */
+    .titulo-region {
+        font-family: var(--font-meter);
+        font-size: 17px;
+        font-weight: 700;
+        margin: 6px 0 4px;
+    }
+    .nota-region {
+        margin: 0 0 4px;
+        max-width: 62ch;
+        color: var(--muted-fg);
+        font-size: 13px;
+    }
 
     /* --------------------------------------------------------------- barra */
     .barra {
@@ -236,6 +254,64 @@
 
     .tarjeta .d { display: block; font-size: 12.5px; color: var(--muted-fg); }
 
+    .etiqueta {
+        font-family: var(--font-meter);
+        font-size: 9.5px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--faint);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1px 5px;
+        margin-left: 7px;
+        vertical-align: 1px;
+        white-space: nowrap;
+    }
+    .tarjeta[aria-selected="true"] .etiqueta { color: inherit; border-color: currentColor; }
+
+    /* Las que no se embeben.
+       Escribiente no es una calculadora: es un conversor de PDF que trabaja
+       con un archivo del usuario, ocupa toda la pantalla y promete que el
+       documento no sale de la maquina. Adentro de un iframe esa promesa es
+       mas dificil de leer, no mas facil. Se enlaza, y el icono es lo que
+       avisa antes del click que esto se abre aparte. */
+    .fila-enlaces { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+    .tarjeta-enlace {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        text-decoration: none;
+        color: var(--fg);
+    }
+    .tarjeta-enlace:hover .t { color: var(--accent); }
+
+    .tarjeta-enlace .icono {
+        flex: none;
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--accent-tint);
+        color: var(--accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .tarjeta-enlace .icono svg { width: 19px; height: 19px; display: block; }
+    .tarjeta-enlace .txt { min-width: 0; }
+    .tarjeta-enlace .flecha { color: var(--faint); font-weight: 400; margin-left: 5px; }
+
+    /* La flecha dice "se abre aparte" mirando; esto lo dice escuchando. */
+    .vh {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
     /* ------------------------------------------------------------ colofon */
     .colofon {
         margin-top: 54px;
@@ -260,10 +336,12 @@
 
 <div class="hoja">
     <div class="cabecera">
-        <h1>Tablero de <span>plazos</span></h1>
+        <h1>Tablero de <span>herramientas</span></h1>
         <p class="bajada">
-            Las mismas calculadoras de siempre, en una sola ventana. Cada pestaña
-            conserva lo que cargaste mientras no cierres la página.
+            Todas las herramientas en una sola ventana: arriba los plazos, abajo
+            los honorarios y lo demás. Son las mismas páginas de siempre, sin una
+            línea modificada, y cada una conserva lo que cargaste mientras no
+            cierres la pestaña.
         </p>
 
         <!-- Se publica antes de estar probado en uso, y por eso lo dice. La
@@ -284,6 +362,14 @@
     </div>
 </div>
 
+<div class="hoja">
+    <h2 class="titulo-region">Plazos</h2>
+    <p class="nota-region">
+        Las seis que cuentan días. Los números del 1 al 6 saltan directo, y las
+        flechas recorren la fila.
+    </p>
+</div>
+
 <div class="barra">
     <div class="hoja">
         <div class="barra-interna" id="tabs-plazos" role="tablist" aria-label="Calculadoras de plazos"></div>
@@ -295,12 +381,16 @@
 
     <hr class="corte">
 
-    <!-- Prorrateo y tasa no son plazos. Comparten la ventana porque el flujo es
-         el mismo --en un expediente mirás un plazo y en el siguiente un
-         prorrateo-- pero no comparten la materia, y hasta el 26/8 estaban en la
-         misma barra de pestañas, que las ponía en el mismo rango. -->
+    <!-- Lo que no es plazo. Comparte la ventana porque el flujo es el mismo
+         --en un expediente mirás un plazo y en el siguiente un prorrateo-- pero
+         no comparte la materia, y hasta el 26/8 estaban en la misma barra de
+         pestañas, que las ponía en el mismo rango.
+
+         Se llamaba "Honorarios y tasa" hasta el 31/8. El nombre lo cambió
+         Javier cuando el tablero pasó a ser la puerta de todo: acá vive todo lo
+         demás hasta que aparezca algo que permita agrupar de otra manera. -->
     <section class="region-otras">
-        <h2>Honorarios y tasa</h2>
+        <h2>Honorarios y otros</h2>
         <p class="nota">
             No son plazos. Están acá porque el trabajo es el mismo —en un
             expediente mirás un plazo y en el siguiente un prorrateo—, pero van
@@ -308,7 +398,13 @@
             leen igual.
         </p>
 
-        <div class="otras-barra" id="tabs-otras" role="tablist" aria-label="Honorarios y tasa"></div>
+        <div class="otras-barra" id="tabs-otras" role="tablist" aria-label="Honorarios y otros"></div>
+
+        <!-- Las que no se embeben. No son calculadoras: una convierte PDF y la
+             otra es una página de consulta. Van como enlace y con icono propio,
+             que es lo que avisa antes del click que se abren aparte. -->
+        <div class="fila-enlaces" id="enlaces-otras"></div>
+
         <div id="paneles-otras"></div>
     </section>
 
@@ -364,13 +460,18 @@ var REGIONES = [
         clase: 'pestania',
         atajos: true,
         arrancaEn: 0,
+        // Los rotulos siguen los nombres que decidio Javier el 31/8: la que se
+        // llamaba "Vencimientos" es la generica y la que se usa todos los dias,
+        // asi que se queda con "Plazos judiciales"; "Regresiva" se llama por lo
+        // que hace. Antes los dos <h1> decian casi lo mismo y puestos al lado
+        // aca no se distinguian.
         items: [
-            { id: 'vencimientos', rotulo: 'Vencimientos',  archivo: 'vencimientos.html' },
-            { id: 'distancia',    rotulo: 'Por distancia', archivo: 'distancia.html' },
-            { id: 'caducidad',    rotulo: 'Caducidad',     archivo: 'caducidad.html' },
-            { id: 'entre-fechas', rotulo: 'Entre fechas',  archivo: 'entre-fechas.html' },
-            { id: 'regresiva',    rotulo: 'Regresiva',     archivo: 'regresiva.html' },
-            { id: 'mora',         rotulo: 'Mora',          archivo: 'mora.html' }
+            { id: 'vencimientos', rotulo: 'Plazos judiciales', archivo: 'vencimientos.html' },
+            { id: 'distancia',    rotulo: 'Por distancia',     archivo: 'distancia.html' },
+            { id: 'caducidad',    rotulo: 'Caducidad',         archivo: 'caducidad.html' },
+            { id: 'entre-fechas', rotulo: 'Entre fechas',      archivo: 'entre-fechas.html' },
+            { id: 'regresiva',    rotulo: 'Regresiva',         archivo: 'regresiva.html' },
+            { id: 'mora',         rotulo: 'Mora',              archivo: 'mora.html' }
         ]
     },
     {
@@ -386,7 +487,27 @@ var REGIONES = [
             { id: 'tasa', rotulo: 'Tasa de justicia', archivo: 'tasa.html',
               detalle: 'Lo que hay que integrar' },
             { id: 'mediacion', rotulo: 'Honorarios de mediación', archivo: 'honorarios-mediacion.html',
-              detalle: 'La escala del Anexo III del decreto 2536/15' }
+              detalle: 'La escala del Anexo III del decreto 2536/15' },
+            // Entro el 31/8. Era la unica de las diez vivas que habia quedado
+            // afuera y no habia ninguna razon escrita para eso.
+            { id: 'ejecucion-estado', rotulo: 'Ejecución contra el Estado',
+              archivo: 'ejecucion-estado.html', etiqueta: 'en desarrollo',
+              detalle: 'Desde cuándo una condena contra el Estado es ejecutable' }
+        ],
+        // No se embeben: van como enlace y se abren aparte.
+        //
+        // Escribiente no es una calculadora. Trabaja sobre un archivo del
+        // usuario, ocupa la pantalla entera y su promesa es que el documento no
+        // sale de la maquina ---declara `connect-src 'none'`---. Adentro de un
+        // iframe esa promesa se lee peor, no mejor. uma-uhom tampoco calcula
+        // nada: es la serie de las dos unidades, para consultar.
+        enlaces: [
+            { rotulo: 'Escribiente', archivo: '../escribiente/', icono: 'documento',
+              etiqueta: 'en pruebas',
+              detalle: 'PDF a Markdown y anonimizado, todo dentro del navegador' },
+            { rotulo: 'Valor de la UMA y del UHOM', archivo: '../uma-uhom.html',
+              icono: 'serie',
+              detalle: 'El valor vigente de las dos unidades, y la serie entera' }
         ]
     }
 ];
@@ -395,6 +516,21 @@ var REGIONES = [
 // tope --lo aplicaba como si fuera de la escala y es del item G--. El importe
 // nunca estuvo mal, pero no conviene darle mas superficie a una pantalla que
 // se explica mal a si misma. Arreglado, entra.
+
+// Dos dibujos y nada mas. No son decoracion: son lo que distingue de un
+// vistazo una tarjeta que abre un panel aca abajo de una que se va a otra
+// pagina. Van inline porque el repositorio no carga iconos de nadie.
+var ICONOS = {
+    documento:
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>' +
+        '<path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>',
+    serie:
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<path d="M4 4v16h16"/><polyline points="7 15 11 11 14 13 19 7"/></svg>'
+};
 
 var HERRAMIENTAS = REGIONES.reduce(function (acc, r) {
     return acc.concat(r.items.map(function (h) {
@@ -421,8 +557,16 @@ var montados = Object.create(null);
 // resultado es la calculadora corrida hacia adentro respecto del titulo de
 // arriba: otro nivel de encierro sin que nada lo delimite. El vertical se
 // deja, que es el aire entre la barra de pestañas y el contenido.
+//
+// Y desde el 31/8 se oculta tambien el pie de autoria. El pie va en todas las
+// herramientas ---decision de Javier del mismo dia--- porque cada una se abre
+// suelta y tiene que decir de quien es y que no sustituye al juez. Pero aca son
+// nueve marcos con la misma firma, uno abajo del otro, y el tablero ya la dice
+// una vez en su propio colofon. Se oculta por CSS y no sacandola de las
+// paginas, que es la regla de siempre: el tablero no toca sus archivos.
 var CSS_EMBEBIDO =
     '.tema-boton { display: none !important; }' +
+    '.firma { display: none !important; }' +
     'html, body { height: auto !important; min-height: 0 !important; }' +
     'body { padding-left: 0 !important; padding-right: 0 !important; ' +
     'margin-left: 0 !important; margin-right: 0 !important; }';
@@ -446,6 +590,12 @@ function construir() {
             if (region.clase === 'tarjeta') {
                 tab.innerHTML = '<span class="t"></span><span class="d"></span>';
                 tab.querySelector('.t').textContent = h.rotulo;
+                if (h.etiqueta) {
+                    var e = document.createElement('span');
+                    e.className = 'etiqueta';
+                    e.textContent = h.etiqueta;
+                    tab.querySelector('.t').appendChild(e);
+                }
                 tab.querySelector('.d').textContent = h.detalle;
             } else {
                 tab.appendChild(document.createTextNode(h.rotulo));
@@ -474,6 +624,50 @@ function construir() {
             panel.innerHTML = '<div class="marco-caja"><p class="cargando">Cargando ' +
                 h.rotulo.toLowerCase() + '…</p></div>';
             region.paneles.appendChild(panel);
+        });
+
+        // Las tarjetas de enlace se dibujan despues de las de panel y en su
+        // propia fila. Son <a> y no <button>: van a otra pagina, asi que tienen
+        // que poder abrirse en pestaña nueva con el boton del medio o con
+        // ctrl+click, y tienen que decirlo con el cursor antes del click.
+        // Quedan FUERA del tablist ---no son pestañas--- y por eso tampoco
+        // entran en el recorrido de las flechas.
+        (region.enlaces || []).forEach(function (e) {
+            var caja = document.getElementById('enlaces-' + region.id);
+            if (!caja) return;
+
+            var a = document.createElement('a');
+            a.className = 'tarjeta tarjeta-enlace';
+            a.href = e.archivo;
+            // En pestaña nueva a proposito: la gracia del tablero es que lo que
+            // cargaste sigue vivo, y navegar en esta misma lo tira todo.
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.innerHTML =
+                '<span class="icono">' + (ICONOS[e.icono] || '') + '</span>' +
+                '<span class="txt"><span class="t"></span><span class="d"></span></span>';
+
+            var t = a.querySelector('.t');
+            t.textContent = e.rotulo;
+            if (e.etiqueta) {
+                var et = document.createElement('span');
+                et.className = 'etiqueta';
+                et.textContent = e.etiqueta;
+                t.appendChild(et);
+            }
+            var fl = document.createElement('span');
+            fl.className = 'flecha';
+            fl.textContent = '↗';
+            fl.setAttribute('aria-hidden', 'true');
+            t.appendChild(fl);
+
+            var vh = document.createElement('span');
+            vh.className = 'vh';
+            vh.textContent = ' (se abre en otra pestaña)';
+            t.appendChild(vh);
+
+            a.querySelector('.d').textContent = e.detalle;
+            caja.appendChild(a);
         });
 
         // Las flechas recorren SU region y no se pasan a la otra: son dos
@@ -606,7 +800,7 @@ function activar(id, moverFoco) {
 
     if (moverFoco) document.getElementById('tab-' + id).focus();
     if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id);
-    document.title = h.rotulo + ' · Tablero de plazos';
+    document.title = h.rotulo + ' · Tablero de herramientas';
 }
 
 // Numeros para saltar directo, solo entre los plazos: son los que se usan todos

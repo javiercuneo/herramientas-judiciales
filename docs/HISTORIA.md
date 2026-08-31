@@ -4636,3 +4636,89 @@ el navegador, y para una imagen de vista previa ninguna de las dos cosas parecí
 valer una dependencia nueva. Se probó la vía del navegador —un `<canvas>` con
 Archivo de verdad— y salía mejor, pero el archivo sólo se puede sacar de ahí a
 mano. Queda como alternativa si la letra molesta.
+
+---
+
+## El tablero pasó a ser la puerta, y las once dejaron de ser once links — 31/8
+
+Hasta ese día el tablero era una comodidad nombrada en una línea del párrafo de
+la landing. Javier: «yo apunto a que todo viva en el tablero. Que no es tablero
+de plazos sino **tablero de herramientas** —mucho de plazos, pero también tasa,
+honorarios del mediador, prorrateo—. Ese es el fin: ahí debe vivir todo, y no
+herramientas sueltas en links sueltos. Las podemos mantener como referencia sí,
+pero quiero que todos vayan a una misma pantalla, como centralizando el tráfico
+ahí».
+
+Lo que se hizo, todo en la misma sesión:
+
+- **Se llama «Tablero de herramientas»**, `<title>`, `<h1>` y el título de cada
+  pestaña. Se llamaba «de plazos» con tasa, prorrateo y mediación adentro.
+- **Las dos mitades tienen nombre.** Arriba «Plazos», que antes era una barra de
+  pestañas colgando del título; abajo, **«Honorarios y otros»** ---se llamaba
+  «Honorarios y tasa»---, que es donde vive todo lo que no es plazo hasta que
+  aparezca algo que permita agrupar de otra manera.
+- **`ejecucion-estado` entró**, en la región de abajo. Era la única de las diez
+  vivas que había quedado afuera y no había ningún motivo escrito. Va abajo y no
+  arriba porque la fila de arriba son las seis que se usan todos los días y
+  tienen atajo numérico.
+- **Escribiente y `uma-uhom` entraron como enlace**, en pestaña nueva, con icono
+  propio ---un documento y una serie, dos SVG inline--- y la flecha que avisa
+  antes del click. Ninguna de las dos calcula. Y la promesa de Escribiente
+  ---que el documento no sale de la máquina, con `connect-src 'none'`
+  declarado--- se lee peor adentro de un marco ajeno, no mejor. Javier lo había
+  pedido así: «no embebida, sino como enlace… quizás le podemos hacer una
+  gráfica propia, un icono».
+- **`index.html` lo pone arriba del listado, en bloque propio.** Las tarjetas
+  sueltas se quedan abajo y ninguna URL se rompe, pero dejaron de ser el camino.
+  El botón del encabezado que decía «Ver todas las herramientas» ahora abre el
+  tablero.
+- **El pie de autoría se oculta adentro de los marcos.** Es el mismo CSS
+  inyectado que ya anulaba el `min-height: 100vh`, con una línea más:
+  `.firma { display: none !important; }`. Para que alcanzara con un selector,
+  los pies de `mora` y de `distancia` ---dos `div` con estilos en línea y sin
+  clase--- llevan ahora `class="firma"`, que en esas dos páginas no está
+  definida y por lo tanto no cambia cómo se ven sueltas. Verificado midiendo: el
+  marco de `mora` pasó de 1101 a 996 px.
+
+### Los dos nombres que se parecían
+
+`regresiva` y `vencimientos` decían casi lo mismo en el `<h1>` y puestas al lado
+en el tablero no se distinguían. Javier las nombró: **`vencimientos` es la
+«Calculadora de plazos judiciales»** ---«es en realidad la más útil de todas, y
+la más genérica: abarca más opciones y de hecho tiene un filtro de plazos que te
+permite leer cualquier término»--- **y `regresiva` es la «Calculadora
+regresiva»**, «tiene el nombre de lo que hace y además porque tiene una función
+casi residual, un caso único descrito de utilidad y alguna que se le ocurra al
+usuario». Se cambiaron el `<title>` y el `<h1>` de las dos, y los nombres en
+`index.html`, `README.md` y `documentacion.html`. Las direcciones no cambian.
+
+### Que embeber no mueve un número se comprobó, no se supuso
+
+`scripts/pruebas-calculadoras.html` corrió entero después de todo: **75 de 75**,
+los 21 casos verificados contra las páginas sueltas y otra vez contra las
+embebidas. `verificar-calculos` dio 673 comprobaciones sin fallas y
+`verificar-contraste` pasó AA en los dos temas.
+
+Lo único que quedó abierto del tablero es lo que no se sabe probar: **no tiene
+banco de pruebas de navegación**. Que los números no cambien está cubierto; que
+las pestañas, el `#pestania` y las teclas sigan andando no lo prueba nadie.
+
+### Las dos cuentas de `uma-uhom` que no coincidían, despejadas
+
+La página decía 49 normas y 38 tablas, y `ESTADO.md` decía 50 PDF y 39 tablas.
+Estaba anotado como «una de las dos está mal». **Las dos estaban bien**: cuentan
+cosas distintas ---documentos leídos contra documentos que aportan un escalón---
+y la diferencia es de un documento en cada serie. Javier aportó dónde vivían los
+originales; se abrieron los dos:
+
+- **Acordada 13/2018** no fija ningún valor: hace saber los de las acordadas
+  3/2018 y 11/2018 ---$540 hasta el 31/12/2017, $567 y $624---, y esos importes
+  los reemplazó después la 27/2018 con $1.350, $1.417 y $1.559, que son los que
+  la serie tiene. Citarla habría metido un número que la propia Corte dejó sin
+  efecto.
+- **La tabla 05 del Ministerio, de marzo de 2018**, declara UHOM 390: el mismo
+  valor que ya traía la 04 desde agosto de 2017. No abre un escalón; el cambio
+  siguiente es mayo de 2018, en la tabla 06.
+
+Los dos se leyeron del PDF, no se dedujeron.
+

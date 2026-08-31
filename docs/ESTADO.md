@@ -50,6 +50,11 @@ cuatro calculadoras que no son de plazos se refundaron de cero** entre el 27 y e
 `ejecucion-estado`. El detalle de los cuatro días está en
 [`HISTORIA.md`](HISTORIA.md).
 
+**Desde el 31/8 la puerta es el tablero**, no el listado: `calculadoras/tablero.html`
+reúne las diez vivas y `index.html` lleva ahí primero. Las páginas sueltas siguen
+publicadas y sus direcciones no cambian. Detalle en
+[El tablero de herramientas](#el-tablero-de-herramientas).
+
 **No queda nada urgente ni bloqueante, y no hay bugs abiertos.** Lo que sigue
 está en [Por dónde seguir](#por-dónde-seguir); lo abierto, en
 [Pendientes](#pendientes).
@@ -70,15 +75,19 @@ Los tres, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
 
 ## Por dónde seguir
 
-**No hay nada en la cola, y es la primera vez.** El 31/8 se cerró lo último que
-estaba anotado acá —el rediseño de `caducidad`, `entre-fechas` y `regresiva`, que
-era lo que quedaba del pedido de uniformar las once—. Lo que sigue abierto no es
-trabajo encolado sino lo de [Pendientes](#pendientes), y lo de Honorio vive en el
-`ESTADO.md` de aquel repositorio.
+**Cuatro cosas, todas pedidas por Javier el 31/8 y todas detalladas en
+[Pendientes](#pendientes).** El tablero ---que era la primera--- está hecho.
 
-**Cuando entre algo nuevo, el método es el de siempre:** leer este archivo,
-correr el control que cubre lo que se va a tocar *antes* de tocarlo, y que
-cualquier número que se mueva sea porque se decidió moverlo.
+1. **Los errores de `entre-fechas` y de `regresiva`**, que salen por `alert()`,
+   al modelo de `vencimientos`. Toca las dos pantallas y el banco.
+2. **Sacar de `caducidad` el cómputo que no se muestra.**
+3. **El pie de autoría en las cinco que no lo tienen**, con `class="firma"`.
+4. **`prorrateo`: el aviso de qué entra en la base, y el 33 % dibujado**, en
+   pantalla y en el imprimible.
+
+**El método es el de siempre:** leer este archivo, correr el control que cubre
+lo que se va a tocar *antes* de tocarlo, y que cualquier número que se mueva sea
+porque se decidió moverlo.
 
 ---
 
@@ -158,42 +167,30 @@ cualquier número que se mueva sea porque se decidió moverlo.
 
 ### Lo que está abierto en las pantallas
 
-- **`regresiva` y `vencimientos` se llaman casi igual, y sigue sin decidirse.**
-  Los `<h1>` son «Calculadora de plazos judiciales» contra «Vencimiento de plazos
-  judiciales»: puestas al lado en el tablero no se distinguen, y la que tiene el
-  nombre genérico es la que hace lo menos común de las dos. **Renombrar una
-  herramienta publicada no es parte de un rediseño visual, así que el 31/8 no se
-  tocó**; lo que sí se hizo son dos parches que la hacen menos molesta: los
-  `<title>` ahora son distintos —`Plazos judiciales hacia atrás` y `Vencimiento
-  de plazos judiciales`, que además es lo que dice el `<h1>` de esa página, cosa
-  que antes no— y `regresiva` lleva abajo del título una línea que dice hacia
-  dónde cuenta.
-- **Los errores de `entre-fechas` y de `regresiva` siguen saliendo por
-  `alert()`**, y es lo único del patrón de `vencimientos` que el rediseño del
-  31/8 **no** copió. Un cuadro de diálogo tapa la pantalla, no se puede releer y
-  no señala el campo. **No se cambió porque es comportamiento y no forma**: el
-  banco captura el `alert()` para distinguir «no calcula» de un resultado, así
-  que moverlo a un error al lado del campo es un cambio coordinado de las dos
-  pantallas y del banco, no un cambio de CSS.
-- **`caducidad` sigue calculando algo que no muestra.** `.hidden-computation`
-  tiene `display: none` y el JavaScript igual le escribe el cómputo con inhábiles
-  y feriados. Sacarlo es una decisión y por eso el rediseño no lo tocó.
-- **El pie de autoría va en todas, y `vencimientos` es la única que no lo
-  tiene.** Decisión de Javier del 31/8. **Pero no se puede poner sin resolver el
-  tablero primero:** nueve iframes con el mismo pie son el mismo pie nueve
-  veces, así que hay que esconderlo adentro del marco. El tablero ya inyecta CSS
-  en cada iframe para anular el `min-height: 100vh`, así que es el mismo
-  mecanismo y no uno nuevo.
-- **El tablero pasa a ser la puerta de todo, y hoy no lo es.** Decisión de
-  Javier del 31/8 ---«ahí debe vivir todo, y no herramientas sueltas en links
-  sueltos»---. Cambia el orden del trabajo que viene y **el plan está en
-  `IDEAS.md`**: falta meter `ejecucion-estado`, que es la única de las diez vivas
-  que quedó afuera sin motivo escrito; que deje de llamarse «Tablero de plazos»
-  cuando adentro hay tasa, prorrateo y mediación; que `index.html` lleve ahí
-  primero; y decidir si Escribiente y `uma-uhom` entran, que no son
-  calculadoras. Las páginas sueltas **no se borran**: una URL publicada no se
-  rompe, y además son las que el banco corre por separado para comprobar que
-  embeber no mueva un número.
+- **Los errores de `entre-fechas` y de `regresiva` salen por `alert()`, y hay
+  que pasarlos al modelo de `vencimientos`** ---el error al lado del campo---.
+  Pedido de Javier del 31/8. Un cuadro de diálogo tapa la pantalla, no se puede
+  releer y no señala el campo. **No es un cambio de CSS:** el banco captura el
+  `alert()` para distinguir «no calcula» de un resultado, así que es un cambio
+  coordinado de las dos pantallas *y* de `scripts/pruebas-calculadoras.html`.
+- **`caducidad` calcula algo que no muestra, y la función se elimina.** Decisión
+  de Javier del 31/8. `.hidden-computation` tiene `display: none` y el
+  JavaScript igual le escribe el cómputo con inhábiles y feriados: se saca el
+  cómputo, no sólo el `div`.
+- **El pie de autoría va en todas, y faltan cinco.** Decisión de Javier del
+  31/8. Lo tienen `caducidad`, `entre-fechas`, `mora`, `distancia` y
+  `regresiva`; no lo tienen `vencimientos`, `prorrateo`, `tasa`,
+  `honorarios-mediacion` ni `ejecucion-estado`. **El tablero ya no es un
+  obstáculo:** desde el 31/8 oculta `.firma` en cada marco, y para eso las cinco
+  que lo traen llevan esa clase ---en `mora` y en `distancia` se agregó al `div`
+  con estilos en línea, sin tocar cómo se ve suelta---. **El pie nuevo va con
+  `class="firma"`** o el tablero lo va a mostrar nueve veces.
+- **En `prorrateo` quedan dos cosas.** El aviso al lado del campo sobre qué
+  entra en la base ---está unas líneas más arriba, en lo abierto del cálculo--- y
+  **el recorte que excede el 33 %**, dibujado como la barra de cuánto queda del
+  plazo y también en el imprimible, con el enlace al caso para poder auditarlo.
+  Es un criterio de confiscatoriedad y no una regla de la ley: **se muestra, no
+  se aplica.** El detalle está en `IDEAS.md`.
 - **El permalink existe sólo en `tasa`**, desde el 27/8, y extenderlo a las demás
   está abierto. **Lo que hay que mirar antes que el cómo:** una URL con el caso
   adentro se pega en un mail, en un chat y en un historial. Un monto de proceso y
@@ -209,22 +206,13 @@ cualquier número que se mueva sea porque se decidió moverlo.
   «Verifique»— **no es tuteo y no es un error**; es otro registro. Lo que hay
   que sacar es el imperativo de *tú*.
 - **Los cuatro criterios con los que se despejó `tasa`, que valen para las otras
-  tres.** Salieron del pedido de Javier —«el que quiere leer, lee y el que no,
-  va directo a sacar el número»— y cada uno está escrito con su porqué en el
-  `<style>` de `tasa.html`:
-  1. **Se pregunta el caso, no la mecánica.** Primero *qué juicio es*, y de ahí
-     salen la base y la alícuota. Nadie llega pensando «art. 4 inc. c».
-     Tampoco se nombra la mecánica: «renglón» no le dice nada a nadie.
-  2. **Lo que el sistema puede decidir, lo decide.** Un desplegable con una
-     sola opción es una decisión ya tomada disfrazada de pregunta.
-  3. **Un campo que no aplica no ocupa lugar**, ni siquiera el de su rótulo en
-     el encabezado de la tabla.
-  4. **Un hint que dice a qué inciso corresponde lo que estás cargando no es
-     prosa opcional: es parte de la respuesta, y va a la vista.** Esto corrige
-     al criterio del 31/8 a la mañana, que mandaba todas las frases detrás de
-     un signo: esconder los hints **borró de la pantalla** el único lugar que
-     decía que el dinero de una sucesión va por el inc. d. Lo que se esconde es
-     la explicación larga, nunca el mapeo.
+  tres.** Se pregunta **el caso y no la mecánica**; lo que el sistema puede
+  decidir **lo decide** ---un desplegable de una sola opción es una decisión
+  disfrazada de pregunta---; un campo que no aplica **no ocupa lugar**; y el
+  hint que dice a qué inciso corresponde lo que se está cargando **es parte de
+  la respuesta y va a la vista** ---lo que se esconde es la explicación larga,
+  nunca el mapeo---. Cada uno está escrito con su porqué en el `<style>` de
+  `tasa.html`, y de dónde salió cada uno, en [`HISTORIA.md`](HISTORIA.md).
 - **El buscador de plazos salió con el chip «en desarrollo», y es lo único de
   este repositorio publicado sin curar.** Es decisión de Javier del 31/8 —«lo voy
   verificando en producción… es texto de ley, a lo sumo podrá faltar un plazo»—.
@@ -262,11 +250,6 @@ cualquier número que se mueva sea porque se decidió moverlo.
   nota, la prosa y las tres cifras grandes. **La fecha del acto se quedó**: es
   un dato y no una demora, y dice si un valor ya existía el día de la
   regulación. El crudo sigue en `data/serie-uma.json`, con `sin_demora` y todo.
-- **`uma-uhom` dice 49 normas y 38 tablas, y este archivo dice «50 PDF» y «39
-  tablas».** Las de la página se derivan del JSON en cada carga y no pueden
-  mentir sobre el archivo; las de acá están a mano. **Una de las dos está mal y
-  no se resolvió**: puede que dos PDF declaren la misma norma. Sin abrirlos no
-  se sabe, y no se afirma.
 - **La imagen de enlace de la UMA no está en Archivo.** `npm run og-uma` la arma
   desde las series, pero escribe el PNG a mano y dibuja las letras con un
   tipografiado de trazos: rendir Archivo pediría un motor de fuentes en Node o
@@ -295,8 +278,9 @@ Todo en `scripts/actualizar-uma.mjs`, que es otro repositorio:
    `SALTO_MAXIMO_UMA = 0.6` es al revés, tan flojo que deja pasar un valor leído
    a la mitad cuando el salto más grande de la serie entera es +20 %.
 
-Lo que todavía no existe va en `IDEAS.md`, que es cuaderno interno y no se
-versiona: acá van sólo los pendientes de lo que ya está construido.
+Lo que todavía no existe va en `IDEAS.md`, que es cuaderno interno y **no se
+versiona** ---está en `.gitignore`, así que no se le puede poner un enlace---:
+acá van sólo los pendientes de lo que ya está construido.
 
 ---
 
@@ -382,21 +366,28 @@ varios minutos— porque los iframes no dibujan. No es que estén rotas.
 
 ---
 
-## El tablero de plazos
+## El tablero de herramientas
 
-`calculadoras/tablero.html`, publicado y enlazado desde `index.html`: **ocho
-herramientas en dos regiones**. Arriba las seis de plazos —vencimientos,
-distancia, caducidad, entre fechas, regresiva y mora— en una barra de pestañas;
-abajo, aparte, prorrateo y tasa. Cada una es un iframe de la calculadora
-publicada, **sin una línea modificada de ninguna**. Carga perezosa, estado vivo
-al volver, enlace directo por `#pestania`, teclas 1-6 y flechas.
+`calculadoras/tablero.html`, **y desde el 31/8 es la puerta**: `index.html` lo
+pone arriba del listado, en bloque propio, y el listado de tarjetas sueltas
+quedó abajo como referencia. Decisión de Javier ---«ahí debe vivir todo, y no
+herramientas sueltas en links sueltos»---.
 
-**Las tres decisiones que lo sostienen**, para no revisarlas sin saber por qué
+**Diez herramientas embebidas en dos regiones, más dos enlaces.** Arriba las
+seis de plazos ---`vencimientos`, `distancia`, `caducidad`, `entre-fechas`,
+`regresiva` y `mora`--- en una barra de pestañas, con teclas 1-6 y flechas.
+Abajo, después de un corte y con título propio, **«Honorarios y otros»**:
+prorrateo, tasa, honorarios de mediación y `ejecucion-estado`. Cada una es un
+iframe de la calculadora publicada, **sin una línea modificada de ninguna**.
+Carga perezosa, estado vivo al volver, enlace directo por `#pestania`.
+
+**Las cuatro decisiones que lo sostienen**, para no revisarlas sin saber por qué
 están:
 
 - **Existe porque once herramientas separadas pueden discrepar en silencio
   durante años y dos pestañas del mismo marco no.** El bug de la feria vivió
-  porque nada obligaba a que dos calculadoras se miraran. No es comodidad.
+  porque nada obligaba a que dos calculadoras se miraran. No es comodidad. Que
+  además sea la puerta es posterior y no reemplaza este motivo.
 - **Iframes y no fusión del markup.** Fusionar cinco HTML tiene colisiones de
   `id` reales —`plazo` está en `caducidad` y en `vencimientos`; `dia`/`day`,
   `mes`/`month`— y cada una es una oportunidad de mover un número.
@@ -404,6 +395,17 @@ están:
   misma barra**, desde el 26/8. Entran porque el flujo es el mismo —en un
   expediente mirás un plazo y en el siguiente un prorrateo, criterio de Javier—,
   pero un rótulo de grupo adentro de la misma barra no alcanzaba para separarlas.
+  `ejecucion-estado` entró ahí el 31/8 y no arriba: la fila de arriba son las
+  seis que se usan todos los días y tienen atajo numérico.
+- **Escribiente y `uma-uhom` van como enlace y no embebidas**, con icono propio
+  y en pestaña nueva. Ninguna de las dos calcula: una convierte PDF y la otra es
+  la serie de las dos unidades. Y la promesa de Escribiente ---que el documento
+  no sale de la máquina, con `connect-src 'none'` declarado--- se lee peor
+  adentro de un marco ajeno, no mejor.
+
+**El pie de autoría se oculta adentro del tablero**, por el mismo CSS inyectado
+que anula el `min-height: 100vh`. El selector es `.firma`: una herramienta cuyo
+pie no lleve esa clase lo va a mostrar nueve veces.
 
 **Lo que lo hace verificable:** `pruebas-calculadoras.html` corre los 21 casos
 verificados **dos veces**, contra las páginas sueltas y contra las embebidas, y
@@ -498,23 +500,18 @@ decir que pasan una corrida a mano, no que estén rodados.**
 
 ## Escribiente
 
-**Es PDF-studio rehecho entero, con otro nombre, desde el 17/8.** Vive en
-`escribiente/` y se publica en `/escribiente/`; la URL vieja `/PDF-studio/`
-queda viva con un aviso. Pasa PDF judiciales a Markdown y anonimiza los datos
-personales; también une, separa y rota. Los seis bugs de la versión anterior —y
-por qué se tiró en vez de parcharse— están en [`HISTORIA.md`](HISTORIA.md).
+Vive en `escribiente/` y se publica en `/escribiente/`; la URL vieja
+`/PDF-studio/` queda viva con un aviso. Pasa PDF judiciales a Markdown y
+anonimiza los datos personales; también une, separa y rota. Es PDF-studio
+rehecho entero desde el 17/8, y por qué se tiró en vez de parcharse está en
+[`HISTORIA.md`](HISTORIA.md).
 
-**Se publicó el 18/8 con un aviso de «en pruebas», y el aviso es lo que hace
-honesta la publicación.** Va en dos lugares porque son dos públicos distintos:
-la tarjeta de la landing lleva la etiqueta `en pruebas`, y arriba de todo en
-`escribiente/index.html` hay un bloque en `--warn` que dice que no tiene rodaje
-y que hay que revisar el resultado antes de mandarlo a un tercero —el que llega
-por un enlace directo no ve la tarjeta—. Mismo criterio y mismo estilo que el
-aviso de `calculadoras/tablero.html`. **Se saca cuando el uso diario lo
-confirme**, y sacarlo es una decisión de Javier, no de quien lo lea.
-
-Se publicó sin rodaje a propósito: en la oficina no se puede levantar un
-servidor local, así que sin publicar no hay forma de probarlo donde se usa.
+**Lleva un aviso de «en pruebas» en dos lugares, y el aviso es lo que hace
+honesta la publicación**: la etiqueta en la tarjeta de la landing, y un bloque
+en `--warn` arriba de `escribiente/index.html` para el que llega por enlace
+directo y no ve la tarjeta. Se publicó sin rodaje a propósito ---en la oficina
+no se puede levantar un servidor local, así que sin publicar no hay dónde
+probarlo---. **Sacar el aviso es decisión de Javier**, no de quien lo lea.
 
 **Lo que hay que saber para tocarla:**
 
@@ -642,9 +639,22 @@ donde están escritos los tokens digan lo mismo.
 `uma-uhom.html` publica las dos series completas: **67 valores de UMA desde
 diciembre de 2017 y 67 de UHOM desde junio de 2016.** No están copiadas de
 ninguna tabla ajena. Cada UMA salió del punto resolutivo de su acordada o
-resolución —50 PDF de la CSJN— y cada UHOM, de las 39 tablas oficiales del
-Ministerio de Justicia. Las dos viven en `data/`, versionadas, con la norma al
-lado de cada valor.
+resolución y cada UHOM, de las tablas oficiales del Ministerio de Justicia. Las
+dos viven en `data/`, versionadas, con la norma al lado de cada valor.
+
+**Se leyeron 50 PDF de la Corte y 39 tablas del Ministerio; la serie cita 49
+normas y 38 tablas, y las dos cuentas están bien** ---cuentan cosas distintas:
+documentos leídos contra documentos que aportan un escalón---. Los dos que
+sobran se abrieron el 31/8 para saber cuáles eran:
+
+- **Acordada 13/2018 no fija ningún valor**: hace saber los de las acordadas
+  3/2018 y 11/2018 ---$540 hasta el 31/12/2017, $567 y $624---, y **esos
+  importes los reemplazó después la 27/2018** con $1.350, $1.417 y $1.559, que
+  son los que la serie tiene. Citarla habría metido en la serie un número que la
+  propia Corte dejó sin efecto.
+- **La tabla 05, de marzo de 2018, declara UHOM 390**, el mismo valor que ya
+  traía la 04 desde agosto de 2017: no abre un escalón nuevo. El siguiente
+  cambio es mayo de 2018, en la tabla 06.
 
 **Copiarlas habría sido más rápido y habría estado mal.** Las dos compilaciones
 públicas que existen atribuyen a la Acordada 4/2022 el valor de $8.183 desde

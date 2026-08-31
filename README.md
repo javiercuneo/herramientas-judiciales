@@ -51,6 +51,20 @@ lee; quien tiene que fundar una regulación lo tiene ahí.
 
 ---
 
+## El tablero de herramientas
+
+**[Tablero de herramientas](https://javiercuneo.com.ar/calculadoras/tablero.html)** —
+todas en una sola ventana, y desde el 31/8/2026 la puerta de entrada. Arriba las
+seis que cuentan días; abajo los honorarios, la tasa, la ejecución contra el
+Estado y lo que no calcula —Escribiente y la serie de la UMA— como enlace.
+
+Cada pestaña es la página publicada, embebida **sin una línea modificada**, y
+hay pruebas automáticas que corren los mismos casos dos veces —contra la página
+suelta y contra la embebida— y exigen que den lo mismo. Las herramientas se
+siguen abriendo por separado y las direcciones no cambian.
+
+---
+
 ## Calculadoras
 
 Herramientas de un solo archivo, sin instalación y sin backend. Todo se calcula
@@ -60,11 +74,11 @@ en el navegador: nada de lo que escribís sale de tu máquina.
 
 | Herramienta | Qué hace |
 |---|---|
-| [Vencimiento de plazos](https://javiercuneo.com.ar/calculadoras/vencimientos.html) | Vencimiento de un plazo judicial desde una fecha de inicio. |
+| [Calculadora de plazos judiciales](https://javiercuneo.com.ar/calculadoras/vencimientos.html) | Cuándo vence un plazo contado desde una fecha de inicio. Es la de todos los días. |
 | [Caducidad de la instancia](https://javiercuneo.com.ar/calculadoras/caducidad.html) | Cómputo de los arts. 310 y ss. del CPCCN. |
 | [Ampliación por distancia](https://javiercuneo.com.ar/calculadoras/distancia.html) | Art. 158 CPCCN, dentro del país o al exterior. |
 | [Contador de días](https://javiercuneo.com.ar/calculadoras/entre-fechas.html) | Días hábiles o corridos entre dos fechas. |
-| [Fecha límite (regresiva)](https://javiercuneo.com.ar/calculadoras/regresiva.html) | Resta días hábiles a una fecha objetivo para saber hasta cuándo hay tiempo. |
+| [Calculadora regresiva](https://javiercuneo.com.ar/calculadoras/regresiva.html) | Cuenta al revés: resta días hábiles a una fecha objetivo para saber desde cuándo hay que empezar. |
 | [Mora](https://javiercuneo.com.ar/calculadoras/mora.html) | Inicio de la mora según el plazo de la resolución y la fecha en que quedó firme. |
 | [Ejecución de sentencias contra el Estado](https://javiercuneo.com.ar/calculadoras/ejecucion-estado.html) | Desde cuándo una sentencia contra el Estado Nacional es ejecutable y embargable (art. 170, Ley 11.672). |
 

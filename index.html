@@ -245,6 +245,39 @@ section { padding-block: 64px; }
 }
 .shots figcaption strong { color: var(--fg); font-weight: 600; }
 
+/* ---------- La puerta ----------
+   Desde el 31/8 el tablero no es una comodidad al costado: es el camino
+   principal. Por eso ocupa un bloque propio arriba del listado y no una linea
+   dentro de un parrafo, que es donde estaba y donde no lo veia nadie. Las
+   tarjetas sueltas de abajo se quedan --una URL publicada no se rompe-- pero
+   pasan a ser la referencia. */
+.puerta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 28px;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2);
+  padding: 30px 32px;
+  margin-bottom: 40px;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.puerta:hover { border-color: var(--accent); }
+.puerta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.puerta h3 { font-size: clamp(1.3rem, 2.4vw, 1.7rem); margin: 8px 0 8px; }
+.puerta:hover h3 { color: var(--accent); }
+.puerta p { color: var(--muted-fg); margin: 0; max-width: 62ch; }
+.puerta .cta {
+  font-family: var(--font-meter);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.sueltas { color: var(--muted-fg); max-width: 62ch; margin: 0 0 28px; }
+
 /* ---------- Listado de herramientas ---------- */
 .group { margin-bottom: 44px; }
 .group > .label { display: block; margin-bottom: 14px; }
@@ -349,6 +382,7 @@ pre {
   .cols { grid-template-columns: 1fr; gap: 28px; }
   .foot-grid { grid-template-columns: 1fr; gap: 32px; }
   .tool { grid-template-columns: 1fr; gap: 3px; }
+  .puerta { grid-template-columns: 1fr; gap: 16px; padding: 24px; }
   .shots { grid-template-columns: 1fr; }
   .hero { padding-block: 56px 40px; }
   section { padding-block: 48px; }
@@ -371,7 +405,7 @@ pre {
   </p>
   <div class="actions">
     <a class="btn btn-solid" href="https://honorio.ar">Abrir Honorio</a>
-    <a class="btn btn-ghost" href="#herramientas">Ver todas las herramientas</a>
+    <a class="btn btn-ghost" href="calculadoras/tablero.html">Abrir el tablero de herramientas</a>
     <a class="btn btn-ghost" href="documentacion.html">Guía de uso</a>
   </div>
 </header>
@@ -479,19 +513,36 @@ pre {
     <p>
       Cada una es un archivo, sin instalación y sin servidor: todo se calcula en
       el navegador y nada de lo que escribís sale de tu máquina.
-      Si vas a usar varias seguidas, el
-      <a href="calculadoras/tablero.html">tablero</a> las reúne en una sola
-      ventana: son las mismas, embebidas sin modificar, y cada pestaña conserva
-      lo que cargaste.
     </p>
   </div>
+
+  <!-- El tablero va primero y ocupa lugar propio: desde el 31/8 es la puerta y
+       no un atajo. Estaba nombrado en una línea del párrafo de arriba. -->
+  <a class="puerta" href="calculadoras/tablero.html">
+    <div>
+      <span class="label">Por acá se entra</span>
+      <h3>Tablero de herramientas</h3>
+      <p>
+        Todas en una sola ventana: arriba los plazos, abajo los honorarios y lo
+        demás. Son las mismas páginas embebidas sin una línea modificada —hay
+        pruebas automáticas que verifican que acá los números den lo mismo que
+        sueltas— y cada pestaña conserva lo que cargaste mientras no la cierres.
+      </p>
+    </div>
+    <span class="cta">Abrir el tablero →</span>
+  </a>
+
+  <p class="sueltas">
+    Cada herramienta se puede abrir igual por separado, y las direcciones no
+    cambian. El listado que sigue es esa referencia.
+  </p>
 
   <div class="group">
     <span class="label">Plazos</span>
     <div class="tools">
       <a class="tool" href="calculadoras/vencimientos.html">
-        <span class="t">Vencimiento de plazos</span>
-        <span class="d">Vencimiento de un plazo judicial desde una fecha de inicio.</span>
+        <span class="t">Calculadora de plazos judiciales</span>
+        <span class="d">Cuándo vence un plazo contado desde una fecha de inicio. Es la de todos los días.</span>
       </a>
       <a class="tool" href="calculadoras/caducidad.html">
         <span class="t">Caducidad de la instancia</span>
@@ -506,8 +557,8 @@ pre {
         <span class="d">Días hábiles o corridos entre dos fechas.</span>
       </a>
       <a class="tool" href="calculadoras/regresiva.html">
-        <span class="t">Fecha límite (regresiva)</span>
-        <span class="d">Resta días hábiles a una fecha objetivo para saber hasta cuándo hay tiempo.</span>
+        <span class="t">Calculadora regresiva</span>
+        <span class="d">Cuenta al revés: resta días hábiles a una fecha objetivo para saber desde cuándo hay que empezar.</span>
       </a>
       <a class="tool" href="calculadoras/mora.html">
         <span class="t">Mora</span>
