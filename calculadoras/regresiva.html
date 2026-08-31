@@ -25,20 +25,19 @@
            respuesta a la derecha, y nada se separa con una línea si alcanza con
            el espacio.
 
-           NO TOCA NI UN ID NI EL CÓMPUTO. Los errores siguen saliendo por
-           alert(), que es peor que un error al lado del campo pero es
-           comportamiento y esto es forma; queda anotado como pendiente. Los 75
-           casos de scripts/pruebas-calculadoras.html leen esta pantalla por id,
-           y que sigan pasando es la prueba de que nada se movió.
+           EL 31/8 LOS ERRORES SALIERON DEL alert(), a pedido de Javier: van
+           abajo del formulario, en .aviso-error, y marcan el campo que los
+           causo. Es un cambio de comportamiento y no de forma, asi que fue
+           junto con el lector de esta pantalla en
+           scripts/pruebas-calculadoras.html, que antes capturaba el alert()
+           para distinguir "no calcula" de un resultado. El computo y los id no
+           se tocaron: los 75 casos siguen pasando.
 
-           EL NOMBRE NO SE TOCÓ, y hay una razón para no hacerlo de paso.
-           «Calculadora de plazos judiciales» y «Vencimiento de plazos
-           judiciales» ---vencimientos.html--- no se distinguen puestas al lado
-           en el tablero, y encima la del nombre genérico es la que hace lo menos
-           común de las dos. Está anotado en ESTADO.md como decisión de nombre
-           pendiente, y renombrar una herramienta publicada no es parte de un
-           rediseño visual. Lo que sí se hizo es que abajo del título diga en una
-           línea qué hace, que es lo que faltaba para distinguirlas.
+           EL NOMBRE LO DECIDIÓ JAVIER EL 31/8. Ésta se llama «Calculadora
+           regresiva» ---por lo que hace--- y el nombre genérico quedó para
+           vencimientos.html, que es «Calculadora de plazos judiciales» y la que
+           se usa todos los días. Antes las dos decían casi lo mismo y puestas al
+           lado en el tablero no se distinguían.
 
            LO QUE SE FUE:
 
@@ -177,6 +176,23 @@
 
         .pie-campo { font-size: 11px; color: var(--faint); margin-top: 6px; }
 
+        /* El error salio del alert() el 31/8, a pedido de Javier: va abajo del
+           formulario y marca el campo. Un cuadro de dialogo tapa la pantalla,
+           no se puede releer y hay que sacarlo del medio antes de corregir. */
+        .aviso-error {
+            display: none;
+            margin-top: 14px;
+            background: var(--error-tint);
+            border: 1px solid var(--error);
+            border-left-width: 3px;
+            border-radius: 9px;
+            padding: 10px 13px;
+            font-size: 12.5px;
+            color: var(--fg);
+        }
+        .aviso-error.visible { display: block; }
+        input.mal { border-color: var(--error); box-shadow: 0 0 0 3px var(--error-tint); }
+
         /* --------------------------------------------------------- acciones */
         .acciones { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
 
@@ -288,7 +304,7 @@
             <p class="subtitulo">Cuenta hacia atrás: desde qué día hay que
                 empezar para llegar a tiempo a una fecha.</p>
         </div>
-        <p class="cobertura" id="infoAnios">Cargando el calendario judicial…</p>
+        <p class="cobertura solo-suelta" id="infoAnios">Cargando el calendario judicial…</p>
     </header>
 
     <div class="tablero">
@@ -320,6 +336,8 @@
             <button class="btn-calcular" id="calcularBtn">Calcular</button>
             <button class="btn-suave" id="resetBtn">Limpiar</button>
         </div>
+
+        <p class="aviso-error" id="avisoError" role="alert"></p>
     </div>
 
     <div class="resultado">
@@ -341,17 +359,8 @@
 
     <div id="dibujo"></div>
 
-    <p class="colofon">
-        El cómputo sale de <code>js/plazos.js</code>, el mismo motor que
-        consultan la calculadora de vencimientos, la de mora y los conectores.
-        Los días inhábiles salen de <code>data/feriados.json</code>,
-        <code>data/feria-judicial.json</code> —una Acordada de la CSJN por año—
-        y <a href="../data/dias-inhabiles.json" target="_blank" rel="noopener"><code>data/dias-inhabiles.json</code></a>.
-        Ninguno se deduce con una fórmula. Si algo da mal,
-        <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.
-    </p>
 
-    <p class="firma">
+    <p class="firma solo-suelta">
         L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el
         criterio del juez.
         <span class="enlaces">
@@ -409,28 +418,51 @@
         // consultan vencimientos, mora, caducidad, entre-fechas y los
         // conectores. Esta funcion lee el formulario, llama y escribe. Hasta el
         // 26/8/2026 el conteo hacia atras estaba escrito aca adentro.
+        // El error va abajo del formulario y marca el campo que lo causo. Se
+        // borra al volver a apretar Calcular: un error viejo al lado de un
+        // resultado nuevo es peor que ninguno.
+        function limpiarAviso() {
+            const caja = document.getElementById('avisoError');
+            caja.textContent = '';
+            caja.classList.remove('visible');
+            fechaInput.classList.remove('mal');
+            diasInput.classList.remove('mal');
+        }
+
+        function avisar(texto, campos) {
+            const caja = document.getElementById('avisoError');
+            caja.textContent = texto;
+            caja.classList.add('visible');
+            (campos || []).forEach(function(el) { el.classList.add('mal'); });
+            resultadoPanel.style.display = 'none';
+            document.getElementById('espera').style.display = '';
+            dibujoDiv.innerHTML = '';
+        }
+
         function calcular() {
+            limpiarAviso();
+
             if (!datosCargados) {
-                alert('El calendario judicial todavía no está cargado. Recargá la página.');
+                avisar('El calendario judicial todavía no está cargado. Recargá la página.');
                 return;
             }
 
             const fechaStr = fechaInput.value.trim();
             if (!fechaStr) {
-                alert('Falta la fecha objetivo.');
+                avisar('Falta la fecha objetivo.', [fechaInput]);
                 return;
             }
             const fechaObj = parseFechaDDMMAAAA(fechaStr);
             if (!fechaObj) {
-                alert('El formato de la fecha no es válido: va DD/MM/AAAA, por ejemplo 25/05/2025.');
+                avisar('El formato de la fecha no es válido: va DD/MM/AAAA, por ejemplo 25/05/2025.', [fechaInput]);
                 return;
             }
 
             const anioFecha = fechaObj.getFullYear();
             if (anosDisponibles.indexOf(anioFecha) === -1) {
-                alert('El año ' + anioFecha + ' no está en el calendario judicial cargado. ' +
-                      'Calculadora disponible para los años ' + anosDisponibles[0] +
-                      ' - ' + anosDisponibles[anosDisponibles.length - 1] + '.');
+                avisar('El año ' + anioFecha + ' no está en el calendario judicial cargado. ' +
+                       'Calculadora disponible para los años ' + anosDisponibles[0] +
+                       ' - ' + anosDisponibles[anosDisponibles.length - 1] + '.', [fechaInput]);
                 return;
             }
 
@@ -443,18 +475,18 @@
                     dias: parseInt(diasInput.value, 10)
                 });
             } catch (e) {
-                alert(e.message);
+                avisar(e.message, [diasInput]);
                 return;
             }
 
             // El orden de estos tres avisos es el mismo de siempre y lo fija el
             // motor: dato faltante, objetivo inhabil, plazo mal escrito.
             if (r.problema) {
-                alert('No se puede calcular. ' + r.problema);
+                avisar('No se puede calcular. ' + r.problema);
                 return;
             }
             if (r.objetivoInhabil) {
-                alert('La fecha objetivo es inhábil (' + r.objetivoInhabil + '). Elegí un día hábil.');
+                avisar('La fecha objetivo es inhábil (' + r.objetivoInhabil + '). Elegí un día hábil.', [fechaInput]);
                 return;
             }
 
@@ -541,6 +573,7 @@
         }
 
         function resetear() {
+            limpiarAviso();
             fechaInput.value = '';
             diasInput.value = '5';
             resultadoPanel.style.display = 'none';

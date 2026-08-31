@@ -4722,3 +4722,185 @@ originales; se abrieron los dos:
 
 Los dos se leyeron del PDF, no se dedujeron.
 
+---
+
+## La devolución del tablero: la portada, las dos que faltaban y el 33 % — 31/8
+
+Javier miró el tablero recién hecho y mandó una devolución larga. Lo que sigue
+es lo que salió de ahí, y la pregunta que la abría es la que más importa.
+
+### «¿Esto no se debe a forzar que el tablero sean HTML embebidos?»
+
+Textual: *«analiza si esto no se debe a forzar que el tablero sean html
+embebidos. porque si es eso, entonces no tengo miedo a decirlo: prefiero armar
+todo denuevo y tirar una bomba nuclear para que quede bien, y no algo hecho
+porque arrastramos de antes un formato. y aca, no te permito sesgos ni que me
+digas "costo hundido" o fue mucho laburo»*.
+
+**La respuesta es que no, y se comprobó abriendo `mora.html` sola:** tiene
+exactamente los mismos defectos que adentro del marco. El título entero en
+violeta y centrado, los tres campos de fecha apilados, el resultado como una
+lista de renglones del mismo color, el mensaje de estado invisible. **El iframe
+no causó ninguno.** Lo que hizo el tablero fue ponerlas una al lado de la otra,
+que es literalmente para lo que se construyó: hacer visible una divergencia que
+llevaba meses ahí y que nadie tenía por qué notar abriendo una sola pestaña.
+
+Los defectos eran de dos clases y ninguna tiene que ver con el contenedor:
+
+- **`mora` y `distancia` eran las dos que nunca habían recibido el rediseño.**
+  Las otras ocho ya seguían el patrón de `vencimientos`.
+- **Colores escritos a mano.** El mensaje de estado de `mora` se pintaba con
+  `background: '#f8fdf8'` y el texto en `--fg`: en tema oscuro era blanco sobre
+  blanco. Y `distancia` tenía un `@media (max-width: 640px)` que era una copia
+  pegada de las reglas de escritorio ---volvía a poner `padding: 40px`,
+  `max-width: 900px` y el `h1` centrado--- justo en el ancho donde había que
+  hacer lo contrario.
+
+**Lo que sí es un techo real del iframe, y conviene tenerlo escrito:** cada
+herramienta trae su propio cromo ---cabecera, línea de cobertura, pie--- y el
+tablero lo tapaba con CSS inyectado. Esa lista de selectores iba a crecer una
+entrada por pantalla. Se resolvió al revés: **una sola clase, `solo-suelta`, que
+ponen las calculadoras** sobre lo que sólo tiene sentido con la página abierta
+por su cuenta. El tablero oculta esa clase y nada más.
+
+Fusionar los diez HTML en un documento sigue descartado por lo de siempre: hay
+colisiones de `id` reales y cada una es una oportunidad de mover un número. Y la
+prueba de que embeber no cambia nada ---los 21 casos corridos dos veces--- deja
+de existir el día que no haya dos cosas que comparar.
+
+### La portada del tablero
+
+Salió de un pedido concreto: *«arriba de todo, independientemente de en qué
+herramienta estás, te muestra la fecha de hoy… ahí además ponemos el valor del
+uma y el valor del uhom, visibles siempre junto a la fecha»*, más botones a
+Honorio, a la landing, a la guía y al correo.
+
+La fecha vivía adentro de `vencimientos` y sólo ahí; los dos valores, en
+`uma-uhom.html`, que es otra página. **Ninguno de los tres depende de qué
+pestaña estés mirando**, así que ahora se dicen una vez arriba. Con ellos subió
+la línea de cobertura del calendario, que las cinco pantallas de plazos repetían
+—*«me parece demasiado ruido que todas lo mencionen»*—.
+
+**Lo que NO subió, y es la distinción que importa:** el aviso que sale *al
+calcular* cuando el plazo toca un año sin Acordada de feria. Ése frena un número
+y tiene que estar donde se pide el número. La línea de arriba es informativa; el
+otro es una negativa a contestar.
+
+### Se fue todo lo que explicaba cómo está armada la herramienta
+
+Javier sobre el párrafo que decía de qué archivos salen los días inhábiles:
+*«esto tampoco suma nada, nadie entiende de que va y el que llega al tablero no
+quiere saber como esta armado, esa persona sera dev o un lawyer muy curioso o un
+lawyer dev que no va ahi, va a ir a GitHub directo»*.
+
+Se fueron: la bajada del tablero, el aviso de «recién estrenado», la línea que
+explicaba los atajos, el colofón que pedía disculpas por si un número no
+coincidía, y el párrafo de procedencia en `vencimientos`, `regresiva` y
+`entre-fechas`.
+
+**Y los atajos 1-6 no funcionaban**, cosa que Javier notó: *«además tocar 1 o 2
+no hace nada»*. El motivo es que un evento de teclado no cruza de un iframe al
+documento de arriba: el foco vivía adentro del marco y el oyente estaba afuera.
+Se enganchó el mismo oyente adentro de cada marco al montarlo. El badge del
+número decía algo que no pasaba, que es peor que no decir nada.
+
+### `mora`, rehecha entera
+
+Es la que estaba peor. Además del título y de los campos:
+
+- **El botón «Forzar recarga (cache)»** era herencia de cuando los feriados se
+  pedían a una API en vivo. Desde el 13/8 salen de un archivo versionado: no hay
+  caché que forzar.
+- **El mensaje de éxito enumeraba los años de feriados cargados** y de qué
+  archivo salían. Además de no informarle nada a nadie, era el del contraste
+  invisible.
+- **El «detalle del cómputo» era una lista de fechas**, día por día, con el
+  motivo al lado. Lo reemplaza el calendario dibujado, el mismo módulo que usan
+  las otras tres.
+
+**El dibujo de `mora` contesta algo que los otros tres no:** acá hay DOS conteos
+pegados con reglas distintas. El primero saltea los inhábiles ---son días
+hábiles--- y el segundo no saltea nada ---son corridos---. Una lista de fechas no
+muestra eso; el calendario sí, porque el tramo de corridos se ve pasar por
+arriba de un sábado sin detenerse. Por eso se agregó `.celda.corrido` al módulo
+compartido, en tinte de `--ok`: otro conteo, otro color.
+
+**Para dibujarlo, `Plazos.mora()` devuelve ahora `evaluados`**, el recorrido día
+por día del tramo de hábiles. Se anota **mientras se cuenta**, adentro del mismo
+bucle: armar la lista después, desde la pantalla, sería recorrer el calendario
+una segunda vez con la convención de conteo copiada a mano, que es el modo de
+falla que ya produjo el bug de la feria. El bucle no cambió; sólo se llena un
+array. Los tres casos de `mora` del banco siguen dando lo mismo.
+
+Y el dibujo va en su propio `try`: **una falla del calendario no puede llevarse
+puesta una fecha que ya está calculada y bien.** Se pierde el dibujo y nada más.
+
+### Los errores salieron del `alert()`
+
+En `entre-fechas` y en `regresiva`, que eran las dos que quedaban. Van abajo del
+formulario y marcan el campo que los causó. **Es un cambio de comportamiento y
+no de forma**, y por eso fue junto con el lector de esas dos pantallas en
+`scripts/pruebas-calculadoras.html`, que hasta ese día pisaba `window.alert`
+para distinguir «no calcula» de un resultado y ahora lee la caja.
+
+### El cómputo que `caducidad` no mostraba, eliminado
+
+Vivía adentro de un `div` con `display:none`: la pantalla no lo mostraba y el
+motor lo calculaba igual, en cada consulta, iterando a punto fijo dos veces. Se
+fue entero ---la pantalla, `caducidadConInhabiles()` en `js/plazos.js` y las dos
+aserciones de `verificar-plazos`---. **Un número que nadie ve no se puede
+verificar ni desmentir**, y estas mismas pruebas llegaron a validarlo alguna vez,
+porque un elemento oculto responde igual a `getElementById`.
+
+### `prorrateo`: el 33 %, el imprimible y el enlace
+
+El aviso de qué no entra en la base está al lado de la tabla, y dice las dos
+cosas: que los honorarios de la parte condenada en costas quedan fuera por el
+art. 730 *in fine*, y que con el honorario del mediador hay dos criterios ---«todo
+concepto» de costas contra honorarios de la mediación *prejudicial*--- y elige el
+que firma.
+
+El 33 % es una tercera barra: **cuánto se le recorta a cada regulación**, con la
+marca del tercio dibujada encima y un aviso cuando lo pasa. Es el umbral con el
+que se argumenta confiscatoriedad, **no es una regla de la ley, y por eso se
+muestra y no se aplica**: el importe prorrateado sale del art. 730 y es el mismo
+lo pase o no lo pase. El porcentaje se calcula en el motor y no en la pantalla
+porque ahora lo leen tres lugares ---la nota, la barra y el imprimible--- y tres
+cuentas del mismo número se desincronizan.
+
+Y salió el imprimible, con el enlace del caso abajo, que es lo que lo hace
+auditable: el que recibe el papel puede abrirlo y ver las mismas entradas. **El
+caso va en el fragmento (`#…`), que no sale del navegador**, igual que en `tasa`
+desde el 27/8. La UMA **no** va en el enlace: es un dato del sistema y no del
+caso, y guardarla congelaría un valor viejo adentro de un enlace que se abre
+meses después.
+
+### La landing
+
+*«Prefiero dar a entender que lo que eran links sueltos son historia. ahora es
+el tablero»*, y sobre el listado: *«los links "sueltos" no se si dejarlos o no.
+vale la pena?»*.
+
+- **El bloque del tablero pregunta antes de explicar**, con las preguntas que
+  Javier escribió: cuándo vence un plazo, si corresponde ampliarlo por la
+  distancia, cuánto hay que integrar de tasa, cómo se prorratea.
+- **Las once tarjetas con enlace se fueron.** En su lugar hay un índice de
+  contenido ---nombres y una línea cada uno, sin enlace---: si el tablero es la
+  puerta, once links son once puertas de servicio. Las direcciones siguen vivas.
+  Lo único que sigue enlazado es **lo que no está adentro del tablero**:
+  Escribiente, `uma-uhom`, el asistente clásico, el cálculo directo y Bandejito.
+- **El tablero tiene dibujo propio**, un plano en SVG con las dos regiones, la
+  fila de pestañas y el plazo sobre el calendario. **No es una captura a
+  propósito:** una captura envejece con cada cambio de la pantalla y hay que
+  acordarse de rehacerla ---ya pasó dos veces con las de Honorio---. El plano
+  dibuja la estructura, que es lo que no cambia. La captura se hace cuando el
+  tablero deje de moverse.
+- **«La exactitud del número es el producto» dejó de ser sólo de Honorio.**
+  Javier: *«queda raro porque va referido principalmente a honorio y mezcla un
+  poco todo… además ahora las demás herramientas tienen banco de pruebas
+  propios»*. Ahora las tres columnas son de todo el repositorio: los diez
+  controles que corren antes de publicar, las dos veces que se corre cada caso
+  de plazos ---suelto y embebido---, y los cero cambios de resultado sin
+  documentar. Las cifras de Honorio siguen ahí, atribuidas a Honorio, porque
+  `verificar-honorio` las compara contra el motor.
+

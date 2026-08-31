@@ -113,6 +113,13 @@
 
 .celda.vence { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 
+/* Los dias CORRIDOS, que hoy solo usa mora. Se cuentan todos ---no hay habil
+   ni inhabil adentro del tramo--- y por eso no pueden llevar la misma marca
+   que un dia habil contado: son dos conteos distintos del mismo dibujo, y
+   pintarlos igual diria que el plazo de pago tambien saltea los inhabiles.
+   Tinte de --ok y no de --accent por lo mismo: otro conteo, otro color. */
+.celda.corrido { background: var(--ok-tint); color: var(--ok); }
+
 /* Los dias en que se dejo nota en el Libro de Asistencia. Hasta el 26/8
    se cargaban en el formulario, movian el vencimiento, y en el dibujo no
    se veian: el usuario tildaba diez fechas y ninguna aparecia. Lleva un

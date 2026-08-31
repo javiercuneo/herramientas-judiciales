@@ -657,6 +657,24 @@
             .veredicto { flex-direction: column; align-items: flex-start; }
             .veredicto .alterno { text-align: left; max-width: none; }
         }
+
+        /* El pie de autoria, con la misma forma en las diez herramientas. */
+        .firma {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--muted-fg);
+            font-size: 12.5px;
+            line-height: 1.8;
+        }
+        .firma .enlaces { display: inline-flex; gap: 12px; margin-left: 4px; }
+        .firma a { color: var(--accent); text-decoration: none; }
+        .firma a:hover { text-decoration: underline; }
+
+        @media (max-width: 620px) {
+            .firma .enlaces { display: flex; margin: 6px 0 0; }
+        }
     </style>
 </head>
 <body>
@@ -668,9 +686,9 @@
                      sabe de hoy y el usuario capaz que no: si hoy cuenta. El
                      motivo del inhabil sale del mismo calendario que el dibujo,
                      asi que no puede discrepar con el. -->
-                <p class="hoy" id="hoy"></p>
+                <p class="hoy solo-suelta" id="hoy"></p>
             </div>
-            <p class="cobertura" id="yearsAvailable">Cargando el calendario judicial…</p>
+            <p class="cobertura solo-suelta" id="yearsAvailable">Cargando el calendario judicial…</p>
         </header>
 
         <div class="tablero">
@@ -826,16 +844,21 @@
 
         <div id="dibujo"></div>
 
-        <p class="colofon">
-            El cómputo sale de <code>js/plazos.js</code>, el mismo motor que
-            consultan la calculadora de mora y los conectores. Los días inhábiles
-            salen de <code>data/feriados.json</code>,
-            <code>data/feria-judicial.json</code> —una Acordada de la CSJN por
-            año— y <code>data/dias-inhabiles.json</code>. Ninguno se deduce con
-            una fórmula. Si algo da mal,
-            <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.
-        </p>
-    </div>
+    
+    <!-- El pie va en todas las herramientas: cada una se puede abrir sola y
+         tiene que decir de quién es y que no reemplaza al juez. Adentro del
+         tablero se oculta ---de ahí `solo-suelta`--- porque ahí se dice una
+         vez, en el colofón. -->
+    <p class="firma solo-suelta">
+        L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el
+        criterio del juez
+        <span class="enlaces">
+            <a href="https://github.com/javiercuneo" target="_blank" rel="noopener">GitHub</a>
+            <a href="../index.html">Herramientas</a>
+            <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener">LinkedIn</a>
+        </span>
+    </p>
+</div>
 
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>

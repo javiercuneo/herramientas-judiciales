@@ -486,6 +486,50 @@
         .referencias .c-exc { background: var(--error); }
         .referencias .c-lib { background: var(--sunk); box-shadow: inset 0 0 0 1px var(--border); }
 
+        /* -------------------------------------------------- el 33 %
+           El umbral con el que se argumenta confiscatoriedad. NO es una regla
+           de la ley y por eso la herramienta lo MUESTRA y no lo aplica: el
+           numero prorrateado no cambia ni un peso porque el recorte lo pase.
+           La marca es una linea sobre la barra, con su rotulo. */
+        /* La marca NO puede ir adentro de .barra: esa tiene overflow:hidden
+           ---es lo que le redondea las puntas a los tramos--- y le recortaba
+           al umbral la linea y el rotulo de arriba. Va en una envoltura que
+           envuelve a la barra y no recorta nada. */
+        .barra-envoltura { position: relative; }
+
+        .umbral {
+            position: absolute;
+            top: -4px;
+            bottom: -4px;
+            width: 2px;
+            background: var(--warn);
+            border-radius: 1px;
+            pointer-events: none;
+        }
+        /* El rotulo va DEBAJO de la barra y no arriba: arriba se le montaba al
+           titulo de la fila, que dice de que es la barra. */
+        .umbral::after {
+            content: attr(data-rotulo);
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-meter);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--warn);
+            white-space: nowrap;
+        }
+
+        /* El rotulo del umbral cuelga abajo, asi que la fila necesita aire
+           debajo y no encima. */
+        .barra-fila.con-umbral { padding-bottom: 16px; }
+
+        .tramo.recorte { background: var(--error); color: var(--card); }
+        .tramo.queda { background: var(--accent); color: var(--on-accent); }
+        .referencias .c-queda { background: var(--accent); }
+
         .aclaracion {
             margin-top: 14px;
             font-size: 12px;
@@ -505,6 +549,45 @@
             margin-top: 16px;
         }
 
+        /* -------------------------------------------------- el imprimible
+           Se compone como un documento y no como una pantalla: negro sobre
+           blanco, sin tarjetas y sin acento. Los colores fijos son correctos
+           ACÁ y sólo acá ---el papel no tiene tema claro ni oscuro--- y por eso
+           viven adentro del @media print y no en :root. */
+        #imprimible { display: none; }
+
+        @media print {
+            body { background: #fff; color: #000; padding: 0; font-size: 10.5pt; }
+            .hoja { max-width: none; }
+            .hoja > *:not(#imprimible) { display: none !important; }
+            #imprimible { display: block; }
+
+            #imprimible h1 { font-family: var(--font-meter); font-size: 15pt; margin-bottom: 4pt; }
+            #imprimible h2 {
+                font-family: var(--font-meter); font-size: 11pt; margin: 16pt 0 5pt;
+                border-bottom: 1px solid #000; padding-bottom: 2pt;
+            }
+            #imprimible .norma { font-size: 8.5pt; color: #333; margin-bottom: 3pt; }
+            #imprimible table { width: 100%; border-collapse: collapse; margin-top: 4pt; }
+            #imprimible th, #imprimible td {
+                border-bottom: 1px solid #999; padding: 4pt 6pt;
+                text-align: left; vertical-align: top; font-size: 9pt;
+            }
+            #imprimible th { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.04em; }
+            #imprimible .num { text-align: right; }
+            #imprimible tfoot td { font-weight: 700; border-bottom: none; border-top: 1px solid #000; }
+            #imprimible .total { font-size: 12pt; margin-top: 10pt; }
+            #imprimible .criterio {
+                margin-top: 10pt; padding: 6pt 8pt; border: 1px solid #000; font-size: 9pt;
+            }
+            #imprimible .pie { font-size: 8pt; color: #333; margin-top: 16pt; border-top: 1px solid #999; padding-top: 5pt; }
+            #imprimible .enlace {
+                font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                font-size: 6.5pt; color: #555; margin-top: 5pt; word-break: break-all;
+            }
+            #imprimible table { page-break-inside: avoid; }
+        }
+
         .colofon {
             margin-top: 26px;
             font-size: 12px;
@@ -519,6 +602,24 @@
             .panel, .dibujo { padding: 18px 16px; }
             .cabecera { flex-direction: column; align-items: flex-start; gap: 8px; }
             .cobertura { text-align: left; }
+        }
+
+        /* El pie de autoria, con la misma forma en las diez herramientas. */
+        .firma {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--muted-fg);
+            font-size: 12.5px;
+            line-height: 1.8;
+        }
+        .firma .enlaces { display: inline-flex; gap: 12px; margin-left: 4px; }
+        .firma a { color: var(--accent); text-decoration: none; }
+        .firma a:hover { text-decoration: underline; }
+
+        @media (max-width: 620px) {
+            .firma .enlaces { display: flex; margin: 6px 0 0; }
         }
     </style>
 </head>
@@ -585,6 +686,23 @@
                    e <strong>IVA</strong> para agregarle el 21 %.</p>
             </div>
 
+            <!-- Qué entra en la base no lo puede resolver la herramienta, y
+                 decidirlo por el usuario sería peor que no decir nada: donde la
+                 ley no resuelve sola se muestran los criterios y decide el que
+                 firma. Así que se dice al lado del campo y nada más. Decisión
+                 de Javier del 31/8. -->
+            <div class="aviso" id="avisoBase">
+                <strong>Qué no va en esta lista.</strong> El art. 730 <em>in fine</em>
+                deja fuera del cómputo del 25 % los honorarios de los profesionales
+                de la parte condenada en costas: no los cargues acá.
+                <br>
+                <strong>Y el honorario del mediador tiene dos criterios.</strong> Hay
+                juzgados que lo incluyen porque las costas se fijan «por todo
+                concepto», y otros que lo dejan afuera porque es de la mediación
+                <em>prejudicial</em>, o sea anterior a la instancia. La herramienta
+                no elige: cargalo o no según el criterio que vayas a sostener.
+            </div>
+
             <div class="tabla-scroll">
                 <table class="filas">
                     <thead>
@@ -614,10 +732,20 @@
             <div class="pie-tabla">
                 <button type="button" class="btn-suave btn-chico" id="btnAgregar">Agregar regulación</button>
                 <button type="button" class="btn-suave btn-chico" id="btnReiniciar">Reiniciar</button>
+                <button type="button" class="btn-suave btn-chico" id="btnEnlace">Copiar el enlace</button>
+                <button type="button" class="btn-suave btn-chico" id="btnImprimir">Imprimir el prorrateo</button>
             </div>
         </div>
 
         <div id="dibujo"></div>
+
+        <!-- El imprimible. Oculto en pantalla, y lo único que sale en papel:
+             @media print apaga todo lo demás. Acá no hay una norma que lo
+             mande ---como sí la hay para la liquidación de la tasa, art. 4 in
+             fine--- pero un prorrateo que se acompaña a un escrito tiene que
+             poder leerse sin la pantalla, y sobre todo tiene que llevar el
+             enlace del caso: es lo que lo hace auditable por el que lo recibe. -->
+        <div id="imprimible" aria-hidden="true"></div>
 
         <p class="colofon">
             El tope es el del <strong>art. 730 del Código Civil y Comercial</strong>: la
@@ -631,7 +759,21 @@
             en este sitio: la página no le pide el valor a nadie. Si algo da mal,
             <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.
         </p>
-    </div>
+    
+    <!-- El pie va en todas las herramientas: cada una se puede abrir sola y
+         tiene que decir de quién es y que no reemplaza al juez. Adentro del
+         tablero se oculta ---de ahí `solo-suelta`--- porque ahí se dice una
+         vez, en el colofón. -->
+    <p class="firma solo-suelta">
+        L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el
+        criterio del juez
+        <span class="enlaces">
+            <a href="https://github.com/javiercuneo" target="_blank" rel="noopener">GitHub</a>
+            <a href="../index.html">Herramientas</a>
+            <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener">LinkedIn</a>
+        </span>
+    </p>
+</div>
 
 <script>
 (function () {
@@ -740,7 +882,14 @@
             prorratea: prorratea,
             reparto: reparto,
             cobrado: cobrado,
-            recorte: Math.max(0, totalRegulado - cobrado)
+            recorte: Math.max(0, totalRegulado - cobrado),
+            // El recorte como porcentaje de lo regulado. Se calcula acá y no en
+            // la pantalla porque ahora lo leen tres lugares ---la nota, la barra
+            // y el imprimible--- y tres cuentas del mismo numero se
+            // desincronizan. NO cambia ni un peso del reparto.
+            recortePorcentaje: totalRegulado > 0
+                ? (Math.max(0, totalRegulado - cobrado) * 100) / totalRegulado
+                : 0
         };
     }
 
@@ -917,6 +1066,14 @@
         pintarFilas(filas, regulados, r);
         pintarResultado(r, monto);
         document.getElementById('dibujo').innerHTML = monto > 0 ? dibujar(r) : '';
+        pintarImprimible(r, monto, filas, regulados);
+
+        // El enlace se mantiene al dia en la barra de direcciones, y por eso el
+        // boton de copiar puede decir "copialo de ahi" si el portapapeles no
+        // esta. replaceState y no pushState: cada tecla no es un paso atras.
+        if (monto > 0) {
+            history.replaceState(null, '', '#' + codificarCaso());
+        }
     }
 
     function pintarFilas(filas, regulados, r) {
@@ -984,8 +1141,7 @@
         html += '<div class="cifra" id="cifraCobrado">' + pesos(r.cobrado) + '</div>';
         html += '<div class="equivale" id="notaCobrado">' + (r.prorratea
             ? 'Se prorratean. Se recortan ' + pesos(r.recorte) + ', que es el ' +
-              nf.format(r.totalRegulado > 0 ? (r.recorte * 100) / r.totalRegulado : 0) +
-              ' % de lo regulado.'
+              nf.format(r.recortePorcentaje) + ' % de lo regulado.'
             : 'No se prorratean: las costas no superan el 25 % del monto del proceso.') +
             '</div>';
         html += '</div>';
@@ -1021,6 +1177,10 @@
         return '<div class="tramo ' + clase + '" style="width:' + ancho + '%">' + texto + '</div>';
     }
 
+    // El umbral con el que se argumenta confiscatoriedad. Es UN CRITERIO y no
+    // una regla de la ley: no entra en ninguna cuenta, sólo se dibuja.
+    var UMBRAL_CONFISCATORIO = 33;
+
     function dibujar(r) {
         // La escala comun es la mayor de las dos cantidades: asi el desborde se
         // ve como desborde y no como dos barras llenas.
@@ -1052,12 +1212,45 @@
         html += tramo('libre', pc(Math.max(0, r.topeHonorarios - honorariosDentro)), r.prorratea ? '' : 'Margen');
         html += '</div></div>';
 
+        // ------------------------------------------------------ el 33 %
+        // La tercera barra contesta otra pregunta que las dos de arriba: no
+        // cuanto entra en el techo, sino CUANTO SE LE SACA A CADA REGULACION.
+        // Es la misma proporcion para todas ---el art. 730 reparte el tope en
+        // proporcion--- asi que una barra alcanza para las que haya.
+        //
+        // La linea del 33 % es el umbral con el que se argumenta
+        // confiscatoriedad. NO es una regla de la ley: es un criterio, y por eso
+        // se MUESTRA y no se aplica. El numero prorrateado es exactamente el
+        // mismo lo pase o no lo pase.
+        if (r.prorratea) {
+            var recPc = Math.max(0, Math.min(100, r.recortePorcentaje));
+            html += '<div class="barra-fila con-umbral">';
+            html += '<div class="barra-tope"><span class="que">Cuánto se le recorta a cada regulación</span>' +
+                    '<span class="cuanto" id="dRecortePorcentaje">' + nf.format(r.recortePorcentaje) + ' %</span></div>';
+            html += '<div class="barra-envoltura"><div class="barra">';
+            html += tramo('recorte', recPc, 'Se recorta');
+            html += tramo('queda', 100 - recPc, 'Queda');
+            html += '</div>';
+            html += '<span class="umbral" style="left:' + UMBRAL_CONFISCATORIO + '%" data-rotulo="33 %"></span>';
+            html += '</div></div>';
+        }
+
         html += '<div class="referencias">';
         if (tasaEnBarra > 0) html += '<span><i class="c-tasa"></i>Tasa de justicia</span>';
         html += '<span><i class="c-hon"></i>Honorarios que se cobran</span>';
         if (excedente > 0) html += '<span><i class="c-exc"></i>Lo que el art. 730 recorta</span>';
         if (!r.prorratea) html += '<span><i class="c-lib"></i>Margen que queda abajo del techo</span>';
         html += '</div>';
+
+        if (r.prorratea && r.recortePorcentaje > UMBRAL_CONFISCATORIO) {
+            html += '<p class="aviso" id="avisoTercio">' +
+                '<strong>El recorte pasa el 33 %.</strong> Se le saca a cada regulación el ' +
+                nf.format(r.recortePorcentaje) + ' %. El tercio es el umbral con el que se ' +
+                'argumenta que una quita es confiscatoria, y no una regla de la Ley 27.423 ni ' +
+                'del art. 730: <strong>acá se muestra, no se aplica</strong>. El número de ' +
+                'arriba es el que manda el art. 730 y no cambia por esto. Si el planteo se va ' +
+                'a hacer, el imprimible y el enlace del caso lo dejan auditable.</p>';
+        }
 
         html += '<p class="aclaracion" id="notaRegla">' + notaRegla(r) + '</p>';
 
@@ -1095,6 +1288,195 @@
         calcular();
     }
 
+
+    // ----------------------------------------------------------------------
+    // El enlace del caso y el imprimible.
+    //
+    // POR QUE EL CASO VA EN EL FRAGMENTO (`#...`) Y NO EN LA QUERY. Todo lo que
+    // va despues del `?` viaja al servidor en cada pedido y queda en sus
+    // registros; lo que va despues del `#` no sale del navegador. Un monto de
+    // proceso y una lista de regulaciones no son datos personales, pero son
+    // datos de un expediente concreto y no tienen por que salir de la maquina.
+    // Es la misma decision que tomo tasa.html el 27/8 y se repite igual.
+    //
+    // La UMA NO va en el enlace: es un dato del sistema y no del caso, y
+    // guardarla congelaria un valor viejo adentro de un enlace que se abre
+    // meses despues. Se toma siempre la vigente de la serie.
+    // ----------------------------------------------------------------------
+    var VERSION_ENLACE = 'p1';
+
+    function aBase64Url(texto) {
+        var bytes = new TextEncoder().encode(texto);
+        var binario = '';
+        for (var i = 0; i < bytes.length; i++) binario += String.fromCharCode(bytes[i]);
+        return btoa(binario).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function desdeBase64Url(dato) {
+        var normalizado = dato.replace(/-/g, '+').replace(/_/g, '/');
+        var relleno = normalizado + '='.repeat((4 - (normalizado.length % 4)) % 4);
+        var binario = atob(relleno);
+        var bytes = new Uint8Array(binario.length);
+        for (var i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
+        return new TextDecoder().decode(bytes);
+    }
+
+    function codificarCaso() {
+        var reg = Array.prototype.slice.call(cuerpo.rows).map(function (tr) {
+            var o = {};
+            var c = tr.querySelector('.fila-concepto').value.trim();
+            var m = tr.querySelector('.fila-monto').value.trim();
+            if (c) o.c = c;
+            if (m) o.m = m;
+            if (tr.querySelector('.fila-uma').checked) o.u = 1;
+            if (tr.querySelector('.fila-iva').checked) o.v = 1;
+            return o;
+        }).filter(function (o) { return o.m; });
+
+        var caso = { p: document.getElementById('montoProceso').value.trim(), r: reg };
+        if (!document.getElementById('tasaEnBase').checked) caso.b = 0;
+        if (document.getElementById('tasaManual').checked) {
+            caso.t = 1;
+            caso.i = document.getElementById('tasaImporte').value.trim();
+        }
+        return VERSION_ENLACE + '=' + aBase64Url(JSON.stringify(caso));
+    }
+
+    // El camino inverso, con desconfianza: el fragmento lo escribe cualquiera y
+    // puede venir cortado por un cliente de correo. Devuelve null si no hay
+    // nada que leer, y entonces la pantalla arranca vacia como siempre.
+    function decodificarCaso(fragmento) {
+        var crudo = fragmento.charAt(0) === '#' ? fragmento.slice(1) : fragmento;
+        if (crudo.indexOf(VERSION_ENLACE + '=') !== 0) return null;
+        try {
+            var d = JSON.parse(desdeBase64Url(crudo.slice(VERSION_ENLACE.length + 1)));
+            if (!d || typeof d !== 'object' || !Array.isArray(d.r)) return null;
+            return d;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function cargarCaso(caso) {
+        cuerpo.innerHTML = '';
+        document.getElementById('montoProceso').value = caso.p || '';
+        document.getElementById('tasaEnBase').checked = caso.b !== 0;
+        document.getElementById('tasaManual').checked = !!caso.t;
+        document.getElementById('tasaImporte').value = caso.i || '';
+        caso.r.forEach(function (o) { agregarFila(o.c || '', o.m || '', !!o.u, !!o.v); });
+        // Tres renglones como minimo, que es como arranca la pantalla.
+        while (cuerpo.rows.length < 3) agregarFila();
+        calcular();
+    }
+
+    function enlaceDelCaso() {
+        return location.origin + location.pathname + '#' + codificarCaso();
+    }
+
+    // ----------------------------------------------------------------------
+    // El imprimible.
+    //
+    // Lleva el enlace del caso abajo, y eso es lo que lo hace auditable: el que
+    // recibe el papel puede abrirlo y ver las mismas entradas. Un numero
+    // impreso sin las entradas que lo produjeron no se puede discutir.
+    // ----------------------------------------------------------------------
+    function escapar(t) {
+        return String(t).replace(/[&<>"]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+        });
+    }
+
+    function pintarImprimible(r, monto, filas, regulados) {
+        var caja = document.getElementById('imprimible');
+        if (!(monto > 0) || !(r.totalRegulado > 0)) { caja.innerHTML = ''; return; }
+
+        var html = '<h1>Prorrateo del art. 730 del Codigo Civil y Comercial</h1>';
+        html += '<p class="norma">La responsabilidad por el pago de las costas de primera o ' +
+                'unica instancia, incluidos los honorarios profesionales de todo tipo, no puede ' +
+                'exceder del 25 % del monto de la sentencia, laudo o transaccion.</p>';
+
+        html += '<h2>La base</h2>';
+        html += '<table><tbody>';
+        html += '<tr><td>Monto del proceso</td><td class="num">' + pesos(monto) + '</td></tr>';
+        html += '<tr><td>Techo del art. 730 &mdash; 25 %</td><td class="num">' + pesos(r.techo) + '</td></tr>';
+        html += '<tr><td>Tasa de justicia' +
+                (r.tasaEnBase ? ' (integra las costas)' : ' (fuera de la base)') +
+                '</td><td class="num">' + pesos(r.tasa) + '</td></tr>';
+        html += '<tr><td>Tope de los honorarios</td><td class="num">' + pesos(r.topeHonorarios) + '</td></tr>';
+        html += '</tbody></table>';
+
+        html += '<h2>Las regulaciones</h2>';
+        html += '<table><thead><tr><th>Profesional o concepto</th>' +
+                '<th class="num">Regulado</th><th class="num">Participacion</th>' +
+                '<th class="num">Prorrateado</th></tr></thead><tbody>';
+        filas.forEach(function (tr, i) {
+            if (!(regulados[i] > 0)) return;
+            var nombre = tr.querySelector('.fila-concepto').value.trim() || ('Regulacion ' + (i + 1));
+            html += '<tr><td>' + escapar(nombre) + '</td>' +
+                    '<td class="num">' + pesos(regulados[i]) + '</td>' +
+                    '<td class="num">' + nf.format((regulados[i] * 100) / r.totalRegulado) + ' %</td>' +
+                    '<td class="num">' + pesos(r.reparto[i]) + '</td></tr>';
+        });
+        html += '</tbody><tfoot><tr><td>Total</td>' +
+                '<td class="num">' + pesos(r.totalRegulado) + '</td>' +
+                '<td class="num">100,00 %</td>' +
+                '<td class="num">' + pesos(r.cobrado) + '</td></tr></tfoot></table>';
+
+        html += '<p class="total">' + (r.prorratea
+            ? 'Se prorratean: se recortan ' + pesos(r.recorte) + ', el ' +
+              nf.format(r.recortePorcentaje) + ' % de lo regulado.'
+            : 'No se prorratean: las costas no superan el 25 % del monto del proceso.') + '</p>';
+
+        // El 33 % va al papel, y va DECLARADO COMO CRITERIO. Si el planteo de
+        // confiscatoriedad se va a hacer, el porcentaje tiene que estar en el
+        // mismo documento que el numero; y si no se va a hacer, tiene que
+        // quedar claro que la herramienta no lo aplico.
+        if (r.prorratea && r.recortePorcentaje > UMBRAL_CONFISCATORIO) {
+            html += '<p class="criterio"><strong>El recorte excede el 33 % de lo regulado.</strong> ' +
+                    'El tercio es el umbral con el que se argumenta que una quita es ' +
+                    'confiscatoria. No es una regla del art. 730 ni de la Ley 27.423: los ' +
+                    'importes de este cuadro no lo aplican, salen del art. 730 y nada mas.</p>';
+        }
+
+        html += '<p class="criterio">Que no entra en el cuadro: los honorarios de los ' +
+                'profesionales de la parte condenada en costas quedan fuera del computo del ' +
+                '25 % por el art. 730 in fine. Sobre el honorario del mediador hay dos ' +
+                'criterios &mdash;&laquo;todo concepto&raquo; de costas contra honorarios de la ' +
+                'mediacion prejudicial&mdash; y la herramienta no elige: cargarlo o no fue ' +
+                'decision de quien armo este cuadro.</p>';
+
+        html += '<p class="pie">Prorrateo calculado en javiercuneo.com.ar &middot; ' +
+                'Herramienta de referencia: no sustituye el criterio del juez. ' +
+                'Las regulaciones expresadas en UMA se convirtieron con el valor vigente al ' +
+                new Date().toLocaleDateString('es-AR') + '.</p>';
+        html += '<p class="enlace">' + escapar(enlaceDelCaso()) + '</p>';
+
+        caja.innerHTML = html;
+    }
+
+    document.getElementById('btnImprimir').addEventListener('click', function () {
+        window.print();
+    });
+
+    document.getElementById('btnEnlace').addEventListener('click', function () {
+        var boton = this;
+        var enlace = enlaceDelCaso();
+        var avisar = function (texto) {
+            boton.textContent = texto;
+            setTimeout(function () { boton.textContent = 'Copiar el enlace'; }, 2600);
+        };
+        // El enlace ya esta en la barra de direcciones ---calcular() lo mantiene
+        // al dia--- asi que si el portapapeles no esta disponible no hay nada
+        // roto: hay que decir donde esta.
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(enlace)
+                .then(function () { avisar('Copiado'); })
+                .catch(function () { avisar('Copialo de la barra de direcciones'); });
+        } else {
+            avisar('Copialo de la barra de direcciones');
+        }
+    });
+
     document.getElementById('btnAgregar').addEventListener('click', function () {
         var tr = agregarFila();
         tr.querySelector('.fila-concepto').focus();
@@ -1108,8 +1490,16 @@
     document.addEventListener('input', calcular);
     document.addEventListener('change', calcular);
 
-    for (var k = 0; k < 3; k++) agregarFila();
-    calcular();
+    // Un caso que viene por enlace manda sobre la pantalla vacia. Si el
+    // fragmento no dice nada ---o dice cualquier cosa--- se arranca como
+    // siempre: tres renglones en blanco.
+    var casoInicial = decodificarCaso(location.hash);
+    if (casoInicial) {
+        cargarCaso(casoInicial);
+    } else {
+        for (var k = 0; k < 3; k++) agregarFila();
+        calcular();
+    }
     fetchUma();
 
     // Para el banco de pruebas: la cuenta, consultable sin tocar el DOM.
@@ -1123,6 +1513,9 @@
     window.agregarFila = agregarFila;
     window.reiniciar = reiniciar;
     window.calcular = calcular;
+    window.codificarCaso = codificarCaso;
+    window.decodificarCaso = decodificarCaso;
+    window.cargarCaso = cargarCaso;
 })();
 </script>
 </body>

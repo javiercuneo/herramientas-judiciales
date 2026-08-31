@@ -370,12 +370,10 @@ const DRIVERS = {
             d.getElementById('calculatorForm').dispatchEvent(
                 new d.defaultView.Event('submit', { bubbles: true, cancelable: true }));
             await pausa(120);
-            // #resultDate y NO #resultDateFull. El segundo vive dentro de
-            // .hidden-computation, que tiene display:none: es un computo que
-            // la pantalla no muestra. Leerlo por id funciona igual --un
-            // elemento oculto responde-- asi que estas pruebas estuvieron
-            // validando un numero que ningun usuario ve. Encontrado el 17/8
-            // al revisar un calculo que trajo Javier.
+            // #resultDate, que es el unico que hay. Hubo un #resultDateFull
+            // adentro de un div con display:none ---un computo que la pantalla
+            // no mostraba--- y estas pruebas llegaron a validarlo, porque un
+            // elemento oculto responde igual por id. Se elimino entero el 31/8.
             return d.getElementById('resultDate').innerText.trim();
         }
     },
@@ -384,15 +382,20 @@ const DRIVERS = {
         // "disponible para" y no "disponible": ver la advertencia de arriba.
         lista: (d) => /disponible para/i.test(
             d.getElementById('availableYears').textContent),
+        // El 31/8 los errores salieron del alert() y van a #avisoError. Antes
+        // este lector pisaba window.alert para distinguir "no calcula" de un
+        // resultado; ahora lee la caja. Es el mismo contrato ---o hay numero, o
+        // hay motivo--- leido de otro lado.
         correr: async (d, campos) => {
-            let alerta = null;
-            d.defaultView.alert = (m) => { alerta = m; };
             ['startDay', 'startMonth', 'startYear', 'endDay', 'endMonth', 'endYear']
                 .forEach((k) => { if (campos[k] !== undefined) d.getElementById(k).value = campos[k]; });
             d.getElementById('businessDays').checked = !!campos.businessDays;
             boton(d, /calcul/i).click();
             await pausa(500);
-            if (alerta) return 'no calcula: ' + String(alerta).replace(/\s+/g, ' ').slice(0, 80);
+            const aviso = d.getElementById('avisoError');
+            if (aviso && aviso.classList.contains('visible')) {
+                return 'no calcula: ' + aviso.textContent.replace(/\s+/g, ' ').slice(0, 80);
+            }
             return d.getElementById('totalDays').textContent.trim();
         }
     },
@@ -405,42 +408,53 @@ const DRIVERS = {
         // rota---. Ahora los cinco buscan la formula unica.
         lista: (d) => /Calculadora disponible|No se pudo cargar/i.test(
             d.getElementById('infoAnios').textContent),
+        // Mismo cambio del 31/8 que en entre-fechas: el motivo se lee de
+        // #avisoError y no de un alert() capturado.
         correr: async (d, campos) => {
-            let alerta = null;
-            d.defaultView.alert = (m) => { alerta = m; };
             d.getElementById('fechaObjetivo').value = campos.fechaObjetivo;
             d.getElementById('diasAntelacion').value = campos.diasAntelacion;
             boton(d, /calcul/i).click();
             await pausa(150);
-            if (alerta) return 'no calcula: ' + String(alerta).replace(/\s+/g, ' ').slice(0, 80);
+            const aviso = d.getElementById('avisoError');
+            if (aviso && aviso.classList.contains('visible')) {
+                return 'no calcula: ' + aviso.textContent.replace(/\s+/g, ' ').slice(0, 80);
+            }
             const t = d.getElementById('resultadoPanel').innerText.replace(/\s+/g, ' ');
             const m = t.match(/(\d{2}\/\d{2}\/\d{4})/);
             return m ? m[1] : '(no se pudo leer) ' + t.slice(0, 70);
         }
     },
     mora: {
+        // Reescrita el 31/8 sobre el patron de vencimientos: el formulario se
+        // manda por submit, el resultado se muestra con la clase `visible` y el
+        // error salio del alert() a una caja al lado del campo. La FECHA que se
+        // lee es la del ultimo tramo ---toLocaleDateString('es-AR')--- y es la
+        // misma cadena que leia antes de #vencimiento, asi que los tres casos
+        // esperan exactamente lo mismo que esperaban.
         archivo: '../calculadoras/mora.html',
-        lista: (d) => !!d.getElementById('calcular'),
+        lista: (d) => !!d.getElementById('formulario'),
         correr: async (d, campos) => {
-            let alerta = null;
-            d.defaultView.alert = (m) => { alerta = m; };
             ['d_dia', 'd_mes', 'd_anio', 'diasHabiles', 'plazoDias']
                 .forEach((k) => { if (campos[k] !== undefined) d.getElementById(k).value = campos[k]; });
             // mora calcula asincronico y el iframe se reusa entre casos: si no
             // se borra el resultado anterior, esperar() lo encuentra ya visible
             // y se lee el numero del caso previo. Paso: dos casos distintos
             // dieron los dos 17/8/2024, que era la respuesta del caso anterior.
-            d.getElementById('output').style.display = 'none';
-            d.getElementById('vencimiento').textContent = '';
-            d.getElementById('statusMessage').textContent = '';
-            d.getElementById('calcular').click();
-            await esperar(() => (d.getElementById('output').style.display === 'block'
-                && d.getElementById('vencimiento').textContent.trim() !== '')
-                || /No se puede/.test(d.getElementById('statusMessage').textContent), 8000);
-            if (alerta) return 'no calcula: ' + String(alerta).replace(/\s+/g, ' ').slice(0, 80);
-            const est = d.getElementById('statusMessage').textContent;
-            if (/No se puede/.test(est)) return 'no calcula: ' + est.replace(/\s+/g, ' ').slice(0, 80);
-            const m = d.getElementById('vencimiento').innerText.match(/:\s*([\d/]+)/);
+            d.getElementById('resultado').classList.remove('visible');
+            d.getElementById('tramos').textContent = '';
+            d.getElementById('error').textContent = '';
+            d.getElementById('error').classList.remove('visible');
+            d.getElementById('formulario').querySelector('button[type=submit]').click();
+            await esperar(() => (d.getElementById('resultado').classList.contains('visible')
+                && d.getElementById('tramos').textContent.trim() !== '')
+                || d.getElementById('error').classList.contains('visible'), 8000);
+            const err = d.getElementById('error');
+            if (err.classList.contains('visible')) {
+                return 'no calcula: ' + err.textContent.replace(/\s+/g, ' ').slice(0, 80);
+            }
+            const filas = d.querySelectorAll('#tramos .tramo .f');
+            const ultima = filas[filas.length - 1];
+            const m = ultima && ultima.textContent.match(/([\d/]+)\s*$/);
             return m ? m[1].trim() : '(no se pudo leer)';
         }
     }

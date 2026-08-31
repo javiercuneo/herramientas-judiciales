@@ -25,12 +25,15 @@
              - nada se separa con una línea si alcanza con el espacio;
              - el formulario a la izquierda y la respuesta a la derecha.
 
-           LO QUE ESTE REDISEÑO NO TOCA: ni un id, ni el cómputo, ni el
-           contrato de errores. Los errores siguen saliendo por alert() ---que
-           es peor que un error al lado del campo y está anotado como pendiente,
-           pero cambiarlo es cambiar comportamiento y esto es forma---. Los
-           75 casos de scripts/pruebas-calculadoras.html leen esta pantalla por
-           id, y que sigan pasando es la prueba de que nada se movió.
+           EL 31/8 LOS ERRORES SALIERON DEL alert(), a pedido de Javier. Van
+           abajo del formulario, en .aviso-error, y marcan el campo que los
+           causo: un cuadro de dialogo tapa la pantalla, no se puede releer y
+           hay que sacarlo del medio antes de poder corregir nada. No es solo
+           forma ---es comportamiento--- y por eso se cambio junto con el
+           lector de esta pantalla en scripts/pruebas-calculadoras.html, que
+           antes capturaba el alert() para distinguir "no calcula" de un
+           resultado. El computo y los id no se tocaron: los 75 casos siguen
+           pasando, y eso es la prueba de que ningun numero se movio.
 
            LO QUE SE FUE, y por qué cada uno:
 
@@ -160,6 +163,24 @@
             border-color: var(--error);
             box-shadow: 0 0 0 3px var(--error-tint);
         }
+
+        /* El error salio del alert() el 31/8, a pedido de Javier. Un cuadro de
+           dialogo tapa la pantalla, no se puede releer, no señala el campo y hay
+           que sacarlo del medio antes de poder corregir nada. Se llama
+           .aviso-error y no .error porque .error ya estaba tomado en este
+           archivo: es la clase que le pone el borde rojo al input. */
+        .aviso-error {
+            display: none;
+            margin-top: 14px;
+            background: var(--error-tint);
+            border: 1px solid var(--error);
+            border-left-width: 3px;
+            border-radius: 9px;
+            padding: 10px 13px;
+            font-size: 12.5px;
+            color: var(--fg);
+        }
+        .aviso-error.visible { display: block; }
 
         input.mide-2 { width: 4.4ch; }
         input.mide-4 { width: 6.8ch; }
@@ -335,7 +356,7 @@
     <div class="hoja">
         <header class="cabecera">
             <h1>Días <span>entre dos fechas</span></h1>
-            <p class="cobertura" id="availableYears">Cargando el calendario judicial…</p>
+            <p class="cobertura solo-suelta" id="availableYears">Cargando el calendario judicial…</p>
         </header>
 
         <div class="tablero">
@@ -390,6 +411,8 @@
                 <button class="btn-calcular" onclick="calculate()">Calcular</button>
                 <button class="btn-suave" onclick="resetForm()">Limpiar</button>
             </div>
+
+            <p class="aviso-error" id="avisoError" role="alert"></p>
         </div>
 
         <div class="resultado">
@@ -419,18 +442,8 @@
 
         <div id="dibujo"></div>
 
-        <p class="colofon">
-            El conteo sale de <code>js/plazos.js</code>, el mismo motor que
-            consultan la calculadora de vencimientos, la de mora y los
-            conectores. Los días inhábiles salen de
-            <code>data/feriados.json</code>,
-            <code>data/feria-judicial.json</code> —una Acordada de la CSJN por
-            año— y <code>data/dias-inhabiles.json</code>. Ninguno se deduce con
-            una fórmula. Si algo da mal,
-            <a href="mailto:javier@javiercuneo.com.ar">escribime</a>.
-        </p>
 
-        <p class="firma">
+        <p class="firma solo-suelta">
             L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el
             criterio del juez.
             <span class="enlaces">
@@ -522,6 +535,8 @@
             input.classList.remove('error');
         });
 
+        limpiarAviso();
+
         var startDay = document.getElementById('startDay').value;
         var startMonth = document.getElementById('startMonth').value;
         var startYear = document.getElementById('startYear').value;
@@ -530,7 +545,10 @@
         var endYear = document.getElementById('endYear').value;
 
         if (!startDay || !startMonth || !startYear || !endDay || !endMonth || !endYear) {
-            alert('Faltan campos de fecha por completar.');
+            avisar('Faltan campos de fecha por completar.',
+                   CAMPOS_FECHA.filter(function(id) {
+                       return !document.getElementById(id).value;
+                   }));
             return;
         }
 
@@ -538,23 +556,19 @@
         var endDate = parseDate(endDay, endMonth, endYear);
 
         if (!startDate) {
-            alert('La fecha de inicio no es válida.');
-            ['startDay', 'startMonth', 'startYear'].forEach(function(id) {
-                document.getElementById(id).classList.add('error');
-            });
+            avisar('La fecha de inicio no existe. Revisá el día y el mes.',
+                   ['startDay', 'startMonth', 'startYear']);
             return;
         }
 
         if (!endDate) {
-            alert('La fecha de fin no es válida.');
-            ['endDay', 'endMonth', 'endYear'].forEach(function(id) {
-                document.getElementById(id).classList.add('error');
-            });
+            avisar('La fecha de fin no existe. Revisá el día y el mes.',
+                   ['endDay', 'endMonth', 'endYear']);
             return;
         }
 
         if (startDate > endDate) {
-            alert('La fecha de inicio tiene que ser anterior a la de fin.');
+            avisar('La fecha de inicio tiene que ser anterior a la de fin.', CAMPOS_FECHA);
             return;
         }
 
@@ -563,7 +577,7 @@
         var businessDays = document.getElementById('businessDays').checked;
 
         if (businessDays && !datosCargados) {
-            alert('El calendario judicial no está cargado, así que no se puede contar en días hábiles. El conteo en días corridos sí funciona.');
+            avisar('El calendario judicial no está cargado, así que no se puede contar en días hábiles. El conteo en días corridos sí funciona.');
             return;
         }
 
@@ -573,6 +587,32 @@
         setTimeout(function() {
             performCalculation(startDate, endDate, includeStart, includeEnd, businessDays);
         }, 100);
+    }
+
+    // El error va abajo del formulario y marca los campos que lo causaron, que
+    // es el patron de vencimientos. Se borra en cuanto se vuelve a apretar
+    // Calcular: un error viejo al lado de un resultado nuevo es peor que
+    // ninguno.
+    var CAMPOS_FECHA = ['startDay', 'startMonth', 'startYear', 'endDay', 'endMonth', 'endYear'];
+
+    function limpiarAviso() {
+        var caja = document.getElementById('avisoError');
+        caja.textContent = '';
+        caja.classList.remove('visible');
+        CAMPOS_FECHA.forEach(function(id) {
+            document.getElementById(id).classList.remove('error');
+        });
+    }
+
+    function avisar(texto, campos) {
+        var caja = document.getElementById('avisoError');
+        caja.textContent = texto;
+        caja.classList.add('visible');
+        (campos || []).forEach(function(id) {
+            document.getElementById(id).classList.add('error');
+        });
+        document.getElementById('loading').classList.remove('show');
+        document.getElementById('results').classList.remove('show');
     }
 
     // La aritmetica NO vive aca: esta en js/plazos.js, el mismo motor que
@@ -595,8 +635,8 @@
         document.getElementById('loading').classList.remove('show');
 
         if (r.problema) {
-            alert('No se puede contar en días hábiles. ' + r.problema +
-                '\n\nEl conteo en días corridos sí funciona.');
+            avisar('No se puede contar en días hábiles. ' + r.problema +
+                   ' El conteo en días corridos sí funciona.');
             return;
         }
 

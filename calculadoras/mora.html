@@ -3,547 +3,616 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Calculadora de inicio de mora (sentencia / honorarios)</title>
+    <title>Inicio de la mora</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
+    <link rel="stylesheet" href="css/dibujo-plazo.css">
     <script src="../assets/tema.js"></script>
     <style>
-        /* OJO: no redefinir aca --accent, --border, --bg ni --card.
-           Los define comun.css y siguen el tema. Escribir
-           `--accent: var(--accent)` es un ciclo: la propiedad queda
-           invalida en tiempo de computo y var(--accent) devuelve la
-           cadena vacia, no el cobalto. Asi estuvo esta calculadora hasta
-           el 5/8: el boton se quedaba sin fondo y conservaba su texto
-           blanco, o sea invisible sobre la tarjeta, en los dos temas. */
-        :root {
-            --muted: var(--muted-fg);
-            --text: var(--fg);
-            --primary: var(--accent);
-            /* Los tres tramos son una secuencia, no tres categorias: el
-               mismo acento con mas peso. Translucidos sobre la tarjeta,
-               asi el texto sigue siendo --fg y se lee en claro y oscuro. */
-            --period1: color-mix(in srgb, var(--accent) 8%, transparent);
-            --period2: color-mix(in srgb, var(--accent) 17%, transparent);
-            --period3: color-mix(in srgb, var(--accent) 28%, transparent);
-            --shadow: 0 20px 60px rgb(0 0 0 / 0.3);
-        }
+        /* ==================================================================
+           Rehecha el 31/8/2026 sobre el patron de vencimientos.html, que es la
+           pantalla de referencia. Era la ultima de las cinco de plazos que
+           seguia con el diseño viejo, y puesta al lado de las otras en el
+           tablero se veia: el titulo entero en violeta y centrado adentro de
+           una tarjeta, tres campos de fecha apilados, y el resultado como una
+           lista de renglones todos del mismo color.
+
+           Cuatro cosas se fueron, y ninguna es una simplificacion:
+
+           - El boton "Forzar recarga (cache)". Era herencia de cuando los
+             feriados se pedian a una API en vivo. Desde el 13/8 salen de un
+             archivo versionado: no hay cache que forzar.
+           - El bloque que explicaba de que archivos salen los dias inhabiles y
+             el "si creés que hay un error, mandanos un mail". El que llega a
+             calcular una mora no vino a leer como esta armada la herramienta.
+           - El mensaje de exito que enumeraba los años de feriados cargados.
+             Ademas de no informar nada, se pintaba con dos colores escritos a
+             mano ---#f8fdf8 de fondo con el texto en --fg--- asi que en tema
+             oscuro era blanco sobre blanco. NINGUN color va escrito a mano en
+             esta pantalla: todos salen de los tokens de comun.css.
+           - El "detalle del computo" dia por dia, que era una lista de fechas.
+             Lo reemplaza el calendario dibujado, el mismo modulo que usan las
+             otras tres.
+
+           Lo que NO se toco es el computo: sigue siendo una llamada a
+           Plazos.mora(), el mismo motor de siempre.
+           ================================================================== */
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: var(--font-sans);
-            margin: 24px;
             background: var(--bg);
-            color: var(--text);
+            color: var(--fg);
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 28px 20px 64px;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .hoja { max-width: 940px; margin: 0 auto; }
 
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 28px 28px 32px;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0 0 16px;
-            color: var(--text);
-        }
-
-        label {
-            display: block;
-            margin-top: 18px;
-            margin-bottom: 6px;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .row {
+        /* ---------------------------------------------------------- cabecera */
+        .cabecera {
             display: flex;
-            gap: 12px;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
             flex-wrap: wrap;
-            align-items: flex-end;
+            margin-bottom: 20px;
         }
 
-        input,
-        select,
-        button {
-            padding: 11px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            font-size: 0.95rem;
+        .cabecera h1 {
+            font-family: var(--font-meter);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .cabecera h1 span { color: var(--accent); }
+
+        .titulo { display: flex; flex-direction: column; gap: 5px; }
+        .subtitulo { font-size: 12.5px; color: var(--muted-fg); max-width: 52ch; }
+
+        .cobertura {
+            font-size: 12px;
+            color: var(--faint);
+            max-width: 46ch;
+            text-align: right;
+        }
+
+        /* --------------------------------------------------- las dos columnas */
+        .tablero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .tablero { grid-template-columns: minmax(0, 1fr); }
+            .cobertura { text-align: left; }
+        }
+
+        .panel {
             background: var(--card);
-            transition: border 0.15s, box-shadow 0.15s;
-            font-family: inherit;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
         }
 
+        .grupo { margin-bottom: 18px; }
+        .grupo:last-child { margin-bottom: 0; }
+
+        .rotulo {
+            display: block;
+            font-family: var(--font-meter);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin-bottom: 7px;
+        }
+
+        .ayuda { font-size: 12px; color: var(--muted-fg); margin-top: 6px; max-width: 46ch; }
+
+        /* Cada control ocupa lo que mide su contenido, que es el criterio de
+           vencimientos: un dia son dos digitos y entra en 4ch. */
+        .fecha { display: flex; align-items: center; gap: 6px; }
+
+        input {
+            font-family: var(--font-meter);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--fg);
+            background: var(--sunk);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 9px 6px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        input::placeholder { color: var(--faint); font-weight: 400; }
         input:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-tint);
         }
+        input.mal { border-color: var(--warn); }
 
-        .small {
-            font-size: 0.85rem;
-            color: var(--muted);
-            line-height: 1.4;
+        .dd, .mm { width: 4.5ch; }
+        .aaaa { width: 7ch; }
+        .cantidad { width: 6ch; }
+        .barra-fecha { color: var(--faint); }
+
+        .con-unidad { display: flex; align-items: baseline; gap: 8px; }
+        .unidad { font-size: 12.5px; color: var(--muted-fg); }
+
+        .botones { display: flex; gap: 8px; margin-top: 22px; }
+
+        button {
+            font-family: var(--font-sans);
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 9px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: filter 0.15s, background 0.15s, border-color 0.15s;
         }
+        .primario { background: var(--accent); color: var(--on-accent); }
+        .primario:hover { filter: brightness(1.08); }
+        .secundario { background: transparent; color: var(--muted-fg); border-color: var(--border); }
+        .secundario:hover { color: var(--fg); background: var(--sunk); }
+        button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-        .status-message {
-            margin-top: 16px;
-            padding: 12px 14px;
-            border-radius: 10px;
+        /* El error va al lado del campo y no en un alert(): un cuadro de
+           dialogo tapa la pantalla, no se puede releer y no señala el campo. */
+        .error {
             display: none;
-            font-size: 0.9rem;
-            background: var(--ok-tint);
-            border: 1px solid var(--border);
+            margin-top: 14px;
+            background: var(--warn-tint);
+            border: 1px solid var(--warn);
+            border-left-width: 3px;
+            border-radius: 9px;
+            padding: 10px 13px;
+            font-size: 12.5px;
+            color: var(--fg);
+        }
+        .error.visible { display: block; }
+
+        /* ------------------------------------------------------ la respuesta */
+        .espera {
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            padding: 34px 20px;
+            text-align: center;
+            font-size: 12.5px;
+            color: var(--faint);
         }
 
-        .result {
-            margin-top: 20px;
-            padding: 18px;
-            border-radius: 12px;
-            background: linear-gradient(180deg, var(--card), var(--sunk));
-            border: 1px solid var(--border);
-        }
-
-        .trace {
-            margin-top: 20px;
+        .resultado {
+            display: none;
             background: var(--card);
-            padding: 18px;
-            border-radius: 12px;
             border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+        }
+        .resultado.visible { display: block; }
+
+        .fecha-grande {
+            font-family: var(--font-meter);
+            font-size: 30px;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            color: var(--accent);
+            margin: 4px 0 6px;
+        }
+        .hasta { font-size: 12.5px; color: var(--muted-fg); }
+
+        /* Los tres tramos, como filas de datos y no como tres cajas del mismo
+           tamaño. Antes eran tres rectangulos con tres tintes del acento y el
+           mismo peso tipografico: se leian como tres respuestas y hay una. */
+        .tramos { margin-top: 18px; border-top: 1px solid var(--hair); }
+
+        .tramo {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 4px 14px;
+            align-items: baseline;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--hair);
+        }
+        .tramo .q { font-size: 12.5px; color: var(--muted-fg); }
+        .tramo .q b { color: var(--fg); font-weight: 600; }
+        .tramo .f {
+            font-family: var(--font-meter);
+            font-size: 13px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
         }
 
-        
-        .footer {
+        #dibujo { margin-top: 22px; }
+
+        .firma {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
             text-align: center;
             color: var(--muted-fg);
-            margin-top: 20px;
-            font-size: 12px;
-            line-height: 1.6;
+            font-size: 12.5px;
+            line-height: 1.8;
         }
-        .footer a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-button {
-            background: var(--primary);
-            color: var(--on-accent);
-            border: none;
-            padding: 11px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: filter 0.15s;
-        }
+        .firma .enlaces { display: inline-flex; gap: 12px; margin-left: 4px; }
+        .firma a { color: var(--accent); text-decoration: none; }
+        .firma a:hover { text-decoration: underline; }
 
-        button:hover {
-            filter: brightness(1.08);
-        }
-
-        button.ghost {
-            background: transparent;
-            color: var(--primary);
-            border: 1px solid var(--border);
-        }
-
-        button.ghost:hover {
-            background: var(--accent-tint);
-        }
-
-        .flex {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .timeline {
-            display: flex;
-            gap: 12px;
-            align-items: stretch;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-
-        .period {
-            padding: 10px 14px;
-            border-radius: 12px;
-            min-width: 140px;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border: 1px solid var(--hair);
-        }
-
-        .legend {
-            display: flex;
-            gap: 18px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .legend span {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            font-size: 0.85rem;
-        }
-
-        /* El borde no es decoracion: los tres tintes son translucidos y
-           a 14px, sin borde, el mas claro no se distingue del fondo. */
-        .swatch {
-            width: 14px;
-            height: 14px;
-            border-radius: 4px;
-            display: inline-block;
-            border: 1px solid var(--border);
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        @media (max-width: 720px) {
-            /* align-items: flex-end alinea al fondo mientras la fila es
-               fila; al pasar a columna pasa a ser el eje transversal y
-               empuja los campos contra el borde derecho. */
-            .row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .flex {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .timeline {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .input-group {
-                flex-wrap: wrap;
-            }
+        @media (max-width: 620px) {
+            .firma .enlaces { display: flex; margin: 6px 0 0; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <h1>Calculadora de inicio de mora (sentencia / honorarios)</h1>
-
-            <label>Fecha de notificación de la sentencia (DD / MM / AAAA)</label>
-            <div class="row">
-                <input id="d_dia" placeholder="DD" maxlength="2" style="width:86px" inputmode="numeric" />
-                <input id="d_mes" placeholder="MM" maxlength="2" style="width:86px" inputmode="numeric" />
-                <input id="d_anio" placeholder="AAAA" maxlength="4" style="width:130px" inputmode="numeric" />
-            </div>
-
-            <label for="diasHabiles">Días hábiles para que la sentencia se considere ejecutoriada o firme</label>
-            <input id="diasHabiles" type="number" min="1" step="1" value="10" style="width:130px;margin-top:6px" />
-            <p class="small" style="margin-top:4px;margin-bottom:0">
-                Ingrese la cantidad de días hábiles para que la sentencia se considere ejecutoriada o firme.
-                Si aplica el art. 257 CPCCN ingrese 10.
+<div class="hoja">
+    <header class="cabecera">
+        <div class="titulo">
+            <h1>Inicio de la <span>mora</span></h1>
+            <p class="subtitulo">
+                Cuándo vence el plazo de pago: los días hábiles hasta que la
+                sentencia queda firme, y después los corridos para pagar.
             </p>
-
-            <label for="plazoDias">Cantidad de días para el pago (días corridos)</label>
-            <input id="plazoDias" type="number" min="0" step="1" value="10" style="width:130px;margin-top:6px" />
-
-            <div style="margin-top:24px" class="flex">
-                <div class="flex" style="gap:8px">
-                    <button id="calcular">Calcular vencimiento</button>
-                    <button id="reset" class="ghost">Limpiar</button>
-                    <button id="force" class="ghost">Forzar recarga (cache)</button>
-                </div>
-                <div style="flex:0 0 auto;text-align:right" class="small"><span id="anioRange">Cargando el calendario judicial…</span></div>
-            </div>
-
-            <div id="statusMessage" class="status-message"></div>
-
-            <div id="output" class="result" style="display:none">
-                <div id="vencimiento"></div>
-                <div id="periodos" style="margin-top:16px"></div>
-            </div>
-
-            <div id="trace" class="trace" style="display:none"></div>
-        <div class="footer">
-            <p>Los días hábiles excluyen fines de semana, <a href="../data/feriados.json" target="_blank" rel="noopener">feriados nacionales</a>, la feria de enero, la <a href="../data/feria-judicial.json" target="_blank" rel="noopener">feria de invierno según la Acordada de la CSJN de cada año</a>, el 16 de noviembre (Ley 26.674) y los <a href="../data/dias-inhabiles.json" target="_blank" rel="noopener">días inhábiles adicionales</a>.</p>
-            <p style="margin-top: 10px;">Si creés que hay un error, mandanos un mail a <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a> describiendo qué salió mal.</p>
         </div>
-        <div class="firma" style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
-        <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
-        <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-          <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
-          <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-          <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
-        </span>
-      </div>
+        <p class="cobertura solo-suelta" id="anioRange">Cargando el calendario judicial…</p>
+    </header>
+
+    <div class="tablero">
+        <form class="panel" id="formulario">
+            <div class="grupo">
+                <span class="rotulo">Fecha de notificación de la sentencia</span>
+                <div class="fecha">
+                    <input class="dd" id="d_dia" placeholder="DD" maxlength="2" inputmode="numeric" aria-label="Día">
+                    <span class="barra-fecha">/</span>
+                    <input class="mm" id="d_mes" placeholder="MM" maxlength="2" inputmode="numeric" aria-label="Mes">
+                    <span class="barra-fecha">/</span>
+                    <input class="aaaa" id="d_anio" placeholder="AAAA" maxlength="4" inputmode="numeric" aria-label="Año">
+                </div>
+            </div>
+
+            <div class="grupo">
+                <label class="rotulo" for="diasHabiles">Hasta que quede firme</label>
+                <div class="con-unidad">
+                    <input class="cantidad" id="diasHabiles" type="number" min="1" step="1" value="10">
+                    <span class="unidad">días hábiles</span>
+                </div>
+                <p class="ayuda">Si aplica el art. 257 CPCCN, son 10.</p>
+            </div>
+
+            <div class="grupo">
+                <label class="rotulo" for="plazoDias">Para pagar</label>
+                <div class="con-unidad">
+                    <input class="cantidad" id="plazoDias" type="number" min="0" step="1" value="10">
+                    <span class="unidad">días corridos</span>
+                </div>
+            </div>
+
+            <div class="botones">
+                <button type="submit" class="primario">Calcular</button>
+                <button type="button" class="secundario" id="limpiar">Limpiar</button>
+            </div>
+
+            <p class="error" id="error"></p>
+        </form>
+
+        <div>
+            <div class="espera" id="espera">Acá va a aparecer el vencimiento del pago.</div>
+
+            <div class="resultado" id="resultado">
+                <span class="rotulo">Vencimiento del pago</span>
+                <p class="fecha-grande" id="fechaGrande"></p>
+                <p class="hasta">Hasta las 24:00 de ese día.</p>
+
+                <div class="tramos" id="tramos"></div>
+            </div>
         </div>
     </div>
 
-    <script src="js/calendario-judicial.js"></script>
-    <script src="js/plazos.js"></script>
-    <script>
-        // Hasta el 17/8/2026 este archivo tenia su propia copia de la logica de
-        // dias inhabiles, y no era solo duplicacion: divergia de las otras
-        // calculadoras en dos cosas, las dos con consecuencia en el numero.
-        //
-        //   1. Los feriados nacionales los pedia a api.argentinadatos.com EN
-        //      VIVO, en el navegador del visitante. El resto los lee de
-        //      data/feriados.json, versionado, desde el 13/8.
-        //   2. Deducia la feria de invierno con el TERCER lunes de julio,
-        //      mientras el motor compartido usaba el PENULTIMO. Contra las
-        //      Acordadas de la CSJN el tercer lunes acierta 16 de 21 anios y el
-        //      penultimo 12: las dos estaban mal, y erraban en anios distintos.
-        //
-        // Ahora las dos cosas salen de js/calendario-judicial.js. Lo unico que
-        // NO cambio es la aritmetica de mora, que sigue igual abajo: si un
-        // numero se movio, se movio por la feria o por los feriados, no por el
-        // computo.
-        const MIN_YEAR = 2021; let MAX_YEAR = new Date().getFullYear(); if (MAX_YEAR < 2025) MAX_YEAR = 2025;
+    <div id="dibujo"></div>
 
-        function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x }
+    <p class="firma solo-suelta">
+        L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el
+        criterio del juez
+        <span class="enlaces">
+            <a href="https://github.com/javiercuneo" target="_blank" rel="noopener">GitHub</a>
+            <a href="../index.html">Herramientas</a>
+            <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener">LinkedIn</a>
+        </span>
+    </p>
+</div>
 
-        // LA ARITMETICA DE MORA YA NO VIVE ACA. Desde el 26/8/2026 sale de
-        // js/plazos.js, el mismo motor que usan vencimientos.html y los
-        // conectores. Estaba escrita en cuatro funciones deliberadamente sin
-        // simplificar --nextBusinessDayStrict mas el conteo inclusivo de
-        // countBusinessDaysFrom equivalen a un salto de dia habil si la
-        // notificacion cae habil y dos si cae inhabil-- y se movieron tal cual,
-        // sin tocarlas: alla siguen las cuatro y con el mismo comentario.
-        //
-        // Por que se movieron. Esta pantalla es el caso testigo del problema:
-        // hasta el 17/8 deducia la feria de invierno con una heuristica propia
-        // --el tercer lunes de julio-- distinta de la del motor compartido --el
-        // penultimo--, y las dos estaban mal, en anios distintos, durante anios.
-        // Dos copias de un computo no se mantienen iguales solas.
-        //
-        // isBusinessDay se queda porque la usa el trace de abajo, que recorre
-        // dia por dia para mostrar el detalle. No calcula el vencimiento.
-        function isBusinessDay(date) { return CalendarioJudicial.esDiaHabil(date) }
+<script src="js/calendario-judicial.js"></script>
+<script src="js/plazos.js"></script>
+<script src="js/dibujo-plazo.js"></script>
+<script>
+'use strict';
 
-        // UI wiring
-        // El aviso de cobertura, con la MISMA formula que vencimientos.html, que es
-        // la pantalla de referencia. Antes el rotulo estaba fijo en el HTML y decia
-        // "Años soportados", que es calco de supported y no lo dice nadie en el
-        // fuero; y el span traia el rango pelado.
-        //
-        // ESTA ES LA UNICA DE LAS CINCO QUE NO CARGA EL CALENDARIO AL ARRANCAR:
-        // lo carga al calcular, con los anios que hagan falta segun la fecha que se
-        // cargo. Asi que el aviso no puede nombrar la feria faltante hasta que haya
-        // datos ---un primer intento lo hacia en el arranque y leia una lista
-        // vacia--- y por eso se dice en dos tiempos: el rango primero, y la
-        // salvedad de la feria despues del init, desde actualizarCobertura().
-        //
-        // El rango tambien cambio de valor. Decia 2021 - <anio actual>, o sea que
-        // SUBDECLARABA: yearsToFetch llega hasta y0 + 1 y esta pantalla calcula el
-        // anio que viene sin problema. Ahora dice lo mismo que las otras cuatro.
-        const MAX_ANUNCIADO = new Date().getFullYear() + 1;
+// ---------------------------------------------------------------------------
+// LA ARITMETICA DE MORA NO VIVE ACA. Desde el 26/8/2026 sale de js/plazos.js,
+// el mismo motor que usan vencimientos.html y los conectores.
+//
+// Por que se movio, que es la parte que conviene no volver a descubrir: hasta
+// el 17/8 esta pantalla tenia su propia copia de la logica de dias inhabiles, y
+// no era solo duplicacion --divergia, y las dos con consecuencia en el numero--.
+//
+//   1. Los feriados nacionales los pedia a api.argentinadatos.com EN VIVO, en
+//      el navegador del visitante. El resto los lee de data/feriados.json,
+//      versionado, desde el 13/8.
+//   2. Deducia la feria de invierno con el TERCER lunes de julio, mientras el
+//      motor compartido usaba el PENULTIMO. Contra las Acordadas de la CSJN el
+//      tercer lunes acierta 16 de 21 años y el penultimo 12: las dos estaban
+//      mal, y erraban en años distintos.
+//
+// Dos copias de un computo no se mantienen iguales solas.
+// ---------------------------------------------------------------------------
 
-        function actualizarCobertura(carga) {
-            const sinFeria = ((carga && carga.missingFeriaYears) || []).slice().sort()
-                .filter((y) => y <= MAX_ANUNCIADO);
-            document.getElementById('anioRange').textContent =
-                'Calculadora disponible para los años ' + MIN_YEAR + ' - ' + MAX_ANUNCIADO +
-                (sinFeria.length
-                    ? ', salvo los plazos que caigan en la feria de invierno de ' +
-                      sinFeria.join(', ') + ': esa Acordada de la CSJN todavía no se dictó.'
-                    : '');
+var MIN_YEAR = 2021;
+var MAX_ANUNCIADO = new Date().getFullYear() + 1;
+
+var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+             'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+var formulario = document.getElementById('formulario');
+var cajaError = document.getElementById('error');
+var espera = document.getElementById('espera');
+var resultado = document.getElementById('resultado');
+var dibujoDiv = document.getElementById('dibujo');
+
+function fechaLarga(d) {
+    return d.getDate() + ' de ' + MESES[d.getMonth()] + ' de ' + d.getFullYear();
+}
+function fechaCorta(d) {
+    return d.toLocaleDateString('es-AR');
+}
+
+// ESTA ES LA UNICA DE LAS CINCO QUE NO CARGA EL CALENDARIO AL ARRANCAR: lo
+// carga al calcular, con los años que hagan falta segun la fecha que se cargo.
+// Asi que el aviso no puede nombrar la feria faltante hasta que haya datos, y
+// por eso se dice en dos tiempos: el rango primero, y la salvedad despues.
+function actualizarCobertura(carga) {
+    var sinFeria = ((carga && carga.missingFeriaYears) || []).slice().sort()
+        .filter(function (y) { return y <= MAX_ANUNCIADO; });
+    document.getElementById('anioRange').textContent =
+        'Calculadora disponible para los años ' + MIN_YEAR + ' - ' + MAX_ANUNCIADO +
+        (sinFeria.length
+            ? ', salvo los plazos que caigan en la feria de invierno de ' +
+              sinFeria.join(', ') + ': esa Acordada de la CSJN todavía no se dictó.'
+            : '');
+}
+actualizarCobertura(null);
+
+function mostrarError(texto, campos) {
+    cajaError.textContent = texto;
+    cajaError.classList.add('visible');
+    ['d_dia', 'd_mes', 'd_anio'].forEach(function (id) {
+        document.getElementById(id).classList.remove('mal');
+    });
+    (campos || []).forEach(function (id) {
+        document.getElementById(id).classList.add('mal');
+    });
+    resultado.classList.remove('visible');
+    espera.style.display = '';
+    dibujoDiv.innerHTML = '';
+}
+
+function limpiarError() {
+    cajaError.classList.remove('visible');
+    ['d_dia', 'd_mes', 'd_anio'].forEach(function (id) {
+        document.getElementById(id).classList.remove('mal');
+    });
+}
+
+// ---------------------------------------------------------------------------
+// El plazo dibujado.
+//
+// QUE EXPLICA ESTE DIBUJO, que no es lo mismo que explican los otros tres: acá
+// hay DOS conteos pegados y con reglas distintas. El primero saltea los
+// inhabiles --son dias habiles-- y el segundo no saltea nada --son corridos--.
+// Una lista de fechas no muestra eso; el calendario sí, porque el tramo de
+// corridos se ve pasar por arriba de un sabado sin detenerse.
+//
+// El tramo de habiles se arma de r.evaluados, que es lo que el motor recorrio
+// mientras contaba. El de corridos no lo necesita: se cuentan todos.
+// ---------------------------------------------------------------------------
+function dibujarMora(r) {
+    var D = window.DibujoPlazo;
+    var marcas = {};
+    var motivos = [];
+
+    r.evaluados.forEach(function (item) {
+        var k = D.clave(item.fecha);
+        if (item.contado) {
+            marcas[k] = {
+                clase: 'contado',
+                orden: item.orden,
+                titulo: ' — día ' + item.orden + ' de los ' + r.diasHabiles + ' hábiles'
+            };
+        } else {
+            marcas[k] = {
+                clase: item.motivo === 'Fin de semana' ? 'finde' : 'acto',
+                titulo: ' — ' + item.motivo
+            };
+            motivos.push({ fecha: item.fecha, motivo: item.motivo });
         }
+    });
 
-        actualizarCobertura(null);
-        const calcularBtn = document.getElementById('calcular');
-        const resetBtn = document.getElementById('reset');
-        const forceBtn = document.getElementById('force');
+    // Los corridos se pintan del rango, sin preguntarle nada al calendario:
+    // dentro de este tramo un sabado cuenta igual que un martes, y esa es
+    // justamente la diferencia que el dibujo tiene que dejar ver.
+    var cur = new Date(r.inicioCorridos);
+    var n = 0;
+    while (cur <= r.vencimiento) {
+        n++;
+        marcas[D.clave(cur)] = {
+            clase: 'corrido',
+            orden: n,
+            titulo: ' — día ' + n + ' de los ' + r.diasCorridos + ' corridos'
+        };
+        cur = new Date(cur.getTime());
+        cur.setDate(cur.getDate() + 1);
+    }
 
-        resetBtn.addEventListener('click', () => {
-            ['d_dia', 'd_mes', 'd_anio'].forEach(id => document.getElementById(id).value = '');
-            document.getElementById('diasHabiles').value = '10';
-            document.getElementById('plazoDias').value = '10';
-            document.getElementById('output').style.display = 'none';
-            document.getElementById('trace').style.display = 'none';
-            document.getElementById('statusMessage').style.display = 'none';
-        });
-        forceBtn.addEventListener('click', () => { location.reload(true); });
+    // La notificacion es el dato que se cargo y del que sale todo lo demas: no
+    // se cuenta, y por eso va de contorno y no rellena.
+    marcas[D.clave(r.notificacion)] = {
+        clase: 'notificacion',
+        titulo: ' — notificación de la sentencia, no se cuenta'
+    };
 
-        calcularBtn.addEventListener('click', async () => {
-            const dd = document.getElementById('d_dia').value;
-            const dm = document.getElementById('d_mes').value;
-            const dy = document.getElementById('d_anio').value;
-            if (!dd || !dm || !dy) return alert('Por favor ingrese la fecha de notificación');
+    // El vencimiento es la respuesta y va solido. Reemplaza a la marca de
+    // corrido en vez de acumularse: el solido encima del tinte queda ilegible.
+    marcas[D.clave(r.vencimiento)] = {
+        clase: 'vence',
+        orden: r.diasCorridos,
+        titulo: ' — vencimiento del pago'
+    };
 
-            const notif = new Date(Number(dy), Number(dm) - 1, Number(dd));
-            notif.setHours(0, 0, 0, 0);
+    return D.dibujar({
+        desde: r.notificacion,
+        hasta: r.vencimiento,
+        marcas: marcas,
+        motivos: motivos,
+        referencias: [
+            D.ref('background:var(--accent)', 'vencimiento del pago'),
+            D.ref('background:var(--accent-tint)', 'día hábil contado'),
+            D.ref('background:var(--ok-tint)', 'día corrido para pagar'),
+            D.ref('border-color:var(--accent)', 'notificación'),
+            D.ref('background:var(--sunk)', 'fin de semana'),
+            D.ref('background:var(--warn-tint);border-color:var(--warn)', 'feria, feriado o asueto')
+        ]
+    });
+}
 
-            const diasHabiles = parseInt(document.getElementById('diasHabiles').value, 10) || 10;
-            const pagosCorridos = parseInt(document.getElementById('plazoDias').value, 10) || 0;
+function pintarTramos(r) {
+    var filas = [
+        ['Notificación de la sentencia', fechaCorta(r.notificacion)],
+        ['<b>' + r.diasHabiles + '</b> días hábiles hasta que queda firme',
+         fechaCorta(r.inicioHabiles) + ' → ' + fechaCorta(r.firme)],
+        ['<b>' + r.diasCorridos + '</b> días corridos para pagar',
+         fechaCorta(r.inicioCorridos) + ' → ' + fechaCorta(r.vencimiento)]
+    ];
+    document.getElementById('tramos').innerHTML = filas.map(function (f) {
+        return '<div class="tramo"><span class="q">' + f[0] + '</span>' +
+               '<span class="f">' + f[1] + '</span></div>';
+    }).join('');
+}
 
-            const yearsToFetch = [];
-            const y0 = notif.getFullYear();
-            for (let y = Math.max(MIN_YEAR, y0 - 1); y <= Math.max(MAX_YEAR, y0 + 1); y++) yearsToFetch.push(y);
+formulario.addEventListener('submit', function (e) {
+    e.preventDefault();
+    limpiarError();
 
-            const carga = await CalendarioJudicial.init(Array.from(new Set(yearsToFetch)).sort());
-            // Recien aca se sabe que Acordadas de feria faltan, asi que recien aca
-            // el aviso de arriba puede decirlo.
+    var dd = document.getElementById('d_dia').value.trim();
+    var dm = document.getElementById('d_mes').value.trim();
+    var dy = document.getElementById('d_anio').value.trim();
+
+    if (!dd || !dm || !dy) {
+        var faltan = [];
+        if (!dd) faltan.push('d_dia');
+        if (!dm) faltan.push('d_mes');
+        if (!dy) faltan.push('d_anio');
+        mostrarError('Falta la fecha de notificación de la sentencia.', faltan);
+        return;
+    }
+
+    var notif = new Date(Number(dy), Number(dm) - 1, Number(dd));
+    notif.setHours(0, 0, 0, 0);
+    if (isNaN(notif.getTime()) ||
+        notif.getDate() !== Number(dd) ||
+        notif.getMonth() !== Number(dm) - 1) {
+        mostrarError('Esa fecha no existe. Revisá el día y el mes.', ['d_dia', 'd_mes']);
+        return;
+    }
+
+    var diasHabiles = parseInt(document.getElementById('diasHabiles').value, 10);
+    var diasCorridos = parseInt(document.getElementById('plazoDias').value, 10);
+    if (!Number.isInteger(diasHabiles) || diasHabiles <= 0) {
+        mostrarError('Los días hábiles hasta que la sentencia queda firme tienen que ser un número entero mayor que cero.');
+        return;
+    }
+    if (!Number.isInteger(diasCorridos) || diasCorridos < 0) {
+        mostrarError('Los días corridos para pagar tienen que ser un número de 0 en adelante.');
+        return;
+    }
+
+    var anios = [];
+    var y0 = notif.getFullYear();
+    for (var y = Math.max(MIN_YEAR, y0 - 1); y <= Math.max(MAX_ANUNCIADO, y0 + 1); y++) anios.push(y);
+
+    CalendarioJudicial.init(anios.filter(function (v, i, a) { return a.indexOf(v) === i; }).sort())
+        .then(function (carga) {
+            // Recien acá se sabe qué Acordadas de feria faltan, así que recién
+            // acá el aviso de arriba puede decirlo.
             actualizarCobertura(carga);
-            const statusElem = document.getElementById('statusMessage');
 
             // Se precarga y0+1 porque el cómputo puede cruzar de año, pero que
             // ese año no esté cargado no es motivo para no calcular: quizá el
             // cómputo no llegue nunca ahí. Sólo aborta acá si falta un año que
-            // ya debería estar; lo que el cómputo toque realmente lo detecta la
-            // auditoría, más abajo, y da un motivo preciso.
-            const límite = new Date().getFullYear() + 1;
-            const faltanExigibles = carga.missingYears.filter((y) => y <= límite);
+            // ya debería estar; lo que el cómputo toque de verdad lo detecta la
+            // auditoría del motor, y da un motivo preciso.
+            var limite = new Date().getFullYear() + 1;
+            var faltanExigibles = carga.missingYears.filter(function (y) { return y <= limite; });
             if (faltanExigibles.length) {
-                statusElem.innerHTML = `<strong>No se puede calcular:</strong> faltan los feriados nacionales de ${faltanExigibles.join(', ')}. Se regeneran con <code>npm run feriados</code>.`;
-                statusElem.style.borderColor = '#ff4d4f';
-                statusElem.style.background = '#fff0f0';
-                statusElem.style.display = 'block';
-                document.getElementById('output').style.display = 'none';
-                document.getElementById('trace').style.display = 'none';
+                mostrarError('No se puede calcular: faltan los feriados nacionales de ' +
+                             faltanExigibles.join(', ') + '.');
                 return;
             }
 
-            // La auditoría de años faltantes la reinicia y la consulta el
-            // propio Plazos.mora(): viene en `r.problema`. Acá había una
-            // llamada suelta a reiniciarAuditoria() que ahora sería redundante,
-            // y una redundante es peor que ninguna: invita a creer que el
-            // control se hace acá cuando se hace adentro del motor.
-
-            // El computo entero, en una llamada al motor. El tramo de habiles
-            // --cuando queda firme-- y el de corridos --cuando hay mora-- son
-            // dos cosas distintas y el motor las devuelve por separado.
-            const r = Plazos.mora({
+            var r = Plazos.mora({
                 anio: dy, mes: dm, dia: dd,
                 diasHabiles: diasHabiles,
-                diasCorridos: pagosCorridos
+                diasCorridos: diasCorridos
             });
-
-            const startBiz = r.inicioHabiles;
-            const lastBiz = r.firme;
-            const startCorr = r.inicioCorridos;
-            const endCorr = r.vencimiento;
-            const vencimientoDate = endCorr; // hasta las 24:00
 
             // El cómputo pudo cruzar un año sin Acordada de feria cargada, o
             // anterior a la ventana de cobertura. En los dos casos no se
             // afirma una fecha.
-            const problema = r.problema;
-            if (problema) {
-                statusElem.innerHTML = '<strong>No se puede calcular.</strong> <span id="motivoSinDatos"></span>';
-                document.getElementById('motivoSinDatos').textContent = problema;
-                statusElem.style.borderColor = '#ff4d4f';
-                statusElem.style.background = '#fff0f0';
-                statusElem.style.display = 'block';
-                document.getElementById('output').style.display = 'none';
-                document.getElementById('trace').style.display = 'none';
+            if (r.problema) {
+                mostrarError(r.problema);
                 return;
             }
 
-            statusElem.innerHTML = `<strong>Feriados nacionales:</strong> ${carga.loadedYears.sort().join(', ')}, de <code>data/feriados.json</code> versionado —no de una API en vivo—. La feria de invierno sale de <code>data/feria-judicial.json</code>, con la Acordada de la CSJN de cada año; la de enero la fija la CSJN y el 16 de noviembre sale de la Ley 26.674.`;
-            statusElem.style.borderColor = 'var(--border)';
-            statusElem.style.background = '#f8fdf8';
-            statusElem.style.display = 'block';
+            document.getElementById('fechaGrande').textContent = fechaLarga(r.vencimiento);
+            pintarTramos(r);
+            espera.style.display = 'none';
+            resultado.classList.add('visible');
 
-            // Output
-            document.getElementById('output').style.display = 'block';
-            const vencElem = document.getElementById('vencimiento');
-            vencElem.innerHTML = `<strong>Vencimiento del pago:</strong> ${vencimientoDate.toLocaleDateString('es-AR')} (hasta las 24:00).`;
-
-            // Periods display
-            const periodos = document.getElementById('periodos');
-            periodos.innerHTML = '';
-            const timeline = document.createElement('div');
-            timeline.className = 'timeline';
-
-            const box1 = document.createElement('div');
-            box1.className = 'period';
-            box1.style.background = 'var(--period1)';
-            box1.innerHTML = `<strong>Notificación</strong><br>${notif.toLocaleDateString('es-AR')}`;
-
-            const box2 = document.createElement('div');
-            box2.className = 'period';
-            box2.style.background = 'var(--period2)';
-            box2.innerHTML = `<strong>${diasHabiles} días hábiles</strong><br>Inicio: ${startBiz.toLocaleDateString('es-AR')}<br>Fin: ${lastBiz.toLocaleDateString('es-AR')}`;
-
-            const box3 = document.createElement('div');
-            box3.className = 'period';
-            box3.style.background = 'var(--period3)';
-            box3.innerHTML = `<strong>${pagosCorridos} días corridos</strong><br>Inicio: ${startCorr.toLocaleDateString('es-AR')}<br>Fin: ${endCorr.toLocaleDateString('es-AR')}`;
-
-            timeline.appendChild(box1);
-            timeline.appendChild(box2);
-            timeline.appendChild(box3);
-            periodos.appendChild(timeline);
-
-            const legend = document.createElement('div');
-            legend.className = 'legend';
-            legend.innerHTML = `<span><i class="swatch" style="background:var(--period1)"></i> Notificación</span>
-                            <span><i class="swatch" style="background:var(--period2)"></i> ${diasHabiles} días hábiles (sentencia firme)</span>
-                            <span><i class="swatch" style="background:var(--period3)"></i> Días corridos para pago</span>`;
-            periodos.appendChild(legend);
-
-            // Trace
-            const trace = document.getElementById('trace');
-            trace.style.display = 'block';
-            trace.innerHTML = '';
-            const p1 = document.createElement('div');
-            p1.innerHTML = `<strong>Detalle del cómputo</strong>`;
-            trace.appendChild(p1);
-
-            const ulBiz = document.createElement('ul');
-            ulBiz.style.padding = '0';
-            ulBiz.style.listStyle = 'none';
-            ulBiz.style.marginTop = '8px';
-
-            let cur = new Date(startBiz); // start audit from the first counted business day
-            while (cur <= lastBiz) {
-                let statusText = '';
-                if (isBusinessDay(cur)) {
-                    statusText = ' — contado (hábil)';
-                } else {
-                    const reason = CalendarioJudicial.obtenerMotivoInhabil(cur) || 'Inhábil';
-                    statusText = ` — descontado: ${reason} (no contado)`;
-                }
-                const li = document.createElement('li');
-                li.textContent = `${cur.toLocaleDateString('es-AR')}${statusText}`;
-                ulBiz.appendChild(li);
-                cur = addDays(cur, 1);
+            // El dibujo va en su propio try: es una ayuda para leer el numero,
+            // no el numero. Si algun dia falla ---un mes raro, una marca que no
+            // existe--- lo que NO puede pasar es que se lleve puesta una fecha
+            // que ya esta calculada y bien. Se pierde el calendario y nada mas.
+            try {
+                dibujoDiv.innerHTML = dibujarMora(r);
+            } catch (e) {
+                dibujoDiv.innerHTML = '';
             }
-
-            const wrapBiz = document.createElement('div');
-            wrapBiz.innerHTML = `<strong>Período de cómputo (desde el primer día hábil contado hasta el final de los ${diasHabiles} días hábiles)</strong>`;
-            wrapBiz.appendChild(ulBiz);
-            trace.appendChild(wrapBiz);
-
-            const ulCorr = document.createElement('ul');
-            ulCorr.style.padding = '0';
-            ulCorr.style.listStyle = 'none';
-            ulCorr.style.marginTop = '8px';
-            let curC = new Date(startCorr);
-            while (curC <= endCorr) {
-                const li = document.createElement('li');
-                li.textContent = `${curC.toLocaleDateString('es-AR')} — contado (corridos)`;
-                ulCorr.appendChild(li);
-                curC = addDays(curC, 1);
-            }
-            const wrapCorr = document.createElement('div');
-            wrapCorr.innerHTML = `<strong>Período ${pagosCorridos} días corridos (fechas consideradas)</strong>`;
-            wrapCorr.appendChild(ulCorr);
-            trace.appendChild(wrapCorr);
-
-            vencElem.scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(function (err) {
+            mostrarError(err && err.message ? err.message : 'No se pudo calcular.');
         });
-    </script>
+});
+
+document.getElementById('limpiar').addEventListener('click', function () {
+    ['d_dia', 'd_mes', 'd_anio'].forEach(function (id) {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('diasHabiles').value = '10';
+    document.getElementById('plazoDias').value = '10';
+    limpiarError();
+    resultado.classList.remove('visible');
+    espera.style.display = '';
+    dibujoDiv.innerHTML = '';
+});
+</script>
 </body>
 </html>

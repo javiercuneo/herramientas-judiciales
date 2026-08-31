@@ -41,10 +41,12 @@
            - «Calcular Vencimiento» y «Calculadora de Caducidad», con las
              mayúsculas de título en inglés.
 
-           LO QUE NO SE FUE, y es a propósito: `.hidden-computation`, que sigue
-           con `display:none`. Es un cómputo que la pantalla no muestra y que el
-           JavaScript igual escribe; sacarlo es una decisión y está anotada en
-           docs/ESTADO.md, no es parte de un rediseño visual.
+           EL 31/8 SE FUE `.hidden-computation`, por decisión de Javier. Era un
+           segundo cómputo ---al vencimiento ordinario le sumaba los días
+           inhábiles que no son de feria--- que vivía adentro de un div con
+           `display:none`: la pantalla no lo mostraba y el motor lo calculaba
+           igual, en cada consulta. Se fue entero, acá y en js/plazos.js: un
+           número que nadie ve no se puede verificar ni desmentir.
 
            OJO CON LOS TOKENS: no redefinir acá --accent, --bg, --card ni
            --error. `--accent: var(--accent)` es un ciclo y deja la variable en
@@ -267,7 +269,6 @@
         }
         .result.negativa .result-date { font-size: 17px; line-height: 1.4; }
 
-        .hidden-computation { display: none; }
 
         /* --------------------------------------------------------- colofón */
         .firma {
@@ -390,7 +391,7 @@
                 <h1>Caducidad de <span>instancia</span></h1>
                 <p class="subtitle">Art. 310 del Código Procesal Civil y Comercial de la Nación</p>
             </div>
-            <p id="apiStatus">Cargando el calendario judicial…</p>
+            <p class="solo-suelta" id="apiStatus">Cargando el calendario judicial…</p>
         </header>
 
         <div class="tablero">
@@ -442,11 +443,6 @@
                     <div class="result-date" id="resultDate"></div>
                     <div class="result-details" id="resultDetails"></div>
                 </div>
-                <div class="hidden-computation">
-                    <div class="result-title">Cómputo con días inhábiles y feriados</div>
-                    <div class="result-date" id="resultDateFull"></div>
-                    <div class="result-details" id="resultDetailsFull"></div>
-                </div>
             </div>
         </div>
         </div>
@@ -456,7 +452,7 @@
              todo el ancho que haya. -->
         <ol class="hitos" id="hitos"></ol>
 
-        <p class="firma">
+        <p class="firma solo-suelta">
             L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el
             criterio del juez.
             <span class="enlaces">
@@ -507,7 +503,10 @@
                         ? ', salvo los plazos que caigan en la feria de invierno de ' +
                           sinFeria.join(', ') + ': esa Acordada de la CSJN todavía no se dictó.'
                         : '');
-                apiStatus.style.color = 'var(--ok)';
+                // Iba en --ok, y era la unica de las cinco que pintaba de
+                // verde esta linea. El verde es el color de "salio bien" y
+                // aca no salio nada: es la cobertura del calendario, un dato
+                // neutro. Se queda en --faint, como en las otras cuatro.
             } else {
                 datosCargados = false;
                 var faltan = (initResult.missingYears || []);
@@ -583,20 +582,6 @@
             'Desde el último acto impulsor del ' + r.inicio.toLocaleDateString('es-AR') +
             ', por un plazo de ' + plazo + (plazo === 1 ? ' mes.' : ' meses.');
         document.getElementById('hitos').innerHTML = hitosDelComputo(r, plazo);
-
-        // El computo con inhabiles y feriados. Vive dentro de
-        // .hidden-computation, que tiene display:none, asi que esto no se ve
-        // en pantalla y no se ve desde antes de esta extraccion. Se escribe
-        // igual: sacarlo es una decision y esta anotada en docs/ESTADO.md.
-        const full = r.conInhabiles;
-        const listHTML = full.inhabiles.length > 0 ?
-            '<details><summary>Ver detalle de los ' + full.inhabiles.length + ' días adicionados</summary>' +
-            '<ul class="inhabiles-list">' +
-            full.inhabiles.map(function(item) { return '<li> ' + item.fecha.toLocaleDateString('es-AR') + ': ' + item.motivo + '</li>'; }).join('') +
-            '</ul></details>' : '';
-
-        document.getElementById('resultDateFull').innerText = full.fecha.toLocaleDateString('es-AR');
-        document.getElementById('resultDetailsFull').innerHTML = 'Se adicionaron <strong>' + full.inhabiles.length + ' días inhábiles</strong> extra (fuera de ferias).<strong>' + full.ajuste + '</strong>' + listHTML;
 
         result.classList.add('show');
     });

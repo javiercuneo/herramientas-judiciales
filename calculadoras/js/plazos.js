@@ -277,15 +277,30 @@
             var effective = isBusinessDay(date) ? date : nextBusinessDay(date);
             return addDays(effective, 1);
         }
+        // El recorrido se anota mientras se hace, y por eso el dibujo no puede
+        // discrepar con el numero: es el MISMO paso. Armar la lista despues,
+        // desde la pantalla, seria recorrer el calendario una segunda vez con
+        // la convencion de conteo copiada a mano, que es el modo de falla que
+        // ya produjo el bug de la feria. El bucle no cambio: solo se llena un
+        // array.
         function countBusinessDaysFrom(startDate, days) {
             var counted = 0;
+            var recorrido = [];
             var cursor = new Date(startDate); cursor.setHours(0, 0, 0, 0);
             while (counted < days) {
-                if (isBusinessDay(cursor)) counted++;
+                var motivo = CJ.obtenerMotivoInhabil(cursor);
+                var habil = isBusinessDay(cursor);
+                recorrido.push({
+                    fecha: new Date(cursor),
+                    contado: habil,
+                    orden: habil ? counted + 1 : null,
+                    motivo: habil ? null : motivo
+                });
+                if (habil) counted++;
                 if (counted >= days) break;
                 cursor = addDays(cursor, 1);
             }
-            return { lastCountedDay: cursor };
+            return { lastCountedDay: cursor, evaluados: recorrido };
         }
 
         var notif = fechaComoMora(o.anio, o.mes, o.dia);
@@ -293,7 +308,8 @@
         CJ.reiniciarAuditoria();
 
         var startBiz = nextBusinessDayStrict(notif);
-        var lastBiz = countBusinessDaysFrom(startBiz, diasHabiles).lastCountedDay;
+        var tramoHabiles = countBusinessDaysFrom(startBiz, diasHabiles);
+        var lastBiz = tramoHabiles.lastCountedDay;
 
         // Tramo ii: los corridos arrancan el dia despues del ultimo habil, y el
         // conteo es inclusivo --de ahi el -1--.
@@ -308,7 +324,11 @@
             inicioCorridos: startCorr,
             vencimiento: endCorr,
             diasHabiles: diasHabiles,
-            diasCorridos: diasCorridos
+            diasCorridos: diasCorridos,
+            // Dia por dia del tramo de habiles, para dibujarlo. Los corridos no
+            // hacen falta: se cuentan todos, asi que la pantalla los pinta del
+            // rango sin preguntar nada.
+            evaluados: tramoHabiles.evaluados
         };
     }
 
@@ -536,7 +556,6 @@
             vencimientoNominal: nominalDate,
             feriaAtravesada: feria.detalle,
             vencimiento: ordDate,
-            conInhabiles: null
         };
 
         // Con un dato faltante no se sigue calculando. La pantalla vieja
@@ -544,109 +563,16 @@
         // correr: se conserva, y ademas es lo que corresponde.
         if (problema) return base;
 
-        base.conInhabiles = caducidadConInhabiles(CJ, startDate, ordDate, feriasDe);
         return base;
     }
 
-    // El segundo computo de caducidad.html: al vencimiento ordinario se le
-    // suman los dias inhabiles que NO son de feria y despues se lo corre al
-    // primer dia habil.
-    //
-    // NO SE MUESTRA, y no desde ahora: en la pantalla vive dentro de un div
-    // .hidden-computation con display:none, y estaba asi antes de esta
-    // extraccion. Se transcribe igual y no se descarta por dos razones: sacar
-    // algo es una decision de Javier y no de quien lo lee, y escrito aca por lo
-    // menos se ve. Queda anotado en docs/ESTADO.md.
-    function caducidadConInhabiles(CJ, startDate, ordDate, feriasDe) {
-        var inhabilesList = [];
-        var fullDate = new Date(ordDate);
-        var previousLength;
-        var maxFullIter = 10;
-        do {
-            previousLength = inhabilesList.length;
-            inhabilesList = [];
-            var iter = new Date(startDate);
-            iter.setDate(iter.getDate() + 1);
-
-            while (iter <= fullDate) {
-                var inFeriaJan = CJ.esFeriaEnero(iter);
-                var inFeriaJul = CJ.esFeriaJulio(iter);
-
-                var esFeriadoNac = CJ.esFeriado(iter);
-                var esAdicional = CJ.esInhabilCustom(iter);
-                var es16Nov = CJ.es16Noviembre(iter);
-
-                if ((esFeriadoNac || esAdicional || es16Nov) && !inFeriaJan && !inFeriaJul) {
-                    inhabilesList.push({ fecha: new Date(iter), motivo: CJ.obtenerMotivoInhabil(iter) });
-                }
-                iter.setDate(iter.getDate() + 1);
-            }
-
-            fullDate = new Date(ordDate);
-            fullDate.setDate(fullDate.getDate() + inhabilesList.length);
-
-            if (--maxFullIter <= 0) {
-                if (typeof console !== 'undefined') console.warn('Limite de iteraciones en calculo inhabiles');
-                break;
-            }
-        } while (inhabilesList.length > previousLength);
-
-        var adjusted = true;
-        var ajuste = '';
-        var maxAdjIter = 10;
-        while (adjusted) {
-            adjusted = false;
-            // La feria del anio de fullDate puede no ser la que lo contiene:
-            // 2025 corre del 21/7 al 1/8, asi que un 1 de agosto cae en la
-            // feria declarada bajo 2025. Se prueban el anio y el anterior.
-            var feriaFull = null;
-            [fullDate.getFullYear() - 1, fullDate.getFullYear()].forEach(function (y) {
-                feriasDe(y).forEach(function (f) {
-                    if (fullDate >= f.inicio && fullDate <= f.fin) feriaFull = f;
-                });
-            });
-
-            if (CJ.esFeriaEnero(fullDate)) {
-                // Al 1 del mes siguiente, no a un 1 de febrero escrito a mano:
-                // el mes de la feria lo dice data/feria-judicial.json y esta
-                // rama tiene que moverse con el, no al lado.
-                fullDate.setMonth(fullDate.getMonth() + 1, 1);
-                ajuste = ' (Ajustado al primer dia habil post-feria de enero)';
-                adjusted = true;
-            }
-            // Hasta el 17/8/2026 esta rama hacia
-            // `fullDate.setDate(endJulioFull.getDate() + 1)`, que mezcla dos
-            // fechas distintas: toma el DIA DEL MES del fin de feria y lo
-            // aplica al mes de fullDate. Cuando la feria termina en agosto
-            // --2007, 2008, 2014, 2019, 2025-- el fin cae 1 o 2, y un
-            // vencimiento del 25 de julio se movia al 2 de JULIO: 33 dias
-            // hacia atras. Una caducidad operaba un mes antes de lo que decia
-            // la pantalla.
-            else if (feriaFull) {
-                fullDate = new Date(feriaFull.fin);
-                fullDate.setDate(fullDate.getDate() + 1);
-                ajuste = ' (Ajustado al primer dia habil post-feria de julio)';
-                adjusted = true;
-            }
-            else if (fullDate.getDay() === 0 || fullDate.getDay() === 6) {
-                fullDate.setDate(fullDate.getDate() + 1);
-                ajuste = ' (Ajustado al siguiente dia habil por fin de semana)';
-                adjusted = true;
-            }
-            else if (!CJ.esDiaHabil(fullDate)) {
-                var motivo = CJ.obtenerMotivoInhabil(fullDate);
-                fullDate.setDate(fullDate.getDate() + 1);
-                ajuste = ' (Ajustado por feriado: ' + motivo + ')';
-                adjusted = true;
-            }
-            if (--maxAdjIter <= 0) {
-                if (typeof console !== 'undefined') console.warn('Limite en ajuste final de fecha');
-                break;
-            }
-        }
-
-        return { fecha: fullDate, inhabiles: inhabilesList, ajuste: ajuste };
-    }
+    // El "segundo computo" de caducidad ---al vencimiento ordinario se le
+    // sumaban los dias inhabiles que no son de feria--- SE ELIMINO el 31/8/2026,
+    // por decision de Javier. Vivia adentro de un div con display:none: la
+    // pantalla no lo mostraba y el motor lo calculaba igual, en cada consulta.
+    // Un numero que nadie ve no se puede verificar y no se puede desmentir, y
+    // este ademas era el mas caro de los dos ---itera a punto fijo dos veces---.
+    // Si alguna vez hace falta, esta entero en HISTORIA.md y en el historial.
 
     // --- Dias entre dos fechas ----------------------------------------------
     //

@@ -36,15 +36,31 @@
 
     .hoja { max-width: 1120px; margin: 0 auto; padding: 0 22px; }
 
-    /* ------------------------------------------------------------ cabecera */
-    .cabecera { padding: 32px 0 20px; }
+    /* ------------------------------------------------------------ cabecera
+       Desde el 31/8 la cabecera del tablero es la portada de todo: el titulo,
+       la fecha de hoy con si cuenta o no, los dos valores con los que se
+       regulan honorarios, y las salidas.
+
+       Las tres cosas de la izquierda ---fecha, UMA, UHOM--- estaban repartidas:
+       la fecha vivia adentro de vencimientos y los valores, en uma-uhom.html.
+       Son datos que no dependen de que herramienta estes mirando, asi que se
+       dicen UNA vez y arriba, y no una vez por pestaña. */
+    .cabecera { padding: 30px 0 18px; }
+
+    .cabecera-fila {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px 24px;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
 
     .cabecera h1 {
         font-family: var(--font-meter);
         font-size: 27px;
         font-weight: 700;
         letter-spacing: -0.015em;
-        margin: 0 0 8px;
+        margin: 0 0 6px;
     }
     .cabecera h1 span { color: var(--accent); }
 
@@ -52,23 +68,79 @@
         margin: 0;
         max-width: 64ch;
         color: var(--muted-fg);
-        font-size: 14px;
+        font-size: 13.5px;
     }
 
-    /* Se publica antes de estar probado en uso y por eso lo dice. */
-    .aviso-prueba {
-        margin: 18px 0 0;
-        max-width: 72ch;
-        background: var(--warn-tint);
-        border: 1px solid var(--warn);
-        border-left-width: 4px;
-        border-radius: 10px;
-        padding: 13px 16px;
+    /* Las salidas. No son herramientas y por eso no son tarjetas: son de
+       contorno y chicas, para que no compitan con las pestañas. */
+    .salidas { display: flex; flex-wrap: wrap; gap: 7px; }
+
+    .salida {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-sans);
         font-size: 12.5px;
-        line-height: 1.55;
-        color: var(--fg);
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--muted-fg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 7px 11px;
+        white-space: nowrap;
+        transition: border-color 0.15s, color 0.15s, background 0.15s;
     }
-    .aviso-prueba a { color: inherit; }
+    .salida:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-tint); }
+    .salida:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .salida.principal { color: var(--accent); border-color: var(--accent); }
+
+    /* ------------------------------------------------------------- estado
+       La franja de datos del dia. Un solo renglon con separadores, y cada dato
+       con su rotulo chico arriba: son tres cosas distintas y sin rotulo el
+       numero de la UMA y el del UHOM se confunden entre si. */
+    .estado {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 30px;
+        align-items: baseline;
+        margin: 20px 0 0;
+        padding: 14px 18px;
+        background: var(--sunk);
+        border: 1px solid var(--hair);
+        border-radius: 11px;
+    }
+
+    .dato .r {
+        display: block;
+        font-family: var(--font-meter);
+        font-size: 9.5px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-bottom: 2px;
+    }
+    .dato .v {
+        font-family: var(--font-meter);
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--fg);
+        font-variant-numeric: tabular-nums;
+    }
+    .dato .n { font-size: 12px; font-weight: 400; color: var(--muted-fg); margin-left: 6px; }
+    .dato .no-cuenta { color: var(--warn); }
+
+    /* La cobertura del calendario se dice UNA vez, acá, y no una vez por
+       calculadora: son todas el mismo motor y el mismo archivo de feriados.
+       Adentro de los marcos se oculta. Lo que NO se movio es el aviso que sale
+       al calcular cuando el plazo toca un año sin datos: ese frena el numero y
+       tiene que estar donde se pide el numero. */
+    .cobertura-tablero {
+        margin: 10px 0 0;
+        font-size: 12px;
+        color: var(--muted-fg);
+    }
+    .cobertura-tablero.falta { color: var(--warn); }
 
     /* El rotulo de la region de arriba. Existe desde el 31/8: el tablero
        dejo de ser "de plazos" y paso a ser la puerta de todo, asi que las dos
@@ -336,38 +408,43 @@
 
 <div class="hoja">
     <div class="cabecera">
-        <h1>Tablero de <span>herramientas</span></h1>
-        <p class="bajada">
-            Todas las herramientas en una sola ventana: arriba los plazos, abajo
-            los honorarios y lo demás. Son las mismas páginas de siempre, sin una
-            línea modificada, y cada una conserva lo que cargaste mientras no
-            cierres la pestaña.
-        </p>
+        <div class="cabecera-fila">
+            <div>
+                <h1>Tablero de <span>herramientas</span></h1>
+                <p class="bajada">Plazos, honorarios y tasa de justicia, en una sola ventana.</p>
+            </div>
 
-        <!-- Se publica antes de estar probado en uso, y por eso lo dice. La
-             alternativa era no publicarlo, y no sirve: no hay forma de probarlo
-             en la oficina, donde no se puede levantar un servidor local. El
-             aviso es lo que hace honesta la publicación. Se saca cuando el uso
-             diario lo confirme. -->
-        <p class="aviso-prueba">
-            <strong>Recién estrenado.</strong> Cada pestaña es la calculadora
-            publicada, y hay
-            <a href="https://github.com/javiercuneo/herramientas-judiciales/blob/main/scripts/pruebas-calculadoras.html">pruebas
-            automáticas</a> que verifican que acá los números den lo mismo que en
-            las páginas sueltas. Lo que todavía no tiene es rodaje: si algo no
-            cuadra, la referencia son las calculadoras por separado, y te
-            agradezco el aviso a
-            <a href="mailto:javier@javiercuneo.com.ar">javier@javiercuneo.com.ar</a>.
-        </p>
+            <nav class="salidas" aria-label="Ir a">
+                <a class="salida principal" href="https://honorio.ar">Honorio</a>
+                <a class="salida" href="../index.html">Herramientas</a>
+                <a class="salida" href="../documentacion.html">Guía de uso</a>
+                <a class="salida" href="mailto:javier@javiercuneo.com.ar?subject=Tablero%20de%20herramientas">¿Algo salió mal?</a>
+            </nav>
+        </div>
+
+        <!-- Los tres datos del día. Ninguno depende de qué pestaña estés
+             mirando, y por eso se dicen una vez acá arriba y no una vez por
+             calculadora. -->
+        <div class="estado" id="estado">
+            <div class="dato">
+                <span class="r">Hoy</span>
+                <span class="v" id="dato-hoy">—</span>
+            </div>
+            <div class="dato">
+                <span class="r">UMA · ley 27.423</span>
+                <span class="v" id="dato-uma">—</span>
+            </div>
+            <div class="dato">
+                <span class="r">UHOM · decreto 2536/15</span>
+                <span class="v" id="dato-uhom">—</span>
+            </div>
+        </div>
+        <p class="cobertura-tablero" id="cobertura">Cargando el calendario judicial…</p>
     </div>
 </div>
 
 <div class="hoja">
     <h2 class="titulo-region">Plazos</h2>
-    <p class="nota-region">
-        Las seis que cuentan días. Los números del 1 al 6 saltan directo, y las
-        flechas recorren la fila.
-    </p>
 </div>
 
 <div class="barra">
@@ -408,17 +485,15 @@
         <div id="paneles-otras"></div>
     </section>
 
+    <!-- El pie de autoría vive acá y sólo acá. Las calculadoras que lo traen
+         lo ocultan adentro del marco por CSS inyectado: nueve veces la misma
+         firma no es más honesto, es ruido. -->
     <div class="colofon">
-        <p>
-            Cada pestaña es la calculadora publicada, sin ninguna modificación: si
-            un número acá difiere del de la página suelta, es un error de este
-            tablero. Se pueden seguir abriendo por separado desde
-            <a href="../index.html">el índice de herramientas</a>.
-        </p>
         <p>L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</p>
     </div>
 </div>
 
+<script src="js/calendario-judicial.js"></script>
 <script>
 'use strict';
 
@@ -467,7 +542,7 @@ var REGIONES = [
         // aca no se distinguian.
         items: [
             { id: 'vencimientos', rotulo: 'Plazos judiciales', archivo: 'vencimientos.html' },
-            { id: 'distancia',    rotulo: 'Por distancia',     archivo: 'distancia.html' },
+            { id: 'distancia',    rotulo: 'Ampliación por distancia', archivo: 'distancia.html' },
             { id: 'caducidad',    rotulo: 'Caducidad',         archivo: 'caducidad.html' },
             { id: 'entre-fechas', rotulo: 'Entre fechas',      archivo: 'entre-fechas.html' },
             { id: 'regresiva',    rotulo: 'Regresiva',         archivo: 'regresiva.html' },
@@ -558,15 +633,18 @@ var montados = Object.create(null);
 // arriba: otro nivel de encierro sin que nada lo delimite. El vertical se
 // deja, que es el aire entre la barra de pestañas y el contenido.
 //
-// Y desde el 31/8 se oculta tambien el pie de autoria. El pie va en todas las
-// herramientas ---decision de Javier del mismo dia--- porque cada una se abre
-// suelta y tiene que decir de quien es y que no sustituye al juez. Pero aca son
-// nueve marcos con la misma firma, uno abajo del otro, y el tablero ya la dice
-// una vez en su propio colofon. Se oculta por CSS y no sacandola de las
-// paginas, que es la regla de siempre: el tablero no toca sus archivos.
+// Y desde el 31/8 se oculta `.solo-suelta`, que es UNA regla y no una lista de
+// selectores que va a crecer. La clase la ponen las calculadoras sobre lo que
+// solo tiene sentido con la pagina abierta por su cuenta: el pie de autoria y
+// la linea de cobertura del calendario. Las dos cosas las dice el tablero una
+// vez, arriba; repetidas nueve veces no son mas honestas, son ruido.
+//
+// Lo que NO lleva esa clase, a proposito: el aviso que sale al calcular cuando
+// el plazo toca un año sin Acordada. Ese frena un numero y tiene que estar
+// donde se pide el numero.
 var CSS_EMBEBIDO =
     '.tema-boton { display: none !important; }' +
-    '.firma { display: none !important; }' +
+    '.solo-suelta { display: none !important; }' +
     'html, body { height: auto !important; min-height: 0 !important; }' +
     'body { padding-left: 0 !important; padding-right: 0 !important; ' +
     'margin-left: 0 !important; margin-right: 0 !important; }';
@@ -721,6 +799,13 @@ function preparar(f) {
     sincronizarTema(f);
     ajustarAlto(f);
 
+    // Los numeros 1-6 no hacian nada apenas tocabas una calculadora, y el
+    // motivo es que un evento de teclado no cruza de un iframe al documento de
+    // arriba: el foco vivia adentro del marco y el listener estaba afuera. Se
+    // engancha el mismo listener adentro de cada marco. El badge del numero
+    // decia algo que no pasaba, que es peor que no decir nada.
+    d.addEventListener('keydown', atajoNumerico);
+
     // El alto se recalcula solo: las calculadoras crecen cuando muestran el
     // resultado y el detalle de dias inhabiles, que puede ser largo.
     if (d.defaultView && d.defaultView.ResizeObserver) {
@@ -806,20 +891,144 @@ function activar(id, moverFoco) {
 // Numeros para saltar directo, solo entre los plazos: son los que se usan todos
 // los dias. Se ignoran si el foco esta escribiendo, que adentro de un iframe
 // pasa siempre.
-document.addEventListener('keydown', function (e) {
+function atajoNumerico(e) {
     if (e.ctrlKey || e.altKey || e.metaKey) return;
     var t = e.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
+    if (t && t.isContentEditable) return;
     var n = parseInt(e.key, 10);
     if (!n) return;
     var destino = HERRAMIENTAS.filter(function (x) { return x.atajo === n; })[0];
     if (destino) activar(destino.id, true);
-});
+}
+
+document.addEventListener('keydown', atajoNumerico);
 
 window.addEventListener('hashchange', function () {
     var id = location.hash.slice(1);
     if (HERRAMIENTAS.some(function (x) { return x.id === id; })) activar(id, false);
 });
+
+// ---------------------------------------------------------------------------
+// La portada: la fecha de hoy, los dos valores y la cobertura del calendario.
+//
+// Los tres datos son del dia y no de la herramienta, asi que se dicen una vez
+// arriba. Antes la fecha vivia adentro de vencimientos ---y solo ahi--- y los
+// dos valores, en uma-uhom.html, que es otra pagina.
+//
+// Nada de esto calcula un plazo: el calendario se carga aca solo para saber si
+// HOY cuenta y hasta que año hay datos. El computo de cada calculadora sigue
+// pasando adentro de su propio marco, con su propia carga, y por eso los 21
+// casos del banco siguen dando lo mismo embebidos que sueltos.
+// ---------------------------------------------------------------------------
+var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+             'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+function pesos(n) {
+    return '$' + n.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+function mesAnio(iso) {
+    var p = iso.split('-');
+    return MESES[parseInt(p[1], 10) - 1] + ' ' + p[0];
+}
+
+// La fecha se escribe DOS veces a proposito, igual que en vencimientos: sola
+// apenas carga la pagina, y otra vez con el habil/inhabil cuando llego el
+// calendario. Esperar al fetch para escribir tambien la fecha deja la portada
+// vacia por lo que tarde, y la fecha de hoy no depende de ningun dato.
+function pintarHoy(hayCalendario) {
+    var caja = document.getElementById('dato-hoy');
+    var hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    caja.textContent = DIAS[hoy.getDay()] + ' ' + hoy.getDate() + ' de ' +
+                       MESES[hoy.getMonth()] + ' de ' + hoy.getFullYear();
+
+    if (!hayCalendario) return;
+
+    var nota = document.createElement('span');
+    nota.className = 'n';
+    if (CalendarioJudicial.esDiaHabil(hoy)) {
+        nota.textContent = 'día hábil';
+    } else {
+        var motivo = CalendarioJudicial.obtenerMotivoInhabil(hoy);
+        nota.className = 'n no-cuenta';
+        nota.textContent = 'no cuenta' + (motivo ? ' · ' + motivo.toLowerCase() : '');
+    }
+    caja.appendChild(nota);
+}
+
+// Los dos valores salen de las mismas series versionadas que publica
+// uma-uhom.html. Si una no carga, ese dato dice que no se pudo leer y no
+// inventa: un valor de unidad equivocado se propaga a toda una regulacion.
+function pintarUnidad(id, url, etiquetaCampo) {
+    var caja = document.getElementById(id);
+    fetch(url).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    }).then(function (archivo) {
+        // El JSON no es un array pelado: los dos traen su procedencia y sus
+        // notas arriba, y la serie va en `valores`.
+        var serie = archivo.valores;
+        if (!serie || !serie.length) throw new Error('serie vacía');
+        var hoy = new Date().toISOString().slice(0, 10);
+        var v = null;
+        for (var i = 0; i < serie.length; i++) {
+            if (serie[i].vigencia <= hoy) v = serie[i];
+        }
+        if (!v) throw new Error('sin valor vigente');
+        caja.textContent = pesos(v.valor);
+        var n = document.createElement('span');
+        n.className = 'n';
+        n.textContent = 'rige desde ' + mesAnio(v.vigencia);
+        caja.appendChild(n);
+    }).catch(function () {
+        caja.textContent = '—';
+        var n = document.createElement('span');
+        n.className = 'n';
+        n.textContent = 'no se pudo leer ' + etiquetaCampo;
+        caja.appendChild(n);
+    });
+}
+
+(function portada() {
+    pintarHoy(false);
+    pintarUnidad('dato-uma', '../data/serie-uma.json', 'la serie de la UMA');
+    pintarUnidad('dato-uhom', '../data/serie-uhom.json', 'la serie del UHOM');
+
+    var cobertura = document.getElementById('cobertura');
+    var desde = 2021;
+    var hasta = new Date().getFullYear() + 1;
+    var anios = [];
+    for (var y = desde; y <= hasta; y++) anios.push(y);
+
+    CalendarioJudicial.init(anios).then(function (r) {
+        if (!r.dataLoaded) {
+            cobertura.className = 'cobertura-tablero falta';
+            cobertura.textContent = r.missingYears && r.missingYears.length
+                ? 'No se puede calcular: faltan los feriados de ' + r.missingYears.join(', ') + '.'
+                : 'No se puede calcular: no se pudieron cargar los feriados.';
+            return;
+        }
+        pintarHoy(true);
+
+        // La cobertura no puede prometer mas de lo que hay: los feriados llegan
+        // hasta el año que viene, pero la feria de invierno la fija la CSJN por
+        // Acordada dentro del mismo año, y mientras falte un plazo que caiga en
+        // julio de ese año no devuelve fecha.
+        var sinFeria = r.missingFeriaYears || [];
+        cobertura.className = 'cobertura-tablero';
+        cobertura.textContent = sinFeria.length
+            ? 'Calendario judicial ' + desde + '–' + hasta + '. Falta la Acordada de la feria de invierno de ' +
+              sinFeria.join(', ') + ': un plazo que caiga ahí no devuelve fecha.'
+            : 'Calendario judicial ' + desde + '–' + hasta + '.';
+    }).catch(function () {
+        cobertura.className = 'cobertura-tablero falta';
+        cobertura.textContent = 'No se pudo cargar el calendario judicial.';
+    });
+})();
 
 construir();
 

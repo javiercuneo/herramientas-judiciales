@@ -57,6 +57,8 @@ lee; quien tiene que fundar una regulación lo tiene ahí.
 todas en una sola ventana, y desde el 31/8/2026 la puerta de entrada. Arriba las
 seis que cuentan días; abajo los honorarios, la tasa, la ejecución contra el
 Estado y lo que no calcula —Escribiente y la serie de la UMA— como enlace.
+Arriba de todo, la fecha de hoy con si cuenta o no y el valor vigente de la UMA
+y del UHOM: son datos del día y no de la herramienta, así que se dicen una vez.
 
 Cada pestaña es la página publicada, embebida **sin una línea modificada**, y
 hay pruebas automáticas que corren los mismos casos dos veces —contra la página
@@ -79,7 +81,7 @@ en el navegador: nada de lo que escribís sale de tu máquina.
 | [Ampliación por distancia](https://javiercuneo.com.ar/calculadoras/distancia.html) | Art. 158 CPCCN, dentro del país o al exterior. |
 | [Contador de días](https://javiercuneo.com.ar/calculadoras/entre-fechas.html) | Días hábiles o corridos entre dos fechas. |
 | [Calculadora regresiva](https://javiercuneo.com.ar/calculadoras/regresiva.html) | Cuenta al revés: resta días hábiles a una fecha objetivo para saber desde cuándo hay que empezar. |
-| [Mora](https://javiercuneo.com.ar/calculadoras/mora.html) | Inicio de la mora según el plazo de la resolución y la fecha en que quedó firme. |
+| [Inicio de la mora](https://javiercuneo.com.ar/calculadoras/mora.html) | Los días hábiles hasta que la sentencia queda firme y los corridos para pagar, con el plazo dibujado sobre el calendario. |
 | [Ejecución de sentencias contra el Estado](https://javiercuneo.com.ar/calculadoras/ejecucion-estado.html) | Desde cuándo una sentencia contra el Estado Nacional es ejecutable y embargable (art. 170, Ley 11.672). |
 
 Las que dependen de fechas usan un calendario judicial compartido, y **todo lo

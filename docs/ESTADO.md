@@ -51,9 +51,18 @@ cuatro calculadoras que no son de plazos se refundaron de cero** entre el 27 y e
 [`HISTORIA.md`](HISTORIA.md).
 
 **Desde el 31/8 la puerta es el tablero**, no el listado: `calculadoras/tablero.html`
-reúne las diez vivas y `index.html` lleva ahí primero. Las páginas sueltas siguen
-publicadas y sus direcciones no cambian. Detalle en
-[El tablero de herramientas](#el-tablero-de-herramientas).
+reúne las diez vivas y `index.html` lleva ahí primero, con el plano de lo que hay
+adentro. Las páginas sueltas siguen publicadas y sus direcciones no cambian, pero
+**`index.html` ya no las enlaza una por una**: donde había once tarjetas hay un
+índice de contenido sin enlaces, y sólo se enlaza lo que NO está en el tablero.
+Detalle en [El tablero de herramientas](#el-tablero-de-herramientas).
+
+**Las diez pantallas siguen el mismo patrón, y desde el 31/8 sin excepción.**
+`mora` y `distancia` eran las dos que faltaban ---título entero en el acento y
+centrado adentro de una tarjeta, campos apilados, resultado como lista--- y se
+rehicieron sobre `vencimientos`, que es la de referencia. `mora` además dibuja
+el plazo sobre el calendario, que es lo único que muestra la diferencia entre
+sus dos tramos: el de hábiles saltea inhábiles y el de corridos no.
 
 **No queda nada urgente ni bloqueante, y no hay bugs abiertos.** Lo que sigue
 está en [Por dónde seguir](#por-dónde-seguir); lo abierto, en
@@ -75,15 +84,22 @@ Los tres, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
 
 ## Por dónde seguir
 
-**Cuatro cosas, todas pedidas por Javier el 31/8 y todas detalladas en
-[Pendientes](#pendientes).** El tablero ---que era la primera--- está hecho.
+**La cola del 31/8 se cerró entera.** El tablero es la puerta, `mora` y
+`distancia` se rehicieron sobre el patrón de `vencimientos`, los errores
+salieron del `alert()`, el cómputo escondido de `caducidad` se eliminó, el pie
+de autoría está en las diez y `prorrateo` tiene el 33 %, el imprimible y el
+enlace del caso.
 
-1. **Los errores de `entre-fechas` y de `regresiva`**, que salen por `alert()`,
-   al modelo de `vencimientos`. Toca las dos pantallas y el banco.
-2. **Sacar de `caducidad` el cómputo que no se muestra.**
-3. **El pie de autoría en las cinco que no lo tienen**, con `class="firma"`.
-4. **`prorrateo`: el aviso de qué entra en la base, y el 33 % dibujado**, en
-   pantalla y en el imprimible.
+**Lo que queda abierto, y es una sola cosa con nombre:**
+
+- **El tablero no tiene banco de pruebas de navegación.** Que los números no
+  cambian está cubierto ---los 21 casos se corren dos veces, sueltos y
+  embebidos, y dan 75 de 75---. Que las pestañas, el enlace directo por
+  `#pestania` y las teclas 1-6 sigan andando no lo prueba nadie: el 31/8 se
+  probó a mano y nada más.
+- **Faltan las capturas del tablero en la landing.** Hoy hay un plano dibujado
+  en SVG, que es la estructura y no la pantalla. Una captura se hace cuando el
+  tablero deje de moverse: las de Honorio ya envejecieron dos veces.
 
 **El método es el de siempre:** leer este archivo, correr el control que cubre
 lo que se va a tocar *antes* de tocarlo, y que cualquier número que se mueva sea
@@ -167,39 +183,22 @@ porque se decidió moverlo.
 
 ### Lo que está abierto en las pantallas
 
-- **Los errores de `entre-fechas` y de `regresiva` salen por `alert()`, y hay
-  que pasarlos al modelo de `vencimientos`** ---el error al lado del campo---.
-  Pedido de Javier del 31/8. Un cuadro de diálogo tapa la pantalla, no se puede
-  releer y no señala el campo. **No es un cambio de CSS:** el banco captura el
-  `alert()` para distinguir «no calcula» de un resultado, así que es un cambio
-  coordinado de las dos pantallas *y* de `scripts/pruebas-calculadoras.html`.
-- **`caducidad` calcula algo que no muestra, y la función se elimina.** Decisión
-  de Javier del 31/8. `.hidden-computation` tiene `display: none` y el
-  JavaScript igual le escribe el cómputo con inhábiles y feriados: se saca el
-  cómputo, no sólo el `div`.
-- **El pie de autoría va en todas, y faltan cinco.** Decisión de Javier del
-  31/8. Lo tienen `caducidad`, `entre-fechas`, `mora`, `distancia` y
-  `regresiva`; no lo tienen `vencimientos`, `prorrateo`, `tasa`,
-  `honorarios-mediacion` ni `ejecucion-estado`. **El tablero ya no es un
-  obstáculo:** desde el 31/8 oculta `.firma` en cada marco, y para eso las cinco
-  que lo traen llevan esa clase ---en `mora` y en `distancia` se agregó al `div`
-  con estilos en línea, sin tocar cómo se ve suelta---. **El pie nuevo va con
-  `class="firma"`** o el tablero lo va a mostrar nueve veces.
-- **En `prorrateo` quedan dos cosas.** El aviso al lado del campo sobre qué
-  entra en la base ---está unas líneas más arriba, en lo abierto del cálculo--- y
-  **el recorte que excede el 33 %**, dibujado como la barra de cuánto queda del
-  plazo y también en el imprimible, con el enlace al caso para poder auditarlo.
-  Es un criterio de confiscatoriedad y no una regla de la ley: **se muestra, no
-  se aplica.** El detalle está en `IDEAS.md`.
-- **El permalink existe sólo en `tasa`**, desde el 27/8, y extenderlo a las demás
-  está abierto. **Lo que hay que mirar antes que el cómo:** una URL con el caso
-  adentro se pega en un mail, en un chat y en un historial. Un monto de proceso y
-  una fecha de notificación no son datos personales, pero sí son datos de un
-  expediente concreto. **La decisión tomada, y que hay que repetir**: el caso va
-  en el **fragmento** (`#…`), que no viaja al servidor.
-- **El imprimible existe sólo en `tasa`**, donde lo exige el art. 4 *in fine*.
-  El de `prorrateo` es otra cosa —ahí no hay norma que lo pida— y puede salir del
-  mismo mecanismo sin esa exigencia. Sin hacer.
+- **Lo que se oculta adentro del tablero se marca con `solo-suelta`, y es UNA
+  regla.** La ponen las calculadoras sobre lo que sólo tiene sentido con la
+  página abierta por su cuenta: el pie de autoría y la línea de cobertura del
+  calendario, que el tablero dice una vez arriba. **Una herramienta nueva tiene
+  que llevar esa clase en su pie** o el tablero va a mostrar la misma firma diez
+  veces. **Lo que NO la lleva, a propósito:** el aviso que sale al calcular
+  cuando el plazo toca un año sin Acordada, porque ése frena un número y tiene
+  que estar donde se pide el número.
+- **El permalink y el imprimible existen en `tasa` y en `prorrateo`.** Faltan en
+  las demás y no está decidido si van. **La decisión que hay que repetir si se
+  extienden:** el caso va en el **fragmento** (`#…`), que no viaja al servidor.
+  Una URL con el caso adentro se pega en un mail, en un chat y en un historial;
+  un monto de proceso y una fecha de notificación no son datos personales, pero
+  sí son datos de un expediente concreto. Y la UMA **no** va en el enlace: es un
+  dato del sistema y no del caso, y guardarla congelaría un valor viejo adentro
+  de un enlace que se abre meses después.
 - **Falta el barrido de texto en tres de las cuatro que no son de plazos**
   —`tasa` se despejó el 31/8—. En las cinco de plazos ya se hizo, el 26 y el
   27/8. **Una distinción que vale para lo que queda:** el *usted* —«Ingrese»,
@@ -381,6 +380,18 @@ prorrateo, tasa, honorarios de mediación y `ejecucion-estado`. Cada una es un
 iframe de la calculadora publicada, **sin una línea modificada de ninguna**.
 Carga perezosa, estado vivo al volver, enlace directo por `#pestania`.
 
+**Arriba de todo, la portada:** la fecha de hoy con si cuenta o no, el valor
+vigente de la UMA y del UHOM, la cobertura del calendario y las cuatro salidas
+---Honorio, la landing, la guía y el correo---. Los tres datos no dependen de
+qué pestaña estés mirando, así que se dicen **una vez** acá y no una vez por
+calculadora: la fecha vivía adentro de `vencimientos` y los dos valores, en
+`uma-uhom.html`. El tablero carga el calendario sólo para eso; el cómputo de
+cada calculadora sigue pasando adentro de su propio marco.
+
+**Las teclas 1-6 no funcionaban y ahora sí.** Un evento de teclado no cruza de
+un iframe al documento de arriba: el foco vivía adentro del marco y el oyente
+estaba afuera. Se engancha el mismo oyente adentro de cada marco al montarlo.
+
 **Las cuatro decisiones que lo sostienen**, para no revisarlas sin saber por qué
 están:
 
@@ -403,9 +414,12 @@ están:
   no sale de la máquina, con `connect-src 'none'` declarado--- se lee peor
   adentro de un marco ajeno, no mejor.
 
-**El pie de autoría se oculta adentro del tablero**, por el mismo CSS inyectado
-que anula el `min-height: 100vh`. El selector es `.firma`: una herramienta cuyo
-pie no lleve esa clase lo va a mostrar nueve veces.
+**Lo que sólo tiene sentido con la página abierta sola se oculta adentro del
+tablero**, por el mismo CSS inyectado que anula el `min-height: 100vh`. El
+selector es **`.solo-suelta`, y es una sola regla**: la ponen las calculadoras
+sobre su pie de autoría y sobre su línea de cobertura del calendario, que el
+tablero dice una vez en la portada. Una lista de selectores en el tablero
+crecía con cada pantalla; una clase que ponen las pantallas, no.
 
 **Lo que lo hace verificable:** `pruebas-calculadoras.html` corre los 21 casos
 verificados **dos veces**, contra las páginas sueltas y contra las embebidas, y
@@ -643,18 +657,10 @@ resolución y cada UHOM, de las tablas oficiales del Ministerio de Justicia. Las
 dos viven en `data/`, versionadas, con la norma al lado de cada valor.
 
 **Se leyeron 50 PDF de la Corte y 39 tablas del Ministerio; la serie cita 49
-normas y 38 tablas, y las dos cuentas están bien** ---cuentan cosas distintas:
-documentos leídos contra documentos que aportan un escalón---. Los dos que
-sobran se abrieron el 31/8 para saber cuáles eran:
-
-- **Acordada 13/2018 no fija ningún valor**: hace saber los de las acordadas
-  3/2018 y 11/2018 ---$540 hasta el 31/12/2017, $567 y $624---, y **esos
-  importes los reemplazó después la 27/2018** con $1.350, $1.417 y $1.559, que
-  son los que la serie tiene. Citarla habría metido en la serie un número que la
-  propia Corte dejó sin efecto.
-- **La tabla 05, de marzo de 2018, declara UHOM 390**, el mismo valor que ya
-  traía la 04 desde agosto de 2017: no abre un escalón nuevo. El siguiente
-  cambio es mayo de 2018, en la tabla 06.
+normas y 38 tablas, y las dos cuentas están bien**: cuentan documentos leídos
+contra documentos que aportan un escalón. Los dos que sobran ---la Acordada
+13/2018 y la tabla 05--- se abrieron el 31/8 y ninguno fija un valor propio;
+cuál es cada uno está en [`HISTORIA.md`](HISTORIA.md).
 
 **Copiarlas habría sido más rápido y habría estado mal.** Las dos compilaciones
 públicas que existen atribuyen a la Acordada 4/2022 el valor de $8.183 desde

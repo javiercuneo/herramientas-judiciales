@@ -280,12 +280,10 @@ console.log('\nCaducidad de instancia (art. 310 CPCCN)');
         [[15, 6, 2026], 3, '2026-09-27', '2026-10-01'],
     ];
 
-    for (const [[dia, mes, anio], meses, esperado, esperadoFull] of testigos) {
+    for (const [[dia, mes, anio], meses, esperado] of testigos) {
         const r = cad(dia, mes, anio, meses);
         igual(r.problema, null, `${dia}/${mes}/${anio} a ${meses} mes(es) calcula`);
         igual(dl(r.vencimiento), esperado, `${dia}/${mes}/${anio} a ${meses} mes(es) vence el ${esperado}`);
-        igual(dl(r.conInhabiles.fecha), esperadoFull,
-            `${dia}/${mes}/${anio} a ${meses} mes(es), computo con inhabiles`);
     }
 
     // --- REGRESION: el ancla del dia no se arrastra (bug del 18/8/2026) -----
@@ -452,8 +450,6 @@ console.log('\nCaducidad de instancia (art. 310 CPCCN)');
         ok(toca2027.problema !== null, 'un plazo que alcanza 2027 no afirma una fecha');
         ok(/feria judicial de invierno/.test(toca2027.problema || ''),
             'y el motivo nombra la feria', toca2027.problema);
-        igual(toca2027.conInhabiles, null,
-            'y con un dato faltante no se sigue calculando');
     } else {
         console.log('  (la feria de 2027 ya esta cargada: la guarda se saltea)');
     }

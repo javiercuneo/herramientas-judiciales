@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Calculadora de Plazos (Argentina e Internacional) - Art. 158 CPCCN</title>
+    <title>Ampliación por distancia</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <script src="../assets/tema.js"></script>
@@ -24,27 +24,48 @@
             color: var(--fg);
         }
 
+        /* Era una tarjeta que envolvia la pagina entera: titulo, formulario y
+           resultado adentro de un solo recuadro de 40px. Puesta en el tablero
+           quedaba una tarjeta adentro de un panel adentro de la pagina, tres
+           niveles de encierro para una cosa. Ahora es lo que es ---la hoja--- y
+           la tarjeta la traen los bloques que la necesitan, que es el patron de
+           vencimientos y de las otras cuatro. */
         .main-container {
-            max-width: 900px;
+            max-width: 940px;
             margin: 0 auto;
-            background: var(--card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            padding: 40px;
         }
 
-        h1 {
-            color: var(--accent);
-            margin-bottom: 10px;
-            font-size: 28px;
-            text-align: center;
+        /* Los dos paneles reales: el que tiene el formulario y el que tiene la
+           respuesta. Antes no existian porque el recuadro de afuera hacia de
+           los dos. */
+        .tab-content.active {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px 24px;
         }
+
+        /* El titulo iba entero en --accent, a 28px y centrado. Puesto al lado
+           de las otras cinco en el tablero era la unica asi. El patron de
+           vencimientos, que es la pantalla de referencia: a la izquierda, en
+           font-meter, 21px, y con la SEGUNDA mitad en el acento ---la primera
+           dice de que tipo de herramienta se trata y la segunda, de que---. */
+        h1 {
+            font-family: var(--font-meter);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--fg);
+            margin-bottom: 5px;
+            text-align: left;
+        }
+        h1 span { color: var(--accent); }
 
         .subtitle {
-            text-align: center;
-            color: var(--faint);
-            margin-bottom: 30px;
-            font-size: 13px;
+            text-align: left;
+            color: var(--muted-fg);
+            margin-bottom: 24px;
+            font-size: 12.5px;
         }
 
         /* El aviso de que esta pagina si consulta afuera.
@@ -105,9 +126,7 @@
             animation: fade 0.25s ease;
         }
 
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content.active { display: block; }
 
         @keyframes fade {
             from { opacity: 0; transform: translateY(6px);}
@@ -271,41 +290,26 @@
             color: #0a3b5c;
         }
 
+        /* Esto era una copia pegada de las reglas de escritorio metida adentro
+           de un @media de 640px: volvia a poner el padding de 40px, el
+           max-width de 900 y el h1 centrado en violeta JUSTO en el ancho donde
+           habia que hacer lo contrario. O sea que el archivo tenia dos veces
+           cada regla y la de abajo ganaba en el telefono. Ahora dice lo que
+           tiene que decir un @media: solo lo que cambia. */
         @media (max-width: 640px) {
-            .main-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            padding: 40px;
-        }
-            h1 {
-            color: var(--accent);
-            margin-bottom: 10px;
-            font-size: 28px;
-            text-align: center;
-        }
-            .tab-btn {
-            background: transparent;
-            border: none;
-            font-size: 1.1rem;
-            font-weight: 600;
-            padding: 0.6rem 1.5rem;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: var(--muted-fg);
-            font-family: var(--font-sans);
-        }
+            .tab-content.active { padding: 18px 16px; }
+            h1 { font-size: 19px; }
+            .tab-btn { font-size: 0.95rem; padding: 0.55rem 1rem; }
         }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <h1>Calculadora de ampliación de plazo por distancia</h1>
-    <p class="subtitle">Según Art. 158 CPCCN</p>
+    <h1>Ampliación por <span>distancia</span></h1>
+    <p class="subtitle">
+        Art. 158 CPCCN: un día cada 200 km o fracción que no baje de 100.
+    </p>
 
     <p class="aviso-red">
         <strong>Lo que escribís acá sale del navegador.</strong> Los nombres de
@@ -383,7 +387,7 @@
     </div>
 
     <!-- FOOTER DE AUTORÍA -->
-    <div class="firma" style="margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
+    <div class="firma solo-suelta" style="margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
         <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
         <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
             <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>

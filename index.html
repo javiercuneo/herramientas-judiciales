@@ -245,6 +245,39 @@ section { padding-block: 64px; }
 }
 .shots figcaption strong { color: var(--fg); font-weight: 600; }
 
+/* ---------- El dibujo del tablero ----------
+   No es un adorno: es el plano de lo que hay adentro. Dos regiones, la de
+   arriba con su fila de pestañas y la de abajo con sus tarjetas. Va en SVG
+   inline y con los tokens del sistema, así que sigue el tema como todo lo
+   demás. Una captura diría lo mismo y envejecería sola con cada cambio de la
+   pantalla; ésta dice la ESTRUCTURA, que es lo que no cambia. */
+.plano { width: 100%; height: auto; display: block; }
+.plano .marco { fill: var(--bg); stroke: var(--border); }
+.plano .caja { fill: var(--sunk); stroke: var(--hair); }
+.plano .viva { fill: var(--accent); stroke: none; }
+.plano .tenue { fill: var(--hair); stroke: none; }
+.plano .rotulo { fill: var(--faint); font-family: var(--font-meter); font-size: 7px; font-weight: 700; letter-spacing: 0.08em; }
+
+/* ---------- Qué hay adentro ----------
+   Nombres y una línea cada uno, sin enlace. Es un índice de contenido del
+   tablero y no una botonera: si cada renglón fuera clickeable volveríamos a
+   tener once puertas, que es justo lo que se sacó. */
+.adentro { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.region-cab { margin-bottom: 14px; }
+.region-cab .label { display: block; margin-bottom: 8px; }
+.region-cab p { color: var(--muted-fg); font-size: 0.92rem; margin: 0; max-width: 46ch; }
+.lista { list-style: none; border-top: 1px solid var(--hair); }
+.lista li { padding: 12px 0; border-bottom: 1px solid var(--hair); }
+.lista b {
+  display: block;
+  font-family: var(--font-meter);
+  font-weight: 600;
+  font-size: 0.98rem;
+  margin-bottom: 2px;
+}
+.lista span { color: var(--muted-fg); font-size: 0.9rem; }
+.lista .tag { display: inline; }
+
 /* ---------- La puerta ----------
    Desde el 31/8 el tablero no es una comodidad al costado: es el camino
    principal. Por eso ocupa un bloque propio arriba del listado y no una linea
@@ -276,7 +309,13 @@ section { padding-block: 64px; }
   color: var(--accent);
   white-space: nowrap;
 }
-.sueltas { color: var(--muted-fg); max-width: 62ch; margin: 0 0 28px; }
+.plano-caja {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--hair);
+  padding-top: 24px;
+  margin-top: 4px;
+}
+.plano-caja .plano { max-width: 430px; margin: 0 auto; }
 
 /* ---------- Listado de herramientas ---------- */
 .group { margin-bottom: 44px; }
@@ -383,6 +422,7 @@ pre {
   .foot-grid { grid-template-columns: 1fr; gap: 32px; }
   .tool { grid-template-columns: 1fr; gap: 3px; }
   .puerta { grid-template-columns: 1fr; gap: 16px; padding: 24px; }
+  .adentro { grid-template-columns: 1fr; gap: 28px; }
   .shots { grid-template-columns: 1fr; }
   .hero { padding-block: 56px 40px; }
   section { padding-block: 48px; }
@@ -517,88 +557,130 @@ pre {
   </div>
 
   <!-- El tablero va primero y ocupa lugar propio: desde el 31/8 es la puerta y
-       no un atajo. Estaba nombrado en una línea del párrafo de arriba. -->
+       no un atajo. Estaba nombrado en una línea del párrafo de arriba.
+
+       El texto pregunta antes de explicar, a pedido de Javier: el que llega no
+       viene a leer cómo está armado, viene con una duda concreta de un
+       expediente que tiene abierto. Y no dice que las herramientas también se
+       abren sueltas, porque ya no es el camino. -->
   <a class="puerta" href="calculadoras/tablero.html">
     <div>
       <span class="label">Por acá se entra</span>
       <h3>Tablero de herramientas</h3>
       <p>
-        Todas en una sola ventana: arriba los plazos, abajo los honorarios y lo
-        demás. Son las mismas páginas embebidas sin una línea modificada —hay
-        pruebas automáticas que verifican que acá los números den lo mismo que
-        sueltas— y cada pestaña conserva lo que cargaste mientras no la cierres.
+        ¿Necesitás saber cuándo vence un plazo? ¿Si corresponde ampliarlo por la
+        distancia? ¿Cuánto hay que integrar de tasa de justicia, o cómo se
+        prorratean unos honorarios que pasaron el 25 %? Está todo acá adentro,
+        en una sola ventana, y cada herramienta conserva lo que cargaste
+        mientras no la cierres.
       </p>
     </div>
     <span class="cta">Abrir el tablero →</span>
+
+  <!-- El plano de lo que hay adentro. No es una captura a propósito: una
+       captura envejece con cada cambio de la pantalla y hay que acordarse de
+       rehacerla ---ya pasó con las de Honorio---. Esto dibuja la ESTRUCTURA,
+       que es lo que no cambia: dos regiones, la de arriba con su fila de
+       pestañas y el plazo dibujado sobre el calendario, la de abajo con sus
+       tarjetas. Cuando el tablero deje de moverse, una captura al lado. -->
+  <div class="plano-caja">
+    <svg class="plano" viewBox="0 0 260 150" role="img"
+         aria-label="Plano del tablero: arriba una fila de pestañas de plazos con un calendario, abajo las tarjetas de honorarios y otros.">
+      <rect class="marco" x="0.5" y="0.5" width="259" height="149" rx="10"/>
+
+      <!-- la región de arriba: la fila de pestañas y lo que se abre debajo -->
+      <text class="rotulo" x="14" y="21">PLAZOS</text>
+      <rect class="viva" x="14" y="28" width="46" height="12" rx="4"/>
+      <rect class="tenue" x="66" y="28" width="38" height="12" rx="4"/>
+      <rect class="tenue" x="110" y="28" width="30" height="12" rx="4"/>
+      <rect class="tenue" x="146" y="28" width="34" height="12" rx="4"/>
+      <rect class="tenue" x="186" y="28" width="26" height="12" rx="4"/>
+      <rect class="tenue" x="218" y="28" width="28" height="12" rx="4"/>
+
+      <rect class="caja" x="14.5" y="48.5" width="231" height="42" rx="6"/>
+      <!-- el plazo dibujado sobre el calendario, que es lo que devuelven -->
+      <g>
+        <rect class="tenue" x="24" y="58" width="9" height="9" rx="2"/>
+        <rect class="tenue" x="36" y="58" width="9" height="9" rx="2"/>
+        <rect class="viva" x="48" y="58" width="9" height="9" rx="2"/>
+        <rect class="viva" x="60" y="58" width="9" height="9" rx="2"/>
+        <rect class="viva" x="72" y="58" width="9" height="9" rx="2"/>
+        <rect class="tenue" x="84" y="58" width="9" height="9" rx="2"/>
+        <rect class="tenue" x="96" y="58" width="9" height="9" rx="2"/>
+        <rect class="viva" x="24" y="71" width="9" height="9" rx="2"/>
+        <rect class="viva" x="36" y="71" width="9" height="9" rx="2"/>
+        <rect class="viva" x="48" y="71" width="9" height="9" rx="2"/>
+        <rect class="tenue" x="60" y="71" width="9" height="9" rx="2"/>
+        <rect class="tenue" x="72" y="71" width="9" height="9" rx="2"/>
+        <rect class="tenue" x="84" y="71" width="9" height="9" rx="2"/>
+        <rect class="tenue" x="96" y="71" width="9" height="9" rx="2"/>
+      </g>
+      <rect class="tenue" x="126" y="60" width="80" height="5" rx="2"/>
+      <rect class="tenue" x="126" y="70" width="58" height="5" rx="2"/>
+      <rect class="viva" x="126" y="80" width="40" height="5" rx="2"/>
+
+      <!-- el corte, y abajo la otra región -->
+      <line x1="14" y1="102" x2="246" y2="102" stroke="var(--hair)"/>
+      <text class="rotulo" x="14" y="118">HONORARIOS Y OTROS</text>
+      <rect class="caja" x="14.5" y="124.5" width="54" height="16" rx="5"/>
+      <rect class="caja" x="74.5" y="124.5" width="54" height="16" rx="5"/>
+      <rect class="caja" x="134.5" y="124.5" width="54" height="16" rx="5"/>
+      <rect class="caja" x="194.5" y="124.5" width="51" height="16" rx="5"/>
+    </svg>
+  </div>
   </a>
 
-  <p class="sueltas">
-    Cada herramienta se puede abrir igual por separado, y las direcciones no
-    cambian. El listado que sigue es esa referencia.
-  </p>
+  <div class="sec-head" style="margin-top:56px">
+    <span class="label">Qué hay adentro</span>
+  </div>
 
-  <div class="group">
-    <span class="label">Plazos</span>
-    <div class="tools">
-      <a class="tool" href="calculadoras/vencimientos.html">
-        <span class="t">Calculadora de plazos judiciales</span>
-        <span class="d">Cuándo vence un plazo contado desde una fecha de inicio. Es la de todos los días.</span>
-      </a>
-      <a class="tool" href="calculadoras/caducidad.html">
-        <span class="t">Caducidad de la instancia</span>
-        <span class="d">Cómputo de los arts. 310 y ss. del CPCCN.</span>
-      </a>
-      <a class="tool" href="calculadoras/distancia.html">
-        <span class="t">Ampliación por distancia</span>
-        <span class="d">Art. 158 CPCCN, dentro del país o al exterior.</span>
-      </a>
-      <a class="tool" href="calculadoras/entre-fechas.html">
-        <span class="t">Contador de días</span>
-        <span class="d">Días hábiles o corridos entre dos fechas.</span>
-      </a>
-      <a class="tool" href="calculadoras/regresiva.html">
-        <span class="t">Calculadora regresiva</span>
-        <span class="d">Cuenta al revés: resta días hábiles a una fecha objetivo para saber desde cuándo hay que empezar.</span>
-      </a>
-      <a class="tool" href="calculadoras/mora.html">
-        <span class="t">Mora</span>
-        <span class="d">Inicio de la mora según el plazo de la resolución y la fecha en que quedó firme.</span>
-      </a>
-      <a class="tool" href="calculadoras/ejecucion-estado.html">
-        <span class="t">Ejecución contra el Estado <span class="tag">en desarrollo</span></span>
-        <span class="d">Desde cuándo una condena de dar sumas de dinero contra el Estado Nacional es ejecutable. Art. 170 de la Ley 11.672 y art. 22 de la Ley 23.982, y las dos consolidaciones que sacan el caso de ahí.</span>
-      </a>
+  <!-- Esto era una lista de enlaces a las once páginas sueltas, y desde el 31/8
+       no lo es: si el tablero es la puerta, once links son once puertas de
+       servicio. Las direcciones siguen vivas ---una URL publicada no se rompe---
+       pero dejaron de ser el camino, así que acá se dice QUÉ HAY y no A DÓNDE
+       IR. Lo único que sigue enlazado es lo que NO está en el tablero. -->
+  <div class="adentro">
+    <div class="region">
+      <div class="region-cab">
+        <span class="label">Plazos</span>
+        <p>Las seis que cuentan días. Todas leen el mismo calendario judicial y
+           los mismos feriados, versionados en este sitio.</p>
+      </div>
+      <ul class="lista">
+        <li><b>Calculadora de plazos judiciales</b><span>Cuándo vence un plazo contado desde la notificación. Es la de todos los días, y tiene adentro el buscador de plazos del CPCCN.</span></li>
+        <li><b>Ampliación por distancia</b><span>Art. 158 CPCCN, dentro del país o al exterior.</span></li>
+        <li><b>Caducidad de la instancia</b><span>Arts. 310 y ss. del CPCCN, con los días de feria descontados.</span></li>
+        <li><b>Días entre dos fechas</b><span>Hábiles o corridos, con el plazo dibujado sobre el calendario.</span></li>
+        <li><b>Calculadora regresiva</b><span>Cuenta al revés: desde cuándo hay que empezar para llegar a tiempo.</span></li>
+        <li><b>Inicio de la mora</b><span>Los hábiles hasta que la sentencia queda firme y los corridos para pagar.</span></li>
+      </ul>
+    </div>
+
+    <div class="region">
+      <div class="region-cab">
+        <span class="label">Honorarios y otros</span>
+        <p>Lo que no es plazo. Va aparte a propósito: un número de honorarios y
+           uno de plazos no se leen igual.</p>
+      </div>
+      <ul class="lista">
+        <li><b>Prorrateo · art. 730 CCyCN</b><span>El techo del 25 % de las costas dibujado contra lo regulado: cuánto se recorta, cómo se reparte, y si el recorte pasa el 33 %.</span></li>
+        <li><b>Tasa de justicia</b><span>Ley 23.898 entera. Se elige qué juicio es y de ahí salen el monto imponible y la alícuota. Sale impresa como la liquidación que manda el art. 4.</span></li>
+        <li><b>Honorarios del mediador</b><span>La escala del Anexo III del decreto 2536/15, en UHOM.</span></li>
+        <li><b>Ejecución contra el Estado <span class="tag">en desarrollo</span></b><span>Desde cuándo es ejecutable una condena de dar sumas de dinero contra el Estado Nacional.</span></li>
+      </ul>
     </div>
   </div>
 
-  <div class="group">
-    <span class="label">Honorarios y tributos</span>
-    <div class="tools">
-      <a class="tool" href="uma-uhom.html">
-        <span class="t">Valor de la UMA y del UHOM</span>
-        <span class="d">El valor vigente de las dos unidades con las que se regulan honorarios, la norma que lo fija y la serie entera desde 2016, leída de las acordadas de la Corte y de las tablas del Ministerio.</span>
-      </a>
-      <a class="tool" href="calculadoras/honorarios-mediacion.html">
-        <span class="t">Honorarios del mediador</span>
-        <span class="d">La escala del Anexo III del Decreto 1467/2011, en UHOM. Muestra los siete tramos.</span>
-      </a>
-      <a class="tool" href="calculadoras/prorrateo.html">
-        <span class="t">Prorrateo · art. 730 CCyCN</span>
-        <span class="d">El techo del 25 % de las costas, dibujado contra lo regulado: cuánto se recorta y cómo se reparte.</span>
-      </a>
-      <a class="tool" href="calculadoras/tasa.html">
-        <span class="t">Tasa de justicia</span>
-        <span class="d">Ley 23.898. Se elige <strong>qué juicio es</strong> —sucesión, desalojo, laboral, concurso o quiebra, tercería, mensura, recurso directo— y de ahí salen solos el monto imponible del art. 4 y la alícuota de los arts. 2 y 3, que no se corresponden inciso por inciso. En una sucesión se cargan todos los bienes juntos, cada uno con su nombre y su titularidad: sirve para tener el total de una mirada o para ir pagando de a uno a medida que se inscribe. Sale impresa como la liquidación detallada que el art. 4 manda acompañar al pago. Además hay un buscador de exenciones del art. 13 al lado.</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="group">
-    <span class="label">Otras</span>
+  <div class="group" style="margin-top:44px">
+    <span class="label">Fuera del tablero</span>
     <div class="tools">
       <a class="tool" href="escribiente/">
         <span class="t">Escribiente <span class="tag">en pruebas</span></span>
         <span class="d">Pasa PDF a Markdown y permite anonimizar DNI, CUIT, domicilios, teléfonos y nombres para poder trabajarlos sin exponer datos. También une, separa y rota PDF. Todo dentro del navegador: el documento no se sube a ningún lado y la página tiene prohibido abrir conexiones de red.</span>
+      </a>
+      <a class="tool" href="uma-uhom.html">
+        <span class="t">Valor de la UMA y del UHOM</span>
+        <span class="d">El valor vigente de las dos unidades con las que se regulan honorarios, la norma que lo fija y la serie entera desde 2016, leída de las acordadas de la Corte y de las tablas del Ministerio.</span>
       </a>
       <a class="tool" href="asistente-honorarios-clasico/">
         <span class="t">Asistente de honorarios clásico <span class="tag">retirado</span></span>
@@ -610,7 +692,7 @@ pre {
       </a>
       <a class="tool" href="proyectos%20finalizados/bandejito.html">
         <span class="t">Bandejito <span class="tag">finalizado</span></span>
-        <span class="d">Permiteía distribuir automáticamente el fliujjo de trabajo: aplicaba reglas de reparto de la oficina y mandaba un mail a cada responsable sus tareas con alertas de vencimiento. En uso hasta que lo reemplazó un desarrollo institucional.</span>
+        <span class="d">Distribuía automáticamente el flujo de trabajo: aplicaba las reglas de reparto de la oficina y le mandaba a cada responsable sus tareas por mail, con alertas de vencimiento. En uso hasta que lo reemplazó un desarrollo institucional.</span>
       </a>
     </div>
   </div>
@@ -624,61 +706,65 @@ pre {
     <span class="label">Cómo está hecho</span>
     <h2>La exactitud del número es el producto</h2>
     <p>
-      Tratamos con derechos, cargas y obligaciones: los honorarios, los plazos, los cálclos, pueden afectarlos. De eso se derivan las
-      reglas con las que se trabaja acá.
+      Un cálculo de honorarios puede terminar fundando una resolución, y una
+      fecha de vencimiento mal computada hace perder un derecho. Esto no es
+      software donde un error se descubre en producción y se arregla el martes.
+      De ahí salen las tres reglas con las que se trabaja acá, y valen para
+      todo: para Honorio y para cada una de las herramientas del tablero.
     </p>
   </div>
 
   <div class="cols">
     <div class="col">
-      <span class="num">17</span>
-      <h3>Validaciones que corren en cada cambio</h3>
+      <span class="num">10</span>
+      <h3>Controles que corren antes de publicar</h3>
       <p>
-        Existen diecisiete archivos de control que verifican el resultado de una parte del cálculo: la
-        escala del art. 21, las reducciones sobre la base, sobre la escala y
-        sobre el honorario ya calculado, los de segunda instancia y el partidor, los
-        provisorios, los procesos generales, los especiales, el exhorto y el
-        incidente, las actuaciones posteriores a la ejecución, la modificación
-        de alimentos, los mínimos de auxiliares y el honorario del mediador.
+        Cada uno cubre una cosa distinta y ninguno cubre todo, que es la parte
+        que importa saber: <strong>el motor de días hábiles</strong> contra las
+        Acordadas de la CSJN de cada año; <strong>la aritmética de plazos</strong>
+        —vencimiento, mora, caducidad, días entre fechas y plazo regresivo—;
+        <strong>las tres series</strong> de la UMA, del UHOM y del monto fijo del
+        art. 6; <strong>los dos conectores</strong>, que tienen que devolver las
+        mismas fechas que el motor; <strong>el conversor de PDF</strong>, con los
+        bugs viejos cargados como regresión; y el <strong>contraste</strong> de
+        cada color sobre cada superficie, en los dos temas.
       </p>
       <p>
-        Cada control es una entrada y el resultado que se espera de ella. No hay detrás una tabla oficial ni un
-        fallo que diga que ese número es el correcto: lo que garantizan esas validaciones es que cuando se introduce un cambio en la app,
-        el número de hoy sea el mismo que el de ayer.
-      </p>
-      <p>
-        Tres no miran una parte del cálculo sino que comparan dos cosas que
-        tienen que coincidir: las funciones de apoderado, procurador y
-        auxiliares contra la aritmética original de la que salieron; el cálculo
-        directo contra la entrevista recorrida por un caso sin ninguna
-        reducción; y el texto de la regulación en prosa, que es la única que no
-        compara números porque produce un documento con forma de resolución.
-      </p>
-      <p>
-        Una de ellas barre los <strong>29.929 cambios de rumbo posibles</strong>:
+        Del lado de Honorio son diecisiete validaciones sobre el cálculo, y una
+        de ellas barre los <strong>29.929 cambios de rumbo posibles</strong>:
         cada uno de los 173 recorridos de la entrevista contra cada uno de los
         otros, para probar que volver atrás y cambiar el tipo de proceso no deja
         pegada ninguna respuesta que ya no existe.
       </p>
-      <pre>for f in lib/legal/__tests__/*.validation.ts
-do npx tsx "$f"; done</pre>
+      <p>
+        Ninguno prueba que un número sea el que la ley manda: eso se discute con
+        la norma en la mano. Lo que prueban es que <strong>el número de hoy sea
+        el mismo que el de ayer</strong> salvo que alguien haya decidido moverlo.
+      </p>
     </div>
 
     <div class="col">
-      <span class="num">1</span>
-      <h3>Una sola capa con reglas jurídicas</h3>
+      <span class="num">2</span>
+      <h3>Veces que se corre cada caso de plazos</h3>
       <p>
-        Todas las cuentas y todas las reglas de la ley están en un solo lugar
-        del código, separado de la pantalla. Qué se pregunta, en qué orden se
-        pregunta y cómo se ve la respuesta son tres cosas aparte, y ninguna de
-        las tres puede decidir nada jurídico: pasan los datos y muestran lo que
-        el motor devolvió.
+        Contra la página suelta y contra la misma página embebida en el tablero,
+        exigiendo que las dos den lo mismo. Toda la apuesta del tablero es que
+        juntarlas en una ventana no mueva un número, y eso se comprueba en vez
+        de suponerse.
       </p>
       <p>
-        Ese motor tiene una sola puerta de entrada y no arrastra memoria de
-        nada: con los mismos datos da siempre el mismo resultado. Y no devuelve
-        solo el número, devuelve también la lista de operaciones que lo
-        produjeron, que es la cadena que la app muestra en pantalla.
+        El tablero existe por eso antes que por comodidad:
+        <strong>once herramientas separadas pueden discrepar en silencio durante
+        años y dos pestañas del mismo marco no.</strong> Ya pasó: dos
+        calculadoras deducían la feria de invierno con dos fórmulas distintas
+        —el tercer lunes de julio y el penúltimo— y las dos estaban mal, en años
+        distintos, sin que nada obligara a mirarlas juntas.
+      </p>
+      <p>
+        Desde entonces los días inhábiles no se deducen con una fórmula: salen de
+        archivos versionados, con la Acordada citada al lado de cada año. Si
+        falta un año, la herramienta <strong>no calcula y dice cuál falta</strong>.
+        No hay medio resultado.
       </p>
     </div>
 
@@ -692,11 +778,16 @@ do npx tsx "$f"; done</pre>
       </p>
       <p>
         Cuando un número tiene que cambiar, se anota con el caso concreto y el
-        artículo que lo funda, aunque el cambio sea de una línea. Por eso el
-        registro de versiones se numera según cambios en los resultados, no según
-        cuánto código se tocó: un cálculo de hoy tiene que poder reproducirse
-        dentro de dos años.
+        artículo que lo funda, aunque el cambio sea de una línea.
       </p>
+      <p>
+        Y donde la ley no resuelve sola, la herramienta <strong>no elige por
+        vos</strong>: muestra que existen los dos criterios y decide el que
+        firma. Por eso el prorrateo dice cuándo el recorte pasa el 33 % —el
+        umbral con el que se argumenta confiscatoriedad— y no lo aplica.
+      </p>
+      <pre>npm run verificar-calculos
+npm run verificar-plazos</pre>
     </div>
   </div>
 </section>
