@@ -678,7 +678,7 @@ donde están escritos los tokens digan lo mismo.
 ### La serie de la UMA y del UHOM se reconstruyó de los actos
 
 `uma-uhom.html` publica las dos series completas: **67 valores de UMA desde
-diciembre de 2017 y 67 de UHOM desde junio de 2016.** No están copiadas de
+diciembre de 2017 y 71 de UHOM desde junio de 2016.** No están copiadas de
 ninguna tabla ajena. Cada UMA salió del punto resolutivo de su acordada o
 resolución y cada UHOM, de las tablas oficiales del Ministerio de Justicia. Las
 dos viven en `data/`, versionadas, con la norma al lado de cada valor.
@@ -698,7 +698,7 @@ documentos. Guardar una sola fecha obliga a elegir cuál, y las dos hacen falta:
 la vigencia decide qué valor corresponde a una regulación, la del acto dice si
 ese valor existía el día en que se reguló.
 
-**Tres cosas que aparecieron leyendo y conviene no volver a descubrir:**
+**Dos cosas que aparecieron leyendo y conviene no volver a descubrir:**
 
 - **El UHOM de noviembre de 2022 es 2003 y no termina en cero**, contra la regla
   del decreto 2536/15. Está bien: la tabla oficial lo declara así y construye
@@ -712,23 +712,24 @@ ese valor existía el día en que se reguló.
   fila más reciente que lo nombre: la 18 declara octubre y no vuelve a declarar
   noviembre ni diciembre porque no cambiaron, así que caer a la 17 para
   diciembre hacía **bajar** la serie de 1100 a 1010.
-- **Ocho de los 50 PDF de la Corte no tienen capa de texto**: dibujan las letras
-  como trazos y `pdftotext` devuelve cero. Son las acordadas 36/2020, 1/2021,
-  7/2021, 12/2021, 21/2021, 4/2022, 12/2022 y la res. 2722/2023. Hubo que
-  rasterizarlos. Y las acordadas de 2018 y 2019 llevan la fecha del acto escrita
-  a mano en el original: el valor y la vigencia están impresos y se leen, la
-  fecha no.
 
 Cada valor de UHOM se leyó **por su forma y no por su etiqueta**: es el único
 número de la tabla que aparece también multiplicado por dos y por treinta. Hizo
 falta porque el formato cambió seis veces en diez años —y el separador de miles
-pasó de punto a coma en la tabla 39—, así que ninguna etiqueta es confiable pero
-la aritmética sí.
+pasó de punto a coma en la 39—: ninguna etiqueta es confiable, la aritmética sí.
+
+**Un valor con vigencia futura es válido, y hasta el 1/9/2026 no lo era.** El
+Ministerio publica el UHOM por trimestres: la serie trae octubre, noviembre y
+diciembre desde septiembre y nadie tiene que acordarse del día 1. La prohibición
+existía porque `uma-uhom.html` tomaba el **último del archivo** como vigente
+—las otras tres ya tomaban el último que ya rige—; arreglada esa, quedó sin
+motivo. **Garantizar que no haya futuros no era lo que hacía falta: hacía falta
+que siempre haya alguno vigente.** Las futuras van apagadas y con «aún no rige».
 
 **`npm run verificar-series` corre en el build**, antes de armar el sitio. Un
-archivo cargado a mano se rompe de tres formas y las tres dan un número
-plausible que nadie ve en un diff de 67 líneas: una vigencia repetida, una serie
-que baja, una fecha de acto anterior a la vigencia.
+archivo cargado a mano se rompe de cuatro formas y las cuatro dan un número
+plausible que nadie ve en un diff de 70 líneas: una vigencia repetida, una serie
+que baja, una fecha de acto anterior a la vigencia, y ningún valor vigente.
 
 ### Ningún día inhábil se decide en código
 

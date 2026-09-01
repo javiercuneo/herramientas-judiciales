@@ -19,6 +19,25 @@ de 2026.
 
 ---
 
+## Cómo se leyeron los PDF de la Corte — cerrado el 1/9
+
+Baja de `ESTADO.md`, donde figuraba como «una de las tres cosas que aparecieron
+leyendo». La reconstrucción de la serie está hecha y versionada, así que esto ya
+no es algo con lo que alguien se vaya a topar: es cómo se hizo.
+
+**Ocho de los 50 PDF de la Corte no tienen capa de texto**: dibujan las letras
+como trazos y `pdftotext` devuelve cero. Son las acordadas 36/2020, 1/2021,
+7/2021, 12/2021, 21/2021, 4/2022, 12/2022 y la res. 2722/2023. Hubo que
+rasterizarlos.
+
+Y las acordadas de 2018 y 2019 llevan **la fecha del acto escrita a mano en el
+original**: el valor y la vigencia están impresos y se leen del texto, la fecha
+no. Por eso esos valores llevan `fecha_leida_a_mano` y la página los marca con
+un § en la columna del acto. Esa marca sigue viva y está explicada en la propia
+tabla; lo que baja acá es de dónde salió.
+
+---
+
 ## El banco de navegación del tablero, y el bug que encontró — cerrado el 1/9
 
 `ESTADO.md` lo pedía con nombre desde el 31/8: **el tablero no tenía banco de
