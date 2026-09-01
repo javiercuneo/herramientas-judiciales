@@ -98,6 +98,21 @@ jobs:
       # que le pedia la UMA a una planilla de Google desde una llamada
       # escondida a cuatrocientas lineas del calculo. Un host nuevo no rompe
       # nada visible, asi que sin este control entra en silencio.
+      # La tabla del anexo de la Acordada 5/2010 se transcribio de una IMAGEN
+      # escaneada: 45 filas por cinco columnas, o sea 225 oportunidades de
+      # errar un digito, y un digito de mas en una distancia devuelve un plazo
+      # plausible y equivocado. La propia tabla trae con que controlarse ---los
+      # dias publicados salen de las distancias por una regla escrita--- y eso
+      # es lo que se comprueba.
+      - name: Verificar la tabla de la Acordada 5/2010
+        run: npm run verificar-acordada
+
+      # El computo de la ampliacion por distancia, y sobre todo la busqueda en
+      # esa tabla: un nombre que no matchea cae en silencio a la ruta y da otro
+      # numero; uno que matchea de mas da los dias de otra ciudad.
+      - name: Verificar el computo de la ampliacion por distancia
+        run: npm run verificar-distancia
+
       - name: Verificar que terceros nombra el sitio
         run: npm run verificar-red
 

@@ -3,322 +3,392 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>Ampliación por distancia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <script src="../assets/tema.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* ==================================================================
+           distancia.html — rehecha de cero el 1/9/2026
+
+           POR QUE DE CERO Y NO PARCHEADA. La pantalla anterior estaba al reves,
+           y no de forma: al reves en FIDELIDAD. Preguntaba primero por la linea
+           recta ---Haversine--- y ofrecia la ruta como un boton al costado; la
+           tabla de la Corte no existia. Ese orden era el orden en que se habia
+           construido ---primero el haversine, despues la ruta--- y no el orden
+           en que la norma manda. Javier: «esta al reves, porque en fidelidad,
+           esta al reves».
+
+           AHORA HAY UN SOLO BOTON y la pantalla elige la fuente, de mas fiel a
+           menos: la tabla de la Acordada 5/2010, la ruta terrestre, y la linea
+           recta como piso. Siempre dice cual uso y por que, y ofrece ver las
+           otras. La aritmetica no vive aca: esta en js/distancia.js, que corre
+           en Node y tiene banco ---npm run verificar-distancia---.
+
+           LO QUE SE FUE, todo a pedido de Javier:
+
+           - El bloque ambar de «Advertencia Legal & Método de Cálculo», que
+             era media pantalla de documentacion y encima **declaraba que la
+             herramienta fue generada mediante Inteligencia Artificial**, como
+             pidiendo disculpas. Eso ya se habia desterrado del repositorio y
+             sobrevivia solo aca.
+           - El aviso de red gigante arriba de todo. Ahora es un <details>
+             cerrado. El motivo esta escrito abajo, en su propio comentario.
+           - «(Arg)» en los dos rotulos, «Fuente: API GEOREF» repetido adentro
+             de la pestaña Argentina, «Buscar localidad argentina...» en el
+             placeholder y «(Argentina)» en el boton. Cinco veces el mismo dato
+             en una pantalla donde ya lo dice la pestaña elegida.
+           - «(OSRM)» en un boton: el nombre del servicio es documentacion, no
+             una pregunta que el usuario tenga que contestar. Sigue dicho, pero
+             al lado del resultado que produjo.
+           - Los inputs y los botones al 100% del ancho. Vale el criterio de
+             vencimientos: cada control ocupa lo que mide su contenido, y lo
+             unico grande es el resultado.
+           - El resultado abajo del formulario. Va a la derecha, como en las
+             otras nueve.
+
+           OJO CON LOS TOKENS: no redefinir aca --accent, --bg, --card ni
+           --error. `--accent: var(--accent)` es un ciclo y deja la variable en
+           la cadena vacia, sin ningun error visible.
+
+           Y OJO CON LOS COMENTARIOS: un cierre de comentario de mas ---asterisco
+           y barra--- corta el comentario antes de tiempo, la prosa que sigue se
+           parsea como CSS y mata en silencio la regla siguiente. Paso en este
+           mismo archivo el 1/9 y salio un mapa con la tierra negra a fondo
+           pleno; y volvio a pasar al escribir ESTE parrafo, porque nombrar la
+           secuencia adentro de un comentario es escribirla. Por eso va en
+           palabras.
+           ================================================================== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-sans);
             background: var(--bg);
-            padding: 2rem 1rem;
+            min-height: 100vh;
+            padding: 26px 20px 40px;
+            font-size: 14px;
             color: var(--fg);
         }
 
-        /* Era una tarjeta que envolvia la pagina entera: titulo, formulario y
-           resultado adentro de un solo recuadro de 40px. Puesta en el tablero
-           quedaba una tarjeta adentro de un panel adentro de la pagina, tres
-           niveles de encierro para una cosa. Ahora es lo que es ---la hoja--- y
-           la tarjeta la traen los bloques que la necesitan, que es el patron de
-           vencimientos y de las otras cuatro. */
-        .main-container {
-            max-width: 940px;
-            margin: 0 auto;
+        .hoja { max-width: 940px; margin: 0 auto; }
+
+        /* ---------------------------------------------------------- cabecera */
+        .cabecera {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .titulo { display: flex; flex-direction: column; gap: 5px; }
+
+        .cabecera h1 {
+            font-family: var(--font-meter);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .cabecera h1 span { color: var(--accent); }
+
+        .subtitulo { font-size: 12.5px; color: var(--muted-fg); }
+
+        .cobertura {
+            font-size: 12px;
+            color: var(--faint);
+            max-width: 44ch;
+            text-align: right;
         }
 
-        /* Los dos paneles reales: el que tiene el formulario y el que tiene la
-           respuesta. Antes no existian porque el recuadro de afuera hacia de
-           los dos. */
-        .tab-content.active {
+        /* ------------------------------------------------- las dos columnas */
+        .tablero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .tablero { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        .panel {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 22px 24px;
         }
 
-        /* El titulo iba entero en --accent, a 28px y centrado. Puesto al lado
-           de las otras cinco en el tablero era la unica asi. El patron de
-           vencimientos, que es la pantalla de referencia: a la izquierda, en
-           font-meter, 21px, y con la SEGUNDA mitad en el acento ---la primera
-           dice de que tipo de herramienta se trata y la segunda, de que---. */
-        h1 {
-            font-family: var(--font-meter);
-            font-size: 21px;
+        .grupo { margin-bottom: 20px; }
+        .grupo:last-child { margin-bottom: 0; }
+
+        .rotulo {
+            display: block;
+            font-size: 11px;
             font-weight: 700;
-            letter-spacing: -0.01em;
-            color: var(--fg);
-            margin-bottom: 5px;
-            text-align: left;
-        }
-        h1 span { color: var(--accent); }
-
-        .subtitle {
-            text-align: left;
-            color: var(--muted-fg);
-            margin-bottom: 24px;
-            font-size: 12.5px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin-bottom: 8px;
         }
 
-        /* El aviso de que esta pagina si consulta afuera.
-           Neutro y no en --warn: es informacion, no un peligro. La unica
-           calculadora del sitio que manda algo escrito por el usuario a un
-           tercero es esta, y quien la usa tiene derecho a saberlo sin tener
-           que leer el codigo. */
-        .aviso-red {
+        /* --------------------------------------------------- el segmentado */
+        .segmentado {
+            display: inline-flex;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 3px;
             background: var(--sunk);
-            border: 1px solid var(--hair);
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 24px;
-            font-size: 12.5px;
-            line-height: 1.6;
-            color: var(--muted-fg);
-        }
-        .aviso-red strong { color: var(--fg); }
-
-        /* TABS */
-        .tabs {
-            display: flex;
-            /* Sin wrap, las dos solapas en fila desbordaban por debajo de
-               los 370px de ancho. */
+            gap: 3px;
+            max-width: 100%;
             flex-wrap: wrap;
-            gap: 0.8rem;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 0.5rem;
         }
+        .segmentado label {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted-fg);
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+        .segmentado label small { font-size: 11px; font-weight: 400; opacity: 0.82; }
+        .segmentado input { position: absolute; opacity: 0; pointer-events: none; }
+        .segmentado label:hover { color: var(--fg); }
+        .segmentado label.elegida { background: var(--accent); color: var(--on-accent); }
+        .segmentado label:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-        .tab-btn {
+        /* ------------------------------------------------------- los campos
+           Un nombre de localidad no es un numero: va alineado a la izquierda y
+           con la tipografia del texto, no con la de las cifras. Y mide 26ch,
+           que entra «San Fernando del Valle de Catamarca» sin ocupar la
+           tarjeta entera. */
+        .campo { display: flex; flex-direction: column; margin-bottom: 18px; }
+        .campo:last-child { margin-bottom: 0; }
+
+        .fila-campo { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+        input[type="text"] {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 500;
+            text-align: left;
+            width: 26ch;
+            max-width: 100%;
+            padding: 9px 11px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--fg);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-tint);
+        }
+        input.mal { border-color: var(--error); box-shadow: 0 0 0 3px var(--error-tint); }
+
+        .pie-campo { font-size: 11px; color: var(--faint); margin-top: 6px; }
+
+        /* La localidad elegida. Sin esto no hay forma de saber cual de las cinco
+           sugerencias quedó, que es justo lo que decide el número. */
+        .elegido {
+            display: none;
+            margin-top: 7px;
+            font-size: 12px;
+            color: var(--fg);
+        }
+        .elegido.visible { display: block; }
+        .elegido b { font-weight: 600; }
+        .elegido .coord { color: var(--faint); font-variant-numeric: tabular-nums; }
+
+        /* ------------------------------------------------------ sugerencias */
+        .caja-sugerencias { position: relative; }
+        .sugerencias {
+            position: absolute;
+            z-index: 20;
+            top: calc(100% + 4px);
+            left: 0;
+            width: 30ch;
+            max-width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            box-shadow: 0 8px 26px rgb(0 0 0 / 0.14);
+            overflow: hidden;
+            display: none;
+        }
+        .sugerencias.visible { display: block; }
+        .sugerencia {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 9px 12px;
+            font-size: 13px;
             background: transparent;
             border: none;
-            font-size: 1.1rem;
-            font-weight: 600;
-            padding: 0.6rem 1.5rem;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: var(--muted-fg);
-            font-family: var(--font-sans);
-        }
-
-        .tab-btn.active {
-            background: var(--accent);
-            color: var(--on-accent);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        .tab-btn:not(.active):hover {
-            background: var(--sunk);
-            color: var(--accent);
-        }
-
-        .tab-content {
-            display: none;
-            animation: fade 0.25s ease;
-        }
-
-        .tab-content.active { display: block; }
-
-        @keyframes fade {
-            from { opacity: 0; transform: translateY(6px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-
-        .info-api {
-            font-size: 0.75rem;
-            background: var(--sunk);
-            display: inline-block;
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            color: var(--accent);
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.6rem;
-            position: relative;
-        }
-
-        label {
-            font-weight: 600;
-            display: block;
-            margin-bottom: 0.4rem;
+            border-radius: 0;
             color: var(--fg);
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        input {
-            flex: 1;
-            padding: 0.8rem 1rem;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: 0.2s;
-            background: var(--card);
-            font-family: var(--font-sans);
-        }
-
-        input:focus {
-            border-color: var(--accent);
-            outline: none;
-        }
-
-        /* --border es un color translucido de linea, no una superficie:
-           usado como fondo dejaba el boton casi transparente y con el
-           texto blanco que hereda de comun.css. Contraste medido: 1.00. */
-        .input-group button {
-            background: var(--sunk);
-            color: var(--fg);
-            border: 1px solid var(--border);
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
+        }
+        .sugerencia:hover, .sugerencia:focus-visible { background: var(--accent-tint); color: var(--accent); }
+        .sugerencia small { display: block; color: var(--faint); font-size: 11px; margin-top: 1px; }
+        .sugerencia.inerte { color: var(--faint); cursor: default; }
+        .sugerencia.inerte:hover { background: transparent; color: var(--faint); }
+
+        /* --------------------------------------------------------- acciones */
+        .acciones { display: flex; gap: 10px; margin-top: 22px; }
+
+        button {
             font-family: var(--font-sans);
-        }
-
-        .input-group button:hover {
-            background: var(--border);
-        }
-
-        .sugerencias {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-top: 6px;
-            max-height: 200px;
-            overflow-y: auto;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
-            z-index: 100;
-            position: relative;
-        }
-
-        .sugerencia-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            border-bottom: 1px solid var(--border);
-            transition: 0.1s;
-        }
-
-        .sugerencia-item:hover {
-            background: var(--sunk);
-            color: var(--accent);
-        }
-
-        .btn-calcular {
-            background: var(--accent);
-            color: var(--on-accent);
+            font-size: 14px;
+            font-weight: 600;
             border: none;
-            padding: 0.9rem 1.8rem;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 8px;
+            border-radius: 9px;
+            padding: 11px 22px;
             cursor: pointer;
-            width: 100%;
-            margin-top: 0.5rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s;
-            font-family: var(--font-sans);
+            transition: transform 0.12s, box-shadow 0.15s, background 0.15s, color 0.15s;
+        }
+        .btn-calcular { background: var(--accent); color: var(--on-accent); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
+        .btn-calcular:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--accent-tint); }
+        .btn-calcular:disabled { opacity: 0.55; cursor: default; transform: none; box-shadow: none; }
+        .btn-suave { background: transparent; color: var(--muted-fg); border: 1px solid var(--border); }
+        .btn-suave:hover { color: var(--fg); background: var(--sunk); }
+
+        .aviso-error {
+            display: none;
+            margin-top: 14px;
+            font-size: 13px;
+            color: var(--error);
+        }
+        .aviso-error.visible { display: block; }
+
+        /* ------------------------------------------------------- el resultado */
+        .espera {
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            padding: 30px 26px;
+            color: var(--faint);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .espera b {
+            display: block;
+            font-family: var(--font-meter);
+            font-size: 15px;
+            color: var(--muted-fg);
+            margin-bottom: 6px;
         }
 
-        .btn-calcular:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgb(0 0 0 / 0.18);
+        .veredicto {
+            background: var(--accent);
+            color: var(--on-accent);
+            border-radius: 14px;
+            padding: 24px 26px;
         }
-
-        .resultado-container, .trazabilidad-container {
-            border-left-color: var(--accent);
-            background: var(--sunk);
-            font-size: 0.9rem;
+        .veredicto .rotulo { color: inherit; opacity: 0.82; margin-bottom: 5px; }
+        .veredicto .cifra {
+            font-family: var(--font-meter);
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
         }
+        .veredicto .glosa { font-size: 13px; opacity: 0.88; margin-top: 8px; line-height: 1.5; }
 
-        .trazabilidad-container {
-            border-left-color: var(--accent);
-            background: var(--sunk);
-            font-size: 0.9rem;
-        }
-
-        .resultado-container h3 {
+        /* La chapa que dice DE DONDE salio el numero. Es lo mas importante de
+           la pantalla despues del numero: tres fuentes distintas con tres
+           grados de fidelidad distintos, y la que se uso cambia cuanto vale la
+           respuesta. */
+        .fuente {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 14px;
+            padding: 5px 11px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            background: var(--card);
             color: var(--accent);
-            font-size: 1.3rem;
         }
+        .fuente .punto { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
-        /* ------------------------------------------------------------- el mapa
-           La distancia dibujada. Existe porque una recta entre dos puntos dice
-           cosas que "487,32 km" no dice: si hay que cruzar el pais o si es la
-           provincia de al lado.
-
-           LA REGLA QUE LO GOBIERNA, y es la unica que no se puede aflojar: el
-           dibujo no puede contradecir al numero. El art. 158 se computa por ruta
-           terrestre ---criterio de la CSJN, Fallos 304:1345--- y la ruta es mas
-           larga que la recta. Un mapa que dibuja una recta al lado de un numero
-           que salio de la ruta miente con la autoridad que tiene un dibujo. Por
-           eso cada linea lleva SU numero en la referencia, y cuando estan las
-           dos se ven las dos.
-
-           El contorno sale de data/contorno-argentina.json, que es la capa
-           oficial del IGN simplificada. Si el archivo no carga, no hay mapa y el
-           calculo sigue: el mapa es lectura, no es el resultado. */
-        .mapa-caja {
-            margin-top: 0.9rem;
+        .bloque {
+            margin-top: 16px;
             border: 1px solid var(--border);
             border-radius: 12px;
-            background: var(--card);
-            padding: 12px 14px 10px;
+            padding: 14px 16px;
         }
+        .bloque h2 {
+            font-family: var(--font-meter);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin-bottom: 8px;
+        }
+        .bloque p { font-size: 13px; line-height: 1.6; color: var(--muted-fg); margin-bottom: 7px; }
+        .bloque p:last-child { margin-bottom: 0; }
+        .bloque b { color: var(--fg); font-weight: 600; }
+        .bloque .num { font-family: var(--font-meter); font-variant-numeric: tabular-nums; }
+        .bloque a { color: var(--accent); text-decoration: none; }
+        .bloque a:hover { text-decoration: underline; }
+
+        /* Las fuentes que NO se usaron. Van al pie del resultado, chicas: son
+           para contrastar, no para decidir. Que esten a la vista es lo que hace
+           que la eleccion de la pantalla se pueda discutir. */
+        .otras { margin-top: 14px; }
+        .otras .linea {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 7px 0;
+            font-size: 12.5px;
+            color: var(--muted-fg);
+            border-top: 1px solid var(--hair);
+        }
+        .otras .linea b { color: var(--fg); font-family: var(--font-meter); font-variant-numeric: tabular-nums; }
+
+        .cargando-ruta { font-size: 12.5px; color: var(--faint); margin-top: 12px; }
+
+        /* ------------------------------------------------------------- el mapa
+           Igual que el 1/9, con la misma regla: el dibujo no puede contradecir
+           al numero, asi que cada linea lleva SU distancia en la referencia.
+           Lo unico que cambio es que ahora tambien puede dibujar el par de la
+           tabla de la Corte, y ahi la linea recta va sola y con su aclaracion:
+           la Corte no publica el trazado, publica los kilometros. */
+        .mapa-caja { margin-top: 16px; }
         .mapa-caja[hidden] { display: none; }
 
         .mapa-caja svg {
             display: block;
-            /* Tope de 620, que es el ancho del viewBox: mas grande no gana
-               detalle ---el contorno esta simplificado a 2 km--- y se come media
-               pantalla. */
             width: 100%;
             max-width: 620px;
             height: auto;
             margin: 0 auto;
-            border-radius: 8px;
+            border-radius: 10px;
             background: var(--sunk);
         }
 
-        /* El agua no se dibuja: lo que no es tierra es el fondo de la caja. Un
-           mar pintado pediria una capa mas y no agrega nada a la lectura.
-
-           LA TIERRA NO USA UN TOKEN DE SUPERFICIE, y no es un descuido. Las tres
-           superficies del sistema son casi el mismo color a proposito: --card
-           sobre --sunk da 1,1 de contraste en claro y 1,2 en oscuro. La primera
-           version pintaba la tierra de --card sobre agua --sunk y en tema oscuro
-           el mapa era un rectangulo negro: se veian los puntos y las lineas
-           flotando sobre nada.
-
-           Se resuelve con --fg a opacidad baja en vez de un color plano nuevo.
-           Sale del sistema, se da vuelta solo con el tema ---en claro oscurece
-           el agua clara, en oscuro aclara el agua oscura--- y no agrega ningun
-           color que haya que calibrar dos veces. El trazo de la costa es el
-           mismo token, y es lo que hace que se lea como un mapa.
-
-           Las dos opacidades estan calibradas y no elegidas a ojo, con la cuenta
-           hecha AFUERA del navegador ---del token contra la superficie
-           compuesta--- que es lo unico confiable cuando el panel esta oculto.
-           El trazo a 0,5 da 3,37 en claro y 4,78 en oscuro contra --sunk, o sea
-           que pasa el 3:1 que WCAG le pide a un objeto grafico con significado
-           en los dos temas. A 0,3 daba 2,53 en claro y no pasaba. */
+        /* LA TIERRA NO USA UN TOKEN DE SUPERFICIE, y no es un descuido: las tres
+           superficies del sistema son casi el mismo color a proposito ---card
+           sobre sunk da 1,1 en claro y 1,2 en oscuro--- y pintada asi el mapa
+           salia un rectangulo negro. Va --fg a opacidad baja: sale del sistema
+           y se da vuelta sola con el tema. El trazo a 0,5 da 3,37 en claro y
+           4,78 en oscuro contra --sunk, o sea que pasa el 3:1 que WCAG le pide
+           a un objeto grafico con significado, en los dos temas. La cuenta se
+           hizo afuera del navegador, del token contra la superficie compuesta. */
         .mapa-tierra {
             fill: var(--fg);
             fill-opacity: 0.13;
@@ -326,13 +396,8 @@
             stroke-opacity: 0.5;
             stroke-width: 0.8;
         }
-
-        /* La recta va punteada y en gris, la ruta llena y en el acento. No es
-           decoracion: es lo que dice de un vistazo cual de las dos es la que
-           funda el numero cuando estan las dos. */
         .mapa-recta { fill: none; stroke: var(--muted-fg); stroke-width: 1.6; stroke-dasharray: 5 4; }
         .mapa-ruta  { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
-
         .mapa-punto { fill: var(--accent); stroke: var(--card); stroke-width: 1.6; }
         .mapa-rotulo {
             font-family: var(--font-sans);
@@ -344,7 +409,6 @@
             stroke-width: 3px;
             stroke-linejoin: round;
         }
-
         .mapa-referencia {
             display: flex;
             flex-wrap: wrap;
@@ -363,870 +427,969 @@
         }
         .mapa-referencia .llave.recta { border-top: 2px dashed var(--muted-fg); }
         .mapa-referencia .llave.ruta { border-top: 3px solid var(--accent); }
+        .mapa-nota { margin-top: 8px; font-size: 11.5px; line-height: 1.5; color: var(--faint); }
 
-        .mapa-nota {
-            margin-top: 8px;
-            font-size: 11.5px;
-            line-height: 1.5;
+        /* ------------------------------------------------------------- el pie
+           LO QUE SALE DEL NAVEGADOR, y por que ahora es un <details> cerrado.
+
+           Estaba arriba de todo, en un bloque grande, y Javier tenia razon en
+           las dos cosas que dijo. Una: al gritarlo aca, la pantalla insinua que
+           en el resto del sitio SI sale algo, que es exactamente al reves de lo
+           que pasa. Dos: el dato es una localidad. No es un domicilio, no
+           identifica a nadie, y no viaja con ningun otro dato que permita
+           atarlo a una persona ni a un expediente.
+
+           Asi que se dice, entero y sin recortar nada ---la promesa no se
+           afloja--- pero con el peso que tiene: una linea que se abre. El que
+           quiere saberlo lo encuentra; el que viene a computar un plazo no
+           tiene que leer un parrafo de privacidad antes de escribir la primera
+           localidad. */
+        .pie { margin-top: 26px; }
+
+        details.red {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            background: var(--card);
+        }
+        details.red summary {
+            cursor: pointer;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--muted-fg);
+            list-style: none;
+        }
+        details.red summary::-webkit-details-marker { display: none; }
+        details.red summary::before {
+            content: '▸';
+            display: inline-block;
+            margin-right: 7px;
+            color: var(--faint);
+            transition: transform 0.15s;
+        }
+        details.red[open] summary::before { transform: rotate(90deg); }
+        details.red summary:hover { color: var(--fg); }
+        details.red .cuerpo { font-size: 12.5px; line-height: 1.65; color: var(--muted-fg); margin-top: 10px; }
+        details.red .cuerpo p { margin-bottom: 8px; }
+        details.red .cuerpo p:last-child { margin-bottom: 0; }
+        details.red .cuerpo b { color: var(--fg); }
+        details.red .cuerpo a { color: var(--accent); text-decoration: none; }
+
+        .metodo {
+            margin-top: 14px;
+            font-size: 12px;
+            line-height: 1.65;
             color: var(--faint);
         }
-        .mapa-nota a { color: var(--accent); text-decoration: none; }
+        .metodo a { color: var(--accent); text-decoration: none; }
+        .metodo a:hover { text-decoration: underline; }
 
-        .legal-warning {
-            margin-top: 2rem;
-            background: var(--warn-tint);
-            border-left: 6px solid var(--warn);
-            border-radius: 12px;
-            padding: 1.2rem 1.5rem;
-            font-size: 0.8rem;
-            color: var(--warn);
+        .firma {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--muted-fg);
+            font-size: 13px;
+            line-height: 1.8;
         }
+        .firma a { color: var(--accent); text-decoration: none; }
 
-        .legal-warning h3 {
-            font-size: 0.95rem;
-            margin-bottom: 0.5rem;
-            color: var(--warn);
-        }
-
-        .legal-warning p {
-            margin: 0.6rem 0;
-            line-height: 1.4;
-        }
-
-        .legal-warning a {
-            color: var(--accent);
-            text-decoration: none;
-            border-bottom: 1px dotted;
-        }
-
-        .legal-warning a:hover {
-            color: #0a3b5c;
-        }
-
-        /* Esto era una copia pegada de las reglas de escritorio metida adentro
-           de un @media de 640px: volvia a poner el padding de 40px, el
-           max-width de 900 y el h1 centrado en violeta JUSTO en el ancho donde
-           habia que hacer lo contrario. O sea que el archivo tenia dos veces
-           cada regla y la de abajo ganaba en el telefono. Ahora dice lo que
-           tiene que decir un @media: solo lo que cambia. */
         @media (max-width: 640px) {
-            .tab-content.active { padding: 18px 16px; }
-            h1 { font-size: 19px; }
-            .tab-btn { font-size: 0.95rem; padding: 0.55rem 1rem; }
+            body { padding: 20px 14px 32px; }
+            .cabecera h1 { font-size: 19px; }
+            .cobertura { text-align: left; }
+            .panel { padding: 18px 16px; }
         }
     </style>
 </head>
 <body>
 
-<div class="main-container">
-    <h1>Ampliación por <span>distancia</span></h1>
-    <p class="subtitle">
-        Art. 158 CPCCN: un día cada 200 km o fracción que no baje de 100.
-    </p>
+<div class="hoja">
 
-    <p class="aviso-red">
-        <strong>Lo que escribís acá sale del navegador.</strong> Los nombres de
-        localidad se consultan contra tres servicios de terceros para resolver
-        las coordenadas y la ruta: GEOREF (Datos Argentina), Open-Meteo Geocoding
-        y OSRM. No sale nada más —ni fechas, ni plazos, ni nada del expediente—
-        pero el lugar sí. <strong>Es la única calculadora del sitio que consulta
-        afuera:</strong> las de plazos leen los feriados y las ferias de archivos
-        de este mismo sitio y no hablan con nadie.
-    </p>
+    <header class="cabecera">
+        <div class="titulo">
+            <h1>Ampliación por <span>distancia</span></h1>
+            <p class="subtitulo">
+                Art. 158 CPCCN: un día cada 200 km o fracción que no baje de 100.
+            </p>
+        </div>
+        <p class="cobertura solo-suelta" id="cobertura">Cargando la tabla de la Corte…</p>
+    </header>
 
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="argentina">Argentina</button>
-        <button class="tab-btn" data-tab="internacional">Internacional</button>
+    <div class="tablero">
+
+        <!-- ------------------------------------------------ el formulario -->
+        <div class="panel">
+            <div class="grupo">
+                <span class="rotulo">Dónde</span>
+                <div class="segmentado" role="radiogroup" aria-label="Ámbito">
+                    <label class="elegida" for="ambitoPais">
+                        <input type="radio" name="ambito" id="ambitoPais" value="pais" checked>
+                        En el país
+                        <small>incluye las islas del Atlántico Sur</small>
+                    </label>
+                    <label for="ambitoExterior">
+                        <input type="radio" name="ambito" id="ambitoExterior" value="exterior">
+                        En el exterior
+                        <small>otro país</small>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grupo">
+                <div class="campo">
+                    <span class="rotulo">Asiento del juzgado</span>
+                    <div class="caja-sugerencias">
+                        <div class="fila-campo">
+                            <input type="text" id="origen" autocomplete="off"
+                                   placeholder="Congreso de la Nación" aria-label="Asiento del juzgado">
+                            <button type="button" class="btn-suave" id="btnLimpiarOrigen"
+                                    style="padding:8px 12px; font-size:12.5px">Limpiar</button>
+                        </div>
+                        <div class="sugerencias" id="sugOrigen" role="listbox"></div>
+                    </div>
+                    <div class="elegido" id="elegidoOrigen"></div>
+                </div>
+
+                <div class="campo">
+                    <span class="rotulo">Lugar de la diligencia</span>
+                    <div class="caja-sugerencias">
+                        <div class="fila-campo">
+                            <input type="text" id="destino" autocomplete="off"
+                                   placeholder="Escribí una localidad" aria-label="Lugar de la diligencia">
+                        </div>
+                        <div class="sugerencias" id="sugDestino" role="listbox"></div>
+                    </div>
+                    <div class="elegido" id="elegidoDestino"></div>
+                </div>
+            </div>
+
+            <div class="acciones">
+                <button class="btn-calcular" id="btnCalcular">Calcular</button>
+                <button class="btn-suave" id="btnLimpiar">Limpiar</button>
+            </div>
+
+            <p class="aviso-error" id="avisoError" role="alert"></p>
+        </div>
+
+        <!-- -------------------------------------------------- el resultado -->
+        <div>
+            <div class="espera" id="espera">
+                <b>Acá va la ampliación.</b>
+                Elegí las dos localidades de la lista. La pantalla busca primero
+                en la tabla de la Corte; si el par no está, mide por ruta
+                terrestre, y si no hay ruta, por línea recta.
+            </div>
+            <div id="resultado" style="display:none"></div>
+        </div>
     </div>
 
-    <div id="argentina" class="tab-content active">
-        <p class="info-api">Fuente: API GEOREF (Datos Argentina)</p>
-        
-        <div class="form-group">
-            <label>Asiento del juzgado (Arg):</label>
-            <div class="input-group">
-                <input type="text" id="argJuzgado" placeholder="Buscar localidad argentina...">
-                <button id="btnLimpiarArg" title="Limpiar">Limpiar</button>
+    <!-- ------------------------------------------------------------- el pie -->
+    <div class="pie">
+        <details class="red">
+            <summary>Los nombres de localidad se consultan afuera</summary>
+            <div class="cuerpo">
+                <p>
+                    Para resolver una localidad a latitud y longitud, y para medir
+                    la ruta, esta página consulta tres servicios de terceros:
+                    <b>GEOREF</b> (Datos Argentina), <b>Open-Meteo Geocoding</b>
+                    y <b>OSRM</b>, sobre datos de OpenStreetMap. Lo único que
+                    sale es el nombre que escribiste y, para la ruta, un par de
+                    coordenadas.
+                </p>
+                <p>
+                    No sale nada más: ni fechas, ni plazos, ni nada del
+                    expediente. La tabla de la Acordada 5/2010 y el mapa son
+                    archivos de este mismo sitio, así que <b>cuando el caso lo
+                    resuelve la tabla, no se consulta a nadie</b>.
+                </p>
+                <p>
+                    <b>Es la única página del sitio que consulta afuera.</b> Las
+                    de plazos leen los feriados y las ferias de archivos de acá y
+                    no hablan con nadie.
+                </p>
             </div>
-            <div id="sugArgJuzgado" class="sugerencias"></div>
-        </div>
+        </details>
 
-        <div class="form-group">
-            <label>Lugar de la diligencia (Arg):</label>
-            <input type="text" id="argDiligencia" placeholder="Buscar localidad argentina...">
-            <div id="sugArgDiligencia" class="sugerencias"></div>
-        </div>
-
-        <button id="btnCalcularArg" class="btn-calcular">Calcular (Argentina)</button>
-        <button id="btnOSRMArg" class="btn-calcular" style="margin-top:0.5rem">Calcular por ruta (OSRM)</button>
-        
-        <div id="resArg" class="resultado-container"></div>
-        <div id="trazArg" class="trazabilidad-container"></div>
-        <div id="osrmArg" class="resultado-container" style="margin-top:0.5rem; border-left-color:var(--accent);"></div>
-
-        <!-- El mapa aparece recién cuando hay dos puntos resueltos: vacío no
-             dice nada y ocupa media pantalla. -->
-        <div id="mapaArg" class="mapa-caja" hidden></div>
-    </div>
-
-    <div id="internacional" class="tab-content">
-        <p class="info-api">Fuente: Open-Meteo Geocoding (Datos Mundiales)</p>
-
-        <div class="form-group">
-            <label>Asiento del juzgado / Origen:</label>
-            <div class="input-group">
-                <input type="text" id="intlJuzgado" placeholder="Ej: Buenos Aires, Madrid, Roma...">
-                <button id="btnLimpiarIntl" title="Limpiar">Limpiar</button>
-            </div>
-            <div id="sugIntlJuzgado" class="sugerencias"></div>
-        </div>
-
-        <div class="form-group">
-            <label>Lugar de la diligencia / Destino:</label>
-            <input type="text" id="intlDiligencia" placeholder="Ej: París, Montevideo, New York...">
-            <div id="sugIntlDiligencia" class="sugerencias"></div>
-        </div>
-
-        <button id="btnCalcularIntl" class="btn-calcular">Calcular (Internacional)</button>
-        <button id="btnOSRMIntl" class="btn-calcular" style="margin-top:0.5rem">Calcular por ruta (OSRM)</button>
-        
-        <div id="resIntl" class="resultado-container"></div>
-        <div id="trazIntl" class="trazabilidad-container"></div>
-        <div id="osrmIntl" class="resultado-container" style="margin-top:0.5rem; border-left-color:var(--accent);"></div>
-
-        <!-- Acá no hay mapa, y es una decisión y no un olvido: el contorno que
-             tiene esta página es el de la Argentina, y un planisferio pesa
-             mucho más que un contorno. Dibujar dos puntos de Europa sobre el
-             mapa de la Argentina sería peor que no dibujar nada. -->
-        <p class="mapa-nota" style="margin-top:1rem">
-            La pestaña internacional no dibuja el mapa: el contorno que tiene
-            esta página es el de la Argentina, y sobre él dos puntos de otro
-            continente no se pueden ubicar. El número se calcula igual.
+        <p class="metodo">
+            El orden de las fuentes no es caprichoso. La
+            <a href="https://www.argentina.gob.ar/normativa/nacional/acordada-5-2010-165599/texto" target="_blank" rel="noopener">Acordada 5/2010</a>
+            de la CSJN publica la distancia entre la Capital Federal y cada asiento
+            federal y los días que de ahí salen: cuando el caso es uno de esos
+            pares no hay nada que calcular. Cuando no lo es, se mide por ruta
+            terrestre, que es lo que la Corte compara. Y la línea recta va
+            última porque nadie viaja en línea recta: sirve de piso, porque la
+            distancia real nunca es menor.
+            <br>
+            La regla de la Corte —Acordada 50/86, recitada en el considerando I
+            de la 5/2010— es tomar <b>la más larga</b> entre la vía férrea y la
+            ruta terrestre. Herramienta de referencia: no sustituye el criterio
+            del juez.
         </p>
-    </div>
 
-    <div class="legal-warning">
-        <h3>Advertencia Legal & Método de Cálculo</h3>
-        <p>Esta calculadora de ampliación de plazo por distancia (art. 158 CPCCN) fue generada mediante Inteligencia Artificial. Es una herramienta complementaria y no sustituye el criterio profesional.</p>
-        <p><strong>Método de Cálculo:</strong> el sistema obtiene la geolocalización (latitud y longitud) de los puntos geográficos indicados mediante la API GEOREF (<a href="https://datosgobar.github.io/georef-ar-api/" target="_blank">https://apis.datos.gob.ar/georef/api/</a>). Con esos datos, y mediante la fórmula de Haversine o del semiverseno procura obtener la distancia lineal en kilómetros, a la que aplica la lógica de 1 día por cada 200 km o fracción que no baje de 100 km. Para datos internacionales utiliza como fuente Open-Meteo Geocoding, y el cálculo por ruta consulta OSRM (<a href="https://router.project-osrm.org" target="_blank" rel="noopener">router.project-osrm.org</a>), sobre datos de OpenStreetMap.</p>
-        <p><strong>NOTA:</strong> la CSJN se atiene a las distancias por ferrocarril (Fallos, 304:1345) y ruta terrestre. Ver al respecto la <a href="https://servicios.infoleg.gob.ar/infolegInternet/anexos/165000-169999/165599/norma.htm" target="_blank">Acordada 5/2010</a> que con fundamento en lo dispuesto por la Acordada Nº 50/86 establece las distancias a los asientos federales para considerar la ampliación de los plazos del art. 158 para interponer las quejas (art. 282 del CPCCN).</p>
-        <p><strong>Utilice la herramienta bajo su propia responsabilidad contrastando el resultado.</strong></p>
-    </div>
-
-    <!-- FOOTER DE AUTORÍA -->
-    <div class="firma solo-suelta" style="margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; color: var(--muted-fg); font-size: 13px; line-height: 1.8;">
-        <span style="font-weight: 500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
-        <span style="display: inline-flex; gap: 12px; margin-top: 4px;">
-            <a href="https://github.com/javiercuneo" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="GitHub personal">GitHub</a>
-            <a href="../index.html" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="Repositorio de herramientas">Herramientas</a>
-            <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;" title="LinkedIn">LinkedIn</a>
-        </span>
+        <div class="firma solo-suelta">
+            <span style="font-weight:500;">L. Javier Cúneo Libarona · Herramienta de referencia: no sustituye el criterio del juez</span><br>
+            <span style="display:inline-flex; gap:12px; margin-top:4px;">
+                <a href="https://github.com/javiercuneo" target="_blank" rel="noopener">GitHub</a>
+                <a href="../index.html" target="_blank" rel="noopener">Herramientas</a>
+                <a href="https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934" target="_blank" rel="noopener">LinkedIn</a>
+            </span>
+        </div>
     </div>
 </div>
 
+<script src="js/distancia.js"></script>
 <script>
-    (function() {
-        // ============================================
-        // 1. GESTIÓN DE PESTAÑAS (TABS)
-        // ============================================
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
+(function () {
+    'use strict';
 
-        const switchTab = (tabId) => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            
-            const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-            const targetContent = document.getElementById(tabId);
-            
-            if (targetBtn && targetContent) {
-                targetBtn.classList.add('active');
-                targetContent.classList.add('active');
-            }
+    // -----------------------------------------------------------------------
+    // Estado. Los dos puntos y lo ultimo que se calculo.
+    // -----------------------------------------------------------------------
+    var CONGRESO = {
+        lat: -34.609867, lon: -58.39254,
+        nombre: 'Congreso de la Nación',
+        detalle: 'Ciudad Autónoma de Buenos Aires'
+    };
+
+    var punto = { origen: null, destino: null };
+    var tablaCorte = null;
+    var contorno = null;
+    var ultimo = null;
+
+    var $ = function (id) { return document.getElementById(id); };
+
+    // -----------------------------------------------------------------------
+    // La tabla de la Corte, que es un archivo de este sitio.
+    // -----------------------------------------------------------------------
+    fetch('../data/acordada-5-2010-distancias.json')
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
+        .then(function (j) {
+            tablaCorte = j;
+            $('cobertura').textContent =
+                'Tabla de la Acordada 5/2010 cargada: ' + j.asientos.length +
+                ' asientos federales, medidos desde la Capital Federal.';
+        })
+        .catch(function () {
+            // Se dice, y no se calla: sin la tabla la pantalla sigue andando
+            // pero pierde la unica fuente que no es una estimacion.
+            $('cobertura').textContent =
+                'No se pudo cargar la tabla de la Acordada 5/2010. Se calcula por ruta ' +
+                'o por línea recta, que son estimaciones.';
+        });
+
+    // -----------------------------------------------------------------------
+    // Los buscadores de localidad.
+    //
+    // Dos servicios segun el ambito. GEOREF es el del Estado argentino y trae
+    // las islas del Atlantico Sur ---«Puerto Argentino» sale como Tierra del
+    // Fuego, Antartida e Islas del Atlantico Sur---, asi que no hace falta
+    // ningun caso especial para que Malvinas se compute como local: ya lo es
+    // para la fuente que se consulta.
+    // -----------------------------------------------------------------------
+    var reloj = { origen: null, destino: null };
+
+    function buscar(cual, texto) {
+        var caja = $(cual === 'origen' ? 'sugOrigen' : 'sugDestino');
+        caja.innerHTML = '';
+        caja.classList.remove('visible');
+        if (texto.trim().length < 3) return;
+
+        clearTimeout(reloj[cual]);
+        reloj[cual] = setTimeout(function () {
+            var enPais = $('ambitoPais').checked;
+            var url = enPais
+                ? 'https://apis.datos.gob.ar/georef/api/localidades?nombre=' +
+                  encodeURIComponent(texto) + '&max=6&campos=nombre,provincia,centroide'
+                : 'https://geocoding-api.open-meteo.com/v1/search?name=' +
+                  encodeURIComponent(texto) + '&count=6&language=es&format=json';
+
+            fetch(url)
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    var items = enPais
+                        ? (d.localidades || []).map(function (l) {
+                            return {
+                                nombre: l.nombre,
+                                detalle: l.provincia.nombre,
+                                lat: l.centroide.lat,
+                                lon: l.centroide.lon
+                            };
+                        })
+                        : (d.results || []).map(function (l) {
+                            return {
+                                nombre: l.name,
+                                detalle: [l.admin1, l.country].filter(Boolean).join(', '),
+                                lat: l.latitude,
+                                lon: l.longitude
+                            };
+                        });
+                    pintarSugerencias(cual, items);
+                })
+                .catch(function () {
+                    pintarSugerencias(cual, null);
+                });
+        }, 300);
+    }
+
+    function pintarSugerencias(cual, items) {
+        var caja = $(cual === 'origen' ? 'sugOrigen' : 'sugDestino');
+        caja.innerHTML = '';
+
+        if (items === null) {
+            caja.innerHTML = '<span class="sugerencia inerte">No se pudo consultar el buscador de localidades.</span>';
+            caja.classList.add('visible');
+            return;
+        }
+        if (!items.length) {
+            caja.innerHTML = '<span class="sugerencia inerte">Ninguna localidad con ese nombre.</span>';
+            caja.classList.add('visible');
+            return;
+        }
+
+        items.forEach(function (it) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'sugerencia';
+            b.setAttribute('role', 'option');
+            var t = document.createElement('span');
+            t.textContent = it.nombre;
+            var s = document.createElement('small');
+            s.textContent = it.detalle;
+            b.append(t, s);
+            b.addEventListener('click', function () { elegir(cual, it); });
+            caja.appendChild(b);
+        });
+        caja.classList.add('visible');
+    }
+
+    function elegir(cual, it) {
+        punto[cual] = it;
+        $(cual).value = it.nombre;
+        $(cual === 'origen' ? 'sugOrigen' : 'sugDestino').classList.remove('visible');
+        pintarElegido(cual);
+        limpiarAviso();
+    }
+
+    // Se muestra QUE localidad quedó elegida, con su provincia y sus
+    // coordenadas. Con cinco «Córdoba» en la lista, sin esto no hay forma de
+    // saber cuál se apretó, y es lo que decide el número.
+    function pintarElegido(cual) {
+        var caja = $(cual === 'origen' ? 'elegidoOrigen' : 'elegidoDestino');
+        var p = punto[cual];
+        if (!p) { caja.classList.remove('visible'); caja.textContent = ''; return; }
+        caja.innerHTML = '';
+        var b = document.createElement('b');
+        b.textContent = p.nombre;
+        var d = document.createElement('span');
+        d.textContent = p.detalle ? ' · ' + p.detalle : '';
+        var c = document.createElement('span');
+        c.className = 'coord';
+        c.textContent = '  ' + p.lat.toFixed(4) + ', ' + p.lon.toFixed(4);
+        caja.append(b, d, c);
+        caja.classList.add('visible');
+    }
+
+    // -----------------------------------------------------------------------
+    // OSRM. Igual que antes en cache y cupo; lo que cambia es como se lee la
+    // respuesta.
+    //
+    // LA DIFERENCIA QUE IMPORTA: un 400 con `code: "NoRoute"` NO es un error del
+    // servicio. Es la respuesta correcta a «¿como se va en auto de Buenos Aires
+    // a Puerto Argentino?»: no se va. Hasta el 1/9 la pantalla mostraba «Error
+    // al consultar OSRM», que dice que fallo algo cuando lo que pasa es que no
+    // hay ruta, y esconde la unica respuesta honesta ---la linea recta, como
+    // piso---.
+    // -----------------------------------------------------------------------
+    var OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
+    var OSRM_LIMITE_DIARIO = 40;
+    var OSRM_CACHE_KEY = 'osrm_cache';
+    var OSRM_COUNTER_KEY = 'osrm_daily_counter';
+    var OSRM_DATE_KEY = 'osrm_date';
+    var OSRM_CACHE_MAXIMO = 25;
+    var RUTA_MAXIMOS_PUNTOS = 400;
+
+    function guardado(k, v) {
+        try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }
+        catch (e) { return null; }
+    }
+
+    function contador() {
+        var hoy = new Date().toDateString();
+        if (guardado(OSRM_DATE_KEY) !== hoy) {
+            guardado(OSRM_DATE_KEY, hoy);
+            guardado(OSRM_COUNTER_KEY, '0');
+            return 0;
+        }
+        return parseInt(guardado(OSRM_COUNTER_KEY) || '0', 10);
+    }
+
+    function sumarConsulta() { guardado(OSRM_COUNTER_KEY, String(contador() + 1)); }
+
+    function claveCache(a, b) {
+        return a.lat.toFixed(4) + ',' + a.lon.toFixed(4) + '_' + b.lat.toFixed(4) + ',' + b.lon.toFixed(4);
+    }
+
+    function leerCache(k) {
+        try { return (JSON.parse(guardado(OSRM_CACHE_KEY) || '{}'))[k] || null; }
+        catch (e) { return null; }
+    }
+
+    // Se poda: cada entrada lleva el trazado y localStorage tira cuando se
+    // llena. Lo que se romperia es el calculo, no el dibujo.
+    function escribirCache(k, datos) {
+        var cache;
+        try { cache = JSON.parse(guardado(OSRM_CACHE_KEY) || '{}'); } catch (e) { cache = {}; }
+        delete cache[k];
+        cache[k] = datos;
+        var claves = Object.keys(cache);
+        for (var i = 0; i < claves.length - OSRM_CACHE_MAXIMO; i++) delete cache[claves[i]];
+        try { guardado(OSRM_CACHE_KEY, JSON.stringify(cache)); }
+        catch (e) {
+            try { guardado(OSRM_CACHE_KEY, JSON.stringify({ k: datos })); } catch (e2) { /* sin cache */ }
+        }
+    }
+
+    // Adelgaza el trazado. `overview=simplified` de OSRM devuelve unos 25 puntos
+    // para 700 km y con eso la ruta sale casi recta: el mapa diria lo contrario
+    // de lo que existe para decir. Se pide `full` y se poda aca. NO TOCA EL
+    // NUMERO: la distancia sale de routes[0].distance, y se comprobo que las
+    // tres formas del parametro dan lo mismo hasta el ultimo decimal.
+    function adelgazar(coords) {
+        if (!Array.isArray(coords) || coords.length <= RUTA_MAXIMOS_PUNTOS) return coords;
+        var dist = function (p, a, b) {
+            var dx = b[0] - a[0], dy = b[1] - a[1];
+            if (dx === 0 && dy === 0) return Math.hypot(p[0] - a[0], p[1] - a[1]);
+            var t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy);
+            t = Math.max(0, Math.min(1, t));
+            return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy));
         };
+        var correr = function (pts, tol) {
+            var guardar = new Uint8Array(pts.length);
+            guardar[0] = 1; guardar[pts.length - 1] = 1;
+            var pila = [[0, pts.length - 1]];
+            while (pila.length) {
+                var par = pila.pop(), ini = par[0], fin = par[1];
+                var peor = 0, cual = -1;
+                for (var i = ini + 1; i < fin; i++) {
+                    var d = dist(pts[i], pts[ini], pts[fin]);
+                    if (d > peor) { peor = d; cual = i; }
+                }
+                if (peor > tol && cual !== -1) { guardar[cual] = 1; pila.push([ini, cual], [cual, fin]); }
+            }
+            return pts.filter(function (_, i) { return guardar[i]; });
+        };
+        var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+        coords.forEach(function (c) {
+            x0 = Math.min(x0, c[0]); x1 = Math.max(x1, c[0]);
+            y0 = Math.min(y0, c[1]); y1 = Math.max(y1, c[1]);
+        });
+        // Se arranca FINO y se afloja: al reves, la primera pasada ya se pasa de
+        // largo y no hay vuelta atras.
+        var tol = (Math.hypot(x1 - x0, y1 - y0) || 1) / 40000;
+        var r = coords;
+        for (var i = 0; i < 30 && r.length > RUTA_MAXIMOS_PUNTOS; i++) { r = correr(coords, tol); tol *= 1.5; }
+        return r.map(function (c) { return [Number(c[0].toFixed(5)), Number(c[1].toFixed(5))]; });
+    }
 
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                switchTab(btn.dataset.tab);
+    // Devuelve { km, trazado } o { sinRuta: true, motivo }.
+    function consultarRuta(a, b) {
+        var clave = claveCache(a, b);
+        var c = leerCache(clave);
+        if (c) return Promise.resolve(c);
+
+        if (contador() >= OSRM_LIMITE_DIARIO) {
+            return Promise.resolve({
+                sinRuta: true,
+                motivo: 'se llegó al tope de ' + OSRM_LIMITE_DIARIO + ' consultas de ruta por día'
             });
-        });
-        switchTab('argentina');
+        }
 
-        // ============================================
-        // 2. CONFIGURACIÓN COMPARTIDA
-        // ============================================
-        const defaultCongreso = { 
-            lat: -34.609867, 
-            lon: -58.39254, 
-            nombre: "Congreso de la Nación (CABA, Argentina)" 
+        var url = OSRM_BASE + '/' + a.lon + ',' + a.lat + ';' + b.lon + ',' + b.lat +
+                  '?overview=full&geometries=geojson';
+
+        return fetch(url)
+            .then(function (r) { return r.json().then(function (j) { return { http: r.status, j: j }; }); })
+            .then(function (res) {
+                var j = res.j;
+                // «NoRoute» es una RESPUESTA y no una falla: quiere decir que no
+                // se puede llegar manejando. Es lo que contesta para Malvinas y
+                // para cualquier destino de otro continente.
+                if (j && j.code === 'NoRoute') {
+                    var r1 = { sinRuta: true, motivo: 'no hay ruta terrestre entre los dos puntos' };
+                    escribirCache(clave, r1);
+                    return r1;
+                }
+                if (!j || j.code !== 'Ok' || !j.routes || !j.routes.length) {
+                    return { sinRuta: true, motivo: 'el servicio de rutas no pudo contestar', falla: true };
+                }
+                var geo = j.routes[0].geometry;
+                var salida = {
+                    km: j.routes[0].distance / 1000,
+                    trazado: (geo && geo.type === 'LineString' && Array.isArray(geo.coordinates))
+                        ? adelgazar(geo.coordinates) : null
+                };
+                sumarConsulta();
+                escribirCache(clave, salida);
+                return salida;
+            })
+            .catch(function () {
+                return { sinRuta: true, motivo: 'no se pudo consultar el servicio de rutas', falla: true };
+            });
+    }
+
+    // -----------------------------------------------------------------------
+    // El cálculo. Tres fuentes, en orden de fidelidad.
+    // -----------------------------------------------------------------------
+    function limpiarAviso() {
+        $('avisoError').textContent = '';
+        $('avisoError').classList.remove('visible');
+        $('origen').classList.remove('mal');
+        $('destino').classList.remove('mal');
+    }
+
+    function avisar(texto, campos) {
+        $('avisoError').textContent = texto;
+        $('avisoError').classList.add('visible');
+        (campos || []).forEach(function (c) { $(c).classList.add('mal'); });
+    }
+
+    var km = function (n) {
+        return n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' km';
+    };
+    var dias = function (n) { return n + (n === 1 ? ' día' : ' días'); };
+
+    function calcular() {
+        limpiarAviso();
+
+        var faltan = [];
+        if (!punto.origen) faltan.push('origen');
+        if (!punto.destino) faltan.push('destino');
+        if (faltan.length) {
+            avisar('Elegí las dos localidades de la lista que aparece al escribir. ' +
+                   'Escribirlas a mano no alcanza: hacen falta las coordenadas.', faltan);
+            return;
+        }
+
+        var a = punto.origen, b = punto.destino;
+
+        // 1. LA TABLA DE LA CORTE. Es local y no consulta a nadie.
+        var corte = tablaCorte
+            ? Distancia.porLaCorte(nombreCompleto(a), nombreCompleto(b), tablaCorte)
+            : null;
+
+        var recta = Distancia.porLineaRecta(a.lat, a.lon, b.lat, b.lon);
+
+        if (corte) {
+            ultimo = { a: a, b: b, corte: corte, recta: recta, ruta: null };
+            pintar();
+            return;
+        }
+
+        // 2. LA RUTA. Se muestra el resultado por recta mientras tanto, para no
+        //    dejar la pantalla en blanco esperando a un tercero.
+        ultimo = { a: a, b: b, corte: null, recta: recta, ruta: null, esperandoRuta: true };
+        pintar();
+
+        consultarRuta(a, b).then(function (r) {
+            ultimo.esperandoRuta = false;
+            ultimo.ruta = r;
+            pintar();
+        });
+    }
+
+    // GEOREF devuelve el nombre y la provincia por separado; para buscar en la
+    // tabla conviene probar con los dos.
+    function nombreCompleto(p) {
+        return p.detalle ? p.nombre + ', ' + p.detalle : p.nombre;
+    }
+
+    // -----------------------------------------------------------------------
+    // Pintar el resultado.
+    // -----------------------------------------------------------------------
+    function pintar() {
+        var u = ultimo;
+        if (!u) return;
+
+        $('espera').style.display = 'none';
+        var caja = $('resultado');
+        caja.style.display = '';
+        caja.innerHTML = '';
+
+        // Cual manda: corte > ruta > recta.
+        var manda, chapa, esPiso = false;
+        if (u.corte) {
+            manda = u.corte;
+            chapa = 'Tabla de la Corte';
+        } else if (u.ruta && !u.ruta.sinRuta) {
+            manda = Distancia.porRuta(u.ruta.km);
+            chapa = 'Ruta terrestre';
+        } else {
+            manda = u.recta;
+            chapa = 'Línea recta';
+            esPiso = true;
+        }
+
+        // ------------------------------------------------------- el veredicto
+        var v = document.createElement('div');
+        v.className = 'veredicto';
+        var rot = document.createElement('span');
+        rot.className = 'rotulo';
+        rot.textContent = esPiso ? 'La ampliación es de al menos' : 'Ampliación del plazo';
+        var cifra = document.createElement('div');
+        cifra.className = 'cifra';
+        cifra.textContent = manda.dias === 0 ? 'No corresponde' : dias(manda.dias);
+        v.append(rot, cifra);
+
+        var glosa = document.createElement('p');
+        glosa.className = 'glosa';
+        if (manda.dias === 0) {
+            glosa.textContent = 'La distancia es de ' + km(manda.km) +
+                ', y el art. 158 no amplía por debajo de 100 km.';
+        } else {
+            glosa.textContent = Distancia.explicar(manda.km, manda.dias);
+        }
+        v.appendChild(glosa);
+
+        var f = document.createElement('span');
+        f.className = 'fuente';
+        f.innerHTML = '<span class="punto"></span>';
+        f.append(document.createTextNode(chapa));
+        v.appendChild(f);
+        caja.appendChild(v);
+
+        // ---------------------------------------------- de dónde salió el número
+        var b = document.createElement('div');
+        b.className = 'bloque';
+        var h = document.createElement('h2');
+        h.textContent = 'De dónde sale';
+        b.appendChild(h);
+
+        if (u.corte) {
+            b.appendChild(parrafo(
+                'La Corte publica esta distancia. <b>' + u.corte.asiento + '</b> es uno de los ' +
+                'asientos federales de la tabla de la <a href="https://www.argentina.gob.ar/normativa/nacional/acordada-5-2010-165599/texto" target="_blank" rel="noopener">Acordada 5/2010</a>, ' +
+                'medida desde la Capital Federal. <b>No hay nada que calcular acá</b>: el número es el que la tabla dice.'));
+            b.appendChild(parrafo(
+                'Por ruta <span class="num">' + km(u.corte.kmRuta) + '</span>' +
+                (u.corte.kmViaFerrea === null
+                    ? '; sin servicio ferroviario, así que manda la ruta.'
+                    : ', por vía férrea <span class="num">' + km(u.corte.kmViaFerrea) + '</span>. ' +
+                      'Manda <b>la más larga</b> —Acordada 50/86—, o sea ' +
+                      '<span class="num">' + km(u.corte.km) + '</span>.')));
+            b.appendChild(parrafo(
+                'Si lo que se está por interponer es una <b>queja del art. 282</b>, el plazo total ' +
+                'es de <span class="num">' + dias(u.corte.plazoQueja) + '</span>: los 5 del código más estos ' +
+                dias(u.corte.dias) + '.'));
+        } else if (u.esperandoRuta) {
+            b.appendChild(parrafo(
+                'Este par no está en la tabla de la Acordada 5/2010, que mide sólo entre la ' +
+                'Capital Federal y los asientos federales. Consultando la ruta terrestre…'));
+        } else if (u.ruta && !u.ruta.sinRuta) {
+            b.appendChild(parrafo(
+                'Este par no está en la tabla de la Acordada 5/2010, que mide sólo entre la ' +
+                'Capital Federal y los asientos federales, así que se midió por <b>ruta terrestre</b>: ' +
+                '<span class="num">' + km(u.ruta.km) + '</span>, sobre datos de ' +
+                '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> vía OSRM.'));
+            b.appendChild(parrafo(
+                '<b>Puede quedar corto.</b> La Corte compara la ruta con la vía férrea y toma la más ' +
+                'larga; acá no hay dato ferroviario para este par, así que esto es sólo una de las dos ' +
+                'medidas que la Acordada 50/86 manda comparar.'));
+        } else {
+            b.appendChild(parrafo(
+                'Se midió en <b>línea recta</b> porque ' + (u.ruta ? u.ruta.motivo : 'no hay ruta') + '.'));
+            b.appendChild(parrafo(
+                'La línea recta es un <b>piso y no una respuesta</b>: nadie viaja en línea recta, ' +
+                'así que la distancia real nunca es menor. Si la recta ya da ' + dias(u.recta.dias) +
+                ', por cualquier otro camino van a ser ' + u.recta.dias + ' o más.'));
+        }
+        caja.appendChild(b);
+
+        // ------------------------------------------------- las otras fuentes
+        var otras = [];
+        if (!u.corte) {
+            otras.push(['Línea recta (Haversine)', km(u.recta.km), dias(u.recta.dias)]);
+        } else {
+            otras.push(['Línea recta (Haversine)', km(u.recta.km), dias(u.recta.dias)]);
+        }
+        if (u.ruta && !u.ruta.sinRuta && u.corte) {
+            otras.push(['Ruta terrestre (OSRM)', km(u.ruta.km), dias(Distancia.diasPorDistancia(u.ruta.km))]);
+        }
+
+        if (otras.length) {
+            var o = document.createElement('div');
+            o.className = 'bloque otras';
+            var ho = document.createElement('h2');
+            ho.textContent = 'Para contrastar';
+            o.appendChild(ho);
+            otras.forEach(function (fila) {
+                var l = document.createElement('div');
+                l.className = 'linea';
+                var izq = document.createElement('span');
+                izq.textContent = fila[0];
+                var der = document.createElement('span');
+                der.innerHTML = '<b>' + fila[1] + '</b> · ' + fila[2];
+                l.append(izq, der);
+                o.appendChild(l);
+            });
+            caja.appendChild(o);
+        }
+
+        // -------------------------------------------------------------- mapa
+        var mapa = document.createElement('div');
+        mapa.className = 'mapa-caja';
+        mapa.id = 'mapa';
+        caja.appendChild(mapa);
+        pedirContorno().then(dibujarMapa);
+    }
+
+    function parrafo(html) {
+        var p = document.createElement('p');
+        p.innerHTML = html;
+        return p;
+    }
+
+    // -----------------------------------------------------------------------
+    // El mapa. Misma regla que el 1/9: el dibujo no puede contradecir al
+    // numero, asi que cada linea lleva SU distancia en la referencia.
+    // -----------------------------------------------------------------------
+    var contornoPedido = false;
+    function pedirContorno() {
+        if (contornoPedido) return Promise.resolve(contorno);
+        contornoPedido = true;
+        return fetch('../data/contorno-argentina.json')
+            .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('x')); })
+            .then(function (j) { contorno = j; return j; })
+            .catch(function () { contorno = null; return null; });
+    }
+
+    function svgEl(tag, attrs) {
+        var e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+        return e;
+    }
+
+    // Equirrectangular con la correccion del coseno de la latitud. Sin la
+    // correccion la Argentina sale estirada a lo ancho y se nota.
+    function proyectar(caja, ancho, alto) {
+        var latMedia = (caja.y0 + caja.y1) / 2;
+        var k = Math.cos(latMedia * Math.PI / 180);
+        var anchoGeo = (caja.x1 - caja.x0) * k;
+        var altoGeo = caja.y1 - caja.y0;
+        var escala = Math.min(ancho / anchoGeo, alto / altoGeo);
+        var dx = (ancho - anchoGeo * escala) / 2;
+        var dy = (alto - altoGeo * escala) / 2;
+        return function (lon, lat) {
+            return [dx + (lon - caja.x0) * k * escala, dy + (caja.y1 - lat) * escala];
         };
+    }
 
-        let debounceTimer;
-
-        const calcularDistancia = (lat1, lon1, lat2, lon2) => {
-            const R = 6371; 
-            const toRad = v => v * Math.PI / 180;
-            const dLat = toRad(lat2 - lat1);
-            const dLon = toRad(lon2 - lon1);
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(toRad(lat1)) * Math.cos(toRad(lat2));
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        };
-
-        const calcularDias = (distancia) => {
-            if (distancia < 200) return 0;
-            const diasBase = Math.floor(distancia / 200);
-            const fraccion = distancia % 200;
-            return diasBase + (fraccion >= 100 ? 1 : 0);
-        };
-
-        const mostrarResultado = (divRes, divTraz, d, dias, c1, c2, nombre1, nombre2) => {
-            let msj = '', logica = '';
-            if (dias === 0) {
-                msj = `<h3>No corresponde ampliación.</h3>`;
-                logica = `Distancia (${d.toFixed(2)} km) < 200 km.`;
-            } else {
-                const s = dias > 1 ? 's' : '';
-                msj = `<h3>Corresponde ampliación por ${dias} día${s}.</h3>`;
-                const baseDias = Math.floor(d / 200);
-                const resto = d % 200;
-                logica = `1 día/200km (${baseDias} día${baseDias !== 1 ? 's' : ''}) + fracción ${resto >= 100 ? '≥' : '<'} 100km (${resto >= 100 ? '1 día adicional' : '0 días'}).`;
-            }
-
-            divRes.innerHTML = msj;
-            divTraz.innerHTML = `
-                <h4>Trazabilidad del cálculo:</h4>
-                <p><strong>Origen:</strong> ${nombre1} (${c1.lat.toFixed(4)}, ${c1.lon.toFixed(4)})</p>
-                <p><strong>Destino:</strong> ${nombre2} (${c2.lat.toFixed(4)}, ${c2.lon.toFixed(4)})</p>
-                <p><strong>Distancia lineal (Haversine):</strong> ${d.toFixed(2)} km</p>
-                <p><strong>Lógica aplicada (Art. 158 CPCCN):</strong> ${logica}</p>
-            `;
-        };
-
-        // ============================================
-        // 3. CALCULADORA ARGENTINA (GEOREF)
-        // ============================================
-        let argJuzgado = { ...defaultCongreso };
-        let argDiligencia = { lat: null, lon: null, nombre: '' };
-
-        const inpArgJuz = document.getElementById('argJuzgado');
-        const inpArgDil = document.getElementById('argDiligencia');
-        const sugArgJuz = document.getElementById('sugArgJuzgado');
-        const sugArgDil = document.getElementById('sugArgDiligencia');
-
-        inpArgJuz.value = defaultCongreso.nombre;
-
-        const buscarGeoref = (query, contenedor, storage, input) => {
-            contenedor.innerHTML = '';
-            if (query.length < 3) return;
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                fetch(`https://apis.datos.gob.ar/georef/api/localidades?nombre=${encodeURIComponent(query)}&max=5`, {cache: 'no-store'})
-                    .then(r => r.json())
-                    .then(d => {
-                        contenedor.innerHTML = '';
-                        if (!d.localidades || d.localidades.length === 0) {
-                            const noItem = document.createElement('div');
-                            noItem.className = 'sugerencia-item';
-                            noItem.textContent = 'Sin resultados';
-                            contenedor.appendChild(noItem);
-                            return;
-                        }
-                        d.localidades.forEach(loc => {
-                            const item = document.createElement('div');
-                            item.className = 'sugerencia-item';
-                            const txt = `${loc.nombre}, ${loc.provincia.nombre}`;
-                            item.textContent = txt;
-                            item.onclick = () => {
-                                input.value = txt;
-                                storage.lat = loc.centroide.lat;
-                                storage.lon = loc.centroide.lon;
-                                storage.nombre = txt;
-                                contenedor.innerHTML = '';
-                            };
-                            contenedor.appendChild(item);
-                        });
-                    })
-                    .catch(() => {
-                        contenedor.innerHTML = '<div class="sugerencia-item">Error de conexión</div>';
-                    });
-            }, 300);
-        };
-
-        inpArgJuz.addEventListener('input', () => {
-            argJuzgado = { lat: null, lon: null, nombre: '' };
-            buscarGeoref(inpArgJuz.value, sugArgJuz, argJuzgado, inpArgJuz);
+    // El encuadre lo mandan los puntos y no el pais: dos localidades
+    // bonaerenses sobre el mapa entero son dos puntos pegados, y encuadrar en
+    // el pais obligaria ademas a decidir que se hace con un territorio que
+    // llega al polo.
+    function encuadre(puntos) {
+        var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+        puntos.forEach(function (p) {
+            x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]);
+            y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]);
         });
-        inpArgDil.addEventListener('input', () => {
-            argDiligencia = { lat: null, lon: null, nombre: '' };
-            buscarGeoref(inpArgDil.value, sugArgDil, argDiligencia, inpArgDil);
-        });
+        var MINIMO = 1.6, aire = 0.3;
+        var anchoGeo = Math.max(x1 - x0, MINIMO) * (1 + aire);
+        var altoGeo = Math.max(y1 - y0, MINIMO) * (1 + aire);
+        var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+        return { x0: cx - anchoGeo / 2, x1: cx + anchoGeo / 2,
+                 y0: cy - altoGeo / 2, y1: cy + altoGeo / 2 };
+    }
 
-        document.getElementById('btnLimpiarArg').addEventListener('click', () => {
-            inpArgJuz.value = '';
-            argJuzgado = { lat: null, lon: null, nombre: '' };
-            sugArgJuz.innerHTML = '';
-        });
+    function dibujarMapa() {
+        var caja = $('mapa');
+        var u = ultimo;
+        if (!caja || !u) return;
 
-        document.getElementById('btnCalcularArg').addEventListener('click', () => {
-            const resDiv = document.getElementById('resArg');
-            const trazDiv = document.getElementById('trazArg');
-            resDiv.innerHTML = '';
-            trazDiv.innerHTML = '';
-
-            if(!argJuzgado.lat || !argDiligencia.lat) {
-                resDiv.innerHTML = `<h3>Error: Debe seleccionar ambas localidades de la lista desplegable.</h3>`;
-                return;
-            }
-
-            const dist = calcularDistancia(argJuzgado.lat, argJuzgado.lon, argDiligencia.lat, argDiligencia.lon);
-            mostrarResultado(
-                resDiv,
-                trazDiv,
-                dist, calcularDias(dist), argJuzgado, argDiligencia, argJuzgado.nombre, argDiligencia.nombre
-            );
-
-            // Se dibuja lo que se acaba de calcular. La ruta se olvida a
-            // propósito: si son otras dos localidades, la ruta anterior no es de
-            // este par y dejarla dibujada sería el error que el mapa existe para
-            // no cometer.
-            dibujoArg.a = { ...argJuzgado };
-            dibujoArg.b = { ...argDiligencia };
-            dibujoArg.recta = dist;
-            dibujoArg.ruta = null;
-            dibujoArg.rutaKm = null;
-            pedirContorno().then(dibujarMapa);
-        });
-
-        // ============================================
-        // 4. CALCULADORA INTERNACIONAL (OPEN-METEO)
-        // ============================================
-        let intlJuzgado = { ...defaultCongreso };
-        let intlDiligencia = { lat: null, lon: null, nombre: '' };
-
-        const inpIntlJuz = document.getElementById('intlJuzgado');
-        const inpIntlDil = document.getElementById('intlDiligencia');
-        const sugIntlJuz = document.getElementById('sugIntlJuzgado');
-        const sugIntlDil = document.getElementById('sugIntlDiligencia');
-
-        inpIntlJuz.value = defaultCongreso.nombre;
-
-        const buscarMundo = (query, contenedor, storage, input) => {
-            contenedor.innerHTML = '';
-            if (query.length < 3) return;
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=es&format=json`)
-                    .then(r => r.json())
-                    .then(d => {
-                        contenedor.innerHTML = '';
-                        if(!d.results || d.results.length === 0) {
-                            const item = document.createElement('div');
-                            item.className = 'sugerencia-item';
-                            item.textContent = 'No se encontraron resultados';
-                            contenedor.appendChild(item);
-                            return;
-                        }
-                        
-                        d.results.forEach(loc => {
-                            const item = document.createElement('div');
-                            item.className = 'sugerencia-item';
-                            const partes = [loc.name, loc.admin1, loc.country].filter(Boolean);
-                            const txt = partes.join(', ');
-                            item.textContent = `${txt}`;
-                            item.onclick = () => {
-                                input.value = txt;
-                                storage.lat = loc.latitude;
-                                storage.lon = loc.longitude;
-                                storage.nombre = txt;
-                                contenedor.innerHTML = '';
-                            };
-                            contenedor.appendChild(item);
-                        });
-                    })
-                    .catch(() => {
-                        contenedor.innerHTML = '<div class="sugerencia-item">Error al buscar ciudades</div>';
-                    });
-            }, 300);
-        };
-
-        inpIntlJuz.addEventListener('input', () => {
-            intlJuzgado = { lat: null, lon: null, nombre: '' };
-            buscarMundo(inpIntlJuz.value, sugIntlJuz, intlJuzgado, inpIntlJuz);
-        });
-        inpIntlDil.addEventListener('input', () => {
-            intlDiligencia = { lat: null, lon: null, nombre: '' };
-            buscarMundo(inpIntlDil.value, sugIntlDil, intlDiligencia, inpIntlDil);
-        });
-
-        document.getElementById('btnLimpiarIntl').addEventListener('click', () => {
-            inpIntlJuz.value = '';
-            intlJuzgado = { lat: null, lon: null, nombre: '' };
-            sugIntlJuz.innerHTML = '';
-        });
-
-        document.getElementById('btnCalcularIntl').addEventListener('click', () => {
-            const resDiv = document.getElementById('resIntl');
-            const trazDiv = document.getElementById('trazIntl');
-            resDiv.innerHTML = '';
-            trazDiv.innerHTML = '';
-
-            if(!intlJuzgado.lat || !intlDiligencia.lat) {
-                resDiv.innerHTML = `<h3>Error: Debe seleccionar ambas ciudades de la lista de sugerencias.</h3>`;
-                return;
-            }
-
-            const dist = calcularDistancia(intlJuzgado.lat, intlJuzgado.lon, intlDiligencia.lat, intlDiligencia.lon);
-            mostrarResultado(
-                resDiv,
-                trazDiv,
-                dist, calcularDias(dist), intlJuzgado, intlDiligencia, intlJuzgado.nombre, intlDiligencia.nombre
-            );
-        });
-
-        // ============================================
-        // 5. EL MAPA
-        // ============================================
-        //
-        // LA REGLA, y es la única que no se puede aflojar acá: el dibujo no
-        // puede contradecir al número. El art. 158 se computa por ruta
-        // terrestre --criterio de la CSJN, Fallos 304:1345-- y la ruta es más
-        // larga que la recta. Un mapa que dibuja una recta al lado de un número
-        // que salió de la ruta miente, y miente con la autoridad que tiene un
-        // dibujo: nadie audita una línea.
-        //
-        // De ahí las dos decisiones de todo esto:
-        //
-        //   1. CADA LÍNEA LLEVA SU NÚMERO en la referencia. La recta dice
-        //      cuántos km da Haversine y la ruta, cuántos da OSRM. Nunca hay
-        //      una línea sin decir de qué distancia es.
-        //   2. CUANDO ESTÁN LAS DOS SE VEN LAS DOS, y ésa es la parte que más
-        //      enseña: la diferencia entre la recta y la ruta es exactamente el
-        //      motivo por el que la Corte se atiene a la segunda.
-        //
-        // El contorno sale de data/contorno-argentina.json --la capa oficial
-        // del IGN, simplificada por scripts/armar-contorno-argentina.mjs-- y es
-        // un archivo de este mismo sitio: el mapa NO agrega ningún tercero a
-        // los tres que la página ya declara arriba.
-        //
-        // Y si el archivo no carga, no hay mapa. El cálculo sigue: el mapa es
+        // Sin contorno no hay mapa, y el numero se calcula igual: el mapa es
         // lectura, no es el resultado.
+        if (!contorno) { caja.hidden = true; return; }
 
-        let contorno = null;
-        let contornoPedido = false;
-
-        function pedirContorno() {
-            if (contornoPedido) return Promise.resolve(contorno);
-            contornoPedido = true;
-            return fetch('../data/contorno-argentina.json')
-                .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
-                .then(j => { contorno = j; return j; })
-                .catch(() => { contorno = null; return null; });
-        }
-
-        // El estado del dibujo de la pestaña Argentina. Se guarda porque las dos
-        // líneas llegan por caminos distintos --la recta al calcular, la ruta al
-        // apretar el otro botón-- y la segunda no puede borrar a la primera.
-        const dibujoArg = { a: null, b: null, recta: null, ruta: null, rutaKm: null };
-
-        // Equirrectangular con la corrección del coseno de la latitud. No es una
-        // proyección seria y no hace falta que lo sea: sobre un encuadre de unos
-        // pocos grados la diferencia contra cualquier otra es menor que el ancho
-        // de la línea. Lo que sí importa es la corrección, porque sin ella la
-        // Argentina sale estirada a lo ancho y se nota.
-        function armarProyeccion(caja, ancho, alto) {
-            const latMedia = (caja.y0 + caja.y1) / 2;
-            const k = Math.cos(latMedia * Math.PI / 180);
-            const anchoGeo = (caja.x1 - caja.x0) * k;
-            const altoGeo = caja.y1 - caja.y0;
-            const escala = Math.min(ancho / anchoGeo, alto / altoGeo);
-            const dx = (ancho - anchoGeo * escala) / 2;
-            const dy = (alto - altoGeo * escala) / 2;
-            return (lon, lat) => [
-                dx + (lon - caja.x0) * k * escala,
-                dy + (caja.y1 - lat) * escala   // la latitud crece hacia arriba y la y de un SVG, hacia abajo
-            ];
-        }
-
-        // El encuadre lo mandan los puntos y no el país. Dos localidades de la
-        // provincia de Buenos Aires sobre el mapa de toda la Argentina son dos
-        // puntos pegados que no dicen nada, y encuadrar en el país entero
-        // obligaría además a decidir qué se hace con el sector antártico, que
-        // llega al polo. Encuadrando por los puntos, esa decisión no existe.
-        function encuadre(puntos) {
-            let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-            puntos.forEach(([lon, lat]) => {
-                x0 = Math.min(x0, lon); x1 = Math.max(x1, lon);
-                y0 = Math.min(y0, lat); y1 = Math.max(y1, lat);
-            });
-            // Aire alrededor, y un mínimo: dos puntos de la misma ciudad darían
-            // un encuadre de cero grados y una división por cero.
-            const MINIMO = 1.6;
-            const aire = 0.28;
-            let anchoGeo = Math.max(x1 - x0, MINIMO) * (1 + aire);
-            let altoGeo = Math.max(y1 - y0, MINIMO) * (1 + aire);
-            const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-            return { x0: cx - anchoGeo / 2, x1: cx + anchoGeo / 2,
-                     y0: cy - altoGeo / 2, y1: cy + altoGeo / 2 };
-        }
-
-        const svg = (tag, attrs) => {
-            const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
-            Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
-            return e;
+        // Fuera de la Argentina no se dibuja, y se dice por que. El contorno que
+        // tiene esta pagina es el de la Argentina; un planisferio pesa mucho mas
+        // y es otro trabajo. Dos puntos de Europa sobre el mapa de la Argentina
+        // serian peor que ningun dibujo.
+        var dentro = function (p) {
+            return p.lon > -74 && p.lon < -53 && p.lat < -21 && p.lat > -56;
         };
-
-        const km = (n) => n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' km';
-
-        function dibujarMapa() {
-            const caja = document.getElementById('mapaArg');
-            const d = dibujoArg;
-            if (!d.a || !d.b) { caja.hidden = true; return; }
-
-            const ANCHO = 620, ALTO = 420;
-
-            // El encuadre incluye la ruta si la hay: una ruta que se sale del
-            // recuadro se ve cortada y parece un error de la consulta.
-            const puntos = [[d.a.lon, d.a.lat], [d.b.lon, d.b.lat]]
-                .concat(d.ruta || []);
-            const proy = armarProyeccion(encuadre(puntos), ANCHO, ALTO);
-
-            const lienzo = svg('svg', {
-                viewBox: `0 0 ${ANCHO} ${ALTO}`,
-                role: 'img',
-                // Un dibujo no le dice nada a quien no lo ve, y las dos
-                // distancias son el contenido entero del dibujo.
-                'aria-label': `Mapa de ${d.a.nombre} a ${d.b.nombre}. ` +
-                    `Línea recta: ${km(d.recta)}.` +
-                    (d.rutaKm !== null ? ` Ruta terrestre consultada: ${km(d.rutaKm)}.` : '')
-            });
-
-            if (contorno) {
-                contorno.provincias.forEach(p => {
-                    p.anillos.forEach(anillo => {
-                        const puntos = anillo.map(([lon, lat]) => proy(lon, lat).map(n => n.toFixed(1)).join(','));
-                        lienzo.appendChild(svg('polygon', { class: 'mapa-tierra', points: puntos.join(' ') }));
-                    });
-                });
-            }
-
-            const pa = proy(d.a.lon, d.a.lat);
-            const pb = proy(d.b.lon, d.b.lat);
-
-            // La recta va primero para que la ruta le quede encima: cuando casi
-            // coinciden, la que tiene que verse es la que funda el número.
-            lienzo.appendChild(svg('line', {
-                class: 'mapa-recta', x1: pa[0], y1: pa[1], x2: pb[0], y2: pb[1]
-            }));
-
-            if (d.ruta && d.ruta.length > 1) {
-                lienzo.appendChild(svg('polyline', {
-                    class: 'mapa-ruta',
-                    points: d.ruta.map(([lon, lat]) => proy(lon, lat).map(n => n.toFixed(1)).join(',')).join(' ')
-                }));
-            }
-
-            [[pa, d.a.nombre], [pb, d.b.nombre]].forEach(([p, nombre]) => {
-                lienzo.appendChild(svg('circle', { class: 'mapa-punto', cx: p[0], cy: p[1], r: 5 }));
-                const t = svg('text', {
-                    class: 'mapa-rotulo',
-                    x: p[0] + (p[0] > ANCHO * 0.62 ? -9 : 9),
-                    y: p[1] + 3.5,
-                    'text-anchor': p[0] > ANCHO * 0.62 ? 'end' : 'start'
-                });
-                // Sólo la primera parte del nombre: GEOREF devuelve
-                // "Localidad, Departamento, Provincia" y entero tapa el mapa.
-                //
-                // Y hay que cerrar el paréntesis que la coma deja abierto: el
-                // asiento por defecto es «Congreso de la Nación (CABA,
-                // Argentina)» y cortado por la primera coma quedaba
-                // «Congreso de la Nación (CABA», que se lee como un nombre
-                // truncado por falta de lugar y no lo es.
-                var etiqueta = nombre.split(',')[0].trim();
-                if (etiqueta.indexOf('(') > 0 && etiqueta.indexOf(')') === -1) {
-                    etiqueta = etiqueta.slice(0, etiqueta.indexOf('(')).trim();
-                }
-                t.textContent = etiqueta;
-                lienzo.appendChild(t);
-            });
-
-            caja.innerHTML = '';
-            caja.appendChild(lienzo);
-
-            // La referencia. Cada línea con SU número: es lo que impide que el
-            // dibujo diga una cosa y el resultado otra.
-            const ref = document.createElement('div');
-            ref.className = 'mapa-referencia';
-            ref.innerHTML =
-                `<span><span class="llave recta"></span>línea recta (Haversine) · <b>${km(d.recta)}</b></span>` +
-                (d.rutaKm !== null
-                    ? `<span><span class="llave ruta"></span>ruta terrestre consultada (OSRM) · <b>${km(d.rutaKm)}</b></span>`
-                    : '');
-            caja.appendChild(ref);
-
-            const nota = document.createElement('p');
-            nota.className = 'mapa-nota';
-            nota.innerHTML = d.rutaKm === null
-                ? 'Está dibujada la línea recta, que es la que mide Haversine. ' +
-                  '<strong>La CSJN se atiene a la distancia por ruta terrestre</strong> ' +
-                  '(Fallos 304:1345), que es más larga: «Calcular por ruta» la consulta y la dibuja acá. ' +
-                  'Contorno: ' + (contorno ? 'IGN, capa ' + contorno.capa + '.' : 'no se pudo cargar.')
-                : 'Las dos líneas, cada una con su distancia. El art. 158 se computa por la ' +
-                  '<strong>ruta terrestre</strong> (CSJN, Fallos 304:1345); la recta está para ver la diferencia. ' +
-                  'Ruta: OpenStreetMap vía OSRM. Contorno: ' + (contorno ? 'IGN, capa ' + contorno.capa + '.' : 'no se pudo cargar.');
-            caja.appendChild(nota);
-
+        if (!dentro(u.a) || !dentro(u.b)) {
             caja.hidden = false;
+            caja.innerHTML = '';
+            var n = document.createElement('p');
+            n.className = 'mapa-nota';
+            n.textContent = 'Sin mapa: el contorno que tiene esta página es el de la Argentina ' +
+                'continental, y sobre él estos dos puntos no se pueden ubicar. El número se calcula igual.';
+            caja.appendChild(n);
+            return;
         }
 
-        // ============================================
-        // 6. CÁLCULO POR RUTA (OSRM) CON LÍMITE Y CACHE
-        // ============================================
-        const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
-        const OSRM_LIMITE_DIARIO = 10;
-        const OSRM_CACHE_KEY = 'osrm_cache';
-        const OSRM_COUNTER_KEY = 'osrm_daily_counter';
-        const OSRM_DATE_KEY = 'osrm_date';
+        var ANCHO = 620, ALTO = 420;
+        var trazado = (u.ruta && !u.ruta.sinRuta && u.ruta.trazado) ? u.ruta.trazado : null;
+        var puntos = [[u.a.lon, u.a.lat], [u.b.lon, u.b.lat]].concat(trazado || []);
+        var proy = proyectar(encuadre(puntos), ANCHO, ALTO);
 
-        function obtenerContadorDiario() {
-            const hoy = new Date().toDateString();
-            const fechaGuardada = localStorage.getItem(OSRM_DATE_KEY);
-            if (fechaGuardada !== hoy) {
-                localStorage.setItem(OSRM_DATE_KEY, hoy);
-                localStorage.setItem(OSRM_COUNTER_KEY, '0');
-                return 0;
-            }
-            return parseInt(localStorage.getItem(OSRM_COUNTER_KEY) || '0');
-        }
+        var lienzo = svgEl('svg', {
+            viewBox: '0 0 ' + ANCHO + ' ' + ALTO,
+            role: 'img',
+            'aria-label': 'Mapa de ' + u.a.nombre + ' a ' + u.b.nombre + '. Línea recta: ' +
+                km(u.recta.km) + '.' + (trazado ? ' Ruta terrestre: ' + km(u.ruta.km) + '.' : '')
+        });
 
-        function incrementarContador() {
-            const contador = obtenerContadorDiario() + 1;
-            localStorage.setItem(OSRM_COUNTER_KEY, contador.toString());
-            return contador;
-        }
-
-        function cacheKey(lat1, lon1, lat2, lon2) {
-            return `${lat1.toFixed(4)},${lon1.toFixed(4)}_${lat2.toFixed(4)},${lon2.toFixed(4)}`;
-        }
-
-        function buscarCache(clave) {
-            const cache = JSON.parse(localStorage.getItem(OSRM_CACHE_KEY) || '{}');
-            return cache[clave] || null;
-        }
-
-        // El caché se poda desde el 1/9/2026, y el motivo es el trazado: hasta
-        // ese día cada entrada eran dos números y podía crecer para siempre sin
-        // que se notara. Un trazado son unos cuantos kilobytes, y localStorage
-        // tiene un techo de unos 5 MB por sitio: pasado el techo, `setItem`
-        // TIRA, y lo que se rompería es el cálculo, no el dibujo. Se guardan las
-        // últimas OSRM_CACHE_MAXIMO consultas y nada más.
-        const OSRM_CACHE_MAXIMO = 25;
-
-        // Adelgaza el trazado de la ruta, y las dos puntas de esto importan.
-        //
-        // OSRM ofrece `overview=simplified`, que devuelve unos 25 puntos para
-        // 700 km. Con eso la ruta sale casi recta y el mapa termina diciendo lo
-        // contrario de lo que existe para decir: que la ruta es más larga que la
-        // línea. Así que se pide `overview=full` --2.900 puntos para el mismo
-        // tramo-- y se adelgaza acá, donde se sabe de qué tamaño es el dibujo.
-        //
-        // Y hay que adelgazar: 2.900 pares en localStorage son unos 60 KB por
-        // consulta, y el techo del navegador anda por los 5 MB.
-        //
-        // El trazado NO ES EL NÚMERO. La distancia sale de `routes[0].distance`,
-        // que es lo que OSRM midió sobre la ruta entera; esto sólo decide con
-        // cuántos vértices se la dibuja. Sobre un mapa de 620 px, 400 puntos son
-        // uno cada punto y medio.
-        const RUTA_MAXIMOS_PUNTOS = 400;
-
-        function adelgazar(coords) {
-            if (!Array.isArray(coords) || coords.length <= RUTA_MAXIMOS_PUNTOS) return coords;
-
-            const dist = (p, a, b) => {
-                const dx = b[0] - a[0], dy = b[1] - a[1];
-                if (dx === 0 && dy === 0) return Math.hypot(p[0] - a[0], p[1] - a[1]);
-                let t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy);
-                t = Math.max(0, Math.min(1, t));
-                return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy));
-            };
-
-            // Douglas-Peucker iterativo: una ruta de 5.000 puntos pasa de pila
-            // en la versión recursiva.
-            const correr = (pts, tol) => {
-                const guardar = new Uint8Array(pts.length);
-                guardar[0] = 1; guardar[pts.length - 1] = 1;
-                const pila = [[0, pts.length - 1]];
-                while (pila.length) {
-                    const [ini, fin] = pila.pop();
-                    let peor = 0, cual = -1;
-                    for (let i = ini + 1; i < fin; i++) {
-                        const d = dist(pts[i], pts[ini], pts[fin]);
-                        if (d > peor) { peor = d; cual = i; }
-                    }
-                    if (peor > tol && cual !== -1) { guardar[cual] = 1; pila.push([ini, cual], [cual, fin]); }
-                }
-                return pts.filter((_, i) => guardar[i]);
-            };
-
-            let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-            coords.forEach(([x, y]) => {
-                x0 = Math.min(x0, x); x1 = Math.max(x1, x);
-                y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+        contorno.provincias.forEach(function (p) {
+            p.anillos.forEach(function (anillo) {
+                lienzo.appendChild(svgEl('polygon', {
+                    class: 'mapa-tierra',
+                    points: anillo.map(function (c) {
+                        return proy(c[0], c[1]).map(function (n) { return n.toFixed(1); }).join(',');
+                    }).join(' ')
+                }));
             });
-            // Se ARRANCA FINO y se va aflojando hasta entrar en el tope, en vez
-            // de arrancar con una tolerancia plausible: arrancando por el otro
-            // lado la primera pasada ya se pasa de largo y no hay vuelta atrás.
-            // Con diagonal/900 la ruta de 2.900 puntos quedaba en 43 —una
-            // tolerancia de 800 m sobre un dibujo donde un píxel son 10 km— y
-            // el trazado perdía las curvas que son justamente lo que distingue
-            // la ruta de la recta.
-            let tol = (Math.hypot(x1 - x0, y1 - y0) || 1) / 40000;
-
-            let r = coords;
-            for (let i = 0; i < 30 && r.length > RUTA_MAXIMOS_PUNTOS; i++) {
-                r = correr(coords, tol);
-                tol *= 1.5;
-            }
-            // Cinco decimales: poco más de un metro. Es para dibujar.
-            return r.map(([x, y]) => [Number(x.toFixed(5)), Number(y.toFixed(5))]);
-        }
-
-        function guardarCache(clave, datos) {
-            let cache;
-            try { cache = JSON.parse(localStorage.getItem(OSRM_CACHE_KEY) || '{}'); }
-            catch (e) { cache = {}; }
-            delete cache[clave];   // que vuelva al final: las claves de un objeto conservan el orden de inserción
-            cache[clave] = datos;
-
-            const claves = Object.keys(cache);
-            for (let i = 0; i < claves.length - OSRM_CACHE_MAXIMO; i++) delete cache[claves[i]];
-
-            try {
-                localStorage.setItem(OSRM_CACHE_KEY, JSON.stringify(cache));
-            } catch (e) {
-                // Si aun podado no entra, se empieza de nuevo con esta sola. Un
-                // caché que no se puede escribir es una comodidad perdida; una
-                // excepción sin atrapar acá se lleva puesto el resultado, que
-                // ya está calculado y es lo que el usuario vino a buscar.
-                try { localStorage.setItem(OSRM_CACHE_KEY, JSON.stringify({ [clave]: datos })); }
-                catch (e2) { /* sin caché, y la consulta sigue andando */ }
-            }
-        }
-
-        async function calcularOSRM(lat1, lon1, lat2, lon2, nombre1, nombre2, divResultado, alMapa) {
-            const contador = obtenerContadorDiario();
-            if (contador >= OSRM_LIMITE_DIARIO) {
-                divResultado.innerHTML = `<p style="color:var(--warn);">Límite diario de ${OSRM_LIMITE_DIARIO} consultas alcanzado. Intente mañana.</p>`;
-                return;
-            }
-
-            const clave = cacheKey(lat1, lon1, lat2, lon2);
-            const cacheado = buscarCache(clave);
-            if (cacheado) {
-                mostrarResultadoOSRM(cacheado.distancia, cacheado.dias, nombre1, nombre2, divResultado, true);
-                // Una consulta guardada antes del 1/9/2026 no tiene el trazado,
-                // porque hasta ese día no se pedía. Se muestra igual y el mapa
-                // se queda sin la ruta: forzar la consulta para dibujarla
-                // gastaría una del cupo diario por un dibujo.
-                if (alMapa) alMapa(cacheado.distancia, cacheado.ruta || null);
-                return;
-            }
-
-            // Respetar 1 request/segundo: retraso pequeño antes de la llamada
-            await new Promise(resolve => setTimeout(resolve, 300));
-
-            try {
-                // `overview=full&geometries=geojson` pide el TRAZADO de la ruta,
-                // que es lo que el mapa dibuja. NO TOCA EL NÚMERO: la distancia
-                // sigue saliendo de `routes[0].distance`. Se comprobó antes de
-                // cambiarlo, con las tres formas del parámetro y sobre tres
-                // pares de localidades: `false`, `simplified` y `full` devuelven
-                // la misma distancia hasta el último decimal —697.707,2 m entre
-                // el Congreso y Córdoba con las tres—. Un parámetro de más en
-                // una URL es exactamente la clase de cambio que mueve un
-                // resultado sin que nadie lo mire, y por eso se miró.
-                const url = `${OSRM_BASE}/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
-                const respuesta = await fetch(url, {
-                    headers: {
-                        'User-Agent': 'HerramientasJudiciales/1.0 (javiercuneo.com.ar)'
-                    }
-                });
-                if (!respuesta.ok) throw new Error('Error en OSRM');
-                const data = await respuesta.json();
-                if (!data.routes || data.routes.length === 0) throw new Error('Sin ruta encontrada');
-
-                const distancia = data.routes[0].distance / 1000; // km
-                const dias = calcularDias(distancia);
-                const geo = data.routes[0].geometry;
-                const ruta = (geo && geo.type === 'LineString' && Array.isArray(geo.coordinates))
-                    ? adelgazar(geo.coordinates) : null;
-                guardarCache(clave, { distancia, dias, ruta });
-                incrementarContador();
-                mostrarResultadoOSRM(distancia, dias, nombre1, nombre2, divResultado, false);
-                if (alMapa) alMapa(distancia, ruta);
-            } catch (err) {
-                divResultado.innerHTML = `<p style="color:var(--error);">Error al consultar OSRM: ${err.message}. Intente de nuevo.</p>`;
-            }
-        }
-
-        function mostrarResultadoOSRM(distancia, dias, nombre1, nombre2, div, cacheado) {
-            let html = `<h3>Distancia por ruta (OSRM)</h3><p><strong>Distancia:</strong> ${distancia.toFixed(2)} km</p>`;
-            let logica = '';
-            if (dias === 0) {
-                html += `<p>No corresponde ampliación.</p>`;
-                logica = `Distancia (${distancia.toFixed(2)} km) < 200 km.`;
-            } else {
-                const s = dias > 1 ? 's' : '';
-                html += `<p>Corresponde ampliación por ${dias} día${s}.</p>`;
-                const baseDias = Math.floor(distancia / 200);
-                const resto = distancia % 200;
-                logica = `1 día/200km (${baseDias} día${baseDias !== 1 ? 's' : ''}) + fracción ${resto >= 100 ? '≥' : '<'} 100km (${resto >= 100 ? '1 día adicional' : '0 días'}).`;
-            }
-            html += `<p><small>Método: OpenStreetMap (OSRM). ${cacheado ? '(cacheado)' : ''}</small></p>`;
-            html += `<p><small>© <a href="https://www.openstreetmap.org/fixmap" target="_blank">OpenStreetMap contributors</a></small></p>`;
-            html += `<p><small>Lógica aplicada (Art. 158 CPCCN): ${logica}</small></p>`;
-            div.innerHTML = html;
-        }
-
-        // Eventos para botones OSRM
-        document.getElementById('btnOSRMArg').addEventListener('click', () => {
-            const div = document.getElementById('osrmArg');
-            if (!argJuzgado.lat || !argDiligencia.lat) {
-                div.innerHTML = '<p style="color:var(--error);">Debe seleccionar ambas localidades.</p>';
-                return;
-            }
-            calcularOSRM(argJuzgado.lat, argJuzgado.lon, argDiligencia.lat, argDiligencia.lon,
-                argJuzgado.nombre, argDiligencia.nombre, div,
-                (distancia, ruta) => {
-                    // El mapa necesita los dos puntos, y puede que nadie haya
-                    // apretado «Calcular» antes: se resuelve la recta acá para
-                    // que la referencia nunca muestre una línea sin su número.
-                    dibujoArg.a = { ...argJuzgado };
-                    dibujoArg.b = { ...argDiligencia };
-                    dibujoArg.recta = calcularDistancia(argJuzgado.lat, argJuzgado.lon,
-                        argDiligencia.lat, argDiligencia.lon);
-                    dibujoArg.ruta = ruta;
-                    dibujoArg.rutaKm = distancia;
-                    pedirContorno().then(dibujarMapa);
-                });
         });
 
-        document.getElementById('btnOSRMIntl').addEventListener('click', () => {
-            const div = document.getElementById('osrmIntl');
-            if (!intlJuzgado.lat || !intlDiligencia.lat) {
-                div.innerHTML = '<p style="color:var(--error);">Debe seleccionar ambas ciudades.</p>';
-                return;
+        var pa = proy(u.a.lon, u.a.lat), pb = proy(u.b.lon, u.b.lat);
+
+        lienzo.appendChild(svgEl('line', {
+            class: 'mapa-recta', x1: pa[0], y1: pa[1], x2: pb[0], y2: pb[1]
+        }));
+
+        if (trazado && trazado.length > 1) {
+            lienzo.appendChild(svgEl('polyline', {
+                class: 'mapa-ruta',
+                points: trazado.map(function (c) {
+                    return proy(c[0], c[1]).map(function (n) { return n.toFixed(1); }).join(',');
+                }).join(' ')
+            }));
+        }
+
+        [[pa, u.a.nombre], [pb, u.b.nombre]].forEach(function (par) {
+            var p = par[0];
+            lienzo.appendChild(svgEl('circle', { class: 'mapa-punto', cx: p[0], cy: p[1], r: 5 }));
+            var t = svgEl('text', {
+                class: 'mapa-rotulo',
+                x: p[0] + (p[0] > ANCHO * 0.62 ? -9 : 9),
+                y: p[1] + 3.5,
+                'text-anchor': p[0] > ANCHO * 0.62 ? 'end' : 'start'
+            });
+            // El asiento por defecto trae un parentesis con coma adentro, y
+            // cortado por la primera coma quedaria abierto.
+            var etiqueta = String(par[1]).split(',')[0].trim();
+            if (etiqueta.indexOf('(') > 0 && etiqueta.indexOf(')') === -1) {
+                etiqueta = etiqueta.slice(0, etiqueta.indexOf('(')).trim();
             }
-            calcularOSRM(intlJuzgado.lat, intlJuzgado.lon, intlDiligencia.lat, intlDiligencia.lon, intlJuzgado.nombre, intlDiligencia.nombre, div);
+            t.textContent = etiqueta;
+            lienzo.appendChild(t);
         });
 
-        // Cerrar sugerencias al hacer click fuera
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.form-group')) {
-                document.querySelectorAll('.sugerencias').forEach(s => s.innerHTML = '');
-            }
+        caja.innerHTML = '';
+        caja.hidden = false;
+        caja.appendChild(lienzo);
+
+        var ref = document.createElement('div');
+        ref.className = 'mapa-referencia';
+        ref.innerHTML =
+            '<span><span class="llave recta"></span>línea recta · <b>' + km(u.recta.km) + '</b></span>' +
+            (trazado ? '<span><span class="llave ruta"></span>ruta terrestre · <b>' +
+                km(u.ruta.km) + '</b></span>' : '');
+        caja.appendChild(ref);
+
+        var nota = document.createElement('p');
+        nota.className = 'mapa-nota';
+        if (u.corte) {
+            // La Corte publica KILOMETROS, no un trazado. Dibujar la recta y
+            // dejar creer que es lo que la Corte midio seria justamente el error
+            // que este mapa tiene prohibido cometer.
+            nota.innerHTML = 'La línea dibujada es la <b>recta</b>. La Corte publica los kilómetros ' +
+                'de esta distancia, no el recorrido, así que el número del veredicto ' +
+                '(<b>' + km(u.corte.km) + '</b>) no sale de ninguna línea de este dibujo. ' +
+                'Contorno: IGN, capa ' + contorno.capa + '.';
+        } else if (trazado) {
+            nota.innerHTML = 'Las dos líneas, cada una con su distancia. El número sale de la ' +
+                '<b>ruta terrestre</b>. Ruta: OpenStreetMap vía OSRM. Contorno: IGN, capa ' + contorno.capa + '.';
+        } else {
+            nota.innerHTML = 'Está dibujada la <b>línea recta</b>, que es de donde sale el número. ' +
+                'No hay ruta que dibujar. Contorno: IGN, capa ' + contorno.capa + '.';
+        }
+        caja.appendChild(nota);
+    }
+
+    // -----------------------------------------------------------------------
+    // Cableado.
+    // -----------------------------------------------------------------------
+    ['origen', 'destino'].forEach(function (cual) {
+        $(cual).addEventListener('input', function () {
+            punto[cual] = null;
+            pintarElegido(cual);
+            buscar(cual, this.value);
         });
-    })();
+    });
+
+    $('btnLimpiarOrigen').addEventListener('click', function () {
+        $('origen').value = '';
+        punto.origen = null;
+        pintarElegido('origen');
+        $('sugOrigen').classList.remove('visible');
+        $('origen').focus();
+    });
+
+    $('btnCalcular').addEventListener('click', calcular);
+
+    $('btnLimpiar').addEventListener('click', function () {
+        limpiarAviso();
+        punto.destino = null;
+        $('destino').value = '';
+        pintarElegido('destino');
+        arrancarEnCongreso();
+        ultimo = null;
+        $('resultado').style.display = 'none';
+        $('resultado').innerHTML = '';
+        $('espera').style.display = '';
+    });
+
+    // Cambiar de ámbito borra los dos puntos: las coordenadas vienen de
+    // servicios distintos y una localidad elegida en GEOREF no tiene por qué
+    // seguir en pie cuando la pregunta pasó a ser sobre otro país.
+    document.querySelectorAll('input[name="ambito"]').forEach(function (r) {
+        r.addEventListener('change', function () {
+            document.querySelectorAll('.segmentado label').forEach(function (l) {
+                l.classList.toggle('elegida', l.querySelector('input').checked);
+            });
+            punto.origen = null; punto.destino = null;
+            $('origen').value = ''; $('destino').value = '';
+            pintarElegido('origen'); pintarElegido('destino');
+            $('origen').placeholder = $('ambitoPais').checked
+                ? 'Congreso de la Nación' : 'Ej.: Madrid';
+            $('destino').placeholder = $('ambitoPais').checked
+                ? 'Escribí una localidad' : 'Ej.: Montevideo';
+            if ($('ambitoPais').checked) arrancarEnCongreso();
+            ultimo = null;
+            $('resultado').style.display = 'none';
+            $('espera').style.display = '';
+            limpiarAviso();
+        });
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.caja-sugerencias')) {
+            document.querySelectorAll('.sugerencias').forEach(function (s) { s.classList.remove('visible'); });
+        }
+    });
+
+    // El asiento arranca en el Congreso, que es donde arranca la mayoría de los
+    // casos y además es el extremo que la tabla de la Corte necesita.
+    function arrancarEnCongreso() {
+        punto.origen = CONGRESO;
+        $('origen').value = CONGRESO.nombre;
+        pintarElegido('origen');
+    }
+    arrancarEnCongreso();
+})();
 </script>
 </body>
 </html>

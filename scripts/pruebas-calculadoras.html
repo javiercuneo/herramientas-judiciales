@@ -411,7 +411,16 @@ const DRIVERS = {
         // Mismo cambio del 31/8 que en entre-fechas: el motivo se lee de
         // #avisoError y no de un alert() capturado.
         correr: async (d, campos) => {
-            d.getElementById('fechaObjetivo').value = campos.fechaObjetivo;
+            // El caso sigue escribiendo la fecha como '30/07/2024' a proposito:
+            // se lee mejor en la tabla, y el caso no tiene por que saber en
+            // cuantos campos la pide la pantalla. El 1/9/2026 regresiva paso de
+            // un campo continuo a los tres casilleros de las otras cuatro, y lo
+            // unico que cambio es este reparto. Ningun esperado se movio, que es
+            // lo que este banco tenia que demostrar.
+            const p = String(campos.fechaObjetivo).split('/');
+            d.getElementById('dia').value = p[0];
+            d.getElementById('mes').value = p[1];
+            d.getElementById('anio').value = p[2];
             d.getElementById('diasAntelacion').value = campos.diasAntelacion;
             boton(d, /calcul/i).click();
             await pausa(150);
@@ -533,6 +542,23 @@ function seccion(titulo, bajada) {
 // embebidas. Si el tablero moviera un resultado, aparece aca.
 // ---------------------------------------------------------------------------
 async function correrEnTablero(cuerpo) {
+    // EL ROMPE-CACHE NO SE PUEDE PONER DEL LADO DEL TABLERO, y por eso hay que
+    // ponerlo acá. `montar()` hace `f.src = h.archivo`, sin `?v=`, y tiene que
+    // seguir así: en producción el tablero carga lo que está publicado y un
+    // parámetro por marco tiraría el caché de diez páginas en cada visita.
+    //
+    // La consecuencia es que esta sección corre contra la copia CACHEADA de
+    // cada calculadora. Pasó el 1/9/2026 al pasar `regresiva` a tres campos:
+    // los dos casos daban «Cannot set properties of null» sólo en la fila
+    // «tablero → regresiva», con la página suelta pasando al lado. Se lee como
+    // que el tablero rompió algo, y lo que estaba viejo era el caché.
+    //
+    // `fetch(url, { cache: 'reload' })` fuerza la revalidación y deja la copia
+    // fresca en el caché HTTP, así que el `src` de después la encuentra nueva.
+    // Es la misma técnica que ESTADO.md anota para los `<script>`.
+    await Promise.all([...new Set(VERIFICADOS.map((c) => DRIVERS[c.calc].archivo))]
+        .map((a) => fetch(a, { cache: 'reload' }).catch(() => {})));
+
     const marco = document.createElement('iframe');
     marco.src = '../calculadoras/tablero.html?v=' + Date.now();
     document.body.appendChild(marco);

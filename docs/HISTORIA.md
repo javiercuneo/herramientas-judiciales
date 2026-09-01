@@ -38,6 +38,190 @@ tabla; lo que baja acá es de dónde salió.
 
 ---
 
+## `distancia` estaba al revés, y la tabla de la Corte no existía — cerrado el 1/9
+
+Javier, mirando la pantalla: «hay que rediseñarla a cero, porque está al revés
+de la lógica. Eso es porque se diseñó en capas, primero se pensó el haversine,
+luego se agregó la ruta y último la Corte. **Es al revés, porque en fidelidad,
+está al revés**».
+
+Tenía razón, y el arreglo destapó algo más grande que un problema de orden.
+
+### La regla de la Corte no es «por ruta»
+
+El anexo de la Acordada 5/2010 —la tabla de distancias a los asientos federales—
+**no está en Infoleg**: el texto termina en «Tabla de distancias en kilómetros
+entre la Capital Federal y los asientos federales del interior del país:» y ahí
+se corta. En `argentina.gob.ar` sí está, **como imagen escaneada**. De ahí se
+transcribió, fila por fila.
+
+Y leyéndola aparece lo que la pantalla anterior no sabía. El considerando I
+recita la Acordada 50/86: «la distancia que se tendrá en cuenta será **la más
+larga** que resulte de la comparación entre las medidas por vía férrea y por
+ruta terrestre». **No es la ruta: es la más larga de las dos.**
+
+**Formosa es el caso que lo muestra.** 1.112 km por ruta y **2.501 por tren**.
+La Corte da **13 días**; calculando por ruta salen 6. Una herramienta que sólo
+mira la ruta no puede reproducir la tabla, y por eso la tabla se carga como dato
+en vez de recalcularse. La misma pantalla, con la línea recta, daba 5.
+
+### Cómo se verificó una transcripción de una imagen
+
+45 filas por cinco columnas son 225 oportunidades de errar un dígito, y un
+dígito de más en una distancia devuelve un plazo plausible y equivocado. **La
+propia tabla trae con qué controlarse**: publica las distancias *y* los días, y
+los días salen de las distancias por una regla escrita. Aplicar «un día cada 200
+km o fracción que no baje de 100» a la más larga de las dos medidas reproduce
+**exactamente** la columna del art. 158 en las 45 filas, y el plazo de queja es
+esa cifra más los 5 del art. 282 en las 45.
+
+Eso es `npm run verificar-acordada`, 90 comprobaciones. Se lo vio fallar a
+propósito transponiendo dos dígitos de Formosa —2501 por 2051—: dice «la tabla
+dice 13 día(s) y de 2051 km salen 10».
+
+**Lo que no prueba, y está escrito en el script:** que las distancias sean
+ciertas. Eso lo informaron la CNRT y Vialidad y lo publicó la Corte. Prueba que
+el archivo dice lo que dice la imagen, que es lo único que un script puede
+probar.
+
+### El orden nuevo, y qué contesta en cada caso
+
+Un solo botón, y tres fuentes de más fiel a menos: la tabla, la ruta, la recta.
+
+- **Formosa** → tabla, 13 días, con las dos distancias y por qué manda el tren.
+- **Tucumán → Salta** → ruta, 2 días, **avisando que puede quedar corto**: la
+  Corte compara con la vía férrea y para ese par no hay dato ferroviario.
+- **Puerto Argentino** → «la ampliación es de **al menos** 10 días». No hay ruta.
+- **Jerusalén** → al menos 61 días, y sin mapa, diciendo por qué.
+
+**La línea recta pasó a declararse piso y no respuesta.** Nadie viaja en recta,
+así que la distancia real nunca es menor: si la recta ya da 10 días, por
+cualquier camino van a ser 10 o más. Es lo que la vuelve útil siendo la peor de
+las tres.
+
+### Lo que contestaba antes cuando no hay ruta
+
+`Error al consultar OSRM: Error en OSRM`. Y no había ningún error: OSRM devuelve
+un **400 con `code: "NoRoute"`**, que es la respuesta correcta a cómo se va en
+auto de Buenos Aires a Puerto Argentino. Ahora se distingue de una falla real.
+
+**Malvinas no necesitó ningún caso especial**, que era la pregunta de Javier.
+GEOREF —el geocodificador del Estado— devuelve «Puerto Argentino» dentro de
+Tierra del Fuego, Antártida e Islas del Atlántico Sur, así que ya es local para
+la fuente que se consulta. El segmentado lo dice: «En el país · incluye las
+islas del Atlántico Sur».
+
+### El ruido que se fue
+
+Todo señalado por Javier, y todo de la misma familia: la pantalla decía cinco
+veces lo que ya decía la pestaña elegida.
+
+- El bloque ámbar de «Advertencia Legal & Método de Cálculo», que era media
+  pantalla de documentación y **declaraba que la herramienta fue generada
+  mediante Inteligencia Artificial**, como pidiendo disculpas. Eso ya se había
+  desterrado del repositorio y sobrevivía sólo acá.
+- «(Arg)» en los dos rótulos, «Fuente: API GEOREF» repetido *adentro* de la
+  pestaña Argentina, «Buscar localidad argentina…» en el placeholder y
+  «(Argentina)» en el botón.
+- «(OSRM)» en un botón. El nombre del servicio es documentación, no una pregunta
+  que el usuario tenga que contestar; sigue dicho, al lado del resultado que
+  produjo.
+- Los inputs y los botones al 100 % del ancho. Javier: «SON GIGANTES, ocupan
+  toda la pantalla». Vale el criterio de `vencimientos`: cada control ocupa lo
+  que mide su contenido y lo único grande es el resultado.
+- El resultado abajo del formulario. Era la única de las diez así; ahora va a la
+  derecha.
+
+### El aviso de red, y por qué ahora es una línea que se abre
+
+Estaba arriba de todo, en un bloque grande. Javier: «es muy inocuo lo que hace la
+app y parece decir que en el resto de las cosas sí hay cosas que salen del
+navegador, al contrario de la idea general. De todos modos, que una localidad
+salga del navegador no dice nada a nadie, es un dato no sensible (no es un
+domicilio) y es imposible de atar a una persona porque ningún otro dato viaja
+con ella».
+
+Las dos observaciones son correctas y son distintas. **Se dice entero y sin
+recortar nada** —la promesa no se afloja— pero con el peso que tiene: un
+`<details>` cerrado. Y ahora hay algo más que decir, que antes no existía:
+**cuando el caso lo resuelve la tabla de la Corte no se consulta a nadie.**
+
+### Y una que salió sola
+
+Al escribir el comentario de CSS que advierte sobre el cierre de comentario de
+más, **se escribió el cierre de comentario**. La regla `.mapa-tierra` quedó
+muerta y el mapa salió negro a fondo pleno. Por eso ese comentario ahora nombra
+la secuencia en palabras y no la escribe.
+
+## `regresiva` era la única con la fecha en un campo continuo — cerrado el 1/9
+
+Pedido de Javier: «es la única que tiene input continuo, creo que habría que
+hacer como las demás que tienen 3 casilleros, como para unificar el sistema».
+
+Era la última que quedaba del diseño viejo, con su propio parser de formato
+`DD/MM/AAAA`. No había ninguna razón escrita para la diferencia. Ahora usa los
+tres casilleros, con el mismo salto de foco y el mismo filtro de sólo números.
+
+**Un error dejó de existir:** con tres campos no puede haber un error *de
+formato* —no hay barras que poner mal— así que el aviso pasó a ser el de las
+otras cuatro, «Esa fecha no existe en el calendario».
+
+**Los casos del banco no se tocaron.** Siguen escribiendo `'30/07/2024'`, que se
+lee mejor en la tabla; lo único que cambió es que el driver la reparte en tres
+campos. Ningún esperado se movió: 75 de 75.
+
+### Y el banco del tablero tenía un agujero que esto destapó
+
+Los dos casos de `regresiva` fallaban **sólo** en la fila «tablero → regresiva»,
+con la página suelta pasando al lado. Se lee como que el tablero rompió algo, y
+lo que estaba viejo era el caché: `montar()` hace `f.src = h.archivo` sin `?v=`,
+y tiene que seguir así —en producción el tablero carga lo publicado—. La sección
+del tablero corría contra la copia cacheada de cada calculadora.
+
+Se arregló del lado del banco, con `fetch(url, { cache: 'reload' })` sobre cada
+calculadora antes de abrir el tablero. **Lo grave no es el falso rojo: es que el
+mismo mecanismo puede dar un falso verde** contra una calculadora vieja.
+
+## Por qué las series de UMA y UHOM no se copiaron de una compilación
+
+Las dos compilaciones públicas que existen **atribuyen a la Acordada 4/2022 el
+valor de $8.183 desde abril de 2022**. La acordada dice $7.439 a partir del 1 de
+enero de 2022; $8.183 y $9.001 los fijó la 12/2022. **Enero de 2022 no figura en
+ninguna de las dos**, y a una de ellas además le falta abril de 2024 en el UHOM.
+Por eso cada valor se leyó del acto que lo fija.
+
+Y de ahí sale el dato que la página tiene y las compilaciones no: de los 63
+valores con demora computable, **los 63 salieron después del día desde el que
+rigen**, con una mediana de 63 días y un máximo de 141. No se puede armar sin
+tener los dos documentos delante.
+
+## Las tres formas en que miente un valor computado con el panel oculto
+
+Los tres casos que fundan la regla corta de `ESTADO.md` —«con el panel del
+navegador oculto, un color computado no es evidencia; el token sí»—. Los tres se
+pagaron entre el 26 y el 27/8.
+
+1. **Las transiciones CSS no avanzan.** Un elemento con `transition: color` se
+   queda con el color del tema anterior después de cambiar `data-tema`, y
+   `getComputedStyle` devuelve ese color viejo **por tiempo indefinido**, no por
+   un instante. Midiendo contraste dio falsos positivos escandalosos: 2,36 en el
+   control segmentado de `vencimientos`, que en realidad da 5,59. Desaparecían
+   al medir ese elemento solo.
+2. **`getComputedStyle` reporta transiciones que no existen.** Midiendo los
+   hitos de `caducidad`, el elemento no tenía ninguna transición declarada,
+   `getComputedStyle` igual reportó `transitionProperty: all`, y el color
+   devuelto era un valor intermedio que no está escrito en ningún lado:
+   `rgb(154, 107, 18)` donde el token dice `#815a0f`. El contraste daba 4,05 y
+   parecía reprobar AA. Calculado afuera del navegador, del token contra la
+   superficie compuesta, da 5,34 y pasa. **Lo que lo resuelve no es volver a
+   medir: es no medir.**
+3. **El `ResizeObserver` no dispara.** Midiendo la mediación embebida en el
+   tablero, el iframe quedaba en 584 px con 1033 de contenido y parecía que la
+   refundación había roto el ajuste de alto. No era eso: `vencimientos` embebida
+   daba 642 contra 1092 en la misma corrida, con el mismo desfase, y no se había
+   tocado. **La forma de descartarlo es medir en la misma corrida algo que no se
+   tocó**, que es más rápido que abrir el panel.
+
 ## El banco de navegación del tablero, y el bug que encontró — cerrado el 1/9
 
 `ESTADO.md` lo pedía con nombre desde el 31/8: **el tablero no tenía banco de

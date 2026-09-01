@@ -54,6 +54,11 @@ const PERMITIDOS = new Map([
     // sale nada del navegador hasta que alguien hace clic, y entonces
     // se va a otra pagina.
     ['servicios.infoleg.gob.ar', 'enlaces al texto de las normas citadas'],
+    // Infoleg publica el TEXTO de la Acordada 5/2010 pero no su anexo, que es
+    // la tabla: termina justo donde la tabla empieza. En argentina.gob.ar el
+    // anexo esta, como imagen, y es de ahi que se transcribio
+    // data/acordada-5-2010-distancias.json. Se enlaza el que tiene la tabla.
+    ['www.argentina.gob.ar', 'distancia.html: el texto y el anexo de la Acordada 5/2010, enlazados'],
     ['www.csjn.gov.ar', 'enlaces a las acordadas y resoluciones de la CSJN'],
     ['honorio.ar', 'enlace a Honorio, que es del mismo autor'],
     ['javiercuneo.com.ar', 'el propio sitio: og:image y la direccion de correo'],

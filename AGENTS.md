@@ -217,6 +217,11 @@ calculadoras/                   Herramientas de un solo archivo HTML con JS embe
                                   y escriben. Una cuenta con consecuencia juridica
                                   escrita dos veces es el modo de falla que produjo el
                                   bug de la feria, asi que no se vuelve a copiar.
+                                  js/distancia.js es el computo del art. 158 --la
+                                  regla de los 200 km, la linea recta y la busqueda
+                                  en la tabla de la Acordada 5/2010-- y sale del
+                                  mismo criterio: es codigo puro, corre en Node y
+                                  lo cubre npm run verificar-distancia.
                                   js/dibujo-plazo.js y css/dibujo-plazo.css son el
                                   plazo dibujado, por el mismo motivo: cuatro copias
                                   de la misma grilla se desincronizan.
@@ -230,6 +235,16 @@ data/feriados.json              Feriados nacionales, versionados. Los genera
 data/feria-judicial.json        Feria de invierno, una linea por anio con su
                                   Acordada de la CSJN. Se carga a mano: no hay API.
 data/dias-inhabiles.json        Asuetos por Acordada. Este sí se edita a mano.
+data/acordada-5-2010-distancias.json
+                                La tabla del ANEXO de la Acordada 5/2010 de la CSJN:
+                                  45 asientos federales con su distancia por ruta y
+                                  por via ferrea desde la Capital Federal, y los dias
+                                  del art. 158. El anexo NO esta en Infoleg --el texto
+                                  se corta donde la tabla empieza-- y en
+                                  argentina.gob.ar esta como imagen: se transcribio de
+                                  ahi. La regla de la Corte es tomar LA MAS LARGA de
+                                  las dos medidas, no la ruta. Lo controla
+                                  npm run verificar-acordada.
 data/contorno-argentina.json    El contorno de las 24 jurisdicciones, para DIBUJAR
                                   el mapa de distancia.html. Sale de la capa
                                   ign:provincia del IGN, simplificado por

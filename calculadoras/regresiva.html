@@ -171,8 +171,17 @@
         /* Cada campo mide lo que mide su contenido: una fecha DD/MM/AAAA y un
            número de días de dos dígitos no piden el mismo ancho, y ninguno de
            los dos pide el ancho de la tarjeta. */
-        input.mide-fecha { width: 11ch; letter-spacing: 0.02em; }
+        /* Los tres casilleros de fecha, iguales a los de las otras cuatro. Hasta
+           el 1/9/2026 esta era la unica pantalla con la fecha en un campo
+           continuo ---DD/MM/AAAA a mano, con su propio parser de formato--- y no
+           habia ninguna razon escrita para la diferencia: era la ultima que
+           quedaba del diseño viejo. Un sistema que pide la fecha de dos formas
+           distintas obliga a mirar el placeholder antes de escribir. */
+        input.mide-2 { width: 4.4ch; }
         input.mide-3 { width: 5.6ch; }
+        input.mide-4 { width: 6.8ch; }
+
+        .separador { color: var(--faint); font-weight: 600; }
 
         .pie-campo { font-size: 11px; color: var(--faint); margin-top: 6px; }
 
@@ -314,9 +323,11 @@
                 <div class="campo">
                     <span class="rotulo">Fecha objetivo</span>
                     <div class="trio">
-                        <input type="text" id="fechaObjetivo" class="mide-fecha"
-                               placeholder="DD/MM/AAAA" inputmode="numeric"
-                               aria-label="Fecha objetivo, en formato DD/MM/AAAA" value="">
+                        <input type="text" id="dia" class="mide-2" placeholder="DD" maxlength="2" inputmode="numeric" aria-label="Día">
+                        <span class="separador">/</span>
+                        <input type="text" id="mes" class="mide-2" placeholder="MM" maxlength="2" inputmode="numeric" aria-label="Mes">
+                        <span class="separador">/</span>
+                        <input type="text" id="anio" class="mide-4" placeholder="AAAA" maxlength="4" inputmode="numeric" aria-label="Año">
                     </div>
                     <span class="pie-campo">el día al que hay que llegar</span>
                 </div>
@@ -379,7 +390,12 @@
         let datosCargados = false;
         let anosDisponibles = [];
 
-        const fechaInput = document.getElementById('fechaObjetivo');
+        // Tres campos y no uno, desde el 1/9/2026, para que la fecha se cargue
+        // igual que en las otras cuatro pantallas de plazos.
+        const diaInput = document.getElementById('dia');
+        const mesInput = document.getElementById('mes');
+        const anioInput = document.getElementById('anio');
+        const camposFecha = [diaInput, mesInput, anioInput];
         const diasInput = document.getElementById('diasAntelacion');
         const calcularBtn = document.getElementById('calcularBtn');
         const resetBtn = document.getElementById('resetBtn');
@@ -389,13 +405,14 @@
         const dibujoDiv = document.getElementById('dibujo');
 
 
-        function parseFechaDDMMAAAA(str) {
-            if (!str) return null;
-            const partes = str.split('/');
-            if (partes.length !== 3) return null;
-            const dia = parseInt(partes[0], 10);
-            const mes = parseInt(partes[1], 10) - 1;
-            const anio = parseInt(partes[2], 10);
+        // Lee los tres campos. Devuelve null si falta alguno o si la fecha no
+        // existe ---31 de febrero---, que es la misma comprobacion que hacia el
+        // parser del campo continuo: se construye la fecha y se le pregunta si
+        // quedo en el dia que se le pidio.
+        function leerFecha() {
+            const dia = parseInt(diaInput.value, 10);
+            const mes = parseInt(mesInput.value, 10) - 1;
+            const anio = parseInt(anioInput.value, 10);
             if (isNaN(dia) || isNaN(mes) || isNaN(anio)) return null;
             // El rango ya no se escribe acá: la ventana de cobertura la
             // declara data/feria-judicial.json y la publica el motor. Un año
@@ -425,7 +442,7 @@
             const caja = document.getElementById('avisoError');
             caja.textContent = '';
             caja.classList.remove('visible');
-            fechaInput.classList.remove('mal');
+            camposFecha.forEach(function (c) { c.classList.remove('mal'); });
             diasInput.classList.remove('mal');
         }
 
@@ -447,14 +464,17 @@
                 return;
             }
 
-            const fechaStr = fechaInput.value.trim();
-            if (!fechaStr) {
-                avisar('Falta la fecha objetivo.', [fechaInput]);
+            const vacios = camposFecha.filter(function (c) { return c.value.trim() === ''; });
+            if (vacios.length) {
+                avisar('Falta la fecha objetivo.', vacios);
                 return;
             }
-            const fechaObj = parseFechaDDMMAAAA(fechaStr);
+            const fechaObj = leerFecha();
             if (!fechaObj) {
-                avisar('El formato de la fecha no es válido: va DD/MM/AAAA, por ejemplo 25/05/2025.', [fechaInput]);
+                // Con tres campos ya no puede haber un error DE FORMATO ---no
+                // hay barras que poner mal--- así que lo único que queda es una
+                // fecha que no existe, y el aviso lo dice así.
+                avisar('Esa fecha no existe en el calendario.', camposFecha);
                 return;
             }
 
@@ -462,7 +482,7 @@
             if (anosDisponibles.indexOf(anioFecha) === -1) {
                 avisar('El año ' + anioFecha + ' no está en el calendario judicial cargado. ' +
                        'Calculadora disponible para los años ' + anosDisponibles[0] +
-                       ' - ' + anosDisponibles[anosDisponibles.length - 1] + '.', [fechaInput]);
+                       ' - ' + anosDisponibles[anosDisponibles.length - 1] + '.', [anioInput]);
                 return;
             }
 
@@ -486,7 +506,7 @@
                 return;
             }
             if (r.objetivoInhabil) {
-                avisar('La fecha objetivo es inhábil (' + r.objetivoInhabil + '). Elegí un día hábil.', [fechaInput]);
+                avisar('La fecha objetivo es inhábil (' + r.objetivoInhabil + '). Elegí un día hábil.', camposFecha);
                 return;
             }
 
@@ -574,7 +594,7 @@
 
         function resetear() {
             limpiarAviso();
-            fechaInput.value = '';
+            camposFecha.forEach(function (c) { c.value = ''; c.classList.remove('error'); });
             diasInput.value = '5';
             resultadoPanel.style.display = 'none';
             document.getElementById('espera').style.display = '';
@@ -621,20 +641,35 @@
             calcularBtn.addEventListener('click', calcular);
             resetBtn.addEventListener('click', resetear);
 
-            fechaInput.addEventListener('blur', function() {
-                const val = this.value.trim();
-                if (val === '') return;
-                const fecha = parseFechaDDMMAAAA(val);
-                if (!fecha) {
-                    this.classList.add('error');
-                } else {
-                    this.classList.remove('error');
-                    if (anosDisponibles.indexOf(fecha.getFullYear()) === -1) {
-                        this.classList.add('error');
-                    } else {
-                        this.classList.remove('error');
+            // Aviso temprano: se marca en rojo cuando los tres campos ya están
+            // completos y la fecha no existe o cae fuera de la cobertura. Con
+            // los tres campos hay que esperar a que estén los tres ---mirando
+            // uno solo, un 31 en «día» sería un error hasta que se escriba el
+            // mes---.
+            camposFecha.forEach(function (campo) {
+                campo.addEventListener('blur', function () {
+                    if (camposFecha.some(function (c) { return c.value.trim() === ''; })) {
+                        camposFecha.forEach(function (c) { c.classList.remove('error'); });
+                        return;
                     }
-                }
+                    const fecha = leerFecha();
+                    const mal = !fecha || anosDisponibles.indexOf(fecha.getFullYear()) === -1;
+                    camposFecha.forEach(function (c) { c.classList.toggle('error', mal); });
+                });
+            });
+
+            // Sólo números, y el foco salta al campo siguiente cuando el actual
+            // se llena. Es el mismo comportamiento que en las otras cuatro.
+            camposFecha.forEach(function (campo) {
+                campo.addEventListener('input', function () {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            });
+            diaInput.addEventListener('input', function () {
+                if (this.value.length === 2) mesInput.focus();
+            });
+            mesInput.addEventListener('input', function () {
+                if (this.value.length === 2) anioInput.focus();
             });
         });
     })();

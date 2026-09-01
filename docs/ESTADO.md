@@ -241,26 +241,13 @@ porque se decidió moverlo.
 - **`www.javiercuneo.com.ar` no resuelve**, si se lo quiere: va un CNAME `www` →
   `javiercuneo.github.io` en Cloudflare, gris.
 
-### Del lado de Honorio, anotado el 24/8 y no tocado desde acá
+### Del lado de Honorio: mudado, no hay nada que hacer acá
 
-**Esto no es trabajo de este repositorio y conviene mudarlo al `ESTADO.md` de
-Honorio**, que es donde se va a cerrar: es la misma decisión del 31/8 que mandó
-allá los cuatro puntos del plan de cobertura. Sigue acá porque nadie lo copió.
-Todo en su `scripts/actualizar-uma.mjs`:
-
-1. leer `UMA_VIGENCIA` y `UHOM_VIGENCIA` de la planilla —ya cargadas— y escribir
-   `vigencia` en cada entrada de `historia`. Hoy sólo hay `capturado`, el día en
-   que el cron vio el valor, y **no es lo mismo**: de ahí salió mostrar «rige
-   desde el 20 de agosto» un valor que rige desde el 1 de julio. Y completarla
-   también cuando el valor no cambió, como ya hace con `fuente` y `url`;
-2. el control de forma del UHOM —`v % 10 === 0`— tiene que pasar a aviso:
-   noviembre de 2022 salió en 2003 y ese control **abortaría la sincronización
-   por un valor oficial**;
-3. los dos umbrales de salto están mal calibrados y ahora hay serie para
-   hacerlo. `SALTO_MAXIMO_UHOM = 0.15` es **más chico que saltos que ya
-   ocurrieron** —enero 2024 +16 %, junio 2022 +24 %, enero 2019 +20 %—;
-   `SALTO_MAXIMO_UMA = 0.6` es al revés, tan flojo que deja pasar un valor leído
-   a la mitad cuando el salto más grande de la serie es +20 %.
+Los tres puntos de `scripts/actualizar-uma.mjs` que estuvieron anotados acá desde
+el 24/8 **se mudaron el 1/9 al `ESTADO.md` de Honorio**, a «Deudas anotadas a
+propósito», que es donde se van a cerrar. De este lado quedan las series con las
+que se calibran —`data/serie-uma.json` y `data/serie-uhom.json`— y no hay que
+hacerles nada.
 
 Lo que todavía no existe va en `IDEAS.md`, que es cuaderno interno y **no se
 versiona** ---está en `.gitignore`, así que no se le puede poner un enlace---:
@@ -270,35 +257,28 @@ acá van sólo los pendientes de lo que ya está construido.
 
 ## Qué sale del navegador
 
-Verificado leyendo las once calculadoras el 26/8, y **es una pregunta que hay
-que rehacer cada vez que se agrega una pantalla**.
+**Lo contesta `npm run verificar-red`, y no una lectura.** La primera versión de
+esta lista se hizo leyendo las calculadoras una por una y se equivocó; el detalle
+está en [`HISTORIA.md`](HISTORIA.md). Lo vivo:
 
-- **La promesa está escrita en dos lugares y los dos son de Escribiente** —la
-  tarjeta de `index.html` y `documentacion.html`—, y es la única que la sostiene
-  con la CSP. **Ninguna calculadora promete nada**, así que no hay promesa
-  incumplida.
-- **Las cinco de plazos y las cuatro que no son de plazos no hablan con nadie**:
-  sólo piden los JSON de `data/` del propio sitio.
-- **`tasa` arma una URL con lo que el usuario escribió, y no sale del navegador
-  igual**: el permalink va en el **fragmento** y no en la query, y el fragmento
-  no viaja en ningún request. Un barrido futuro que busque «qué se manda afuera»
-  la va a encontrar por el `location.hash`: ya se miró.
 - **`distancia` es la única que manda algo que el usuario escribió**: los nombres
   de localidad van a `apis.datos.gob.ar`, a `geocoding-api.open-meteo.com` y a
-  `router.project-osrm.org`. No es un dato personal —es una ciudad— pero es
-  entrada del usuario saliendo a tres terceros, y **desde el 26/8 la página lo
-  dice arriba de todo**.
-- **`calculadoras/honorarios.html` también le pide a una planilla de Google**, y
-  es la excepción que no hay que arreglar: se retiró el 7/8 y `pages.yml` publica
-  en su URL el aviso de `redirects/honorarios-retirada/`, así que **el archivo con
-  el `fetch` no llega al sitio**. Queda en el repositorio como historia.
+  `router.project-osrm.org`. **Cuando el caso lo resuelve la tabla de la Corte no
+  se consulta a nadie**, porque esa tabla es un archivo de este sitio.
+- **Ninguna calculadora promete nada**, así que no hay promesa incumplida. La
+  única promesa de privacidad es la de Escribiente, sostenida con la CSP.
+- **`tasa` arma una URL con el caso y tampoco sale**: va en el **fragmento**, que
+  no viaja en ningún request.
+- **`calculadoras/honorarios.html` le pide a una planilla de Google**, y es la
+  excepción que no hay que arreglar: `pages.yml` publica en su URL el aviso de
+  `redirects/honorarios-retirada/`, así que ese archivo no llega al sitio.
 
-**El método, que es lo que hay que repetir:** la primera versión de esta lista se
-hizo leyendo las once calculadoras una por una y **se equivocó** —decía dos y
-eran tres: `prorrateo` le pedía la UMA a una planilla de Google, cuatrocientas
-líneas abajo del cálculo, adentro de un cargador de CSV—. **Lo que lo caza es un
-`grep` de `fetch(` sobre las once**, que tarda un segundo y no depende de qué tan
-atento estuvo el que leyó. Desde el 26/8 eso es `npm run verificar-red`.
+**Y el peso del aviso es una decisión, del 1/9.** En `distancia` era un bloque
+grande arriba de todo, y decía de más en dos sentidos: gritarlo ahí insinúa que
+en el resto del sitio sí sale algo —que es al revés—, y el dato es **una
+localidad**, que no identifica a nadie y no viaja con nada que la ate a una
+persona ni a un expediente. Ahora es un `<details>` cerrado, **entero y sin
+recortar nada**: la promesa no se afloja, cambia el volumen.
 
 ---
 
@@ -314,6 +294,8 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-series` | Las series de UMA, UHOM y monto fijo |
 | `npm run verificar-contraste` | Los tokens de color, AA sobre las tres superficies y en los dos temas |
 | `npm run verificar-conectores` | Los dos transportes de `conectores/`: 46 |
+| `npm run verificar-acordada` | Que la tabla de la Acordada 5/2010 diga lo que dice el anexo: 90 |
+| `npm run verificar-distancia` | El cómputo del art. 158 y la búsqueda en esa tabla: 64 |
 | `npm run verificar-red` | Qué terceros nombran las quince páginas que se publican, contra una lista con el motivo al lado de cada uno |
 | `npm run verificar-escribiente` | El motor de Escribiente: 184 |
 | `npm run verificar-honorio` | Las cinco cifras que este repositorio sigue del motor |
@@ -402,16 +384,12 @@ están:
   `id` reales —`plazo` está en `caducidad` y en `vencimientos`; `dia`/`day`,
   `mes`/`month`— y cada una es una oportunidad de mover un número.
 - **Las que no son de plazos van en una región aparte y no como pestañas de la
-  misma barra**, desde el 26/8. Entran porque el flujo es el mismo —en un
-  expediente mirás un plazo y en el siguiente un prorrateo, criterio de Javier—,
-  pero un rótulo de grupo adentro de la misma barra no alcanzaba para separarlas.
-  `ejecucion-estado` entró ahí el 31/8 y no arriba: la fila de arriba son las
-  seis que se usan todos los días y tienen atajo numérico.
-- **Escribiente y `uma-uhom` van como enlace y no embebidas**, con icono propio
-  y en pestaña nueva. Ninguna de las dos calcula: una convierte PDF y la otra es
-  la serie de las dos unidades. Y la promesa de Escribiente ---que el documento
-  no sale de la máquina, con `connect-src 'none'` declarado--- se lee peor
-  adentro de un marco ajeno, no mejor.
+  misma barra.** Entran porque el flujo es el mismo, pero un rótulo de grupo
+  adentro de la misma barra no alcanzaba: la fila de arriba son las seis que se
+  usan todos los días y tienen atajo numérico.
+- **Escribiente y `uma-uhom` van como enlace y no embebidas**, en pestaña nueva.
+  Ninguna calcula, y la promesa de Escribiente ---`connect-src 'none'`--- se lee
+  peor adentro de un marco ajeno, no mejor.
 
 **Lo que sólo tiene sentido con la página abierta sola se oculta adentro del
 tablero**, por el mismo CSS inyectado que anula el `min-height: 100vh`. El
@@ -432,15 +410,60 @@ tenía, y el alto queda clavado donde arrancó. Se anula por CSS inyectado, y el
 alto se mide sobre el rect del `<body>` y no con `scrollHeight`, que nunca baja
 del alto del propio marco.
 
-## La distancia, dibujada
+## La distancia: tres fuentes, en orden de fidelidad
 
-Desde el 1/9 `distancia.html` dibuja el mapa, y **la regla que lo gobierna es
-que el dibujo no puede contradecir al número.** El art. 158 se computa por ruta
-terrestre —CSJN, Fallos 304:1345— y la ruta es más larga que la recta: un mapa
-que dibuja una recta al lado de un número que salió de la ruta miente con la
-autoridad que tiene un dibujo, porque nadie audita una línea. De ahí las dos
-cosas que **no** se pueden aflojar: **cada línea lleva su número en la
-referencia** y **cuando están las dos se ven las dos**, que es lo que más enseña.
+**`distancia.html` se rehizo de cero el 1/9 y lo que cambió es el orden.** La
+versión anterior preguntaba primero por la línea recta y ofrecía la ruta como
+un botón al costado; la tabla de la Corte no existía. Ese era el orden en que se
+había construido —Haversine, después la ruta— y no el orden en que la norma
+manda. Ahora hay **un solo botón** y la pantalla elige, de más fiel a menos:
+
+1. **La tabla de la Acordada 5/2010**, `data/acordada-5-2010-distancias.json`.
+   Si un extremo es la Capital Federal y el otro es uno de los 45 asientos
+   federales, **no hay nada que calcular**: el número lo publicó la Corte. Es la
+   única de las tres que no es una estimación, y **no consulta a nadie**.
+2. **La ruta terrestre**, por OSRM.
+3. **La línea recta**, y se declara **piso y no respuesta**: nadie viaja en
+   recta, así que la distancia real nunca es menor. Por eso cuando manda ella el
+   veredicto dice «la ampliación es de **al menos** N días».
+
+**LA REGLA DE LA CORTE NO ES «POR RUTA»: ES LA MÁS LARGA DE LAS DOS.** Acordada
+50/86, recitada en el considerando I de la 5/2010: «la distancia que se tendrá
+en cuenta será **la más larga** que resulte de la comparación entre las medidas
+por vía férrea y por ruta terrestre». **Formosa es el caso que lo muestra**:
+1.112 km por ruta y 2.501 por tren, y la Corte da **13 días** donde calcular por
+ruta da 6. Es la razón por la que la tabla se carga como dato en vez de
+recalcularse, y por la que cuando manda la ruta la pantalla avisa que **puede
+quedar corto**: es sólo una de las dos medidas que la Acordada manda comparar.
+
+**La tabla mide desde la Capital Federal y nada más.** Tucumán–Salta no está y
+no se puede deducir restando dos filas; ese caso cae a la ruta. Está dicho en el
+archivo y comprobado en el banco.
+
+**Los dos controles nuevos no se superponen.** `verificar-acordada` prueba que
+el archivo diga lo que dice la imagen del anexo —los días publicados salen de
+aplicar la regla a la más larga, y el plazo de queja es eso más 5: 90
+comprobaciones—. `verificar-distancia` prueba el motor y, sobre todo, **la
+búsqueda**: que las 45 filas se encuentren por su nombre y por cómo la escribe
+la gente, y que no se encuentren de más. «San Juan Bautista» no puede devolver
+San Juan, y San Juan y San Luis no dan los mismos días.
+
+**Qué contesta cuando no hay ruta**, que es lo que antes decía «Error al
+consultar OSRM». Un `400` con `code: "NoRoute"` **no es una falla del servicio**:
+es la respuesta correcta a cómo se va en auto a Puerto Argentino o a Jerusalén.
+Se distingue de una falla real y se cae a la recta diciendo el motivo.
+
+**Malvinas no necesitó ningún caso especial.** GEOREF —el geocodificador del
+Estado— devuelve «Puerto Argentino» como Tierra del Fuego, Antártida e Islas del
+Atlántico Sur, así que ya es local para la fuente que se consulta. El segmentado
+dice «En el país · incluye las islas del Atlántico Sur».
+
+### El mapa
+
+**La regla que lo gobierna es que el dibujo no puede contradecir al número**, y
+tiene una vuelta más desde que existe la tabla: **la Corte publica kilómetros,
+no un recorrido.** Cuando el número sale de la tabla, el mapa dibuja la recta y
+la nota dice que el veredicto **no sale de ninguna línea de ese dibujo**.
 
 - **El contorno es un dato, no código.** `data/contorno-argentina.json`, de la
   capa `ign:provincia` del IGN, con la fuente y la fecha adentro. Lo arma
@@ -513,28 +536,21 @@ Tres consumos sobre un núcleo único, y **ninguno calcula nada**:
 
 Que sean dos transportes finos sobre un núcleo es el punto entero: **una segunda
 implementación de una cuenta con consecuencia jurídica es el modo de falla que
-produjo el bug de la feria**, cuando dos pantallas deducían la feria con dos
-heurísticas distintas y las dos estaban mal en años distintos.
+produjo el bug de la feria.**
 
 **La regla que el conector endurece:** la pantalla puede mostrar el aviso al
 lado del número porque hay alguien leyendo; un conector no tiene a nadie del
 otro lado. Por eso cuando falta un dato **la respuesta no trae fecha**: trae
-`ok: false` y el motivo. Y el texto de las herramientas MCP se lo dice al modelo
-donde lo va a leer, porque es la única defensa disponible contra que use igual
-una fecha que no vino.
+`ok: false` y el motivo, y el texto de las herramientas MCP se lo dice al modelo
+donde lo va a leer.
 
 **Las fechas viajan como `AAAA-MM-DD`.** Ni ISO completo ni epoch: los dos
-arrastran hora y huso, y del otro lado nadie sabe cuál era el huso del que
-calculó. Un plazo judicial no tiene hora.
+arrastran hora y huso. Un plazo judicial no tiene hora.
 
-**Los cubre `npm run verificar-conectores`**, 46 comprobaciones, en CI. Levanta
-el HTTP en un puerto propio —8799, para no dar un falso verde contra un conector
-que alguien tenga abierto— y le habla al MCP por stdio. **No cubre aritmética**,
-que ya cubre `verificar-plazos`: cubre lo que puede romperse de un transporte y
-no de una cuenta —que arranque, que el JSON-RPC siga siendo JSON-RPC, que no
-cambie el nombre de un campo, que un 404 conteste JSON y no HTML— y **sobre todo
-que un dato faltante no devuelva una fecha**, que es la única regla del conector
-que no se puede reparar después.
+**Los cubre `npm run verificar-conectores`**, 46 comprobaciones, en CI. **No
+cubre aritmética**, que ya cubre `verificar-plazos`: cubre lo que se rompe de un
+transporte y no de una cuenta, y **sobre todo que un dato faltante no devuelva
+una fecha**, que es la única regla del conector que no se puede reparar después.
 
 **Lo que falta: avisarle al hermano.** El pedido está anotado en el `ESTADO.md`
 de `pipeline-drafter` y en `HERMANOS.md` como abierto; cuando esto se use desde
@@ -553,18 +569,15 @@ se tiró en vez de parcharse está en [`HISTORIA.md`](HISTORIA.md).
 **Lleva un aviso de «en pruebas» en dos lugares, y el aviso es lo que hace
 honesta la publicación**: la etiqueta en la tarjeta de la landing, y un bloque
 en `--warn` arriba de `escribiente/index.html` para el que llega por enlace
-directo y no ve la tarjeta. Se publicó sin rodaje a propósito ---en la oficina
-no se puede levantar un servidor local, así que sin publicar no hay dónde
-probarlo---. **Sacar el aviso es decisión de Javier**, no de quien lo lea.
+directo. Se publicó sin rodaje a propósito ---en la oficina no se puede levantar
+un servidor local---. **Sacar el aviso es decisión de Javier.**
 
 **Lo que hay que saber para tocarla:**
 
 - **El motor está en `escribiente/js/motor/`, es código puro y no toca el DOM.**
   Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 184
-  comprobaciones, en CI antes de publicar. Los seis bugs de la versión anterior
-  están ahí como regresión con el caso exacto que fallaba, y las seis fugas del
-  21/8 también. `js/app.js` es sólo la pantalla y no decide nada sobre el
-  documento.
+  comprobaciones, en CI. Los seis bugs de la versión anterior y las seis fugas
+  del 21/8 están ahí como regresión. `js/app.js` es sólo la pantalla.
 - **Las librerías van versionadas en `escribiente/vendor/`** —pdf.js 3.11.174 y
   pdf-lib 1.17.1, 1,9 MB—. **No se vuelven a un CDN**: la promesa de privacidad
   se sostiene con la CSP, y una CSP que habilita un CDN ya no promete nada.
@@ -685,18 +698,15 @@ dos viven en `data/`, versionadas, con la norma al lado de cada valor.
 
 **Copiarlas habría sido más rápido y habría estado mal.** Las dos compilaciones
 públicas que existen atribuyen a la Acordada 4/2022 el valor de $8.183 desde
-abril de 2022. La acordada dice **$7.439 a partir del 1 de enero de 2022**;
-$8.183 y $9.001 los fijó la 12/2022. Enero de 2022 no figura en ninguna de las
-dos, y a una de ellas además le falta abril de 2024 en el UHOM.
+abril de 2022, y la acordada dice **$7.439 a partir del 1 de enero de 2022**.
+El detalle, en [`HISTORIA.md`](HISTORIA.md).
 
 **Vigencia y fecha del acto son dos campos y no uno.** La resolución dice desde
 cuándo rige el valor y casi siempre lleva fecha posterior a esa: de los 63
-valores con demora computable, **los 63 salieron después del día desde el que
-rigen**, con una mediana de 63 días y un máximo de 141. Ese es el dato que la
-página tiene y las compilaciones no, porque no se puede armar sin los dos
-documentos. Guardar una sola fecha obliga a elegir cuál, y las dos hacen falta:
-la vigencia decide qué valor corresponde a una regulación, la del acto dice si
-ese valor existía el día en que se reguló.
+valores con demora computable, los 63 salieron después. Guardar una sola fecha
+obliga a elegir cuál, y las dos hacen falta: **la vigencia decide qué valor
+corresponde a una regulación, la del acto dice si ese valor existía el día en
+que se reguló.**
 
 **Dos cosas que aparecieron leyendo y conviene no volver a descubrir:**
 
@@ -846,29 +856,16 @@ documento se queda acá porque acá está la materia prima; el pendiente, no.
   **directamente no se monta**. No es una limitación del entorno: **la solución
   es abrir el panel.** Si no se puede, el JavaScript sí funciona, y estilos
   computados y mediciones son más confiables que mirar una captura.
-  **Con una excepción que costó media hora el 26/8: las transiciones CSS
-  tampoco avanzan.** Un elemento con `transition: color` se queda con el color
-  del tema anterior después de cambiar `data-tema`, y `getComputedStyle`
-  devuelve ese color viejo por tiempo indefinido, no por un instante. Midiendo
-  contraste da falsos positivos escandalosos —2,36 en el control segmentado de
-  `vencimientos`, que en realidad da 5,59— y desaparecen al medir ese elemento
-  solo. **Un valor computado sospechoso: fijarse si la regla tiene
-  `transition`.**
-  **Y el `ResizeObserver` tampoco dispara**, que se vio el 27/8 midiendo la
-  mediación embebida en el tablero: el iframe quedaba en 584 px con 1033 de
-  contenido y parecía que la refundación había roto el ajuste de alto. No era
-  eso —`vencimientos` embebida daba 642 contra 1092 en la misma corrida, con el
-  mismo desfase, y no se había tocado—. **La forma de descartarlo es medir en la
-  misma corrida algo que no se tocó**, que es más rápido que abrir el panel.
-  **Y esa comprobación no siempre alcanza, que es lo que se aprendió el mismo
-  día midiendo los hitos de `caducidad`.** El elemento no tenía ninguna
-  transición declarada, `getComputedStyle` igual reportó `transitionProperty:
-  all`, y el color devuelto era un valor intermedio que no está escrito en
-  ningún lado: `rgb(154, 107, 18)` donde el token dice `#815a0f`. Con eso el
-  contraste daba 4,05 y parecía reprobar AA. **Lo que lo resuelve no es volver a
-  medir: es calcular el número afuera del navegador**, del token contra la
-  superficie compuesta. Da 5,34, y pasa. La regla corta: **con el panel oculto,
-  un color computado no es evidencia; el token sí.**
+  **Y con el panel oculto los valores computados mienten de tres formas**, todas
+  pagadas ya: las transiciones CSS no avanzan y `getComputedStyle` devuelve el
+  color del tema anterior por tiempo indefinido; `getComputedStyle` reporta
+  `transitionProperty: all` sobre elementos que no declaran ninguna, y devuelve
+  colores intermedios que no están escritos en ningún lado; y el
+  `ResizeObserver` no dispara, así que un iframe queda con el alto de antes.
+  Los casos, en [`HISTORIA.md`](HISTORIA.md). **Dos reglas cortas:** con el
+  panel oculto, **un color computado no es evidencia y el token sí** —el número
+  se calcula afuera, del token contra la superficie compuesta—, y para descartar
+  un desfase de medición, **medir en la misma corrida algo que no se tocó**.
 - **Un artículo de la ley no termina donde termina su primer párrafo, y
   `verificar-docs` no lo nota.** El 10/8 se afirmó dos veces que «el art. 19 de
   la 27.423 instituye la UMA y no tiene incisos», y tiene dos tablas de mínimos
