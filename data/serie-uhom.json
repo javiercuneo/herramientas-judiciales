@@ -4,7 +4,7 @@
   "_las_tablas_se_rehacen": "El Ministerio no publica un valor por mes: publica tablas, cada una con uno o varios meses, y cuando se acuerda una paritaria posterior REHACE tablas de meses ya publicados. Las tablas 17 y 18 cubren los mismos meses de 2021 con dos bases de UR distintas. Por eso el valor de un mes es el de la tabla mas nueva entre las que empiezan en ese mes o antes, y no el de la fila mas reciente que lo nombre: la tabla 18 declara octubre de 2021 y no vuelve a declarar noviembre ni diciembre porque no cambiaron, y caer a la tabla 17 para diciembre hacia BAJAR la serie de 1100 a 1010. Los valores que quedaron atras figuran en \"superado\".",
   "_el_redondeo_no_siempre_se_aplica": "El UHOM es la UR-SINEP por doce redondeada a la decena proxima superior, asi que termina en cero. El de noviembre de 2022 es 2003 y no termina en cero. Esta leido de la tabla oficial, que ademas construye toda la escala sobre el --el honorario provisional dice 4.006 y la franja A, 60.090--. La misma tabla declara UR 166,13, que por doce da 1.993,56 y redondeado daria 2.000. La regla no se aplico ese mes. Cualquier control que exija terminar en cero va a rechazar un valor oficial.",
   "fuente": "https://www.argentina.gob.ar/justicia/mediacion/mediadores/aranceles-matriculas",
-  "actualizado": "2026-08-24",
+  "actualizado": "2026-09-01",
   "valores": [
     {
       "valor": 260,
@@ -365,6 +365,12 @@
       "vigencia": "2026-08-01",
       "fuente": "39_tabla_honorarios_mediadores_decreto_2536_valores_junio_agosto_2026v2.pdf",
       "url": "https://www.argentina.gob.ar/sites/default/files/2018/07/39_tabla_honorarios_mediadores_decreto_2536_valores_junio_agosto_2026v2.pdf"
+    },
+    {
+      "valor": 13210,
+      "vigencia": "2026-09-01",
+      "fuente": "40_tabla_honorarios_mediadores_decreto_2536_valores_septiembre_diciembre_2026.pdf",
+      "url": "https://www.argentina.gob.ar/sites/default/files/2018/07/40_tabla_honorarios_mediadores_decreto_2536_valores_septiembre_diciembre_2026.pdf"
     }
   ]
 }
