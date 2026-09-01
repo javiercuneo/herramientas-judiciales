@@ -230,6 +230,14 @@ data/feriados.json              Feriados nacionales, versionados. Los genera
 data/feria-judicial.json        Feria de invierno, una linea por anio con su
                                   Acordada de la CSJN. Se carga a mano: no hay API.
 data/dias-inhabiles.json        Asuetos por Acordada. Este sí se edita a mano.
+data/contorno-argentina.json    El contorno de las 24 jurisdicciones, para DIBUJAR
+                                  el mapa de distancia.html. Sale de la capa
+                                  ign:provincia del IGN, simplificado por
+                                  scripts/armar-contorno-argentina.mjs
+                                  (npm run contorno). No sirve para decidir de que
+                                  lado de un limite cae un punto: la simplificacion
+                                  mueve la linea hasta unos 2 km, y el archivo lo
+                                  dice de si mismo.
 escribiente/                    PDF a Markdown y anonimizacion, en el navegador.
                                   Estatico, sin build y sin dependencias: se abre y
                                   se edita. El motor (js/motor/) es codigo puro, no

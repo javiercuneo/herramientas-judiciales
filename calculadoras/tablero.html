@@ -607,9 +607,20 @@ var ICONOS = {
         '<path d="M4 4v16h16"/><polyline points="7 15 11 11 14 13 19 7"/></svg>'
 };
 
+// Son LOS MISMOS objetos que `region.items`, no copias, y eso es el arreglo del
+// 1/9/2026. Hasta ese dia esto devolvia `{ id, rotulo, archivo, region }`, o sea
+// una copia, y por eso los atajos numericos NO HACIAN NADA en produccion:
+// construir() escribe `h.atajo` sobre el item de la region y atajoNumerico lo
+// buscaba en la copia, que nunca lo tuvo. El numero dibujado en cada pestaña
+// prometia algo que no pasaba, que es peor que no dibujarlo.
+//
+// Lo unico que la copia aportaba era no ensuciar los items con `region`; a
+// cambio, el estado que escribe construir() se perdia en silencio. Lo encontro
+// pruebas-tablero.html apenas se escribio, que es exactamente para lo que esta.
 var HERRAMIENTAS = REGIONES.reduce(function (acc, r) {
     return acc.concat(r.items.map(function (h) {
-        return { id: h.id, rotulo: h.rotulo, archivo: h.archivo, region: r };
+        h.region = r;
+        return h;
     }));
 }, []);
 

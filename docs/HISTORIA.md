@@ -19,6 +19,153 @@ de 2026.
 
 ---
 
+## El banco de navegación del tablero, y el bug que encontró — cerrado el 1/9
+
+`ESTADO.md` lo pedía con nombre desde el 31/8: **el tablero no tenía banco de
+pruebas de navegación.** Que embeber no mueve un número ya estaba cubierto —los
+21 casos verificados se corren dos veces, sueltos y adentro del tablero, y dan
+75 de 75— pero que las pestañas, el enlace directo por `#pestania`, las teclas
+1-6 y las flechas siguieran andando no lo probaba nadie: se había probado a mano
+el 31/8 y nada más.
+
+Salió `scripts/pruebas-tablero.html`, 37 comprobaciones en ocho grupos. **Y a la
+primera corrida dio tres fallas, dos de las cuales eran un bug publicado.**
+
+**Los atajos numéricos no hacían nada, en producción.** `HERRAMIENTAS` se armaba
+así:
+
+```js
+return acc.concat(r.items.map(function (h) {
+    return { id: h.id, rotulo: h.rotulo, archivo: h.archivo, region: r };
+}));
+```
+
+o sea **copias**. Y `construir()` escribe el número del atajo sobre el item de
+la región: `h.atajo = numero`. Entonces `atajoNumerico`, que busca en
+`HERRAMIENTAS`, no encontraba nunca ninguno. Apretar 1, 2 o 6 no hacía nada, y
+cada pestaña seguía dibujando su badge con el número al lado.
+
+Lo que la copia aportaba era no ensuciar los items con `region`. A cambio, el
+estado que escribe `construir()` se perdía en silencio. Se cambió a devolver los
+items mismos.
+
+**Es la segunda vez que las teclas 1-6 se rompen, con dos causas distintas.** La
+primera —agosto— fue que un evento de teclado no cruza de un iframe al documento
+de arriba. Las dos veces la pestaña siguió prometiendo la función que había
+perdido. Por eso el banco no comprueba «que alguna tecla haga algo» sino que
+**cada tecla abra la que dice su propio badge**: es la promesa concreta que se
+rompió las dos veces.
+
+La tercera falla era del banco y no del tablero: `new URL(h, '…/tablero.html')`
+con una base relativa tira `Invalid base URL`.
+
+**Lo que el banco cubre, y por qué cada cosa.** Las pestañas —orden, arranque,
+que la región de abajo empiece vacía, que sólo la elegida sea alcanzable con el
+tabulador—; que las dos regiones sean independientes en los dos sentidos; el
+enlace directo, incluida la regresión de que entrar por `#tasa` deje la URL
+diciendo `#tasa` y no `#vencimientos`; que navegar use `replaceState` y no llene
+el historial; las teclas, incluida la que se dispara **adentro** del marco y la
+que se ignora porque el foco está escribiendo; las flechas y que no crucen de
+región; el montaje perezoso y el estado vivo —que lo escrito en un campo
+sobreviva al ir y volver—; lo que el CSS inyectado le hace al marco —
+`.solo-suelta`, el botón de tema, el `min-height`, la sincronización del tema—;
+y que las tarjetas de enlace no sean pestañas y ningún destino sea un 404.
+
+**Cada prueba abre su propio tablero**, porque varias dependen del estado de
+arranque y ésas no se pueden correr sobre uno que ya se tocó.
+
+## La distancia, dibujada sobre un mapa — cerrado el 1/9
+
+Salió de una pregunta de Javier del 31/8: «¿acá se podría armar algo como un
+globo terráqueo o una Argentina que muestre las distancias dibujadas, o
+imposible?». Quedó anotado en `IDEAS.md` con las tres cosas que costaban, y las
+tres decidieron cómo quedó.
+
+**El contorno tenía que ser un dato.** Un límite político dibujado a ojo es un
+error que se ve. Se bajó de la capa `ign:provincia` del WFS del IGN —111 MB
+crudos, más de cuatro millones de vértices— y se simplificó con Douglas-Peucker
+a 0,02°, que
+mueve la costa hasta unos 2 km: sobre un mapa de 620 px donde un píxel son 6 km,
+la simplificación es más fina que el dibujo. Quedaron 7.017 vértices y 125 KB,
+38 KB gzip. Lo hace `npm run contorno` y **el archivo dice de sí mismo que no
+sirve para decidir de qué lado de un límite cae un punto.**
+
+**El sector antártico se resolvió sin decidir nada.** La capa trae Tierra del
+Fuego, Antártida e Islas del Atlántico Sur como una jurisdicción que llega a
+latitud −90: encuadrar en el país entero obligaba a elegir qué territorio se
+dibuja y cuál no. **El encuadre lo mandan los puntos**, así que la pregunta no
+existe —y además dos localidades bonaerenses sobre el mapa entero son dos puntos
+pegados que no dicen nada—. En el archivo no se recortó nada.
+
+**Y el dibujo no puede contradecir al número**, que era la advertencia más seria
+de la idea. El art. 158 se computa por ruta terrestre —CSJN, Fallos 304:1345— y
+la ruta es más larga que la recta. Se resolvió dibujando las dos, cada una con
+su distancia en la referencia: la recta punteada y en gris, la ruta llena y en
+el acento. Ver las dos juntas es exactamente el motivo por el que la Corte se
+atiene a la segunda: entre el Congreso y Córdoba, 645,82 km contra 697,71.
+
+**Tres cosas que aparecieron construyéndolo:**
+
+- **`overview=simplified` de OSRM no sirve para esto.** Devuelve unos 25 puntos
+  para 700 km, y con eso la ruta sale casi recta: el mapa terminaba diciendo lo
+  contrario de lo que existe para decir. Se pide `overview=full` —2.944 puntos
+  para ese tramo— y se adelgaza en la página a 400. **Antes de cambiar el
+  parámetro se comprobó que no moviera el número:** `false`, `simplified` y
+  `full` devuelven la misma distancia hasta el último decimal sobre tres pares
+  de localidades. Un parámetro de más en una URL es justo la clase de cambio que
+  mueve un resultado sin que nadie lo mire.
+- **La primera versión salió un rectángulo negro.** La tierra se pintó de
+  `--card` sobre agua `--sunk`, y las tres superficies del sistema son casi el
+  mismo color a propósito: 1,1 de contraste en claro y 1,2 en oscuro. Se veían
+  los puntos y las líneas flotando sobre nada. Se resolvió con `--fg` a opacidad
+  baja en vez de inventar un color plano: sale del sistema y se da vuelta sola
+  con el tema. El trazo a 0,5 da 3,37 y 4,78 contra `--sunk`, o sea que pasa el
+  3:1 de un objeto gráfico en los dos temas. **La cuenta se hizo afuera del
+  navegador**, del token contra la superficie compuesta, porque el panel estaba
+  oculto y ahí un color computado no es evidencia.
+- **La proyección se verificó geométricamente y no mirando.** Con el panel del
+  navegador oculto las capturas no componen, así que en vez de mirar el mapa se
+  comprobó que el punto del Congreso cayera **adentro** del polígono de CABA y
+  el de Córdoba adentro del de Córdoba, en el espacio ya proyectado, y que el
+  mínimo y de Jujuy quedara por encima del de Santa Cruz. Una proyección
+  espejada o dada vuelta no pasa ninguna de las dos.
+
+**El caché de OSRM pasó a podarse** —las últimas 25 consultas— porque hasta acá
+cada entrada eran dos números y ahora lleva el trazado. `localStorage` tira
+cuando se llena, y lo que se rompería es el cálculo, no el dibujo.
+
+**La pestaña internacional quedó sin mapa a propósito**, y lo dice en pantalla:
+el contorno que hay es el de la Argentina, y un planisferio es otro trabajo.
+
+## El barrido de texto de las tres que faltaban — cerrado el 1/9
+
+`ESTADO.md` lo pedía para `prorrateo`, `honorarios-mediacion` y
+`ejecucion-estado`, con los cuatro criterios de `tasa`. **Encontró una sola
+cosa, y conviene que quede escrito que fue una sola**, porque las tres se habían
+refundado de cero entre el 27 y el 31/8 y salieron ya escritas en el registro de
+la casa.
+
+Lo que quedaba era `Ingrese un UHOM válido.` en `honorarios-mediacion`. El usted
+no es un error —es otro registro, y así está dicho en `ESTADO.md`— pero era el
+**único** usted entre voseo: la misma pantalla dice `Cargá el monto del asunto` y
+la de al lado, `Revisá el día y el mes`. Mezclar los dos adentro del mismo
+producto se lee como que lo escribieron dos personas. Y decía poco: «válido» no
+dice por qué no lo es ni qué hacer, cuando la única forma de llegar ahí es haber
+borrado un campo que se completa solo.
+
+Quedó: «Falta el valor del UHOM, o lo que hay no es un importe. Se carga solo
+desde la serie del sitio: si lo borraste, recargá la página.»
+
+**El banco de fijados lo cazó**, que es exactamente para lo que está: reportó
+`CAMBIÓ` sobre el texto del mensaje sin que se moviera un solo número, y hubo
+que actualizar el caso a mano después de mirarlo.
+
+Los otros tres criterios se comprobaron y ya se cumplían: ninguna de las tres
+tiene un solo `<select>`, así que un desplegable de una opción no puede existir;
+los rótulos preguntan el caso y no la mecánica —«La causa o título: el hecho, el
+contrato, el despido, el daño», y no «fecha de inicio del cómputo»—; y el mapeo
+está a la vista —el tramo de la escala, el inciso de la tasa, el régimen—.
+
 ## PDF Studio fallaba callada y pasó a llamarse Escribiente — cerrado el 17/8
 
 La herramienta venía heredada de una plantilla de Google AI Studio y nunca se

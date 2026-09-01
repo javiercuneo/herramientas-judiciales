@@ -667,8 +667,9 @@ const FIJADOS = [
         calc: 'honorarios-mediacion',
         rotulo: 'Sin UHOM cargado',
         campos: { uhom: '', monto: '300000' },
-        esperado: 'no calcula: Ingrese un UHOM válido.',
-        porque: 'No se afirma un honorario sin el valor de la unidad con la que se mide.'
+        esperado: 'no calcula: Falta el valor del UHOM, o lo que hay no es un importe. ' +
+            'Se carga solo desde la serie del sitio: si lo borraste, recargá la página.',
+        porque: 'No se afirma un honorario sin el valor de la unidad con la que se mide. El texto cambió el 1/9/2026 —decía «Ingrese un UHOM válido.»— en el barrido de las tres que faltaban: era lo único que quedaba en usted, y no decía qué hacer. Este caso lo cazó, que es exactamente para lo que está: ningún número se movió y el cambio se vio igual.'
     },
 
     // --- tasa, Ley 23.898 --------------------------------------------------

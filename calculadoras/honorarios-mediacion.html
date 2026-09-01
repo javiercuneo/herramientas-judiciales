@@ -626,7 +626,18 @@
         var monto = parseFlexibleNumber(document.getElementById('monto').value);
 
         if (isNaN(uhom) || uhom <= 0) {
-            msg.textContent = 'Ingrese un UHOM válido.';
+            // Decia "Ingrese un UHOM valido." y era lo unico que quedaba en
+            // usted en las tres pantallas que faltaba barrer. El usted no es un
+            // error --es otro registro-- pero acá era el unico: la pantalla de
+            // al lado dice "Revisá el día y el mes" y esta misma dice "Cargá el
+            // monto del asunto". Mezclar los dos registros adentro del mismo
+            // producto se lee como que lo escribieron dos personas.
+            //
+            // Y decia poco: "valido" no dice por que no lo es ni que hacer. El
+            // campo se completa solo desde la serie, asi que la unica forma de
+            // llegar aca es habiendolo borrado o pisado a mano.
+            msg.textContent = 'Falta el valor del UHOM, o lo que hay no es un importe. ' +
+                'Se carga solo desde la serie del sitio: si lo borraste, recargá la página.';
             msg.classList.add('show');
             resultado.innerHTML = HTML_ESPERA;
             escala.innerHTML = '';

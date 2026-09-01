@@ -259,6 +259,119 @@
             font-size: 1.3rem;
         }
 
+        /* ------------------------------------------------------------- el mapa
+           La distancia dibujada. Existe porque una recta entre dos puntos dice
+           cosas que "487,32 km" no dice: si hay que cruzar el pais o si es la
+           provincia de al lado.
+
+           LA REGLA QUE LO GOBIERNA, y es la unica que no se puede aflojar: el
+           dibujo no puede contradecir al numero. El art. 158 se computa por ruta
+           terrestre ---criterio de la CSJN, Fallos 304:1345--- y la ruta es mas
+           larga que la recta. Un mapa que dibuja una recta al lado de un numero
+           que salio de la ruta miente con la autoridad que tiene un dibujo. Por
+           eso cada linea lleva SU numero en la referencia, y cuando estan las
+           dos se ven las dos.
+
+           El contorno sale de data/contorno-argentina.json, que es la capa
+           oficial del IGN simplificada. Si el archivo no carga, no hay mapa y el
+           calculo sigue: el mapa es lectura, no es el resultado. */
+        .mapa-caja {
+            margin-top: 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card);
+            padding: 12px 14px 10px;
+        }
+        .mapa-caja[hidden] { display: none; }
+
+        .mapa-caja svg {
+            display: block;
+            /* Tope de 620, que es el ancho del viewBox: mas grande no gana
+               detalle ---el contorno esta simplificado a 2 km--- y se come media
+               pantalla. */
+            width: 100%;
+            max-width: 620px;
+            height: auto;
+            margin: 0 auto;
+            border-radius: 8px;
+            background: var(--sunk);
+        }
+
+        /* El agua no se dibuja: lo que no es tierra es el fondo de la caja. Un
+           mar pintado pediria una capa mas y no agrega nada a la lectura.
+
+           LA TIERRA NO USA UN TOKEN DE SUPERFICIE, y no es un descuido. Las tres
+           superficies del sistema son casi el mismo color a proposito: --card
+           sobre --sunk da 1,1 de contraste en claro y 1,2 en oscuro. La primera
+           version pintaba la tierra de --card sobre agua --sunk y en tema oscuro
+           el mapa era un rectangulo negro: se veian los puntos y las lineas
+           flotando sobre nada.
+
+           Se resuelve con --fg a opacidad baja en vez de un color plano nuevo.
+           Sale del sistema, se da vuelta solo con el tema ---en claro oscurece
+           el agua clara, en oscuro aclara el agua oscura--- y no agrega ningun
+           color que haya que calibrar dos veces. El trazo de la costa es el
+           mismo token, y es lo que hace que se lea como un mapa.
+
+           Las dos opacidades estan calibradas y no elegidas a ojo, con la cuenta
+           hecha AFUERA del navegador ---del token contra la superficie
+           compuesta--- que es lo unico confiable cuando el panel esta oculto.
+           El trazo a 0,5 da 3,37 en claro y 4,78 en oscuro contra --sunk, o sea
+           que pasa el 3:1 que WCAG le pide a un objeto grafico con significado
+           en los dos temas. A 0,3 daba 2,53 en claro y no pasaba. */
+        .mapa-tierra {
+            fill: var(--fg);
+            fill-opacity: 0.13;
+            stroke: var(--fg);
+            stroke-opacity: 0.5;
+            stroke-width: 0.8;
+        }
+
+        /* La recta va punteada y en gris, la ruta llena y en el acento. No es
+           decoracion: es lo que dice de un vistazo cual de las dos es la que
+           funda el numero cuando estan las dos. */
+        .mapa-recta { fill: none; stroke: var(--muted-fg); stroke-width: 1.6; stroke-dasharray: 5 4; }
+        .mapa-ruta  { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+
+        .mapa-punto { fill: var(--accent); stroke: var(--card); stroke-width: 1.6; }
+        .mapa-rotulo {
+            font-family: var(--font-sans);
+            font-size: 10px;
+            font-weight: 600;
+            fill: var(--fg);
+            paint-order: stroke;
+            stroke: var(--card);
+            stroke-width: 3px;
+            stroke-linejoin: round;
+        }
+
+        .mapa-referencia {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 18px;
+            margin-top: 9px;
+            font-size: 12px;
+            color: var(--muted-fg);
+        }
+        .mapa-referencia b { color: var(--fg); font-variant-numeric: tabular-nums; }
+        .mapa-referencia .llave {
+            display: inline-block;
+            width: 22px;
+            height: 0;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .mapa-referencia .llave.recta { border-top: 2px dashed var(--muted-fg); }
+        .mapa-referencia .llave.ruta { border-top: 3px solid var(--accent); }
+
+        .mapa-nota {
+            margin-top: 8px;
+            font-size: 11.5px;
+            line-height: 1.5;
+            color: var(--faint);
+        }
+        .mapa-nota a { color: var(--accent); text-decoration: none; }
+
         .legal-warning {
             margin-top: 2rem;
             background: var(--warn-tint);
@@ -350,6 +463,10 @@
         <div id="resArg" class="resultado-container"></div>
         <div id="trazArg" class="trazabilidad-container"></div>
         <div id="osrmArg" class="resultado-container" style="margin-top:0.5rem; border-left-color:var(--accent);"></div>
+
+        <!-- El mapa aparece recién cuando hay dos puntos resueltos: vacío no
+             dice nada y ocupa media pantalla. -->
+        <div id="mapaArg" class="mapa-caja" hidden></div>
     </div>
 
     <div id="internacional" class="tab-content">
@@ -376,6 +493,16 @@
         <div id="resIntl" class="resultado-container"></div>
         <div id="trazIntl" class="trazabilidad-container"></div>
         <div id="osrmIntl" class="resultado-container" style="margin-top:0.5rem; border-left-color:var(--accent);"></div>
+
+        <!-- Acá no hay mapa, y es una decisión y no un olvido: el contorno que
+             tiene esta página es el de la Argentina, y un planisferio pesa
+             mucho más que un contorno. Dibujar dos puntos de Europa sobre el
+             mapa de la Argentina sería peor que no dibujar nada. -->
+        <p class="mapa-nota" style="margin-top:1rem">
+            La pestaña internacional no dibuja el mapa: el contorno que tiene
+            esta página es el de la Argentina, y sobre él dos puntos de otro
+            continente no se pueden ubicar. El número se calcula igual.
+        </p>
     </div>
 
     <div class="legal-warning">
@@ -558,6 +685,17 @@
                 trazDiv,
                 dist, calcularDias(dist), argJuzgado, argDiligencia, argJuzgado.nombre, argDiligencia.nombre
             );
+
+            // Se dibuja lo que se acaba de calcular. La ruta se olvida a
+            // propósito: si son otras dos localidades, la ruta anterior no es de
+            // este par y dejarla dibujada sería el error que el mapa existe para
+            // no cometer.
+            dibujoArg.a = { ...argJuzgado };
+            dibujoArg.b = { ...argDiligencia };
+            dibujoArg.recta = dist;
+            dibujoArg.ruta = null;
+            dibujoArg.rutaKm = null;
+            pedirContorno().then(dibujarMapa);
         });
 
         // ============================================
@@ -647,7 +785,202 @@
         });
 
         // ============================================
-        // 5. CÁLCULO POR RUTA (OSRM) CON LÍMITE Y CACHE
+        // 5. EL MAPA
+        // ============================================
+        //
+        // LA REGLA, y es la única que no se puede aflojar acá: el dibujo no
+        // puede contradecir al número. El art. 158 se computa por ruta
+        // terrestre --criterio de la CSJN, Fallos 304:1345-- y la ruta es más
+        // larga que la recta. Un mapa que dibuja una recta al lado de un número
+        // que salió de la ruta miente, y miente con la autoridad que tiene un
+        // dibujo: nadie audita una línea.
+        //
+        // De ahí las dos decisiones de todo esto:
+        //
+        //   1. CADA LÍNEA LLEVA SU NÚMERO en la referencia. La recta dice
+        //      cuántos km da Haversine y la ruta, cuántos da OSRM. Nunca hay
+        //      una línea sin decir de qué distancia es.
+        //   2. CUANDO ESTÁN LAS DOS SE VEN LAS DOS, y ésa es la parte que más
+        //      enseña: la diferencia entre la recta y la ruta es exactamente el
+        //      motivo por el que la Corte se atiene a la segunda.
+        //
+        // El contorno sale de data/contorno-argentina.json --la capa oficial
+        // del IGN, simplificada por scripts/armar-contorno-argentina.mjs-- y es
+        // un archivo de este mismo sitio: el mapa NO agrega ningún tercero a
+        // los tres que la página ya declara arriba.
+        //
+        // Y si el archivo no carga, no hay mapa. El cálculo sigue: el mapa es
+        // lectura, no es el resultado.
+
+        let contorno = null;
+        let contornoPedido = false;
+
+        function pedirContorno() {
+            if (contornoPedido) return Promise.resolve(contorno);
+            contornoPedido = true;
+            return fetch('../data/contorno-argentina.json')
+                .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+                .then(j => { contorno = j; return j; })
+                .catch(() => { contorno = null; return null; });
+        }
+
+        // El estado del dibujo de la pestaña Argentina. Se guarda porque las dos
+        // líneas llegan por caminos distintos --la recta al calcular, la ruta al
+        // apretar el otro botón-- y la segunda no puede borrar a la primera.
+        const dibujoArg = { a: null, b: null, recta: null, ruta: null, rutaKm: null };
+
+        // Equirrectangular con la corrección del coseno de la latitud. No es una
+        // proyección seria y no hace falta que lo sea: sobre un encuadre de unos
+        // pocos grados la diferencia contra cualquier otra es menor que el ancho
+        // de la línea. Lo que sí importa es la corrección, porque sin ella la
+        // Argentina sale estirada a lo ancho y se nota.
+        function armarProyeccion(caja, ancho, alto) {
+            const latMedia = (caja.y0 + caja.y1) / 2;
+            const k = Math.cos(latMedia * Math.PI / 180);
+            const anchoGeo = (caja.x1 - caja.x0) * k;
+            const altoGeo = caja.y1 - caja.y0;
+            const escala = Math.min(ancho / anchoGeo, alto / altoGeo);
+            const dx = (ancho - anchoGeo * escala) / 2;
+            const dy = (alto - altoGeo * escala) / 2;
+            return (lon, lat) => [
+                dx + (lon - caja.x0) * k * escala,
+                dy + (caja.y1 - lat) * escala   // la latitud crece hacia arriba y la y de un SVG, hacia abajo
+            ];
+        }
+
+        // El encuadre lo mandan los puntos y no el país. Dos localidades de la
+        // provincia de Buenos Aires sobre el mapa de toda la Argentina son dos
+        // puntos pegados que no dicen nada, y encuadrar en el país entero
+        // obligaría además a decidir qué se hace con el sector antártico, que
+        // llega al polo. Encuadrando por los puntos, esa decisión no existe.
+        function encuadre(puntos) {
+            let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+            puntos.forEach(([lon, lat]) => {
+                x0 = Math.min(x0, lon); x1 = Math.max(x1, lon);
+                y0 = Math.min(y0, lat); y1 = Math.max(y1, lat);
+            });
+            // Aire alrededor, y un mínimo: dos puntos de la misma ciudad darían
+            // un encuadre de cero grados y una división por cero.
+            const MINIMO = 1.6;
+            const aire = 0.28;
+            let anchoGeo = Math.max(x1 - x0, MINIMO) * (1 + aire);
+            let altoGeo = Math.max(y1 - y0, MINIMO) * (1 + aire);
+            const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+            return { x0: cx - anchoGeo / 2, x1: cx + anchoGeo / 2,
+                     y0: cy - altoGeo / 2, y1: cy + altoGeo / 2 };
+        }
+
+        const svg = (tag, attrs) => {
+            const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+            return e;
+        };
+
+        const km = (n) => n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' km';
+
+        function dibujarMapa() {
+            const caja = document.getElementById('mapaArg');
+            const d = dibujoArg;
+            if (!d.a || !d.b) { caja.hidden = true; return; }
+
+            const ANCHO = 620, ALTO = 420;
+
+            // El encuadre incluye la ruta si la hay: una ruta que se sale del
+            // recuadro se ve cortada y parece un error de la consulta.
+            const puntos = [[d.a.lon, d.a.lat], [d.b.lon, d.b.lat]]
+                .concat(d.ruta || []);
+            const proy = armarProyeccion(encuadre(puntos), ANCHO, ALTO);
+
+            const lienzo = svg('svg', {
+                viewBox: `0 0 ${ANCHO} ${ALTO}`,
+                role: 'img',
+                // Un dibujo no le dice nada a quien no lo ve, y las dos
+                // distancias son el contenido entero del dibujo.
+                'aria-label': `Mapa de ${d.a.nombre} a ${d.b.nombre}. ` +
+                    `Línea recta: ${km(d.recta)}.` +
+                    (d.rutaKm !== null ? ` Ruta terrestre consultada: ${km(d.rutaKm)}.` : '')
+            });
+
+            if (contorno) {
+                contorno.provincias.forEach(p => {
+                    p.anillos.forEach(anillo => {
+                        const puntos = anillo.map(([lon, lat]) => proy(lon, lat).map(n => n.toFixed(1)).join(','));
+                        lienzo.appendChild(svg('polygon', { class: 'mapa-tierra', points: puntos.join(' ') }));
+                    });
+                });
+            }
+
+            const pa = proy(d.a.lon, d.a.lat);
+            const pb = proy(d.b.lon, d.b.lat);
+
+            // La recta va primero para que la ruta le quede encima: cuando casi
+            // coinciden, la que tiene que verse es la que funda el número.
+            lienzo.appendChild(svg('line', {
+                class: 'mapa-recta', x1: pa[0], y1: pa[1], x2: pb[0], y2: pb[1]
+            }));
+
+            if (d.ruta && d.ruta.length > 1) {
+                lienzo.appendChild(svg('polyline', {
+                    class: 'mapa-ruta',
+                    points: d.ruta.map(([lon, lat]) => proy(lon, lat).map(n => n.toFixed(1)).join(',')).join(' ')
+                }));
+            }
+
+            [[pa, d.a.nombre], [pb, d.b.nombre]].forEach(([p, nombre]) => {
+                lienzo.appendChild(svg('circle', { class: 'mapa-punto', cx: p[0], cy: p[1], r: 5 }));
+                const t = svg('text', {
+                    class: 'mapa-rotulo',
+                    x: p[0] + (p[0] > ANCHO * 0.62 ? -9 : 9),
+                    y: p[1] + 3.5,
+                    'text-anchor': p[0] > ANCHO * 0.62 ? 'end' : 'start'
+                });
+                // Sólo la primera parte del nombre: GEOREF devuelve
+                // "Localidad, Departamento, Provincia" y entero tapa el mapa.
+                //
+                // Y hay que cerrar el paréntesis que la coma deja abierto: el
+                // asiento por defecto es «Congreso de la Nación (CABA,
+                // Argentina)» y cortado por la primera coma quedaba
+                // «Congreso de la Nación (CABA», que se lee como un nombre
+                // truncado por falta de lugar y no lo es.
+                var etiqueta = nombre.split(',')[0].trim();
+                if (etiqueta.indexOf('(') > 0 && etiqueta.indexOf(')') === -1) {
+                    etiqueta = etiqueta.slice(0, etiqueta.indexOf('(')).trim();
+                }
+                t.textContent = etiqueta;
+                lienzo.appendChild(t);
+            });
+
+            caja.innerHTML = '';
+            caja.appendChild(lienzo);
+
+            // La referencia. Cada línea con SU número: es lo que impide que el
+            // dibujo diga una cosa y el resultado otra.
+            const ref = document.createElement('div');
+            ref.className = 'mapa-referencia';
+            ref.innerHTML =
+                `<span><span class="llave recta"></span>línea recta (Haversine) · <b>${km(d.recta)}</b></span>` +
+                (d.rutaKm !== null
+                    ? `<span><span class="llave ruta"></span>ruta terrestre consultada (OSRM) · <b>${km(d.rutaKm)}</b></span>`
+                    : '');
+            caja.appendChild(ref);
+
+            const nota = document.createElement('p');
+            nota.className = 'mapa-nota';
+            nota.innerHTML = d.rutaKm === null
+                ? 'Está dibujada la línea recta, que es la que mide Haversine. ' +
+                  '<strong>La CSJN se atiene a la distancia por ruta terrestre</strong> ' +
+                  '(Fallos 304:1345), que es más larga: «Calcular por ruta» la consulta y la dibuja acá. ' +
+                  'Contorno: ' + (contorno ? 'IGN, capa ' + contorno.capa + '.' : 'no se pudo cargar.')
+                : 'Las dos líneas, cada una con su distancia. El art. 158 se computa por la ' +
+                  '<strong>ruta terrestre</strong> (CSJN, Fallos 304:1345); la recta está para ver la diferencia. ' +
+                  'Ruta: OpenStreetMap vía OSRM. Contorno: ' + (contorno ? 'IGN, capa ' + contorno.capa + '.' : 'no se pudo cargar.');
+            caja.appendChild(nota);
+
+            caja.hidden = false;
+        }
+
+        // ============================================
+        // 6. CÁLCULO POR RUTA (OSRM) CON LÍMITE Y CACHE
         // ============================================
         const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
         const OSRM_LIMITE_DIARIO = 10;
@@ -681,13 +1014,106 @@
             return cache[clave] || null;
         }
 
-        function guardarCache(clave, datos) {
-            const cache = JSON.parse(localStorage.getItem(OSRM_CACHE_KEY) || '{}');
-            cache[clave] = datos;
-            localStorage.setItem(OSRM_CACHE_KEY, JSON.stringify(cache));
+        // El caché se poda desde el 1/9/2026, y el motivo es el trazado: hasta
+        // ese día cada entrada eran dos números y podía crecer para siempre sin
+        // que se notara. Un trazado son unos cuantos kilobytes, y localStorage
+        // tiene un techo de unos 5 MB por sitio: pasado el techo, `setItem`
+        // TIRA, y lo que se rompería es el cálculo, no el dibujo. Se guardan las
+        // últimas OSRM_CACHE_MAXIMO consultas y nada más.
+        const OSRM_CACHE_MAXIMO = 25;
+
+        // Adelgaza el trazado de la ruta, y las dos puntas de esto importan.
+        //
+        // OSRM ofrece `overview=simplified`, que devuelve unos 25 puntos para
+        // 700 km. Con eso la ruta sale casi recta y el mapa termina diciendo lo
+        // contrario de lo que existe para decir: que la ruta es más larga que la
+        // línea. Así que se pide `overview=full` --2.900 puntos para el mismo
+        // tramo-- y se adelgaza acá, donde se sabe de qué tamaño es el dibujo.
+        //
+        // Y hay que adelgazar: 2.900 pares en localStorage son unos 60 KB por
+        // consulta, y el techo del navegador anda por los 5 MB.
+        //
+        // El trazado NO ES EL NÚMERO. La distancia sale de `routes[0].distance`,
+        // que es lo que OSRM midió sobre la ruta entera; esto sólo decide con
+        // cuántos vértices se la dibuja. Sobre un mapa de 620 px, 400 puntos son
+        // uno cada punto y medio.
+        const RUTA_MAXIMOS_PUNTOS = 400;
+
+        function adelgazar(coords) {
+            if (!Array.isArray(coords) || coords.length <= RUTA_MAXIMOS_PUNTOS) return coords;
+
+            const dist = (p, a, b) => {
+                const dx = b[0] - a[0], dy = b[1] - a[1];
+                if (dx === 0 && dy === 0) return Math.hypot(p[0] - a[0], p[1] - a[1]);
+                let t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy);
+                t = Math.max(0, Math.min(1, t));
+                return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy));
+            };
+
+            // Douglas-Peucker iterativo: una ruta de 5.000 puntos pasa de pila
+            // en la versión recursiva.
+            const correr = (pts, tol) => {
+                const guardar = new Uint8Array(pts.length);
+                guardar[0] = 1; guardar[pts.length - 1] = 1;
+                const pila = [[0, pts.length - 1]];
+                while (pila.length) {
+                    const [ini, fin] = pila.pop();
+                    let peor = 0, cual = -1;
+                    for (let i = ini + 1; i < fin; i++) {
+                        const d = dist(pts[i], pts[ini], pts[fin]);
+                        if (d > peor) { peor = d; cual = i; }
+                    }
+                    if (peor > tol && cual !== -1) { guardar[cual] = 1; pila.push([ini, cual], [cual, fin]); }
+                }
+                return pts.filter((_, i) => guardar[i]);
+            };
+
+            let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+            coords.forEach(([x, y]) => {
+                x0 = Math.min(x0, x); x1 = Math.max(x1, x);
+                y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+            });
+            // Se ARRANCA FINO y se va aflojando hasta entrar en el tope, en vez
+            // de arrancar con una tolerancia plausible: arrancando por el otro
+            // lado la primera pasada ya se pasa de largo y no hay vuelta atrás.
+            // Con diagonal/900 la ruta de 2.900 puntos quedaba en 43 —una
+            // tolerancia de 800 m sobre un dibujo donde un píxel son 10 km— y
+            // el trazado perdía las curvas que son justamente lo que distingue
+            // la ruta de la recta.
+            let tol = (Math.hypot(x1 - x0, y1 - y0) || 1) / 40000;
+
+            let r = coords;
+            for (let i = 0; i < 30 && r.length > RUTA_MAXIMOS_PUNTOS; i++) {
+                r = correr(coords, tol);
+                tol *= 1.5;
+            }
+            // Cinco decimales: poco más de un metro. Es para dibujar.
+            return r.map(([x, y]) => [Number(x.toFixed(5)), Number(y.toFixed(5))]);
         }
 
-        async function calcularOSRM(lat1, lon1, lat2, lon2, nombre1, nombre2, divResultado) {
+        function guardarCache(clave, datos) {
+            let cache;
+            try { cache = JSON.parse(localStorage.getItem(OSRM_CACHE_KEY) || '{}'); }
+            catch (e) { cache = {}; }
+            delete cache[clave];   // que vuelva al final: las claves de un objeto conservan el orden de inserción
+            cache[clave] = datos;
+
+            const claves = Object.keys(cache);
+            for (let i = 0; i < claves.length - OSRM_CACHE_MAXIMO; i++) delete cache[claves[i]];
+
+            try {
+                localStorage.setItem(OSRM_CACHE_KEY, JSON.stringify(cache));
+            } catch (e) {
+                // Si aun podado no entra, se empieza de nuevo con esta sola. Un
+                // caché que no se puede escribir es una comodidad perdida; una
+                // excepción sin atrapar acá se lleva puesto el resultado, que
+                // ya está calculado y es lo que el usuario vino a buscar.
+                try { localStorage.setItem(OSRM_CACHE_KEY, JSON.stringify({ [clave]: datos })); }
+                catch (e2) { /* sin caché, y la consulta sigue andando */ }
+            }
+        }
+
+        async function calcularOSRM(lat1, lon1, lat2, lon2, nombre1, nombre2, divResultado, alMapa) {
             const contador = obtenerContadorDiario();
             if (contador >= OSRM_LIMITE_DIARIO) {
                 divResultado.innerHTML = `<p style="color:var(--warn);">Límite diario de ${OSRM_LIMITE_DIARIO} consultas alcanzado. Intente mañana.</p>`;
@@ -698,6 +1124,11 @@
             const cacheado = buscarCache(clave);
             if (cacheado) {
                 mostrarResultadoOSRM(cacheado.distancia, cacheado.dias, nombre1, nombre2, divResultado, true);
+                // Una consulta guardada antes del 1/9/2026 no tiene el trazado,
+                // porque hasta ese día no se pedía. Se muestra igual y el mapa
+                // se queda sin la ruta: forzar la consulta para dibujarla
+                // gastaría una del cupo diario por un dibujo.
+                if (alMapa) alMapa(cacheado.distancia, cacheado.ruta || null);
                 return;
             }
 
@@ -705,7 +1136,16 @@
             await new Promise(resolve => setTimeout(resolve, 300));
 
             try {
-                const url = `${OSRM_BASE}/${lon1},${lat1};${lon2},${lat2}?overview=false`;
+                // `overview=full&geometries=geojson` pide el TRAZADO de la ruta,
+                // que es lo que el mapa dibuja. NO TOCA EL NÚMERO: la distancia
+                // sigue saliendo de `routes[0].distance`. Se comprobó antes de
+                // cambiarlo, con las tres formas del parámetro y sobre tres
+                // pares de localidades: `false`, `simplified` y `full` devuelven
+                // la misma distancia hasta el último decimal —697.707,2 m entre
+                // el Congreso y Córdoba con las tres—. Un parámetro de más en
+                // una URL es exactamente la clase de cambio que mueve un
+                // resultado sin que nadie lo mire, y por eso se miró.
+                const url = `${OSRM_BASE}/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
                 const respuesta = await fetch(url, {
                     headers: {
                         'User-Agent': 'HerramientasJudiciales/1.0 (javiercuneo.com.ar)'
@@ -714,12 +1154,16 @@
                 if (!respuesta.ok) throw new Error('Error en OSRM');
                 const data = await respuesta.json();
                 if (!data.routes || data.routes.length === 0) throw new Error('Sin ruta encontrada');
-                
+
                 const distancia = data.routes[0].distance / 1000; // km
                 const dias = calcularDias(distancia);
-                guardarCache(clave, { distancia, dias });
+                const geo = data.routes[0].geometry;
+                const ruta = (geo && geo.type === 'LineString' && Array.isArray(geo.coordinates))
+                    ? adelgazar(geo.coordinates) : null;
+                guardarCache(clave, { distancia, dias, ruta });
                 incrementarContador();
                 mostrarResultadoOSRM(distancia, dias, nombre1, nombre2, divResultado, false);
+                if (alMapa) alMapa(distancia, ruta);
             } catch (err) {
                 divResultado.innerHTML = `<p style="color:var(--error);">Error al consultar OSRM: ${err.message}. Intente de nuevo.</p>`;
             }
@@ -751,7 +1195,20 @@
                 div.innerHTML = '<p style="color:var(--error);">Debe seleccionar ambas localidades.</p>';
                 return;
             }
-            calcularOSRM(argJuzgado.lat, argJuzgado.lon, argDiligencia.lat, argDiligencia.lon, argJuzgado.nombre, argDiligencia.nombre, div);
+            calcularOSRM(argJuzgado.lat, argJuzgado.lon, argDiligencia.lat, argDiligencia.lon,
+                argJuzgado.nombre, argDiligencia.nombre, div,
+                (distancia, ruta) => {
+                    // El mapa necesita los dos puntos, y puede que nadie haya
+                    // apretado «Calcular» antes: se resuelve la recta acá para
+                    // que la referencia nunca muestre una línea sin su número.
+                    dibujoArg.a = { ...argJuzgado };
+                    dibujoArg.b = { ...argDiligencia };
+                    dibujoArg.recta = calcularDistancia(argJuzgado.lat, argJuzgado.lon,
+                        argDiligencia.lat, argDiligencia.lon);
+                    dibujoArg.ruta = ruta;
+                    dibujoArg.rutaKm = distancia;
+                    pedirContorno().then(dibujarMapa);
+                });
         });
 
         document.getElementById('btnOSRMIntl').addEventListener('click', () => {

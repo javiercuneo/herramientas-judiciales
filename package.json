@@ -19,6 +19,7 @@
     "barrer-plazos": "node scripts/barrer-plazos-cpccn.mjs",
     "barrer-plazos-json": "node scripts/barrer-plazos-cpccn.mjs --json",
     "og-uma": "node scripts/armar-og-uma.mjs",
+    "contorno": "node --max-old-space-size=6144 scripts/armar-contorno-argentina.mjs",
     "conector-http": "node conectores/http.mjs",
     "conector-mcp": "node conectores/mcp.mjs"
   },
