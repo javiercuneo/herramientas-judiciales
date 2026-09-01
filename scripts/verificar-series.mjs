@@ -79,18 +79,34 @@ function controlarComun(nombre, valores) {
     }
     vistas.add(v.vigencia)
 
-    // Un valor que rige desde una fecha futura seria un valor que todavia
-    // no rige, mostrado como vigente. La pagina toma el ultimo.
-    if (v.vigencia > hoy) {
-      mal(`${donde}: la vigencia ${v.vigencia} es futura`)
-    }
     if (v.url && !String(v.url).startsWith('https://')) {
       mal(`${donde}: la url no es https (${v.url})`)
     }
   })
 
-  // El orden importa: la pagina toma el ULTIMO elemento como el vigente.
-  // Un archivo ordenado al reves mostraria el valor de 2016.
+  // ---- Valores futuros ----
+  //
+  // **Un valor con vigencia futura es valido, y hasta el 1/9/2026 no lo era.**
+  // La regla decia "ninguna vigencia puede ser posterior a hoy", y el motivo
+  // escrito era este: *"la pagina toma el ultimo"*. Era cierto de una sola de
+  // las cuatro paginas que leen estas series --uma-uhom.html--; las otras tres
+  // ya tomaban el ultimo QUE YA RIGE. Arreglada esa, la prohibicion se quedo
+  // sin motivo, y estorbaba: el Ministerio publica el UHOM por trimestres, asi
+  // que el archivo puede y debe traer octubre, noviembre y diciembre desde
+  // septiembre. Obligar a cargarlos el dia 1 de cada mes es pedir que alguien
+  // se acuerde, que es exactamente como se llega a un valor viejo publicado.
+  //
+  // Lo que hay que garantizar no es que no haya futuros: es que **siempre haya
+  // alguno vigente**. Una serie entera de valores futuros dejaria a las cuatro
+  // paginas sin nada que mostrar, y ese es el error que la regla vieja evitaba
+  // de rebote.
+  if (!valores.some((v) => v.vigencia <= hoy)) {
+    mal(`${nombre}: ningun valor rige todavia; el mas viejo empieza el ${valores[0].vigencia}`)
+  }
+
+  // El orden importa, y ahora tambien para los futuros: la pagina busca el
+  // ultimo que ya rige recorriendo de atras para adelante. Un archivo
+  // ordenado al reves mostraria el valor de 2016.
   for (let i = 1; i < valores.length; i++) {
     const a = valores[i - 1]
     const b = valores[i]

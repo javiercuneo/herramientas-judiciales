@@ -223,6 +223,10 @@ td.val {
 td.fecha, td.num { font-variant-numeric: tabular-nums; }
 td.norma-celda { white-space: normal; }
 tbody tr.actual td { background: var(--accent-tint); }
+/* Publicado y todavia sin regir. Va apagado y con su rotulo al lado: que una
+   fila no este resaltada dice que no es la vigente, no dice que sea futura. */
+tbody tr.futuro td { color: var(--faint); }
+.aun { font-size: .78rem; color: var(--faint); white-space: nowrap; }
 .marca {
   font-family: var(--font-meter); font-size: .7em; vertical-align: super;
   color: var(--alerta); margin-left: 2px;
@@ -311,11 +315,17 @@ tbody tr.actual td { background: var(--accent-tint); }
 
   <section class="serie wrap">
     <span class="label">Serie</span>
-    <h2>Valores anteriores</h2>
+    <h2>La serie entera</h2>
     <p>
       Para citar una regulación vieja hace falta el valor que regía entonces, no
       el de hoy. Y hace falta saber que ese valor puede no haber existido todavía
       el día en que la regulación se dictó.
+    </p>
+    <p>
+      La tabla también puede traer valores <strong>ya publicados que todavía no
+      rigen</strong>: el Ministerio publica el UHOM por trimestres, así que en
+      septiembre ya se conocen octubre, noviembre y diciembre. Van apagados y
+      dichos, y el resaltado marca el que rige hoy.
     </p>
 
     <div class="franja" id="franja"></div>
@@ -391,8 +401,8 @@ tbody tr.actual td { background: var(--accent-tint); }
       <a href="data/serie-uma.json">serie-uma.json</a> y
       <a href="data/serie-uhom.json">serie-uhom.json</a>, con la norma al lado de
       cada valor y con lo que se sabe de cada una anotado adentro. Un control
-      automático les exige, en cada commit, que ninguna vigencia se repita y que
-      ningún valor sea menor que el anterior.
+      automático les exige, en cada commit, que ninguna vigencia se repita, que
+      ningún valor sea menor que el anterior y que siempre haya alguno vigente.
     </p>
     <p id="frescura"></p>
   </section>
@@ -437,6 +447,32 @@ tbody tr.actual td { background: var(--accent-tint); }
     return MES[d.getMonth()] + ' de ' + d.getFullYear();
   }
   function pesos(n) { return '$' + n.toLocaleString('es-AR'); }
+
+  /**
+   * El indice del ultimo valor que YA rige, que no siempre es el ultimo del
+   * archivo.
+   *
+   * Las series se cargan por adelantado: la tabla del Ministerio publica un
+   * trimestre entero de UHOM de una vez, asi que en septiembre el archivo ya
+   * trae octubre, noviembre y diciembre. Hasta el 1/9/2026 esta pagina tomaba
+   * `valores[valores.length - 1]` y habria anunciado el de diciembre como el
+   * valor de hoy, en la tarjeta y en la fila resaltada de la tabla.
+   *
+   * Es el mismo criterio que ya usaban `calculadoras/honorarios-mediacion.html`,
+   * `calculadoras/tablero.html` y `scripts/armar-og-uma.mjs`. Esta pagina era
+   * la unica de las cuatro que no lo aplicaba, y era justo la que existe para
+   * decir cual es el valor vigente.
+   *
+   * Si ninguno rige todavia -no puede pasar con estos archivos, pero un dia
+   * alguien edita uno- cae en el primero y no en -1, que dejaria la tarjeta
+   * sin valor y con un error en la consola.
+   */
+  function indiceVigente(valores) {
+    var hoy = new Date().toISOString().slice(0, 10);
+    var i = valores.length - 1;
+    while (i > 0 && valores[i].vigencia > hoy) i--;
+    return i;
+  }
 
   function escapar(t) {
     return String(t).replace(/[&<>"]/g, function (c) {
@@ -486,15 +522,27 @@ tbody tr.actual td { background: var(--accent-tint); }
 
   // ---- Tablas ----
 
-  function pintarUma(valores) {
+  // La fila resaltada es la del valor VIGENTE, y las que quedan por encima
+  // -las que todavia no rigen- lo dicen con todas las letras en vez de
+  // apoyarse en el resalte de otra fila. Resaltar la ultima del archivo era
+  // el mismo bug que la tarjeta: en septiembre habria pintado diciembre.
+  function clase(i, iVigente) {
+    if (i === iVigente) return ' class="actual"';
+    return i > iVigente ? ' class="futuro"' : '';
+  }
+  function aunNo(i, iVigente) {
+    return i > iVigente ? ' <span class="aun">aún no rige</span>' : '';
+  }
+
+  function pintarUma(valores, iVigente) {
     var html = '';
     for (var i = valores.length - 1; i >= 0; i--) {
       var f = valores[i];
       var desde = f.etiqueta || dmy(f.vigencia);
       var acto = f.acto ? dmy(f.acto) + (f.fecha_leida_a_mano ? '<span class="marca">&sect;</span>' : '') : '';
-      html += '<tr' + (i === valores.length - 1 ? ' class="actual"' : '') + '>' +
+      html += '<tr' + clase(i, iVigente) + '>' +
         '<td class="val">' + pesos(f.valor) + '</td>' +
-        '<td class="fecha">' + escapar(desde) + '</td>' +
+        '<td class="fecha">' + escapar(desde) + aunNo(i, iVigente) + '</td>' +
         '<td class="norma-celda">' + escapar(f.norma) + '</td>' +
         '<td class="fecha">' + acto + '</td></tr>';
     }
@@ -502,16 +550,16 @@ tbody tr.actual td { background: var(--accent-tint); }
     document.getElementById('uma-cuantos').textContent = valores.length + ' valores';
   }
 
-  function pintarUhom(valores) {
+  function pintarUhom(valores, iVigente) {
     var html = '';
     for (var i = valores.length - 1; i >= 0; i--) {
       var f = valores[i];
       var marca = (f.valor % 10 ? '<span class="marca">&dagger;</span>' : '') +
                   (f.superado ? '<span class="marca">&Dagger;</span>' : '');
       var tabla = f.fuente ? 'tabla ' + parseInt(f.fuente, 10) : '';
-      html += '<tr' + (i === valores.length - 1 ? ' class="actual"' : '') + '>' +
+      html += '<tr' + clase(i, iVigente) + '>' +
         '<td class="val">' + pesos(f.valor) + marca + '</td>' +
-        '<td class="fecha">' + mesAnio(f.vigencia) + '</td>' +
+        '<td class="fecha">' + mesAnio(f.vigencia) + aunNo(i, iVigente) + '</td>' +
         '<td>' + tabla + '</td></tr>';
     }
     document.getElementById('uhom-filas').innerHTML = html;
@@ -570,8 +618,10 @@ tbody tr.actual td { background: var(--accent-tint); }
         throw new Error('un archivo vino sin valores');
       }
 
-      var ultimaUma = uma.valores[uma.valores.length - 1];
-      var ultimoUhom = uhom.valores[uhom.valores.length - 1];
+      var iUma = indiceVigente(uma.valores);
+      var iUhom = indiceVigente(uhom.valores);
+      var ultimaUma = uma.valores[iUma];
+      var ultimoUhom = uhom.valores[iUhom];
 
       document.getElementById('tarjetas').innerHTML =
         tarjeta('UMA',
@@ -586,8 +636,8 @@ tbody tr.actual td { background: var(--accent-tint); }
                 'Tabla del Ministerio de Justicia');
 
       pintarFranja(uma.valores, uhom.valores);
-      pintarUma(uma.valores);
-      pintarUhom(uhom.valores);
+      pintarUma(uma.valores, iUma);
+      pintarUhom(uhom.valores, iUhom);
       pintarFrescura(uma, uhom);
 
       estado.hidden = true;
