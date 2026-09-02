@@ -68,8 +68,21 @@
     padding-bottom: 5px;
 }
 
+/* La celda del dia.
+
+   `margin: 0; padding: 0; min-width: 0` no dibujan nada: son el cinturon.
+   Las clases de este archivo viven en el mismo espacio de nombres que el
+   <style> de cada pantalla, que se carga DESPUES y gana. Cuando un nombre
+   se repite --paso con `firma`, ver mas abajo-- lo que entra es el relleno
+   y los margenes de la otra regla, y con aspect-ratio:1 un relleno de mas
+   se convierte en ancho de mas: las siete columnas de 1fr se estiran al
+   minimo de la celda mas gorda y los meses se pisan. Con estas tres, un
+   nombre repetido puede cambiar un color, pero no puede romper la grilla. */
 .celda {
     aspect-ratio: 1;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -99,17 +112,24 @@
 .celda.contado { background: var(--accent-tint); color: var(--accent); }
 .celda.notificacion { border-color: var(--accent); color: var(--accent); }
 
-/* La firma de la resolucion, en notificacion automatica. Es un evento
-   de otra naturaleza --no es el plazo, es lo que lo origina-- y por eso
-   lleva --ok, que es un token de estado del sistema y no un acento
-   nuevo. Va en el borde y no en el relleno para no competir con el
-   vencimiento, que es lo unico que se llena solido.
+/* El ANCLA del computo: el dato que el usuario cargo y del que sale
+   todo lo demas. En vencimientos es la firma de la resolucion, en
+   regresiva la fecha objetivo, en entre-fechas los dos extremos. Es un
+   evento de otra naturaleza --no es el plazo, es lo que lo origina-- y
+   por eso lleva --ok, que es un token de estado del sistema y no un
+   acento nuevo. Va en el borde y no en el relleno para no competir con
+   el vencimiento, que es lo unico que se llena solido.
 
-   En regresiva y en entre-fechas el mismo borde marca el ANCLA del
-   computo --la fecha objetivo, el dia desde el que se cuenta--: es el
-   mismo papel, el dato que el usuario cargo y del que sale todo lo
-   demas. */
-.celda.firma { border-color: var(--ok); color: var(--ok); }
+   SE LLAMO `firma` HASTA EL 2/9/2026 Y ESE NOMBRE ROMPIA EL DIBUJO. Las
+   cinco pantallas traen un pie de autoria que tambien es `.firma`
+   --margin-top 28px, padding-top 18px, border-top-- y su <style> local
+   va DESPUES de este archivo, asi que el dia de la firma se comia esos
+   18px de relleno. Con aspect-ratio:1 el alto vuelve al ancho: la celda
+   pedia 70px de minimo, las siete columnas de 1fr se estiraban a 70 y el
+   mes de agosto se dibujaba encima del de septiembre. Se veia solo con
+   notificacion automatica, que es la unica modalidad que marca el ancla.
+   `ancla` no existe en ninguna pantalla; el nombre generico si. */
+.celda.ancla { border-color: var(--ok); color: var(--ok); }
 
 .celda.vence { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 

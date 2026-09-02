@@ -1351,14 +1351,28 @@
             html += dato('Resolución firmada', formatearFechaCorta(datos.fechaIngresada), '');
             html += dato('Notificada', formatearFechaCorta(datos.fechaNotificacion), 'día de nota, art. 133 CPCCN');
         } else {
+            // UN SOLO CASILLERO, y no dos. Con cedula el usuario carga la fecha
+            // del diligenciamiento, que casi siempre ES la de la notificacion:
+            // "Cedula diligenciada 24 ago / Notificada 24 ago" repetia el mismo
+            // dia dos veces con dos nombres. Javier, 2/9: "el unico dato es el
+            // de notificada, que es el que ingresa el usuario; lo de
+            // diligenciada se presta a confusion".
+            //
+            // Las dos fechas se separan solo cuando la cedula cae en inhabil o
+            // fuera del horario, y ahi el dato que hace falta no es la segunda
+            // fecha sino POR QUE se corrio: va como nota de este mismo
+            // casillero, con la fecha cargada adentro. Asi nunca se pierde de
+            // vista lo que el usuario escribio, y no aparece un casillero que
+            // repite el dato de al lado cuando no hay nada que explicar.
             var nota = '';
             if (!datos.diaEraHabil) {
-                nota = datos.motivoInhabil + ': se tiene por practicada el hábil siguiente';
+                nota = 'diligenciada el ' + formatearFechaCorta(datos.fechaIngresada) +
+                    ' — ' + datos.motivoInhabil + ': se tiene por practicada el hábil siguiente';
             } else if (datos.fueraDeHorario) {
-                nota = 'fuera del horario hábil: se tiene por practicada el hábil siguiente';
+                nota = 'diligenciada el ' + formatearFechaCorta(datos.fechaIngresada) +
+                    ' fuera del horario hábil: se tiene por practicada el hábil siguiente';
             }
-            html += dato('Cédula diligenciada', formatearFechaCorta(datos.fechaIngresada), nota);
-            html += dato('Notificada', formatearFechaCorta(datos.fechaNotificacion), '');
+            html += dato('Notificada', formatearFechaCorta(datos.fechaNotificacion), nota);
         }
 
         html += dato('Empieza a correr', formatearFechaCorta(datos.fechaInicioConteo), 'el hábil siguiente');
@@ -1674,7 +1688,7 @@
 
         // Una marca por cada dia del que el dibujo tiene algo que decir; los
         // demas los pone el modulo como 'fuera'. El ORDEN en que se acumulan
-        // las clases y los titulos es el mismo de siempre --base, nota, firma,
+        // las clases y los titulos es el mismo de siempre --base, nota, ancla,
         // notificacion, vencimiento-- y no es cosmetico: es el orden en que se
         // lee el globo de ayuda.
         var marcas = {};
@@ -1702,7 +1716,7 @@
         });
         if (claveFirma) {
             var mf = marca(claveFirma);
-            mf.clases.push('firma');
+            mf.clases.push('ancla');
             mf.titulo += ' — firma de la resolución';
         }
         var mn = marca(claveNotificacion);

@@ -19,6 +19,63 @@ de 2026.
 
 ---
 
+## El calendario de agosto se dibujaba encima del de septiembre — cerrado el 2/9
+
+Javier mandó una captura de `vencimientos`: los dos meses del dibujo pisados uno
+sobre el otro, las iniciales de los días superpuestas —una «V» y una «M» en el
+mismo lugar—, y las últimas columnas de agosto escritas arriba de las de
+septiembre. **El motor estaba bien**: la respuesta grande, la tira de datos y los
+números de orden decían exactamente lo que tenían que decir. Se rompía el dibujo.
+
+**La causa es un nombre de clase repetido.** El día que originaba el plazo —la
+firma de la resolución— se marcaba con `.celda.firma`, y las cinco pantallas que
+dibujan traen un pie de autoría que también es `.firma`, con `margin-top: 28px`,
+`padding-top: 18px` y un `border-top`. El `<style>` de cada calculadora se carga
+**después** de `css/dibujo-plazo.css` —es el orden que deja ganar a lo local— así
+que la celda del 24 de agosto se comía los 18 px de relleno del pie.
+
+**Y con `aspect-ratio: 1` el alto vuelve al ancho.** El mínimo automático de una
+celda con relación de aspecto se transfiere de un eje al otro: esa celda pasó a
+pedir 70,5 px de mínimo, las siete columnas de `1fr` de la grilla se estiraron a
+70,5 —una columna `1fr` nunca baja de su mínimo— y el mes entero se dibujó a
+493 px adentro de una caja de 236. Lo que sobraba caía sobre el mes siguiente.
+
+**Se veía sólo con notificación automática**, que es la única modalidad de
+`vencimientos` que marca ese día. Con cédula, la fecha cargada ya es la de la
+diligencia y la marca no se dibuja: por eso el dibujo funcionaba casi siempre.
+`regresiva` y `entre-fechas` usaban la misma clase para el ancla del cómputo y
+estaban rotas igual, en todos sus casos.
+
+**Cómo se cerró.** La clase pasó a llamarse `ancla`, que es lo que en realidad
+significa en las tres pantallas —el dato que el usuario cargó y del que sale todo
+lo demás— y que no existe en el `<style>` de ninguna. Y `.celda` lleva desde
+ahora `margin: 0; padding: 0; min-width: 0`, que no dibujan nada: con esas tres,
+un nombre repetido puede cambiar un color, pero **no puede volver a romper la
+grilla**.
+
+### Y de paso, un casillero que repetía el de al lado
+
+Con notificación **por cédula** la tira mostraba «Cédula diligenciada 24 ago» y
+«Notificada 24 ago»: el mismo día dos veces con dos nombres. Javier, el 2/9:
+«el único dato es el de notificada, que es el que ingresa el usuario; lo de
+diligenciada se presta a confusión». Quedó un solo casillero.
+
+Las dos fechas **sí** se separan cuando la cédula cae en día inhábil o fuera del
+horario, y ahí lo que hace falta no es la segunda fecha sino **por qué se
+corrió**: eso pasó a ser la nota del casillero de «Notificada», con la fecha
+cargada adentro —«diligenciada el 29 ago 2026 — Fin de semana: se tiene por
+practicada el hábil siguiente»—. No se pierde de vista lo que el usuario
+escribió, y no aparece un casillero de más cuando no hay nada que explicar.
+
+**Lo que lo encontró fue medir, no mirar.** La captura admitía media docena de
+explicaciones —dos calendarios superpuestos, una animación a medio camino, un
+error de composición del panel—. Lo que lo cerró fue leer
+`getComputedStyle(grilla).gridTemplateColumns` en los dos meses: `70.5px` contra
+`31.14px` en grillas de idéntico ancho. Después, quitando una clase por vez de
+las celdas hasta que las columnas volvían a 31,14, quedó una sola: `firma`.
+
+---
+
 ## Cómo se leyeron los PDF de la Corte — cerrado el 1/9
 
 Baja de `ESTADO.md`, donde figuraba como «una de las tres cosas que aparecieron

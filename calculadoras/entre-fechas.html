@@ -713,7 +713,7 @@
             var k = D.clave(par[0]);
             var entro = !!(marcas[k] && marcas[k].orden);
             var m = marcas[k] || { clase: 'fuera', titulo: '' };
-            m.clase += ' firma';
+            m.clase += ' ancla';
             m.titulo += ' — fecha de ' + par[1] + ' cargada' + (entro ? '' : ', fuera del conteo');
             marcas[k] = m;
         });

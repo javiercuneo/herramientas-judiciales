@@ -65,11 +65,10 @@ está en [Por dónde seguir](#por-dónde-seguir); lo abierto, en
 **Ninguno.** Los últimos, con su caso de prueba, en
 [`HISTORIA.md`](HISTORIA.md).
 
-**El último cerrado es el que conviene tener presente**, por la forma: el 1/9
-los atajos numéricos del tablero **no hacían nada en producción** y cada pestaña
-dibujaba al lado el número que los prometía. Nada se rompió, nada avisó, y la
-interfaz siguió declarando la función que había perdido. Lo encontró
-`pruebas-tablero.html` la primera vez que se corrió.
+**El último cerrado es el que conviene tener presente**, por la forma: el 2/9
+el calendario de `vencimientos` dibujaba agosto encima de septiembre **con el
+motor intacto**, por un nombre de clase repetido entre el dibujo compartido y el
+`<style>` de la pantalla. Lo cerró medir las columnas, no mirar la captura.
 
 ---
 
@@ -895,6 +894,9 @@ documento se queda acá porque acá está la materia prima; el pendiente, no.
   largos adentro del `<style>`: **al editar uno, contar los `/*` contra los
   `*/`**, y sobre todo **medir un estilo computado después de tocar CSS**, que
   es lo que lo cazó —`fill: rgb(0,0,0)` donde el archivo decía `var(--fg)`—.
+  **Y una tercera, del 2/9: un nombre de clase repetido.** Las clases de
+  `css/dibujo-plazo.css` comparten espacio de nombres con el `<style>` local,
+  que gana, y con `aspect-ratio: 1` un relleno de más se vuelve ancho de más.
 - **`scripts/verificar-datos.sh` es el verificador de los cuatro repositorios,
   no sólo de éste.** Desde el 25/8 `core.hooksPath` global apunta a un hook
   compartido que lo corre en cualquier repositorio de la máquina —incluidos los
