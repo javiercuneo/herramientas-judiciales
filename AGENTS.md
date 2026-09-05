@@ -51,10 +51,11 @@ hay que contradecir, la trampa que muerde. Si al escribir una línea en
 
 ## Repos hermanos
 
-Este repositorio no vive solo. Son cuatro y se reparten el trabajo: `knowledge`
+Este repositorio no vive solo. Son **cinco** y se reparten el trabajo: `knowledge`
 (corpus crudo y wiki de jurisprudencia), `indice` (texto exacto por artículo y
-doctrina), `herramientas-judiciales` (calculadoras y calendario judicial) y
-`pipeline-drafter` (el motor que redacta, y que consume a los otros tres).
+doctrina), `herramientas-judiciales` (calculadoras y calendario judicial),
+`pipeline-drafter` (el motor que redacta, y que consume a los otros tres) y
+`redactor` (redacción asistida en una pasada, que consume a los cuatro).
 
 **El mapa completo —quién le da qué a quién, por qué no se fusionaron y las reglas
 de frontera— vive en `C:\IA\Pipeline drafter\HERMANOS.md`.** Es la fuente única y acá no se copia, para que no

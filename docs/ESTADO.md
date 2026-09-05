@@ -65,14 +65,19 @@ está en [Por dónde seguir](#por-dónde-seguir); lo abierto, en
 **Ninguno.** Los últimos, con su caso de prueba, en
 [`HISTORIA.md`](HISTORIA.md).
 
-**El último cerrado es el que conviene tener presente**, por la forma: el 2/9
-el calendario de `vencimientos` dibujaba agosto encima de septiembre **con el
-motor intacto**, por un nombre de clase repetido entre el dibujo compartido y el
-`<style>` de la pantalla. Lo cerró medir las columnas, no mirar la captura.
+**El último cerrado importa por la forma:** el 2/9 el calendario de
+`vencimientos` dibujaba agosto encima de septiembre **con el motor intacto**, por
+un nombre de clase repetido. Lo cerró medir las columnas, no mirar la captura.
 
 ---
 
 ## Por dónde seguir
+
+> **Fuera del camino crítico del plan de los cinco repos, y eso es un resultado.** El
+> orden conjunto está en `C:\IA\Pipeline drafter\HERMANOS.md`: los cinco pasos son de
+> `pipeline-drafter`, `knowledge` e `indice`. Acá no hay nada que desbloquee a nadie, y
+> el único pedido que había —el calendario judicial consultable— se cerró el 2/9 con
+> `conectores/`.
 
 **Lo que queda abierto, y es una sola cosa:**
 
@@ -242,15 +247,10 @@ porque se decidió moverlo.
 
 ### Del lado de Honorio: mudado, no hay nada que hacer acá
 
-Los tres puntos de `scripts/actualizar-uma.mjs` que estuvieron anotados acá desde
-el 24/8 **se mudaron el 1/9 al `ESTADO.md` de Honorio**, a «Deudas anotadas a
-propósito», que es donde se van a cerrar. De este lado quedan las series con las
-que se calibran —`data/serie-uma.json` y `data/serie-uhom.json`— y no hay que
-hacerles nada.
-
-Lo que todavía no existe va en `IDEAS.md`, que es cuaderno interno y **no se
-versiona** ---está en `.gitignore`, así que no se le puede poner un enlace---:
-acá van sólo los pendientes de lo que ya está construido.
+Los tres puntos de `scripts/actualizar-uma.mjs` se mudaron el 1/9 al `ESTADO.md`
+de Honorio, que es donde se van a cerrar. De este lado quedan las series con las
+que se calibran y no hay que hacerles nada. Lo que todavía no existe va en
+`IDEAS.md`, que es cuaderno interno y **no se versiona**.
 
 ---
 
