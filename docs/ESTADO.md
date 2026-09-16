@@ -51,47 +51,55 @@ sólo se enlaza lo que NO está en el tablero. Detalle en
 
 ## Bugs abiertos
 
-Los tres son de **escribiente** y salieron el 2026-09-16, procesando nueve
-testimonios reales para el proyecto `confronteitor` (`C:\IA\confronteitor`).
-Los cerrados, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
+Los cuatro salieron el 2026-09-16 trabajando para `confronteitor`
+(`C:\IA\confronteitor`): tres de **escribiente**, uno del **verificador de
+datos**. Los cerrados, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
 
-### E-01 · Deja la mitad de un nombre cuando reemplaza la otra
+### E-01 · Escribiente deja la mitad de un nombre cuando reemplaza la otra
 
-**Es una fuga, no una molestia.** Cuando un nombre tiene varios tokens y no
-todos se detectan o se tildan, **los que quedan siguen en el texto y la
-constancia no los nombra**, porque para ella ese nombre «se reemplazó». En los
-nueve archivos sobrevivieron así seis nombres de pila, dos apellidos de parte y
-el nombre de pila del juez —éste en los nueve—, en formas como
-`Apellido, [PERSONA]`, `[PERSONA] Apellido`, `NOMBRE M. [PERSONA]` y
-`Doctora [PERSONA] Apellido`.
+**Es una fuga, y lo peor es que no se nota.** Si un nombre tiene varios tokens y
+no todos se tildan, los que quedan siguen en el texto **y la constancia no los
+cuenta**, porque para ella ese nombre «se reemplazó». Dice «no quedaron nombres
+propios sin reemplazar», según su cuenta es cierto, y **el archivo se lee como
+limpio**: quien revisa confía en la constancia justo donde no mira. En los nueve
+testimonios sobrevivieron seis nombres de pila, dos apellidos de parte y el
+nombre de pila del juez, en formas como `Apellido, [PERSONA]` y
+`NOMBRE M. [PERSONA]`.
 
-**Por qué es peor que una fuga común:** la constancia dice «no quedaron nombres
-propios sin reemplazar», y según su propia cuenta es cierto, así que **el
-archivo se lee como limpio**. Quien lo revisa confía en la constancia
-exactamente donde la constancia no mira.
+Caso de prueba, sin datos reales: `Perez, Juan Carlos` con `Juan Carlos` tildado
+tiene que salir sin `Perez`, o la constancia tiene que decir que quedó. Arreglo
+posible: un token capitalizado pegado a un `[PERSONA]` se ofrece tildado, o al
+menos se cuenta entre los que quedaron.
 
-Caso de prueba, sin datos reales: un texto con `Perez, Juan Carlos` donde se
-tilda `Juan Carlos` tiene que salir sin `Perez`, o la constancia tiene que
-decir que `Perez` quedó. Arreglo posible: que un token capitalizado pegado a un
-`[PERSONA]` —antes o después, con coma o sin ella— se ofrezca tildado, o al
-menos se cuente entre los que quedaron.
-
-### E-02 · La lista de candidatos trae más ruido que señal
+### E-02 · La lista de candidatos de escribiente trae más ruido que señal
 
 Frases genéricas en mayúsculas entran como candidatas a nombre propio: rubros de
-escritura, unidades de medida, títulos de sección. En uno de los testimonios
-fueron diez candidatas y **las diez eran falsas**. No es sólo molestia: una
-lista así se tilda en diagonal, y en diagonal es donde se escapa E-01.
+escritura, unidades de medida, títulos de sección. En un testimonio fueron diez
+y **las diez eran falsas**. Una lista así se tilda en diagonal, y en diagonal es
+donde se escapa E-01.
 
 ### E-03 · Etiquetas estables entre documentos (pedido de `confronteitor`)
 
-Hoy todas las personas de un archivo caen en `[PERSONA]` —en uno de los nueve,
-cincuenta y una veces— y cada archivo se anonimiza por separado. Para cotejar un
+Hoy todas las personas de un archivo caen en `[PERSONA]` -en uno de los nueve,
+cincuenta y una veces- y cada archivo se anonimiza por separado. Para cotejar un
 testimonio contra la resolución que transcribe hacen falta **etiquetas numeradas
 y estables entre documentos**: si una heredera es `[PERSONA_2]` en uno, tiene que
 serlo en el otro. Sin eso, dos archivos anonimizados no se pueden cruzar.
-
 **Es un pedido, no un bug**, y decide Javier si vale la pena.
+
+### E-04 · El verificador no deja tener un archivo de ejemplo
+
+El patrón `matricula` bloquea cualquier `Matrícula` seguida de un número, y para
+un repo cualquiera está bien. Pero **`confronteitor` es un repo sobre
+testimonios**: un ejemplo que un agente nuevo pueda correr sin el material real
+necesita una matrícula escrita, aunque sea inventada. Hoy no se puede versionar
+ninguno, y la alternativa -que cada agente nuevo pida el corpus real- es
+justamente lo que el patrón viene a evitar.
+
+Haría falta declarar un archivo como ejemplo, con el mecanismo que ya existe
+para las carátulas (`git config datos.caratulas aviso`): una lista de rutas
+exentas, o un `# datos: ejemplo` en la primera línea. **`--no-verify` no vale**,
+porque saltea también los otros trece controles.
 
 ---
 
