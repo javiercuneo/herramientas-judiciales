@@ -51,9 +51,47 @@ sólo se enlaza lo que NO está en el tablero. Detalle en
 
 ## Bugs abiertos
 
-**Ninguno.** Los últimos, con su caso de prueba, en
-[`HISTORIA.md`](HISTORIA.md). La forma del último —un dibujo roto con el motor
-intacto, cerrado midiendo y no mirando— quedó abajo, en las trampas vivas.
+Los tres son de **escribiente** y salieron el 2026-09-16, procesando nueve
+testimonios reales para el proyecto `confronteitor` (`C:\IA\confronteitor`).
+Los cerrados, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
+
+### E-01 · Deja la mitad de un nombre cuando reemplaza la otra
+
+**Es una fuga, no una molestia.** Cuando un nombre tiene varios tokens y no
+todos se detectan o se tildan, **los que quedan siguen en el texto y la
+constancia no los nombra**, porque para ella ese nombre «se reemplazó». En los
+nueve archivos sobrevivieron así seis nombres de pila, dos apellidos de parte y
+el nombre de pila del juez —éste en los nueve—, en formas como
+`Apellido, [PERSONA]`, `[PERSONA] Apellido`, `NOMBRE M. [PERSONA]` y
+`Doctora [PERSONA] Apellido`.
+
+**Por qué es peor que una fuga común:** la constancia dice «no quedaron nombres
+propios sin reemplazar», y según su propia cuenta es cierto, así que **el
+archivo se lee como limpio**. Quien lo revisa confía en la constancia
+exactamente donde la constancia no mira.
+
+Caso de prueba, sin datos reales: un texto con `Perez, Juan Carlos` donde se
+tilda `Juan Carlos` tiene que salir sin `Perez`, o la constancia tiene que
+decir que `Perez` quedó. Arreglo posible: que un token capitalizado pegado a un
+`[PERSONA]` —antes o después, con coma o sin ella— se ofrezca tildado, o al
+menos se cuente entre los que quedaron.
+
+### E-02 · La lista de candidatos trae más ruido que señal
+
+Frases genéricas en mayúsculas entran como candidatas a nombre propio: rubros de
+escritura, unidades de medida, títulos de sección. En uno de los testimonios
+fueron diez candidatas y **las diez eran falsas**. No es sólo molestia: una
+lista así se tilda en diagonal, y en diagonal es donde se escapa E-01.
+
+### E-03 · Etiquetas estables entre documentos (pedido de `confronteitor`)
+
+Hoy todas las personas de un archivo caen en `[PERSONA]` —en uno de los nueve,
+cincuenta y una veces— y cada archivo se anonimiza por separado. Para cotejar un
+testimonio contra la resolución que transcribe hacen falta **etiquetas numeradas
+y estables entre documentos**: si una heredera es `[PERSONA_2]` en uno, tiene que
+serlo en el otro. Sin eso, dos archivos anonimizados no se pueden cruzar.
+
+**Es un pedido, no un bug**, y decide Javier si vale la pena.
 
 ---
 
