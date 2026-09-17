@@ -102,5 +102,42 @@ echo
 # literal que sirva para probar el control es, por definicion, un literal
 # que el control bloquea. Antes que excluir este archivo del barrido
 # -que lo dejaria sin proteger- se prefiere no escribirlo.
+
+# Lo que el instalador NO puede adivinar, y sin lo cual los controles quedan a
+# medias en silencio. Se avisa, no se decide: las dos cosas dependen de datos
+# que no pueden vivir en un repositorio publico.
+echo
+falta=0
+
+correos=$(git config --global --get-all datos.correoPropio 2>/dev/null | grep -c . || true)
+if [ "${correos:-0}" -eq 0 ]; then
+  falta=1
+  amar "No hay ningun  datos.correoPropio  declarado."
+  echo "  El pre-push barre los autores de todo el rango. Sin esto, el primer"
+  echo "  commit firmado con un correo que el patron no conozca bloquea el push."
+  echo "    git config --global --add datos.correoPropio <direccion>   (uno por cada uno)"
+else
+  echo "  correos propios declarados: $correos"
+fi
+
+# Repositorios sin visibilidad declarada. El default es publico, asi que no
+# declarar no abre nada -- pero en un privado hace saltar la lista entera y eso
+# termina en --no-verify, que es como se pierde el control de verdad.
+sin=0
+while IFS= read -r g; do
+  d=$(dirname "$g")
+  v=$(git -C "$d" config --get datos.visibilidad || true)
+  if [ -z "$v" ]; then
+    sin=$((sin + 1))
+    [ "$sin" -eq 1 ] && { echo; amar "Repositorios sin  datos.visibilidad  declarada (se tratan como publicos):"; }
+    echo "  $d"
+  fi
+done < <(find "${REPOS_RAIZ:-/c/IA}" -maxdepth 3 -name node_modules -prune -o -name .git -print 2>/dev/null)
+[ "$sin" -gt 0 ] && { falta=1; echo "    git -C <repo> config datos.visibilidad privado"; }
+[ "$sin" -eq 0 ] && echo "  todos los repositorios declaran su visibilidad"
+
+[ "$falta" -eq 0 ] && verde "Nada pendiente de configurar."
+
+echo
 echo "Probalo en cualquier repositorio: stagea un archivo que traiga un documento"
 echo "de identidad inventado, con puntos, y fijate que el commit se detenga."
