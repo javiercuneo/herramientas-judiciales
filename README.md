@@ -109,19 +109,6 @@ falla y deja el archivo como estaba.
 
 ---
 
-## Bandejito
-
-Aplicación en Google Apps Script que automatizaba la distribución de los
-escritos que ingresaban al juzgado: leía el PDF del listado diario, extraía cada
-registro, clasificaba beneficios y confrontes, repartía según las reglas
-internas de la oficina por los últimos números del expediente y mandaba a cada
-responsable el correo con sus tareas y las alertas de vencimiento.
-
-Estuvo en uso hasta que lo reemplazó un desarrollo institucional.
-[Ver cómo funcionaba](https://javiercuneo.com.ar/proyectos%20finalizados/bandejito.html).
-
----
-
 ## Sobre el uso de IA
 
 El código de este repositorio está escrito con asistencia de modelos de

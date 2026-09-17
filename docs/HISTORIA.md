@@ -19,6 +19,106 @@ de 2026.
 
 ---
 
+## Bandejito sale del sitio — 16/9
+
+La tarjeta de la landing, la página `proyectos finalizados/bandejito.html`, las
+seis capturas y la sección del `README.md`. Decisión de Javier. **No se dejó
+redirección y eso es deliberado**: la regla de «el archivo se queda y la URL
+sigue viva» existe para no romper enlaces a una herramienta retirada, y acá el
+punto es el contrario —que no quede rastro que se pueda seguir—. `404.html`
+contesta esa dirección como cualquier otra que no existe; su lista de sugerencias
+escrita a mano nunca la nombró.
+
+**El motivo no fue el que parecía.** La preocupación de arranque era que se
+leyera como «usa IA para trabajar expedientes», y ese riesgo era real —Bandejito
+no tiene un solo modelo adentro: es Apps Script, expresiones regulares y reglas,
+pero vivía en un sitio que se llama «con IA», bajo un subtítulo que decía
+«Automatización inteligente» y sobre una captura que decía «Distribución
+Inteligente»— y además era el barato de arreglar, con una línea.
+
+**El que decidió fue el otro.** La página documentaba, con capturas, que el PDF
+del listado diario de una oficina judicial se procesaba en infraestructura de un
+tercero y que los correos salían de una cuenta `@gmail.com` hacia direcciones
+`@pjn.gov.ar`, con las cuentas del dominio institucional sin tapar y el reparto
+por responsable a la vista. Nada de eso identificaba a una parte ni a una
+persona, pero la prueba de una práctica interna estaba escrita por el propio
+autor, bajo su nombre y en su dominio, y lo que aportaba al sitio —que ya tiene
+diez calculadoras, Honorio y Escribiente— no pagaba eso.
+
+**Lo que sí se comprobó antes de sacarla, porque cambiaba la respuesta:** las
+seis imágenes `.bmp` que quedaron en el historial del repositorio, subidas el
+7/4 y borradas después, son **idénticas píxel a píxel** a los `.png` publicados.
+Nunca entró al repositorio una versión sin pixelar, así que sacar la página
+alcanza y no hace falta reescribir la historia —que en un repositorio público
+clonado en dos máquinas cuesta bastante más de lo que resolvería—.
+
+**Y era la única página publicada que ningún control miraba.** `verificar-red`
+recorre dieciséis páginas y ésta no estaba entre ellas: cargaba Montserrat desde
+Google Fonts, un tercero que el sitio no declara en ninguna parte, y no llevaba
+ni `comun.css` ni el interruptor de tema. Era la piel del sitio viejo, entera,
+fuera de toda la maquinaria.
+
+## Lo que bajó de `ESTADO.md` en la poda del 16/9
+
+El archivo estaba en 996 líneas de 1000 y no entraba una sesión más. Se mudó lo
+que ya estaba cerrado; lo que quedó allá es el pointer y la parte que todavía
+gobierna trabajo. **La mayor parte no se copió acá porque ya estaba**: la crónica
+de `distancia` del 1/9, las tres formas en que miente un valor computado con el
+panel oculto, el `*/` de más y el nombre de clase repetido, y el reflujo por
+geometría del 15/9 tienen su propia entrada en este archivo. Lo que sí faltaba
+es lo de abajo.
+
+### Las tres decisiones del tablero que dejaron de estar abiertas
+
+La cuarta —«existe porque once herramientas separadas pueden discrepar en
+silencio durante años y dos pestañas del mismo marco no»— se quedó en
+`ESTADO.md`, porque gobierna cada herramienta nueva. Las otras tres ya no se
+discuten:
+
+- **Iframes y no fusión del markup.** Fusionar cinco HTML tiene colisiones de
+  `id` reales —`plazo` está en `caducidad` y en `vencimientos`; `dia`/`day`,
+  `mes`/`month`— y cada una es una oportunidad de mover un número.
+- **Las que no son de plazos van en una región aparte y no como pestañas de la
+  misma barra.** Entran porque el flujo es el mismo, pero un rótulo de grupo
+  adentro de la misma barra no alcanzaba: la fila de arriba son las seis que se
+  usan todos los días y tienen atajo numérico.
+- **Escribiente y `uma-uhom` van como enlace y no embebidas**, en pestaña nueva.
+  Ninguna calcula, y la promesa de Escribiente —`connect-src 'none'`— se lee
+  peor adentro de un marco ajeno, no mejor.
+
+### Por qué el atajo de 5 días no nombra las excepciones
+
+El pedido las incluía. El botón dice «apelación, traslados y vistas» y las deja
+afuera porque **los 5 días de excepciones son los del ejecutivo (art. 542)**: en
+el ordinario las excepciones van con la contestación de la demanda (art. 346), o
+sea dentro de los 15 del art. 338. Un rótulo de atajo no tiene lugar para esa
+distinción, y la precisión entra en la línea que aparece al elegirlo, que es
+donde hay lugar. **Decir de menos no miente; redondear sí.**
+
+### El mapa cuando el número sale de la tabla de la Corte
+
+La regla del mapa era «el dibujo no puede contradecir al número». Con la tabla de
+la Acordada 5/2010 apareció una vuelta más: **la Corte publica kilómetros, no un
+recorrido**, así que no hay ningún trazado que dibujar. Se resolvió dibujando la
+recta y diciendo en la nota que el veredicto **no sale de ninguna línea de ese
+dibujo**.
+
+### Un `.sh` con CRLF no corre, y `.gitattributes` no lo cubría
+
+Con `* text=auto` y sin regla propia, un clon nuevo en Windows se llevaba
+`verificar-datos.sh` con CRLF y **el hook de datos personales dejaba de funcionar
+sin avisar**. En CI no se veía, porque en Linux sale LF igual. Desde el 25/8 hay
+`*.sh text eol=lf` y `*.mjs text eol=lf`, y por eso dejó de ser una trampa viva.
+
+### Cómo se encontró que el CPCCN escribe los plazos de cuatro formas
+
+El primer barrido cubría sólo la forma del numeral —«QUINCE (15) días»— y traía
+112 artículos. Las otras tres —«será de cinco días», «dentro de tercero día» y
+«DOS (2) **primeras** horas», que es el plazo de gracia del art. 124— llevaban el
+total a 165, y **entre lo que el primer barrido perdía estaba el art. 150**, que
+es *el* plazo de traslados. Lo cazó cruzar la pasada contra otra hecha con un
+modelo distinto: peor precisión, mejor cobertura.
+
 ## Escribiente: siete candidatos que no eran nadie y tres nombres en claro — 15/9
 
 Javier pasó por Escribiente una contestación de traslado de dos carillas —la

@@ -145,7 +145,6 @@ jobs:
           cp -r calculadoras site/
           cp -r data site/
           cp -r asistente-honorarios-clasico site/
-          cp -r "proyectos finalizados" "site/proyectos finalizados"
 
           # Escribiente: PWA estatica de vanilla JS, todo del lado del
           # navegador. La carpeta del repositorio ya es la raiz servible, asi

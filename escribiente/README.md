@@ -150,6 +150,69 @@ Tres cosas se corrigieron al portarlas:
   `la suma de 1.500.000` se convertía en `[DNI]`;
 - el patrón de email se comía el punto final de la oración.
 
+## Lo que queda abierto
+
+**Acá y no en `docs/ESTADO.md`**, que es el documento de continuidad del
+repositorio entero y se lee completo en cada sesión: los pendientes de esta
+herramienta los busca quien la viene a tocar, y ése ya está parado en esta
+carpeta. Allá queda un puntero y lo que un agente necesita saber sin entrar acá
+—la promesa de privacidad y el anonimizador hermano—.
+
+**Ninguno es bloqueante.** La mayoría salió de pasar un documento largo el
+21/8, que además destapó seis fugas ya arregladas; esa crónica está en
+[`docs/HISTORIA.md`](../docs/HISTORIA.md).
+
+- **Un nombre que el OCR ensució no lo agarra nada**, porque ningún patrón de
+  nombre puede aceptar dígitos adentro de una palabra sin empezar a comerse
+  números. Un humano lo lee igual. **No tiene arreglo por patrón**, y es una
+  razón más para leer el `.md` antes de mandarlo.
+- **El domicilio del propio juzgado también se reemplaza**, y se decidió dejarlo
+  así: la regla que lo agarra es la misma que agarra el domicilio de una parte
+  escrito igual, y separarlas pediría una lista de direcciones de tribunales.
+  Sobre-ocultar sale más barato que esa lista.
+- **Un DNI y un monto son el mismo número**, y lo único que los distingue es el
+  contexto: hoy se excluye lo que venga con `$`, con decimales, o precedido de
+  «pesos», «suma de», «importe de», «valor de», «monto de». Un monto escrito de
+  otra manera todavía puede salir como `[DNI]`, y **se eligió que el falso
+  positivo sea visible** —queda en el texto y en la constancia— antes que dejar
+  pasar un documento.
+- **Una página que es un escaneo sin OCR sale en blanco.** El aviso las lista
+  una por una y dice que lo que decían no está en el archivo, pero conviene
+  tenerlo presente al leer una constancia: **de lo que no vio, la anonimización
+  no puede decir nada.**
+- **El reflujo une por geometría desde el 15/9** —cómo y por qué, en
+  [`docs/HISTORIA.md`](../docs/HISTORIA.md)—, y **lo que no se probó es texto sin
+  justificar**: ahí un renglón cortado puede quedar lejos del margen y entonces
+  no se une, como antes. Si aparece un párrafo pegado a un título, la guarda está
+  en `continuaElParrafo`.
+- **Lo que ninguna regla ofrece se agrega a mano**, debajo de la lista, y entra
+  tildado. Es la salida para el cargo que identifica a una persona («la Directora
+  General de…»), que **no se tapa solo a propósito**: si es dato personal lo
+  decide quien firma, documento por documento.
+- **La detección de nombres propios no cubre razones sociales.** «Seguros del Sur
+  S.A.» no dispara ningún patrón de los tres, así que no se ofrece como candidato
+  y hay que agregarla a mano.
+- **Las fugas que aparecen en uso real se anotan en otro repositorio.** Desde el
+  12/9, `redactor` ingresa casos con el anonimizador del pipeline, y cada nombre
+  que el operador tiene que tapar a mano queda en
+  `Pipeline drafter/FUGAS-ANONIMIZADOR.md`: la forma del nombre y las palabras de
+  alrededor, sin el nombre ni el texto. **Cada entrada vale también para
+  `js/motor/anonimizar.js`**: las reglas son otras, pero los huecos suelen ser
+  los mismos. No se copian acá porque este repositorio es público.
+
+### Los bugs abiertos que reportó `confronteitor`
+
+Salieron el 16/9 de pasar nueve testimonios reales, y están escritos con su caso
+de prueba en [`docs/ESTADO.md`](../docs/ESTADO.md), que es donde se miran al
+empezar una sesión. En una línea cada uno:
+
+- **E-01 · un nombre de varios tokens puede quedar a medias**, y la constancia no
+  lo cuenta, así que el archivo se lee como limpio. Es el grave.
+- **E-02 · la lista de candidatos trae más ruido que señal**, y una lista así se
+  tilda en diagonal, que es donde se escapa E-01.
+- **E-03 · etiquetas numeradas y estables entre documentos**, para poder cruzar
+  dos archivos anonimizados por separado. Es un pedido, no un bug.
+
 ## Licencia
 
 MIT, como todo lo demás del repositorio.
