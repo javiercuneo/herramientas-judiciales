@@ -3,10 +3,12 @@
 //
 //   npm run verificar-conectores
 //
-// Que existe: el computo de plazos expuesto por HTTP local
-// (conectores/http.mjs) y por MCP sobre stdio (conectores/mcp.mjs),
-// los dos sobre conectores/nucleo.mjs, que es el mismo motor que
-// consumen las calculadoras.
+// Que existe: el computo de plazos y el anonimizador de Escribiente,
+// expuestos por HTTP local (conectores/http.mjs) y por MCP sobre stdio
+// (conectores/mcp.mjs). Los dos transportes cuelgan de dos registros:
+// conectores/nucleo.mjs, que es el mismo motor de plazos que consumen
+// las calculadoras, y conectores/anonimizar.mjs, que es el mismo motor
+// que corre adentro de Escribiente.
 //
 // POR QUE HACE FALTA UN CONTROL PROPIO. `npm run verificar-plazos`
 // cubre el motor: 34 comprobaciones sobre la aritmetica. No toca los
@@ -115,8 +117,15 @@ async function probarHttp() {
   igual(indice.estado, 200, 'GET / no contesta 200')
   comprobar(/json/.test(indice.tipo), 'GET / no declara content-type JSON')
   comprobar(
-    Array.isArray(indice.cuerpo?.endpoints) && indice.cuerpo.endpoints.length === 6,
-    `GET / tiene que listar los seis endpoints y lista ${indice.cuerpo?.endpoints?.length}`,
+    Array.isArray(indice.cuerpo?.endpoints) && indice.cuerpo.endpoints.length === 11,
+    `GET / tiene que listar los once endpoints y lista ${indice.cuerpo?.endpoints?.length}`,
+  )
+  // El aviso de la anonimizacion va en el indice por lo mismo que el de
+  // ok:false: es donde el que llama se entera de la regla antes de
+  // toparse con ella.
+  comprobar(
+    /no se reemplazan solos/i.test(indice.cuerpo?.anonimizacion || ''),
+    'GET / no avisa que los nombres propios no se reemplazan solos',
   )
   // El aviso del indice es la unica forma que tiene el que llama de
   // enterarse de la regla antes de encontrarse un ok:false.
@@ -219,6 +228,144 @@ async function probarHttp() {
 }
 
 // ---------------------------------------------------------------
+// El anonimizador, sobre los dos transportes
+//
+// Lo que se prueba aca NO es que anonimice --de eso se ocupa
+// verificar-escribiente, con 292 comprobaciones sobre el motor-- sino
+// las tres cosas que solo puede romper el conector:
+//
+//   - que la capa 2 se aplique sola. Un nombre propio tapado sin que
+//     nadie lo confirme es texto corrompido: ninguna regla distingue a
+//     la parte del autor de doctrina. El conector no tiene pantalla, y
+//     es el unico lugar donde esa distincion se puede perder.
+//   - que una etiqueta inventada pase. Reemplaza igual PERO apaga la
+//     deteccion de lo que queda pegado al reemplazo, que es la fuga
+//     E-01: medio apellido publicado en un archivo que se lee limpio.
+//   - que un texto que falta devuelva un resultado. Un texto vacio
+//     anonimizado da un texto vacio, y eso se lee como "no habia nada
+//     que tapar".
+// ---------------------------------------------------------------
+
+const ESCRITO_DE_PRUEBA =
+  'Comparece Ficticio, Juan Carlos, DNI 30.119.078, y ratifica. Firma el Sr. Qu1nteros, Anibal.'
+
+async function probarAnonimizadorHttp() {
+  // --- la capa 1 corre sola y la capa 2 NO ---
+  const capa1 = await pedir('/anonimizar-texto', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto: ESCRITO_DE_PRUEBA }),
+  })
+  igual(capa1.estado, 200, 'POST /anonimizar-texto no contesta 200')
+  igual(capa1.cuerpo?.ok, true, '/anonimizar-texto no contesta ok:true')
+  comprobar(
+    !capa1.cuerpo?.texto?.includes('30.119.078'),
+    'el conector no tapo el DNI, que es capa 1 y va sin preguntarle a nadie',
+  )
+  comprobar(
+    capa1.cuerpo?.texto?.includes('Ficticio, Juan Carlos'),
+    'EL CONECTOR TAPO UN NOMBRE PROPIO SIN QUE NADIE LO CONFIRME: la capa 2 se aplico sola',
+  )
+
+  // --- y el nombre se propone, que es la otra mitad de la regla ---
+  const propuestos = await pedir('/candidatos-a-nombre', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto: ESCRITO_DE_PRUEBA }),
+  })
+  const textos = (propuestos.cuerpo?.candidatos || []).map((c) => c.texto)
+  comprobar(
+    textos.includes('Ficticio, Juan Carlos'),
+    `/candidatos-a-nombre no propone el nombre que no tapo: ${textos.join(' | ')}`,
+  )
+
+  // --- confirmado, se tapa; y los restos vienen en la misma respuesta ---
+  const capa2 = await pedir('/anonimizar-texto', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      texto: ESCRITO_DE_PRUEBA,
+      elegidos: [{ texto: 'Juan Carlos', reemplazo: '[PERSONA_2]' }],
+    }),
+  })
+  comprobar(
+    capa2.cuerpo?.texto?.includes('[PERSONA_2]'),
+    'el conector no aplica el reemplazo confirmado, ni con etiqueta numerada',
+  )
+  const restos = (capa2.cuerpo?.restos || []).map((r) => r.texto)
+  comprobar(
+    restos.includes('Ficticio'),
+    `la respuesta no trae el apellido que quedo pegado a la etiqueta: ${restos.join(' | ')}`,
+  )
+  comprobar(
+    typeof capa2.cuerpo?.aviso === 'string' && capa2.cuerpo.aviso.length > 0,
+    'quedaron restos y la respuesta no lo dice en palabras',
+  )
+
+  // --- una etiqueta inventada se rechaza ANTES de tapar nada ---
+  const inventada = await pedir('/anonimizar-texto', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      texto: ESCRITO_DE_PRUEBA,
+      elegidos: [{ texto: 'Juan Carlos', reemplazo: '[PARTE]' }],
+    }),
+  })
+  igual(inventada.cuerpo?.ok, false, 'una etiqueta inventada no se rechaza, y apaga la deteccion de restos')
+  comprobar(
+    inventada.cuerpo?.texto === undefined,
+    'se rechazo la etiqueta y aun asi vino un texto anonimizado',
+  )
+  comprobar(
+    /PERSONA/.test(inventada.cuerpo?.problema || ''),
+    'el rechazo no dice cuales son las etiquetas validas',
+  )
+
+  // --- un texto que falta no devuelve un resultado ---
+  for (const [ruta, cuerpo] of [
+    ['/anonimizar-texto', {}],
+    ['/candidatos-a-nombre', { texto: '   ' }],
+    ['/restos-pegados', {}],
+    ['/aparece-en-el-texto', { texto: 'algo' }],
+  ]) {
+    const r = await pedir(ruta, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cuerpo),
+    })
+    igual(r.cuerpo?.ok, false, `${ruta} sin texto devolvio un resultado en vez del motivo`)
+    comprobar(
+      typeof r.cuerpo?.problema === 'string' && r.cuerpo.problema.length > 0,
+      `${ruta} contesta ok:false sin decir por que`,
+    )
+  }
+
+  // --- la caratula: el orden es contrato, y no haberla no es lista vacia ---
+  const caratula = await pedir('/partes-de-caratula', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto: 'autos FICTICIO, ANA c/ INVENTADO, LUIS s/ DANOS Y PERJUICIOS' }),
+  })
+  igual(caratula.cuerpo?.actor, 'FICTICIO, ANA', 'la caratula no da el actor primero')
+  igual(caratula.cuerpo?.demandado, 'INVENTADO, LUIS', 'la caratula no da el demandado segundo')
+
+  const sinCaratula = await pedir('/partes-de-caratula', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto: 'Un escrito cualquiera, sin caratula adentro.' }),
+  })
+  igual(sinCaratula.cuerpo?.ok, false, 'sin caratula se devuelve una lista vacia, que se lee como "no hay partes"')
+
+  // --- el cotejo de alias, tolerante al espaciado del PDF ---
+  const alias = await pedir('/aparece-en-el-texto', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto: 'declaro ERNESTO   QUIROGA en la audiencia', frase: 'Ernesto Quiroga' }),
+  })
+  igual(alias.cuerpo?.aparece, true, 'el cotejo de alias no tolera el espaciado, y ahi los dos lados discrepan')
+}
+
+// ---------------------------------------------------------------
 // El conector MCP
 // ---------------------------------------------------------------
 
@@ -296,6 +443,18 @@ async function probarMcp() {
     llamar(6, 'vencimiento', { fecha: '2027-06-25', plazo: '20' }),
     llamar(7, 'cobertura', {}),
     llamar(8, 'dia_habil', { fecha: '2026-07-09' }),
+    // El anonimizador por el otro transporte: tiene que dar lo mismo que
+    // por HTTP, que es el punto entero de que sean dos transportes finos.
+    llamar(9, 'anonimizar_texto', { texto: ESCRITO_DE_PRUEBA }),
+    llamar(10, 'anonimizar_texto', {
+      texto: ESCRITO_DE_PRUEBA,
+      elegidos: [{ texto: 'Juan Carlos', reemplazo: '[PERSONA_2]' }],
+    }),
+    llamar(11, 'anonimizar_texto', {
+      texto: ESCRITO_DE_PRUEBA,
+      elegidos: [{ texto: 'Juan Carlos', reemplazo: '[PARTE]' }],
+    }),
+    llamar(12, 'partes_de_caratula', { texto: 'Un escrito cualquiera, sin caratula adentro.' }),
   ])
 
   if (agotado) {
@@ -308,12 +467,29 @@ async function probarMcp() {
   comprobar(!!init?.result?.serverInfo?.name, 'initialize no se identifica')
 
   const lista = porId.get(2)?.result?.tools
-  comprobar(Array.isArray(lista) && lista.length === 6, `tools/list tiene que traer seis y trae ${lista?.length}`)
+  comprobar(Array.isArray(lista) && lista.length === 11, `tools/list tiene que traer once y trae ${lista?.length}`)
   const nombres = (lista || []).map((t) => t.name).sort()
   igual(
     nombres.join(','),
-    'cobertura,dia_habil,dias_habiles_entre,mora,siguiente_habil,vencimiento',
+    'anonimizar_texto,aparece_en_el_texto,candidatos_a_nombre,cobertura,dia_habil,' +
+      'dias_habiles_entre,mora,partes_de_caratula,restos_pegados,siguiente_habil,vencimiento',
     'tools/list cambio los nombres de las herramientas',
+  )
+  // El aviso de cada familia es distinto porque el modo de falla es
+  // distinto: en plazos el peligro es usar una fecha que no vino, en la
+  // anonimizacion es tapar por adivinanza. Un aviso generico no sirve.
+  comprobar(
+    (lista || []).filter((t) => /no se reemplazan solos/i.test(t.description || '')).length === 5,
+    'las cinco herramientas de anonimizacion tienen que avisarle al modelo que no elige el solo',
+  )
+  // `elegidos` es una lista de objetos y no un texto. Declararlo string
+  // hace que un modelo mande un JSON adentro de un string y se lo
+  // rechace por no ser una lista, sin que se entienda por que.
+  const esquemaAnon = (lista || []).find((t) => t.name === 'anonimizar_texto')?.inputSchema
+  igual(
+    esquemaAnon?.properties?.elegidos?.type,
+    'array',
+    'anonimizar_texto declara los elegidos como texto y no como lista',
   )
   // La descripcion es la unica defensa contra que el modelo use igual
   // una fecha que no vino: se lo dice donde lo va a leer.
@@ -356,18 +532,58 @@ async function probarMcp() {
 
   const habil = cuerpoDe(porId.get(8))
   igual(habil?.habil, false, 'MCP dia_habil dice que el 9 de julio de 2026 es habil')
+
+  // --- el anonimizador, las mismas tres reglas que por HTTP ---
+  const soloCapa1 = cuerpoDe(porId.get(9))
+  comprobar(
+    !soloCapa1?.texto?.includes('30.119.078'),
+    'MCP no tapo el DNI, que va sin preguntarle a nadie',
+  )
+  comprobar(
+    soloCapa1?.texto?.includes('Ficticio, Juan Carlos'),
+    'MCP TAPO UN NOMBRE PROPIO SIN CONFIRMAR: del otro lado hay un modelo, que es el que no puede elegir',
+  )
+
+  const conElegidos = cuerpoDe(porId.get(10))
+  comprobar(conElegidos?.texto?.includes('[PERSONA_2]'), 'MCP no aplica el reemplazo confirmado')
+  comprobar(
+    (conElegidos?.restos || []).some((r) => r.texto === 'Ficticio'),
+    'MCP no devuelve el apellido que quedo pegado a la etiqueta',
+  )
+
+  const etiquetaMala = porId.get(11)
+  igual(cuerpoDe(etiquetaMala)?.ok, false, 'MCP acepta una etiqueta inventada')
+  comprobar(
+    etiquetaMala?.result?.isError === true,
+    'MCP no marca isError con una etiqueta invalida, y el modelo lo lee como que tapo bien',
+  )
+
+  const sinCaratulaMcp = porId.get(12)
+  igual(cuerpoDe(sinCaratulaMcp)?.ok, false, 'MCP devuelve lista vacia cuando no hay caratula')
+  comprobar(
+    sinCaratulaMcp?.result?.isError === true,
+    'MCP no marca isError cuando no encontro caratula',
+  )
 }
 
 // ---------------------------------------------------------------
 
-await conHttp(probarHttp)
+await conHttp(async () => {
+  await probarHttp()
+  await probarAnonimizadorHttp()
+})
 await probarMcp()
 
 // El punto entero de que sean dos transportes finos sobre un nucleo:
 // si dan distinto, el bug es de transporte. Se comprueba, no se supone.
 {
   const { HERRAMIENTAS } = await import('../conectores/nucleo.mjs')
-  comprobar(Object.keys(HERRAMIENTAS).length === 6, 'el nucleo dejo de exponer seis herramientas')
+  comprobar(Object.keys(HERRAMIENTAS).length === 6, 'el nucleo de plazos dejo de exponer seis herramientas')
+  const { HERRAMIENTAS_ANONIMIZAR } = await import('../conectores/anonimizar.mjs')
+  comprobar(
+    Object.keys(HERRAMIENTAS_ANONIMIZAR).length === 5,
+    'el nucleo del anonimizador dejo de exponer cinco herramientas',
+  )
 }
 
 console.log(`${comprobaciones} comprobaciones sobre los dos conectores.`)
@@ -379,4 +595,5 @@ if (fallas.length) {
 }
 
 console.log('Los dos transportes arrancan, dan las mismas fechas que el motor,')
-console.log('y cuando falta un dato no devuelven ninguna.')
+console.log('y cuando falta un dato no devuelven ninguna. El anonimizador corre')
+console.log('la capa 1 solo y no tapa un nombre propio sin que alguien lo confirme.')

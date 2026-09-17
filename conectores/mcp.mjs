@@ -1,8 +1,11 @@
-// El calendario judicial y el computo de plazos, por MCP sobre stdio.
+// El calendario judicial, el computo de plazos y el anonimizador, por MCP
+// sobre stdio.
 //
 // Es la mitad del conector que consume un modelo. La otra --la que consume
-// codigo-- es conectores/http.mjs, y las dos cuelgan del mismo nucleo.mjs.
-// Ninguna de las dos calcula.
+// codigo-- es conectores/http.mjs, y las dos cuelgan de los mismos dos
+// registros: nucleo.mjs (plazos) y anonimizar.mjs (Escribiente).
+// Ninguna de las dos calcula ni anonimiza: traducen a JSON lo que hacen los
+// motores.
 //
 // Por que un modelo lo necesita: contar dias habiles no se puede hacer de
 // memoria. Depende de un calendario de feriados, ferias y asuetos que cambia
@@ -18,7 +21,15 @@
 // Para conectarlo, el cliente lo lanza como proceso: no escucha en ningun
 // puerto y no abre una conexion a ningun lado.
 
-import { HERRAMIENTAS, ErrorDeEntrada } from './nucleo.mjs';
+import { HERRAMIENTAS as PLAZOS, ErrorDeEntrada } from './nucleo.mjs';
+import { HERRAMIENTAS_ANONIMIZAR } from './anonimizar.mjs';
+
+// Los dos registros en un solo servidor, desde el 17/9/2026. Quien consume
+// levanta UN proceso y tiene lo que este repositorio ofrece; dos procesos son
+// dos cosas que se caen por separado. Se comprobo antes de tocarlo que
+// `pipeline/plazos.py` no lee `serverInfo` ni `tools/list` -manda `tools/call`
+// directo-, asi que agregar herramientas no le cambia nada.
+const HERRAMIENTAS = { ...PLAZOS, ...HERRAMIENTAS_ANONIMIZAR };
 
 const VERSION_PROTOCOLO = '2024-11-05';
 
@@ -28,21 +39,39 @@ const VERSION_PROTOCOLO = '2024-11-05';
 // evitar, y la unica defensa disponible aca es decirlo donde se lee.
 const AVISO = ' Si la respuesta trae "ok": false no hay fecha: el campo "problema" dice por qué, y ese motivo hay que transmitirlo en vez de estimar una fecha.';
 
+// Casi todo viaja como texto, y el nucleo lo valida. La excepcion es
+// `elegidos`, que es una lista de objetos: declararla `string` haria que un
+// modelo mande un JSON adentro de un string y el conector lo rechace por no ser
+// una lista, sin que se entienda por que.
+const LISTA_DE_ELEGIDOS = {
+    type: 'array',
+    items: {
+        type: 'object',
+        properties: {
+            texto: { type: 'string', description: 'el nombre, tal como está escrito en el texto' },
+            reemplazo: { type: 'string', description: 'la etiqueta con la que taparlo' }
+        },
+        required: ['texto', 'reemplazo']
+    }
+};
+
 function esquema(entrada) {
     const propiedades = {};
     for (const [nombre, descripcion] of Object.entries(entrada)) {
-        propiedades[nombre] = { type: 'string', description: descripcion };
+        propiedades[nombre] = nombre === 'elegidos'
+            ? { ...LISTA_DE_ELEGIDOS, description: descripcion }
+            : { type: 'string', description: descripcion };
     }
     return {
         type: 'object',
         properties: propiedades,
-        required: Object.keys(entrada).filter((k) => /^(fecha|desde|hasta|notificacion|plazo|diasHabiles)$/.test(k))
+        required: Object.keys(entrada).filter((k) => /^(fecha|desde|hasta|notificacion|plazo|diasHabiles|texto|frase)$/.test(k))
     };
 }
 
 const listaDeHerramientas = Object.entries(HERRAMIENTAS).map(([nombre, h]) => ({
     name: nombre,
-    description: h.descripcion + AVISO,
+    description: h.descripcion + (h.aviso ?? AVISO),
     inputSchema: esquema(h.entrada)
 }));
 
@@ -64,7 +93,7 @@ async function atender(mensaje) {
         return responder(id, {
             protocolVersion: VERSION_PROTOCOLO,
             capabilities: { tools: {} },
-            serverInfo: { name: 'calendario-judicial', version: '1.0.0' }
+            serverInfo: { name: 'herramientas-judiciales', version: '2.0.0' }
         });
     }
 

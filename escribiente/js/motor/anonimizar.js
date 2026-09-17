@@ -687,6 +687,17 @@ escribania protocolo minuta planilla fecha
 # Adjetivos del oficio: ninguno es apellido.
 forense notarial registral catastral electronico electronica digital
 telematico cierta cierto util utiles vigente previsional zona sector sede
+
+# Las de abajo entraron el 17/9/2026, y las encontro el conector del paso 3
+# probandose a si mismo. Un nombre seguido de la palabra DNI y su numero sale
+# como "[PERSONA], DNI [DNI]", y el detector de restos ofrecia "DNI" como nombre
+# propio, porque quedaba capitalizado y pegado a una etiqueta de persona.
+#
+# Es la forma mas comun que hay -a un nombre le sigue su documento- asi que el
+# falso positivo aparecia en casi todos los escritos. Ninguna de estas palabras
+# es apellido de nadie, que es el criterio de la lista.
+dni documento libreta pasaporte legajo cbu cvu telefono tel celular fax correo
+mail email nacionalidad estado edad profesion ocupacion nro numero
 `.replace(/^\s*#.*$/gm, '').trim().split(/\s+/));
 
 // La caratula tiene forma fija: "X c/ Y s/ OBJETO". De ahi salen las partes.
@@ -941,6 +952,18 @@ export const ETIQUETAS_DE_NOMBRE = NOMBRES_DE_ETIQUETA.map((n) => `[${n}]`);
 // silencio la deteccion de restos, que es la fuga grave. Es la misma razon por
 // la que la lista vive en el motor y no en la pantalla.
 const ETIQUETA_DE_NOMBRE = `\\[(?:${NOMBRES_DE_ETIQUETA.join('|')})(?:_\\d+)?\\]`;
+
+/** Reconoce una etiqueta de nombre, con numero o sin el.
+ *
+ * Existe para el conector, y es la guarda que evita que E-01 vuelva por la
+ * puerta de atras: quien llama al motor desde afuera elige con que etiqueta
+ * tapar, y si elige una que el detector de restos no conoce, el reemplazo
+ * funciona y la deteccion de lo que quedo pegado se apaga en silencio. Sin esto
+ * el consumidor no tiene como enterarse.
+ */
+export function esEtiquetaDeNombre(etiqueta) {
+    return new RegExp(`^${ETIQUETA_DE_NOMBRE}$`).test(String(etiqueta || '').trim());
+}
 
 const PALABRA_SUELTA = `[${MAY}\\d][${LETRA}\\d]*[${LETRA}]`;
 

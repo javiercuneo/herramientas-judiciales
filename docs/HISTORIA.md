@@ -19,6 +19,91 @@ de 2026.
 
 ---
 
+## Paso 3: el conector del anonimizador, y dónde decidimos que viva — 17/9
+
+`redactor` tiene hoy escrita en Python la costura con el anonimizador: cuatro
+cosas, a la vista en `ui/ingreso.py`. El paso 3 del plan es exponer esas cuatro
+sobre el motor JS, que es el que queda.
+
+### La decisión: vive acá
+
+Javier delegó la elección y agregó el dato que la hacía dudosa: el repositorio
+del pipeline **se volvió el vertedero** —ahí va a parar el túnel de memorias
+entre máquinas, el sync—, así que un conector podría ir con el resto de la
+plomería.
+
+**Lo que la decide es que un conector no es plomería: es la cara pública de un
+motor.** El túnel de memorias y el sync son infraestructura entre máquinas y no
+tienen repositorio dueño; este conector sí lo tiene. Si vive lejos del motor,
+cada arreglo del motor necesita un cambio coordinado en otro repositorio, que es
+exactamente la falla —el motor con dos casas— que este plan existe para terminar.
+
+Dos razones más, prácticas: se prueba contra el mismo banco en la misma corrida
+de CI, y repite un patrón ya visto funcionar **y ya visto fallar**, el de plazos,
+que `pipeline/plazos.py` levanta como subproceso Node.
+
+Que este repositorio sea el único público de los cinco no cambia nada: el
+conector expone funciones sobre un motor que ya es público, no datos de nadie.
+
+### Cómo quedó
+
+`conectores/anonimizar.mjs`, colgado de los dos transportes que ya existían.
+**Un solo proceso**, once herramientas: las seis de plazos y cinco nuevas
+—`anonimizar_texto`, `candidatos_a_nombre`, `partes_de_caratula`,
+`restos_pegados`, `aparece_en_el_texto`—. Dos procesos serían dos cosas que se
+caen por separado.
+
+Antes de tocar `mcp.mjs` se comprobó, leyendo `pipeline/plazos.py`, que del otro
+lado nadie lee `serverInfo` ni `tools/list`: manda `tools/call` directo. Agregar
+herramientas no le cambia nada, y por eso el nombre del servidor pasó de
+`calendario-judicial` a `herramientas-judiciales` sin romper a nadie.
+
+**Lo que el conector no hace, a propósito: no abre archivos.** `redactor` tiene
+un `sanitizar_caso(base)` que recorre la carpeta del caso, y esa parte se queda
+allá. Este repositorio no tiene por qué saber dónde viven las carpetas de una
+causa; el que llama lee sus archivos y manda texto.
+
+### Las tres guardas, que son lo que justifica que sea un conector y no un import
+
+1. **La capa 2 no se aplica sola.** Sin `elegidos`, `anonimizar_texto` tapa lo
+   que tiene forma inequívoca y deja los nombres propios en claro; para taparlos
+   hay que pasárselos confirmados. El banco lo prueba con el mensaje puesto en
+   mayúsculas, porque es lo único que no se puede reparar después.
+2. **Una etiqueta inventada se rechaza antes de tapar nada.** `[PARTE]` reemplaza
+   igual **pero apaga la detección de restos**: el motor deja de reconocer lo que
+   quedó pegado al reemplazo, que es la fuga E-01, y nadie se entera. `esEtiquetaDeNombre`
+   vive en el motor para que la validación sea la misma que la detección.
+3. **Los restos van siempre en la respuesta**, no en una herramienta aparte que
+   haya que acordarse de llamar. Un consumidor no puede no verlos.
+
+Más la regla de los conectores, que ya regía: cuando falta un dato no se devuelve
+un resultado. Un texto vacío anonimizado da un texto vacío, que se lee como «no
+había nada que tapar»; y no encontrar carátula devuelve `ok: false` y no una lista
+vacía, que se leería como «busqué y no hay partes».
+
+### El conector encontró un bug del motor probándose a sí mismo
+
+La primera corrida sobre un nombre seguido de la palabra `DNI` y su número
+devolvió **`DNI` como resto pegado a una etiqueta**: quedaba capitalizado justo
+después de `[PERSONA]`, y ninguna palabra de identificador estaba en la lista de
+las que no son nombre. Es la forma más común que hay —a un nombre le sigue su documento—,
+así que el falso positivo aparecía en casi todos los escritos. Entraron `dni`,
+`documento`, `libreta`, `pasaporte`, `legajo`, `cbu`, `cvu`, `teléfono`, `correo`
+y las demás del mismo grupo, con el criterio de siempre: ninguna es apellido de
+nadie.
+
+### Verificado
+
+`npm run verificar-conectores` pasó de 46 a **81 comprobaciones**, y las nuevas se
+vieron fallar rompiendo a propósito las tres guardas: sin la validación de
+etiqueta caen 8, sin los restos en la respuesta caen 3. Los plazos siguen dando
+las mismas fechas, que es la comprobación que estaba ahí para esto.
+
+**Falta anotarlo en `HERMANOS.md`**, que vive en el repositorio del pipeline. No
+se tocó desde acá: es de allá.
+
+---
+
 ## E-03: etiquetas numeradas, estables por tanda y sin tabla guardada — 17/9
 
 Era el pedido de `confronteitor` y el único de los cuatro que no era un bug: para

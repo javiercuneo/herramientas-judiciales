@@ -1,10 +1,11 @@
-// El calendario judicial y el computo de plazos, por HTTP local.
+// El calendario judicial, el computo de plazos y el anonimizador, por HTTP
+// local.
 //
 // Es la mitad del conector que consume codigo: Python, otro Node, un cliente
 // HTTP cualquiera. La otra mitad --la que consume un modelo-- es
-// conectores/mcp.mjs, y las dos cuelgan del mismo nucleo.mjs. NINGUNA de las
-// dos calcula: si un numero sale distinto en una y en otra, es un bug de
-// transporte, no de criterio, porque el criterio esta en un solo lugar.
+// conectores/mcp.mjs, y las dos cuelgan de los mismos dos registros. NINGUNA de
+// las dos calcula ni anonimiza: si algo sale distinto en una y en otra, es un
+// bug de transporte y no de criterio, porque el criterio esta en un solo lugar.
 //
 // Correr con: npm run conector-http
 //
@@ -15,7 +16,12 @@
 // el default.
 
 import { createServer } from 'node:http';
-import { HERRAMIENTAS, ErrorDeEntrada } from './nucleo.mjs';
+import { HERRAMIENTAS as PLAZOS, ErrorDeEntrada } from './nucleo.mjs';
+import { HERRAMIENTAS_ANONIMIZAR } from './anonimizar.mjs';
+
+// Los dos registros en un solo servidor, desde el 17/9/2026: mismo motivo que
+// en mcp.mjs, un proceso y no dos.
+const HERRAMIENTAS = { ...PLAZOS, ...HERRAMIENTAS_ANONIMIZAR };
 
 const HOST = '127.0.0.1';
 const PUERTO = Number(process.env.PUERTO || 8787);
@@ -34,8 +40,11 @@ async function leerCuerpo(req) {
     let bytes = 0;
     for await (const parte of req) {
         bytes += parte.length;
-        // Ninguna entrada legitima de este servicio pasa de unos pocos KB.
-        if (bytes > 64 * 1024) throw new ErrorDeEntrada('El cuerpo de la petición es demasiado grande.');
+        // 64 KB alcanzaban cuando lo unico que entraba era una fecha. Desde
+        // que entra el texto de un escrito ya no: dos megas son unas
+        // cuatrocientas fojas, que es mas de lo que nadie manda de una y
+        // bastante menos de lo que costaria quedarse sin memoria.
+        if (bytes > 2 * 1024 * 1024) throw new ErrorDeEntrada('El cuerpo de la petición es demasiado grande.');
         partes.push(parte);
     }
     if (!partes.length) return {};
@@ -47,7 +56,7 @@ async function leerCuerpo(req) {
 }
 
 const indice = () => ({
-    servicio: 'Calendario judicial y cómputo de plazos',
+    servicio: 'Calendario judicial, cómputo de plazos y anonimización',
     fuente: 'https://javiercuneo.com.ar',
     // Se dice de donde salen los datos porque quien consuma esto tiene derecho
     // a saber contra que se computo: la feria sale de las Acordadas de la CSJN
@@ -57,7 +66,8 @@ const indice = () => ({
         feria: 'data/feria-judicial.json (una Acordada de la CSJN por año)',
         asuetos: 'data/dias-inhabiles.json'
     },
-    aviso: 'Cuando la respuesta trae "ok": false NO hay fecha, y el campo "problema" dice por qué. No se devuelve un resultado parcial.',
+    aviso: 'Cuando la respuesta trae "ok": false NO hay resultado, y el campo "problema" dice por qué. No se devuelve un resultado parcial.',
+    anonimizacion: 'Los nombres propios NO se reemplazan solos: /candidatos-a-nombre los propone y alguien los confirma antes de que /anonimizar-texto los aplique. La respuesta de /anonimizar-texto trae siempre "restos": lo que quedó a la vista pegado a un reemplazo.',
     endpoints: Object.entries(HERRAMIENTAS).map(([nombre, h]) => ({
         ruta: '/' + nombre.replace(/_/g, '-'),
         descripcion: h.descripcion,
@@ -120,7 +130,7 @@ const servidor = createServer(async (req, res) => {
 });
 
 servidor.listen(PUERTO, HOST, () => {
-    console.log(`Calendario judicial y cómputo de plazos, escuchando en http://${HOST}:${PUERTO}`);
+    console.log(`Herramientas judiciales, escuchando en http://${HOST}:${PUERTO}`);
     console.log('Pedí / para ver los endpoints. Ctrl+C para cortar.\n');
     for (const ruta of porRuta.keys()) console.log(`  ${ruta}`);
 });

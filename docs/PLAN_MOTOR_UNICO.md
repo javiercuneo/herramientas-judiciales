@@ -1,7 +1,7 @@
 # Plan: un solo motor de anonimización
 
-**Abierto.** Decidido por Javier el 16/9/2026. **Los pasos 1 y 2 están hechos**
-(16 y 17/9); el 3, el 4 y el 5 no.
+**Abierto.** Decidido por Javier el 16/9/2026. **Los pasos 1, 2 y 3 están
+hechos** (16 y 17/9); el 4 y el 5 no, y el 4 es de `redactor`.
 
 ---
 
@@ -126,7 +126,10 @@ Cada paso deja el árbol funcionando y ninguno borra nada del anonimizador viejo
 3. **Un conector del anonimizador**, hermano de `conectores/mcp.mjs`, que exponga
    las cuatro funciones de la costura. Con su propio banco, y con la regla de los
    conectores: **cuando falta un dato no devuelve un resultado**, devuelve el
-   motivo.
+   motivo. **Hecho el 17/9**: `conectores/anonimizar.mjs`, colgado de los dos
+   transportes que ya existían, con cinco herramientas y 81 comprobaciones en
+   `npm run verificar-conectores`, vistas fallar. Queda anotarlo en
+   `HERMANOS.md`.
 4. **`redactor` pasa a llamarlo**, detrás de una bandera, con el motor Python
    todavía disponible para comparar.
 5. **Recién entonces** se decide qué se hace con `sanitizar.py`.
@@ -248,6 +251,12 @@ repositorio privado no se escribe adentro de uno público.
 
 - **Si el motor Python hace algo que el JS no.** Lo contestó el paso 1: sólo un
   falso positivo, y el JS tiene razón en no taparlo. No se borra nada igual.
-- **Dónde vive el conector.** Acá, por la regla 1 de `HERMANOS.md` —el dato se
-  arregla en la casa del dueño—, pero lo consumen dos repositorios y conviene
-  decirlo en `HERMANOS.md` antes de escribirlo.
+- **Dónde vive el conector.** Contestado el 17/9: **acá**. Javier delegó la
+  decisión y observó que el pipeline se volvió el lugar donde cae todo lo que es
+  infraestructura entre máquinas. Lo que la decide es que **un conector no es
+  plomería: es la cara pública de un motor**. La infraestructura entre máquinas
+  no tiene repositorio dueño; este conector sí, y si vive lejos del motor, el
+  motor vuelve a tener dos casas —que es la falla que este plan existe para
+  terminar—. Además se prueba contra el mismo banco en la misma corrida de CI, y
+  repite el patrón de plazos, ya visto funcionar y ya visto fallar. **Falta
+  anotarlo en `HERMANOS.md`**, que es de allá.

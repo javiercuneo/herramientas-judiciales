@@ -53,24 +53,10 @@ sólo se enlaza lo que NO está en el tablero. Detalle en
 **Ninguno.** Los cuatro de escribiente se cerraron el 17/9 con el paso 2 del plan
 del motor único, junto con **E-06**, una fuga que apareció al verificarlos —la
 constancia nombraba al pie a quien el cuerpo sí había tapado—. Están en
-[`HISTORIA.md`](HISTORIA.md) con su caso de prueba.
-
-**Lo que queda abierto no es un bug sino el borde de una regla, y conviene
-saberlo antes de confiar en ella:**
-
-- **Un nombre que el OCR ensució sin tratamiento delante no lo agarra nada**
-  (`Qu1nteros, Anibal Ramon inicio la demanda`), y tampoco cuando el dígito
-  reemplaza la **primera** letra (`0campo`). En los dos casos lo que queda pegado
-  a la etiqueta se ofrece para tildar y la constancia lo nombra, así que la fuga
-  se ve; pero el reemplazo no sale solo.
-- **La numeración de etiquetas (E-03) es por tanda, no por causa**: vale mientras
-  la pestaña siga abierta. Se decidió así para no guardar en ningún lado la tabla
-  de nombre a número, que es la llave para deshacer la anonimización. Si hace
-  falta cruzar dos archivos, se pasan juntos.
-- **Numerado, no todo lo tapado lleva número.** Las reglas deterministas —la
-  firma, el tratamiento, los campos de formulario— tapan nombres sin que nadie
-  diga de quién son, así que salen como `[PERSONA]` pelado y **no se comparan
-  entre archivos**. La constancia lo dice en el `.md`.
+[`HISTORIA.md`](HISTORIA.md) con su caso de prueba, y **el borde que quedó de
+cada regla, en [`escribiente/README.md`](../escribiente/README.md)**: el OCR que
+ensucia sin tratamiento delante, y que la numeración de etiquetas vale por tanda
+y no tapa lo que las reglas ocultan solas.
 
 ## Por dónde seguir
 
@@ -82,7 +68,7 @@ saberlo antes de confiar en ella:**
 
 **Lo que queda abierto:**
 
-- **UN SOLO MOTOR DE ANONIMIZACIÓN. Acá se arranca, y va por el paso 3.**
+- **UN SOLO MOTOR DE ANONIMIZACIÓN. Acá se arranca, y va por el paso 4.**
   Las mismas reglas están escritas dos veces —en `escribiente/js/motor/anonimizar.js`
   y en el anonimizador del pipeline— y un arreglo de nombres hay que llevarlo a
   los dos lados. Decidido el 16/9: **queda el JS**. El plan entero —los cinco
@@ -91,14 +77,22 @@ saberlo antes de confiar en ella:**
   [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md), **que hay que leer antes de tocar
   nada**.
 
-  **Los pasos 1 y 2 están hechos** (16 y 17/9). Lo que hace falta saber para
+  **Los pasos 1, 2 y 3 están hechos** (16 y 17/9). Lo que hace falta saber para
   seguir:
 
-  - **El paso 3 es un conector del anonimizador**, hermano de `conectores/mcp.mjs`,
-    que exponga las cuatro funciones de la costura. Con su propio banco, y con la
-    regla de los conectores: **cuando falta un dato no devuelve un resultado**,
-    devuelve el motivo. Antes de escribirlo hay que decir en `HERMANOS.md` dónde
-    vive, porque lo consumen dos repositorios.
+  - **El paso 4 es de `redactor`, no de acá**: pasa a llamar al conector detrás de
+    una bandera, con el motor Python todavía disponible para comparar. De este
+    lado no queda nada que hacer hasta que eso arranque.
+  - **El conector vive acá**, en `conectores/anonimizar.mjs`, colgado de los dos
+    transportes que ya existían: un solo proceso expone plazos y anonimización.
+    Cinco herramientas —`anonimizar_texto`, `candidatos_a_nombre`,
+    `partes_de_caratula`, `restos_pegados`, `aparece_en_el_texto`—, con banco
+    propio en `npm run verificar-conectores`. **La regla que sostiene todo: la
+    capa 2 no se aplica sola.** Un nombre propio se propone y lo confirma una
+    persona; el conector nunca elige.
+  - **Falta decirlo en `HERMANOS.md`**, que vive en el repositorio del pipeline:
+    hay un conector más y lo consumen dos repositorios. No se tocó desde acá
+    porque es de allá.
   - **El banco de comparación está versionado** en `scripts/comparar-motores/`,
     declarado en `.datos-ejemplo`. Es la red: **antes y después de cada arreglo,
     correrlo y mirar qué se movió.** Cómo se corre, en el plan. Hoy da 30 de 40
@@ -433,15 +427,23 @@ va en hábiles, y la notificación automática cae en martes o viernes hábil.
 
 ### `conectores/`
 
-Tres consumos sobre un núcleo único, y **ninguno calcula nada**: `nucleo.mjs`
-carga los dos motores de navegador en Node y traduce entre `Date` y JSON;
-`http.mjs` (`npm run conector-http`) lo sirve por JSON sobre HTTP y **escucha
-sólo en `127.0.0.1`**; `mcp.mjs` (`npm run conector-mcp`) lo sirve por MCP en
-stdio, con seis herramientas y sin dependencias.
+Dos transportes finos sobre dos núcleos, y **ninguno calcula ni anonimiza**:
+`nucleo.mjs` carga los motores de plazos, `anonimizar.mjs` carga el de
+Escribiente, y los dos traducen a JSON y nada más. `http.mjs`
+(`npm run conector-http`) los sirve por HTTP y **escucha sólo en `127.0.0.1`**;
+`mcp.mjs` (`npm run conector-mcp`) por MCP en stdio. **Once herramientas en un
+solo proceso**, sin dependencias: seis de plazos y cinco de anonimización.
 
-Que sean dos transportes finos sobre un núcleo es el punto entero: **una segunda
-implementación de una cuenta con consecuencia jurídica es el modo de falla que
-produjo el bug de la feria.**
+Que sean transportes finos es el punto entero: **una segunda implementación de
+una cuenta con consecuencia jurídica es el modo de falla que produjo el bug de la
+feria.**
+
+**El anonimizador tiene además una regla propia, y es la que decide su forma: la
+capa 2 no se aplica sola.** Lo que tiene forma inequívoca —DNI, CUIT, teléfono,
+domicilio— se tapa sin preguntar; **un nombre propio se propone y lo confirma una
+persona**, porque ninguna regla distingue a la parte del autor de doctrina. El
+conector no elige nunca, y rechaza una etiqueta que no conozca: una inventada
+reemplaza igual pero apaga la detección de lo que queda pegado al reemplazo.
 
 **El contrato, que ya no es una decisión interna.** `pipeline-drafter` los
 consume desde el 2/9 —su `pipeline/plazos.py` levanta `conectores/mcp.mjs` por
@@ -454,9 +456,10 @@ stdio—, así que **tocar la forma de una respuesta rompe a alguien**:
 - **Las fechas viajan como `AAAA-MM-DD`.** Ni ISO completo ni epoch: los dos
   arrastran hora y huso, y un plazo judicial no tiene hora.
 
-**Los cubre `npm run verificar-conectores`**, 46 comprobaciones, en CI. No cubre
-aritmética —eso es `verificar-plazos`— sino lo que se rompe de un transporte, y
-sobre todo que un dato faltante no devuelva una fecha.
+**Los cubre `npm run verificar-conectores`**, 81 comprobaciones, en CI. No cubre
+aritmética ni anonimización —eso es `verificar-plazos` y `verificar-escribiente`—
+sino lo que se rompe de un transporte, y sobre todo que un dato faltante no
+devuelva un resultado y que la capa 2 no se aplique sola.
 
 ### El cuarto consumidor, que no pasa por los conectores
 
@@ -528,18 +531,15 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
 **Lo que hay que saber para tocarla:**
 
 - **El motor está en `escribiente/js/motor/`, es código puro y no toca el DOM.**
-  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 214
-  comprobaciones, en CI. Los seis bugs de la versión anterior, las fugas
-  del 21/8 y las del 15/9 están ahí como regresión. `js/app.js` es sólo la
-  pantalla.
-- **El anonimizador del pipeline es el otro, y desde el 15/9 comparte
-  con éste la lógica de nombres**: las partículas, la terminación que no es
-  nombre (`-ción`, `-tiva`), la guarda del tratamiento, el recorte de
-  candidatos y la carátula en mayúsculas. **Un arreglo de nombres acá se lleva
-  allá**, porque `redactor` ingresa casos con aquél. Las listas de palabras no
-  son iguales, y a propósito: `redactor` usa la de allá para buscar restos de un
-  nombre confirmado, y una palabra de más ahí es un apellido que deja de
-  buscarse.
+  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 292
+  comprobaciones, en CI. Los seis bugs de la versión anterior y las fugas del
+  21/8, el 15/9 y el 17/9 están ahí como regresión. `js/app.js` es sólo la
+  pantalla, y desde el 17/9 `conectores/anonimizar.mjs` expone el motor afuera.
+- **El anonimizador del pipeline es el otro, y deja de ser la fuente.** Hasta que
+  `redactor` pase a llamar al conector (paso 4), **un arreglo de nombres acá hay
+  que llevarlo allá**. Las listas de palabras no se unifican, y a propósito:
+  `redactor` usa la suya para buscar restos de un nombre confirmado, y una
+  palabra de más ahí es un apellido que deja de buscarse.
 - **Las librerías van versionadas en `escribiente/vendor/`** —pdf.js 3.11.174 y
   pdf-lib 1.17.1— **y no vuelven a un CDN**, y **no carga la tipografía
   Archivo**: es la única página del sitio que no la pide a Google. Las dos cosas
@@ -551,13 +551,11 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
   `.claude/launch.json` ya lo hace.
 
 **Lo que queda abierto vive en [`escribiente/README.md`](../escribiente/README.md)**,
-y desde el 16/9 no acá: son ocho límites conocidos, ninguno bloqueante —el nombre
-que ensució el OCR, el domicilio del propio juzgado, el DNI que es un monto, la
-página sin OCR, el texto sin justificar, el agregado a mano, las razones sociales
-y dónde se anotan las fugas aparecidas al usarlo—, y **los busca quien viene a tocar la
-herramienta, que ya está parado en esa carpeta**. Este documento se lee entero en
-cada sesión y tiene presupuesto; aquél no. Los cuatro bugs abiertos siguen arriba,
-en [Bugs abiertos](#bugs-abiertos), porque son lo que se mira al empezar.
+y desde el 16/9 no acá: son límites conocidos, ninguno bloqueante, y **los busca
+quien viene a tocar la herramienta, que ya está parado en esa carpeta**. Este
+documento se lee entero en cada sesión y tiene presupuesto; aquél no. Lo que sí
+queda arriba, en [Bugs abiertos](#bugs-abiertos), es el borde de las reglas que se
+cerraron el 17/9, porque es lo que hay que saber antes de confiar en ellas.
 
 ---
 
