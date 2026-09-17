@@ -8,7 +8,7 @@
 # todos, y en silencio. Asi que la exencion tiene banco, y el banco exige ver
 # BLOQUEAR donde tiene que bloquear —que es la mitad que nadie prueba—.
 #
-# QUE PRUEBA, en veintisiete casos:
+# QUE PRUEBA, en veintinueve casos:
 #   - sin .datos-ejemplo nada cambia;
 #   - declarado, el archivo pasa;
 #   - lo que el marcador NO relaja: lista privada, binarios ofimaticos y el
@@ -21,6 +21,8 @@
 #     si: el pre-push barre `%an` y `%ae` del rango, asi que sin esa guarda
 #     ningun push pasa nunca --y que se pueda declarar mas de uno, porque en
 #     esta maquina se firma con un correo distinto segun el repositorio--;
+#   - que una casilla institucional declarada pase y que la exencion NO se
+#     derrame a las direcciones personales del mismo dominio;
 #   - y desde el 17/9, los dos modos que tapan lo que el pre-commit no ve: el
 #     mensaje de commit, y el rango que se va a enviar --con el merge y con el
 #     dato que entra en un commit y sale en el siguiente--, mas los dos niveles
@@ -182,6 +184,36 @@ correo_test 'tercero@otroestudio.com.ar' bloquea 'el correo de otro'
 correo_test 'otro@gmail.com'             bloquea 'mismo dominio, otra persona'
 correo_test 'xjaviercuneol@gmail.com'    bloquea 'el propio con un prefijo pegado'
 correo_test 'hola@javiercuneo.com.ar'    pasa    'el dominio propio del sitio'
+
+gris "  Las casillas institucionales"
+# Un reglamento nombra la casilla de una dependencia y eso no es el correo de
+# nadie. Pero el dominio que la aloja SI aloja personas --en pjn.gov.ar viven
+# las direcciones de los empleados judiciales--, asi que lo unico que hay que
+# probar es que la exencion se quede en la casilla declarada y no se derrame al
+# dominio. Se declara una casilla inventada a proposito: un banco que dependa
+# de la configuracion real de la maquina prueba la maquina, no el patron.
+inst_test() { # inst_test <declarada> <a probar> <bloquea|pasa> <nombre>
+  nuevo_repo
+  git -C "$REPO" config user.email javiercuneol@gmail.com
+  git -C "$REPO" config --local --add datos.correoInstitucional "$1"
+  printf 'Remitir la planilla a %s segun el instructivo.\n' "$2" > "$REPO/pruebas/x.md"
+  git -C "$REPO" add -A
+  local salida real
+  salida=$(cd "$REPO" && bash "$VERIF" 2>&1)
+  if printf '%s' "$salida" | grep -q "correo que no es propia"; then real=bloquea; else real=pasa; fi
+  if [ "$real" = "$3" ]; then
+    printf '  ok     %-50s %s\n' "$4" "$real"; ok=$((ok+1))
+  else
+    rojo "  FALLA  $4"
+    printf '         esperaba %s y dio %s\n' "$3" "$real"
+    mal=$((mal+1))
+  fi
+}
+
+inst_test 'mesa.entradas@dependencia-ejemplo.gov.ar' 'mesa.entradas@dependencia-ejemplo.gov.ar' \
+          pasa    'la casilla declarada'
+inst_test 'mesa.entradas@dependencia-ejemplo.gov.ar' 'maria.gonzalez@dependencia-ejemplo.gov.ar' \
+          bloquea 'una persona en el MISMO dominio'
 
 
 # ---------------------------------------------------------------------------

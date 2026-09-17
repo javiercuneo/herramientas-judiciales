@@ -262,6 +262,30 @@ for c in $correos_propios; do
   esc=$(printf '%s' "$c" | sed -e 's/\./\./g' -e 's/+/\+/g')
   guarda_propio="${guarda_propio}(?!${esc}\b)"
 done
+
+# CASILLAS INSTITUCIONALES, desde el 2026-09-17. Un reglamento o un instructivo
+# oficial nombra la casilla de una dependencia --a donde el propio instructivo
+# manda a escribir-- y eso no es el correo de nadie: es una oficina. El patron
+# no puede distinguirlas, asi que se declaran:
+#     git config --global --add datos.correoInstitucional <direccion>
+#
+# UNA POR UNA Y NUNCA EL DOMINIO. La tentacion es poner  pjn.gov.ar  en la lista
+# blanca de abajo y terminar, pero en ese dominio tambien viven las direcciones
+# personales de los empleados judiciales --nombre.apellido@pjn.gov.ar--, o sea
+# justo lo que este patron existe para cazar. Un dominio entero seria un agujero
+# del tamano del Poder Judicial; una casilla declarada es una linea que alguien
+# escribio a proposito y se puede discutir.
+#
+# Van aparte de datos.correoPropio y no mezcladas con el, porque no son lo
+# mismo: una es la direccion de Javier y la otra la de una dependencia. El dia
+# que haya que revisar que se dejo pasar, la diferencia importa.
+correos_institucionales=$(git config --get-all datos.correoInstitucional 2>/dev/null || true)
+for c in $correos_institucionales; do
+  [ -z "$c" ] && continue
+  esc=$(printf '%s' "$c" | sed -e 's/\./\./g' -e 's/+/\+/g')
+  guarda_propio="${guarda_propio}(?!${esc}\b)"
+done
+
 buscar "(?<![A-Za-z0-9._%+-])${guarda_propio}[A-Za-z0-9._%+-]+@(?!javiercuneo\.com\.ar|users\.noreply\.github\.com|anthropic\.com|example\.(?:com|org))[A-Za-z0-9.-]+\.[A-Za-z]{2,}" 'direccion de correo que no es propia ni de ejemplo'
 
 # --------------------------------------------------------------------------
