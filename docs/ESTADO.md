@@ -112,6 +112,14 @@ porque saltea también los otros trece controles.
 
 **Lo que queda abierto:**
 
+- **Un solo motor de anonimizacion, y el plan esta escrito.** Las mismas reglas
+  estan dos veces —867 lineas de JavaScript en `escribiente/js/motor/` y 681 de
+  Python en el pipeline— y un arreglo de nombres va a los dos lados. Decidido el
+  16/9: queda el JS. El orden de trabajo, la costura —son cuatro funciones— y por
+  que `redactor` es el consumidor principal y no el pipeline, en
+  [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md). **El paso 1 es comparar los dos
+  motores sobre el mismo material**, y ninguno de los otros se da sin eso.
+
 - **Falta publicar el ledger, y nada más.** El lado de acá ya salió
   —`js/enlace.js` está en el sitio y `vencimientos.html` lo carga; comprobado el
   16/9—, así que la calculadora abre con los datos puestos apenas el ledger
