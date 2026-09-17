@@ -19,6 +19,8 @@
 // reglas alcanzan justo donde ya se sabe que fallaron.
 // ---------------------------------------------------------------------------
 
+import { apareceEnElTexto } from './anonimizar.js';
+
 /** Titulo del documento. Nunca el nombre del archivo si se anonimizo. */
 export function titulo(nombreArchivo, anonimizado) {
     if (anonimizado) return 'Documento';
@@ -30,6 +32,30 @@ export function nombreDeDescarga(nombreArchivo, anonimizado) {
     if (anonimizado) return 'documento-anonimizado.md';
     const base = nombreArchivo.replace(/\.pdf$/i, '').replace(/[\\/:*?"<>|]/g, '-');
     return (base || 'documento') + '.md';
+}
+
+/** Los pendientes que siguen en el texto, comprobado contra el texto.
+ *
+ * ENCONTRADA EL 17/9/2026 verificando el arreglo de E-01, y es una fuga en la
+ * direccion contraria y peor. La pantalla arma la lista de pendientes con los
+ * candidatos que el usuario no tildo, y esa lista se calcula sobre el texto
+ * ORIGINAL. Pero entre medio corren las reglas deterministicas: un nombre que
+ * se ofrecio sin tildar y que despues tapo la regla de firma —"Firmado por:
+ * LOPEZ MARIA"— salia reemplazado en el cuerpo Y NOMBRADO EN LA CONSTANCIA,
+ * que ademas afirma que "siguen en el texto".
+ *
+ * O sea: el archivo anonimizado publicaba al pie el nombre de quien firmo la
+ * resolucion, que es justo lo que el cuerpo habia ocultado. Es el mismo modo de
+ * falla que este archivo existe para evitar —ver el comentario de arriba— y el
+ * mismo que persigue la REGRESION 7.
+ *
+ * La comparacion la hace el motor (`apareceEnElTexto`) y no un `includes`, a
+ * proposito: tiene que ser la MISMA con la que el motor reemplaza —tolerante al
+ * espaciado del PDF y con el borde de palabra que ve las tildes—. Con dos
+ * criterios distintos, uno dice que quedo y el otro que no.
+ */
+export function losQueSiguenEnElTexto(cuerpo, pendientes) {
+    return pendientes.filter((p) => apareceEnElTexto(cuerpo, p));
 }
 
 /** Arma el .md completo: titulo, cuerpo y constancia.
@@ -51,6 +77,10 @@ export function armarDocumento({
     paginasVacias = [],
 }) {
     const partes = [`# ${titulo(nombreArchivo, anonimizado)}`, '', cuerpo.trim(), ''];
+
+    // La constancia dice "siguen en el texto", asi que tiene que ser cierto de
+    // cada uno. Ver `losQueSiguenEnElTexto`.
+    pendientes = losQueSiguenEnElTexto(cuerpo, pendientes);
 
     const constancia = [];
 
@@ -86,8 +116,11 @@ export function armarDocumento({
         }
         if (pendientes.length > 0) {
             constancia.push(
-                `- **Quedaron ${pendientes.length} nombres propios sin reemplazar.** ` +
-                `Se detectaron y no se tildaron, así que siguen en el texto: ` +
+                (pendientes.length === 1
+                    ? '- **Quedó 1 nombre propio sin reemplazar.** Se detectó y no se tildó, '
+                    : `- **Quedaron ${pendientes.length} nombres propios sin reemplazar.** ` +
+                      'Se detectaron y no se tildaron, ') +
+                `así que ${pendientes.length === 1 ? 'sigue' : 'siguen'} en el texto: ` +
                 pendientes.map((p) => `\`${p}\``).join(', ') + '.'
             );
         } else {

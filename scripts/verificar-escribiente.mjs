@@ -31,8 +31,10 @@ import {
     candidatosANombre,
     partesDeCaratula,
     normalizarEspacios,
+    restosPegadosAEtiqueta,
+    ETIQUETAS_DE_NOMBRE,
 } from '../escribiente/js/motor/anonimizar.js';
-import { armarDocumento, titulo, nombreDeDescarga } from '../escribiente/js/motor/documento.js';
+import { armarDocumento, titulo, nombreDeDescarga, losQueSiguenEnElTexto } from '../escribiente/js/motor/documento.js';
 import { analizarRango, describirProblemas, explicarError } from '../escribiente/js/motor/pdf.js';
 
 let fallos = 0;
@@ -486,6 +488,49 @@ ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
         JSON.stringify(dos.conteo));
 }
 
+// --- REGRESION 7b: ni a los que SI se reemplazaron por regla ----------------
+{
+    // ENCONTRADA EL 17/9/2026 verificando E-01, y es la misma fuga de la
+    // REGRESION 7 por otra puerta. La pantalla arma los pendientes con los
+    // candidatos sin tildar, calculados sobre el texto ORIGINAL; entre medio
+    // corren las reglas deterministicas. Un nombre sin tildar que la regla de
+    // firma tapo igual quedaba reemplazado en el cuerpo Y nombrado al pie, con
+    // la constancia afirmando que "sigue en el texto".
+    const { texto } = anonimizar('Firmado por: LOPEZ MARIA, Jueza de Primera Instancia.');
+    contiene(texto, 'Firmado por: [PERSONA]', 'la regla de firma tapa el nombre en el cuerpo');
+
+    const md = armarDocumento({
+        nombreArchivo: 'resolucion.pdf',
+        cuerpo: texto,
+        anonimizado: true,
+        conteo: { firma: 1 },
+        // Asi llega desde la pantalla: se ofrecio, no se tildo, y sin embargo
+        // ya no esta en el texto.
+        pendientes: ['LOPEZ MARIA'],
+    });
+    noContiene(md, 'LOPEZ', 'REGRESION: la constancia no nombra al que tapo una regla aunque no se tildara');
+    contiene(md, 'No quedaron nombres propios detectados sin reemplazar.',
+        'y con eso no queda ningun pendiente que declarar');
+
+    // El que sigue en el texto se nombra, que es para lo que existe el aviso.
+    const sigue = armarDocumento({
+        nombreArchivo: 'resolucion.pdf',
+        cuerpo: 'Comparecio Ernesto Quiroga y ratifico.',
+        anonimizado: true,
+        conteo: { email: 1 },
+        pendientes: ['Ernesto Quiroga', 'Marina Otero'],
+    });
+    contiene(sigue, 'Quedó 1 nombre propio sin reemplazar',
+        'de dos pendientes queda el unico que esta en el texto, en singular');
+    contiene(sigue, 'Ernesto Quiroga', 'y se lo nombra, porque esta a la vista igual');
+    noContiene(sigue, 'Marina', 'el que no esta en el texto no se nombra');
+
+    // Tolerante al espaciado, por lo mismo que el motor: el PDF corta un nombre
+    // en dos renglones y un includes literal no engancha nada.
+    ok(losQueSiguenEnElTexto('declaro Ernesto\nQuiroga en la audiencia', ['Ernesto Quiroga']).length === 1,
+        'un nombre cortado por el salto de linea sigue contando como presente');
+}
+
 // --- REGRESION 8: el DNI sin puntos -----------------------------------------
 {
     // Un informe del un formulario oficial escribe el documento sin
@@ -818,6 +863,154 @@ ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
     ok(c.includes('FICTICIO, ANA MARIA') && !c.includes('ANA MARIA'),
         'REGRESION: "APELLIDO, NOMBRE" en mayusculas se ofrece entero y no sin el apellido',
         `candidatos: ${c.join(' | ')}`);
+}
+
+// ---------------------------------------------------------------------------
+// REGRESION 17: el ruido de la lista de candidatos (E-02).
+//
+// Sobre un testimonio la lista trajo diez candidatos y los diez eran falsos:
+// rubros de una escritura, unidades de medida, titulos de seccion. NO ES
+// PROLIJIDAD. Una lista que no se puede leer se tilda en diagonal, y en
+// diagonal es donde se escapa E-01. Arreglado el 17/9/2026.
+// ---------------------------------------------------------------------------
+
+// --- Las tres familias de ruido no se ofrecen -------------------------------
+{
+    const planilla = [
+        'RUBRO: DAÑO EMERGENTE',
+        'METROS CUADRADOS',
+        'FOJA UTIL',
+        'CARGO ELECTRONICO',
+        'ZONA SUR',
+        'FECHA CIERTA',
+        'APORTE PREVISIONAL',
+        'CAJA FORENSE',
+        'ACTA NOTARIAL',
+        'ESCRITURA PUBLICA',
+        'BOLETO COMPRAVENTA',
+        'CONSTITUIDO ELECTRONICO',
+        'FIRMA DIGITAL',
+    ].join('\n');
+    const ruido = candidatosANombre(planilla).map((c) => c.texto);
+    ok(ruido.length === 0, 'REGRESION E-02: rubros, unidades y titulos de seccion no son candidatos',
+        `candidatos: ${ruido.join(' | ')}`);
+}
+
+// --- Y las palabras del oficio que TAMBIEN son apellidos siguen entrando ----
+{
+    // Es el limite de la lista y la razon por la que no crece por terminacion:
+    // cada palabra que entra es un apellido que deja de ofrecerse en todo el
+    // documento. Estos son inventados como partes de un juicio.
+    for (const nombre of ['MARTA CUADRADO', 'JUAN PRADO', 'LUIS PUENTE', 'ROBERTO BONO',
+                          'SANDRA SANDOVAL', 'VICENTE DELGADO', 'FEDERICO BERNAL']) {
+        const c = candidatosANombre(`${nombre} comparecio en la audiencia.`).map((x) => x.texto);
+        ok(c.includes(nombre), `un apellido que ademas es palabra del oficio se sigue ofreciendo: ${nombre}`,
+            `candidatos: ${c.join(' | ')}`);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// REGRESION 16: el nombre reemplazado A MEDIAS (E-01 y E-05).
+//
+// Son dos bugs con un solo modo de falla, y es el peor que tiene esta
+// herramienta: queda medio nombre en el texto Y la constancia lo cuenta como
+// reemplazado. El archivo se lee como limpio justo donde no lo esta, asi que
+// quien revisa confia y no mira. Arreglados el 17/9/2026, paso 2 de
+// docs/PLAN_MOTOR_UNICO.md.
+//
+// Todos los nombres de abajo son inventados.
+// ---------------------------------------------------------------------------
+
+// --- E-05: el nombre que ensucio el OCR ------------------------------------
+{
+    // "Quinteros" leido como "Qu1nteros". Antes salia "Sr. [PERSONA]1nteros":
+    // el pedazo limpio reemplazado y el resto a la vista.
+    const uno = anonimizar('Se presenta el Sr. Qu1nteros, Anibal.').texto;
+    contiene(uno, 'Sr. [PERSONA],', 'REGRESION E-05: el apellido con un digito adentro se reemplaza');
+    noContiene(uno, '1nteros', 'REGRESION E-05: y no queda el pedazo de atras en el texto');
+
+    const dos = anonimizar('Notifiquese al Dr. Rarn1ro Villalba en su domicilio.').texto;
+    contiene(dos, 'Dr. [PERSONA] en su domicilio', 'el nombre ensuciado y su apellido se van juntos');
+    noContiene(dos, '1ro Villalba', 'y no queda la mitad');
+}
+
+// --- E-05: y ningun numero se lo come la tolerancia a digitos ---------------
+{
+    // El argumento por el que esto se creia imposible: un patron que acepta
+    // digitos adentro de una palabra empieza a comerse numeros. No pasa,
+    // porque la regla esta ANCLADA en el tratamiento. Estas sondas se
+    // escribieron para provocarlo.
+    const intactos = [
+        ['Se hace lugar conforme el Dr. Perez expuso en fs. 120 vta.', 'fs. 120 vta.'],
+        ['El Sr. Juez de Camara 3 resolvio revocar.', 'Camara 3 resolvio'],
+        ['La Sra. Secretaria del Juzgado 45 certifica lo actuado.', 'Juzgado 45 certifica'],
+        ['Dr. Perez, agreguese la constancia de fs. 45/47.', 'fs. 45/47'],
+        ['Conforme el Dr. Gomez, el art. 1710 del CCC.', 'art. 1710 del CCC'],
+    ];
+    for (const [entra, sobrevive] of intactos) {
+        contiene(anonimizar(entra).texto, sobrevive,
+            `REGRESION E-05: la tolerancia a digitos no se come un numero: ${sobrevive}`);
+    }
+}
+
+// --- E-01: lo que quedo pegado a un reemplazo se detecta --------------------
+{
+    // Las dos formas en que aparecio sobre nueve testimonios.
+    const apellido = anonimizar('Perez, Juan Carlos inicio la demanda.',
+        [{ texto: 'Juan Carlos', reemplazo: '[PERSONA]' }]);
+    contiene(apellido.texto, 'Perez, [PERSONA]', 'el apellido no tildado sigue en el texto');
+    const r1 = restosPegadosAEtiqueta(apellido.texto).map((x) => x.texto);
+    ok(r1.includes('Perez'),
+        'REGRESION E-01: "Apellido, [PERSONA]" se detecta como resto', `restos: ${r1.join(' | ')}`);
+
+    const inicial = anonimizar('RAMIREZ M. GUSTAVO, por su derecho.',
+        [{ texto: 'GUSTAVO', reemplazo: '[PERSONA]' }]);
+    const r2 = restosPegadosAEtiqueta(inicial.texto).map((x) => x.texto);
+    ok(r2.includes('RAMIREZ'),
+        'REGRESION E-01: "NOMBRE M. [PERSONA]", con la inicial en el medio', `restos: ${r2.join(' | ')}`);
+
+    // Detras de la etiqueta: es lo que deja la regla de tratamiento cuando el
+    // nombre sigue despues de la coma.
+    const detras = restosPegadosAEtiqueta(anonimizar('Se presenta el Sr. Qu1nteros, Anibal.').texto)
+        .map((x) => x.texto);
+    ok(detras.includes('Anibal'),
+        'REGRESION E-01: el nombre de pila que quedo DETRAS de la etiqueta', `restos: ${detras.join(' | ')}`);
+
+    // El unico caso de E-05 que no tiene arreglo por reemplazo —el OCR ensucio
+    // la PRIMERA letra— por lo menos se avisa.
+    const sucio = restosPegadosAEtiqueta(anonimizar('La Dra. Va1eria 0campo acompania.').texto)
+        .map((x) => x.texto);
+    ok(sucio.includes('0campo'),
+        'el apellido ensuciado en la primera letra no se reemplaza, pero se avisa',
+        `restos: ${sucio.join(' | ')}`);
+}
+
+// --- E-01: y lo que esta al lado de una etiqueta y NO es un resto -----------
+{
+    // La guarda que sostiene la regla: solo las etiquetas de persona. Un
+    // domicilio o un expediente tambien tienen una palabra capitalizada al lado.
+    const casos = [
+        'El Juzgado funciona en TUCUMAN 1300, 5TO PISO, Capital Federal.',
+        'Firmado por: LOPEZ MARIA, Jueza de la causa.',
+        'Se celebro en Rivera 3120 CABA, 1ra Instancia.',
+        'Domicilio: CALLE FALSA 742, LOMAS DE ZAMORA',
+    ];
+    for (const entra of casos) {
+        const r = restosPegadosAEtiqueta(anonimizar(entra).texto).map((x) => x.texto);
+        ok(r.length === 0, `no es un resto lo que rodea a un dato que no es persona: ${entra.slice(0, 32)}`,
+            `restos: ${r.join(' | ')}`);
+    }
+}
+
+// --- E-01: el detector reconoce TODAS las etiquetas de la pantalla ----------
+{
+    // La lista vive en el motor justamente por esto: una etiqueta agregada en
+    // la pantalla y no en el detector reabre la fuga sin que nada avise.
+    for (const etiqueta of ETIQUETAS_DE_NOMBRE) {
+        const r = restosPegadosAEtiqueta(`Ficticio, ${etiqueta} inicio la demanda.`).map((x) => x.texto);
+        ok(r.includes('Ficticio'), `el detector reconoce la etiqueta ${etiqueta}`,
+            `restos: ${r.join(' | ')}`);
+    }
 }
 
 console.log('ARMADO DEL ARCHIVO\n');

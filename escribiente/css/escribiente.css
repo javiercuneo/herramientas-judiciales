@@ -286,6 +286,13 @@ button.chico:hover { color: var(--accent); border-color: var(--accent); filter: 
 /* La parte que sale de la caratula se marca: es el dato mas sensible del
    documento y el que no hay que dejar pasar por distraccion. */
 .candidatos li.parte { border-color: var(--accent); background: var(--accent-tint); }
+
+/* El resto —un pedazo de un nombre que YA se esta tapando y quedo en el texto—
+   va en --warn y no en --accent: no es una propuesta mas de la lista, es una
+   fuga a la vista. Es la marca de E-01, la fuga que no se notaba porque la
+   constancia contaba ese nombre como reemplazado. */
+.candidatos li.resto { border-color: var(--warn); background: var(--warn-tint); }
+.candidatos .marca.resto { color: var(--warn); }
 .candidatos .marca {
   flex: none;
   font-size: .7rem;

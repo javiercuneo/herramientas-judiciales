@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-09-16 · rama `main`
+Última actualización: 2026-09-17 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -50,33 +50,11 @@ sólo se enlaza lo que NO está en el tablero. Detalle en
 
 ## Bugs abiertos
 
-Los cuatro son de **escribiente** y salieron trabajando para `confronteitor`.
-Los cerrados, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md), y ahí
-está **E-04** —el verificador de datos, cerrado el 17/9—, que es lo que destrabó
-poder versionar un banco de ejemplo.
-
-### E-01 · Escribiente deja la mitad de un nombre cuando reemplaza la otra
-
-**Es una fuga, y lo peor es que no se nota.** Si un nombre tiene varios tokens y
-no todos se tildan, los que quedan siguen en el texto **y la constancia no los
-cuenta**, porque para ella ese nombre «se reemplazó». Dice «no quedaron nombres
-propios sin reemplazar», según su cuenta es cierto, y **el archivo se lee como
-limpio**: quien revisa confía en la constancia justo donde no mira. En los nueve
-testimonios sobrevivieron seis nombres de pila, dos apellidos de parte y el
-nombre de pila del juez, en formas como `Apellido, [PERSONA]` y
-`NOMBRE M. [PERSONA]`.
-
-Caso de prueba, sin datos reales: `Perez, Juan Carlos` con `Juan Carlos` tildado
-tiene que salir sin `Perez`, o la constancia tiene que decir que quedó. Arreglo
-posible: un token capitalizado pegado a un `[PERSONA]` se ofrece tildado, o al
-menos se cuenta entre los que quedaron.
-
-### E-02 · La lista de candidatos de escribiente trae más ruido que señal
-
-Frases genéricas en mayúsculas entran como candidatas a nombre propio: rubros de
-escritura, unidades de medida, títulos de sección. En un testimonio fueron diez
-y **las diez eran falsas**. Una lista así se tilda en diagonal, y en diagonal es
-donde se escapa E-01.
+**Queda uno, y es el único de los cuatro de escribiente que no era un bug.** Los
+otros tres se cerraron el 17/9 con el paso 2 del plan del motor único; están en
+[`HISTORIA.md`](HISTORIA.md) con su caso de prueba, junto con **E-06**, una fuga
+que apareció al verificarlos —la constancia nombraba al pie a quien el cuerpo sí
+había tapado— y se cerró en el mismo commit.
 
 ### E-03 · Etiquetas estables entre documentos (pedido de `confronteitor`)
 
@@ -87,24 +65,12 @@ y estables entre documentos**: si una heredera es `[PERSONA_2]` en uno, tiene qu
 serlo en el otro. Sin eso, dos archivos anonimizados no se pueden cruzar.
 **Es un pedido, no un bug**, y decide Javier si vale la pena.
 
-### E-05 · Escribiente parte los nombres que ensució el OCR
-
-**Del mismo modo de falla que E-01, y encontrado el 16/9 comparando los dos
-motores** (paso 1 de [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md)). `Sr.
-Qu1nteros, Anibal` sale como `Sr. [PERSONA]1nteros, Anibal`: se reemplaza el
-pedazo limpio, el resto queda a la vista **y la constancia lo cuenta como
-reemplazado**. Tres de tres sondas dieron lo mismo.
-
-**El anonimizador del pipeline lo resuelve y el de acá no**, así que hay de dónde
-copiarlo: su patrón de nombre acepta dígitos adentro de la palabra. Y **el motivo
-por el que acá se creía imposible no se sostiene**: se probó con cinco casos
-hechos para que el patrón se comiera un número —`fs. 120`, un tomo y folio de
-letrado, `Juzgado 45`— y los dos motores dan idéntico en los cinco, porque la regla está
-anclada en el tratamiento. Lo que sigue sin arreglo es el nombre ensuciado **sin
-tratamiento delante**.
-
-Caso de prueba: `Dr. Rarn1ro Villalba` tiene que salir sin `1ro Villalba`, o la
-constancia tiene que decir que quedó.
+**Lo que queda abierto de los que se cerraron**, que no es un bug sino el borde
+de la regla: un nombre que el OCR ensució **sin tratamiento delante**
+(`Qu1nteros, Anibal Ramon inicio la demanda`) no lo agarra ningún patrón, y
+tampoco lo agarra cuando el dígito reemplaza la **primera** letra (`0campo`).
+En los dos casos lo que queda pegado a la etiqueta se ofrece para tildar y la
+constancia lo nombra, así que la fuga se ve; pero el reemplazo no sale solo.
 
 ## Por dónde seguir
 
@@ -116,32 +82,32 @@ constancia tiene que decir que quedó.
 
 **Lo que queda abierto:**
 
-- **UN SOLO MOTOR DE ANONIMIZACIÓN. Acá se arranca, y va por el paso 2.**
-  Las mismas reglas están escritas dos veces —867 líneas de JavaScript en
-  `escribiente/js/motor/anonimizar.js` y 681 de Python en el pipeline— y un
-  arreglo de nombres hay que llevarlo a los dos lados. Decidido el 16/9: **queda
-  el JS**. El plan entero —los cinco pasos, la costura (son cuatro funciones), y
-  por qué `redactor` es el consumidor principal y no el pipeline— está en
+- **UN SOLO MOTOR DE ANONIMIZACIÓN. Acá se arranca, y va por el paso 3.**
+  Las mismas reglas están escritas dos veces —en `escribiente/js/motor/anonimizar.js`
+  y en el anonimizador del pipeline— y un arreglo de nombres hay que llevarlo a
+  los dos lados. Decidido el 16/9: **queda el JS**. El plan entero —los cinco
+  pasos, la costura (son cuatro funciones), y por qué `redactor` es el consumidor
+  principal y no el pipeline— está en
   [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md), **que hay que leer antes de tocar
   nada**.
 
-  **El paso 1 está hecho** (16/9) y **el paso 2 está desbloqueado** desde que se
-  cerró E-04 el 17/9. Lo que hace falta saber para empezar:
+  **Los pasos 1 y 2 están hechos** (16 y 17/9). Lo que hace falta saber para
+  seguir:
 
-  - **El paso 2 es arreglar E-01, E-02, E-03 y E-05 en el motor JS**, una sola vez
-    y en el que va a quedar. **E-01 y E-05 son el mismo modo de falla** —un nombre
-    reemplazado a medias que la constancia cuenta como completo— y conviene
-    tomarlos juntos.
-  - **E-05 tiene de dónde copiarse:** el anonimizador del pipeline lo resuelve, y
-    está probado que aceptar dígitos adentro de la palabra **no** se come números
-    mientras la regla esté anclada en el tratamiento.
+  - **El paso 3 es un conector del anonimizador**, hermano de `conectores/mcp.mjs`,
+    que exponga las cuatro funciones de la costura. Con su propio banco, y con la
+    regla de los conectores: **cuando falta un dato no devuelve un resultado**,
+    devuelve el motivo. Antes de escribirlo hay que decir en `HERMANOS.md` dónde
+    vive, porque lo consumen dos repositorios.
   - **El banco de comparación está versionado** en `scripts/comparar-motores/`,
-    declarado en `.datos-ejemplo`. Es la red del paso 2: **antes y después de
-    cada arreglo, correrlo y mirar qué se movió.** Cómo se corre, en el plan.
-  - **Queda una decisión chica sin tomar**, anotada en el plan: los dos motores se
-    contradicen sobre si la palabra que ancla sobrevive al reemplazo —el JS se come
-    `Autos` y `Expte. N`, el Python se come `Tel:`—. La regla que falta es que
-    la palabra que ancla es texto y no dato, así que sobrevive.
+    declarado en `.datos-ejemplo`. Es la red: **antes y después de cada arreglo,
+    correrlo y mirar qué se movió.** Cómo se corre, en el plan. Hoy da 28 de 40
+    iguales.
+  - **Queda una decisión chica sin tomar, y es de Javier**, anotada en el plan:
+    los dos motores se contradicen sobre si la palabra que ancla sobrevive al
+    reemplazo —el JS se come `Autos` y `Expte. N`, el Python se come `Tel:`—. La
+    regla propuesta es que la palabra que ancla es texto y no dato, así que
+    sobrevive. **No se tocó nada de esto todavía.**
 
 - **Falta publicar el ledger, y nada más.** El lado de acá ya salió
   —`js/enlace.js` está en el sitio y `vencimientos.html` lo carga; comprobado el

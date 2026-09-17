@@ -162,15 +162,17 @@ carpeta. Allá queda un puntero y lo que un agente necesita saber sin entrar ac�
 21/8, que además destapó varias fugas ya arregladas; esa crónica está en
 [`docs/HISTORIA.md`](../docs/HISTORIA.md).
 
-- **Un nombre que el OCR ensució sale partido, y eso es peor que no tocarlo.**
-  `Sr. Qu1nteros` sale como `Sr. [PERSONA]1nteros`: se reemplaza el pedazo limpio,
-  el resto queda en claro **y la constancia lo cuenta como reemplazado**. Está
-  anotado como **E-05** en [`docs/ESTADO.md`](../docs/ESTADO.md). Hasta el 16/9 acá
-  decía que «no lo agarra nada» y que «no tiene arreglo por patrón»: las dos cosas
-  estaban mal, y por qué está en
-  [`docs/PLAN_MOTOR_UNICO.md`](../docs/PLAN_MOTOR_UNICO.md). Lo que sí es cierto es
-  la mitad angosta: **sin un tratamiento que ancle** —`Dr.`, `Sr.`— no hay arreglo
-  por patrón, y ahí no queda más que leer el `.md` antes de mandarlo.
+- **Un nombre que el OCR ensució se reemplaza desde el 17/9, si hay tratamiento
+  que ancle.** `Sr. Qu1nteros` salía como `Sr. [PERSONA]1nteros` —el pedazo limpio
+  reemplazado, el resto en claro **y la constancia contándolo como reemplazado**—.
+  Era **E-05**, y está cerrado: el patrón de nombre acepta dígitos adentro de la
+  palabra, nunca al principio ni al final. Hasta el 16/9 acá decía que «no lo
+  agarra nada» y que «no tiene arreglo por patrón»: las dos cosas estaban mal, y
+  por qué está en [`docs/PLAN_MOTOR_UNICO.md`](../docs/PLAN_MOTOR_UNICO.md).
+  **Queda abierta la mitad angosta**: sin tratamiento que ancle —`Dr.`, `Sr.`— no
+  hay arreglo por patrón, y tampoco lo hay cuando el OCR ensucia la **primera**
+  letra (`0campo`). En los dos casos lo que quedó pegado a la etiqueta se ofrece
+  para tildar y se nombra en la constancia, así que la fuga se ve.
 - **El domicilio del propio juzgado también se reemplaza**, y se decidió dejarlo
   así: la regla que lo agarra es la misma que agarra el domicilio de una parte
   escrito igual, y separarlas pediría una lista de direcciones de tribunales.

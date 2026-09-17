@@ -19,6 +19,109 @@ de 2026.
 
 ---
 
+## E-01, E-02, E-05 y una fuga nueva: la constancia que miente — 17/9
+
+Es el **paso 2 de [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md)**: arreglar los
+huecos de nombres **una sola vez y en el motor que va a quedar**, el JS, en vez
+de dos veces en dos lenguajes. Quedó pendiente E-03 —las etiquetas numeradas y
+estables entre documentos—, que es un pedido de `confronteitor` y decide Javier.
+
+Antes y después de cada arreglo se corrió el banco de comparación de
+`scripts/comparar-motores/`, que es la red que dejó el paso 1. El único caso que
+se movió es el que se vino a mover: `ocr-ensuciado` pasó de «difieren» a
+«idénticos». El resto quedó en 28 de 40, igual que el 16/9.
+
+### E-05: el nombre que ensució el OCR, y el argumento que no se sostenía
+
+`Sr. Qu1nteros, Anibal` salía `Sr. [PERSONA]1nteros, Anibal`. El arreglo es una
+línea: el patrón de nombre de la regla de tratamiento pasó de `[LETRA]+` a
+aceptar **dígitos adentro de la palabra, nunca al principio ni al final**.
+
+Lo que costaba no era el patrón sino creer que se podía. El `README.md` de
+Escribiente decía que «no lo agarra nada» y que «no tiene arreglo por patrón», y
+el miedo concreto era que un patrón con dígitos empezara a comerse números. **Lo
+que lo desarma es que esta regla está anclada en el tratamiento**: sin `Dr.` o
+`Sr.` delante no dispara. Las cinco sondas escritas para provocarlo —`fs. 120`,
+`Cámara 3`, `Juzgado 45`, un tomo y folio, un DNI con puntos— siguen intactas y
+están ahora en el banco de regresión.
+
+El dígito no puede ir primero, y por eso `Dra. Va1eria 0campo` queda como
+`Dra. [PERSONA] 0campo`: una palabra que empieza con dígito es un número. El
+motor Python tampoco lo resuelve. Lo que sí cambió es que ahora **se avisa**.
+
+### E-01: medio nombre a la vista, y la constancia contándolo entero
+
+Es el peor modo de falla que tiene la herramienta y por eso se tomó junto con
+E-05: son el mismo. El usuario tilda `Juan Carlos` de `Perez, Juan Carlos`, el
+texto queda `Perez, [PERSONA]`, y la constancia dice «no quedaron nombres propios
+sin reemplazar» —y según su cuenta es cierto—. El apellido, que es lo que más
+identifica, sale publicado en un archivo que se lee como limpio.
+
+La decisión de diseño: **se mira el texto YA anonimizado**, no la lista de
+candidatos. La lista dice qué se propuso; la fuga está en qué se aplicó, y un
+resto sólo se ve después de reemplazar. `restosPegadosAEtiqueta()` busca una
+palabra capitalizada pegada a una etiqueta **de persona** —ésa es la guarda: un
+`[DOMICILIO]` o un `[EXPTE]` también tienen una palabra al lado y ahí no quedó
+ningún nombre partido—, en las dos formas en que apareció sobre nueve
+testimonios: `Apellido, [PERSONA]` y `NOMBRE M. [PERSONA]`.
+
+**Entran sin tildar, y eso se discutió.** `ESTADO.md` pedía «se ofrece tildado, o
+al menos se cuenta entre los que quedaron», y se eligió lo segundo por una razón
+concreta: un resto tildado de fábrica se aplica solo, y con `Estudio Juridico
+Ficticio` y `Ficticio` tildado se comería después `Juridico` y después `Estudio`,
+hasta dejar tres etiquetas seguidas donde había un nombre de estudio. Sin tildar,
+el modo de fallar es el correcto —la palabra queda en el texto **y** la constancia
+la nombra— y encima se ve: la fila va arriba, en ámbar, marcada `QUEDÓ PEGADO`.
+
+La lista de etiquetas se mudó de `app.js` al motor (`ETIQUETAS_DE_NOMBRE`) y una
+comprobación recorre todas: estaba escrita dos veces, y una etiqueta agregada en
+la pantalla y no en el detector reabría la fuga sin que nada avisara.
+
+### La fuga que apareció verificando: la constancia nombraba al que sí se tapó
+
+Se encontró probando el arreglo con un PDF inventado, mirando la salida. La
+pantalla arma los pendientes con los candidatos que el usuario no tildó, y esa
+lista se calcula sobre el texto **original**; entre medio corren las reglas
+deterministas. Un nombre ofrecido, no tildado y tapado igual por la regla de
+firma —`Firmado por: LOPEZ MARIA`— salía reemplazado en el cuerpo **y nombrado al
+pie**, con la constancia afirmando que «sigue en el texto».
+
+O sea: el `.md` anonimizado publicaba al pie el nombre de quien firmó la
+resolución, que es justo lo que el cuerpo había ocultado. Es el mismo modo de
+falla que `documento.js` existe para evitar y el que persigue la REGRESIÓN 7, por
+otra puerta. `losQueSiguenEnElTexto()` filtra los pendientes contra el cuerpo
+final, tolerante al espaciado, y lo usan la pantalla y el `.md` para que digan lo
+mismo.
+
+### E-02: sacar ruido de la lista es parte de arreglar E-01
+
+Sobre un testimonio la lista trajo diez candidatos y los diez eran falsos. No es
+prolijidad: **una lista que no se puede leer se tilda en diagonal, y en diagonal
+es donde se escapa E-01.** Una planilla de sonda con las tres familias que
+nombraba `ESTADO.md` —rubros de escritura, unidades de medida, títulos de
+sección— daba trece falsos; ahora da cero.
+
+Se hizo con palabras y **no con terminaciones**, que habría sido más corto y es
+la trampa. `-al`, `-ado`, `-ente` e `-ico` describen casi todos los adjetivos del
+oficio y también a Sandoval, Machado, Vicente y Federico. Las seis terminaciones
+que ya había son seguras porque ningún apellido termina así; ésas cuatro no.
+
+El criterio que quedó escrito al lado de la lista, porque es lo que hay que
+respetar si alguien agrega más: **cada palabra que entra es un apellido que deja
+de ofrecerse en todo el documento**, así que entra sólo la que no es apellido de
+nadie. Por eso no están «cuadrado», «prado», «campo», «puente», «sierra» ni
+«bono» —el par que las lleva se cae igual por la otra palabra— y hay una
+comprobación que los prueba como partes de un juicio.
+
+### Lo que verificó
+
+`npm run verificar-escribiente` pasó de 214 a 254 comprobaciones. Las nuevas se
+vieron fallar a propósito: seis con el patrón de nombre viejo, cuatro sin el
+filtro de pendientes. Y se pasó un PDF inventado por la herramienta entera en el
+navegador, que es donde apareció la fuga de la constancia.
+
+---
+
 ## E-04: declarar un archivo como ejemplo, sin aflojar el patrón para todos — 17/9
 
 El pedido venía de `confronteitor` —un repo sobre testimonios necesita un

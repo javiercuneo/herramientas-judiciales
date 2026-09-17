@@ -1,13 +1,14 @@
 # Plan: un solo motor de anonimización
 
-**Abierto.** Decidido por Javier el 16/9/2026. Nada de esto está hecho todavía.
+**Abierto.** Decidido por Javier el 16/9/2026. **Los pasos 1 y 2 están hechos**
+(16 y 17/9); el 3, el 4 y el 5 no.
 
 ---
 
 ## El problema, en una línea
 
-Las mismas reglas están escritas dos veces: **867 líneas de JavaScript** en
-`escribiente/js/motor/anonimizar.js` y **681 de Python** en
+Las mismas reglas están escritas dos veces: **más de mil líneas de JavaScript**
+en `escribiente/js/motor/anonimizar.js` y **681 de Python** en
 el anonimizador del pipeline. Un arreglo de nombres hay que llevarlo
 a los dos lados, en dos lenguajes, y **los huecos son los mismos pero el código
 no**: por eso `FUGAS-ANONIMIZADOR.md` anota cada fuga aparecida al usarlo diciendo que
@@ -109,8 +110,13 @@ Cada paso deja el árbol funcionando y ninguno borra nada del anonimizador viejo
    JS «hace estrictamente más» que el Python; **eso hay que comprobarlo y no
    suponerlo**, porque de ahí sale si el cambio pierde algo.
 2. **Arreglar E-01, E-02, E-03 y E-05 en el motor JS.** Se arreglan una sola vez
-   y en el que va a quedar, no dos veces en los dos. **Desbloqueado el 17/9**, al
-   cerrarse E-04: recién ahora el banco de regresión se puede versionar.
+   y en el que va a quedar, no dos veces en los dos. **Hecho el 17/9** para E-01,
+   E-02 y E-05, con una fuga más que apareció al verificarlos —E-06, la
+   constancia nombraba al pie a quien el cuerpo sí había tapado—. **E-03 queda
+   pendiente de Javier**: es un pedido de `confronteitor`, no un bug. La crónica
+   está en [`HISTORIA.md`](HISTORIA.md); lo que quedó abierto es el borde de la
+   regla de E-05 —sin tratamiento que ancle, y con el dígito en la primera letra,
+   no hay reemplazo, sólo aviso—.
 3. **Un conector del anonimizador**, hermano de `conectores/mcp.mjs`, que exponga
    las cuatro funciones de la costura. Con su propio banco, y con la regla de los
    conectores: **cuando falta un dato no devuelve un resultado**, devuelve el
@@ -144,7 +150,7 @@ capital`— sale como `[DNI]` del lado
 Python. El JS lo excluye porque su regla mira «suma de», «importe de», «monto
 de»; la del Python sólo mira el `$` y los decimales.
 
-### La excepción, y es un bug del JS: los nombres que ensució el OCR
+### La excepción, y era un bug del JS: los nombres que ensució el OCR (cerrado el 17/9)
 
 **`escribiente/README.md` decía que un nombre con dígitos adentro «no lo agarra
 nada» y que «no tiene arreglo por patrón». Las dos mitades estaban mal.**
@@ -216,8 +222,9 @@ repositorio privado no se escribe adentro de uno público.
 
 ## La línea de verificación
 
-- `npm run verificar-escribiente` —214 comprobaciones— tiene que seguir pasando
-  en cada paso, y crecer con las regresiones de E-01 a E-03.
+- `npm run verificar-escribiente` —254 comprobaciones desde el 17/9, eran 214—
+  tiene que seguir pasando en cada paso, y crecer con las regresiones de cada
+  hueco que se cierre.
 - El conector nuevo necesita su propio banco, **visto fallar a propósito**, como
   los otros doce controles de este repositorio.
 - El paso 4 no se da sin el paso 1: sin saber en qué difieren, cambiar el motor
@@ -225,8 +232,8 @@ repositorio privado no se escribe adentro de uno público.
 
 ## Lo que queda por preguntar
 
-- **Si el motor Python hace algo que el JS no.** Lo contesta el paso 1. Hasta
-  entonces no se borra nada.
+- **Si el motor Python hace algo que el JS no.** Lo contestó el paso 1: sólo un
+  falso positivo, y el JS tiene razón en no taparlo. No se borra nada igual.
 - **Dónde vive el conector.** Acá, por la regla 1 de `HERMANOS.md` —el dato se
   arregla en la casa del dueño—, pero lo consumen dos repositorios y conviene
   decirlo en `HERMANOS.md` antes de escribirlo.

@@ -369,6 +369,30 @@ const PISO =
     `|entre[ \\t]*piso|departamento|depto\\.?|dpto\\.?|piso|P\\.?B\\.?|of\\.?|oficina|U\\.?F\\.?` +
     `)${UNIDAD})`;
 
+// Una palabra de nombre tal como sale de un PDF escaneado: los digitos van
+// ADENTRO, nunca al principio ni al final.
+//
+// POR QUE, 17/9/2026 (E-05). El OCR lee "Quinteros" como "Qu1nteros" y "Ramiro"
+// como "Rarn1ro". Con `[LETRA]+` el patron enganchaba el pedazo limpio y
+// devolvia el resto al texto: "Sr. Qu1nteros" salia "Sr. [PERSONA]1nteros", con
+// medio apellido a la vista Y la constancia contandolo como reemplazado. Eso es
+// peor que no reemplazar, porque el archivo se lee como limpio.
+//
+// EL MOTIVO POR EL QUE SE CREIA IMPOSIBLE NO SE SOSTIENE, y esta probado. El
+// miedo era que un patron con digitos empezara a comerse numeros ("fs. 120",
+// "Juzgado 45", un tomo y folio). Se corrieron esas sondas contra los dos
+// motores y ninguno se comio un numero, porque ESTA REGLA ESTA ANCLADA en el
+// tratamiento y frenada por `largoDeNombre`. Sin ancla no hay arreglo por
+// patron, y por eso esta constante NO se usa en las reglas sin ancla ni en los
+// candidatos: ahi un digito adentro de una palabra es un numero.
+//
+// El digito no va primero —una palabra que empieza con digito es un numero— ni
+// ultimo —"Camara 3" y "Juzgado 45" lo tienen pegado si no se lo impide—. De
+// ahi que "Dra. Va1eria 0campo" quede como "Dra. [PERSONA] 0campo": el apellido
+// que el OCR ensucio en la PRIMERA letra sigue sin arreglo, y el motor Python
+// tampoco lo resuelve.
+const PALABRA_DE_NOMBRE = `[${MAY}][${LETRA}\\d]*[${LETRA}]`;
+
 export const REGLAS_NOMBRES = [
     {
         nombre: 'dominio de automotor',
@@ -410,7 +434,7 @@ export const REGLAS_NOMBRES = [
             // Las particulas no cuentan entre las cuatro palabras: sin eso,
             // "Dr. Juan Perez de la Fuente" llenaba el cupo en "la" y el
             // apellido quedaba afuera, en claro.
-            `[ \\t]*:?[ \\t]*([${MAY}][${LETRA}]+(?:[ \\t]+(?:${PARTICULA}[ \\t]+){0,2}[${MAY}][${LETRA}]+){0,3})`,
+            `[ \\t]*:?[ \\t]*(${PALABRA_DE_NOMBRE}(?:[ \\t]+(?:${PARTICULA}[ \\t]+){0,2}${PALABRA_DE_NOMBRE}){0,3})`,
             'gi'
         ),
         reemplazo: (todo, tratamiento, nombre) => {
@@ -618,6 +642,41 @@ administrador administradora
 caba departamento sucesores sucesor sucesion herederos
 heredero cedente cedentes cesionario cesionaria litigiosos expresa expreso
 ineficacia eficacia sustancial sobre todo toda evento cobro pesos
+
+# Las de abajo entraron el 17/9/2026, por E-02: la lista de candidatos traia
+# mas ruido que senial. Sobre un testimonio fueron diez candidatos y los diez
+# eran falsos. NO ES UN PROBLEMA DE PROLIJIDAD: una lista que no se puede leer
+# se tilda en diagonal, y en diagonal es donde se escapa E-01, que es la fuga
+# grave. Sacar ruido de aca es lo que hace que la fuga se vea.
+#
+# EL CRITERIO PARA ELEGIR CADA PALABRA, que es lo que hay que respetar si se
+# agregan mas: una palabra de esta lista es un apellido que deja de ofrecerse
+# EN TODO EL DOCUMENTO. Asi que entra solo la que no es apellido de nadie.
+# Por eso no estan "cuadrado", "prado", "campo", "puente", "sierra" ni "bono",
+# que son palabras del oficio Y apellidos reales; el par que las lleva se cae
+# igual por la otra palabra ("BONO LEY" se cae por "ley").
+#
+# Y POR ESO TAMPOCO SE AGREGO NINGUNA TERMINACION NUEVA a
+# TERMINACION_QUE_NO_ES_NOMBRE, que seria mas corto: "-al", "-ado", "-ente" y
+# "-ico" describen casi todos los adjetivos del oficio y tambien a Sandoval,
+# Machado, Vicente y Federico. Las seis terminaciones que hay son seguras
+# porque ningun apellido termina asi; esas cuatro no lo son.
+
+# Unidades de medida, que en una planilla van en mayusculas.
+metro metros centimetro centimetros kilometro kilometros kilogramo kilogramos
+gramo gramos litro litros tonelada toneladas
+
+# Rubros de una liquidacion o de una escritura.
+rubro rubros dano emergente compraventa boleto aporte aportes arancel sellado
+gravamen reintegro anticipo saldo cuota cuotas
+
+# Titulos y partes de un documento.
+acta actas anexo apartado capitulo punto puntos foja carilla escritura
+escribania protocolo minuta planilla fecha
+
+# Adjetivos del oficio: ninguno es apellido.
+forense notarial registral catastral electronico electronica digital
+telematico cierta cierto util utiles vigente previsional zona sector sede
 `.replace(/^\s*#.*$/gm, '').trim().split(/\s+/));
 
 // La caratula tiene forma fija: "X c/ Y s/ OBJETO". De ahi salen las partes.
@@ -737,6 +796,19 @@ export function anonimizar(texto, elegidos = []) {
     return { texto, conteo };
 }
 
+/** La frase, aparece en el texto como apareceria para reemplazarla?
+ *
+ * Misma regla que usa `anonimizar` con los elegidos, y por eso vive aca: el
+ * borde de palabra que ve las tildes y la tolerancia al espaciado del PDF. Si
+ * las dos se separan, alguien pregunta "sigue en el texto?" con un criterio y
+ * el motor reemplaza con otro, que es como se construye una constancia falsa.
+ */
+export function apareceEnElTexto(texto, frase) {
+    const fuente = String(frase).trim().split(/\s+/).map(escapar).join('\\s+');
+    if (!fuente) return false;
+    return new RegExp(`${ANTES}(?:${fuente})${DESPUES}`, 'i').test(texto);
+}
+
 /** Le saca al candidato las palabras de los extremos que no son nombre.
  *
  * Devuelve `''` si lo que queda no llega a dos palabras, o si la palabra que
@@ -815,6 +887,115 @@ export function candidatosANombre(texto) {
     return [...encontrados.entries()]
         .map(([texto, apariciones]) => ({ texto, apariciones }))
         .filter(esFragmentoDeOtro(encontrados))
+        .sort((a, b) => b.apariciones - a.apariciones || a.texto.localeCompare(b.texto));
+}
+
+// ---------------------------------------------------------------------------
+// Nivel 2b: lo que quedo pegado a un reemplazo.
+//
+// E-01 Y E-05 SON EL MISMO MODO DE FALLA, y es el peor que tiene esta
+// herramienta: un nombre reemplazado A MEDIAS, que la constancia cuenta como
+// reemplazado entero. El archivo se lee como limpio —"no quedaron nombres
+// propios sin reemplazar", y segun su cuenta es cierto— justo donde hay medio
+// apellido a la vista. Quien revisa confia en la constancia y no mira ahi.
+//
+// Las dos formas en que aparecio, sobre nueve testimonios: "Apellido,
+// [PERSONA]" —el usuario tildo el nombre de pila y no el apellido— y "NOMBRE M.
+// [PERSONA]". Sobrevivieron seis nombres de pila, dos apellidos de parte y el
+// nombre de pila de un juez.
+//
+// POR QUE SE MIRA EL TEXTO YA ANONIMIZADO y no la lista de candidatos: la lista
+// dice que se propuso, y la fuga esta en que se aplico. Un resto solo se ve
+// despues de reemplazar, y mirarlo ahi no depende de adivinar que tildo el
+// usuario.
+// ---------------------------------------------------------------------------
+
+/** Las etiquetas con que se tapa a alguien.
+ *
+ * Las usa el selector de la pantalla Y el detector de restos de abajo. Van
+ * juntas a proposito: si las dos listas se separan, el detector deja de
+ * reconocer la etiqueta que el usuario eligio y la fuga vuelve en silencio.
+ */
+export const ETIQUETAS_DE_NOMBRE = [
+    '[PERSONA]', '[ACTOR]', '[DEMANDADO]', '[LETRADO]', '[PERITO]', '[TESTIGO]', '[EMPRESA]',
+];
+
+// Solo las de persona, y es la guarda que sostiene toda la regla. "[DOMICILIO],
+// Lomas de Zamora" y "en [EXPTE] Juzgado Civil" tambien tienen una palabra
+// capitalizada al lado, y ahi no quedo ningun nombre partido: quedo el texto que
+// rodea a un dato.
+const ETIQUETA_DE_NOMBRE = `(?:${ETIQUETAS_DE_NOMBRE.map(escapar).join('|')})`;
+
+// La palabra que puede haber quedado. Acepta el digito que mete el OCR —"0campo",
+// "RAM1REZ"—, y puede hacerlo con mas soltura que la regla de tratamiento
+// porque ACA NO SE REEMPLAZA NADA: lo peor que cuesta un falso positivo es una
+// casilla de mas en la lista, y lo que evita es un apellido que se publica.
+const PALABRA_SUELTA = `[${MAY}\\d][${LETRA}\\d]*[${LETRA}]`;
+
+// Con un digito adentro hacen falta tres letras, y eso es lo que separa un
+// apellido ensuciado de un ordinal. "5TO PISO" y "2do" tienen dos letras y no
+// pasan; "0campo" tiene cinco y pasa. Sin la guarda, cada "[DOMICILIO] 5TO" y
+// cada "1ra Instancia" entraba en la lista.
+function esRestoDeNombre(palabra) {
+    if (noEsNombre(palabra) || esParticula(palabra)) return false;
+    if (!/[0-9]/.test(palabra)) return true;
+    return (palabra.match(new RegExp(`[${LETRA}]`, 'g')) || []).length >= 3;
+}
+
+// La inicial del medio, que es la mitad de la segunda forma: "NOMBRE M.
+// [PERSONA]". EL PUNTO ES OBLIGATORIO. Sin el, "M" pasa a ser una palabra
+// cualquiera y el patron se saltea la primera palabra de un nombre de dos.
+const INICIAL_DEL_MEDIO = `(?:[ \\t]+[${MAY}]\\.)?`;
+
+// El separador acepta la coma —"Apellido, [PERSONA]"— y nada mas. Un salto de
+// linea no entra, por lo mismo que en todas las reglas de arriba: junta el final
+// de un renglon con el principio del siguiente y propone un resto que nunca
+// estuvo pegado a nada.
+const SEPARADOR = `[ \\t]*,?[ \\t]*`;
+
+const RESTOS = [
+    // Adelante de la etiqueta: "Perez, [PERSONA]", "NOMBRE M. [PERSONA]".
+    {
+        patron: new RegExp(
+            `${ANTES}(${PALABRA_SUELTA})${INICIAL_DEL_MEDIO}${SEPARADOR}${ETIQUETA_DE_NOMBRE}`, 'g'),
+        grupo: 2,
+    },
+    // Detras: "Sr. [PERSONA], Anibal". Es lo que deja la regla de tratamiento
+    // cuando el nombre sigue despues de la coma, y tambien el apellido que el
+    // OCR ensucio en la PRIMERA letra —"Dra. [PERSONA] 0campo"— donde no hay
+    // arreglo por patron y lo unico que se puede hacer es avisar.
+    {
+        patron: new RegExp(
+            `${ETIQUETA_DE_NOMBRE}${SEPARADOR}(${PALABRA_SUELTA})${DESPUES}`, 'g'),
+        grupo: 1,
+    },
+];
+
+/** Nombres propios que quedaron pegados a una etiqueta ya reemplazada.
+ *
+ * Recibe el texto YA ANONIMIZADO y devuelve `[{ texto, apariciones }]`, donde
+ * `apariciones` es cuantas veces quedo pegado —no cuantas veces esta la palabra
+ * en el documento, que es mas—. Quien lo muestre en pantalla cuenta sobre el
+ * texto original, como hace con las partes de la caratula.
+ *
+ * NO REEMPLAZA NADA, y no puede hacerlo. Un resto es un indicio fuerte, no una
+ * certeza, y aplicarlo solo abre la puerta al desastre que evita el diseno de
+ * dos capas: con "Estudio Juridico Ficticio" y "Ficticio" tildado, un resto
+ * aplicado solo se come "Juridico", despues "Estudio", y el nombre del estudio
+ * termina siendo tres etiquetas seguidas. Se ofrece; lo tilda el humano.
+ */
+export function restosPegadosAEtiqueta(textoAnonimo) {
+    const encontrados = new Map();
+    for (const { patron, grupo } of RESTOS) {
+        patron.lastIndex = 0;
+        for (const match of textoAnonimo.matchAll(patron)) {
+            const palabra = match[grupo];
+            if (!esRestoDeNombre(palabra)) continue;
+            encontrados.set(palabra, (encontrados.get(palabra) || 0) + 1);
+        }
+    }
+    return [...encontrados.entries()]
+        .map(([texto, apariciones]) => ({ texto, apariciones }))
         .sort((a, b) => b.apariciones - a.apariciones || a.texto.localeCompare(b.texto));
 }
 

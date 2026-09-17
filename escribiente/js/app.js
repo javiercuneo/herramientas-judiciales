@@ -14,8 +14,11 @@
 
 import { extraerPaginas, diagnosticar } from './motor/extraer.js';
 import { convertir } from './motor/markdown.js';
-import { anonimizar, candidatosANombre, partesDeCaratula, normalizarEspacios } from './motor/anonimizar.js';
-import { armarDocumento, nombreDeDescarga } from './motor/documento.js';
+import {
+    anonimizar, candidatosANombre, partesDeCaratula, normalizarEspacios,
+    restosPegadosAEtiqueta, ETIQUETAS_DE_NOMBRE as ETIQUETAS,
+} from './motor/anonimizar.js';
+import { armarDocumento, nombreDeDescarga, losQueSiguenEnElTexto } from './motor/documento.js';
 import { analizarRango, describirProblemas, explicarError, unir, separar, rotar, contarPaginas } from './motor/pdf.js';
 
 const $ = (id) => document.getElementById(id);
@@ -83,14 +86,18 @@ pestanias.forEach((boton) => {
 // Convertir y anonimizar
 // ---------------------------------------------------------------------------
 
-const ETIQUETAS = ['[PERSONA]', '[ACTOR]', '[DEMANDADO]', '[LETRADO]', '[PERITO]', '[TESTIGO]', '[EMPRESA]'];
+// ETIQUETAS viene del motor (ETIQUETAS_DE_NOMBRE). Estaba escrita tambien aca
+// hasta el 17/9/2026, y esa copia era un riesgo real y no un detalle de estilo:
+// el detector de restos reconoce la etiqueta que el usuario eligio, asi que una
+// etiqueta agregada en la pantalla y no en el motor volvia a abrir la fuga E-01
+// sin que nada avisara.
 
 const estado = {
     nombreArchivo: '',
     crudo: '',            // Markdown ya convertido, sin anonimizar
     informe: null,
     paginasVacias: [],
-    candidatos: [],       // { texto, apariciones, marcado, etiqueta, esParte }
+    candidatos: [],       // { texto, apariciones, marcado, etiqueta, esParte, esResto }
     final: '',
 };
 
@@ -292,6 +299,7 @@ function dibujarCandidatos() {
     for (const [indice, c] of estado.candidatos.entries()) {
         const li = document.createElement('li');
         if (c.esParte) li.className = 'parte';
+        else if (c.esResto) li.className = 'resto';
 
         const casilla = document.createElement('input');
         casilla.type = 'checkbox';
@@ -318,10 +326,19 @@ function dibujarCandidatos() {
         selector.addEventListener('change', () => { c.etiqueta = selector.value; recomputar(); });
 
         li.append(casilla, etiqueta, veces);
-        if (c.esParte || c.aMano) {
+        // El resto se marca distinto de todo lo demas porque no es una
+        // propuesta: es un pedazo de un nombre que YA se esta tapando y que
+        // quedo en el texto. Sin la marca es una casilla mas entre cuarenta.
+        const marcas = [
+            [c.esParte, 'marca', 'parte'],
+            [c.esResto, 'marca resto', 'quedó pegado'],
+            [c.aMano, 'marca a-mano', 'a mano'],
+        ];
+        for (const [corresponde, clase, rotulo] of marcas) {
+            if (!corresponde) continue;
             const marca = document.createElement('span');
-            marca.className = c.esParte ? 'marca' : 'marca a-mano';
-            marca.textContent = c.esParte ? 'parte' : 'a mano';
+            marca.className = clase;
+            marca.textContent = rotulo;
             li.appendChild(marca);
         }
         li.appendChild(selector);
@@ -359,6 +376,21 @@ function recomputarYa() {
         cuerpo = resultado.texto;
         conteo = resultado.conteo;
         pendientes = estado.candidatos.filter((c) => !c.marcado).map((c) => c.texto);
+
+        // El resto se ve DESPUES de reemplazar, asi que se busca aca y no en
+        // prepararCandidatos. Si aparecio alguno, la lista cambio y la cuenta
+        // de pendientes hay que rehacerla: el resto entra sin tildar, y eso es
+        // lo que lo mete en la constancia.
+        if (sumarRestos(cuerpo)) {
+            pendientes = estado.candidatos.filter((c) => !c.marcado).map((c) => c.texto);
+            dibujarCandidatos();
+        }
+
+        // Un candidato sin tildar puede haber quedado tapado igual por una regla
+        // deterministica —la firma, un campo de formulario—, y entonces no esta
+        // pendiente de nada: nombrarlo publica al que se acaba de ocultar. La
+        // pantalla y el .md tienen que decir lo mismo, asi que filtran igual.
+        pendientes = losQueSiguenEnElTexto(cuerpo, pendientes);
     }
 
     estado.final = armarDocumento({
@@ -373,6 +405,49 @@ function recomputarYa() {
 
     $('salida').value = estado.final;
     dibujarInforme(anonimizado, conteo, pendientes);
+}
+
+/** Suma a la lista los nombres que quedaron pegados a un reemplazo.
+ *
+ * ES LA FUGA E-01, Y SE VE SOLA UNA VEZ QUE SE ENTIENDE. El usuario tilda
+ * "Juan Carlos" de "Perez, Juan Carlos", el texto queda "Perez, [PERSONA]", y
+ * la constancia dice que no quedaron nombres sin reemplazar —porque para ella
+ * ese nombre se reemplazo—. El apellido, que es lo que mas identifica, sale
+ * publicado en un archivo que se lee como limpio.
+ *
+ * ENTRAN SIN TILDAR, y la razon es la misma del 21/8: un default tildado se
+ * aplica solo. Un resto es un indicio fuerte pero no una certeza, y aplicarlo
+ * sin preguntar encadena —"Estudio Juridico Ficticio" con "Ficticio" tildado
+ * se comeria despues "Juridico" y despues "Estudio"—. Sin tildar, el modo de
+ * fallar es el correcto: la palabra queda en el texto Y la constancia la
+ * nombra.
+ *
+ * Las apariciones se cuentan sobre el texto ORIGINAL y no sobre las veces que
+ * quedo pegada, que son menos: tildarla la reemplaza en todo el documento, y el
+ * numero que se muestra tiene que ser el que va a moverse.
+ */
+function sumarRestos(textoAnonimo) {
+    let agregados = 0;
+
+    for (const r of restosPegadosAEtiqueta(textoAnonimo)) {
+        const clave = r.texto.toLowerCase();
+        if (estado.candidatos.some((c) => c.texto.toLowerCase() === clave)) continue;
+        estado.candidatos.push({
+            texto: r.texto,
+            apariciones: contarApariciones(estado.crudo, r.texto),
+            marcado: false,
+            etiqueta: '[PERSONA]',
+            esParte: false,
+            esResto: true,
+        });
+        agregados++;
+    }
+
+    if (agregados) {
+        estado.candidatos.sort((a, b) =>
+            (b.esParte - a.esParte) || (!!b.esResto - !!a.esResto) || (b.apariciones - a.apariciones));
+    }
+    return agregados > 0;
 }
 
 function dibujarInforme(anonimizado, conteo, pendientes) {
@@ -402,7 +477,8 @@ function dibujarInforme(anonimizado, conteo, pendientes) {
             filas.push(
                 `<span class="destacado">${pendientes.length} ` +
                 `${pendientes.length === 1 ? 'nombre quedó' : 'nombres quedaron'} sin ocultar</span> ` +
-                `porque no los tildaste: ${texto(pendientes.join(', '))}.`);
+                `porque no ${pendientes.length === 1 ? 'lo' : 'los'} tildaste: ` +
+                `${texto(pendientes.join(', '))}.`);
         }
     }
 
