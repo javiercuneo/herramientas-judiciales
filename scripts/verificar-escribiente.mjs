@@ -516,10 +516,10 @@ ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
 
 // --- REGRESION 9: el nombre de dos palabras --------------------------------
 {
-    // Los cuatro patrones de candidatos exigian tres palabras o una coma. El
-    // testigo del exhorto —diez apariciones en claro— no se ofrecio NUNCA para
-    // tildar, y "Nombre Apellido" es la forma mas frecuente que hay: el nombre
-    // completo aparece una vez y este aparece en cada foja.
+    // Los cuatro patrones de candidatos exigian tres palabras o una coma. Un
+    // nombre de dos palabras que se repite a lo largo de un documento no se
+    // ofrecia NUNCA para tildar, y "Nombre Apellido" es la forma mas frecuente
+    // que hay: la forma completa aparece una vez y la corta en cada pagina.
     const dosPalabras = candidatosANombre(
         'el testigo Ernesto Quiroga y el CP Pablo Miranda'
     ).map((c) => c.texto);
