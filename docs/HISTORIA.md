@@ -19,6 +19,71 @@ de 2026.
 
 ---
 
+## E-04: declarar un archivo como ejemplo, sin aflojar el patrón para todos — 17/9
+
+El pedido venía de `confronteitor` —un repo sobre testimonios necesita un
+ejemplo inventado que un agente nuevo corra sin pedir el material real, y la
+alternativa es justo lo que el verificador viene a evitar—, pero lo que lo puso
+primero fue que mordió dos veces de este lado el 16/9: el banco que compara los
+dos anonimizadores no se podía versionar, **y el documento que explica el bug
+tampoco**, por citar tres de esos casos adentro de una tabla. Un control que no
+deja documentar el defecto que encontró se sortea siempre, y sortearlo acá es
+`--no-verify`, que saltea los otros trece.
+
+### La forma que quedó, y las tres que se descartaron
+
+**`.datos-ejemplo` en la raíz del repositorio**, versionado, una ruta por línea
+con el motivo detrás de un `#`. El motivo es obligatorio y una línea sin motivo
+bloquea: una exención sin motivo escrito es la que nadie discute después, porque
+no hay nada que discutir.
+
+Se descartó **una opción en `git config`**, como `datos.caratulas`: es local a la
+máquina, no viaja en el clon —y acá hay dos máquinas— y sobre todo **no aparece en
+ningún diff**. Se descartó **un marcador en la primera línea del archivo**, que era
+la otra idea anotada: un `.json` no admite comentarios, y el banco es JSON. Y se
+descartó **marcar una carpeta entera**, porque entonces un archivo nuevo que
+alguien deja ahí queda exento sin que nadie lo decida.
+
+### Lo que hace que no sea un agujero
+
+El marcador relaja **los patrones de forma** —DNI, CUIT, CBU, matrícula, teléfono,
+correo, carátula—, que son exactamente los que no pueden distinguir un dato
+inventado de uno real. **No relaja nunca** la lista privada de términos, los
+binarios ofimáticos y el enlace al visor del PJN: el primero nombra a alguien de
+carne y hueso, el segundo trae metadatos que no se ven al leerlo, el tercero
+apunta a una causa concreta.
+
+**El correo estuvo del lado equivocado en la primera versión**, y lo cambió el
+banco: con la regla sin relajar, un banco de pruebas del anonimizador no se podía
+versionar por traer adentro justo el caso que prueba esa regla. Un correo es una
+forma como el DNI —se inventa igual— y lo que protege a una persona real es la
+lista privada, que sigue sin relajarse.
+
+### Y tiene banco, porque afloja más que este repositorio
+
+`verificar-datos.sh` es el verificador de **todos** los repositorios de la
+máquina: `core.hooksPath` global apunta a un hook que lo corre en cualquiera. Una
+exención mal hecha ahí no afloja este repositorio: los afloja todos, en silencio.
+Así que hay `npm run verificar-datos-ejemplos`, once casos, y **ocho de los once
+exigen ver BLOQUEAR**, que es la mitad que nadie prueba. Cada caso corre en un
+repositorio de juguete que se crea y se borra.
+
+### Tres cosas que aparecieron haciéndolo
+
+- **El banco no podía escribir el enlace al visor del PJN**, porque esa regla no
+  la relaja ningún marcador —bien—. Lo arma en tiempo de ejecución, que es la
+  misma solución por la que `verificar-datos.sh` se excluye a sí mismo del barrido.
+- **Dos nombres y un número de expediente inventados chocaron con la lista
+  privada.** Se cambiaron sin mirar cuál era el término. El tercer choque no era
+  un nombre sino una frase de la oración —`Autos N, en trámite por ante este
+  Juzgado`—, y eso sí vale revisarlo: **hay una entrada de 21 caracteres en la
+  lista privada que parece fórmula de escrito y no identificador**, y una entrada
+  así bloquea commits para siempre sin proteger a nadie.
+- **`.datos-ejemplo` lo lee `read -r`**, y con finales de línea de Windows cada ruta
+  se lleva un `\r` pegado y deja de matchear, en silencio. Se limpia al parsear
+  —porque el script corre en repositorios que no son éste— y además hay regla en
+  `.gitattributes`. Es la misma clase de trampa que el `.sh` con CRLF del 25/8.
+
 ## Bandejito sale del sitio — 16/9
 
 La tarjeta de la landing, la página `proyectos finalizados/bandejito.html`, las
@@ -5140,7 +5205,7 @@ lee no conoce.
 
 ---
 
-## Escribiente: las seis fugas que encontró un documento largo — cerrado el 21/8
+## Escribiente: las fugas que encontró un documento largo — cerrado el 21/8
 
 Estuvo en `ESTADO.md` hasta el 31/8, marcado como crónica que le correspondía a
 este archivo. No se mudaba porque el control de datos personales del

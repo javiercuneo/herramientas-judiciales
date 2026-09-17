@@ -1,0 +1,2 @@
+# Las salidas de cada corrida. Se regeneran; lo que se versiona es el banco.
+salida-*.json

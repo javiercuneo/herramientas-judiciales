@@ -65,6 +65,14 @@ jobs:
       - name: Verificar el motor de Escribiente
         run: npm run verificar-escribiente
 
+      # La exencion de .datos-ejemplo, que es lo que permite versionar un banco
+      # de pruebas con formas inventadas. Corre en CI y no solo en el hook
+      # porque verificar-datos.sh es el verificador de TODOS los repositorios de
+      # la maquina: una exencion mal hecha ahi no afloja este repositorio, los
+      # afloja todos y en silencio. Ocho de los once casos exigen ver BLOQUEAR.
+      - name: Verificar la exencion de .datos-ejemplo
+        run: npm run verificar-datos-ejemplos
+
       # Las dos series de valores que muestra uma-uhom.html. Se editan a mano
       # cada vez que sale un acto nuevo, y las tres formas en que un archivo
       # asi se rompe --vigencia repetida, serie que baja, acto anterior a la

@@ -1,0 +1,15 @@
+[
+  {"id": "ocr-1", "familia": "sonda-ocr", "texto": "Se presenta el Sr. Vande1vira, Teodoro, con patrocinio letrado."},
+  {"id": "ocr-2", "familia": "sonda-ocr", "texto": "Notifiquese al Dr. Anse1mo Zurbaran en su domicilio constituido."},
+  {"id": "ocr-3", "familia": "sonda-ocr", "texto": "La Dra. Ludmi1a 8erruguete acompania la documental."},
+  {"id": "ocr-sin-tratamiento", "familia": "sonda-ocr", "texto": "Vande1vira, Teodoro Basilio inicio la demanda en tiempo y forma."},
+  {"id": "riesgo-digito-1", "familia": "sonda-riesgo", "texto": "Se hace lugar conforme el Dr. Perez expuso en fs. 120 vta."},
+  {"id": "riesgo-digito-2", "familia": "sonda-riesgo", "texto": "El Sr. Juez de Camara 3 resolvio revocar la sentencia."},
+  {"id": "riesgo-digito-3", "familia": "sonda-riesgo", "texto": "Firma el Dr. Zurbaran T 145 F 872 del CPACF."},
+  {"id": "riesgo-digito-4", "familia": "sonda-riesgo", "texto": "Conforme Dr. Gomez 28.456.789 acompana poder general."},
+  {"id": "riesgo-digito-5", "familia": "sonda-riesgo", "texto": "La Sra. Secretaria del Juzgado 45 certifica lo actuado."},
+  {"id": "ancla-expte-1", "familia": "sonda-ancla", "texto": "Autos 70312/2023, que se encuentran a despacho."},
+  {"id": "ancla-expte-2", "familia": "sonda-ancla", "texto": "En los autos Expte. N 8041/2017 se dicto la resolucion apelada."},
+  {"id": "ancla-tel", "familia": "sonda-ancla", "texto": "Tel: 4371-1696/2348, Mesa de Entradas."},
+  {"id": "ancla-expte-3", "familia": "sonda-ancla", "texto": "Se acumula la causa 661502/2015 a la presente."}
+]

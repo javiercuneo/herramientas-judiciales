@@ -19,7 +19,7 @@ Se breve y directo. El usuario es abogado, no dev y entiende de temas legales, n
 
 ## Los límites, para cualquier agente
 
-Método completo en `C:\IA\Pipeline drafter\METODO.md`. Lo que no se negocia:
+Método completo en el `METODO.md` del repositorio del pipeline (`git config rutas.pipeline`). Lo que no se negocia:
 
 1. **La arquitectura no se decide acá.** Si el trabajo la toca, se para y se pregunta.
 2. **El criterio jurídico y la interpretación no son de ningún agente.** Son de Javier.
@@ -91,7 +91,7 @@ doctrina), `herramientas-judiciales` (calculadoras y calendario judicial),
 `redactor` (redacción asistida en una pasada, que consume a los cuatro).
 
 **El mapa completo —quién le da qué a quién, por qué no se fusionaron y las reglas
-de frontera— vive en `C:\IA\Pipeline drafter\HERMANOS.md`.** Es la fuente única y acá no se copia, para que no
+de frontera— vive en el `HERMANOS.md` del repositorio del pipeline (`git config rutas.pipeline`).** Es la fuente única y acá no se copia, para que no
 se desincronice. Abrilo antes de tomar una decisión que cruce de repo.
 
 Lo que hay que saber sin abrirlo:
@@ -487,6 +487,24 @@ Tres consecuencias que hay que tener presentes:
 **Los datos de prueba son inventados: la forma del caso, el contenido de nadie.**
 Un tomo y folio cualquiera prueba exactamente lo mismo que la matrícula de alguien.
 Vale igual para las regresiones y para los comentarios que las explican.
+
+**Y cuando el banco de pruebas ES el caso, se declara.** Un repositorio sobre
+testimonios necesita poder versionar un ejemplo inventado que un agente nuevo
+corra sin pedir el material real —que es justo lo que este verificador viene a
+evitar—, y un patrón de forma no puede distinguir un DNI inventado de uno real.
+Para eso está **`.datos-ejemplo`** en la raíz: una ruta por línea y el motivo
+detrás de un `#`, y **el motivo es obligatorio**. Lo que relaja son los
+patrones de forma —DNI, CUIT, CBU, matrícula, teléfono, correo, carátula—;
+**lo que no relaja nunca** es la lista privada de términos, los binarios
+ofimáticos y el enlace al visor del PJN.
+
+Las exenciones se imprimen en cada corrida y **se versionan**, así que aparecen
+en el diff y alguien las puede discutir. Las prueba
+`npm run verificar-datos-ejemplos`, que **exige ver bloquear donde tiene que
+bloquear**: es la mitad que nadie prueba, y acá el costo de equivocarse lo pagan
+todos los repositorios de la máquina a la vez. **`--no-verify` sigue sin valer**:
+no aparece en ningún lado y además saltea los otros trece controles del
+`pre-commit`.
 
 **Los mensajes de commit son texto publicado**, y no se editan sin reescribir la
 historia. La regla es más estricta ahí que en cualquier archivo: ni nombres, ni

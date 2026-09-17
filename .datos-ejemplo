@@ -1,0 +1,17 @@
+# Archivos declarados EJEMPLO para scripts/verificar-datos.sh.
+#
+# Una ruta por linea, y el motivo detras de un #. El motivo es obligatorio: una
+# exencion sin motivo escrito es la que nadie discute despues, porque no hay
+# nada que discutir.
+#
+# QUE RELAJA: los patrones de FORMA --DNI, CUIT, CBU, matricula, telefono,
+# correo, caratula--, que son exactamente los que no pueden distinguir un dato
+# inventado de uno real.
+#
+# QUE NO RELAJA, nunca: la lista privada de terminos, los binarios ofimaticos y
+# el enlace al visor del PJN. El detalle y el porque, en la cabecera de
+# scripts/verificar-datos.sh. Lo prueba  npm run verificar-datos-ejemplos.
+
+scripts/comparar-motores/corpus.json   # 40 casos inventados para comparar los dos anonimizadores; el porque, en docs/PLAN_MOTOR_UNICO.md
+scripts/comparar-motores/sonda.json    # 13 sondas dirigidas del mismo banco: OCR ensuciado, tolerancia a digitos y anclas
+scripts/verificar-datos-ejemplos.sh    # el banco de este mismo mecanismo: construye adentro el material que tiene que bloquear

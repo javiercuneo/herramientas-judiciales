@@ -36,8 +36,17 @@
 set -eu
 
 raiz=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-plantilla="$raiz/scripts/hooks/pre-commit"
 verificador="$raiz/scripts/verificar-datos.sh"
+
+# Los tres hooks compartidos. Eran uno solo hasta el 17/9/2026: el pre-commit.
+# Los otros dos salieron de comprobar que el pre-commit solo ve lo que nace de
+# el, y que habia dos caminos por los que salia material sin que nada lo mirara:
+#
+#   commit-msg  el mensaje no esta en el indice, asi que el pre-commit no lo ve
+#               nunca. Dos hallazgos de la auditoria eran mensajes de commit.
+#   pre-push    un merge no dispara pre-commit, y un --no-verify, un cherry-pick
+#               o cualquier historia importada tampoco. Es la ultima puerta.
+HOOKS=(pre-commit commit-msg pre-push)
 
 HOOKS_DIR="${HOOKS_DIR:-$HOME/.git-hooks}"
 LISTA_PRIVADA="${LISTA_PRIVADA:-}"
@@ -45,19 +54,23 @@ LISTA_PRIVADA="${LISTA_PRIVADA:-}"
 verde() { printf '\033[32m%s\033[0m\n' "$1"; }
 amar()  { printf '\033[33m%s\033[0m\n' "$1"; }
 
-[ -f "$plantilla" ]   || { echo "No esta $plantilla"; exit 1; }
+for h in "${HOOKS[@]}"; do
+  [ -f "$raiz/scripts/hooks/$h" ] || { echo "No esta $raiz/scripts/hooks/$h"; exit 1; }
+done
 [ -f "$verificador" ] || { echo "No esta $verificador"; exit 1; }
 
 mkdir -p "$HOOKS_DIR"
-cp "$plantilla" "$HOOKS_DIR/pre-commit"
-chmod +x "$HOOKS_DIR/pre-commit"
+for h in "${HOOKS[@]}"; do
+  cp "$raiz/scripts/hooks/$h" "$HOOKS_DIR/$h"
+  chmod +x "$HOOKS_DIR/$h"
+done
 
 git config --global core.hooksPath "$HOOKS_DIR"
 git config --global datos.verificador "$verificador"
 [ -n "$LISTA_PRIVADA" ] && git config --global datos.listaPrivada "$LISTA_PRIVADA"
 
-verde "Hook compartido instalado."
-echo "  corre desde   $HOOKS_DIR/pre-commit"
+verde "Hooks compartidos instalados: ${HOOKS[*]}"
+echo "  corren desde  $HOOKS_DIR/"
 echo "  verificador   $verificador"
 
 lista=$(git config --global --get datos.listaPrivada || true)

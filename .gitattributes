@@ -42,3 +42,9 @@ scripts/hooks/* text eol=lf
 *.png           binary
 *.jpg           binary
 *.ico           binary
+
+# .datos-ejemplo lo lee `read -r` adentro de verificar-datos.sh, y un \r
+# pegado al final de la ruta la deja sin matchear sin decir nada. El script
+# igual lo limpia al parsear: esto es el cinturon y aquello el tirante.
+.datos-ejemplo text eol=lf
+*.py text eol=lf

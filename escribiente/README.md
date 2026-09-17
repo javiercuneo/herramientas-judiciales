@@ -159,7 +159,7 @@ carpeta. Allá queda un puntero y lo que un agente necesita saber sin entrar ac�
 —la promesa de privacidad y el anonimizador hermano—.
 
 **Ninguno es bloqueante.** La mayoría salió de pasar un documento largo el
-21/8, que además destapó seis fugas ya arregladas; esa crónica está en
+21/8, que además destapó varias fugas ya arregladas; esa crónica está en
 [`docs/HISTORIA.md`](../docs/HISTORIA.md).
 
 - **Un nombre que el OCR ensució sale partido, y eso es peor que no tocarlo.**
@@ -197,10 +197,10 @@ carpeta. Allá queda un puntero y lo que un agente necesita saber sin entrar ac�
 - **La detección de nombres propios no cubre razones sociales.** «Seguros del Sur
   S.A.» no dispara ningún patrón de los tres, así que no se ofrece como candidato
   y hay que agregarla a mano.
-- **Las fugas que aparecen en uso real se anotan en otro repositorio.** Desde el
+- **Las fugas que aparecen al usarlo se anotan en otro repositorio.** Desde el
   12/9, `redactor` ingresa casos con el anonimizador del pipeline, y cada nombre
   que el operador tiene que tapar a mano queda en
-  `Pipeline drafter/FUGAS-ANONIMIZADOR.md`: la forma del nombre y las palabras de
+  el `FUGAS-ANONIMIZADOR.md` del repositorio del pipeline: la forma del nombre y las palabras de
   alrededor, sin el nombre ni el texto. **Cada entrada vale también para
   `js/motor/anonimizar.js`**: las reglas son otras, pero los huecos suelen ser
   los mismos. No se copian acá porque este repositorio es público.

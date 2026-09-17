@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Ultimo control antes de que algo salga de la maquina. Compartido por todos los
+# repositorios, igual que el pre-commit.
+#
+# POR QUE EXISTE, desde el 17/9/2026.  Hasta hoy el unico control era el
+# pre-commit, y el pre-commit solo ve lo que nace de el. Todo esto salia al
+# remoto sin que nada lo mirara, y esta probado, no supuesto:
+#
+#   - un commit hecho con  --no-verify  en una rama, y despues mergeado: un
+#     merge NO dispara pre-commit, asi que el dato entra a main entero;
+#   - un cherry-pick o un rebase que trae commits viejos;
+#   - cualquier historia importada, y los commits anteriores al hook --que son
+#     todos los de abril a agosto--.
+#
+# Aca se revisa el RANGO que se va a enviar: el contenido y los mensajes. Es
+# mas lento que el pre-commit y tiene que serlo: es la ultima puerta.
+#
+# Saltear en un caso puntual:  git push --no-verify
+# Si el rango es historia vieja que ya esta publicada y no se puede corregir sin
+# reescribir, saltear es lo correcto -- pero entonces el problema es la historia,
+# no el hook.
+
+set -u
+
+rojo() { printf '\033[31m%s\033[0m\n' "$1"; }
+gris() { printf '\033[90m%s\033[0m\n' "$1"; }
+
+VERIFICADOR=$(git config --get datos.verificador || true)
+[ -z "$VERIFICADOR" ] && VERIFICADOR="/c/IA/herramientas-judiciales/scripts/verificar-datos.sh"
+
+if [ ! -f "$VERIFICADOR" ]; then
+  rojo "  BLOQUEA  no se encontro el verificador de datos (pre-push)"
+  printf '           lo busque en: %s\n' "$VERIFICADOR"
+  exit 1
+fi
+
+CERO=0000000000000000000000000000000000000000
+fallas=0
+
+while read -r ref_local sha_local ref_remota sha_remoto; do
+  # Borrado de rama: no se envia contenido.
+  [ "$sha_local" = "$CERO" ] && continue
+
+  if [ "$sha_remoto" = "$CERO" ]; then
+    # Rama nueva en el remoto: va todo lo que no este ya publicado en otra.
+    rango=$(git rev-list "$sha_local" --not --remotes | tail -1)
+    if [ -z "$rango" ]; then
+      continue
+    fi
+    rango="$rango^..$sha_local"
+    # El primer commit del repositorio no tiene padre.
+    git rev-parse --verify --quiet "${rango%%..*}" >/dev/null 2>&1 || rango="$sha_local"
+  else
+    rango="$sha_remoto..$sha_local"
+  fi
+
+  n=$(git rev-list --count "$rango" 2>/dev/null || echo 0)
+  [ "$n" -eq 0 ] && continue
+
+  gris "  revisando $n commit(s) hacia ${ref_remota#refs/heads/} ..."
+  if ! DATOS_RANGO="$rango" bash "$VERIFICADOR"; then
+    fallas=$((fallas+1))
+  fi
+done
+
+if [ $fallas -gt 0 ]; then
+  printf '\n'
+  rojo "Push detenido: lo que ibas a enviar no paso el control de datos."
+  printf '%s\n' 'Esto incluye commits que nunca pasaron por el pre-commit (merge, cherry-pick,'
+  printf '%s\n' '--no-verify, historia importada). Corregi antes de publicar.'
+  printf '%s\n' 'Si sabes lo que haces:  git push --no-verify'
+  exit 1
+fi
+exit 0

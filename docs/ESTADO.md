@@ -50,9 +50,10 @@ sólo se enlaza lo que NO está en el tablero. Detalle en
 
 ## Bugs abiertos
 
-Los cuatro salieron el 2026-09-16 trabajando para `confronteitor`
-(`C:\IA\confronteitor`): tres de **escribiente**, uno del **verificador de
-datos**. Los cerrados, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md).
+Los cuatro son de **escribiente** y salieron trabajando para `confronteitor`.
+Los cerrados, con su caso de prueba, en [`HISTORIA.md`](HISTORIA.md), y ahí
+está **E-04** —el verificador de datos, cerrado el 17/9—, que es lo que destrabó
+poder versionar un banco de ejemplo.
 
 ### E-01 · Escribiente deja la mitad de un nombre cuando reemplaza la otra
 
@@ -105,31 +106,10 @@ tratamiento delante**.
 Caso de prueba: `Dr. Rarn1ro Villalba` tiene que salir sin `1ro Villalba`, o la
 constancia tiene que decir que quedó.
 
-### E-04 · El verificador no deja tener un archivo de ejemplo
-
-El patrón `matricula` bloquea cualquier `Matrícula` seguida de un número, y para
-un repo cualquiera está bien. Pero **`confronteitor` es un repo sobre
-testimonios**: un ejemplo que un agente nuevo pueda correr sin el material real
-necesita una matrícula escrita, aunque sea inventada. Hoy no se puede versionar
-ninguno, y la alternativa -que cada agente nuevo pida el corpus real- es
-justamente lo que el patrón viene a evitar.
-
-**Y desde el 16/9 muerde también de este lado:** el banco con el que se comparan
-los dos anonimizadores es material inventado y el patrón lo bloquea igual, así que
-los pasos 2 a 4 de [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md) no pueden tener
-banco de regresión versionado. Ya no es un pedido de otro repositorio.
-
-Haría falta declarar un archivo como ejemplo, con el mecanismo que ya existe
-para las carátulas (`git config datos.caratulas aviso`): una lista de rutas
-exentas, o un `# datos: ejemplo` en la primera línea. **`--no-verify` no vale**,
-porque saltea también los otros trece controles.
-
----
-
 ## Por dónde seguir
 
 > **Fuera del camino crítico del plan de los cinco repos, y eso es un resultado.**
-> El orden conjunto está en `C:\IA\Pipeline drafter\HERMANOS.md`: los pasos son de
+> El orden conjunto está en el `HERMANOS.md` del repositorio del pipeline: los pasos son de
 > `pipeline-drafter`, `knowledge` e `indice`. Acá no hay nada que desbloquee a
 > nadie, y el único pedido que había —el calendario judicial consultable— está
 > cerrado y consumido desde el 2/9.
@@ -312,7 +292,7 @@ volumen.
 
 ## Los controles, y qué cubre cada uno
 
-Son doce y no se superponen. **Ninguno se da por bueno sin haberlo visto fallar
+Son trece y no se superponen. **Ninguno se da por bueno sin haberlo visto fallar
 a propósito**: un control que nunca falló no es un control.
 
 | Control | Qué cubre |
@@ -329,6 +309,7 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-honorio` | Las cinco cifras que este repositorio sigue del motor |
 | `npm run verificar-docs` | Que los documentos de dominio no citen artículos ni archivos que no existen |
 | `npm run verificar-estado` | El presupuesto y la higiene de este archivo |
+| `npm run verificar-datos-ejemplos` | Que `.datos-ejemplo` exima sólo los patrones de forma, y la guarda del correo propio: 16 |
 
 Y **tres** que corren en el navegador, con el sitio servido y no con `file://`:
 
@@ -555,10 +536,10 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
 
 - **El motor está en `escribiente/js/motor/`, es código puro y no toca el DOM.**
   Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 214
-  comprobaciones, en CI. Los seis bugs de la versión anterior, las seis fugas
+  comprobaciones, en CI. Los seis bugs de la versión anterior, las fugas
   del 21/8 y las del 15/9 están ahí como regresión. `js/app.js` es sólo la
   pantalla.
-- **`pipeline/sanitizar.py` es el otro anonimizador, y desde el 15/9 comparte
+- **El anonimizador del pipeline es el otro, y desde el 15/9 comparte
   con éste la lógica de nombres**: las partículas, la terminación que no es
   nombre (`-ción`, `-tiva`), la guarda del tratamiento, el recorte de
   candidatos y la carátula en mayúsculas. **Un arreglo de nombres acá se lleva
@@ -580,7 +561,7 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
 y desde el 16/9 no acá: son ocho límites conocidos, ninguno bloqueante —el nombre
 que ensució el OCR, el domicilio del propio juzgado, el DNI que es un monto, la
 página sin OCR, el texto sin justificar, el agregado a mano, las razones sociales
-y dónde se anotan las fugas del uso real—, y **los busca quien viene a tocar la
+y dónde se anotan las fugas aparecidas al usarlo—, y **los busca quien viene a tocar la
 herramienta, que ya está parado en esa carpeta**. Este documento se lee entero en
 cada sesión y tiene presupuesto; aquél no. Los cuatro bugs abiertos siguen arriba,
 en [Bugs abiertos](#bugs-abiertos), porque son lo que se mira al empezar.

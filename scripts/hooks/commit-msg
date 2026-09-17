@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Revisa el MENSAJE de commit. Compartido por todos los repositorios, igual que
+# el pre-commit y por las mismas razones (ver la cabecera de aquel).
+#
+# Por que existe, desde el 17/9/2026: el pre-commit corre sobre el indice y el
+# mensaje no esta en el indice. Nunca lo miro nadie. Dos de los diecinueve
+# hallazgos de la auditoria --H-04 y H-05-- eran mensajes de commit, y despues
+# del borron de agosto salieron cuatro mas; el del 16/9 decia "encontrados con
+# testimonios reales".
+#
+# Un mensaje es superficie publicada y es la peor de todas: no se corrige con
+# otro commit, hay que reescribir la historia. Por eso aca el vocabulario de
+# categoria F bloquea en vez de avisar.
+#
+# Saltear en un caso puntual:  git commit --no-verify
+
+set -u
+
+rojo() { printf '\033[31m%s\033[0m\n' "$1"; }
+
+[ -f "$1" ] || exit 0
+
+VERIFICADOR=$(git config --get datos.verificador || true)
+[ -z "$VERIFICADOR" ] && VERIFICADOR="/c/IA/herramientas-judiciales/scripts/verificar-datos.sh"
+
+if [ ! -f "$VERIFICADOR" ]; then
+  rojo "  BLOQUEA  no se encontro el verificador de datos (mensaje de commit)"
+  printf '           lo busque en: %s\n' "$VERIFICADOR"
+  exit 1
+fi
+
+# Sin los comentarios que git agrega al final: no viajan al repositorio.
+tmp=$(mktemp)
+grep -v '^#' "$1" > "$tmp"
+
+DATOS_MENSAJE="$tmp" bash "$VERIFICADOR"
+rc=$?
+rm -f "$tmp"
+
+if [ $rc -ne 0 ]; then
+  printf '\n'
+  rojo "El mensaje de commit no paso el control de datos."
+  printf 'Reescribilo. Un mensaje publicado no se corrige sin reescribir la historia.\n'
+  exit 1
+fi
+exit 0

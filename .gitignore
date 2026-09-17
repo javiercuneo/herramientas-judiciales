@@ -80,3 +80,7 @@ docs/modelos/doctrina/
 # esta nombrada ahi.
 pruebas-locales/*
 !pruebas-locales/LEEME.md
+
+# Cache de Python, que aparece al correr scripts/comparar-motores/.
+__pycache__/
+*.pyc

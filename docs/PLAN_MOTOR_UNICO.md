@@ -8,9 +8,9 @@
 
 Las mismas reglas están escritas dos veces: **867 líneas de JavaScript** en
 `escribiente/js/motor/anonimizar.js` y **681 de Python** en
-`Pipeline drafter/pipeline/sanitizar.py`. Un arreglo de nombres hay que llevarlo
+el anonimizador del pipeline. Un arreglo de nombres hay que llevarlo
 a los dos lados, en dos lenguajes, y **los huecos son los mismos pero el código
-no**: por eso `FUGAS-ANONIMIZADOR.md` anota cada fuga del uso real diciendo que
+no**: por eso `FUGAS-ANONIMIZADOR.md` anota cada fuga aparecida al usarlo diciendo que
 vale para los dos.
 
 Dos implementaciones de una cuenta con consecuencia jurídica es el mismo modo de
@@ -108,9 +108,9 @@ Cada paso deja el árbol funcionando y ninguno borra nada del anonimizador viejo
    sobre el mismo material y anotar dónde difieren. `HERMANOS.md` afirma que el
    JS «hace estrictamente más» que el Python; **eso hay que comprobarlo y no
    suponerlo**, porque de ahí sale si el cambio pierde algo.
-2. **Arreglar E-01, E-02 y E-03 en el motor JS**, que son los bugs abiertos que
-   reportó `confronteitor`. Se arreglan una sola vez y en el que va a quedar, no
-   dos veces en los dos.
+2. **Arreglar E-01, E-02, E-03 y E-05 en el motor JS.** Se arreglan una sola vez
+   y en el que va a quedar, no dos veces en los dos. **Desbloqueado el 17/9**, al
+   cerrarse E-04: recién ahora el banco de regresión se puede versionar.
 3. **Un conector del anonimizador**, hermano de `conectores/mcp.mjs`, que exponga
    las cuatro funciones de la costura. Con su propio banco, y con la regla de los
    conectores: **cuando falta un dato no devuelve un resultado**, devuelve el
@@ -192,27 +192,27 @@ dato, así que sobrevive.** «Expte. N» no identifica a nadie, y perderlo le sa
 estructura al texto justo antes de dárselo a un modelo. Es el mismo criterio con
 el que ya se conserva el `Dr.` delante de un nombre.
 
-### El banco no se puede versionar acá, y es E-04
+### El banco no se podía versionar, y por eso E-04 se hizo primero
 
-El material es inventado y aun así **`scripts/verificar-datos.sh` bloquea el
-archivo**: un DNI, un CUIT, un CBU y dos matrículas escritos a propósito para
-probar las reglas que los tapan. **Y bloqueó también este documento**, por citar
-tres de esos casos adentro de una tabla que explica el bug: hubo que describirlos
-en palabras en vez de escribirlos. Un control que no deja documentar el defecto
-que encontró es la forma más nítida del problema. Es el mismo problema que E-04 describe para
-`confronteitor`, ahora del lado de este repositorio. **Hasta que E-04 se resuelva,
-los pasos 2 a 4 no pueden tener banco de regresión versionado**, que es la red
-que hace seguro cambiar el motor abajo de `redactor`.
+El material es inventado y aun así **`scripts/verificar-datos.sh` lo bloqueaba**:
+un DNI, un CUIT, un CBU y dos matrículas escritos a propósito para probar las
+reglas que los tapan. **Y bloqueó también este documento**, por citar tres de
+esos casos adentro de la tabla que explica el bug. Un control que no deja
+documentar el defecto que encontró es la forma más nítida del problema, así que
+**E-04 se cerró el 17/9 antes de seguir**.
 
-**Mientras tanto vive en `pruebas-locales/comparar-motores/`**, que es la carpeta
-que el repositorio ya ignora a propósito. Son cinco archivos: el corpus de 40, las
-13 sondas, un lanzador por motor y el comparador. Se corre así, desde la raíz:
+Desde entonces el banco vive versionado en `scripts/comparar-motores/` y se
+declara en `.datos-ejemplo` con su motivo. Se corre así, desde la raíz:
 
 ```
-node pruebas-locales/comparar-motores/correr-js.mjs pruebas-locales/comparar-motores/corpus.json > js.json
-python pruebas-locales/comparar-motores/correr-py.py pruebas-locales/comparar-motores/corpus.json py.json
-python pruebas-locales/comparar-motores/comparar.py
+node scripts/comparar-motores/correr-js.mjs scripts/comparar-motores/corpus.json > js.json
+python scripts/comparar-motores/correr-py.py scripts/comparar-motores/corpus.json py.json
+python scripts/comparar-motores/comparar.py
 ```
+
+El lanzador de Python resuelve el repositorio del pipeline con
+`git config rutas.pipeline` o la variable `PIPELINE_DIR`: la ruta de un
+repositorio privado no se escribe adentro de uno público.
 
 ## La línea de verificación
 
