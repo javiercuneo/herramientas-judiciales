@@ -19,6 +19,42 @@ de 2026.
 
 ---
 
+## La palabra que ancla es texto y no dato — 17/9
+
+Era la decisión chica que dejaba abierta el paso 1: los dos motores se
+contradecían sobre si la palabra que ancla un identificador sobrevive al
+reemplazo. El JS se comía `Autos` y `Expte. N` (`Autos 45678/2021` → `[EXPTE]`);
+el Python se comía el `Tel:`. En direcciones opuestas, o sea que no era un
+criterio distinto: era que ninguno tenía uno. Javier delegó la decisión.
+
+**El argumento que la resolvió no es el que estaba anotado en el plan.** El plan
+decía «la palabra que ancla es texto y no dato, así que sobrevive», que es cierto
+pero suena a regla nueva. Lo que la decide es otra cosa: **esa regla ya estaba
+escrita cuatro veces en el mismo archivo y desobedecida una sola**. La de
+teléfono conserva el `Tel:`, la de domicilio conserva el `sito en` —«La palabra
+se conserva, como en la de teléfono: "en [DOMICILIO]" a secas no se entiende al
+leer», dice su comentario—, la de tratamiento conserva el `Dr.` —«no identifica
+a nadie, y perderlo borra la distinción entre el letrado y la parte»— y la de
+firma conserva el cargo. Sólo las dos de
+expediente no. No hacía falta elegir un criterio: hacía falta que la regla de
+expediente obedeciera al que ya regía.
+
+El arreglo es capturar el ancla y devolverla: `$1[EXPTE]`. La regla del
+expediente pelado —el número suelto, sin palabra delante— no cambia, porque no
+hay nada que conservar.
+
+**Del lado del Python queda el `Tel:` y no se toca**, que es la consecuencia
+práctica de la decisión del 16/9: es el motor que deja de ser la fuente, y
+arreglarlo sería volver a mantener dos.
+
+El banco de comparación pasó de 28 a **30 de 40 iguales**: `expediente-pelado` y
+`expediente-con-contexto` se sumaron a los idénticos. Y hay diez comprobaciones
+nuevas, vistas fallar contra la regla vieja: las cuatro formas del ancla del
+expediente, las cuatro reglas ancladas que ya la conservaban —para que si alguna
+cambia se note—, el expediente pelado y la fecha que no se confunde con uno.
+
+---
+
 ## E-01, E-02, E-05 y una fuga nueva: la constancia que miente — 17/9
 
 Es el **paso 2 de [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md)**: arreglar los

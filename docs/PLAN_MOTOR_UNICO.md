@@ -183,20 +183,28 @@ dos, y ahí sí no hay nada que hacer.
 
 ### Los dos se contradicen sobre si la palabra que ancla sobrevive
 
-Y se contradicen en direcciones opuestas, así que no es un criterio distinto:
-es que ninguno tiene uno.
+**Decidido y aplicado en el JS el 17/9: la palabra que ancla es texto y no dato,
+así que sobrevive.** Lo que sigue es cómo estaba cuando se detectó.
 
-| Entra | JS | Python |
-|---|---|---|
-| `Autos 45678/2021` | `[EXPTE]` | `Autos [EXPTE]` |
-| `Expte. N 1234/2019` | `[EXPTE]` | `Expte. N [EXPTE]` |
-| `la causa 998877/2020` | `la [EXPTE]` | `la causa [EXPTE]` |
-| `Tel: ` + un fijo con interno | `Tel: [TEL]` | `[TEL]` |
+Se contradecían en direcciones opuestas, así que no era un criterio distinto:
+era que ninguno tenía uno.
 
-**La regla que falta, y vale para los dos: la palabra que ancla es texto y no
-dato, así que sobrevive.** «Expte. N» no identifica a nadie, y perderlo le saca
-estructura al texto justo antes de dárselo a un modelo. Es el mismo criterio con
-el que ya se conserva el `Dr.` delante de un nombre.
+| Entra | JS, hasta el 17/9 | JS, desde el 17/9 | Python |
+|---|---|---|---|
+| `Autos 45678/2021` | `[EXPTE]` | `Autos [EXPTE]` | `Autos [EXPTE]` |
+| `Expte. N 1234/2019` | `[EXPTE]` | `Expte. N [EXPTE]` | `Expte. N [EXPTE]` |
+| `la causa 998877/2020` | `la [EXPTE]` | `la causa [EXPTE]` | `la causa [EXPTE]` |
+| `Tel: ` + un fijo con interno | `Tel: [TEL]` | `Tel: [TEL]` | `[TEL]` |
+
+**El argumento que la decidió no fue el de arriba sino uno de consistencia**:
+las otras cuatro reglas ancladas del JS ya conservaban su ancla —la de teléfono
+el `Tel:`, la de domicilio el `sito en`, la de tratamiento el `Dr.`, la de firma
+el cargo— y sólo las de expediente no. No era una regla que faltaba: era una que
+estaba escrita cuatro veces y desobedecida una.
+
+«Expte. N» no identifica a nadie, y perderlo le saca estructura al texto justo
+antes de dárselo a un modelo. **Del lado del Python queda el `Tel:`, y no se
+toca**: es el motor que deja de ser la fuente.
 
 ### El banco no se podía versionar, y por eso E-04 se hizo primero
 

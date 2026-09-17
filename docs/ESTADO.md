@@ -101,13 +101,12 @@ constancia lo nombra, así que la fuga se ve; pero el reemplazo no sale solo.
     vive, porque lo consumen dos repositorios.
   - **El banco de comparación está versionado** en `scripts/comparar-motores/`,
     declarado en `.datos-ejemplo`. Es la red: **antes y después de cada arreglo,
-    correrlo y mirar qué se movió.** Cómo se corre, en el plan. Hoy da 28 de 40
+    correrlo y mirar qué se movió.** Cómo se corre, en el plan. Hoy da 30 de 40
     iguales.
-  - **Queda una decisión chica sin tomar, y es de Javier**, anotada en el plan:
-    los dos motores se contradicen sobre si la palabra que ancla sobrevive al
-    reemplazo —el JS se come `Autos` y `Expte. N`, el Python se come `Tel:`—. La
-    regla propuesta es que la palabra que ancla es texto y no dato, así que
-    sobrevive. **No se tocó nada de esto todavía.**
+  - **La decisión chica está tomada, el 17/9: la palabra que ancla sobrevive.**
+    El JS se comía `Autos` y `Expte. N`; ahora los conserva, como ya hacían las
+    otras cuatro reglas ancladas. Queda del lado del Python comerse el `Tel:`, y
+    como el motor que se va es ése, no se toca.
 
 - **Falta publicar el ledger, y nada más.** El lado de acá ya salió
   —`js/enlace.js` está en el sitio y `vencimientos.html` lo carga; comprobado el

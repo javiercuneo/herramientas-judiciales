@@ -293,8 +293,18 @@ export const REGLAS_IDENTIFICADORES = [
         // derecha y "Expte. 56.868/2017" termina como "Expte. 56.[EXPTE]", con
         // los primeros digitos del expediente a la vista. En la version original
         // de las reglas el orden esta invertido, y ese es el resultado.
-        patron: /\b(?:expte|expediente|causa|autos)\.?\s*(?:n[°ºo]?\.?)?\s*\d{1,7}(?:\.\d{3})*\s*\/\s*(?:19|20)\d{2}/gi,
-        reemplazo: '[EXPTE]',
+        //
+        // LA PALABRA QUE ANCLA SE CONSERVA, 17/9/2026. Hasta hoy se la comia
+        // —"Autos 45678/2021" salia "[EXPTE]"— y eso contradecia a las otras
+        // cuatro reglas ancladas de este mismo archivo: la de telefono conserva
+        // el "Tel:", la de domicilio conserva el "sito en", la de tratamiento
+        // conserva el "Dr." y la de firma conserva el cargo. El criterio que
+        // faltaba escribir es el mismo de todas: LA PALABRA QUE ANCLA ES TEXTO Y
+        // NO DATO. "Expte. N" no identifica a nadie, y sacarlo le quita
+        // estructura al texto justo antes de darselo a un modelo, que es el
+        // consumidor principal del motor.
+        patron: /\b((?:expte|expediente|causa|autos)\.?\s*(?:n[°ºo]?\.?)?\s*)\d{1,7}(?:\.\d{3})*\s*\/\s*(?:19|20)\d{2}/gi,
+        reemplazo: '$1[EXPTE]',
     },
     {
         nombre: 'expediente',

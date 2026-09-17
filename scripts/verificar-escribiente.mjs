@@ -328,7 +328,40 @@ contiene(anonimo, 'Sr. [PERSONA]', 'el tratamiento se conserva y el nombre se va
 contiene(anonimo, 'Firmado por: [PERSONA], Jueza de Primera Instancia',
     'la firma oculta el nombre y conserva el cargo');
 noContiene(anonimo, '[EXPTE].', 'el expediente se toma entero, no por la mitad');
-contiene(anonimo, '[EXPTE]', 'el expediente se reemplaza');
+contiene(anonimo, 'Expte. [EXPTE]', 'el expediente se reemplaza y la palabra que ancla se conserva');
+
+// --- La palabra que ancla es texto y no dato --------------------------------
+{
+    // Decidido el 17/9/2026. Hasta ese dia esta regla se comia su ancla
+    // -"Autos 45678/2021" salia "[EXPTE]"- y contradecia a las otras cuatro
+    // reglas ancladas del archivo, que la conservan. "Expte. N" no identifica a
+    // nadie y le da estructura al texto que despues lee un modelo.
+    const conAncla = [
+        ['Autos 45678/2021, que se encuentran a despacho.', 'Autos [EXPTE],'],
+        ['En los autos Expte. N 1234/2019 se dicto la resolucion.', 'Expte. N [EXPTE]'],
+        ['Se acumula la causa 998877/2020 a la presente.', 'la causa [EXPTE]'],
+        ['EXPTE. Nº 70312/2023', 'EXPTE. Nº [EXPTE]'],
+    ];
+    for (const [entra, sale] of conAncla) {
+        contiene(anonimizar(entra).texto, sale,
+            `REGRESION: la palabra que ancla el expediente sobrevive: ${sale}`);
+    }
+
+    // Y las otras cuatro ancladas siguen conservando la suya, que es el criterio
+    // del que esta sale. Se miran sobre ESCRITO, que ya las tiene todas: una
+    // comprobacion nueva no necesita numeros nuevos.
+    contiene(anonimo, 'Telefono: [TEL]', 'la de telefono conserva su ancla');
+    contiene(anonimo, 'Sr. [PERSONA]', 'la de tratamiento conserva el tratamiento');
+    contiene(anonimo, 'Firmado por: [PERSONA], Jueza', 'la de firma conserva el cargo');
+    contiene(anonimizar('con domicilio en Rivera 3120 CABA').texto, 'en [DOMICILIO]',
+        'la de domicilio conserva la suya');
+
+    // Sin ancla no hay nada que conservar, y el numero se va igual.
+    contiene(anonimizar('Se agrega el 12345/2020 al legajo.').texto, 'el [EXPTE] al legajo',
+        'el expediente pelado sigue reemplazandose');
+    contiene(anonimizar('el dia 06/08/2026 vence el plazo.').texto, '06/08/2026',
+        'y una fecha sigue sin confundirse con un expediente');
+}
 ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
     `reglas con reemplazos: ${Object.keys(conteo).join(', ')}`);
 
