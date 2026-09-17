@@ -8,7 +8,7 @@
 # todos, y en silencio. Asi que la exencion tiene banco, y el banco exige ver
 # BLOQUEAR donde tiene que bloquear —que es la mitad que nadie prueba—.
 #
-# QUE PRUEBA, en once casos:
+# QUE PRUEBA, en veinticinco casos:
 #   - sin .datos-ejemplo nada cambia;
 #   - declarado, el archivo pasa;
 #   - lo que el marcador NO relaja: lista privada, binarios ofimaticos y el
@@ -17,9 +17,13 @@
 #   - una exencion sin motivo escrito no vale;
 #   - la exencion no se derrama al archivo de al lado;
 #   - comentarios, lineas en blanco y rutas con espacios;
-#   - y aparte, que el correo del AUTOR no bloquee el push mientras el de
-#     cualquier otro si: el pre-push barre `%an` y `%ae` del rango, asi que sin
-#     esa guarda ningun push pasa nunca.
+#   - que el correo del AUTOR no bloquee el push mientras el de cualquier otro
+#     si: el pre-push barre `%an` y `%ae` del rango, asi que sin esa guarda
+#     ningun push pasa nunca;
+#   - y desde el 17/9, los dos modos que tapan lo que el pre-commit no ve: el
+#     mensaje de commit, y el rango que se va a enviar --con el merge y con el
+#     dato que entra en un commit y sale en el siguiente--, mas los dos niveles
+#     de la lista privada.
 #
 # Cada caso corre en un repositorio de juguete que se crea y se borra, para no
 # depender del estado del indice de nadie.
@@ -177,6 +181,99 @@ correo_test 'tercero@otroestudio.com.ar' bloquea 'el correo de otro'
 correo_test 'otro@gmail.com'             bloquea 'mismo dominio, otra persona'
 correo_test 'xjaviercuneol@gmail.com'    bloquea 'el propio con un prefijo pegado'
 correo_test 'hola@javiercuneo.com.ar'    pasa    'el dominio propio del sitio'
+
+
+# ---------------------------------------------------------------------------
+# Los tres modos de entrada y los dos niveles de la lista, del 17/9/2026.
+#
+# El pre-commit solo ve lo que nace de el, y eso dejaba dos caminos por los que
+# salia material sin que nada lo mirara. Los dos estan probados aca, y los dos
+# se probaron fallando antes de existir el arreglo.
+# ---------------------------------------------------------------------------
+
+# caso_modo <nombre> <bloquea|pasa> -- corre el verificador con el entorno ya
+# puesto por el llamador (DATOS_RANGO o DATOS_MENSAJE).
+caso_modo() {
+  local nombre="$1" esperado="$2" salida codigo real
+  salida=$(cd "$REPO" && bash "$VERIF" 2>&1); codigo=$?
+  real=$([ $codigo -ne 0 ] && echo bloquea || echo pasa)
+  if [ "$real" = "$esperado" ]; then
+    printf '  ok     %-50s %s\n' "$nombre" "$real"; ok=$((ok+1))
+  else
+    rojo "  FALLA  $nombre"
+    printf '         esperaba %s y dio %s\n' "$esperado" "$real"
+    printf '%s\n' "$salida" | sed 's/^/           /' | head -6
+    mal=$((mal+1))
+  fi
+}
+
+gris "  El mensaje de commit (modo mensaje)"
+nuevo_repo
+printf 'nada\n' > "$REPO/pruebas/x.md"; git -C "$REPO" add -A
+printf 'docs: arregla el pie de la calculadora\n' > "$BASE/msg1"
+DATOS_MENSAJE="$BASE/msg1" caso_modo "un mensaje comun" pasa
+# El que se escapo el 16/9. En un archivo esto avisa; en un mensaje bloquea,
+# porque un mensaje no se corrige sin reescribir la historia.
+# El vocabulario se ARMA, por la misma razon por la que se arma el enlace del
+# visor: escrito literal, este banco no se podria commitear. La lista privada no
+# la relaja ningun .datos-ejemplo, y ahi esta justo el termino que este caso prueba.
+printf 'Tres bugs, encontrados con %ss %ss
+' testimonio real > "$BASE/msg2"
+DATOS_MENSAJE="$BASE/msg2" caso_modo "vocabulario de categoria F en el mensaje" bloquea
+printf 'fix: el actor 28.456.789 aparecia dos veces\n' > "$BASE/msg3"
+DATOS_MENSAJE="$BASE/msg3" caso_modo "un documento de identidad en el mensaje" bloquea
+
+gris "  Lo que se va a enviar (modo rango)"
+# Un commit hecho con --no-verify y despues mergeado: el merge NO dispara
+# pre-commit, asi que hasta el 17/9 esto llegaba al remoto entero.
+nuevo_repo
+printf 'inicio\n' > "$REPO/pruebas/a.md"; git -C "$REPO" add -A
+git -C "$REPO" commit -q --no-verify -m inicio
+base=$(git -C "$REPO" rev-parse HEAD)
+git -C "$REPO" checkout -q -b rama
+fixture "$REPO/pruebas/corpus.txt"; git -C "$REPO" add -A
+git -C "$REPO" commit -q --no-verify -m wip
+git -C "$REPO" checkout -q -
+git -C "$REPO" merge -q --no-ff -m "merge de rama" rama
+DATOS_RANGO="$base..HEAD" caso_modo "lo que entra por un merge" bloquea
+
+# Y el que se escapaba incluso con el rango: entra en un commit y se borra en
+# otro del mismo push. El diff NETO queda vacio y el dato queda publicado igual.
+nuevo_repo
+printf 'inicio\n' > "$REPO/pruebas/a.md"; git -C "$REPO" add -A
+git -C "$REPO" commit -q --no-verify -m inicio
+base=$(git -C "$REPO" rev-parse HEAD)
+fixture "$REPO/pruebas/corpus.txt"; git -C "$REPO" add -A
+git -C "$REPO" commit -q --no-verify -m wip
+git -C "$REPO" rm -q "pruebas/corpus.txt"
+git -C "$REPO" commit -q --no-verify -m "saca el dato"
+DATOS_RANGO="$base..HEAD" caso_modo "entra en un commit y sale en el siguiente" bloquea
+
+gris "  Los dos niveles de la lista privada"
+# Arriba de  #!SOLO-EN-PUBLICOS  va lo que nombra gente: bloquea siempre.
+# Abajo, el nombre de un repositorio hermano: entre privados nombrarse es el
+# trabajo, y bloquear ahi solo ensena a escribir --no-verify.
+nuevo_repo
+# La lista va FUERA del repositorio, y no es un detalle: adentro, el  git add -A
+# la mete al indice y el verificador se golpea con la lista misma.
+printf 'Fulano De Tal\n#!SOLO-EN-PUBLICOS\nRepositorio Hermano\n' > "$BASE/lista-niveles.txt"
+git -C "$REPO" config datos.listaPrivada "$BASE/lista-niveles.txt"
+printf 'Ver Repositorio Hermano, que consume a este.\n' > "$REPO/pruebas/x.md"
+git -C "$REPO" add -A
+git -C "$REPO" config datos.visibilidad privado
+caso "el hermano nombrado en un repositorio privado" pasa
+git -C "$REPO" config datos.visibilidad publico
+caso "el mismo texto en uno publico" bloquea
+# Sin declarar nada se trata como publico: un control que falla abierto no es
+# un control.
+git -C "$REPO" config --unset datos.visibilidad
+caso "sin declarar visibilidad, se trata como publico" bloquea
+nuevo_repo
+git -C "$REPO" config datos.listaPrivada "$BASE/lista-niveles.txt"
+printf 'Firma Fulano De Tal.\n' > "$REPO/pruebas/x.md"
+git -C "$REPO" add -A
+git -C "$REPO" config datos.visibilidad privado
+caso "una persona nombrada, en privado, bloquea igual" bloquea
 
 echo "================================================================"
 if [ $mal -gt 0 ]; then

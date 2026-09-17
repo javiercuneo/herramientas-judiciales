@@ -441,14 +441,42 @@ Este repositorio es público. Todo lo que entra —código, comentarios, `docs/`
 **los mensajes de commit**— lo lee cualquiera, y no se saca después: un commit que
 borra algo lo deja igual de accesible y encima señala dónde estaba.
 
-`scripts/verificar-datos.sh` corre como hook de `pre-commit` y bloquea lo de abajo.
-Está para atajar el olvido, no para reemplazar el criterio. Los términos propios que
-verifica se leen de una lista privada, fuera del árbol: `git config datos.listaPrivada`.
+`scripts/verificar-datos.sh` es el verificador, y desde el 17/9/2026 lo corren
+**tres** hooks, no uno. El de `pre-commit` era el único hasta ese día, y sólo ve
+lo que nace de él: se comprobó que por los otros dos caminos salía material sin
+que nada lo mirara.
+
+| hook | qué mira | por qué existe |
+|---|---|---|
+| `pre-commit` | el índice | el control de siempre |
+| `commit-msg` | el mensaje | el mensaje no está en el índice y nadie lo miraba; dos hallazgos de la auditoría eran mensajes de commit, y el 16/9 salió otro |
+| `pre-push` | el rango que se envía | un merge no dispara `pre-commit`, y un `--no-verify`, un cherry-pick o una historia importada tampoco |
+
+Dos cosas del `pre-push` que no son obvias y costaron una prueba cada una:
+**mira commit por commit y no el diff neto del rango** —un dato que entra en un
+commit y sale en el siguiente no aparece en el neto, y queda publicado igual—, y
+**el diff de un merge lo pide explícito**, porque git lo omite por defecto y ahí
+estaba el agujero.
+
+En un mensaje de commit, el vocabulario de categoría F —el que dice que hubo
+material auténtico detrás— **bloquea** en vez de avisar: un archivo se corrige
+con otro commit, un mensaje no se corrige sin reescribir la historia. Los términos
+no se escriben acá, y no es un descuido: cualquier literal que sirva de ejemplo es,
+por definición, un literal que el control bloquea. Están en la lista privada.
+
+Está para atajar el olvido, no para reemplazar el criterio. Los términos propios
+que verifica se leen de una lista privada, fuera del árbol:
+`git config datos.listaPrivada`. Esa lista tiene **dos niveles**, separados por
+la línea `#!SOLO-EN-PUBLICOS`: arriba va lo que nombra gente, que bloquea en
+todos lados; abajo el nombre y la estructura de los repositorios hermanos, que
+sólo bloquea donde `git config datos.visibilidad` no diga `privado`. El default
+es público, a propósito: un repositorio que no declara nada se trata como el
+caso peor.
 
 **Y no corre sólo acá: es el verificador de todos los repositorios de la
-máquina.** Desde el 25/8/2026 `core.hooksPath` global apunta a un hook compartido
-—la fuente está en `scripts/hooks/pre-commit` y la instala
-`scripts/instalar-hooks.sh`— que corre este archivo en cualquier repositorio,
+máquina.** Desde el 25/8/2026 `core.hooksPath` global apunta a hooks compartidos
+—la fuente está en `scripts/hooks/` y los instala
+`scripts/instalar-hooks.sh`— que corren este archivo en cualquier repositorio,
 incluidos los que todavía no existen. Antes había una lista de repositorios
 escrita a mano, y uno nuevo no quedaba cubierto sin que nada avisara.
 
