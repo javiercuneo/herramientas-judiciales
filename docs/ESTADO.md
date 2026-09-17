@@ -86,6 +86,25 @@ y estables entre documentos**: si una heredera es `[PERSONA_2]` en uno, tiene qu
 serlo en el otro. Sin eso, dos archivos anonimizados no se pueden cruzar.
 **Es un pedido, no un bug**, y decide Javier si vale la pena.
 
+### E-05 · Escribiente parte los nombres que ensució el OCR
+
+**Del mismo modo de falla que E-01, y encontrado el 16/9 comparando los dos
+motores** (paso 1 de [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md)). `Sr.
+Qu1nteros, Anibal` sale como `Sr. [PERSONA]1nteros, Anibal`: se reemplaza el
+pedazo limpio, el resto queda a la vista **y la constancia lo cuenta como
+reemplazado**. Tres de tres sondas dieron lo mismo.
+
+**El anonimizador del pipeline lo resuelve y el de acá no**, así que hay de dónde
+copiarlo: su patrón de nombre acepta dígitos adentro de la palabra. Y **el motivo
+por el que acá se creía imposible no se sostiene**: se probó con cinco casos
+hechos para que el patrón se comiera un número —`fs. 120`, un tomo y folio de
+letrado, `Juzgado 45`— y los dos motores dan idéntico en los cinco, porque la regla está
+anclada en el tratamiento. Lo que sigue sin arreglo es el nombre ensuciado **sin
+tratamiento delante**.
+
+Caso de prueba: `Dr. Rarn1ro Villalba` tiene que salir sin `1ro Villalba`, o la
+constancia tiene que decir que quedó.
+
 ### E-04 · El verificador no deja tener un archivo de ejemplo
 
 El patrón `matricula` bloquea cualquier `Matrícula` seguida de un número, y para
@@ -94,6 +113,11 @@ testimonios**: un ejemplo que un agente nuevo pueda correr sin el material real
 necesita una matrícula escrita, aunque sea inventada. Hoy no se puede versionar
 ninguno, y la alternativa -que cada agente nuevo pida el corpus real- es
 justamente lo que el patrón viene a evitar.
+
+**Y desde el 16/9 muerde también de este lado:** el banco con el que se comparan
+los dos anonimizadores es material inventado y el patrón lo bloquea igual, así que
+los pasos 2 a 4 de [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md) no pueden tener
+banco de regresión versionado. Ya no es un pedido de otro repositorio.
 
 Haría falta declarar un archivo como ejemplo, con el mecanismo que ya existe
 para las carátulas (`git config datos.caratulas aviso`): una lista de rutas

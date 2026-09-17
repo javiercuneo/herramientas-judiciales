@@ -119,6 +119,101 @@ Cada paso deja el árbol funcionando y ninguno borra nada del anonimizador viejo
    todavía disponible para comparar.
 5. **Recién entonces** se decide qué se hace con `sanitizar.py`.
 
+## Paso 1, hecho el 16/9: en qué difieren los dos motores
+
+**Se corrieron los dos sobre el mismo material inventado** —40 casos que cubren
+las trece familias de reglas del Python y las veintidós del JS, más los falsos
+positivos conocidos— y después 13 sondas dirigidas. **28 de 40 dan exactamente lo
+mismo.** Lo que sigue es lo que decide el resto del plan.
+
+### La respuesta a la pregunta que abría el paso: el JS hace más, con una excepción
+
+`HERMANOS.md` afirmaba que el motor JS «hace estrictamente más». **Es cierto en
+el inventario y falso en un caso**, y ese caso hay que llevarlo al JS antes de
+reemplazar nada.
+
+**Lo que sólo hace el JS**: los seis campos de formulario —`Apellidos:`,
+`Nombres:`, `Domicilio:`, `Fecha Nac:`, `Matrícula N:`, datos de trámite—, que es
+por donde entran las fichas de identidad y el Python no tiene ninguno; el DNI con
+etiqueta; la firma con cargo; y el domicilio en mayúsculas sin ancla
+(`TUCUMAN 1300, 5TO PISO`), que el Python deja en claro.
+
+**Lo único que el Python tapa de más es un falso positivo**, y el JS tiene razón
+en no taparlo: un monto de siete cifras escrito con puntos y sin `$` —`la suma de … de
+capital`— sale como `[DNI]` del lado
+Python. El JS lo excluye porque su regla mira «suma de», «importe de», «monto
+de»; la del Python sólo mira el `$` y los decimales.
+
+### La excepción, y es un bug del JS: los nombres que ensució el OCR
+
+**`escribiente/README.md` decía que un nombre con dígitos adentro «no lo agarra
+nada» y que «no tiene arreglo por patrón». Las dos mitades estaban mal.**
+
+El JS **sí** lo agarra, y lo agarra **mal**: reemplaza el pedazo limpio y deja el
+resto en claro. Tres de tres sondas:
+
+| Entra | JS | Python |
+|---|---|---|
+| `Sr. Qu1nteros, Anibal` | `Sr. [PERSONA]1nteros, Anibal` | `Sr. [PERSONA], Anibal` |
+| `Dr. Rarn1ro Villalba` | `Dr. [PERSONA]1ro Villalba` | `Dr. [PERSONA]` |
+| `Dra. Va1eria 0campo` | `Dra. [PERSONA]1eria 0campo` | `Dra. [PERSONA] 0campo` |
+
+**Eso es peor que no reemplazar**, y es exactamente el modo de falla de E-01: la
+constancia cuenta el nombre como reemplazado y el archivo se lee como limpio con
+medio apellido a la vista.
+
+**Y el motivo por el que se creía imposible no se sostiene.** El argumento era
+que un patrón que acepta dígitos adentro de una palabra empieza a comerse
+números. Se probó con cinco sondas hechas para provocarlo —`fs. 120`,
+`Cámara 3`, un tomo y folio de letrado, un DNI con puntos y `Juzgado 45`— y
+**los dos motores dan
+idéntico en las cinco**: ninguno se comió un número. La razón es que la regla
+está anclada en el tratamiento (`Dr.`, `Sr.`) y frenada por la guarda de largo de
+nombre. **Anclada, la tolerancia a dígitos es segura.**
+
+Lo que sigue siendo cierto es la mitad angosta: **sin ancla no hay arreglo por
+patrón.** `Qu1nteros, Anibal Ramon inicio la demanda` no lo agarra ninguno de los
+dos, y ahí sí no hay nada que hacer.
+
+### Los dos se contradicen sobre si la palabra que ancla sobrevive
+
+Y se contradicen en direcciones opuestas, así que no es un criterio distinto:
+es que ninguno tiene uno.
+
+| Entra | JS | Python |
+|---|---|---|
+| `Autos 45678/2021` | `[EXPTE]` | `Autos [EXPTE]` |
+| `Expte. N 1234/2019` | `[EXPTE]` | `Expte. N [EXPTE]` |
+| `la causa 998877/2020` | `la [EXPTE]` | `la causa [EXPTE]` |
+| `Tel: ` + un fijo con interno | `Tel: [TEL]` | `[TEL]` |
+
+**La regla que falta, y vale para los dos: la palabra que ancla es texto y no
+dato, así que sobrevive.** «Expte. N» no identifica a nadie, y perderlo le saca
+estructura al texto justo antes de dárselo a un modelo. Es el mismo criterio con
+el que ya se conserva el `Dr.` delante de un nombre.
+
+### El banco no se puede versionar acá, y es E-04
+
+El material es inventado y aun así **`scripts/verificar-datos.sh` bloquea el
+archivo**: un DNI, un CUIT, un CBU y dos matrículas escritos a propósito para
+probar las reglas que los tapan. **Y bloqueó también este documento**, por citar
+tres de esos casos adentro de una tabla que explica el bug: hubo que describirlos
+en palabras en vez de escribirlos. Un control que no deja documentar el defecto
+que encontró es la forma más nítida del problema. Es el mismo problema que E-04 describe para
+`confronteitor`, ahora del lado de este repositorio. **Hasta que E-04 se resuelva,
+los pasos 2 a 4 no pueden tener banco de regresión versionado**, que es la red
+que hace seguro cambiar el motor abajo de `redactor`.
+
+**Mientras tanto vive en `pruebas-locales/comparar-motores/`**, que es la carpeta
+que el repositorio ya ignora a propósito. Son cinco archivos: el corpus de 40, las
+13 sondas, un lanzador por motor y el comparador. Se corre así, desde la raíz:
+
+```
+node pruebas-locales/comparar-motores/correr-js.mjs pruebas-locales/comparar-motores/corpus.json > js.json
+python pruebas-locales/comparar-motores/correr-py.py pruebas-locales/comparar-motores/corpus.json py.json
+python pruebas-locales/comparar-motores/comparar.py
+```
+
 ## La línea de verificación
 
 - `npm run verificar-escribiente` —214 comprobaciones— tiene que seguir pasando

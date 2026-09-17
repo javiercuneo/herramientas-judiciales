@@ -162,10 +162,15 @@ carpeta. Allá queda un puntero y lo que un agente necesita saber sin entrar ac�
 21/8, que además destapó seis fugas ya arregladas; esa crónica está en
 [`docs/HISTORIA.md`](../docs/HISTORIA.md).
 
-- **Un nombre que el OCR ensució no lo agarra nada**, porque ningún patrón de
-  nombre puede aceptar dígitos adentro de una palabra sin empezar a comerse
-  números. Un humano lo lee igual. **No tiene arreglo por patrón**, y es una
-  razón más para leer el `.md` antes de mandarlo.
+- **Un nombre que el OCR ensució sale partido, y eso es peor que no tocarlo.**
+  `Sr. Qu1nteros` sale como `Sr. [PERSONA]1nteros`: se reemplaza el pedazo limpio,
+  el resto queda en claro **y la constancia lo cuenta como reemplazado**. Está
+  anotado como **E-05** en [`docs/ESTADO.md`](../docs/ESTADO.md). Hasta el 16/9 acá
+  decía que «no lo agarra nada» y que «no tiene arreglo por patrón»: las dos cosas
+  estaban mal, y por qué está en
+  [`docs/PLAN_MOTOR_UNICO.md`](../docs/PLAN_MOTOR_UNICO.md). Lo que sí es cierto es
+  la mitad angosta: **sin un tratamiento que ancle** —`Dr.`, `Sr.`— no hay arreglo
+  por patrón, y ahí no queda más que leer el `.md` antes de mandarlo.
 - **El domicilio del propio juzgado también se reemplaza**, y se decidió dejarlo
   así: la regla que lo agarra es la misma que agarra el domicilio de una parte
   escrito igual, y separarlas pediría una lista de direcciones de tribunales.
