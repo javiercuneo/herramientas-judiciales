@@ -288,11 +288,11 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-plazos` | El cómputo de las cinco de plazos, y la API que carga el ledger: 135 |
 | `npm run verificar-series` | Las series de UMA, UHOM y monto fijo |
 | `npm run verificar-contraste` | Los tokens de color, AA sobre las tres superficies y en los dos temas |
-| `npm run verificar-conectores` | Los dos transportes de `conectores/`: 46 |
+| `npm run verificar-conectores` | Los dos transportes de `conectores/`, plazos y anonimización: 81 |
 | `npm run verificar-acordada` | Que la tabla de la Acordada 5/2010 diga lo que dice el anexo: 90 |
 | `npm run verificar-distancia` | El cómputo del art. 158 y la búsqueda en esa tabla: 64 |
 | `npm run verificar-red` | Qué terceros nombran las quince páginas que se publican, contra una lista con el motivo al lado de cada uno |
-| `npm run verificar-escribiente` | El motor de Escribiente: 214 |
+| `npm run verificar-escribiente` | El motor de Escribiente: 292 |
 | `npm run verificar-honorio` | Las cinco cifras que este repositorio sigue del motor |
 | `npm run verificar-docs` | Que los documentos de dominio no citen artículos ni archivos que no existen |
 | `npm run verificar-estado` | El presupuesto y la higiene de este archivo |

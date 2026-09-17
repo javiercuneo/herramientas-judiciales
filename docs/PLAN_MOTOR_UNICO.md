@@ -239,7 +239,7 @@ repositorio privado no se escribe adentro de uno público.
 
 ## La línea de verificación
 
-- `npm run verificar-escribiente` —254 comprobaciones desde el 17/9, eran 214—
+- `npm run verificar-escribiente` —292 comprobaciones desde el 17/9, eran 214—
   tiene que seguir pasando en cada paso, y crecer con las regresiones de cada
   hueco que se cierre.
 - El conector nuevo necesita su propio banco, **visto fallar a propósito**, como
