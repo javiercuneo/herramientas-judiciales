@@ -240,18 +240,28 @@ buscar '(?<![-\w])(?:4[0-9]{3}|5[0-9]{3})-[0-9]{4}(?![-\w])' 'telefono fijo de C
 # entera, y con el lookbehind puesto: sin el, grep arranca a matchear un
 # caracter mas adelante --"aviercuneo@..."-- y la guarda no sirve de nada.
 #
-# Se lee de la configuracion y no se escribe aca, para que valga en cualquier
+# Se leen de la configuracion y no se escriben aca, para que valga en cualquier
 # repositorio y en cualquier maquina. Lo que el patron sigue cazando es el
 # correo de OTRO adentro de un archivo o de un mensaje.
-correo_propio=$(git config --get user.email || true)
+#
+# SON VARIOS, y desde el 17/9 no uno solo. El pre-push barre los autores de
+# TODO el rango, y en esta maquina se firma con un correo distinto segun el
+# repositorio --y los commits viejos llevan el de entonces--. Con una sola
+# guarda, el primer commit firmado con otro correo bloquea el push y no hay
+# forma de corregirlo sin reescribir la historia. Se agregan con:
+#     git config --global --add datos.correoPropio <direccion>
+correos_propios=$(git config --get-all datos.correoPropio 2>/dev/null || true)
+correo_actual=$(git config --get user.email || true)
+[ -n "$correo_actual" ] && correos_propios=$(printf '%s\n%s' "$correos_propios" "$correo_actual")
 guarda_propio=''
-if [ -n "$correo_propio" ]; then
+for c in $correos_propios; do
+  [ -z "$c" ] && continue
   # Los dos unicos metacaracteres que puede traer una direccion, escapados con
   # una expresion cada uno: una clase de caracteres aca se le vuelve ilegible a
   # sed --corchetes y backslashes-- y la guarda quedaba vacia sin avisar.
-  propio_escapado=$(printf '%s' "$correo_propio" | sed -e 's/\./\\./g' -e 's/+/\\+/g')
-  guarda_propio="(?!${propio_escapado}\b)"
-fi
+  esc=$(printf '%s' "$c" | sed -e 's/\./\./g' -e 's/+/\+/g')
+  guarda_propio="${guarda_propio}(?!${esc}\b)"
+done
 buscar "(?<![A-Za-z0-9._%+-])${guarda_propio}[A-Za-z0-9._%+-]+@(?!javiercuneo\.com\.ar|users\.noreply\.github\.com|anthropic\.com|example\.(?:com|org))[A-Za-z0-9.-]+\.[A-Za-z]{2,}" 'direccion de correo que no es propia ni de ejemplo'
 
 # --------------------------------------------------------------------------

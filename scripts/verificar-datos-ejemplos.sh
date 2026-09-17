@@ -8,7 +8,7 @@
 # todos, y en silencio. Asi que la exencion tiene banco, y el banco exige ver
 # BLOQUEAR donde tiene que bloquear —que es la mitad que nadie prueba—.
 #
-# QUE PRUEBA, en veinticinco casos:
+# QUE PRUEBA, en veintisiete casos:
 #   - sin .datos-ejemplo nada cambia;
 #   - declarado, el archivo pasa;
 #   - lo que el marcador NO relaja: lista privada, binarios ofimaticos y el
@@ -19,7 +19,8 @@
 #   - comentarios, lineas en blanco y rutas con espacios;
 #   - que el correo del AUTOR no bloquee el push mientras el de cualquier otro
 #     si: el pre-push barre `%an` y `%ae` del rango, asi que sin esa guarda
-#     ningun push pasa nunca;
+#     ningun push pasa nunca --y que se pueda declarar mas de uno, porque en
+#     esta maquina se firma con un correo distinto segun el repositorio--;
 #   - y desde el 17/9, los dos modos que tapan lo que el pre-commit no ve: el
 #     mensaje de commit, y el rango que se va a enviar --con el merge y con el
 #     dato que entra en un commit y sale en el siguiente--, mas los dos niveles
@@ -274,6 +275,21 @@ printf 'Firma Fulano De Tal.\n' > "$REPO/pruebas/x.md"
 git -C "$REPO" add -A
 git -C "$REPO" config datos.visibilidad privado
 caso "una persona nombrada, en privado, bloquea igual" bloquea
+
+
+gris "  Varios correos propios (el pre-push barre los autores del rango)"
+# En esta maquina se firma con un correo distinto segun el repositorio. Con una
+# sola guarda, el primer commit firmado con otro bloquea el push para siempre.
+nuevo_repo
+git -C "$REPO" config --local --add datos.correoPropio otro.propio@ejemplo-mio.com.ar
+printf 'Escribir a otro.propio@ejemplo-mio.com.ar por el tema.\n' > "$REPO/pruebas/x.md"
+git -C "$REPO" add -A
+caso "un segundo correo propio declarado" pasa
+nuevo_repo
+git -C "$REPO" config --local --add datos.correoPropio otro.propio@ejemplo-mio.com.ar
+printf 'Escribir a ajeno@otroestudio.com.ar por el tema.\n' > "$REPO/pruebas/x.md"
+git -C "$REPO" add -A
+caso "con varios declarados, el de otro bloquea igual" bloquea
 
 echo "================================================================"
 if [ $mal -gt 0 ]; then

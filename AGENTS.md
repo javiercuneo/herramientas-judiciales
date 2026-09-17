@@ -466,7 +466,13 @@ por definición, un literal que el control bloquea. Están en la lista privada.
 
 Está para atajar el olvido, no para reemplazar el criterio. Los términos propios
 que verifica se leen de una lista privada, fuera del árbol:
-`git config datos.listaPrivada`. Esa lista tiene **dos niveles**, separados por
+`git config datos.listaPrivada`. El correo con el que se firma no cuenta como
+ajeno, y se declara con `git config --global --add datos.correoPropio` —en
+plural, porque el `pre-push` barre los autores de todo el rango y acá se firma
+con un correo distinto según el repositorio: con uno solo, el primer commit
+firmado con otro bloquea el push y ya no se corrige sin reescribir la historia.
+
+Esa lista tiene **dos niveles**, separados por
 la línea `#!SOLO-EN-PUBLICOS`: arriba va lo que nombra gente, que bloquea en
 todos lados; abajo el nombre y la estructura de los repositorios hermanos, que
 sólo bloquea donde `git config datos.visibilidad` no diga `privado`. El default
