@@ -116,13 +116,32 @@ constancia tiene que decir que quedó.
 
 **Lo que queda abierto:**
 
-- **Un solo motor de anonimizacion, y el plan esta escrito.** Las mismas reglas
-  estan dos veces —867 lineas de JavaScript en `escribiente/js/motor/` y 681 de
-  Python en el pipeline— y un arreglo de nombres va a los dos lados. Decidido el
-  16/9: queda el JS. El orden de trabajo, la costura —son cuatro funciones— y por
-  que `redactor` es el consumidor principal y no el pipeline, en
-  [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md). **El paso 1 es comparar los dos
-  motores sobre el mismo material**, y ninguno de los otros se da sin eso.
+- **UN SOLO MOTOR DE ANONIMIZACIÓN. Acá se arranca, y va por el paso 2.**
+  Las mismas reglas están escritas dos veces —867 líneas de JavaScript en
+  `escribiente/js/motor/anonimizar.js` y 681 de Python en el pipeline— y un
+  arreglo de nombres hay que llevarlo a los dos lados. Decidido el 16/9: **queda
+  el JS**. El plan entero —los cinco pasos, la costura (son cuatro funciones), y
+  por qué `redactor` es el consumidor principal y no el pipeline— está en
+  [`PLAN_MOTOR_UNICO.md`](PLAN_MOTOR_UNICO.md), **que hay que leer antes de tocar
+  nada**.
+
+  **El paso 1 está hecho** (16/9) y **el paso 2 está desbloqueado** desde que se
+  cerró E-04 el 17/9. Lo que hace falta saber para empezar:
+
+  - **El paso 2 es arreglar E-01, E-02, E-03 y E-05 en el motor JS**, una sola vez
+    y en el que va a quedar. **E-01 y E-05 son el mismo modo de falla** —un nombre
+    reemplazado a medias que la constancia cuenta como completo— y conviene
+    tomarlos juntos.
+  - **E-05 tiene de dónde copiarse:** el anonimizador del pipeline lo resuelve, y
+    está probado que aceptar dígitos adentro de la palabra **no** se come números
+    mientras la regla esté anclada en el tratamiento.
+  - **El banco de comparación está versionado** en `scripts/comparar-motores/`,
+    declarado en `.datos-ejemplo`. Es la red del paso 2: **antes y después de
+    cada arreglo, correrlo y mirar qué se movió.** Cómo se corre, en el plan.
+  - **Queda una decisión chica sin tomar**, anotada en el plan: los dos motores se
+    contradicen sobre si la palabra que ancla sobrevive al reemplazo —el JS se come
+    `Autos` y `Expte. N`, el Python se come `Tel:`—. La regla que falta es que
+    la palabra que ancla es texto y no dato, así que sobrevive.
 
 - **Falta publicar el ledger, y nada más.** El lado de acá ya salió
   —`js/enlace.js` está en el sitio y `vencimientos.html` lo carga; comprobado el
@@ -146,6 +165,15 @@ Ninguno urgente y ninguno bloqueante.
 
 ### Lo que hay que acordarse de hacer a mano
 
+- **Hay una entrada en la lista privada que conviene revisar, y es de Javier.**
+  Armando el banco de comparación el 16/9 chocaron tres cosas inventadas contra
+  ella. Dos eran un nombre y un número y se cambiaron sin mirar cuál era el
+  término. **El tercero no era un identificador sino una fórmula de escrito**
+  —la frase que sigue a `Autos N,` en cualquier presentación—, de 21
+  caracteres. Una entrada así **bloquea commits para siempre sin proteger a
+  nadie**, y el verificador no imprime el término a propósito, así que sale
+  caro de diagnosticar cada vez. La lista vive fuera del árbol
+  (`git config datos.listaPrivada`).
 - **`data/feria-judicial.json`, una vez por año, y es lo único de este
   repositorio con esa forma.** Las Acordadas de la CSJN son PDFs sin API. Hoy
   llega hasta 2026; la de 2027 la dicta la Corte entre abril y junio de 2027, y
@@ -309,7 +337,7 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-honorio` | Las cinco cifras que este repositorio sigue del motor |
 | `npm run verificar-docs` | Que los documentos de dominio no citen artículos ni archivos que no existen |
 | `npm run verificar-estado` | El presupuesto y la higiene de este archivo |
-| `npm run verificar-datos-ejemplos` | Que `.datos-ejemplo` exima sólo los patrones de forma, y la guarda del correo propio: 16 |
+| `npm run verificar-datos-ejemplos` | Las salidas de `verificar-datos.sh`: la exención, la guarda del correo y los modos del pre-push: 27 |
 
 Y **tres** que corren en el navegador, con el sitio servido y no con `file://`:
 
