@@ -283,6 +283,18 @@ button.chico:hover { color: var(--accent); border-color: var(--accent); filter: 
 
 .candidatos select { flex: none; padding: 4px 8px; font-size: .82rem; }
 
+/* El numero que le toco al nombre con la numeracion prendida (E-03). Va vacio
+   cuando no hay numero, asi que no ocupa lugar hasta que hay algo que decir. */
+.candidatos .etiqueta-numerada {
+  flex: none;
+  font-family: var(--font-meter);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--accent);
+}
+.candidatos .etiqueta-numerada:empty { display: none; }
+
 /* La parte que sale de la caratula se marca: es el dato mas sensible del
    documento y el que no hay que dejar pasar por distraccion. */
 .candidatos li.parte { border-color: var(--accent); background: var(--accent-tint); }

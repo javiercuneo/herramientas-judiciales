@@ -16,7 +16,7 @@ import { extraerPaginas, diagnosticar } from './motor/extraer.js';
 import { convertir } from './motor/markdown.js';
 import {
     anonimizar, candidatosANombre, partesDeCaratula, normalizarEspacios,
-    restosPegadosAEtiqueta, ETIQUETAS_DE_NOMBRE as ETIQUETAS,
+    restosPegadosAEtiqueta, ETIQUETAS_DE_NOMBRE as ETIQUETAS, crearNumerador,
 } from './motor/anonimizar.js';
 import { armarDocumento, nombreDeDescarga, losQueSiguenEnElTexto } from './motor/documento.js';
 import { analizarRango, describirProblemas, explicarError, unir, separar, rotar, contarPaginas } from './motor/pdf.js';
@@ -99,6 +99,12 @@ const estado = {
     paginasVacias: [],
     candidatos: [],       // { texto, apariciones, marcado, etiqueta, esParte, esResto }
     final: '',
+    // La numeracion de E-03. NO se reinicia entre archivos a proposito: la
+    // tanda es todo lo que se pase sin cerrar la pestania, y eso es lo que
+    // hace que el mismo nombre se lleve el mismo numero en dos documentos.
+    // Recargar la pagina la borra, que es la unica forma de empezar de nuevo
+    // y tambien la garantia de que no queda guardada.
+    numerador: crearNumerador(),
 };
 
 function leerOpciones() {
@@ -285,6 +291,25 @@ function contarApariciones(texto, frase) {
     return (texto.match(patron) || []).length;
 }
 
+/** La etiqueta con la que se va a reemplazar este candidato.
+ *
+ * Con la numeracion apagada es la etiqueta pelada y no pasa nada mas. Con la
+ * numeracion prendida (E-03) el numero lo lleva el numerador del motor, que
+ * vive en `estado` y por lo tanto dura lo que dura la pestania: esa es la
+ * decision del 17/9 —numeracion por tanda y no por causa, para no guardar en
+ * ningun lado la tabla que deshace la anonimizacion—.
+ *
+ * `asignar` es false cuando se dibuja la lista: mostrar un candidato no puede
+ * gastarle un numero a alguien que todavia no se tildo.
+ */
+function etiquetaDe(c, asignar) {
+    if (!$('opt-numerar').checked) return c.etiqueta;
+    const base = c.etiqueta.slice(1, -1);
+    return asignar
+        ? estado.numerador.etiqueta(base, c.texto)
+        : (estado.numerador.asignada(base, c.texto) || c.etiqueta);
+}
+
 function dibujarCandidatos() {
     const lista = $('candidatos');
     lista.innerHTML = '';
@@ -325,7 +350,12 @@ function dibujarCandidatos() {
         }
         selector.addEventListener('change', () => { c.etiqueta = selector.value; recomputar(); });
 
-        li.append(casilla, etiqueta, veces);
+        // El numero que le toco, cuando la numeracion esta prendida. Se muestra
+        // porque es lo que hace util a la tanda: al pasar el segundo archivo se
+        // ve de un vistazo cual de los nombres ya viene numerado del primero.
+        const numerada = document.createElement('span');
+        numerada.className = 'etiqueta-numerada';
+        li.append(casilla, etiqueta, veces, numerada);
         // El resto se marca distinto de todo lo demas porque no es una
         // propuesta: es un pedazo de un nombre que YA se esta tapando y que
         // quedo en el texto. Sin la marca es una casilla mas entre cuarenta.
@@ -345,7 +375,25 @@ function dibujarCandidatos() {
         lista.appendChild(li);
     }
 
+    refrescarNumeracion();
     $('revision').classList.remove('oculto');
+}
+
+/** Repinta solo los numeros, sin rehacer la lista.
+ *
+ * El numero se asigna al anonimizar y no al dibujar —mostrar un candidato no
+ * puede gastarle un numero a alguien que no se tildo—, asi que despues de cada
+ * recomputo hay numeros nuevos que mostrar. Se actualiza el texto en su lugar y
+ * no se redibuja la lista: redibujarla le saca el foco a la casilla que el
+ * usuario acaba de tildar, y con cuarenta casillas eso se nota.
+ */
+function refrescarNumeracion() {
+    const spans = $('candidatos').querySelectorAll('.etiqueta-numerada');
+    estado.candidatos.forEach((c, i) => {
+        if (!spans[i]) return;
+        const etq = etiquetaDe(c, false);
+        spans[i].textContent = etq === c.etiqueta ? '' : etq;
+    });
 }
 
 let pendienteDeRecalculo = null;
@@ -371,7 +419,7 @@ function recomputarYa() {
     if (anonimizado) {
         const elegidos = estado.candidatos
             .filter((c) => c.marcado)
-            .map((c) => ({ texto: c.texto, reemplazo: c.etiqueta }));
+            .map((c) => ({ texto: c.texto, reemplazo: etiquetaDe(c, true) }));
         const resultado = anonimizar(estado.crudo, elegidos);
         cuerpo = resultado.texto;
         conteo = resultado.conteo;
@@ -404,6 +452,7 @@ function recomputarYa() {
     });
 
     $('salida').value = estado.final;
+    refrescarNumeracion();
     dibujarInforme(anonimizado, conteo, pendientes);
 }
 
@@ -485,11 +534,13 @@ function dibujarInforme(anonimizado, conteo, pendientes) {
     $('informe').innerHTML = `<ul><li>${filas.join('</li><li>')}</li></ul>`;
 }
 
-$('opt-anonimizar').addEventListener('change', () => {
-    if (!estado.crudo) return;
-    dibujarCandidatos();
-    recomputar();
-});
+for (const id of ['opt-anonimizar', 'opt-numerar']) {
+    $(id).addEventListener('change', () => {
+        if (!estado.crudo) return;
+        dibujarCandidatos();
+        recomputar();
+    });
+}
 
 // ---------------------------------------------------------------------------
 // Agregar a mano

@@ -33,6 +33,8 @@ import {
     normalizarEspacios,
     restosPegadosAEtiqueta,
     ETIQUETAS_DE_NOMBRE,
+    crearNumerador,
+    etiquetaNumerada,
 } from '../escribiente/js/motor/anonimizar.js';
 import { armarDocumento, titulo, nombreDeDescarga, losQueSiguenEnElTexto } from '../escribiente/js/motor/documento.js';
 import { analizarRango, describirProblemas, explicarError } from '../escribiente/js/motor/pdf.js';
@@ -896,6 +898,107 @@ ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
     ok(c.includes('FICTICIO, ANA MARIA') && !c.includes('ANA MARIA'),
         'REGRESION: "APELLIDO, NOMBRE" en mayusculas se ofrece entero y no sin el apellido',
         `candidatos: ${c.join(' | ')}`);
+}
+
+// ---------------------------------------------------------------------------
+// REGRESION 18: etiquetas numeradas y estables dentro de una tanda (E-03).
+//
+// Pedido de confronteitor: para cotejar un testimonio contra la resolucion que
+// lo transcribe hace falta que la misma persona lleve el mismo numero en los
+// dos archivos. Decidido por Javier el 17/9/2026: por TANDA -mientras la
+// pestania siga abierta- y no por causa, porque una tabla nombre -> numero
+// guardada es la llave para deshacer la anonimizacion.
+// ---------------------------------------------------------------------------
+
+// --- El numero es estable, y por etiqueta -----------------------------------
+{
+    const n = crearNumerador();
+    ok(n.etiqueta('PERSONA', 'Ficticio, Juan') === '[PERSONA_1]', 'el primero se lleva el 1');
+    ok(n.etiqueta('PERSONA', 'Inventada, Ana') === '[PERSONA_2]', 'el segundo el 2');
+    ok(n.etiqueta('PERSONA', 'Ficticio, Juan') === '[PERSONA_1]',
+        'REGRESION E-03: el mismo nombre se lleva siempre el mismo numero');
+
+    // Es la clave de que dos archivos se puedan cruzar: en el segundo se
+    // pregunta lo mismo y sale lo mismo, sin que nada se haya guardado.
+    ok(n.etiqueta('PERSONA', 'FICTICIO,  JUAN') === '[PERSONA_1]',
+        'la caja y el espaciado no hacen a dos personas, igual que en el reemplazo');
+    ok(n.etiqueta('PERSONA', 'Fícticio, Juan') === '[PERSONA_3]',
+        'la tilde si, porque el reemplazo tampoco la ignora');
+
+    // El numero es por etiqueta: "[PERSONA_1]" y "[TESTIGO_1]" son dos distintos.
+    ok(n.etiqueta('TESTIGO', 'Ficticio, Juan') === '[TESTIGO_1]',
+        'cambiar de etiqueta da un numero nuevo en la etiqueta nueva');
+    ok(n.etiqueta('PERSONA', 'Ficticio, Juan') === '[PERSONA_1]',
+        'y volver atras devuelve el de antes');
+
+    // `asignada` no gasta numeros: es para dibujar la lista.
+    ok(n.asignada('PERSONA', 'Inventada, Ana') === '[PERSONA_2]', 'asignada contesta lo ya numerado');
+    ok(n.asignada('PERSONA', 'Nadie Todavia') === null, 'y no inventa uno para el que no tiene');
+    ok(n.cuantas() === 4, 'preguntar no numera', `cuantas=${n.cuantas()}`);
+
+    // Una tanda nueva arranca de cero, que es lo que pasa al recargar.
+    ok(crearNumerador().etiqueta('PERSONA', 'Inventada, Ana') === '[PERSONA_1]',
+        'REGRESION E-03: un numerador nuevo no sabe nada del anterior');
+}
+
+// --- El detector de restos reconoce la etiqueta numerada ---------------------
+{
+    // SI ESTO SE ROMPE, PRENDER LA NUMERACION APAGA LA DETECCION DE E-01 EN
+    // SILENCIO, que es la fuga grave. Por eso la lista de etiquetas y su forma
+    // numerada viven las dos en el motor.
+    for (const etiqueta of ETIQUETAS_DE_NOMBRE) {
+        const base = etiqueta.slice(1, -1);
+        const numerada = etiquetaNumerada(base, 12);
+        const r = restosPegadosAEtiqueta(`Ficticio, ${numerada} inicio la demanda.`)
+            .map((x) => x.texto);
+        ok(r.includes('Ficticio'), `el detector reconoce la etiqueta numerada ${numerada}`,
+            `restos: ${r.join(' | ')}`);
+    }
+}
+
+// --- Numerado, el texto y la constancia distinguen a cada uno ---------------
+{
+    const ESCRITO_DOS = 'Declaran Ficticio, Juan y tambien Inventada, Ana.';
+    const n = crearNumerador();
+    const elegidos = ['Ficticio, Juan', 'Inventada, Ana']
+        .map((t) => ({ texto: t, reemplazo: n.etiqueta('TESTIGO', t) }));
+    const { texto, conteo } = anonimizar(ESCRITO_DOS, elegidos);
+
+    contiene(texto, '[TESTIGO_1]', 'el primero sale numerado');
+    contiene(texto, '[TESTIGO_2]', 'y el segundo con otro numero');
+    ok(conteo['nombre propio → [TESTIGO_1]'] === 1 && conteo['nombre propio → [TESTIGO_2]'] === 1,
+        'la constancia cuenta una linea por etiqueta numerada', JSON.stringify(conteo));
+
+    // La constancia avisa que no todo lo tapado esta numerado, porque en el
+    // mismo archivo conviven las dos cosas y confundirlas es exactamente el
+    // error que la numeracion viene a evitar.
+    const numerado = armarDocumento({
+        nombreArchivo: 'testimonio.pdf', cuerpo: texto, anonimizado: true, conteo, pendientes: [],
+    });
+    contiene(numerado, 'Las etiquetas numeradas identifican a una persona cada una',
+        'REGRESION E-03: numerado, la constancia explica que las sin numero no se comparan');
+    noContiene(armarDocumento({
+        nombreArchivo: 'testimonio.pdf', cuerpo: 'Dr. [PERSONA] contesto.', anonimizado: true,
+        conteo: { 'persona con tratamiento': 1 }, pendientes: [],
+    }), 'Las etiquetas numeradas', 'y sin ninguna numerada no dice nada de numeros');
+
+    // La constancia sigue sin llevar un solo caracter del documento: la clave
+    // es la etiqueta, con numero o sin el. Es la REGRESION 7, que no se afloja
+    // por numerar.
+    const md = armarDocumento({
+        nombreArchivo: 'testimonio.pdf', cuerpo: texto, anonimizado: true, conteo, pendientes: [],
+    });
+    for (const nombre of ['Ficticio', 'Juan', 'Inventada', 'Ana']) {
+        noContiene(md, nombre, `numerado, la constancia sigue sin nombrar a nadie: ${nombre}`);
+    }
+
+    // Y sin numerar los dos siguen sumando en una sola linea, que es lo que
+    // impide contar cuantos nombres distintos hubo.
+    const sinNumerar = anonimizar(ESCRITO_DOS, ['Ficticio, Juan', 'Inventada, Ana']
+        .map((t) => ({ texto: t, reemplazo: '[TESTIGO]' })));
+    ok(sinNumerar.conteo['nombre propio → [TESTIGO]'] === 2,
+        'sin numerar, dos nombres con la misma etiqueta siguen sumando en una linea',
+        JSON.stringify(sinNumerar.conteo));
 }
 
 // ---------------------------------------------------------------------------

@@ -76,6 +76,12 @@ es chico:
 | `candidatos_a_nombre(texto)` | Los que ninguna regla tapó |
 | el cotejo de alias (`ingreso.py:135`) | Tolerante al espaciado |
 
+**Y desde el 17/9 hay dos más que el conector tiene que exponer, porque son la
+otra mitad de lo que hace confiable al motor:** `restosPegadosAEtiqueta(texto)`
+—lo que quedó pegado a un reemplazo, que es la fuga E-01— y `crearNumerador()`
+—las etiquetas numeradas de E-03—. Un consumidor que reemplaza y no mira los
+restos tiene el mismo agujero que tenía la pantalla.
+
 **El orden de `partes_de_caratula` es contrato y no un detalle.** En «X c/ Y» el
 primero es el actor, y `redactor` los etiqueta distinto a propósito: con los dos
 como `[PERSONA]` el modelo no sabe quién pide y quién resiste.
@@ -110,13 +116,13 @@ Cada paso deja el árbol funcionando y ninguno borra nada del anonimizador viejo
    JS «hace estrictamente más» que el Python; **eso hay que comprobarlo y no
    suponerlo**, porque de ahí sale si el cambio pierde algo.
 2. **Arreglar E-01, E-02, E-03 y E-05 en el motor JS.** Se arreglan una sola vez
-   y en el que va a quedar, no dos veces en los dos. **Hecho el 17/9** para E-01,
-   E-02 y E-05, con una fuga más que apareció al verificarlos —E-06, la
-   constancia nombraba al pie a quien el cuerpo sí había tapado—. **E-03 queda
-   pendiente de Javier**: es un pedido de `confronteitor`, no un bug. La crónica
-   está en [`HISTORIA.md`](HISTORIA.md); lo que quedó abierto es el borde de la
-   regla de E-05 —sin tratamiento que ancle, y con el dígito en la primera letra,
-   no hay reemplazo, sólo aviso—.
+   y en el que va a quedar, no dos veces en los dos. **Hecho el 17/9**, los
+   cuatro, con una fuga más que apareció al verificarlos —E-06, la constancia
+   nombraba al pie a quien el cuerpo sí había tapado—. E-03 lo decidió Javier ese
+   mismo día: numeración **por tanda**, sin tabla guardada. La crónica está en
+   [`HISTORIA.md`](HISTORIA.md); lo que quedó abierto es el borde de la regla de
+   E-05 —sin tratamiento que ancle, y con el dígito en la primera letra, no hay
+   reemplazo, sólo aviso—.
 3. **Un conector del anonimizador**, hermano de `conectores/mcp.mjs`, que exponga
    las cuatro funciones de la costura. Con su propio banco, y con la regla de los
    conectores: **cuando falta un dato no devuelve un resultado**, devuelve el

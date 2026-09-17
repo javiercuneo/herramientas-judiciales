@@ -173,6 +173,20 @@ carpeta. Allá queda un puntero y lo que un agente necesita saber sin entrar ac�
   hay arreglo por patrón, y tampoco lo hay cuando el OCR ensucia la **primera**
   letra (`0campo`). En los dos casos lo que quedó pegado a la etiqueta se ofrece
   para tildar y se nombra en la constancia, así que la fuga se ve.
+- **La numeración de etiquetas es por tanda, no por causa.** Con
+  «Numerar las etiquetas» prendido cada nombre se lleva un número propio
+  —`[PERSONA_1]`, `[PERSONA_2]`— y **el mismo nombre se lleva el mismo número en
+  todos los archivos que pases sin cerrar la pestaña**, que es lo que permite
+  cruzar un testimonio con la resolución que lo transcribe. La correspondencia
+  entre nombre y número **no se guarda en ningún lado**: vive en memoria y se
+  pierde al recargar. Es a propósito —una tabla de nombre a número guardada es
+  la llave para deshacer la anonimización—, y por eso, si hay que cruzar dos
+  archivos, se pasan juntos. Era **E-03**, decidido el 17/9.
+- **Numerado, no todo lo tapado lleva número.** Las reglas que tapan solas —la
+  firma, el tratamiento, los campos de formulario— ocultan nombres sin que nadie
+  diga de quién son, así que salen como `[PERSONA]` pelado. Dos `[PERSONA]` no
+  son la misma persona, ni siquiera dentro del mismo archivo, y no se comparan
+  entre archivos. La constancia del `.md` lo dice.
 - **El domicilio del propio juzgado también se reemplaza**, y se decidió dejarlo
   así: la regla que lo agarra es la misma que agarra el domicilio de una parte
   escrito igual, y separarlas pediría una lista de direcciones de tribunales.

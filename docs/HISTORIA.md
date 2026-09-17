@@ -19,6 +19,81 @@ de 2026.
 
 ---
 
+## E-03: etiquetas numeradas, estables por tanda y sin tabla guardada — 17/9
+
+Era el pedido de `confronteitor` y el único de los cuatro que no era un bug: para
+cotejar un testimonio contra la resolución que lo transcribe hace falta que la
+misma persona lleve el mismo número en los dos archivos. Hasta hoy todas caían en
+`[PERSONA]` —en un testimonio, cincuenta y una veces—, así que ni se distinguían
+entre sí ni se podían cruzar dos documentos.
+
+### Lo que había que decidir, que no era «numerar sí o no»
+
+Javier: «no sé qué tengo que decidir». Lo que había que elegir era **dónde vive la
+correspondencia entre nombre y número**, porque de eso dependen tres cosas
+distintas:
+
+1. **Una tabla guardada por causa.** Funciona meses después. Pero esa tabla es la
+   llave para deshacer la anonimización, y Escribiente promete que nada sale del
+   navegador y nada queda guardado.
+2. **Por tanda**: la correspondencia vive en memoria mientras la pestaña siga
+   abierta. Alcanza para los archivos que se pasan juntos, que es el caso de uso,
+   y se muere al recargar sin dejar nada.
+3. **Derivar el número del nombre** (un hash). Estable para siempre sin guardar
+   nada, pero quien sospecha un apellido lo confirma probándolo.
+
+**Javier eligió la 2.** La promesa de privacidad vale más que la comodidad, y el
+uso que lo motivó —un testimonio y la resolución que lo transcribe— se resuelve
+pasando los dos archivos juntos.
+
+### Cómo quedó
+
+`crearNumerador()` vive en el motor y no en la pantalla, por dos razones: se
+puede probar, y es lo que el conector del paso 3 va a tener que exponer. Guarda
+un `Map` y nada más; se lo tira y la correspondencia desaparece. La pantalla tiene
+uno en `estado`, que dura lo que dura la pestaña.
+
+La clave es **insensible a la caja y sensible a las tildes**, igual que el
+reemplazo de `anonimizar`: ese corre con la bandera `i` sobre texto literal, así
+que «PEREZ» y «Perez» son el mismo nombre y «Perez» y «Pérez» no. Si el numerador
+normalizara distinto, dos nombres que el motor reemplaza igual tendrían números
+distintos.
+
+El número es **por etiqueta**: `[PERSONA_1]` y `[TESTIGO_1]` son dos personas
+distintas, y lo que tiene que ser estable es el par entero, que es lo que aparece
+en el texto. Cambiarle la etiqueta a alguien le da un número nuevo en la etiqueta
+nueva y le conserva el viejo en la vieja, así que volver atrás devuelve el mismo.
+
+### Las dos cosas que casi se rompen, y son la misma
+
+**El detector de restos de E-01 no reconocía `[PERSONA_2]`.** Su lista de
+etiquetas era literal, así que prender la numeración habría apagado en silencio la
+detección de la fuga grave. Es exactamente el riesgo que el comentario de E-01
+anotaba al mudar la lista de `app.js` al motor, aparecido a las horas. Ahora el
+patrón acepta el `_N` y hay una comprobación por cada etiqueta.
+
+**Y la constancia tenía que decir que no todo lo tapado lleva número.** Las reglas
+deterministas —la firma, el tratamiento, los campos de formulario— tapan nombres
+sin que nadie diga de quién son, así que no hay a qué colgarles un número y salen
+como `[PERSONA]` pelado. En el mismo archivo conviven entonces los numerados y los
+que no, y **dos `[PERSONA]` no son la misma persona, ni siquiera dentro del mismo
+archivo**. Sin esa línea al pie, el `.md` invitaba justo al error que la numeración
+viene a evitar.
+
+Lo que **no** cambia: sin numerar, dos nombres con la misma etiqueta siguen
+sumando en una sola línea de la constancia, que es lo que impide contar cuántos
+nombres distintos hubo. Numerando, esa cuenta se ve igual en el cuerpo, así que
+la constancia no revela nada nuevo.
+
+### Verificado
+
+Veintiocho comprobaciones nuevas, y la prueba que importa se hizo en el navegador
+con dos PDF inventados pasados en la misma tanda: el mismo nombre salió
+`[PERSONA_2]` en los dos, y el que aparecía sólo en el segundo se llevó un número
+nuevo.
+
+---
+
 ## La palabra que ancla es texto y no dato — 17/9
 
 Era la decisión chica que dejaba abierta el paso 1: los dos motores se

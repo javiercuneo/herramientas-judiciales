@@ -114,6 +114,27 @@ export function armarDocumento({
                 constancia.push(`  - ${regla}: ${veces}`);
             }
         }
+        // NUMERADO, LA CONSTANCIA TIENE QUE DECIR QUE NO TODO ESTA NUMERADO.
+        //
+        // Las reglas deterministicas —la firma, el tratamiento, los campos de
+        // formulario— tapan nombres SIN QUE NADIE DIGA DE QUIEN SON, asi que no
+        // hay a que colgarles un numero y salen como "[PERSONA]" pelado. En el
+        // mismo archivo conviven entonces los numerados y los que no, y quien
+        // cruce dos documentos tiene que saber cual es cual: dos "[PERSONA]" de
+        // archivos distintos no son la misma persona, y ni siquiera dos del
+        // mismo archivo lo son. Sin esta linea, el .md invita justo al error que
+        // la numeracion viene a evitar.
+        const numeradas = Object.keys(conteo || {}).filter((k) => /_\d+\]$/.test(k)).length;
+        if (numeradas > 0) {
+            constancia.push(
+                `- **Las etiquetas numeradas identifican a una persona cada una** y son ` +
+                `estables entre los archivos que se procesaron juntos. **Las que no llevan ` +
+                `número —\`[PERSONA]\` a secas— no**: son nombres que las reglas taparon ` +
+                `solas, sin que nadie dijera de quién eran, así que dos de ellas pueden ser ` +
+                `dos personas distintas. No se comparan entre archivos.`
+            );
+        }
+
         if (pendientes.length > 0) {
             constancia.push(
                 (pendientes.length === 1

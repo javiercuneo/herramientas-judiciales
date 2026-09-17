@@ -926,20 +926,22 @@ export function candidatosANombre(texto) {
  * juntas a proposito: si las dos listas se separan, el detector deja de
  * reconocer la etiqueta que el usuario eligio y la fuga vuelve en silencio.
  */
-export const ETIQUETAS_DE_NOMBRE = [
-    '[PERSONA]', '[ACTOR]', '[DEMANDADO]', '[LETRADO]', '[PERITO]', '[TESTIGO]', '[EMPRESA]',
+const NOMBRES_DE_ETIQUETA = [
+    'PERSONA', 'ACTOR', 'DEMANDADO', 'LETRADO', 'PERITO', 'TESTIGO', 'EMPRESA',
 ];
+export const ETIQUETAS_DE_NOMBRE = NOMBRES_DE_ETIQUETA.map((n) => `[${n}]`);
 
 // Solo las de persona, y es la guarda que sostiene toda la regla. "[DOMICILIO],
 // Lomas de Zamora" y "en [EXPTE] Juzgado Civil" tambien tienen una palabra
 // capitalizada al lado, y ahi no quedo ningun nombre partido: quedo el texto que
 // rodea a un dato.
-const ETIQUETA_DE_NOMBRE = `(?:${ETIQUETAS_DE_NOMBRE.map(escapar).join('|')})`;
+//
+// EL `_N` ES LA FORMA NUMERADA (E-03) y tiene que estar aca: si el detector
+// reconociera "[PERSONA]" y no "[PERSONA_2]", prender la numeracion apagaria en
+// silencio la deteccion de restos, que es la fuga grave. Es la misma razon por
+// la que la lista vive en el motor y no en la pantalla.
+const ETIQUETA_DE_NOMBRE = `\\[(?:${NOMBRES_DE_ETIQUETA.join('|')})(?:_\\d+)?\\]`;
 
-// La palabra que puede haber quedado. Acepta el digito que mete el OCR —"0campo",
-// "RAM1REZ"—, y puede hacerlo con mas soltura que la regla de tratamiento
-// porque ACA NO SE REEMPLAZA NADA: lo peor que cuesta un falso positivo es una
-// casilla de mas en la lista, y lo que evita es un apellido que se publica.
 const PALABRA_SUELTA = `[${MAY}\\d][${LETRA}\\d]*[${LETRA}]`;
 
 // Con un digito adentro hacen falta tres letras, y eso es lo que separa un
@@ -1007,6 +1009,77 @@ export function restosPegadosAEtiqueta(textoAnonimo) {
     return [...encontrados.entries()]
         .map(([texto, apariciones]) => ({ texto, apariciones }))
         .sort((a, b) => b.apariciones - a.apariciones || a.texto.localeCompare(b.texto));
+}
+
+// ---------------------------------------------------------------------------
+// E-03: etiquetas numeradas y estables dentro de una tanda.
+//
+// EL PROBLEMA. Todas las personas de un archivo caen en "[PERSONA]" —en un
+// testimonio, cincuenta y una veces—, asi que no se distinguen entre si; y dos
+// archivos anonimizados por separado no se pueden cruzar, porque la heredera es
+// "[PERSONA]" en los dos y nada dice que sea la misma. Es lo que pedia
+// `confronteitor` para cotejar un testimonio contra la resolucion que lo
+// transcribe.
+//
+// POR QUE POR TANDA Y NO POR CAUSA, decidido por Javier el 17/9/2026. La
+// numeracion estable sin limite —la que sirve meses despues— pide guardar la
+// correspondencia nombre → numero en algun lado, Y ESA TABLA ES LA LLAVE PARA
+// DESHACER LA ANONIMIZACION. Escribiente promete que nada sale del navegador y
+// que nada queda guardado, y esa promesa vale mas que la comodidad. Aca la
+// correspondencia vive en memoria mientras la pestania siga abierta: alcanza
+// para los archivos que se pasan juntos, que es el caso de uso, y se muere al
+// recargar sin dejar nada.
+//
+// Se descarto derivar el numero del nombre (un hash), que seria estable para
+// siempre sin guardar nada: quien sospecha un apellido lo confirma probandolo.
+//
+// LA CLAVE ES CASE-INSENSITIVE Y SENSIBLE A LAS TILDES, igual que el reemplazo
+// de `anonimizar`: ese corre con la bandera `i` y con el texto literal, asi que
+// "PEREZ" y "Perez" son el mismo nombre y "Perez" y "Pérez" no. Si el numerador
+// normalizara distinto, dos nombres que el motor reemplaza igual tendrian
+// numeros distintos, o al reves.
+// ---------------------------------------------------------------------------
+
+/** La forma de una etiqueta numerada. Un solo lugar la escribe. */
+export function etiquetaNumerada(base, numero) {
+    return `[${base}_${numero}]`;
+}
+
+/** Abre una tanda de numeracion. Devuelve el numerador, que no guarda nada
+ *  fuera de si mismo: se lo tira y la correspondencia desaparece.
+ *
+ * - `etiqueta(base, nombre)` numera y recuerda. `base` es el nombre pelado de
+ *   la etiqueta ("PERSONA"), no "[PERSONA]".
+ * - `asignada(base, nombre)` contesta sin numerar, para mostrar en pantalla lo
+ *   que ya tiene numero sin gastar uno nuevo.
+ *
+ * EL NUMERO ES POR ETIQUETA. "[PERSONA_1]" y "[TESTIGO_1]" son dos personas
+ * distintas, y esta bien: lo que tiene que ser estable es el par entero, que es
+ * lo que aparece en el texto. Cambiar la etiqueta de alguien le da un numero
+ * nuevo en la etiqueta nueva y le conserva el viejo en la vieja, asi que volver
+ * atras devuelve el mismo.
+ */
+export function crearNumerador() {
+    const asignadas = new Map();
+    const clave = (base, nombre) =>
+        `${base}|${String(nombre).trim().toLowerCase().replace(/\s+/g, ' ')}`;
+
+    return {
+        etiqueta(base, nombre) {
+            const k = clave(base, nombre);
+            if (!asignadas.has(k)) {
+                let usados = 0;
+                for (const otra of asignadas.keys()) if (otra.startsWith(`${base}|`)) usados++;
+                asignadas.set(k, usados + 1);
+            }
+            return etiquetaNumerada(base, asignadas.get(k));
+        },
+        asignada(base, nombre) {
+            const n = asignadas.get(clave(base, nombre));
+            return n === undefined ? null : etiquetaNumerada(base, n);
+        },
+        cuantas() { return asignadas.size; },
+    };
 }
 
 /** Extrae las partes de la caratula. Devuelve `[]`, o `[actor, demandado]`.

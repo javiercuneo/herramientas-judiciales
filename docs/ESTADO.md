@@ -50,27 +50,27 @@ sólo se enlaza lo que NO está en el tablero. Detalle en
 
 ## Bugs abiertos
 
-**Queda uno, y es el único de los cuatro de escribiente que no era un bug.** Los
-otros tres se cerraron el 17/9 con el paso 2 del plan del motor único; están en
-[`HISTORIA.md`](HISTORIA.md) con su caso de prueba, junto con **E-06**, una fuga
-que apareció al verificarlos —la constancia nombraba al pie a quien el cuerpo sí
-había tapado— y se cerró en el mismo commit.
+**Ninguno.** Los cuatro de escribiente se cerraron el 17/9 con el paso 2 del plan
+del motor único, junto con **E-06**, una fuga que apareció al verificarlos —la
+constancia nombraba al pie a quien el cuerpo sí había tapado—. Están en
+[`HISTORIA.md`](HISTORIA.md) con su caso de prueba.
 
-### E-03 · Etiquetas estables entre documentos (pedido de `confronteitor`)
+**Lo que queda abierto no es un bug sino el borde de una regla, y conviene
+saberlo antes de confiar en ella:**
 
-Hoy todas las personas de un archivo caen en `[PERSONA]` -en uno de los nueve,
-cincuenta y una veces- y cada archivo se anonimiza por separado. Para cotejar un
-testimonio contra la resolución que transcribe hacen falta **etiquetas numeradas
-y estables entre documentos**: si una heredera es `[PERSONA_2]` en uno, tiene que
-serlo en el otro. Sin eso, dos archivos anonimizados no se pueden cruzar.
-**Es un pedido, no un bug**, y decide Javier si vale la pena.
-
-**Lo que queda abierto de los que se cerraron**, que no es un bug sino el borde
-de la regla: un nombre que el OCR ensució **sin tratamiento delante**
-(`Qu1nteros, Anibal Ramon inicio la demanda`) no lo agarra ningún patrón, y
-tampoco lo agarra cuando el dígito reemplaza la **primera** letra (`0campo`).
-En los dos casos lo que queda pegado a la etiqueta se ofrece para tildar y la
-constancia lo nombra, así que la fuga se ve; pero el reemplazo no sale solo.
+- **Un nombre que el OCR ensució sin tratamiento delante no lo agarra nada**
+  (`Qu1nteros, Anibal Ramon inicio la demanda`), y tampoco cuando el dígito
+  reemplaza la **primera** letra (`0campo`). En los dos casos lo que queda pegado
+  a la etiqueta se ofrece para tildar y la constancia lo nombra, así que la fuga
+  se ve; pero el reemplazo no sale solo.
+- **La numeración de etiquetas (E-03) es por tanda, no por causa**: vale mientras
+  la pestaña siga abierta. Se decidió así para no guardar en ningún lado la tabla
+  de nombre a número, que es la llave para deshacer la anonimización. Si hace
+  falta cruzar dos archivos, se pasan juntos.
+- **Numerado, no todo lo tapado lleva número.** Las reglas deterministas —la
+  firma, el tratamiento, los campos de formulario— tapan nombres sin que nadie
+  diga de quién son, así que salen como `[PERSONA]` pelado y **no se comparan
+  entre archivos**. La constancia lo dice en el `.md`.
 
 ## Por dónde seguir
 
