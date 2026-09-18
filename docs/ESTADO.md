@@ -68,7 +68,7 @@ y no tapa lo que las reglas ocultan solas.
 
 **Lo que queda abierto:**
 
-- **UN SOLO MOTOR DE ANONIMIZACIÓN. Acá se arranca, y va por el paso 4.**
+- **UN SOLO MOTOR DE ANONIMIZACIÓN. El paso 4 arrancó el 17/9, y es de `redactor`.**
   Las mismas reglas están escritas dos veces —en `escribiente/js/motor/anonimizar.js`
   y en el anonimizador del pipeline— y un arreglo de nombres hay que llevarlo a
   los dos lados. Decidido el 16/9: **queda el JS**. El plan entero —los cinco
@@ -80,9 +80,13 @@ y no tapa lo que las reglas ocultan solas.
   **Los pasos 1, 2 y 3 están hechos** (16 y 17/9). Lo que hace falta saber para
   seguir:
 
-  - **El paso 4 es de `redactor`, no de acá**: pasa a llamar al conector detrás de
-    una bandera, con el motor Python todavía disponible para comparar. De este
-    lado no queda nada que hacer hasta que eso arranque.
+  - **El paso 4 vive en `redactor` y ya llama al conector**, detrás de
+    `REDACTOR_ANONIMIZADOR=js` y con el motor Python de default. Lo construido y
+    lo que se vio al compararlos está en el `ESTADO.md` de aquel repo; **falta
+    correrlo contra material de verdad**, y hasta entonces el paso 5 —qué se hace
+    con `sanitizar.py`— no se toca. **De este lado no hay nada que hacer**: si
+    aparece una fuga, se arregla en el motor JS y se cierra con su regresión en
+    `npm run verificar-escribiente`, como los seis de septiembre.
   - **El conector vive acá**, en `conectores/anonimizar.mjs`, colgado de los dos
     transportes que ya existían: un solo proceso expone plazos y anonimización.
     Cinco herramientas —`anonimizar_texto`, `candidatos_a_nombre`,

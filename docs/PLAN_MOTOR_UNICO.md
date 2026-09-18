@@ -131,7 +131,13 @@ Cada paso deja el árbol funcionando y ninguno borra nada del anonimizador viejo
    `npm run verificar-conectores`, vistas fallar. Queda anotarlo en
    `HERMANOS.md`.
 4. **`redactor` pasa a llamarlo**, detrás de una bandera, con el motor Python
-   todavía disponible para comparar.
+   todavía disponible para comparar. **Arrancado el 17/9**: `ui/anonimizador.py`
+   elige con `REDACTOR_ANONIMIZADOR` y expone la misma costura con los dos, así
+   que `ui/ingreso.py` no sabe cuál corrió; `python ui/anonimizador.py comparar`
+   los corre a los dos sobre el mismo material. **No está terminado hasta que
+   corra contra un caso de verdad.** El detalle, las tres diferencias que salieron
+   y lo que quedó abierto —la etiqueta libre de la pantalla, que el conector
+   rechaza— están en el `ESTADO.md` de aquel repo.
 5. **Recién entonces** se decide qué se hace con `sanitizar.py`.
 
 ## Paso 1, hecho el 16/9: en qué difieren los dos motores
