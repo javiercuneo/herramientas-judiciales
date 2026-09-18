@@ -32,6 +32,7 @@ const ARCHIVOS = [
     './',
     'index.html',
     'manifest.json',
+    'icono-192.png',
     'css/escribiente.css',
     'js/app.js',
     'js/motor/extraer.js',

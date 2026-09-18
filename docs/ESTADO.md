@@ -249,11 +249,13 @@ Ninguno urgente y ninguno bloqueante.
   como que le critico a la Corte lo que tardó»—. **La fecha del acto se quedó**:
   es un dato y no una demora, y dice si un valor ya existía el día de la
   regulación. El crudo sigue en `data/serie-uma.json`, con `sin_demora` y todo.
-- **La imagen de enlace de la UMA no está en Archivo.** `npm run og-uma` escribe
-  el PNG a mano y dibuja las letras con trazos; rendir Archivo pediría un motor
-  de fuentes en Node. **Se regenera cuando se carga un valor nuevo**, y lleva la
-  vigencia al lado del número para que una imagen vieja compartida en un chat
-  siga diciendo algo cierto.
+- **Las imágenes del sitio se dibujan a mano y no están en Archivo.**
+  `npm run og-uma` —la de la UMA, que se regenera con cada valor nuevo y lleva
+  la vigencia al lado del número— y `npm run imagenes` —el ícono JC y la
+  tarjeta de enlace de cada herramienta— comparten `scripts/png-trazos.mjs`.
+  **Una herramienta nueva necesita su línea en `PAGINAS` de
+  `armar-imagenes.mjs`, correrlo, y las etiquetas `og:` y del ícono en su
+  `<head>`.** Si faltan no falla nada: el enlace se comparte pelado.
 
 ---
 

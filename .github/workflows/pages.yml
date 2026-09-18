@@ -149,6 +149,10 @@ jobs:
           # direccion que no exista. Tiene que ir en la raiz del sitio y con
           # todas sus rutas absolutas: el porque esta adentro del archivo.
           cp 404.html site/
+          # El navegador pide /favicon.ico por su cuenta, en cada pagina y aunque
+          # la pagina no lo nombre: tiene que estar en la raiz. Lo arma
+          # npm run imagenes, con el resto de los iconos que van en assets/.
+          cp favicon.ico site/
           cp -r assets site/
           cp -r calculadoras site/
           cp -r data site/

@@ -19,6 +19,34 @@ de 2026.
 
 ---
 
+## Ícono, descripción y tarjeta de enlace en todas las páginas — 18/9
+
+Javier trajo una lista de internet de «lo que tiene que tener un sitio» y pidió
+contrastarla contra el publicado. Faltaban tres cosas: **ícono** en ninguna
+página —y `/favicon.ico` respondía con el 404 entero, en cada página, porque
+el navegador lo pide solo—, **descripción y tarjeta de enlace** en las once
+calculadoras, el asistente clásico y Escribiente, y `robots.txt` y
+`sitemap.xml`. Las dos primeras se hicieron; las dos últimas no, a propósito:
+el sitio no bloquea nada y todo está enlazado desde la portada.
+
+Lo que se decidió en el camino:
+
+- **El ícono son las iniciales con el tipografiado de trazos de og-uma**, en
+  blanco sobre el cobalto. Un tipografiado de pixeles es lo que mejor se lee a
+  16 px. Escribiente conserva el suyo —la hoja—, que es el que instala.
+- **El tipografiado se sacó a `scripts/png-trazos.mjs`** en vez de copiarse,
+  y se comprobó que `og-uma.png` salía idéntica byte por byte.
+- **`escribir()` deja en blanco una letra que no conoce, sin avisar.** Así
+  salió «MARKDO N» en la primera tarjeta. `armar-imagenes` ahora pregunta
+  antes con `sinGlifo()` y aborta; en la segunda corrida cazó la X de «Anexo».
+- **Las descripciones salen de lo que cada página dice de sí misma**, no de
+  una lectura del autor. Al hacerlo apareció que el tablero dice «Anexo III del
+  decreto 2536/15» y la calculadora del mediador, más precisa, «Anexo III del
+  Decreto 1467/2011, sustituido por el Anexo I del Decreto 2536/2015»: la
+  tarjeta y la descripción siguen a la calculadora. **El tablero no se tocó.**
+
+---
+
 ## Paso 3: el conector del anonimizador, y dónde decidimos que viva — 17/9
 
 `redactor` tiene hoy escrita en Python la costura con el anonimizador: cuatro
