@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-09-17 · rama `main`
+Última actualización: 2026-09-18 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -94,9 +94,8 @@ y no tapa lo que las reglas ocultan solas.
     propio en `npm run verificar-conectores`. **La regla que sostiene todo: la
     capa 2 no se aplica sola.** Un nombre propio se propone y lo confirma una
     persona; el conector nunca elige.
-  - **Falta decirlo en `HERMANOS.md`**, que vive en el repositorio del pipeline:
-    hay un conector más y lo consumen dos repositorios. No se tocó desde acá
-    porque es de allá.
+  - **`HERMANOS.md` ya lo dice** desde el 18/9: un conector, dos motores, y
+    `redactor` pidiendo el anonimizador directo, sin pasar por el pipeline.
   - **El banco de comparación está versionado** en `scripts/comparar-motores/`,
     declarado en `.datos-ejemplo`. Es la red: **antes y después de cada arreglo,
     correrlo y mirar qué se movió.** Cómo se corre, en el plan. Hoy da 30 de 40

@@ -128,8 +128,8 @@ Cada paso deja el árbol funcionando y ninguno borra nada del anonimizador viejo
    conectores: **cuando falta un dato no devuelve un resultado**, devuelve el
    motivo. **Hecho el 17/9**: `conectores/anonimizar.mjs`, colgado de los dos
    transportes que ya existían, con cinco herramientas y 81 comprobaciones en
-   `npm run verificar-conectores`, vistas fallar. Queda anotarlo en
-   `HERMANOS.md`.
+   `npm run verificar-conectores`, vistas fallar. Anotado en `HERMANOS.md` el
+   18/9.
 4. **`redactor` pasa a llamarlo**, detrás de una bandera, con el motor Python
    todavía disponible para comparar. **Arrancado el 17/9**: `ui/anonimizador.py`
    elige con `REDACTOR_ANONIMIZADOR` y expone la misma costura con los dos, así
@@ -264,5 +264,5 @@ repositorio privado no se escribe adentro de uno público.
   no tiene repositorio dueño; este conector sí, y si vive lejos del motor, el
   motor vuelve a tener dos casas —que es la falla que este plan existe para
   terminar—. Además se prueba contra el mismo banco en la misma corrida de CI, y
-  repite el patrón de plazos, ya visto funcionar y ya visto fallar. **Falta
-  anotarlo en `HERMANOS.md`**, que es de allá.
+  repite el patrón de plazos, ya visto funcionar y ya visto fallar. Anotado
+  en `HERMANOS.md` el 18/9.
