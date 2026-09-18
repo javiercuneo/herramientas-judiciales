@@ -270,6 +270,12 @@ esta lista se hizo leyendo las calculadoras una por una y se equivocó. Lo vivo:
   se consulta a nadie**, porque esa tabla es un archivo de este sitio.
 - **Ninguna calculadora promete nada**, así que no hay promesa incumplida. La
   única promesa de privacidad es la de Escribiente, sostenida con la CSP.
+- **El contador de visitas (GoatCounter) está en todas las páginas menos
+  Escribiente.** Sin cookies. Manda ruta, título, de dónde vino y **la
+  consulta, que la librería no deja apagar**; el `#` nunca. **Por eso un dato
+  del caso va siempre en el `#` y nunca en la consulta.** Lo que se abre
+  adentro del tablero se anota «(en el tablero)», porque plazos se abre sola.
+  Las visitas propias se excluyen abriendo el sitio con `#toggle-goatcounter`.
 - **`tasa` arma una URL con el caso y tampoco sale**: va en el **fragmento**, que
   no viaja en ningún request.
 - **`calculadoras/honorarios.html` le pide a una planilla de Google**, y es la

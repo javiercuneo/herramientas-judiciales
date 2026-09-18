@@ -19,6 +19,12 @@
     <link rel="icon" href="../favicon.ico" sizes="32x32">
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="../assets/icono-180.png">
+    <!-- Contador de visitas (GoatCounter), sin cookies. Manda la ruta, el titulo,
+         de donde vino y la consulta (?...), que la libreria no deja apagar. El #
+         no sale nunca, y es donde viaja un caso: por eso un dato del caso no se
+         pone en la consulta. Escribiente no lo lleva. Ver docs/ESTADO.md. -->
+    <script>window.goatcounter = { path: function () { return location.pathname + (window.top !== window ? " (en el tablero)" : ""); } };</script>
+    <script data-goatcounter="https://javiercuneo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
     <!-- Evitar caché del navegador -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">

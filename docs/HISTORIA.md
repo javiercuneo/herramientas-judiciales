@@ -19,6 +19,28 @@ de 2026.
 
 ---
 
+## Contador de visitas — 18/9
+
+Javier pidió un contador no visible, para ver qué herramientas se adoptan. Se
+eligió **GoatCounter**: sin cookies y sin datos de la persona, así que no pide
+banner ni política de privacidad. GitHub Pages no da estadísticas, y Cloudflare
+tiene el DNS pero no está en el medio del tráfico, así que no ve las visitas.
+
+- **Escribiente no lo lleva.** Su promesa es que la página no abre conexiones,
+  y la CSP la hace cumplir.
+- **La consulta sale igual.** Se había escrito que el contador mandaba sólo la
+  ruta; leyendo `get_data()` de `count.js` apareció que manda
+  `location.search` siempre y no se puede apagar. Ninguna página pone datos en
+  la consulta —el caso va en el `#`, que no sale—, así que se corrigió el
+  comentario y quedó la regla escrita en `ESTADO.md`.
+- **Plazos se abre sola adentro del tablero**, así que cada visita al tablero
+  sumaba una a vencimientos. Lo que corre adentro de un iframe se anota con
+  «(en el tablero)».
+- La guía de uso lo dice: se registra qué página se abrió, sin nada de lo
+  escrito.
+
+---
+
 ## Ícono, descripción y tarjeta de enlace en todas las páginas — 18/9
 
 Javier trajo una lista de internet de «lo que tiene que tener un sitio» y pidió

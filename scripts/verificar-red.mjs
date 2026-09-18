@@ -61,6 +61,10 @@ const PERMITIDOS = new Map([
     ['www.argentina.gob.ar', 'distancia.html: el texto y el anexo de la Acordada 5/2010, enlazados'],
     ['www.csjn.gov.ar', 'enlaces a las acordadas y resoluciones de la CSJN'],
     ['honorio.ar', 'enlace a Honorio, que es del mismo autor'],
+    // El contador de visitas, sin cookies. Manda la ruta, el titulo, de donde
+    // vino y la consulta; nunca el # ni lo escrito. Escribiente no lo lleva.
+    ['gc.zgo.at', 'el script del contador de visitas (GoatCounter)'],
+    ['javiercuneo.goatcounter.com', 'adonde el contador manda la ruta de la pagina abierta'],
     ['javiercuneo.com.ar', 'el propio sitio: og:image y la direccion de correo'],
 
     // La API de feriados NO se consulta desde el navegador: la consulta
