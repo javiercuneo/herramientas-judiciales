@@ -299,7 +299,7 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-acordada` | Que la tabla de la Acordada 5/2010 diga lo que dice el anexo: 90 |
 | `npm run verificar-distancia` | El cómputo del art. 158 y la búsqueda en esa tabla: 64 |
 | `npm run verificar-red` | Qué terceros nombran las quince páginas que se publican, contra una lista con el motivo al lado de cada uno |
-| `npm run verificar-escribiente` | El motor de Escribiente, con la pestaña «Certificar»: 359 |
+| `npm run verificar-escribiente` | El motor de Escribiente, con la pestaña «Certificar»: 371 |
 | `npm run verificar-honorio` | Las cinco cifras que este repositorio sigue del motor |
 | `npm run verificar-docs` | Que los documentos de dominio no citen artículos ni archivos que no existen |
 | `npm run verificar-estado` | El presupuesto y la higiene de este archivo |
@@ -538,7 +538,7 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
 **Lo que hay que saber para tocarla:**
 
 - **El motor está en `escribiente/js/motor/`, es código puro y no toca el DOM.**
-  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 359
+  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 371
   comprobaciones, en CI. Los seis bugs de la versión anterior y las fugas del
   21/8, el 15/9 y el 17/9 están ahí como regresión. `js/app.js` es sólo la
   pantalla, y desde el 17/9 `conectores/anonimizar.mjs` expone el motor afuera.
@@ -554,7 +554,8 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
   [Una promesa de privacidad](#una-promesa-de-privacidad-se-demuestra-no-se-declara).
   Si alguien «arregla» la inconsistencia, rompe la promesa.
 - **La pestaña «Certificar» (19/9) arma la certificación de una resolución
-  firmada: texto con el enlace público del PJN y un QR al mismo enlace.**
+  firmada: texto con el enlace público del PJN y un QR al mismo enlace**, y
+  admite varios documentos juntos, con un QR cada uno.
   **Va sin hash, por decisión de Javier**: la página no puede bajar el PDF del
   enlace —el PJN no manda CORS, comprobado el 19/9, y la CSP prohíbe conectarse—,
   así que nada asegura que el PDF soltado sea el del enlace, y quien firma no

@@ -253,18 +253,31 @@ const hueco = (valor, nombre) => {
 };
 
 /**
- * Arma la certificacion. Recibe:
+ * Arma la certificacion. Recibe los datos comunes:
+ *   numero, caratula, juzgado, domicilio, lugar
+ *   expedicion  "AAAA-MM-DD"
+ * y `documentos`, uno o mas, cada uno con:
  *   enlace      el resultado de analizarEnlace (si no es ok, van huecos)
- *   tipo        "sentencia", "declaratoria de herederos"...
+ *   tipo        "sentencia", "declaratoria de herederos", "auto que la modifica"...
  *   fecha       de la resolucion, "AAAA-MM-DD"
  *   paginas     las del PDF, que cuenta la pantalla
  *   fojas       donde se agrego en el expediente electronico: "12/15"
- *   numero, caratula, juzgado, domicilio, lugar
- *   expedicion  "AAAA-MM-DD"
+ * Si no viene `documentos`, los cinco campos se leen del objeto mismo: es la
+ * forma de un solo documento.
  *
- * Devuelve `{ antes, despues, faltan }`: el texto va partido en dos porque el
- * QR va en el medio, y la pantalla decide como juntarlos (texto plano, o HTML
- * con la imagen). `faltan` son los nombres de los huecos.
+ * Devuelve `{ bloques, faltan, antes, despues }`. `bloques` es el texto en
+ * orden, `{ texto, ver, documento }`: `documento` es el numero del documento
+ * (desde 1) si el bloque es uno, y 0 si es el encabezado o el cierre. Despues
+ * de cada bloque de documento va su QR, del enlace `ver` (null si todavia no
+ * hay un enlace valido). La pantalla decide como juntarlos (texto plano, o HTML con
+ * las imagenes). `faltan` son los nombres de los huecos. `antes` y `despues`
+ * son el primer y el ultimo bloque.
+ *
+ * DOS O MAS DOCUMENTOS (19/9, decision de Javier): un solo esquema generico y
+ * el empleado retoca el texto en el editor. La relacion entre ellos va en el
+ * tipo --"auto que la modifica", "de Camara"--, sin clausula que los declare
+ * un conjunto. Un QR por documento: un QR lleva un enlace, y el telefono abre
+ * uno.
  */
 export function armarCertificacion(d) {
     const faltan = [];
@@ -274,39 +287,86 @@ export function armarCertificacion(d) {
         return h.texto;
     };
 
-    const enlace = d.enlace && d.enlace.ok ? d.enlace : null;
-    const tipo = c(conArticulo(d.tipo), 'tipo de resolución');
-    const fecha = c(fechaCorta(d.fecha), 'fecha de la resolución');
-    const paginas = Number(d.paginas) > 0 ? String(d.paginas) : '';
-    const pags = c(paginas, 'páginas');
-    const fojas = c(d.fojas, 'fojas');
+    const docs = Array.isArray(d.documentos) && d.documentos.length ? d.documentos : [d];
+    const varios = docs.length > 1;
+
     const caratula = c(d.caratula, 'carátula');
     const numero = c(d.numero, 'n.° de expediente');
     const juzgado = c(d.juzgado, 'juzgado');
     const domicilio = c(d.domicilio, 'domicilio del juzgado');
-    const ver = c(enlace && enlace.ver, 'enlace para ver');
-    const descargar = c(enlace && enlace.descargar, 'enlace para descargar');
     const expedicion = c(fechaEnLetras(d.expedicion), 'fecha de expedición');
     const lugar = String(d.lugar || '').trim() || 'Buenos Aires';
 
-    const unaPagina = paginas === '1';
+    // Los huecos de cada documento llevan su numero cuando hay mas de uno: "las
+    // fojas" no dice cual falta.
+    const leer = (doc, n) => {
+        const de = varios ? ` del documento ${n}` : '';
+        const enlace = doc.enlace && doc.enlace.ok ? doc.enlace : null;
+        const paginas = Number(doc.paginas) > 0 ? String(doc.paginas) : '';
+        return {
+            enlace,
+            tipo: c(conArticulo(doc.tipo), `tipo de resolución${de}`),
+            fecha: c(fechaCorta(doc.fecha), `fecha de la resolución${de}`),
+            paginas,
+            pags: c(paginas, `páginas${de}`),
+            fojas: c(doc.fojas, `fojas${de}`),
+            ver: c(enlace && enlace.ver, `enlace para ver${de}`),
+            descargar: c(enlace && enlace.descargar, `enlace para descargar${de}`),
+        };
+    };
+    const leidos = docs.map((doc, i) => leer(doc, i + 1));
+    const enlaces = (x) => `Ver: ${x.ver}
+Descargar: ${x.descargar}`;
+    const pags = (x) => `${x.pags} ${x.paginas === '1' ? 'página' : 'páginas'}`;
 
-    // El sujeto de toda la oracion es "el documento electronico", y por eso
-    // todo concuerda en masculino singular sin importar el tipo: "firmado",
-    // "agregado". Asi no hace falta saber el genero de la resolucion. Lo que
-    // cuelga del tipo va con palabras que no tienen genero ("correspondiente"):
-    // "dictada" o "recaida" fallan con "el auto".
-    const antes =
-        `CERTIFICO: que el documento electrónico al que remiten el enlace y el ` +
-        `código QR que se insertan a continuación, firmado electrónicamente y de ` +
-        `${pags} ${unaPagina ? 'página' : 'páginas'}, contiene ${tipo} de fecha ${fecha} ` +
-        `correspondiente a los autos caratulados “${caratula}”, expte. n.° ${numero}, ` +
-        `en trámite ante este ${juzgado}, sito en ${domicilio}, de esta Ciudad, y se ` +
-        `encuentra agregado a fs. ${fojas} del expediente electrónico.\n\n` +
-        `Ver: ${ver}\n` +
-        `Descargar: ${descargar}`;
+    const bloques = [];
+    if (!varios) {
+        const x = leidos[0];
+        // El sujeto de toda la oracion es "el documento electronico", y por eso
+        // todo concuerda en masculino singular sin importar el tipo: "firmado",
+        // "agregado". Asi no hace falta saber el genero de la resolucion. Lo que
+        // cuelga del tipo va con palabras que no tienen genero ("correspondiente"):
+        // "dictada" o "recaida" fallan con "el auto".
+        bloques.push({
+            texto:
+                `CERTIFICO: que el documento electrónico al que remiten el enlace y el ` +
+                `código QR que se insertan a continuación, firmado electrónicamente y de ` +
+                `${pags(x)}, contiene ${x.tipo} de fecha ${x.fecha} ` +
+                `correspondiente a los autos caratulados “${caratula}”, expte. n.° ${numero}, ` +
+                `en trámite ante este ${juzgado}, sito en ${domicilio}, de esta Ciudad, y se ` +
+                `encuentra agregado a fs. ${x.fojas} del expediente electrónico.
 
-    const despues = `Se expide la presente en ${lugar}, ${expedicion}.`;
+` +
+                enlaces(x),
+            ver: x.enlace ? x.enlace.ver : null,
+            documento: 1,
+        });
+    } else {
+        // Con varios, cada documento va en una linea numerada y paginas y fojas
+        // entre parentesis: asi tampoco hace falta "agregada" ni "agregado".
+        bloques.push({
+            texto:
+                `CERTIFICO: que los documentos electrónicos a los que remiten los enlaces ` +
+                `y los códigos QR que se insertan a continuación, firmados electrónicamente, ` +
+                `corresponden a los autos caratulados “${caratula}”, expte. n.° ${numero}, ` +
+                `en trámite ante este ${juzgado}, sito en ${domicilio}, de esta Ciudad, ` +
+                `y son los siguientes:`,
+            ver: null,
+            documento: 0,
+        });
+        leidos.forEach((x, i) => {
+            const fin = i === leidos.length - 1 ? '.' : ';';
+            bloques.push({
+                texto:
+                    `${i + 1}) ${x.tipo}, de fecha ${x.fecha} (${pags(x)}; ` +
+                    `fs. ${x.fojas} del expediente electrónico)${fin}
+` + enlaces(x),
+                ver: x.enlace ? x.enlace.ver : null,
+                documento: i + 1,
+            });
+        });
+    }
+    bloques.push({ texto: `Se expide la presente en ${lugar}, ${expedicion}.`, ver: null, documento: 0 });
 
-    return { antes, despues, faltan };
+    return { bloques, faltan, antes: bloques[0].texto, despues: bloques[bloques.length - 1].texto };
 }

@@ -70,6 +70,15 @@ enlace, y la huella SHA-256 del archivo como dato de control.
   por partes, y nunca contiene un enlace real. Javier: *«la idea es que no se
   fuguen datos personales por accidente hacia GitHub; si lo que me proponés
   no impide eso no hay drama»*.
+- **Varios documentos juntos, el mismo día.** La pregunta de Javier: la
+  declaratoria y el auto que la rectifica, o la sentencia y la de Cámara, que
+  son un conjunto. Se propusieron frases de relación a elegir y una cláusula
+  de cierre, y Javier lo bajó: *«mientras más sencillo el esquema, más fácil…
+  el empleado luego edita el texto»*. Quedó un encabezado común, una línea
+  numerada por documento con sus enlaces y su QR —uno por documento, porque el
+  teléfono abre un enlace—, y la relación escrita en el tipo: «el auto que la
+  modifica», «la de Cámara». Páginas y fojas van entre paréntesis, que es lo
+  que evita concordar con el tipo. Con varios, cada QR baja a 4 cm.
 
 ---
 

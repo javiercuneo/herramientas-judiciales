@@ -1400,6 +1400,31 @@ console.log('\nCERTIFICAR\n');
     contiene(vacio.despues, '[fecha de expedición]', 'la fecha de expedicion tambien');
     ok(vacio.faltan.includes('enlace para ver'), 'y se lista como faltante');
 
+    // Dos o mas documentos: encabezado comun, una linea numerada por documento
+    // con su QR, y el cierre.
+    const bajar2 = bajar.replace('ZZprueba', 'YYotra');
+    const dos = armarCertificacion({
+        documentos: [
+            { enlace: analizarEnlace(ver), tipo: 'declaratoria de herederos', fecha: '2026-09-03', paginas: 4, fojas: '120/123' },
+            { enlace: analizarEnlace(bajar2), tipo: 'auto que la modifica', fecha: '2026-09-10', paginas: 1, fojas: '130' },
+        ],
+        numero: '12345/2026', caratula: 'Gomez sobre sucesión', juzgado: 'Juzgado de prueba n.° 0',
+        domicilio: 'Calle Inventada 123', expedicion: '2026-09-19',
+    });
+    ok(dos.bloques.length === 4, 'dos documentos son cuatro bloques', String(dos.bloques.length));
+    ok(dos.faltan.length === 0, 'completo no tiene huecos', dos.faltan.join(', '));
+    contiene(dos.bloques[0].texto, 'los documentos electrónicos a los que remiten los enlaces', 'el encabezado va en plural');
+    ok(dos.bloques[0].ver === null && dos.bloques[3].ver === null, 'ni el encabezado ni el cierre llevan QR');
+    ok(dos.bloques.map((b) => b.documento).join() === '0,1,2,0', 'cada bloque dice de que documento es, y 0 el encabezado y el cierre');
+    ok(lleno.bloques.map((b) => b.documento).join() === '1,0', 'con uno solo, el primer bloque es el documento 1');
+    ok(dos.bloques[1].ver === ver, 'el primero lleva el QR de su enlace');
+    ok(dos.bloques[2].ver === bajar2.replace('&download=true', ''), 'el segundo, el suyo: el de ver aunque se haya pegado el de descarga');
+    contiene(dos.bloques[1].texto, '1) la declaratoria de herederos, de fecha 3 de septiembre de 2026 (4 páginas; fs. 120/123 del expediente electrónico);', 'primera linea');
+    contiene(dos.bloques[2].texto, '2) el auto que la modifica, de fecha 10 de septiembre de 2026 (1 página; fs. 130 del expediente electrónico).', 'segunda linea, singular y con punto final');
+    contiene(armarCertificacion({ documentos: [{}, { tipo: 'de Cámara' }] }).bloques[2].texto, '2) la de Cámara,', '"de Cámara" va con la');
+    const huecos2 = armarCertificacion({ documentos: [{}, {}] }).faltan;
+    ok(huecos2.includes('fojas del documento 2') && huecos2.includes('enlace para ver del documento 1'), 'con varios, el hueco dice de cual documento', huecos2.join(', '));
+
     // El QR: la libreria se carga como en el navegador, como script suelto.
     const ctx = { module: { exports: {} } };
     ctx.exports = ctx.module.exports;

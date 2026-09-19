@@ -299,27 +299,68 @@
       después.
     </p>
 
-    <div class="campo">
-      <label for="cert-enlace">1. Enlace de la resolución</label>
-      <textarea id="cert-enlace" class="cert-enlace" rows="2" spellcheck="false"
-                autocomplete="off" placeholder="Pegá el enlace para ver o el de descarga: con cualquiera de los dos se arman ambos."></textarea>
-      <div id="cert-enlace-estado" class="aviso-caja oculto" role="status" aria-live="polite"></div>
-      <p class="acciones-lista">
-        <a id="cert-bajar" class="boton-enlace oculto" target="_blank" rel="noopener noreferrer">Descargar el PDF desde este enlace</a>
-      </p>
-    </div>
+    <!-- Los documentos. Uno por defecto; "Agregar otro documento" suma un
+         bloque igual, para la resolucion y la que la modifica, o la sentencia
+         y la de Camara. Cada bloque es una copia de #cert-doc-molde: los campos
+         se buscan por data-campo y no por id, porque se repiten. -->
+    <div id="cert-documentos"></div>
+    <p class="acciones-lista">
+      <button type="button" class="chico" id="cert-agregar">Agregar otro documento</button>
+    </p>
+
+    <template id="cert-doc-molde">
+      <fieldset class="cert-doc">
+        <legend><span data-campo="titulo">Documento</span>
+          <button type="button" class="chico cert-quitar" data-campo="quitar">Quitar</button></legend>
+        <div class="campo">
+          <label>Enlace de la resolución
+            <textarea data-campo="enlace" class="cert-enlace" rows="2" spellcheck="false" autocomplete="off"
+                      placeholder="Pegá el enlace para ver o el de descarga: con cualquiera de los dos se arman ambos."></textarea>
+          </label>
+          <div data-campo="enlace-estado" class="aviso-caja oculto" role="status" aria-live="polite"></div>
+          <p class="acciones-lista">
+            <a data-campo="bajar" class="boton-enlace oculto" target="_blank" rel="noopener noreferrer">Descargar el PDF desde este enlace</a>
+          </p>
+        </div>
+        <div class="campo">
+          <label>El PDF que acabás de descargar <span class="nota">(opcional: cuenta las páginas)</span>
+            <input type="file" data-campo="pdf" accept="application/pdf,.pdf">
+          </label>
+          <p class="ayuda" data-campo="pdf-estado">
+            Soltá el archivo que bajaste con el botón de arriba, no una copia
+            guardada de antes: es de ése que se cuentan las páginas.
+          </p>
+        </div>
+        <div class="cert-grilla">
+          <div class="campo campo-ancho">
+            <label>Tipo de resolución
+              <input type="text" data-campo="tipo" list="cert-tipos" autocomplete="off" placeholder="sentencia">
+            </label>
+          </div>
+          <div class="campo">
+            <label>Fecha de la resolución <input type="date" data-campo="fecha"></label>
+          </div>
+          <div class="campo">
+            <label>Páginas del PDF <input type="number" data-campo="paginas" min="1" step="1" inputmode="numeric"></label>
+          </div>
+          <div class="campo">
+            <label>Fojas en el expediente <input type="text" data-campo="fojas" autocomplete="off" placeholder="120/124"></label>
+          </div>
+        </div>
+      </fieldset>
+    </template>
+    <datalist id="cert-tipos">
+      <option value="sentencia definitiva">
+      <option value="sentencia interlocutoria">
+      <option value="declaratoria de herederos">
+      <option value="resolución">
+      <option value="auto">
+      <option value="auto que la modifica">
+      <option value="de Cámara">
+    </datalist>
 
     <div class="campo">
-      <label for="cert-pdf">2. El PDF que acabás de descargar <span class="nota">(opcional: cuenta las páginas)</span></label>
-      <input type="file" id="cert-pdf" accept="application/pdf,.pdf">
-      <p class="ayuda" id="cert-pdf-estado">
-        Soltá el archivo que bajaste con el botón de arriba, no una copia
-        guardada de antes: es de ése que se cuentan las páginas.
-      </p>
-    </div>
-
-    <div class="campo">
-      <label for="cert-autos">3. Los autos <span class="nota">(pegá el número y la carátula juntos, como vienen)</span></label>
+      <label for="cert-autos">Los autos <span class="nota">(pegá el número y la carátula juntos, como vienen)</span></label>
       <textarea id="cert-autos" rows="2" spellcheck="false" autocomplete="off"></textarea>
     </div>
 
@@ -331,29 +372,6 @@
       <div class="campo campo-ancho">
         <label for="cert-caratula">Carátula</label>
         <input type="text" id="cert-caratula" autocomplete="off">
-      </div>
-      <div class="campo">
-        <label for="cert-tipo">Tipo de resolución</label>
-        <input type="text" id="cert-tipo" list="cert-tipos" autocomplete="off" placeholder="sentencia">
-        <datalist id="cert-tipos">
-          <option value="sentencia definitiva">
-          <option value="sentencia interlocutoria">
-          <option value="declaratoria de herederos">
-          <option value="resolución">
-          <option value="auto">
-        </datalist>
-      </div>
-      <div class="campo">
-        <label for="cert-fecha">Fecha de la resolución</label>
-        <input type="date" id="cert-fecha">
-      </div>
-      <div class="campo">
-        <label for="cert-paginas">Páginas del PDF</label>
-        <input type="number" id="cert-paginas" min="1" step="1" inputmode="numeric">
-      </div>
-      <div class="campo">
-        <label for="cert-fojas">Fojas en el expediente</label>
-        <input type="text" id="cert-fojas" autocomplete="off" placeholder="120/124">
       </div>
       <div class="campo campo-ancho">
         <label for="cert-juzgado">Juzgado</label>
@@ -372,27 +390,22 @@
     <section class="bloque" aria-labelledby="cert-resultado-titulo">
       <h2 id="cert-resultado-titulo">Certificación</h2>
       <p class="ayuda oculto" id="cert-faltan"></p>
-      <div class="cert-hoja" id="cert-hoja">
-        <p id="cert-antes" class="cert-texto"></p>
-        <div class="cert-qr-marco">
-          <canvas id="cert-qr" class="cert-qr" aria-label="Código QR con el enlace para ver la resolución"></canvas>
-          <p class="cert-qr-vacio" id="cert-qr-vacio">El QR aparece cuando el enlace es válido.</p>
-        </div>
-        <p id="cert-despues" class="cert-texto"></p>
-      </div>
+      <!-- Se arma entero desde armarCertificacion: un parrafo por bloque, y
+           el QR de un documento despues de sus enlaces. -->
+      <div class="cert-hoja" id="cert-hoja"></div>
       <div class="acciones">
         <button type="button" class="principal" id="cert-copiar-todo">Copiar todo</button>
         <button type="button" class="secundario" id="cert-copiar-texto">Copiar texto</button>
-        <button type="button" class="secundario" id="cert-copiar-qr" disabled>Copiar QR</button>
-        <button type="button" class="secundario" id="cert-bajar-qr" disabled>Descargar QR</button>
       </div>
       <p class="ayuda" id="cert-copia-estado" role="status" aria-live="polite"></p>
       <p class="ayuda">
-        El QR lleva exactamente el mismo enlace que el texto dice «Ver:». Está
-        pensado para unos 5 cm de lado; si el editor lo inserta más grande,
-        achicalo hasta ese tamaño.
+        Cada QR lleva exactamente el mismo enlace que su «Ver:». Están pensados
+        para unos 5 cm de lado con un documento y 4 cm con más de uno; si el
+        editor los inserta más grandes, achicalos hasta ese tamaño. Debajo de
+        cada QR están los botones para copiarlo o descargarlo solo.
       </p>
     </section>
+  </section>
   </section>
 
   <footer class="pie-sitio">

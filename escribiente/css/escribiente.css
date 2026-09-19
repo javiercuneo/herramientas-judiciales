@@ -423,6 +423,24 @@ button.chico:hover { color: var(--accent); border-color: var(--accent); filter: 
 .cert-grilla .campo-ancho { grid-column: 1 / -1; }
 .cert-grilla .campo input { width: 100%; max-width: none; }
 
+.cert-doc {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px 0;
+  margin: 0 0 12px;
+}
+.cert-doc legend {
+  font-family: var(--font-meter);
+  font-weight: 600;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cert-doc .campo > label { display: block; font-family: var(--font-meter); font-weight: 600; font-size: .9rem; }
+.cert-doc .campo > label textarea,
+.cert-doc .campo > label input { display: block; margin-top: 6px; font-weight: 400; }
+
 a.boton-enlace {
   display: inline-block;
   padding: 8px 14px;
@@ -448,11 +466,17 @@ a.boton-enlace:hover { background: var(--sunk); }
 .cert-texto mark { background: #fde68a; color: #111111; padding: 0 2px; }
 
 .cert-qr-marco { margin: 16px 0; }
-/* 5 cm en pantalla: el canvas tiene mas de 1000 px, y se muestra al tamanio
+/* 5 cm en pantalla con un documento y 4 con varios (--lado-qr lo pone
+   js/certificar.js): el canvas tiene mas de 1000 px, y se muestra al tamanio
    con que va a ir al documento. */
-.cert-qr { display: block; width: 5cm; height: 5cm; image-rendering: pixelated; }
+.cert-qr { display: block; width: var(--lado-qr, 5cm); height: var(--lado-qr, 5cm); image-rendering: pixelated; }
+.cert-qr-acciones { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+/* Los botones viven adentro de la hoja, que es blanca en los dos temas: se
+   les fija el color para que no queden oscuros sobre blanco en modo oscuro. */
+.cert-hoja button.chico { background: #ffffff; color: #333333; border-color: #bbbbbb; font-family: system-ui, sans-serif; }
+.cert-hoja button.chico:hover { color: #1e45ce; border-color: #1e45ce; }
 .cert-qr-vacio {
-  width: 5cm; height: 5cm; margin: 0;
+  width: var(--lado-qr, 5cm); height: var(--lado-qr, 5cm); margin: 0;
   display: flex; align-items: center; justify-content: center; text-align: center;
   border: 1px dashed #999999; color: #555555;
   font-family: system-ui, sans-serif; font-size: .8rem; padding: 12px;

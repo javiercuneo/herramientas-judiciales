@@ -26,7 +26,7 @@
 //      instante, y la correccion entra en la visita siguiente.
 // ---------------------------------------------------------------------------
 
-const CACHE = 'escribiente-v2';
+const CACHE = 'escribiente-v3';
 
 const ARCHIVOS = [
     './',

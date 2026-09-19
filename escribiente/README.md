@@ -61,6 +61,12 @@ se pegan los autos y se completa el resto. Lo que queda vacío va entre
 corchetes, a la vista. **No genera ni modifica ningún PDF**, y el QR sale del
 mismo texto que la certificación dice «Ver:».
 
+**Con más de un documento** —la declaratoria y el auto que la modifica, la
+sentencia y la de Cámara— se agrega otro bloque: los autos y el juzgado se
+escriben una vez, cada documento va en una línea numerada con sus enlaces, y
+cada uno lleva su QR, de 4 cm en vez de 5. La relación entre ellos se escribe
+en el tipo («auto que la modifica»), y el resto se retoca en el editor.
+
 Las tres decisiones de fondo están en la cabecera de
 [`js/motor/certificar.js`](js/motor/certificar.js): **no lleva huella SHA-256**
 —la herramienta no puede bajar el PDF del enlace para comprobar que el que se
@@ -137,7 +143,7 @@ probar:
 npm run verificar-escribiente
 ```
 
-Son 359 comprobaciones sobre el motor, e incluyen como regresión los seis bugs
+Son 371 comprobaciones sobre el motor, e incluyen como regresión los seis bugs
 que tenía la versión anterior —o que aparecieron al probar esta contra PDF
 reales—. Corre en CI antes de publicar.
 
