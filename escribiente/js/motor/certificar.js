@@ -9,8 +9,9 @@
 //
 // TRES DECISIONES QUE NO HAY QUE DESHACER SIN LEER POR QUE:
 //
-//   1. NO HAY HASH. Se evaluo poner la huella SHA-256 del PDF en el QR o en
-//      el texto y se descarto el 19/9/2026. La herramienta no puede bajar el
+//   1. EL HASH NO VA EN LO QUE SE FIRMA. Se evaluo poner la huella SHA-256
+//      del PDF en el QR o en el texto y se descarto el 19/9/2026 (la pantalla
+//      si la muestra: ver "La huella del archivo", mas abajo). La herramienta no puede bajar el
 //      PDF del enlace --el servidor del PJN no manda CORS, y ademas la pagina
 //      tiene prohibida toda conexion--, asi que el archivo lo suelta un
 //      empleado y nada garantiza que sea el del enlace. Un hash equivocado,
@@ -142,6 +143,37 @@ export function matrizQR(qrcode, texto) {
  *  lado. Entero siempre: un modulo de 7,4 px se dibuja borroso y escanea peor. */
 export function pixelesPorModulo(modulos, minimo = 1000) {
     return Math.max(1, Math.ceil(minimo / (modulos + 2 * MARGEN_QR)));
+}
+
+// ---------------------------------------------------------------------------
+// La huella del archivo: se MUESTRA, no se certifica
+//
+// Decision de Javier del 19/9, despues de sacar el hash del texto: la pantalla
+// muestra la huella SHA-256 y el peso del PDF que se solto, y nada mas. No va
+// a la certificacion, no va al QR y no tiene boton de copiar: el que la quiera
+// la copia de la pantalla. Sirve para comparar dos archivos --dos pestanias de
+// Escribiente, o contra otra herramienta-- y no cambia lo que se firma.
+// ---------------------------------------------------------------------------
+
+/** SHA-256 de `datos` en hexadecimal minuscula. Recibe `subtle` (Web Crypto)
+ *  como parametro, igual que las librerias del resto del motor. */
+export async function huellaSHA256(subtle, datos) {
+    const resumen = new Uint8Array(await subtle.digest('SHA-256', datos));
+    return [...resumen].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** "a1b2c3d4e5..." -> ["a1b2c3d4", "e5..."]: de a ocho, para comparar a ojo. */
+export function gruposDeHuella(hex, largo = 8) {
+    const grupos = [];
+    for (let i = 0; i < hex.length; i += largo) grupos.push(hex.slice(i, i + largo));
+    return grupos;
+}
+
+/** 123456789 -> "123.456.789 bytes". El separador se escribe a mano y no con
+ *  toLocaleString: Node sin datos de idioma devuelve "1,234,567". */
+export function pesoEnBytes(n) {
+    const entero = String(Math.trunc(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return `${entero} ${Number(n) === 1 ? 'byte' : 'bytes'}`;
 }
 
 // ---------------------------------------------------------------------------

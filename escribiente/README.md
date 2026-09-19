@@ -74,6 +74,12 @@ suelta sea ése, y quien firma no puede leer un hash; el PDF ya trae su propia
 firma digital—, **el QR lleva el enlace y nada más**, y **el enlace no se
 reescribe**: se conserva tal cual se pegó.
 
+**La huella SHA-256 y el peso del PDF se muestran, y nada más.** Aparecen debajo
+del archivo que se soltó, en grupos de ocho para compararlos a ojo —por
+ejemplo, con otra pestaña de Escribiente— y se copian enteros al
+seleccionarlos. No van a la certificación ni al QR, y no tienen botón de
+copiar: son un dato técnico para quien lo quiera, no algo que se firma.
+
 ## Qué no hace
 
 **OCR.** Traer un motor de OCR al navegador son varios megabytes de modelo para
@@ -143,7 +149,7 @@ probar:
 npm run verificar-escribiente
 ```
 
-Son 371 comprobaciones sobre el motor, e incluyen como regresión los seis bugs
+Son 376 comprobaciones sobre el motor, e incluyen como regresión los seis bugs
 que tenía la versión anterior —o que aparecieron al probar esta contra PDF
 reales—. Corre en CI antes de publicar.
 

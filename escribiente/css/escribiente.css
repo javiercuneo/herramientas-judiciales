@@ -485,3 +485,10 @@ a.boton-enlace:hover { background: var(--sunk); }
 @media (max-width: 560px) {
   .cert-hoja { padding: 18px 16px; }
 }
+
+/* La huella: los grupos de ocho se separan con margen y no con espacios,
+   para que se lean de a pedazos y se copien enteros. */
+.cert-huella { margin: 0 0 12px; font-size: .85rem; }
+.cert-huella p { margin: 0 0 4px; }
+.cert-huella code { font-family: ui-monospace, Consolas, monospace; font-size: .82rem; overflow-wrap: anywhere; }
+.cert-huella code span { margin-right: .45em; }

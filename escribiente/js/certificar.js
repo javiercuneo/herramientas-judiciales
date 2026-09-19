@@ -19,6 +19,7 @@
 import {
     analizarEnlace, armarCertificacion, leerAutos, hoyISO,
     matrizQR, pixelesPorModulo, MARGEN_QR,
+    huellaSHA256, gruposDeHuella, pesoEnBytes,
 } from './motor/certificar.js';
 
 const $ = (id) => document.getElementById(id);
@@ -96,11 +97,17 @@ function leerEnlace(doc) {
 async function contarPaginas(doc) {
     const archivo = campo(doc, 'pdf').files[0];
     const estado = campo(doc, 'pdf-estado');
+    const huella = campo(doc, 'huella');
+    huella.classList.add('oculto');
     if (!archivo) return;
     estado.textContent = 'Contando las páginas…';
     try {
+        const bytes = await archivo.arrayBuffer();
+        // La huella antes que pdf.js: pdf.js se queda con el buffer que recibe
+        // (lo transfiere al worker) y despues ya no se puede leer.
+        mostrarHuella(doc, await huellaSHA256(crypto.subtle, bytes), bytes.byteLength);
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
-        const datos = new Uint8Array(await archivo.arrayBuffer());
+        const datos = new Uint8Array(bytes);
         const pdf = await pdfjsLib.getDocument({ data: datos }).promise;
         const n = pdf.numPages;
         await pdf.destroy();
@@ -112,6 +119,19 @@ async function contarPaginas(doc) {
         estado.textContent = `No se pudo leer «${archivo.name}» como PDF (${e && e.message ? e.message : e}). ` +
             'Podés escribir la cantidad de páginas a mano.';
     }
+}
+
+// Cada grupo de ocho va en su propio <span>, separado por margen y no por un
+// espacio: se lee de a pedazos y, al seleccionarlo y copiarlo, sale entero.
+function mostrarHuella(doc, hex, bytes) {
+    const hash = campo(doc, 'hash');
+    hash.replaceChildren(...gruposDeHuella(hex).map((g) => {
+        const s = document.createElement('span');
+        s.textContent = g;
+        return s;
+    }));
+    campo(doc, 'peso').textContent = pesoEnBytes(bytes);
+    campo(doc, 'huella').classList.remove('oculto');
 }
 
 $('cert-agregar').addEventListener('click', () => {

@@ -79,6 +79,13 @@ enlace, y la huella SHA-256 del archivo como dato de control.
   teléfono abre un enlace—, y la relación escrita en el tipo: «el auto que la
   modifica», «la de Cámara». Páginas y fojas van entre paréntesis, que es lo
   que evita concordar con el tipo. Con varios, cada QR baja a 4 cm.
+- **La huella volvió, pero a la pantalla.** Javier: *«ya que lo pensé para mi
+  juzgado pero terminó abierto a todos, que muestre el hash y peso. Sólo lo
+  muestra; si alguien lo quiere, lo copia de la pantalla (sin botón copiar)…
+  no quiero promptear al uso»*. Es lo contrario de lo que se descartó: nadie
+  firma lo que no puede leer, y a quien le sirve lo tiene. Va en grupos de
+  ocho, separados por margen y no por espacios, para compararlo a ojo y que
+  se copie entero. Se cruzó contra `sha256sum` con los mismos bytes: igual.
 
 ---
 

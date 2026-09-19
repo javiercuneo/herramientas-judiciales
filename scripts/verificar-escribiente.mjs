@@ -41,6 +41,7 @@ import { analizarRango, describirProblemas, explicarError } from '../escribiente
 import {
     analizarEnlace, armarCertificacion, leerAutos, fechaEnLetras, fechaCorta, leerFecha,
     conArticulo, hoyISO, matrizQR, pixelesPorModulo, MARGEN_QR, DOMINIOS_PJN,
+    huellaSHA256, gruposDeHuella, pesoEnBytes,
 } from '../escribiente/js/motor/certificar.js';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
@@ -1424,6 +1425,17 @@ console.log('\nCERTIFICAR\n');
     contiene(armarCertificacion({ documentos: [{}, { tipo: 'de Cámara' }] }).bloques[2].texto, '2) la de Cámara,', '"de Cámara" va con la');
     const huecos2 = armarCertificacion({ documentos: [{}, {}] }).faltan;
     ok(huecos2.includes('fojas del documento 2') && huecos2.includes('enlace para ver del documento 1'), 'con varios, el hueco dice de cual documento', huecos2.join(', '));
+
+    // La huella que se muestra (no se certifica). Los valores de referencia
+    // son los de la norma del SHA-256 (FIPS 180-2), no salen de este codigo.
+    const subtle = globalThis.crypto.subtle;
+    const abc = await huellaSHA256(subtle, new TextEncoder().encode('abc'));
+    ok(abc === 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', 'SHA-256 de "abc", el vector de la norma', abc);
+    const nada = await huellaSHA256(subtle, new Uint8Array(0));
+    ok(nada === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'SHA-256 de un archivo vacio', nada);
+    ok(gruposDeHuella(abc).length === 8 && gruposDeHuella(abc).join('') === abc, 'la huella va en ocho grupos que juntos son la huella');
+    ok(pesoEnBytes(123456789) === '123.456.789 bytes', 'peso con punto de miles', pesoEnBytes(123456789));
+    ok(pesoEnBytes(999) === '999 bytes' && pesoEnBytes(1) === '1 byte', 'sin separador bajo mil, y 1 en singular');
 
     // El QR: la libreria se carga como en el navegador, como script suelto.
     const ctx = { module: { exports: {} } };

@@ -330,6 +330,15 @@
             Soltá el archivo que bajaste con el botón de arriba, no una copia
             guardada de antes: es de ése que se cuentan las páginas.
           </p>
+          <!-- Dato tecnico a la vista y nada mas: no va al texto ni al QR, y
+               no tiene boton de copiar. El porque, en js/motor/certificar.js. -->
+          <div class="cert-huella oculto" data-campo="huella">
+            <p><span class="nota">Huella SHA-256 del archivo:</span>
+              <code data-campo="hash"></code></p>
+            <p><span class="nota">Tamaño:</span> <span data-campo="peso"></span></p>
+            <p class="nota">Dato técnico: no va en la certificación. Sirve para
+              comparar este archivo con otro, por ejemplo en otra pestaña.</p>
+          </div>
         </div>
         <div class="cert-grilla">
           <div class="campo campo-ancho">
