@@ -74,7 +74,8 @@
   <header class="cabecera">
     <h1>Escribiente</h1>
     <p class="bajada">
-      Pasá a Markdown y anonimizá escritos y resoluciones en PDF.
+      Pasá a Markdown y anonimizá escritos y resoluciones en PDF, y armá la
+      certificación de una resolución firmada.
     </p>
     <p class="promesa">
       El PDF se abre y se procesa <strong>dentro de tu navegador</strong>. No se
@@ -108,6 +109,7 @@
     <button type="button" data-vista="unir">Unir</button>
     <button type="button" data-vista="separar">Separar</button>
     <button type="button" data-vista="rotar">Rotar</button>
+    <button type="button" data-vista="certificar">Certificar</button>
   </nav>
 
   <!-- ================= Convertir y anonimizar ================= -->
@@ -274,6 +276,125 @@
     <div id="rotar-aviso" class="aviso-caja oculto" role="alert"></div>
   </section>
 
+  <!-- ================= Certificar =================
+       El texto de la certificacion de una resolucion firmada, con el enlace
+       publico del PJN y un QR que lleva al mismo lugar. No genera ni toca
+       ningun PDF: el que se suelta aca se lee para contar las paginas y nada
+       mas. Las decisiones de fondo (sin hash, el QR con el enlace solo) estan
+       en la cabecera de js/motor/certificar.js. -->
+  <section id="vista-certificar" class="vista">
+    <!-- Aviso propio, ademas del general de arriba: esta pestania es mas nueva
+         que el resto y hay tres cosas que solo se prueban en la oficina (la
+         descarga con un enlace de verdad, el pegado en el editor del PJN y el
+         QR despues de la firma). Se saca cuando Javier lo decida. -->
+    <p class="aviso-prueba">
+      <strong>En pruebas.</strong> Esta pestaña es del 19/9/2026. Revisá el
+      texto antes de firmarlo, y escaneá el QR con el celular para confirmar que
+      abre la resolución.
+    </p>
+    <p class="ayuda intro-cert">
+      Arma el texto de la certificación de una resolución firmada y un código
+      QR que lleva al mismo enlace del PJN. No modifica ningún PDF. Los campos
+      que dejes vacíos quedan entre corchetes en el texto, para completarlos
+      después.
+    </p>
+
+    <div class="campo">
+      <label for="cert-enlace">1. Enlace de la resolución</label>
+      <textarea id="cert-enlace" class="cert-enlace" rows="2" spellcheck="false"
+                autocomplete="off" placeholder="Pegá el enlace para ver o el de descarga: con cualquiera de los dos se arman ambos."></textarea>
+      <div id="cert-enlace-estado" class="aviso-caja oculto" role="status" aria-live="polite"></div>
+      <p class="acciones-lista">
+        <a id="cert-bajar" class="boton-enlace oculto" target="_blank" rel="noopener noreferrer">Descargar el PDF desde este enlace</a>
+      </p>
+    </div>
+
+    <div class="campo">
+      <label for="cert-pdf">2. El PDF que acabás de descargar <span class="nota">(opcional: cuenta las páginas)</span></label>
+      <input type="file" id="cert-pdf" accept="application/pdf,.pdf">
+      <p class="ayuda" id="cert-pdf-estado">
+        Soltá el archivo que bajaste con el botón de arriba, no una copia
+        guardada de antes: es de ése que se cuentan las páginas.
+      </p>
+    </div>
+
+    <div class="campo">
+      <label for="cert-autos">3. Los autos <span class="nota">(pegá el número y la carátula juntos, como vienen)</span></label>
+      <textarea id="cert-autos" rows="2" spellcheck="false" autocomplete="off"></textarea>
+    </div>
+
+    <div class="cert-grilla">
+      <div class="campo">
+        <label for="cert-numero">Expediente n.°</label>
+        <input type="text" id="cert-numero" autocomplete="off" placeholder="1234/2026">
+      </div>
+      <div class="campo campo-ancho">
+        <label for="cert-caratula">Carátula</label>
+        <input type="text" id="cert-caratula" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label for="cert-tipo">Tipo de resolución</label>
+        <input type="text" id="cert-tipo" list="cert-tipos" autocomplete="off" placeholder="sentencia">
+        <datalist id="cert-tipos">
+          <option value="sentencia definitiva">
+          <option value="sentencia interlocutoria">
+          <option value="declaratoria de herederos">
+          <option value="resolución">
+          <option value="auto">
+        </datalist>
+      </div>
+      <div class="campo">
+        <label for="cert-fecha">Fecha de la resolución</label>
+        <input type="date" id="cert-fecha">
+      </div>
+      <div class="campo">
+        <label for="cert-paginas">Páginas del PDF</label>
+        <input type="number" id="cert-paginas" min="1" step="1" inputmode="numeric">
+      </div>
+      <div class="campo">
+        <label for="cert-fojas">Fojas en el expediente</label>
+        <input type="text" id="cert-fojas" autocomplete="off" placeholder="120/124">
+      </div>
+      <div class="campo campo-ancho">
+        <label for="cert-juzgado">Juzgado</label>
+        <input type="text" id="cert-juzgado" autocomplete="off" placeholder="Juzgado Nacional de Primera Instancia en lo Civil n.° …">
+      </div>
+      <div class="campo campo-ancho">
+        <label for="cert-domicilio">Domicilio del juzgado</label>
+        <input type="text" id="cert-domicilio" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label for="cert-expedicion">Fecha de expedición</label>
+        <input type="date" id="cert-expedicion">
+      </div>
+    </div>
+
+    <section class="bloque" aria-labelledby="cert-resultado-titulo">
+      <h2 id="cert-resultado-titulo">Certificación</h2>
+      <p class="ayuda oculto" id="cert-faltan"></p>
+      <div class="cert-hoja" id="cert-hoja">
+        <p id="cert-antes" class="cert-texto"></p>
+        <div class="cert-qr-marco">
+          <canvas id="cert-qr" class="cert-qr" aria-label="Código QR con el enlace para ver la resolución"></canvas>
+          <p class="cert-qr-vacio" id="cert-qr-vacio">El QR aparece cuando el enlace es válido.</p>
+        </div>
+        <p id="cert-despues" class="cert-texto"></p>
+      </div>
+      <div class="acciones">
+        <button type="button" class="principal" id="cert-copiar-todo">Copiar todo</button>
+        <button type="button" class="secundario" id="cert-copiar-texto">Copiar texto</button>
+        <button type="button" class="secundario" id="cert-copiar-qr" disabled>Copiar QR</button>
+        <button type="button" class="secundario" id="cert-bajar-qr" disabled>Descargar QR</button>
+      </div>
+      <p class="ayuda" id="cert-copia-estado" role="status" aria-live="polite"></p>
+      <p class="ayuda">
+        El QR lleva exactamente el mismo enlace que el texto dice «Ver:». Está
+        pensado para unos 5 cm de lado; si el editor lo inserta más grande,
+        achicalo hasta ese tamaño.
+      </p>
+    </section>
+  </section>
+
   <footer class="pie-sitio">
     <p>
       La anonimización es automática y la revisás vos. No es una garantía:
@@ -288,6 +409,8 @@
 
 <script src="vendor/pdf.min.js"></script>
 <script src="vendor/pdf-lib.min.js"></script>
+<script src="vendor/qrcode.js"></script>
 <script type="module" src="js/app.js"></script>
+<script type="module" src="js/certificar.js"></script>
 </body>
 </html>

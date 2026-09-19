@@ -53,6 +53,21 @@ en pantalla como al pie del archivo.
 **Unir, separar y rotar** PDF, con los errores dichos: qué archivo falló, si
 estaba protegido con contraseña, y qué páginas del rango pedido no existían.
 
+**Certificar una resolución firmada.** La pestaña «Certificar» arma el texto
+de la certificación y un código QR que lleva al enlace público del PJN de la
+resolución. Se pega el enlace —el de ver o el de descarga, da igual: con uno se
+arma el otro—, se suelta el PDF que se acaba de bajar para contar las páginas,
+se pegan los autos y se completa el resto. Lo que queda vacío va entre
+corchetes, a la vista. **No genera ni modifica ningún PDF**, y el QR sale del
+mismo texto que la certificación dice «Ver:».
+
+Las tres decisiones de fondo están en la cabecera de
+[`js/motor/certificar.js`](js/motor/certificar.js): **no lleva huella SHA-256**
+—la herramienta no puede bajar el PDF del enlace para comprobar que el que se
+suelta sea ése, y quien firma no puede leer un hash; el PDF ya trae su propia
+firma digital—, **el QR lleva el enlace y nada más**, y **el enlace no se
+reescribe**: se conserva tal cual se pegó.
+
 ## Qué no hace
 
 **OCR.** Traer un motor de OCR al navegador son varios megabytes de modelo para
@@ -108,7 +123,9 @@ js/motor/           el motor, codigo puro y con pruebas
   anonimizar.js       las reglas y los candidatos a nombre propio
   documento.js        armado del .md y su constancia
   pdf.js              unir, separar, rotar, y el analisis de rangos
-vendor/             pdf.js 3.11.174 y pdf-lib 1.17.1
+  certificar.js       el enlace del PJN, el texto de la certificacion y el QR
+js/certificar.js    la pantalla de la pestania Certificar
+vendor/             pdf.js 3.11.174, pdf-lib 1.17.1 y qrcode-generator 1.4.4
 sw.js               funcionamiento sin conexion
 icono-*.png         generados por codigo, no dibujados
 ```
@@ -120,7 +137,7 @@ probar:
 npm run verificar-escribiente
 ```
 
-Son 214 comprobaciones sobre el motor, e incluyen como regresión los seis bugs
+Son 359 comprobaciones sobre el motor, e incluyen como regresión los seis bugs
 que tenía la versión anterior —o que aparecieron al probar esta contra PDF
 reales—. Corre en CI antes de publicar.
 

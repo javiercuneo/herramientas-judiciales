@@ -38,6 +38,12 @@ import {
 } from '../escribiente/js/motor/anonimizar.js';
 import { armarDocumento, titulo, nombreDeDescarga, losQueSiguenEnElTexto } from '../escribiente/js/motor/documento.js';
 import { analizarRango, describirProblemas, explicarError } from '../escribiente/js/motor/pdf.js';
+import {
+    analizarEnlace, armarCertificacion, leerAutos, fechaEnLetras, fechaCorta, leerFecha,
+    conArticulo, hoyISO, matrizQR, pixelesPorModulo, MARGEN_QR, DOMINIOS_PJN,
+} from '../escribiente/js/motor/certificar.js';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 let fallos = 0;
 let pruebas = 0;
@@ -1293,6 +1299,125 @@ console.log('');
     for (const palabra of ['páginas', 'líneas', 'anonimización', 'automática', 'garantía']) {
         contiene(md.toLowerCase(), palabra, `la constancia esta acentuada: ${palabra}`);
     }
+}
+
+// ---------------------------------------------------------------------------
+// CERTIFICAR
+//
+// Los enlaces se arman por partes y con un id inventado: el control de datos
+// bloquea cualquier archivo que contenga un enlace al visor escrito entero, y
+// un id real apunta a una causa. Lo que se prueba es la FORMA.
+// ---------------------------------------------------------------------------
+
+console.log('\nCERTIFICAR\n');
+
+{
+    const base = 'https://' + DOMINIOS_PJN[0] + '/scw/' + 'viewer.seam';
+    const ID = 'ZZprueba+inventada/con=signos';
+    const ver = `${base}?id=${ID}&tipoDoc=despacho`;
+    const bajar = `${ver}&download=true`;
+
+    // El de ver arma el de descarga, y al reves, sin tocar el id.
+    let e = analizarEnlace(ver);
+    ok(e.ok, 'el enlace para ver se acepta', e.problema);
+    ok(e.ver === ver, 'el de ver queda identico, con + / = del id intactos', e.ver);
+    ok(e.descargar === bajar, 'el de descarga es el de ver con &download=true', e.descargar);
+
+    e = analizarEnlace(bajar);
+    ok(e.ok && e.ver === ver && e.descargar === bajar, 'desde el de descarga se arman los mismos dos');
+
+    e = analizarEnlace(`  ${ver.slice(0, 40)}\n${ver.slice(40)}  `);
+    ok(e.ok && e.ver === ver, 'un enlace partido en dos renglones se une', e.problema);
+    ok(e.avisos.length === 1, 'y se avisa que se quitaron espacios');
+
+    const rechazos = [
+        ['', 'vacio'],
+        ['no es un enlace', 'texto suelto'],
+        [ver.replace('https:', 'http:'), 'http sin s'],
+        [ver.replace(DOMINIOS_PJN[0], DOMINIOS_PJN[0] + '.ejemplo.com'), 'dominio que empieza igual'],
+        [ver.replace(DOMINIOS_PJN[0], 'otro-sitio.com.ar'), 'otro dominio'],
+        [ver.replace('viewer.seam', 'otra.seam'), 'ruta del PJN que no es el visor'],
+        [`${base}?tipoDoc=despacho`, 'sin id'],
+        [`${base}?id=&tipoDoc=despacho`, 'id vacio'],
+        [`${ver}#sha256=abc`, 'con fragmento'],
+        [`${ver}&download=false`, 'descarga en otra forma'],
+    ];
+    for (const [texto, caso] of rechazos) {
+        const r = analizarEnlace(texto);
+        ok(!r.ok && r.problema, `se rechaza: ${caso}`);
+        ok(!r.ver && !r.descargar, `y no deja enlaces a medio armar: ${caso}`);
+    }
+
+    // Fechas
+    ok(fechaEnLetras('2026-09-19') === 'a los diecinueve días del mes de septiembre de 2026', 'fecha en letras', fechaEnLetras('2026-09-19'));
+    ok(fechaEnLetras('2026-03-01') === 'al primer día del mes de marzo de 2026', 'el 1 va en singular', fechaEnLetras('2026-03-01'));
+    ok(fechaEnLetras('2026-05-21') === 'a los veintiún días del mes de mayo de 2026', 'veintiún, apocopado', fechaEnLetras('2026-05-21'));
+    ok(fechaEnLetras('2026-12-31') === 'a los treinta y un días del mes de diciembre de 2026', 'treinta y un', fechaEnLetras('2026-12-31'));
+    ok(fechaCorta('2026-09-03') === '3 de septiembre de 2026', 'fecha corta sin cero adelante', fechaCorta('2026-09-03'));
+    ok(leerFecha('2026-02-29') === null && leerFecha('2028-02-29') !== null, 'el 29 de febrero solo en bisiesto');
+    ok(leerFecha('2026-13-01') === null && leerFecha('03/09/2026') === null, 'fechas imposibles o en otro formato no se leen');
+    ok(hoyISO(new Date(2026, 8, 19, 23, 30)) === '2026-09-19', 'hoy es el dia local aunque en UTC ya sea manana');
+
+    // Articulo
+    ok(conArticulo('sentencia definitiva') === 'la sentencia definitiva', 'sentencia va con la');
+    ok(conArticulo('auto') === 'el auto', 'auto va con el');
+    ok(conArticulo('Auto interlocutorio') === 'el Auto interlocutorio', 'con mayuscula tambien');
+    ok(conArticulo('la declaratoria') === 'la declaratoria', 'si ya trae articulo no se duplica');
+
+    // Autos pegados (formas inventadas)
+    let a = leerAutos('12345/2026\nGomez, Ana contra Rojas, Luis sobre daños');
+    ok(a.numero === '12345/2026', 'numero de expediente', a.numero);
+    ok(a.caratula === 'Gomez, Ana contra Rojas, Luis sobre daños', 'caratula sin el numero', a.caratula);
+    a = leerAutos('Expediente “Gomez, Ana contra Rojas, Luis sobre daños”, n° 12345/2026.');
+    ok(a.numero === '12345/2026' && a.caratula === 'Gomez, Ana contra Rojas, Luis sobre daños', 'entre comillas, lo de adentro', JSON.stringify(a));
+    a = leerAutos('');
+    ok(a.numero === '' && a.caratula === '', 'vacio da vacio');
+
+    // El texto
+    const lleno = armarCertificacion({
+        enlace: analizarEnlace(ver), tipo: 'sentencia', fecha: '2026-09-03', paginas: 7,
+        fojas: '120/126', numero: '12345/2026', caratula: 'Gomez contra Rojas sobre daños',
+        juzgado: 'Juzgado de prueba n.° 0', domicilio: 'Calle Inventada 123', expedicion: '2026-09-19',
+    });
+    ok(lleno.faltan.length === 0, 'completo no tiene huecos', lleno.faltan.join(', '));
+    contiene(lleno.antes, `Ver: ${ver}\n`, 'el texto lleva el enlace de ver');
+    contiene(lleno.antes, `Descargar: ${bajar}`, 'y el de descarga');
+    contiene(lleno.antes, 'de 7 páginas, contiene la sentencia de fecha 3 de septiembre de 2026 correspondiente', 'paginas, tipo y fecha');
+    contiene(lleno.antes, 'a fs. 120/126 del expediente electrónico', 'las fojas');
+    contiene(lleno.despues, 'Buenos Aires, a los diecinueve días del mes de septiembre de 2026.', 'la expedicion');
+    noContiene(lleno.antes + lleno.despues, '[', 'sin corchetes cuando esta completo');
+    for (const genero of ['dictada', 'recaída', 'firmada', 'agregada']) {
+        noContiene(lleno.antes, genero, `nada concuerda con el tipo: ${genero}`);
+    }
+
+    const una = armarCertificacion({ enlace: analizarEnlace(ver), paginas: 1 });
+    contiene(una.antes, 'de 1 página,', 'una pagina en singular');
+
+    const vacio = armarCertificacion({ enlace: analizarEnlace('') });
+    for (const h of ['[tipo de resolución]', '[páginas]', '[fojas]', '[carátula]', '[enlace para ver]', '[enlace para descargar]']) {
+        contiene(vacio.antes, h, `lo que falta queda a la vista: ${h}`);
+    }
+    contiene(vacio.despues, '[fecha de expedición]', 'la fecha de expedicion tambien');
+    ok(vacio.faltan.includes('enlace para ver'), 'y se lista como faltante');
+
+    // El QR: la libreria se carga como en el navegador, como script suelto.
+    const ctx = { module: { exports: {} } };
+    ctx.exports = ctx.module.exports;
+    vm.runInNewContext(readFileSync(new URL('../escribiente/vendor/qrcode.js', import.meta.url), 'utf8'), ctx);
+    const qrcode = ctx.module.exports;
+    const m1 = matrizQR(qrcode, ver);
+    const m2 = matrizQR(qrcode, ver);
+    ok((m1.modulos - 17) % 4 === 0 && m1.modulos >= 21, 'el lado es de una version valida de QR', String(m1.modulos));
+    let iguales = true;
+    for (let f = 0; f < m1.modulos; f++) for (let c = 0; c < m1.modulos; c++) if (m1.oscuro(f, c) !== m2.oscuro(f, c)) iguales = false;
+    ok(iguales, 'el mismo enlace da el mismo QR');
+    const largo = matrizQR(qrcode, ver + 'x'.repeat(200));
+    ok(largo.modulos > m1.modulos, 'un enlace mas largo da un QR mas denso');
+    // Los tres patrones de esquina: 7x7 con borde oscuro.
+    const esquina = (f0, c0) => [0, 6].every((i) => [0, 1, 2, 3, 4, 5, 6].every((j) => m1.oscuro(f0 + i, c0 + j) && m1.oscuro(f0 + j, c0 + i)));
+    ok(esquina(0, 0) && esquina(0, m1.modulos - 7) && esquina(m1.modulos - 7, 0), 'tiene los tres patrones de esquina');
+    const px = pixelesPorModulo(m1.modulos);
+    ok(Number.isInteger(px) && (m1.modulos + 2 * MARGEN_QR) * px >= 1000, 'la imagen tiene al menos 1000 px de lado y modulos enteros');
 }
 
 // ---------------------------------------------------------------------------

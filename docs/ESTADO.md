@@ -299,7 +299,7 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-acordada` | Que la tabla de la Acordada 5/2010 diga lo que dice el anexo: 90 |
 | `npm run verificar-distancia` | El cómputo del art. 158 y la búsqueda en esa tabla: 64 |
 | `npm run verificar-red` | Qué terceros nombran las quince páginas que se publican, contra una lista con el motivo al lado de cada uno |
-| `npm run verificar-escribiente` | El motor de Escribiente: 292 |
+| `npm run verificar-escribiente` | El motor de Escribiente, con la pestaña «Certificar»: 359 |
 | `npm run verificar-honorio` | Las cinco cifras que este repositorio sigue del motor |
 | `npm run verificar-docs` | Que los documentos de dominio no citen artículos ni archivos que no existen |
 | `npm run verificar-estado` | El presupuesto y la higiene de este archivo |
@@ -538,7 +538,7 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
 **Lo que hay que saber para tocarla:**
 
 - **El motor está en `escribiente/js/motor/`, es código puro y no toca el DOM.**
-  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 292
+  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 359
   comprobaciones, en CI. Los seis bugs de la versión anterior y las fugas del
   21/8, el 15/9 y el 17/9 están ahí como regresión. `js/app.js` es sólo la
   pantalla, y desde el 17/9 `conectores/anonimizar.mjs` expone el motor afuera.
@@ -547,12 +547,23 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
   que llevarlo allá**. Las listas de palabras no se unifican, y a propósito:
   `redactor` usa la suya para buscar restos de un nombre confirmado, y una
   palabra de más ahí es un apellido que deja de buscarse.
-- **Las librerías van versionadas en `escribiente/vendor/`** —pdf.js 3.11.174 y
-  pdf-lib 1.17.1— **y no vuelven a un CDN**, y **no carga la tipografía
+- **Las librerías van versionadas en `escribiente/vendor/`** —pdf.js 3.11.174,
+  pdf-lib 1.17.1 y qrcode-generator 1.4.4— **y no vuelven a un CDN**, y **no carga la tipografía
   Archivo**: es la única página del sitio que no la pide a Google. Las dos cosas
   sostienen la CSP, y el porqué está en
   [Una promesa de privacidad](#una-promesa-de-privacidad-se-demuestra-no-se-declara).
   Si alguien «arregla» la inconsistencia, rompe la promesa.
+- **La pestaña «Certificar» (19/9) arma la certificación de una resolución
+  firmada: texto con el enlace público del PJN y un QR al mismo enlace.**
+  **Va sin hash, por decisión de Javier**: la página no puede bajar el PDF del
+  enlace —el PJN no manda CORS, comprobado el 19/9, y la CSP prohíbe conectarse—,
+  así que nada asegura que el PDF soltado sea el del enlace, y quien firma no
+  puede leer un hash. **No volver a agregarlo sin leer la cabecera de
+  `js/motor/certificar.js`.** Ahí también está por qué el dominio y la ruta del
+  visor se escriben por partes: `verificar-datos.sh` bloquea el enlace entero, y
+  con razón. **Falta probarla en la oficina, y es de Javier**: si el editor del
+  PJN acepta «Copiar todo» con la imagen adentro, y si el QR se sigue leyendo en
+  la certificación ya firmada.
 - **Para levantarla local hay que servir desde la raíz del repositorio**, porque
   `comun.css` y `tema.js` están en `../`. La configuración `sitio-estatico` de
   `.claude/launch.json` ya lo hace.

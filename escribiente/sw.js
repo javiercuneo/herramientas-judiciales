@@ -26,7 +26,7 @@
 //      instante, y la correccion entra en la visita siguiente.
 // ---------------------------------------------------------------------------
 
-const CACHE = 'escribiente-v1';
+const CACHE = 'escribiente-v2';
 
 const ARCHIVOS = [
     './',
@@ -40,9 +40,12 @@ const ARCHIVOS = [
     'js/motor/anonimizar.js',
     'js/motor/documento.js',
     'js/motor/pdf.js',
+    'js/motor/certificar.js',
+    'js/certificar.js',
     'vendor/pdf.min.js',
     'vendor/pdf.worker.min.js',
     'vendor/pdf-lib.min.js',
+    'vendor/qrcode.js',
     // Compartidos con el resto del sitio. Estan fuera del alcance del service
     // worker, pero el alcance limita que PAGINAS controla, no que pedidos ve:
     // una pagina controlada le pasa todos sus pedidos, tambien los de afuera.

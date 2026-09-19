@@ -19,6 +19,60 @@ de 2026.
 
 ---
 
+## Escribiente certifica: la pestaña «Certificar» — 19/9
+
+El pedido: la resolución se firma y queda como PDF en el expediente, la
+certificación se firma aparte, y hay que vincularlas sin tocar el PDF firmado.
+En papel era fotocopia, sello cruzado y abrochadora; pegar imágenes del PDF en
+la certificación *«queda feo»*. La propuesta de Javier, que venía de un análisis
+previo con otros chats: el enlace público del PJN en el texto, un QR al mismo
+enlace, y la huella SHA-256 del archivo como dato de control.
+
+**El hash se discutió en tres vueltas y se sacó.**
+
+1. Se propuso ponerlo visible en la nota, en vez de escondido en el fragmento
+   del QR, para que se pudiera comprobar con cualquier herramienta. Javier:
+   *«lo va a pegar un empleado, no yo… no sé si estoy firmando una nota
+   correcta o errónea, o si genero dos QR y me pasó el hash del otro»*.
+2. La respuesta fue que esconderlo no arreglaba eso sino que lo empeoraba:
+   un hash equivocado sale equivocado en cualquier lado, y en el QR quien firma
+   ni lo ve. Y que aporta poco: el PDF ya trae su firma digital, que es la que
+   prueba integridad, y el enlace del PJN no cambia.
+3. Javier propuso que la herramienta bajara el PDF sola del enlace. **Se probó
+   contra el servidor, con un id inventado: no manda `Access-Control-Allow-Origin`**,
+   así que ninguna página de otro origen puede leer el archivo; la única salida
+   era un servidor intermedio, que rompía la condición de que nada salga del
+   navegador. Quedó el botón «Descargar el PDF» —navegación, que sí se puede— y
+   soltar el archivo, que sirve para contar las páginas: las páginas tienen el
+   mismo riesgo que el hash, pero quien firma las ve.
+
+**Otras decisiones:**
+
+- **Es una pestaña de Escribiente y no una herramienta aparte**, idea de Javier:
+  ya tenía pdf.js, la CSP con `connect-src 'none'` y el funcionamiento sin
+  conexión. Se cayó el requisito original de «archivo único»: en la oficina se
+  abre el sitio, no archivos sueltos.
+- **Páginas y fojas son dos datos**: las páginas del PDF las cuenta la
+  herramienta; las fojas donde se agregó en el expediente electrónico se
+  escriben a mano. *«No son lo mismo, pero ambas suman.»*
+- **Los datos del juzgado se escriben cada vez**: *«si vive en herramientas
+  judiciales debería ser exportable»*. Un selector de juzgados con filtro quedó
+  como idea, y necesita una lista oficial con los domicilios, que no se carga
+  de memoria.
+- **El texto no concuerda con el tipo de resolución**: el sujeto es «el
+  documento electrónico» y lo que cuelga del tipo es invariable
+  («correspondiente»). La primera redacción decía «dictada», y con «el auto»
+  fallaba. La redacción final la corrige Javier con la pantalla a la vista.
+- **El QR se comprobó con un lector independiente** (jsQR, fuera del
+  repositorio) con enlaces de 40, 120 y 250 caracteres de id: los tres
+  devuelven el enlace exacto. A 5 cm el módulo queda entre 1 y 0,65 mm.
+- **El control de datos no se aflojó**: el motor escribe el dominio y la ruta
+  por partes, y nunca contiene un enlace real. Javier: *«la idea es que no se
+  fuguen datos personales por accidente hacia GitHub; si lo que me proponés
+  no impide eso no hay drama»*.
+
+---
+
 ## La serie de la UMA y del UHOM: el texto que vivió en ESTADO.md — mudado el 19/9
 
 Se mudó entero para bajar `ESTADO.md` del aviso de las 900 líneas; allá quedaron

@@ -392,3 +392,72 @@ button.chico:hover { color: var(--accent); border-color: var(--accent); filter: 
   .candidatos li { flex-wrap: wrap; }
   .candidatos .nombre { flex-basis: 100%; }
 }
+
+/* ---------- Certificar ----------
+
+   La vista previa imita la hoja: fondo blanco y texto negro FIJOS, no tokens
+   del tema. Es lo que va a quedar en el documento, y en modo oscuro un QR
+   claro sobre fondo oscuro se veria invertido --que es justo lo que no hay
+   que mostrarle a quien va a copiarlo--. Mismo criterio que @media print. */
+
+.intro-cert { margin: 0 0 20px; }
+
+.campo textarea {
+  width: 100%;
+  font: inherit;
+  font-size: .9rem;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--fg);
+  resize: vertical;
+}
+.cert-enlace { font-family: ui-monospace, Consolas, monospace; font-size: .82rem; word-break: break-all; }
+
+.cert-grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0 16px;
+}
+.cert-grilla .campo-ancho { grid-column: 1 / -1; }
+.cert-grilla .campo input { width: 100%; max-width: none; }
+
+a.boton-enlace {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  color: var(--accent);
+  text-decoration: none;
+  font-size: .9rem;
+}
+a.boton-enlace:hover { background: var(--sunk); }
+
+.cert-hoja {
+  background: #ffffff;
+  color: #111111;
+  padding: 28px 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.cert-texto { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cert-texto mark { background: #fde68a; color: #111111; padding: 0 2px; }
+
+.cert-qr-marco { margin: 16px 0; }
+/* 5 cm en pantalla: el canvas tiene mas de 1000 px, y se muestra al tamanio
+   con que va a ir al documento. */
+.cert-qr { display: block; width: 5cm; height: 5cm; image-rendering: pixelated; }
+.cert-qr-vacio {
+  width: 5cm; height: 5cm; margin: 0;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  border: 1px dashed #999999; color: #555555;
+  font-family: system-ui, sans-serif; font-size: .8rem; padding: 12px;
+}
+
+@media (max-width: 560px) {
+  .cert-hoja { padding: 18px 16px; }
+}
