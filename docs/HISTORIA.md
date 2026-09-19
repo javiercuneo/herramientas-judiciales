@@ -19,6 +19,58 @@ de 2026.
 
 ---
 
+## La serie de la UMA y del UHOM: el texto que vivió en ESTADO.md — mudado el 19/9
+
+Se mudó entero para bajar `ESTADO.md` del aviso de las 900 líneas; allá quedaron
+las cuatro reglas en una línea cada una. Esto es lo que decía:
+
+`uma-uhom.html` publica las dos series completas: **67 valores de UMA desde
+diciembre de 2017 y 71 de UHOM desde junio de 2016.** No están copiadas de
+ninguna tabla ajena. Cada UMA salió del punto resolutivo de su acordada o
+resolución y cada UHOM, de las tablas oficiales del Ministerio de Justicia. Las
+dos viven en `data/`, versionadas, con la norma al lado de cada valor.
+
+**Copiarlas habría sido más rápido y habría estado mal**, y el caso que lo
+prueba —las dos compilaciones públicas erran el valor de la Acordada 4/2022—
+está en [`HISTORIA.md`](HISTORIA.md).
+
+**Vigencia y fecha del acto son dos campos y no uno.** La resolución dice desde
+cuándo rige el valor y casi siempre lleva fecha posterior a esa: de los 63
+valores con demora computable, los 63 salieron después. Guardar una sola fecha
+obliga a elegir cuál, y las dos hacen falta: **la vigencia decide qué valor
+corresponde a una regulación, la del acto dice si ese valor existía el día en
+que se reguló.**
+
+**Dos cosas que aparecieron leyendo y conviene no volver a descubrir:**
+
+- **El UHOM de noviembre de 2022 es 2003 y no termina en cero**, contra la regla
+  del decreto 2536/15. Está bien: la tabla oficial lo declara así y construye
+  toda su escala sobre él —el provisional dice 4.006 y la franja A, 60.090—.
+  La misma tabla declara UR 166,13, que por doce da 1.993,56 y redondeado daría
+  2.000. **La regla no se aplicó ese mes**, y cualquier control que la exija va
+  a rechazar un valor oficial.
+- **El Ministerio rehace tablas ya publicadas.** Las tablas 17 y 18 cubren los
+  mismos meses de 2021 con dos bases de UR distintas. El valor de un mes es el
+  de la tabla más nueva entre las que empiezan en ese mes o antes, y no el de la
+  fila más reciente que lo nombre: la 18 declara octubre y no vuelve a declarar
+  noviembre ni diciembre porque no cambiaron, así que caer a la 17 para
+  diciembre hacía **bajar** la serie de 1100 a 1010.
+
+**Un valor con vigencia futura es válido, y no hay que volver a prohibirlo.**
+El Ministerio publica el UHOM por trimestres, así que la serie trae el trimestre
+entero y nadie tiene que acordarse del día 1. **Lo que hay que garantizar no es
+que no haya futuros: es que siempre haya alguno vigente**, y las cuatro páginas
+toman el último que ya rige y no el último del archivo. Las futuras van apagadas
+y con «aún no rige». Por qué la regla estuvo al revés, en
+[`HISTORIA.md`](HISTORIA.md).
+
+**`npm run verificar-series` corre en el build**, antes de armar el sitio. Un
+archivo cargado a mano se rompe de cuatro formas y las cuatro dan un número
+plausible que nadie ve en un diff de 70 líneas: una vigencia repetida, una serie
+que baja, una fecha de acto anterior a la vigencia, y ningún valor vigente.
+
+---
+
 ## Contador de visitas — 18/9
 
 Javier pidió un contador no visible, para ver qué herramientas se adoptan. Se

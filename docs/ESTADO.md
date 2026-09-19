@@ -87,13 +87,9 @@ y no tapa lo que las reglas ocultan solas.
     con `sanitizar.py`— no se toca. **De este lado no hay nada que hacer**: si
     aparece una fuga, se arregla en el motor JS y se cierra con su regresión en
     `npm run verificar-escribiente`, como los seis de septiembre.
-  - **El conector vive acá**, en `conectores/anonimizar.mjs`, colgado de los dos
-    transportes que ya existían: un solo proceso expone plazos y anonimización.
-    Cinco herramientas —`anonimizar_texto`, `candidatos_a_nombre`,
-    `partes_de_caratula`, `restos_pegados`, `aparece_en_el_texto`—, con banco
-    propio en `npm run verificar-conectores`. **La regla que sostiene todo: la
-    capa 2 no se aplica sola.** Un nombre propio se propone y lo confirma una
-    persona; el conector nunca elige.
+  - **El conector vive acá**, en `conectores/anonimizar.mjs`: cinco herramientas
+    sobre el motor de Escribiente, y la capa 2 nunca se aplica sola. Detalle en
+    [`conectores/`](#conectores).
   - **`HERMANOS.md` ya lo dice** desde el 18/9: un conector, dos motores, y
     `redactor` pidiendo el anonimizador directo, sin pasar por el pipeline.
   - **El banco de comparación está versionado** en `scripts/comparar-motores/`,
@@ -561,12 +557,8 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
   `comun.css` y `tema.js` están en `../`. La configuración `sitio-estatico` de
   `.claude/launch.json` ya lo hace.
 
-**Lo que queda abierto vive en [`escribiente/README.md`](../escribiente/README.md)**,
-y desde el 16/9 no acá: son límites conocidos, ninguno bloqueante, y **los busca
-quien viene a tocar la herramienta, que ya está parado en esa carpeta**. Este
-documento se lee entero en cada sesión y tiene presupuesto; aquél no. Lo que sí
-queda arriba, en [Bugs abiertos](#bugs-abiertos), es el borde de las reglas que se
-cerraron el 17/9, porque es lo que hay que saber antes de confiar en ellas.
+**Lo que queda abierto vive en [`escribiente/README.md`](../escribiente/README.md)**:
+límites conocidos, ninguno bloqueante, donde los busca quien viene a tocarla.
 
 ---
 
@@ -633,50 +625,24 @@ donde están escritos los tokens digan lo mismo.
 
 ### La serie de la UMA y del UHOM se reconstruyó de los actos
 
-`uma-uhom.html` publica las dos series completas: **67 valores de UMA desde
-diciembre de 2017 y 71 de UHOM desde junio de 2016.** No están copiadas de
-ninguna tabla ajena. Cada UMA salió del punto resolutivo de su acordada o
-resolución y cada UHOM, de las tablas oficiales del Ministerio de Justicia. Las
-dos viven en `data/`, versionadas, con la norma al lado de cada valor.
+`uma-uhom.html` publica las dos series completas, **leídas de cada acto y no
+copiadas de ninguna tabla ajena**: la UMA del punto resolutivo de su acordada, el
+UHOM de las tablas del Ministerio. Viven en `data/` con la norma al lado. Lo que
+no hay que contradecir:
 
-**Copiarlas habría sido más rápido y habría estado mal**, y el caso que lo
-prueba —las dos compilaciones públicas erran el valor de la Acordada 4/2022—
-está en [`HISTORIA.md`](HISTORIA.md).
+- **Vigencia y fecha del acto son dos campos.** La vigencia decide qué valor
+  corresponde a una regulación; la del acto, si ese valor existía ese día.
+- **Un valor con vigencia futura es válido.** Lo que se garantiza es que siempre
+  haya uno vigente, y las páginas toman el último que ya rige, no el último del
+  archivo.
+- **El UHOM de noviembre de 2022 es 2003 y no termina en cero**, y está bien: es
+  el oficial. Un control que exija el redondeo rechaza un valor verdadero.
+- **Un mes vale lo de la tabla más nueva que empiece en ese mes o antes**, no la
+  fila más reciente que lo nombre: el Ministerio rehace tablas ya publicadas.
 
-**Vigencia y fecha del acto son dos campos y no uno.** La resolución dice desde
-cuándo rige el valor y casi siempre lleva fecha posterior a esa: de los 63
-valores con demora computable, los 63 salieron después. Guardar una sola fecha
-obliga a elegir cuál, y las dos hacen falta: **la vigencia decide qué valor
-corresponde a una regulación, la del acto dice si ese valor existía el día en
-que se reguló.**
-
-**Dos cosas que aparecieron leyendo y conviene no volver a descubrir:**
-
-- **El UHOM de noviembre de 2022 es 2003 y no termina en cero**, contra la regla
-  del decreto 2536/15. Está bien: la tabla oficial lo declara así y construye
-  toda su escala sobre él —el provisional dice 4.006 y la franja A, 60.090—.
-  La misma tabla declara UR 166,13, que por doce da 1.993,56 y redondeado daría
-  2.000. **La regla no se aplicó ese mes**, y cualquier control que la exija va
-  a rechazar un valor oficial.
-- **El Ministerio rehace tablas ya publicadas.** Las tablas 17 y 18 cubren los
-  mismos meses de 2021 con dos bases de UR distintas. El valor de un mes es el
-  de la tabla más nueva entre las que empiezan en ese mes o antes, y no el de la
-  fila más reciente que lo nombre: la 18 declara octubre y no vuelve a declarar
-  noviembre ni diciembre porque no cambiaron, así que caer a la 17 para
-  diciembre hacía **bajar** la serie de 1100 a 1010.
-
-**Un valor con vigencia futura es válido, y no hay que volver a prohibirlo.**
-El Ministerio publica el UHOM por trimestres, así que la serie trae el trimestre
-entero y nadie tiene que acordarse del día 1. **Lo que hay que garantizar no es
-que no haya futuros: es que siempre haya alguno vigente**, y las cuatro páginas
-toman el último que ya rige y no el último del archivo. Las futuras van apagadas
-y con «aún no rige». Por qué la regla estuvo al revés, en
+`npm run verificar-series` corre en el build. El detalle de cada punto, y el caso
+de la Acordada 4/2022 que dos compilaciones públicas erran, en
 [`HISTORIA.md`](HISTORIA.md).
-
-**`npm run verificar-series` corre en el build**, antes de armar el sitio. Un
-archivo cargado a mano se rompe de cuatro formas y las cuatro dan un número
-plausible que nadie ve en un diff de 70 líneas: una vigencia repetida, una serie
-que baja, una fecha de acto anterior a la vigencia, y ningún valor vigente.
 
 ### Ningún día inhábil se decide en código
 
