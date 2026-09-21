@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-09-18 · rama `main`
+Última actualización: 2026-09-21 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -686,7 +686,10 @@ de la letra y se inventen tres días inhábiles.
 ### Este repositorio es público, y eso decide cómo se escribe
 
 Las reglas están en [`AGENTS.md`](../AGENTS.md), en «Datos: qué no entra a este
-repositorio», y `scripts/verificar-datos.sh` las verifica en cada commit. Si
+repositorio», y `scripts/verificar-datos.sh` las verifica en cada commit.
+**El sitio nombra el cargo de Javier —secretario desde el 21/9— y nunca el
+juzgado.** Su LinkedIn es `linkedin.com/in/javiercuneolibarona`; la dirección
+vieja ya no es suya y no tiene que volver a aparecer. Si
 falta una referencia que parece que debería estar, falta a propósito.
 
 ### Una promesa de privacidad se demuestra, no se declara

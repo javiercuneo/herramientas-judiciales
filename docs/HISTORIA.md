@@ -19,6 +19,26 @@ de 2026.
 
 ---
 
+## Secretario, y el LinkedIn nuevo — 21/9
+
+Desde el 21/9 Javier es secretario (efectivo) de un juzgado civil y deja de
+ser prosecretario administrativo; además cambió la dirección de su LinkedIn.
+El pedido llegó redactado desde otra sesión y se aplicó con la confirmación de
+Javier en este chat.
+
+- **LinkedIn**, en 15 lugares de 14 archivos. Uno de ellos —`honorarios.html`,
+  la calculadora retirada— tenía la dirección vieja con la tilde sin codificar
+  y no la encontraba el reemplazo literal: se buscó por el final de la
+  dirección, que es lo único que no cambia entre las dos formas.
+- **El cargo**, en `index.html`, `README.md` y `quien-soy.html`. En esta
+  última se cambiaron sólo las frases pedidas, porque es texto escrito a mano
+  por Javier: la bajada, la descripción, el primer párrafo de «A qué me
+  dedico» —ahora en pasado— y el recorrido, con la línea nueva arriba. La
+  mención del interinato de 2022 se cayó a pedido.
+- **El juzgado sigue sin nombrarse**, como antes.
+
+---
+
 ## Escribiente certifica: la pestaña «Certificar» — 19/9
 
 El pedido: la resolución se firma y queda como PDF en el expediente, la

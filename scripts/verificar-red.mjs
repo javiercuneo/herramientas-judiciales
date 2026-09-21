@@ -74,7 +74,7 @@ const PERMITIDOS = new Map([
     // contrario de una dependencia en vivo.
     ['argentinadatos.com', 'documentacion.html la NOMBRA como origen de data/feriados.json; no se la consulta desde el navegador'],
     ['github.com', 'enlaces al repositorio y al perfil'],
-    ['ar.linkedin.com', 'enlace al perfil'],
+    ['www.linkedin.com', 'enlace al perfil'],
     ['www.w3.org', 'el espacio de nombres de SVG, que no se descarga'],
 ]);
 

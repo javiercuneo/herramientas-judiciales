@@ -1,7 +1,6 @@
 # Herramientas para la práctica judicial
 
-**L. Javier Cúneo Libarona** — abogado. Prosecretario Administrativo en un
-juzgado civil.
+**L. Javier Cúneo Libarona** — abogado. Secretario de un juzgado civil.
 
 Software para lo que hago todos los días: computar plazos, regular honorarios,
 liquidar la tasa. Cada herramienta salió de un problema concreto de trabajo, no
@@ -234,5 +233,5 @@ Si querés aportar, leé [CONTRIBUTING.md](CONTRIBUTING.md) primero.
 ## Contacto
 
 [GitHub](https://github.com/javiercuneo) ·
-[LinkedIn](https://ar.linkedin.com/in/javier-c%C3%BAneo-libarona-03b75934) ·
+[LinkedIn](https://www.linkedin.com/in/javiercuneolibarona) ·
 [javier@javiercuneo.com.ar](mailto:javier@javiercuneo.com.ar)
