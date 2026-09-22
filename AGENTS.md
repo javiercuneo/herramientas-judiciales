@@ -571,8 +571,10 @@ identifica a nadie por separado identifica igual cuando va con otros tres.
 - **Todos los derechos reservados, código a la vista para auditar** (desde el
   22/9/2026), igual que Honorio. Si aparece un PR, lo primero que se mira es
   la aceptación de [`CONTRIBUTING.md`](CONTRIBUTING.md): sin eso el aporte no
-  puede entrar. El titular se escribe siempre con el nombre completo, Luis
-  Javier Cúneo Libarona. El motivo está en `docs/ESTADO.md` y no hace falta
+  puede entrar. **Como titular del copyright** —en `LICENSE` y en los textos
+  de licencia— va el nombre completo, Luis Javier Cúneo Libarona; en la firma
+  del sitio sigue «L. Javier Cúneo Libarona», y los pies de las calculadoras
+  llevan «© 2026» delante. El motivo está en `docs/ESTADO.md` y no hace falta
   rediscutirlo.
 - **La landing publica lo que la allowlist de `pages.yml` nombra.** Si agregás
   algo al sitio, va ahí *y* se enlaza desde `index.html`. Si no, no existe para

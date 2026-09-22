@@ -1,6 +1,6 @@
 # Herramientas para la práctica judicial
 
-**Luis Javier Cúneo Libarona** — abogado. Secretario de un juzgado civil.
+**L. Javier Cúneo Libarona** — abogado. Secretario de un juzgado civil.
 
 Software para lo que hago todos los días: computar plazos, regular honorarios,
 liquidar la tasa. Cada herramienta salió de un problema concreto de trabajo, no

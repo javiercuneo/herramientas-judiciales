@@ -18,3 +18,7 @@ código, no al uso del sitio.
 
 Los textos de leyes, normas y fallos que el repositorio transcribe o cita no
 son materia de esta reserva.
+
+Las librerías de terceros en escribiente/vendor/ —pdf.js, pdf-lib y
+qrcode-generator— tampoco lo son: conservan cada una su propia licencia,
+indicada en la cabecera de su archivo.

@@ -37,11 +37,12 @@ la documentación viva.
 
 Lo que se cambió:
 
-- **`LICENSE`**, reemplazado entero por el texto que redactó Javier.
+- **`LICENSE`**, reemplazado entero por el texto que redactó Javier, con una
+  línea final que deja afuera las librerías de `escribiente/vendor/`.
 - **`README.md`**: la sección «Licencia», que decía «usalas, copialas, vendelas»,
   ahora explica la reserva, que el uso del sitio es libre, que las normas y
   fallos transcriptos no entran, y que las librerías de `escribiente/vendor/`
-  conservan su licencia. El autor, con el nombre completo.
+  conservan su licencia.
 - **`CONTRIBUTING.md`**: antes decía que no había nada que firmar. Ahora pide la
   misma aceptación que Honorio: quien aporta autoriza a incorporar su aporte
   bajo estos términos y conserva la autoría.
@@ -49,10 +50,10 @@ Lo que se cambió:
 - **`escribiente/README.md`**: su sección «Licencia».
 - **`package.json`**: se agregaron `license` y `author`, que no existían.
 - **`AGENTS.md`**: la convención de licencia, a pedido expreso de Javier.
-- **El nombre**: «L. Javier Cúneo Libarona» pasó a «Luis Javier Cúneo
-  Libarona» en los pies de las doce calculadoras, en los títulos y
-  encabezados de `index.html`, `quien-soy.html` y `uma-uhom.html`, y en el
-  colofón de `documentacion.html`.
+- **El nombre completo va sólo como titular**, en los textos de licencia. En
+  un primer commit se había cambiado también la firma de todo el sitio; se
+  entendió mal el pedido y se volvió a «L. Javier Cúneo Libarona». Los pies
+  de las doce calculadoras quedaron con «© 2026» delante de esa firma.
 
 **Lo que no se tocó, a propósito:** las cabeceras de las tres librerías de
 `escribiente/vendor/` —pdf.js y pdf-lib bajo Apache-2.0, qrcode-generator

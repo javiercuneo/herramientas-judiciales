@@ -698,7 +698,8 @@ falta una referencia que parece que debería estar, falta a propósito.
 reservados** (`LICENSE`), desde el 22/9, igual que Honorio; hasta ahí fue otra
 (ver [`HISTORIA.md`](HISTORIA.md)). El código se publica para auditarlo, no para
 reusarlo sin permiso; **el uso del sitio sigue libre**. Lo que hay que
-sostener: el titular con el nombre completo, la aceptación de
+sostener: el nombre completo sólo en los textos de licencia —la firma del
+sitio sigue «L. Javier», con «© 2026» en el pie de las calculadoras—, la aceptación de
 `CONTRIBUTING.md` en todo PR, y **ninguna mención a la licencia anterior en el
 sitio ni en la documentación viva** —queda en `HISTORIA.md` y en los commits—.
 Las librerías de `escribiente/vendor/` conservan la suya: sus cabeceras no se
