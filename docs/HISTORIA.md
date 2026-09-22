@@ -19,6 +19,50 @@ de 2026.
 
 ---
 
+## De MIT a todos los derechos reservados — 22/9
+
+Desde su primer commit y hasta el 21/9 este repositorio se publicó bajo
+**licencia MIT** (`Copyright (c) 2026 javiercuneo`). El 22/9 Javier la
+reemplazó por **copyright con todos los derechos reservados**, con el código
+público para auditar y autorización caso por caso, por escrito, a quien la pida
+explicando el uso. Es la misma decisión que tomó el mismo día en Honorio
+(commit `34e9531`, versión 3.5.5), y se aplicó con el mismo criterio.
+
+**Por qué:** una app de Javier apareció publicada por terceros sin mencionar su
+autoría. De acá en adelante quiere decidir quién reusa el código y para qué.
+
+**Qué se decidió no escribir:** el `LICENSE` nuevo no dice qué licencia tenían
+las versiones anteriores. Eso queda acá y en los commits, y no en el sitio ni en
+la documentación viva.
+
+Lo que se cambió:
+
+- **`LICENSE`**, reemplazado entero por el texto que redactó Javier.
+- **`README.md`**: la sección «Licencia», que decía «usalas, copialas, vendelas»,
+  ahora explica la reserva, que el uso del sitio es libre, que las normas y
+  fallos transcriptos no entran, y que las librerías de `escribiente/vendor/`
+  conservan su licencia. El autor, con el nombre completo.
+- **`CONTRIBUTING.md`**: antes decía que no había nada que firmar. Ahora pide la
+  misma aceptación que Honorio: quien aporta autoriza a incorporar su aporte
+  bajo estos términos y conserva la autoría.
+- **`index.html`**: la tabla y el párrafo de «Licencia» de la landing.
+- **`escribiente/README.md`**: su sección «Licencia».
+- **`package.json`**: se agregaron `license` y `author`, que no existían.
+- **`AGENTS.md`**: la convención de licencia, a pedido expreso de Javier.
+- **El nombre**: «L. Javier Cúneo Libarona» pasó a «Luis Javier Cúneo
+  Libarona» en los pies de las doce calculadoras, en los títulos y
+  encabezados de `index.html`, `quien-soy.html` y `uma-uhom.html`, y en el
+  colofón de `documentacion.html`.
+
+**Lo que no se tocó, a propósito:** las cabeceras de las tres librerías de
+`escribiente/vendor/` —pdf.js y pdf-lib bajo Apache-2.0, qrcode-generator
+bajo MIT—, que no son de Javier; el enlace a la página de copyright de
+OpenStreetMap en `distancia.html`, que es la atribución de los datos del
+mapa; y las entradas anteriores de este archivo. Ninguna cifra se movió: los
+controles dieron lo mismo antes y después.
+
+---
+
 ## Secretario, y el LinkedIn nuevo — 21/9
 
 Desde el 21/9 Javier es secretario (efectivo) de un juzgado civil y deja de

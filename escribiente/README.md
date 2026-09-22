@@ -265,4 +265,12 @@ empezar una sesión. En una línea cada uno:
 
 ## Licencia
 
-MIT, como todo lo demás del repositorio.
+Copyright © 2026 Luis Javier Cúneo Libarona. Todos los derechos reservados,
+como todo lo demás del repositorio: el código se publica para auditarlo, y
+usarlo, copiarlo o publicarlo requiere autorización escrita. El texto completo
+está en el [LICENSE](../LICENSE) de la raíz. Usar Escribiente en el sitio es
+libre.
+
+Las librerías de `vendor/` —pdf.js, pdf-lib y qrcode-generator— son de
+terceros y conservan cada una su propia licencia, indicada en la cabecera de
+su archivo.

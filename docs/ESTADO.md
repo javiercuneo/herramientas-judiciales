@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-09-21 · rama `main`
+Última actualización: 2026-09-22 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -691,6 +691,18 @@ repositorio», y `scripts/verificar-datos.sh` las verifica en cada commit.
 juzgado.** Su LinkedIn es `linkedin.com/in/javiercuneolibarona`; la dirección
 vieja ya no es suya y no tiene que volver a aparecer. Si
 falta una referencia que parece que debería estar, falta a propósito.
+
+### Licencia: todos los derechos reservados, código a la vista
+
+**Copyright © 2026 Luis Javier Cúneo Libarona. Todos los derechos
+reservados** (`LICENSE`), desde el 22/9, igual que Honorio; hasta ahí fue otra
+(ver [`HISTORIA.md`](HISTORIA.md)). El código se publica para auditarlo, no para
+reusarlo sin permiso; **el uso del sitio sigue libre**. Lo que hay que
+sostener: el titular con el nombre completo, la aceptación de
+`CONTRIBUTING.md` en todo PR, y **ninguna mención a la licencia anterior en el
+sitio ni en la documentación viva** —queda en `HISTORIA.md` y en los commits—.
+Las librerías de `escribiente/vendor/` conservan la suya: sus cabeceras no se
+tocan.
 
 ### Una promesa de privacidad se demuestra, no se declara
 

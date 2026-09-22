@@ -1,6 +1,8 @@
 {
   "name": "herramientas-judiciales",
   "private": true,
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Luis Javier Cúneo Libarona",
   "type": "module",
   "description": "Scripts a nivel repositorio. honorio/ tiene su propio package.json; escribiente/ no necesita ninguno, es estatico.",
   "scripts": {

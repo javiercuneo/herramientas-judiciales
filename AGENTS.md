@@ -568,9 +568,12 @@ identifica a nadie por separado identifica igual cuando va con otros tres.
   `chore:`. Miralos con `git log --oneline` antes de escribir el tuyo.
 - **`git commit -m` con here-string falla** en este entorno. Usá
   `git commit -F <archivo>`.
-- **Licencia MIT** para todo lo que hay acá. La excepción —Honorio, bajo
-  AGPL— se fue con él; el CLA de `CONTRIBUTING.md` aplica en aquel
-  repositorio, no en este.
+- **Todos los derechos reservados, código a la vista para auditar** (desde el
+  22/9/2026), igual que Honorio. Si aparece un PR, lo primero que se mira es
+  la aceptación de [`CONTRIBUTING.md`](CONTRIBUTING.md): sin eso el aporte no
+  puede entrar. El titular se escribe siempre con el nombre completo, Luis
+  Javier Cúneo Libarona. El motivo está en `docs/ESTADO.md` y no hace falta
+  rediscutirlo.
 - **La landing publica lo que la allowlist de `pages.yml` nombra.** Si agregás
   algo al sitio, va ahí *y* se enlaza desde `index.html`. Si no, no existe para
   nadie: ya pasó con PDF-studio, que estuvo meses publicado y sin figurar.

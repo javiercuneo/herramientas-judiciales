@@ -1,6 +1,6 @@
 # Herramientas para la práctica judicial
 
-**L. Javier Cúneo Libarona** — abogado. Secretario de un juzgado civil.
+**Luis Javier Cúneo Libarona** — abogado. Secretario de un juzgado civil.
 
 Software para lo que hago todos los días: computar plazos, regular honorarios,
 liquidar la tasa. Cada herramienta salió de un problema concreto de trabajo, no
@@ -210,22 +210,32 @@ Por eso la tabla de mínimos está a un clic dentro de la app.
 
 ## Licencia
 
-| Qué | Licencia |
-|---|---|
-| Este repositorio | [MIT](LICENSE) |
-| [Honorio](https://github.com/javiercuneo/honorio) | AGPL-3.0-or-later |
+**Copyright © 2026 Luis Javier Cúneo Libarona. Todos los derechos reservados.**
 
-Las calculadoras son aritmética sobre reglas explícitas: cualquiera las
-reescribe en una tarde y no hay motivo para ponerles condiciones. Usalas,
-copialas, vendelas si querés.
+El código está publicado para que se pueda **auditar**: cualquiera puede
+leerlo y verificar cómo se obtiene cada resultado. Una fecha de vencimiento o
+un cálculo que puede fundar una resolución judicial no tiene que ser una caja
+negra.
 
-Lo que hay en el motor de Honorio no es eso. Son los criterios para resolver
-los puntos donde la ley es ambigua. La AGPL **no prohíbe el uso comercial**:
-exige que quien la modifique y la ofrezca a terceros publique su versión bajo la
-misma licencia. La app es y va a seguir siendo gratuita; impedir que el trabajo
-vuelva cerrado es todo lo que la licencia hace.
+Publicarlo no es licenciarlo. Sin autorización previa y por escrito no se
+permite usar, copiar, modificar, distribuir ni publicar este código ni obras
+derivadas de él, tampoco en una red interna. El texto completo está en
+[LICENSE](LICENSE). [Honorio](https://github.com/javiercuneo/honorio) está
+bajo los mismos términos.
 
-Para integrarla en un producto propio bajo otros términos, escribime.
+**Usar las herramientas en [javiercuneo.com.ar](https://javiercuneo.com.ar/)
+es libre y gratuito.** La reserva alcanza al código, no al uso del sitio. Los
+textos de leyes, normas y fallos que el repositorio transcribe o cita no son
+materia de esta reserva.
+
+Las librerías de terceros que Escribiente trae en `escribiente/vendor/`
+—pdf.js, pdf-lib y qrcode-generator— conservan cada una su propia licencia,
+indicada en la cabecera de su archivo.
+
+Si querés usar el código para algo concreto, escribime a
+javier@javiercuneo.com.ar contando para qué. Las autorizaciones se dan caso
+por caso.
+
 Si querés aportar, leé [CONTRIBUTING.md](CONTRIBUTING.md) primero.
 
 ---
