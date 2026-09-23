@@ -91,9 +91,13 @@ corrigió contra el código lo que había quedado viejo:
 - **Faltaban** el tablero, la página de UMA y UHOM, la pestaña Certificar, el
   caso en el enlace y la excepción de privacidad de `distancia`.
 
-Se sacaron dos cosas porque no se pudieron verificar en el repositorio: la
-cita de «Ley 26.674» para el 16 de noviembre, y la lista de Acordadas escrita a
-mano. La lista quedó reemplazada por el puntero al archivo que la lleva. En la
+La lista de Acordadas escrita a mano se reemplazó por el puntero al archivo que
+la lleva. La cita de «Ley 26.674» para el 16 de noviembre se sacó porque no
+estaba en ningún otro lugar del repositorio, y volvió al día siguiente:
+Javier confirmó que es correcta, igual que la Acordada 15/25 del ejemplo de la
+regresiva. De esa revisión salió además un error de tipeo en
+`data/dias-inhabiles.json`: «CSNJ» por «CSJN», que se veía en pantalla como
+motivo del día. En la
 landing, `verificar-honorio` encontró la versión de Honorio vieja: decía 3.5.2
 y es 3.5.5.
 
