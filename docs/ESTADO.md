@@ -911,6 +911,11 @@ documentos se quedan acá porque acá está la materia prima; el pendiente, no.
   más parecida desde una lista escrita a mano**: una página nueva que no se
   sume ahí no rompe nada, pero no se sugiere. El servidor local no la sirve
   sola; se prueba abriendo `/404.html`.
+- **CI corre en UTC y esta máquina en hora de Buenos Aires**, así que una prueba
+  de fechas puede pasar acá y fallar allá. Pasó el 23/9 y frenó una
+  publicación: una prueba quedó debajo del bloque del ledger de
+  `verificar-plazos`, que cambia el huso a mitad de la corrida. **Antes de
+  publicar algo que toque fechas, correr los controles con `TZ=UTC` delante.**
 - **Al leer un diff grande de un HTML, mirar primero si es de contenido.**
   `git diff --ignore-cr-at-eol` lo despeja en un segundo.
 - **`www` depende de Cloudflare, y de dos cosas que no se ven.** Desde el 8/9
