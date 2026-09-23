@@ -50,13 +50,35 @@ sólo se enlaza lo que NO está en el tablero. Detalle en
 
 ## Bugs abiertos
 
-**Ninguno.** Los cuatro de escribiente se cerraron el 17/9 con el paso 2 del plan
-del motor único, junto con **E-06**, una fuga que apareció al verificarlos —la
-constancia nombraba al pie a quien el cuerpo sí había tapado—. Están en
-[`HISTORIA.md`](HISTORIA.md) con su caso de prueba, y **el borde que quedó de
-cada regla, en [`escribiente/README.md`](../escribiente/README.md)**: el OCR que
-ensucia sin tratamiento delante, y que la numeración de etiquetas vale por tanda
-y no tapa lo que las reglas ocultan solas.
+**E-07, de Escribiente, abierto el 22/9 y pedido por confronteitor.** Lo
+encontró Javier pasando un testimonio del mostrador. **Confronteitor lo conoce
+como E-05**: allá creían que acá íbamos por E-04, y E-05 y E-06 ya estaban
+usados. Dos puntos hechos y uno abierto:
+
+1. **Hecho el 22/9: «Unidades Complementarias» se ofrecía como nombre.** Es el
+   rubro del inmueble, y tildado destruye el dato que el confronte coteja
+   mientras la constancia dice que salió todo bien. Entraron `unidades`,
+   `complementaria` y `complementarias` a `NO_SON_PERSONAS`, con la regresión 18
+   de `verificar-escribiente`. «Unidad Funcional» y «Folio Real» ya no se
+   ofrecían y quedaron como regresión. **«Real» no entra a la lista porque
+   también es un apellido.**
+2. **Hecho el 22/9: lo que se escapó del mismo testimonio**, cuatro formas con
+   su prueba en la regresión 19. Son el expediente **en letras** —los
+   testimonios transcriben los números—, el apellido **detrás de una inicial**
+   («Dra. Nombre A. Apellido»), y el apellido que el PDF pasó **al renglón de
+   arriba o de abajo** de la etiqueta. En el expediente y en la inicial la
+   constancia decía que el archivo estaba limpio. **El salto de línea entra al
+   detector de restos sólo si la etiqueta cierra o abre su renglón**: la regla
+   de no cruzarlo sigue valiendo para todo lo demás.
+3. **Abierto, y es de Javier: la carátula de una sucesión no viene tildada.**
+   `partesDeCaratula` busca «X c/ Y s/», y «X s/ SUCESIÓN» no tiene «c/». Para
+   tildar al causante hay que decidir con qué etiqueta —la pantalla le pone
+   `[ACTOR]` a la primera parte— y mirar a `redactor`, que recibe esa lista por
+   el conector y puede estar contando con que sean dos.
+
+Los seis anteriores —E-01 a E-06— están cerrados, en [`HISTORIA.md`](HISTORIA.md)
+con su caso de prueba. **El borde que quedó de cada regla está en
+[`escribiente/README.md`](../escribiente/README.md)**.
 
 ## Por dónde seguir
 
@@ -299,7 +321,7 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-acordada` | Que la tabla de la Acordada 5/2010 diga lo que dice el anexo: 90 |
 | `npm run verificar-distancia` | El cómputo del art. 158 y la búsqueda en esa tabla: 64 |
 | `npm run verificar-red` | Qué terceros nombran las quince páginas que se publican, contra una lista con el motivo al lado de cada uno |
-| `npm run verificar-escribiente` | El motor de Escribiente, con la pestaña «Certificar»: 376 |
+| `npm run verificar-escribiente` | El motor de Escribiente, con la pestaña «Certificar»: 394 |
 | `npm run verificar-honorio` | Las cinco cifras que este repositorio sigue del motor |
 | `npm run verificar-docs` | Que los documentos de dominio no citen artículos ni archivos que no existen |
 | `npm run verificar-estado` | El presupuesto y la higiene de este archivo |
@@ -538,7 +560,7 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
 **Lo que hay que saber para tocarla:**
 
 - **El motor está en `escribiente/js/motor/`, es código puro y no toca el DOM.**
-  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 376
+  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 394
   comprobaciones, en CI. Los seis bugs de la versión anterior y las fugas del
   21/8, el 15/9 y el 17/9 están ahí como regresión. `js/app.js` es sólo la
   pantalla, y desde el 17/9 `conectores/anonimizar.mjs` expone el motor afuera.

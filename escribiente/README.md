@@ -149,7 +149,7 @@ probar:
 npm run verificar-escribiente
 ```
 
-Son 376 comprobaciones sobre el motor, e incluyen como regresión los seis bugs
+Son 394 comprobaciones sobre el motor, e incluyen como regresión los seis bugs
 que tenía la versión anterior —o que aparecieron al probar esta contra PDF
 reales—. Corre en CI antes de publicar.
 
@@ -250,18 +250,23 @@ carpeta. Allá queda un puntero y lo que un agente necesita saber sin entrar ac�
   `js/motor/anonimizar.js`**: las reglas son otras, pero los huecos suelen ser
   los mismos. No se copian acá porque este repositorio es público.
 
-### Los bugs abiertos que reportó `confronteitor`
+### Los bugs que reporta `confronteitor`
 
-Salieron el 16/9 de pasar nueve testimonios reales, y están escritos con su caso
-de prueba en [`docs/ESTADO.md`](../docs/ESTADO.md), que es donde se miran al
-empezar una sesión. En una línea cada uno:
+E-01 a E-06 salieron del 16 al 17/9 y están cerrados, con su caso de prueba en
+[`docs/HISTORIA.md`](../docs/HISTORIA.md). **E-07**, del 22/9, está abierto a
+medias, y lo que queda se sigue en [`docs/ESTADO.md`](../docs/ESTADO.md):
 
-- **E-01 · un nombre de varios tokens puede quedar a medias**, y la constancia no
-  lo cuenta, así que el archivo se lee como limpio. Es el grave.
-- **E-02 · la lista de candidatos trae más ruido que señal**, y una lista así se
-  tilda en diagonal, que es donde se escapa E-01.
-- **E-03 · etiquetas numeradas y estables entre documentos**, para poder cruzar
-  dos archivos anonimizados por separado. Es un pedido, no un bug.
+- **Hecho: los rubros del inmueble no son nombres.** «Unidades Complementarias»
+  se ofrecía para tildar, y tildarlo destruye el dato que el confronte coteja.
+  **Si aparece otro rubro así, entra a `NO_SON_PERSONAS` sólo si no es apellido
+  de nadie** —por eso «Real» no está: «Folio Real» se cae por «folio»—.
+- **Hecho: lo que se escapó de ese mismo testimonio.** El expediente escrito
+  en letras —con su ancla, «Exp. N°», porque sin ella un número en letras es
+  un monto o una fecha—, el apellido detrás de una inicial, y el apellido que
+  el PDF pasó al renglón de al lado de la etiqueta. Este último **se ofrece,
+  no se tapa solo**, y sólo si la etiqueta cierra o abre su renglón.
+- **Abierto: la carátula de una sucesión no viene tildada**, porque no tiene
+  «c/». Falta decidir con qué etiqueta se tilda al causante.
 
 ## Licencia
 

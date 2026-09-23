@@ -1053,6 +1053,133 @@ ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
 }
 
 // ---------------------------------------------------------------------------
+// REGRESION 18: los rubros del inmueble no son nombres (E-07).
+//
+// En un testimonio para inscribir una declaratoria se ofrecio "Unidades
+// Complementarias" como nombre propio. Es el rubro del inmueble, y tildado
+// destruye justo el dato que el confronte coteja; la constancia, ademas, dice
+// que salio todo bien. Pedido de confronteitor, 22/9/2026. "Unidad Funcional"
+// y "Folio Real" ya no se ofrecian —"unidad", "funcional" y "folio" estaban en
+// la lista—, y van igual como regresion porque son el mismo riesgo.
+//
+// El texto es inventado con la forma del de un testimonio: prosa en letras,
+// y los datos del inmueble abreviados y en mayusculas.
+// ---------------------------------------------------------------------------
+{
+    const testimonio = [
+        'practiquese la inscripcion con relacion al inmueble, Unidad Funcional numero',
+        'doce ubicada en el piso tercero, matricula Folio Real ocho mil y Unidades',
+        'Complementarias uno y dos, ubicadas en el subsuelo.',
+        'Datos del inmueble: UF 12, Unidad Complementaria I y II.',
+        'UNIDAD FUNCIONAL 12 - UNIDADES COMPLEMENTARIAS I Y II - FOLIO REAL 8000',
+    ].join('\n');
+    const c = candidatosANombre(normalizarEspacios(testimonio)).map((x) => x.texto);
+    ok(c.length === 0, 'REGRESION E-07: los rubros del inmueble no se ofrecen como nombre',
+        `candidatos: ${c.join(' | ')}`);
+
+    // Y el nombre que va al lado del rubro se sigue ofreciendo: la lista saca
+    // palabras, no renglones.
+    const conNombre = candidatosANombre(
+        'Unidades Complementarias uno y dos, a nombre de Marta Ficticia.').map((x) => x.texto);
+    ok(conNombre.includes('Marta Ficticia'),
+        'REGRESION E-07: el nombre del titular al lado del rubro se sigue ofreciendo',
+        `candidatos: ${conNombre.join(' | ')}`);
+}
+
+// ---------------------------------------------------------------------------
+// REGRESION 19: lo que se escapo del mismo testimonio (E-07, segunda mitad).
+//
+// Tres fugas, y en las tres la constancia decia que el archivo estaba limpio.
+// Los nombres y los numeros son inventados; la forma es la del testimonio.
+// ---------------------------------------------------------------------------
+
+// --- El numero de expediente escrito en letras -----------------------------
+{
+    // Un testimonio transcribe los numeros en letras, y la regla de expediente
+    // solo miraba digitos: el numero salia entero. Ademas el ancla "Exp." no
+    // estaba entre las palabras que la regla reconoce.
+    const { texto, conteo } = anonimizar(
+        '(Exp. N° cuarenta y dos mil ciento siete/dos mil veinticuatro) de cuyas constancias');
+    contiene(texto, '(Exp. N° [EXPTE]) de cuyas',
+        'REGRESION E-07: el expediente en letras se reemplaza y el ancla se conserva');
+    noContiene(texto, 'veinticuatro', 'REGRESION E-07: no queda el anio del expediente en letras');
+    ok(conteo['expediente en letras'] === 1, 'REGRESION E-07: la constancia cuenta el expediente en letras',
+        JSON.stringify(conteo));
+
+    // Cortado por un salto de linea, que es como sale de un PDF.
+    const cortado = anonimizar('autos (Expte. N° mil doscientos\ntreinta/dos mil veinte) en tramite').texto;
+    contiene(cortado, '(Expte. N° [EXPTE]) en tramite',
+        'REGRESION E-07: el expediente en letras cortado por un renglon se reemplaza entero');
+
+    // Y lo que no es un expediente no se toca: sin el ancla, un numero en
+    // letras es un monto, una fecha o un articulo, y es el dato del escrito.
+    for (const frase of [
+        'lo dispuesto por los articulos dos mil cuatrocientos veintiseis y setecientos',
+        'el dia ocho de mayo de dos mil veintiseis',
+        'AUTOS Y VISTOS: Para dictar declaratoria',
+        'Autos y vistos uno/dos',
+    ]) {
+        const r = anonimizar(frase);
+        ok(r.texto === frase, `un numero en letras sin ancla de expediente no se toca: ${frase}`, r.texto);
+    }
+}
+
+// --- El apellido despues de una inicial ------------------------------------
+{
+    // "Fdo. Dra. Nombre A. Apellido": la regla de tratamiento cortaba el nombre
+    // en la inicial y dejaba el apellido a la vista, contado como reemplazado.
+    const firma = anonimizar('Fdo. Dra. Lucia A. Ficticia. Jueza subrogante.').texto;
+    contiene(firma, 'Fdo. Dra. [PERSONA]. Jueza subrogante.',
+        'REGRESION E-07: el nombre con una inicial en el medio se reemplaza entero');
+    noContiene(firma, 'Ficticia', 'REGRESION E-07: no queda el apellido despues de la inicial');
+
+    // Una inicial no abre un nombre: el cargo que sigue sigue siendo texto.
+    const cargo = anonimizar('la Dra. Lucia A. Ficticia, Secretaria.').texto;
+    contiene(cargo, 'Dra. [PERSONA], Secretaria.',
+        'REGRESION E-07: la inicial no arrastra lo que viene despues de la coma');
+
+    // Si el usuario tildo solo el nombre de pila, el apellido detras de la
+    // inicial se ofrece como resto: la constancia no puede decir que esta limpio.
+    const tildado = anonimizar('Fdo. Lucia A. Ficticia, Jueza.',
+        [{ texto: 'Lucia', reemplazo: '[PERSONA_1]' }]).texto;
+    const restos = restosPegadosAEtiqueta(tildado).map((x) => x.texto);
+    ok(restos.includes('Ficticia'), 'REGRESION E-07: el apellido detras de etiqueta e inicial se ofrece como resto',
+        `restos: ${restos.join(' | ')}`);
+}
+
+// --- El apellido que paso al renglon siguiente -----------------------------
+{
+    // El usuario tilda el nombre que la lista le ofrece —la parte que quedo en
+    // un renglon— y el apellido que paso al siguiente queda en claro. El
+    // detector de restos no cruzaba el salto, asi que la constancia no lo
+    // nombraba. Aparecio en las dos direcciones.
+    const detras = anonimizar(
+        'autorizados: Dra. Marta Ines\nInventada, abogada, Sr. Pablo\nNovelo, abogado',
+        [{ texto: 'Marta Ines', reemplazo: '[PERSONA_1]' }, { texto: 'Pablo', reemplazo: '[PERSONA_2]' }]).texto;
+    const r1 = restosPegadosAEtiqueta(detras).map((x) => x.texto);
+    ok(r1.includes('Inventada') && r1.includes('Novelo'),
+        'REGRESION E-07: el apellido en el renglon de abajo de la etiqueta se ofrece como resto',
+        `restos: ${r1.join(' | ')}`);
+
+    const adelante = anonimizar('caratuladas ‘DA FICTICIO,\n## ANA MARIA Y OTRO S/SUCESIÓN’',
+        [{ texto: 'ANA MARIA', reemplazo: '[PERSONA_1]' }]).texto;
+    const r2 = restosPegadosAEtiqueta(adelante).map((x) => x.texto);
+    ok(r2.includes('FICTICIO'),
+        'REGRESION E-07: el apellido en el renglon de arriba de la etiqueta se ofrece como resto',
+        `restos: ${r2.join(' | ')}`);
+
+    // El salto solo cuenta si la etiqueta es lo ultimo —o lo primero— de su
+    // renglon: ahi el nombre fue cortado. Con texto en el medio, no.
+    const separado = restosPegadosAEtiqueta('Firmado por [PERSONA] en la fecha\nGonzalo dijo').map((x) => x.texto);
+    ok(!separado.includes('Gonzalo'),
+        'REGRESION E-07: una palabra del renglon siguiente no es resto si la etiqueta no cerraba el suyo',
+        `restos: ${separado.join(' | ')}`);
+    const cargo = restosPegadosAEtiqueta('Firmado por: [PERSONA]\nJuez subrogante').map((x) => x.texto);
+    ok(cargo.length === 0, 'REGRESION E-07: el cargo del renglon siguiente no es resto',
+        `restos: ${cargo.join(' | ')}`);
+}
+
+// ---------------------------------------------------------------------------
 // REGRESION 16: el nombre reemplazado A MEDIAS (E-01 y E-05).
 //
 // Son dos bugs con un solo modo de falla, y es el peor que tiene esta

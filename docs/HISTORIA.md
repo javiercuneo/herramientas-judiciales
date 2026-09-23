@@ -19,6 +19,71 @@ de 2026.
 
 ---
 
+## E-07, primera mitad: un rubro del inmueble ofrecido como nombre — 22/9
+
+Pedido de `confronteitor`, que lo anotó como E-05 sin saber que acá E-05 y
+E-06 ya estaban usados. Javier pasó por Escribiente un testimonio para inscribir
+una declaratoria de herederos, y la lista de candidatos ofreció «Unidades
+Complementarias» para tildar. Es un rubro del inmueble: las unidades
+complementarias de un edificio, numeradas en romanos. **Es el peor caso para el
+confronte**, porque tildado destruye justo el dato que el confronte coteja
+contra el oficio, y la constancia dice que salió todo bien.
+
+**Lo que se hizo es lo más chico que alcanzaba, y se probó antes de tocar el
+motor.** La regresión 18 de `verificar-escribiente` se escribió primero, con
+texto inventado que tiene la forma del testimonio: prosa en letras, los datos
+abreviados y en mayúsculas, y el rubro cortado por un salto de línea. Falló con
+un solo candidato, `UNIDADES COMPLEMENTARIAS`. «Unidad Funcional» y «Folio Real»
+**ya no se ofrecían**, porque «unidad», «funcional» y «folio» estaban en
+`NO_SON_PERSONAS` desde el 21/8 y el 17/9. Entraron `unidades`, `complementaria`
+y `complementarias`, y la prueba pasó. «Real» no entró porque también es un
+apellido, que es el criterio de la lista desde E-02. Una segunda comprobación
+exige que un nombre escrito al lado del rubro se siga ofreciendo.
+
+Resultado: 378 comprobaciones ese día, las 81 de `verificar-conectores`, y el banco de
+`scripts/comparar-motores/` sin moverse. **El banco no se podía mover**, porque la
+lista sólo cambia qué se ofrece y no qué se reemplaza. Pasado el testimonio de
+nuevo, fuera del repo, ya no ofrece ningún rubro del inmueble.
+
+## E-07, segunda mitad: lo que se escapó del mismo testimonio — 22/9
+
+Javier confirmó los datos que se escaparon y agregó uno que no se veía en la
+salida: **el número de expediente, que salió entero porque vino en letras**.
+Los testimonios transcriben los números a letras. Hubo cuatro formas, y cada
+una tiene su prueba en la regresión 19, vista fallar antes del arreglo:
+
+- **El expediente en letras.** «(Exp. N° … /dos mil veinticinco)» no lo veía
+  ninguna regla: las dos de expediente miran dígitos, y además «Exp.» no estaba
+  entre las anclas. Entró la regla `expediente en letras`, con el ancla
+  obligatoria y la barra entre número y año. **Sin ancla no se toca**, y hay
+  prueba de eso: un número en letras suelto es un artículo, una fecha o un
+  monto.
+- **El apellido detrás de una inicial.** «Fdo. Dra. Nombre A. Apellido» salía
+  «Dra. [PERSONA] A. Apellido»: la regla de tratamiento se cortaba en la «A.»
+  y la constancia lo contaba como reemplazado. La inicial entra **sólo en el
+  medio**. El detector de restos también la acepta entre la etiqueta y el
+  apellido, para cuando se tilda sólo el nombre de pila.
+- **El apellido que el PDF pasó al renglón siguiente**, dos veces en la lista de
+  autorizados, y **al renglón anterior**, en la carátula. La lista ofrece la
+  parte que quedó en un renglón, porque sus patrones no cruzan el salto; el
+  usuario la tilda, y lo del otro renglón quedaba en claro. El detector de
+  restos tampoco cruzaba el salto, **y eso estaba escrito como regla**: juntar
+  dos renglones propone restos que nunca estuvieron pegados a nada. Se
+  conservó para todo, **menos cuando la etiqueta es lo último o lo primero de
+  su renglón**, porque ahí el nombre no estaba separado de nada: lo cortó el
+  PDF. Se ofrece y no se tapa, como todo resto.
+
+**Una corrección a lo que se le dijo a Javier ese día.** Se le dijo que la
+constancia no había avisado de ninguna de estas fugas. En el caso de la carátula
+sí había avisado: el apellido aparece de nuevo más abajo pegado a la etiqueta,
+y ahí el detector lo encontró. Donde el nombre aparecía una sola vez, no había
+aviso.
+
+Resultado: 394 comprobaciones, las 81 de `verificar-conectores`, y el banco de
+comparación sin moverse. **Queda abierto que la carátula de una sucesión venga
+tildada**, porque no tiene «c/» y `partesDeCaratula` no la reconoce. Es una
+decisión de Javier, y está en `ESTADO.md`.
+
 ## De MIT a todos los derechos reservados — 22/9
 
 Desde su primer commit y hasta el 21/9 este repositorio se publicó bajo

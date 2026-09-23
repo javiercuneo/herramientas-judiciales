@@ -120,6 +120,18 @@ function largoDeNombre(valor) {
     return fin;
 }
 
+// Un numero escrito en letras, como lo transcribe un testimonio: "ochenta y
+// seis mil trescientos doce". Palabras de numero separadas por espacios, que
+// empiezan y terminan en una que no es "y". Solo la usa la regla de expediente
+// en letras, detras de su ancla: suelta describe tambien montos y fechas.
+const PALABRA_DE_NUMERO =
+    '(?:un[oa]?|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|trece|' +
+    `catorce|quince|dieci[${MIN}]+|veinte|veinti[${MIN}]+|treinta|cuarenta|cincuenta|` +
+    'sesenta|setenta|ochenta|noventa|cien|ciento|doscient[oa]s|trescient[oa]s|' +
+    'cuatrocient[oa]s|quinient[oa]s|seiscient[oa]s|setecient[oa]s|ochocient[oa]s|' +
+    'novecient[oa]s|mil)';
+const NUMERO_EN_LETRAS = `${PALABRA_DE_NUMERO}(?:\\s+(?:y\\s+)?${PALABRA_DE_NUMERO})*`;
+
 // ---------------------------------------------------------------------------
 // Nivel 1: identificadores estructurados.
 //
@@ -287,6 +299,32 @@ export const REGLAS_IDENTIFICADORES = [
         reemplazo: (todo, plata, numero, despues) => (plata || despues) ? todo : '[DNI]',
     },
     {
+        nombre: 'expediente en letras',
+        // "(Exp. N° ochenta y seis mil trescientos doce/dos mil veinticinco)".
+        //
+        // CASO DE PRUEBA, 22/9/2026 (E-07). Un testimonio transcribe los numeros
+        // en letras, y las dos reglas de expediente miran digitos: el numero
+        // salia entero y la constancia no decia nada. El ancla "Exp." tampoco
+        // estaba entre las que reconoce la regla de abajo.
+        //
+        // EL ANCLA ES OBLIGATORIA, y es lo que hace segura a esta regla. Sin
+        // ella un numero en letras es un monto, una fecha o un articulo —"los
+        // articulos dos mil cuatrocientos veintiseis y setecientos"—, que es
+        // justo el dato del escrito. Con el ancla y la barra entre numero y
+        // anio, la forma es tan inequivoca como la de digitos.
+        //
+        // Los separadores son `\s`, a diferencia de casi todo el archivo: un
+        // numero escrito en letras es largo y el PDF lo corta, y aca no hay
+        // riesgo de comerse el renglon siguiente porque solo pasan palabras de
+        // numero y la barra.
+        patron: new RegExp(
+            `\\b((?:exp|expte|expediente|causa|autos)\\.?\\s*(?:n[°ºo]?\\.?)?\\s*)` +
+            `${NUMERO_EN_LETRAS}\\s*\\/\\s*${NUMERO_EN_LETRAS}(?![${LETRA}])`,
+            'gi'
+        ),
+        reemplazo: '$1[EXPTE]',
+    },
+    {
         nombre: 'expediente con contexto',
         // Va ANTES que la regla general a proposito: es mas especifica y
         // consume mas texto. Al reves, la general engancha primero la mitad
@@ -444,7 +482,16 @@ export const REGLAS_NOMBRES = [
             // Las particulas no cuentan entre las cuatro palabras: sin eso,
             // "Dr. Juan Perez de la Fuente" llenaba el cupo en "la" y el
             // apellido quedaba afuera, en claro.
-            `[ \\t]*:?[ \\t]*(${PALABRA_DE_NOMBRE}(?:[ \\t]+(?:${PARTICULA}[ \\t]+){0,2}${PALABRA_DE_NOMBRE}){0,3})`,
+            //
+            // LA INICIAL DEL MEDIO, 22/9/2026 (E-07). "Fdo. Dra. Lucia A. Ficticia"
+            // se cortaba en la "A." —una letra sola no es PALABRA_DE_NOMBRE— y
+            // salia "Dra. [PERSONA] A. Ficticia": el apellido a la vista y la
+            // constancia contandolo como reemplazado. La inicial entra solo EN EL
+            // MEDIO, con su punto y seguida de otra palabra de nombre: no abre ni
+            // cierra un nombre. Con la bandera `i` calzaria tambien una minuscula
+            // ("Perez p. ej."), y la frena `largoDeNombre`, que mira la mayuscula
+            // sin la bandera.
+            `[ \\t]*:?[ \\t]*(${PALABRA_DE_NOMBRE}(?:[ \\t]+(?:[${MAY}]\\.[ \\t]*)?(?:${PARTICULA}[ \\t]+){0,2}${PALABRA_DE_NOMBRE}){0,3})`,
             'gi'
         ),
         reemplazo: (todo, tratamiento, nombre) => {
@@ -698,6 +745,15 @@ telematico cierta cierto util utiles vigente previsional zona sector sede
 # es apellido de nadie, que es el criterio de la lista.
 dni documento libreta pasaporte legajo cbu cvu telefono tel celular fax correo
 mail email nacionalidad estado edad profesion ocupacion nro numero
+
+# Las de abajo entraron el 22/9/2026, por E-07, pedido de confronteitor. En un
+# testimonio para inscribir una declaratoria se ofrecio "Unidades
+# Complementarias" como nombre propio: es el rubro del inmueble, y tildado
+# destruye el dato que el confronte coteja. "Unidad Funcional" y "Folio Real"
+# ya se caian por "unidad", "funcional" y "folio", que estaban arriba; faltaba
+# el plural y el adjetivo. "Real" NO entra: es apellido, y el par se cae igual
+# por "folio".
+unidades complementaria complementarias
 `.replace(/^\s*#.*$/gm, '').trim().split(/\s+/));
 
 // La caratula tiene forma fija: "X c/ Y s/ OBJETO". De ahi salen las partes.
@@ -988,7 +1044,32 @@ const INICIAL_DEL_MEDIO = `(?:[ \\t]+[${MAY}]\\.)?`;
 // estuvo pegado a nada.
 const SEPARADOR = `[ \\t]*,?[ \\t]*`;
 
+// EL SALTO DE LINEA SI ENTRA EN UN CASO, desde el 22/9/2026 (E-07): cuando la
+// etiqueta es lo ULTIMO de su renglon, o lo PRIMERO. Ahi el nombre no estaba
+// separado de nada: el PDF lo corto. En un testimonio, "Dra. Marta Ines" al
+// final de un renglon y "Inventada, DNI..." al principio del siguiente; la
+// lista de candidatos ofrece la parte de arriba —sus patrones tampoco cruzan
+// el salto—, el usuario la tilda, y el apellido de abajo quedaba en claro sin
+// que la constancia lo nombrara. Paso tres veces en el mismo documento, en las
+// dos direcciones.
+//
+// La guarda de arriba sigue valiendo para todo lo demas: con texto entre la
+// etiqueta y el fin del renglon, la palabra de abajo no es un resto. El `##`
+// es el titulo que el conversor le pone a un renglon en mayusculas, que es
+// como suele quedar la caratula.
+const SALTO = `[ \\t]*\\n[ \\t]*(?:#{1,6}[ \\t]+)?`;
+
 const RESTOS = [
+    // El nombre cortado por el renglon, en las dos direcciones.
+    {
+        patron: new RegExp(
+            `${ANTES}(${PALABRA_SUELTA})${INICIAL_DEL_MEDIO}[ \\t]*,?${SALTO}${ETIQUETA_DE_NOMBRE}`, 'g'),
+        grupo: 2,
+    },
+    {
+        patron: new RegExp(`${ETIQUETA_DE_NOMBRE}${SALTO}(${PALABRA_SUELTA})${DESPUES}`, 'g'),
+        grupo: 1,
+    },
     // Adelante de la etiqueta: "Perez, [PERSONA]", "NOMBRE M. [PERSONA]".
     {
         patron: new RegExp(
@@ -999,9 +1080,13 @@ const RESTOS = [
     // cuando el nombre sigue despues de la coma, y tambien el apellido que el
     // OCR ensucio en la PRIMERA letra —"Dra. [PERSONA] 0campo"— donde no hay
     // arreglo por patron y lo unico que se puede hacer es avisar.
+    //
+    // Y "[PERSONA] A. Ficticia", con una inicial entre la etiqueta y el
+    // apellido: es lo que queda si se tilda solo el nombre de pila. Aparecio
+    // el 22/9/2026 (E-07) en la firma de un testimonio.
     {
         patron: new RegExp(
-            `${ETIQUETA_DE_NOMBRE}${SEPARADOR}(${PALABRA_SUELTA})${DESPUES}`, 'g'),
+            `${ETIQUETA_DE_NOMBRE}${INICIAL_DEL_MEDIO}${SEPARADOR}(${PALABRA_SUELTA})${DESPUES}`, 'g'),
         grupo: 1,
     },
 ];
