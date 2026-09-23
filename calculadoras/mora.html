@@ -30,6 +30,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <link rel="stylesheet" href="css/dibujo-plazo.css">
+    <link rel="stylesheet" href="css/dias-propios.css">
     <script src="../assets/tema.js"></script>
     <style>
         /* ==================================================================
@@ -287,6 +288,7 @@
             </p>
         </div>
         <p class="cobertura solo-suelta" id="anioRange">Cargando el calendario judicial…</p>
+        <div data-dias-propios></div>
     </header>
 
     <div class="tablero">
@@ -355,6 +357,7 @@
 
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>
+<script src="js/dias-propios.js"></script>
 <script src="js/dibujo-plazo.js"></script>
 <script src="js/enlace.js"></script>
 <script>
@@ -595,6 +598,8 @@ formulario.addEventListener('submit', function (e) {
                 diasHabiles: diasHabiles,
                 diasCorridos: diasCorridos
             });
+            // Antes de dibujar, y tambien en la negativa (js/dias-propios.js).
+            DiasPropios.anotar(resultado, r.problema ? [] : DiasPropios.usadosEnElCalculo());
 
             // El cómputo pudo cruzar un año sin Acordada de feria cargada, o
             // anterior a la ventana de cobertura. En los dos casos no se

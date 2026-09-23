@@ -50,33 +50,16 @@ sólo se enlaza lo que NO está en el tablero. Detalle en
 
 ## Bugs abiertos
 
-**E-07, de Escribiente, abierto el 22/9 y pedido por confronteitor.** Lo
-encontró Javier pasando un testimonio del mostrador. **Confronteitor lo conoce
-como E-05**: allá creían que acá íbamos por E-04, y E-05 y E-06 ya estaban
-usados. Dos puntos hechos y uno abierto:
+**E-07, de Escribiente, pedido por confronteitor** —que lo conoce como E-05—.
+Los rubros del inmueble ofrecidos como nombre y cuatro fugas de un testimonio
+se cerraron el 22/9, y están en [`HISTORIA.md`](HISTORIA.md). **Queda abierto, y
+es de Javier: que la carátula de una sucesión venga tildada.**
+`partesDeCaratula` busca «X c/ Y s/», y «X s/ SUCESIÓN» no tiene «c/». Hay que
+decidir con qué etiqueta —la pantalla le pone `[ACTOR]` a la primera parte— y
+mirar a `redactor`, que recibe esa lista por el conector y puede contar con que
+sean dos.
 
-1. **Hecho el 22/9: «Unidades Complementarias» se ofrecía como nombre.** Es el
-   rubro del inmueble, y tildado destruye el dato que el confronte coteja
-   mientras la constancia dice que salió todo bien. Entraron `unidades`,
-   `complementaria` y `complementarias` a `NO_SON_PERSONAS`, con la regresión 18
-   de `verificar-escribiente`. «Unidad Funcional» y «Folio Real» ya no se
-   ofrecían y quedaron como regresión. **«Real» no entra a la lista porque
-   también es un apellido.**
-2. **Hecho el 22/9: lo que se escapó del mismo testimonio**, cuatro formas con
-   su prueba en la regresión 19. Son el expediente **en letras** —los
-   testimonios transcriben los números—, el apellido **detrás de una inicial**
-   («Dra. Nombre A. Apellido»), y el apellido que el PDF pasó **al renglón de
-   arriba o de abajo** de la etiqueta. En el expediente y en la inicial la
-   constancia decía que el archivo estaba limpio. **El salto de línea entra al
-   detector de restos sólo si la etiqueta cierra o abre su renglón**: la regla
-   de no cruzarlo sigue valiendo para todo lo demás.
-3. **Abierto, y es de Javier: la carátula de una sucesión no viene tildada.**
-   `partesDeCaratula` busca «X c/ Y s/», y «X s/ SUCESIÓN» no tiene «c/». Para
-   tildar al causante hay que decidir con qué etiqueta —la pantalla le pone
-   `[ACTOR]` a la primera parte— y mirar a `redactor`, que recibe esa lista por
-   el conector y puede estar contando con que sean dos.
-
-Los seis anteriores —E-01 a E-06— están cerrados, en [`HISTORIA.md`](HISTORIA.md)
+E-01 a E-06 están cerrados, en [`HISTORIA.md`](HISTORIA.md)
 con su caso de prueba. **El borde que quedó de cada regla está en
 [`escribiente/README.md`](../escribiente/README.md)**.
 
@@ -314,7 +297,7 @@ a propósito**: un control que nunca falló no es un control.
 | Control | Qué cubre |
 |---|---|
 | `npm run verificar-calculos` | El motor: 673 comprobaciones |
-| `npm run verificar-plazos` | El cómputo de las cinco de plazos, y la API que carga el ledger: 135 |
+| `npm run verificar-plazos` | El cómputo de las cinco de plazos, la API que carga el ledger y los días propios: 153 |
 | `npm run verificar-series` | Las series de UMA, UHOM y monto fijo |
 | `npm run verificar-contraste` | Los tokens de color, AA sobre las tres superficies y en los dos temas |
 | `npm run verificar-conectores` | Los dos transportes de `conectores/`, plazos y anonimización: 81 |
@@ -448,7 +431,7 @@ UTC— y `mora.html` usa `new Date(y, m, d)` con `setHours(0,0,0,0)` —medianoc
 local—. **No se unificaron**, y están las dos en el archivo con el comentario de
 por qué: unificarlas es elegante y mueve un número de algún lado.
 
-**`npm run verificar-plazos`**, 135 comprobaciones, corre en Node y, desde el
+**`npm run verificar-plazos`**, 153 comprobaciones, corre en Node y, desde el
 11/9, en `pages.yml` antes de publicar. Además de las regresiones lleva los
 invariantes, que son lo que no se puede romper: el vencimiento nunca cae en
 inhábil, el sábado a las 23 hs. suma un día y no dos, la ampliación del art. 158
@@ -542,6 +525,31 @@ calcula** —decisión de Javier—; y con un dato inválido **no completa ningu
 `app.js`. Lo cubren 15 filas de `pruebas-calculadoras.html`, vistas fallar
 renombrando `plazo` y calculando al abrir. **El tablero no pasa el enlace a la
 embebida** —su fragmento es la pestaña—: un enlace con datos va a la suelta.
+
+### Los días inhábiles propios
+
+Desde el 22/9 quien usa las cinco de plazos puede cargar **sus** días
+inhábiles —la suspensión de un juzgado que se pinta o se muda, un asueto, una
+Acordada que falta en `data/`— y el cálculo los descuenta. Se guardan en el
+`localStorage` del sitio y no salen de la máquina. Decidido por Javier, con
+tres decisiones que no hay que revisar sin él: **dos tipos** —`inhabil` no toca
+la caducidad, `feria` sí, por el art. 311—, **no viajan en el enlace** y el
+aviso lo dice, y **una sola lista**, que se apaga sin borrarse.
+
+- **El motor no los lee de ningún lado.** `usarDiasPropios(lista)` los recibe;
+  leerlos del navegador es de `js/dias-propios.js`. Por eso **el ledger, los
+  conectores y los bancos calculan como antes**: nadie les pasa una lista.
+  Comprobado con un barrido de 7.920 cálculos idéntico al motor anterior.
+- **Sólo agregan**: un día propio nunca vuelve hábil uno oficial. No es soporte
+  de otra jurisdicción, y no hay que venderlo así.
+- **Un día de más atrasa el vencimiento**, así que mientras estén prendidos hay
+  un aviso arriba de cada calculadora —que se imprime— y **al lado de cada
+  resultado se nombran los que lo movieron**, con su motivo. La lista sale de
+  `diasPropiosTocados()`, y **cada pantalla la toma apenas vuelve el motor y
+  antes de dibujar**: el dibujo también le pregunta al motor y ensuciaría la
+  lista.
+- **Lo cubren** `verificar-plazos` —cada caso visto fallar rompiendo el motor—
+  y los dos bancos de navegador, que siguen dando 90 y 37 con la lista vacía.
 
 ---
 

@@ -34,6 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <link rel="stylesheet" href="css/dibujo-plazo.css">
+    <link rel="stylesheet" href="css/dias-propios.css">
     <script src="../assets/tema.js"></script>
     <style>
         /* ==================================================================
@@ -710,6 +711,10 @@
                 <p class="hoy solo-suelta" id="hoy"></p>
             </div>
             <p class="cobertura solo-suelta" id="yearsAvailable">Cargando el calendario judicial…</p>
+            <!-- Los dias inhabiles propios (js/dias-propios.js): el aviso de que hay
+            y el boton para cargarlos. Sin clase solo-suelta a proposito: adentro del
+            tablero el aviso tiene que estar igual, al lado del numero. -->
+            <div data-dias-propios></div>
         </header>
 
         <div class="tablero">
@@ -883,6 +888,7 @@
 
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>
+<script src="js/dias-propios.js"></script>
 <script src="js/dibujo-plazo.js"></script>
 <script src="js/enlace.js"></script>
 <script>
@@ -1300,6 +1306,8 @@
             fueraDeHorario: document.getElementById('fueraDeHorario').checked,
             notasDejadas: notasDejadas
         });
+        // Antes de dibujar: el dibujo tambien consulta al motor (js/dias-propios.js).
+        var usadosPropios = DiasPropios.usadosEnElCalculo();
 
         mostrarResultados({
             problema: r.problema,
@@ -1328,6 +1336,7 @@
                 return { fecha: d.fecha, ymd: d.ymd, motivo: d.motivo };
             })
         });
+        DiasPropios.anotar(document.getElementById('results'), r.problema ? [] : usadosPropios);
     }
 
     // ----------------------------------------------------------------------

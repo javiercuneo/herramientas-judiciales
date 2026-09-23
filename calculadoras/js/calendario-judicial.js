@@ -125,6 +125,7 @@
         _aniosSinFeria = new Set();
         _aniosSinFeriados = new Set();
         _aniosFueraDeCobertura = new Set();
+        _propiosTocados = new Map();
     }
 
     function aniosSinFeriaTocados() {
@@ -257,7 +258,134 @@
         return adicionalMap.has(_toYMD_local(fecha));
     }
 
-    function esDiaHabil(fecha) {
+    // ---------------------------------------------------------------------
+    // Los dias inhabiles PROPIOS, que carga quien usa la calculadora.
+    //
+    // POR QUE EXISTEN, 22/9/2026. Hay dias que ningun calendario central va a
+    // traer: la suspension de plazos de un juzgado que se pinta o se muda, un
+    // asueto de un fuero, una Acordada que todavia no se cargo en data/.
+    // Mantener un calendario por juzgado no se puede; que cada uno cargue el
+    // suyo, si. Decidido por Javier.
+    //
+    // SOLO AGREGAN. Un dia propio no puede volver habil un dia que la
+    // herramienta tiene por inhabil: esta herramienta calcula con las reglas del
+    // fuero nacional, y "sacar" la feria de la Corte no la convierte en una
+    // calculadora de otra jurisdiccion.
+    //
+    // DOS TIPOS, porque no suspenden lo mismo (decidido por Javier):
+    //   - 'inhabil': el dia no se cuenta como habil. No toca la caducidad, que
+    //     corre en dias corridos y solo descuenta las ferias (art. 311 CPCCN).
+    //   - 'feria': ademas de inhabil, se descuenta de la caducidad como la
+    //     feria de la Corte. Es la mudanza con feria para ese juzgado.
+    //
+    // EL MOTOR NO LOS LEE DE NINGUN LADO. La lista la pasa quien llama, con
+    // usarDiasPropios(); leerla del navegador es de js/dias-propios.js. Asi, si
+    // nadie la pasa —el ledger, que carga este archivo desde el sitio; los
+    // conectores, que corren en Node; los bancos de prueba— el motor calcula
+    // exactamente como antes de que esto existiera.
+    //
+    // UN DIA AGREGADO DE MAS ATRASA EL VENCIMIENTO, que es el error que hace
+    // perder un derecho. Por eso el motor anota cuales cambiaron un calculo
+    // —diasPropiosTocados()— y la pantalla los nombra al lado del resultado.
+    // ---------------------------------------------------------------------
+    var propiosMap = new Map();
+    var _propiosTocados = new Map();
+    var TIPOS_PROPIOS = ['inhabil', 'feria'];
+    // Un rango mas largo que esto es casi seguro un error de tipeo en el anio,
+    // y cargado en silencio suspenderia un plazo por meses.
+    var MAX_DIAS_POR_RANGO = 366;
+
+    // Recibe [{ desde, hasta?, motivo, tipo }], con fechas AAAA-MM-DD. Reemplaza
+    // la lista entera: una lista vacia apaga los dias propios. Devuelve lo que
+    // no pudo usar y por que, en vez de tragarselo: un dia que el usuario cree
+    // cargado y no lo esta es la misma falla que un dia de mas.
+    function usarDiasPropios(lista) {
+        var nuevo = new Map();
+        var rechazados = [];
+        (Array.isArray(lista) ? lista : []).forEach(function (item, i) {
+            var motivo = item && typeof item.motivo === 'string' ? item.motivo.trim() : '';
+            var tipo = item && item.tipo;
+            var desde = item && _fechaValida(item.desde);
+            var hasta = item && (item.hasta ? _fechaValida(item.hasta) : desde);
+            var error = null;
+            if (!desde || !hasta) error = 'fecha inválida';
+            else if (hasta < desde) error = 'la fecha final es anterior a la inicial';
+            else if (Math.round((hasta - desde) / 86400000) + 1 > MAX_DIAS_POR_RANGO) {
+                error = 'el rango pasa de ' + MAX_DIAS_POR_RANGO + ' días';
+            }
+            else if (!motivo) error = 'falta el motivo';
+            else if (TIPOS_PROPIOS.indexOf(tipo) === -1) error = 'tipo desconocido';
+            if (error) { rechazados.push({ indice: i, error: error }); return; }
+
+            for (var d = new Date(desde); d <= hasta; d.setDate(d.getDate() + 1)) {
+                var ymd = _toYMD_local(d);
+                // Si el mismo dia viene dos veces, gana la feria: es la que
+                // suspende mas, y quedarse con la menor seria un dia de menos.
+                var previo = nuevo.get(ymd);
+                if (previo && previo.tipo === 'feria') continue;
+                nuevo.set(ymd, { fecha: ymd, motivo: motivo, tipo: tipo });
+            }
+        });
+        propiosMap = nuevo;
+        _propiosTocados = new Map();
+        return { dias: propiosMap.size, rechazados: rechazados };
+    }
+
+    function _fechaValida(str) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(str))) return null;
+        var f = _parseYMD(str);
+        return _toYMD_local(f) === str ? f : null;
+    }
+
+    function diasPropios() {
+        return Array.from(propiosMap.values());
+    }
+
+    // Los dias propios que MOVIERON el ultimo calculo: los que eran habiles
+    // para la herramienta y dejaron de serlo, o los de feria que se
+    // descontaron de una caducidad. Uno que cae en un feriado no se anota,
+    // porque no cambio nada. Se reinicia con reiniciarAuditoria(), igual que
+    // los anios sin datos.
+    function diasPropiosTocados() {
+        return Array.from(_propiosTocados.values()).sort(function (a, b) {
+            return a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : 0;
+        });
+    }
+
+    // Los dias de feria propia entre dos fechas, inclusive, que la caducidad
+    // tiene que descontar. Deja afuera los que ya son feria de la Corte o de
+    // enero: esos ya se descuentan, y contarlos dos veces correria el
+    // vencimiento de mas. Mira los rangos de feria directo y no por
+    // esFeriaJudicial, para no anotar en la auditoria anios que este calculo no
+    // consulto.
+    function feriaPropiaEntre(desde, hasta) {
+        var salida = [];
+        if (!propiosMap.size) return salida;
+        var d = new Date(desde.getFullYear(), desde.getMonth(), desde.getDate());
+        var fin = new Date(hasta.getFullYear(), hasta.getMonth(), hasta.getDate());
+        for (; d <= fin; d.setDate(d.getDate() + 1)) {
+            var p = propiosMap.get(_toYMD_local(d));
+            if (!p || p.tipo !== 'feria') continue;
+            if (esFeriaEnero(d) || _enFeriaOficial(d)) continue;
+            _propiosTocados.set(p.fecha, p);
+            salida.push(p);
+        }
+        return salida;
+    }
+
+    function _enFeriaOficial(f) {
+        for (var y = f.getFullYear() - 1; y <= f.getFullYear(); y++) {
+            var rangos = obtenerFeriasDelAnio(y) || [];
+            for (var i = 0; i < rangos.length; i++) {
+                if (f >= rangos[i].inicio && f <= rangos[i].fin) return true;
+            }
+        }
+        return false;
+    }
+
+    // La regla de siempre, sin tocar: el orden de las preguntas es el mismo
+    // porque la auditoria de anios sin datos depende de cuales se hacen.
+    function _esDiaHabilOficial(fecha) {
         if (isWeekend(fecha)) return false;
         if (esFeriado(fecha)) return false;
         if (esInhabilCustom(fecha)) return false;
@@ -265,6 +393,15 @@
         if (esFeriaEnero(fecha)) return false;
         if (es16Noviembre(fecha)) return false;
         return true;
+    }
+
+    function esDiaHabil(fecha) {
+        if (!_esDiaHabilOficial(fecha)) return false;
+        if (!propiosMap.size) return true;
+        var p = propiosMap.get(_toYMD_local(fecha));
+        if (!p) return true;
+        _propiosTocados.set(p.fecha, p);
+        return false;
     }
 
     function siguienteDiaHabil(fecha) {
@@ -311,6 +448,17 @@
         }
         if (esFeriaEnero(fecha)) return _feriaEnero.motivo;
         if (es16Noviembre(fecha)) return '16 de noviembre (Día de la Justicia Nacional)';
+
+        // El propio va ultimo: si el dia ya era inhabil por otra razon, el
+        // motivo es esa, y el propio no cambio nada. Si llega hasta aca, en
+        // cambio, el propio es lo unico que lo hace inhabil, y se anota como
+        // usado: regresiva() decide por esta funcion y no por esDiaHabil(), y
+        // sin esto la pantalla no lo nombraba.
+        var propio = propiosMap.get(ymd);
+        if (propio) {
+            _propiosTocados.set(propio.fecha, propio);
+            return propio.motivo + ' (día inhábil propio)';
+        }
 
         return null;
     }
@@ -518,6 +666,11 @@
         esDiaHabil: esDiaHabil,
         siguienteDiaHabil: siguienteDiaHabil,
         contarDiasHabiles: contarDiasHabiles,
-        obtenerMotivoInhabil: obtenerMotivoInhabil
+        obtenerMotivoInhabil: obtenerMotivoInhabil,
+
+        usarDiasPropios: usarDiasPropios,
+        diasPropios: diasPropios,
+        diasPropiosTocados: diasPropiosTocados,
+        feriaPropiaEntre: feriaPropiaEntre
     };
 })();

@@ -33,6 +33,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <link rel="stylesheet" href="css/dibujo-plazo.css">
+    <link rel="stylesheet" href="css/dias-propios.css">
     <script src="../assets/tema.js"></script>
     <style>
         /* ==================================================================
@@ -378,6 +379,7 @@
         <header class="cabecera">
             <h1>Días <span>entre dos fechas</span></h1>
             <p class="cobertura solo-suelta" id="availableYears">Cargando el calendario judicial…</p>
+            <div data-dias-propios></div>
         </header>
 
         <div class="tablero">
@@ -477,6 +479,7 @@
 
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>
+<script src="js/dias-propios.js"></script>
 <script src="js/dibujo-plazo.js"></script>
 <script src="js/enlace.js"></script>
 <script>
@@ -649,6 +652,11 @@
             incluirFin: includeEnd,
             soloHabiles: businessDays
         });
+        // Antes de dibujar (js/dias-propios.js). En dias corridos no hay dias
+        // propios que anotar: el motor no reinicia la auditoria y la lista seria
+        // la del conteo anterior.
+        DiasPropios.anotar(document.getElementById('results'),
+            businessDays && !r.problema ? DiasPropios.usadosEnElCalculo() : []);
 
         displayResults(r, businessDays);
     }

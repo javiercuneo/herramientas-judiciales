@@ -441,6 +441,19 @@
             return r || [];
         };
 
+        // La feria PROPIA: los dias que quien usa la calculadora cargo como
+        // "feria" (js/dias-propios.js), que el art. 311 descuenta igual que la
+        // de la Corte. El calendario ya deja afuera los que caen en una feria
+        // oficial o en enero, que se descuentan por su lado. Sin dias propios
+        // cargados devuelve una lista vacia y la cuenta es la de siempre. El
+        // `typeof` es por el ledger, que podria cargar este archivo con un
+        // calendario anterior.
+        var feriaPropiaHasta = function (hasta) {
+            return typeof CJ.feriaPropiaEntre === 'function'
+                ? CJ.feriaPropiaEntre(startDate, hasta)
+                : [];
+        };
+
         // Dias de feria comprendidos entre el inicio y una fecha dada.
         var diasDeFeriaHasta = function (hasta) {
             var dias = 0;
@@ -458,7 +471,8 @@
                     });
                 })(anio);
             }
-            return { dias: dias, detalle: detalle };
+            var propia = feriaPropiaHasta(hasta);
+            return { dias: dias + propia.length, detalle: detalle, propia: propia };
         };
 
         var feria = diasDeFeriaHasta(ordDate);
@@ -555,6 +569,10 @@
             // sin reconstruirlo restando dias, que seria una segunda cuenta.
             vencimientoNominal: nominalDate,
             feriaAtravesada: feria.detalle,
+            // Los dias de feria propia que se descontaron. Van aparte de
+            // feriaAtravesada, que tiene la forma de un rango de Acordada: la
+            // pantalla los cuenta en un hito propio.
+            feriaPropiaAtravesada: feria.propia,
             vencimiento: ordDate,
         };
 

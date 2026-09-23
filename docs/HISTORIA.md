@@ -19,6 +19,88 @@ de 2026.
 
 ---
 
+## Los días inhábiles propios — 22/9
+
+Pedido de Javier: que quien usa las calculadoras de plazos pueda agregar sus
+propios días inhábiles. Los casos que lo motivaron son un juzgado que se pinta
+y suspende plazos esos días, y uno que se muda y recibe una feria sólo para él.
+Nada de eso lo va a traer nunca un calendario central, y mantener un calendario
+por jurisdicción no se puede.
+
+**Lo que se le objetó antes de escribir código, y quedó.** Que ampliaba el uso a
+otras jurisdicciones, sólo en parte. El sistema puede **agregar** días y no
+**sacarlos**: una provincia tiene otra feria de invierno, y la calculadora
+seguiría contando la de la Corte y las reglas del CPCCN (las dos horas del
+art. 124, la notificación de los martes y viernes). Sirve para un feriado
+provincial suelto, y no para decir que calcula en otra jurisdicción. Y que **el
+riesgo no es cargar mal un día, sino calcular el plazo de un juzgado con los
+días de otro todavía puestos**: un día de más atrasa el vencimiento.
+
+**Las tres decisiones de Javier:** dos tipos —`inhabil`, que no toca la
+caducidad porque corre en días corridos, y `feria`, que sí la descuenta
+(art. 311 CPCCN)—; un aviso de que no viajan en el enlace, en vez de hacerlos
+viajar; y una sola lista, sin listas con nombre.
+
+**Cómo quedó hecho:**
+
+- **El motor recibe la lista y no la busca.** `usarDiasPropios()` en
+  `calendario-judicial.js`; la lectura del `localStorage`, el aviso y el panel,
+  en `js/dias-propios.js`. El `ledger`, los conectores y los bancos no le pasan
+  nada, así que calculan como antes. Antes de tocar el motor se guardó un
+  barrido de 7.920 cálculos de las cinco funciones. Salió idéntico dos veces:
+  sin tocar la lista, y después de cargarla y vaciarla.
+- **La regla de siempre quedó en `_esDiaHabilOficial`, sin tocar.** El orden
+  de las preguntas importa, porque la auditoría de años sin datos depende de
+  cuáles se hacen. El día propio se pregunta después y sólo cuando el día era
+  hábil. Por eso se sabe cuáles **movieron** el cálculo (`diasPropiosTocados`) y
+  no sólo cuáles están cargados.
+- **La caducidad suma la feria propia** al punto fijo de la feria de invierno,
+  salvo los días que ya son feria de la Corte o de enero. Una prueba exige que
+  no se cuenten dos veces, y se la vio fallar sacando esa exclusión. La primera
+  versión de esa prueba **no fallaba**: el caso vencía antes de la feria. Se
+  cambió por uno que la atraviesa.
+- **Al lado de cada resultado se nombran los días propios que lo movieron.**
+  Cada pantalla toma la lista apenas vuelve el motor, porque el dibujo del
+  calendario también le pregunta al motor y la ensuciaría.
+
+**Lo que apareció probándolo en el navegador:**
+
+- `regresiva` calculaba bien y **no nombraba el día propio**. Decide por
+  `obtenerMotivoInhabil()` y no por `esDiaHabil()`, y sólo la segunda lo
+  anotaba. Ahora anotan las dos, con su prueba vista fallar.
+- En la calculadora, el `* { margin: 0 }` dejaba el panel pegado al borde
+  izquierdo.
+- El desplegable del tipo, en tres columnas, cortaba el texto de la opción,
+  que es justamente la explicación del tipo.
+- Adentro del tablero, el panel se abre en la página de arriba: el marco se
+  estira a la altura de su contenido, y un panel centrado en el marco podía
+  quedar fuera de la pantalla. La calculadora del marco se entera del cambio por
+  el evento `storage`, sin recargar.
+
+**La guía de uso, puesta al día el mismo día.** Además de la sección nueva, se
+corrigió contra el código lo que había quedado viejo:
+
+- **Distancia** decía que la Corte mide por ruta y que «ninguna de las dos es
+  el ferrocarril». Hoy la tabla de la Acordada 5/2010 va primero, y la regla
+  es tomar la más larga entre tren y ruta.
+- **Ejecución contra el Estado** describía la pantalla anterior al 27/8
+  («posterior al 1/4/1991»), que es justo el error que se corrigió ese día.
+- **Caducidad** decía que la feria de invierno «se estima».
+- **Días inhábiles** listaba el 24 y el 31 de diciembre como fijos, y le
+  faltaba el jueves santo.
+- **Faltaban** el tablero, la página de UMA y UHOM, la pestaña Certificar, el
+  caso en el enlace y la excepción de privacidad de `distancia`.
+
+Se sacaron dos cosas porque no se pudieron verificar en el repositorio: la
+cita de «Ley 26.674» para el 16 de noviembre, y la lista de Acordadas escrita a
+mano. La lista quedó reemplazada por el puntero al archivo que la lleva. En la
+landing, `verificar-honorio` encontró la versión de Honorio vieja: decía 3.5.2
+y es 3.5.5.
+
+Controles: `verificar-plazos` pasó de 135 a 153 comprobaciones; siguen pasando
+las 673 de cálculos, los conectores, el contraste y la red. Los bancos de
+navegador dieron 90 de 90 y 37 de 37 con la lista vacía.
+
 ## E-07, primera mitad: un rubro del inmueble ofrecido como nombre — 22/9
 
 Pedido de `confronteitor`, que lo anotó como E-05 sin saber que acá E-05 y

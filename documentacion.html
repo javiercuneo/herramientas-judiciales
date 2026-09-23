@@ -210,6 +210,7 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
   <a class="item" href="#honorio">Honorio</a>
   <a class="item" href="#mediador">Honorarios del mediador</a>
   <a class="item" href="#prorrateo">Prorrateo</a>
+  <a class="item" href="#uma-uhom">Valor de la UMA y del UHOM</a>
 
   <span class="label">Plazos</span>
   <a class="item" href="#vencimiento">Calculadora de plazos judiciales</a>
@@ -228,7 +229,10 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
   <a class="item" href="#clasico">Asistente clásico</a>
 
   <span class="label">General</span>
+  <a class="item" href="#tablero">El tablero</a>
   <a class="item" href="#dias">Cómo se calculan los días</a>
+  <a class="item" href="#propios">Días inhábiles propios</a>
+  <a class="item" href="#enlace">El caso en el enlace</a>
   <a class="item" href="#alcance">Alcance y responsabilidad</a>
 </nav>
 
@@ -244,9 +248,18 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
   </p>
   <p>
     Todas calculan en el navegador. No hay servidor ni base de datos: lo que se
-    escribe no sale de la máquina. Lo único que el sitio registra es que una
-    página se abrió —cuál, sin cookies y sin nada de lo escrito—, para saber
-    qué herramientas se usan. Escribiente ni eso.
+    escribe no sale de la máquina, <strong>con una excepción</strong>: la
+    calculadora de <a href="#distancia">distancia</a> manda el nombre de las
+    localidades a tres servicios públicos para ubicarlas en el mapa, y lo dice
+    en la pantalla. Lo único que el sitio registra es que una página se abrió
+    —cuál, sin cookies y sin nada de lo escrito—, para saber qué herramientas se
+    usan. Escribiente ni eso.
+  </p>
+  <p>
+    Las diez calculadoras están reunidas en el
+    <a href="calculadoras/tablero.html">tablero</a>, que es la puerta de entrada:
+    cada una se abre ahí adentro sin cambiar nada, y también se puede abrir
+    sola. Ver <a href="#tablero">El tablero</a>.
   </p>
 </header>
 
@@ -536,15 +549,57 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
       prorratea proporcionalmente hasta ese límite.
     </p>
   </div>
+  <p>
+    Cada regulación se carga en pesos o en UMA, con IVA si corresponde, y el
+    resultado muestra cuánto le toca a cada una y <strong>cuánto se le recorta</strong>:
+    la misma proporción para todas, porque el art. 730 reparte el tope en
+    proporción.
+  </p>
   <div class="aviso">
     <span class="label">Queda a criterio del usuario</span>
     <p>
-      Incluir o no los honorarios del mediador, la tasa de justicia o el IVA en
-      la masa a prorratear depende de la postura jurisprudencial que se adopte.
-      La herramienta no elige por vos.
+      <strong>Qué entra en la lista.</strong> El art. 730 <em>in fine</em> deja
+      fuera del 25 % los honorarios de los profesionales de la parte condenada
+      en costas: no se cargan. Y el del mediador tiene dos criterios —hay
+      juzgados que lo incluyen porque las costas se fijan «por todo concepto» y
+      otros que no, porque es de la mediación prejudicial—. La herramienta lo
+      dice al lado del campo y no elige por vos.
+    </p>
+    <p>
+      <strong>La línea del 33 %</strong> marca el umbral con el que suele
+      argumentarse la confiscatoriedad del recorte. Es un criterio y no una regla
+      de la ley: se muestra y no se aplica, y el número prorrateado es el mismo
+      lo pase o no.
     </p>
   </div>
   <a class="btn" href="calculadoras/prorrateo.html">Abrir calculadora</a>
+</article>
+
+<article id="uma-uhom">
+  <h2>Valor de la UMA y del UHOM</h2>
+  <span class="norma">Ley 27.423 · Decreto 2536/15</span>
+  <p>
+    El valor vigente de las dos unidades con que se regulan honorarios —la
+    <strong>UMA</strong> de la Ley 27.423 y el <strong>UHOM</strong> del
+    mediador— con la norma que fija cada valor y <strong>la serie histórica
+    completa</strong>.
+  </p>
+  <p>
+    Cada valor está leído del acto que lo fija —la acordada de la Corte para la
+    UMA, la tabla del Ministerio para el UHOM— y no copiado de una tabla ajena.
+    Por eso cada uno trae dos fechas: <strong>desde cuándo rige</strong>, que
+    decide qué valor corresponde a una regulación, y <strong>cuándo se dictó el
+    acto</strong>, que dice si ese valor ya existía el día en que se reguló.
+  </p>
+  <div class="aviso">
+    <span class="label">Límite</span>
+    <p>
+      Los valores se cargan a mano, porque ni la Corte ni el Ministerio los
+      publican en un formato que se pueda leer automáticamente. Si pasan más de
+      45 días sin revisarlos, la propia página lo avisa.
+    </p>
+  </div>
+  <a class="btn" href="uma-uhom.html">Ver los valores</a>
 </article>
 
 <!-- ================================ PLAZOS ================================ -->
@@ -567,8 +622,8 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
   </div>
   <h3>Cómo razona</h3>
   <p>
-    Se elige la modalidad de notificación —cédula, ministerio de la ley, etc.—,
-    la fecha y la cantidad de días. A partir de ahí aplica el calendario
+    Se elige la modalidad de notificación —por cédula (art. 152) o automática
+    (art. 133)—, la fecha y la cantidad de días. A partir de ahí aplica el calendario
     judicial descrito <a href="#dias">más abajo</a> y dibuja el plazo entero
     sobre el calendario: qué día se contó, cuál se salteó y por qué. El cómputo
     se puede auditar y no hay que creerle.
@@ -579,8 +634,10 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
   </p>
   <h3>Si no sabés de cuántos días es el plazo</h3>
   <p>
-    Hay cuatro atajos para los plazos más frecuentes —traslado de la demanda,
-    traslado del recurso extraordinario, apelación y revocatoria— y un
+    Hay cuatro atajos para los plazos más frecuentes —traslado de la demanda
+    (15), traslado del recurso extraordinario (10), apelación, traslados y
+    vistas (5), y revocatoria y plazos del sumarísimo (3)—, cada uno con sus
+    excepciones dichas al elegirlo, y un
     <strong>buscador sobre el texto del Código</strong>: se escribe «traslado»,
     «perito» o «art. 150» y devuelve los artículos que fijan un plazo, cada uno
     con la oración literal de la norma, para poder decidir si ése es el plazo
@@ -588,7 +645,17 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
   </p>
   <div class="aviso">
     <span class="label">Límites</span>
-    <p>Funciona para períodos desde 2021 en adelante.</p>
+    <p>
+      Funciona para períodos desde 2021 en adelante. Los plazos en meses y en
+      horas que aparecen en el buscador se muestran pero no cargan el campo: el
+      campo cuenta días hábiles, y escribir 6 para un plazo de seis meses daría
+      una fecha plausible y equivocada.
+    </p>
+    <p>
+      Si tu juzgado tiene días inhábiles que no están en el calendario oficial
+      —una suspensión, una mudanza—, se pueden agregar: ver
+      <a href="#propios">Días inhábiles propios</a>.
+    </p>
     <p>
       <strong>El buscador está en desarrollo y lo dice en la pantalla.</strong>
       Los plazos salen de un barrido mecánico sobre el texto del Código, así que
@@ -612,12 +679,21 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
     menor— y la fecha del último acto interruptivo. Por el art. 311 CPCCN el
     plazo <strong>corre durante los días inhábiles</strong>, con excepción de
     las ferias judiciales: por eso la herramienta saltea las ferias y nada más.
+    Los meses se cuentan de fecha a fecha (art. 6 CCyCN), enero no computa, y
+    los días de la feria de invierno se suman al final. La pantalla muestra cada
+    uno de esos pasos con su fecha, para que el resultado se pueda seguir.
   </p>
   <div class="aviso">
     <span class="label">Precaución</span>
     <p>
-      El receso de invierno se estima con la misma regla que arriba y puede no
-      coincidir con el que fije la CSJN ese año.
+      La feria de invierno sale de la Acordada de la CSJN de cada año. Si un
+      plazo alcanza un año cuya Acordada todavía no se dictó, la herramienta no
+      da fecha y dice cuál falta.
+    </p>
+    <p>
+      Un día inhábil propio no mueve la caducidad, porque corre en días corridos;
+      una <strong>feria</strong> propia sí. Ver
+      <a href="#propios">Días inhábiles propios</a>.
     </p>
   </div>
   <a class="btn" href="calculadoras/caducidad.html">Abrir calculadora</a>
@@ -639,36 +715,43 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
       esa parte para contestar.
     </p>
   </div>
-  <h3>Cómo obtiene la distancia</h3>
-  <p>
-    Toma las coordenadas de la API GEOREF de
-    <a href="https://datosgobar.github.io/georef-ar-api/" target="_blank" rel="noopener">datos.gob.ar</a>
-    para localidades del país, y de Open-Meteo Geocoding para el exterior.
-    Da <strong>dos medidas</strong>, y la diferencia entre ellas importa:
-    la distancia en línea recta con la fórmula del semiverseno, y la
-    distancia <strong>por ruta</strong>, que traza el recorrido real sobre la
-    red de caminos de OpenStreetMap.
-  </p>
+  <h3>De dónde sale la distancia, en este orden</h3>
+  <ol>
+    <li>
+      <strong>La tabla de la Acordada 5/2010 de la CSJN</strong>, que publica la
+      distancia entre la Capital Federal y cada uno de los 45 asientos federales,
+      y los días que de ahí salen. Cuando el caso es uno de esos pares no hay
+      nada que calcular, y no se consulta a nadie: la tabla es un archivo de
+      este sitio.
+    </li>
+    <li>
+      <strong>La ruta terrestre</strong>, trazada sobre la red de caminos de
+      OpenStreetMap, cuando el par no está en la tabla. Puede quedar corta, y la
+      pantalla lo avisa.
+    </li>
+    <li>
+      <strong>La línea recta</strong>, si no hay ruta. Es un piso y no una
+      respuesta: la distancia real nunca es menor, así que el resultado dice
+      que la ampliación es <em>de al menos</em> tantos días.
+    </li>
+  </ol>
   <div class="aviso">
-    <span class="label">Cuál de las dos usar</span>
+    <span class="label">La regla de la Corte</span>
     <p>
-      La CSJN estableció que la distancia se mide <strong>por vía
-      terrestre</strong>, no en línea recta (Fallos 304:1345; Acordada 5/2010,
-      que fija las distancias a los asientos federales para las quejas del art.
-      282 CPCCN). <strong>La medida por ruta es la que se acerca a ese
-      criterio</strong> y es la que conviene usar.
+      La Acordada 50/86, recitada en el considerando I de la 5/2010, manda
+      tomar <strong>la más larga</strong> entre la vía férrea y la ruta
+      terrestre. Por eso la tabla se usa tal cual y no se recalcula: hay pares
+      donde manda el tren y la ruta da la mitad de los días.
     </p>
     <p>
-      La lineal <strong>siempre es menor o igual</strong> a la terrestre, así
-      que sirve como piso: si ya con ella corresponde ampliación, corresponde.
-      Pero si da que no corresponde, el resultado puede estar corto y hay que
-      confirmarlo por ruta.
+      La tabla mide sólo desde la Capital Federal. Un par entre dos provincias
+      no se deduce restando dos filas: va por ruta.
     </p>
     <p>
-      Ninguna de las dos es el ferrocarril, que es lo que menciona el fallo. La
-      red vial y la ferroviaria no coinciden, así que el número sigue siendo
-      orientativo: donde la Acordada 5/2010 fija la distancia al asiento
-      federal, manda la Acordada.
+      Para ubicar las localidades, la página consulta la API GEOREF de
+      <a href="https://datosgobar.github.io/georef-ar-api/" target="_blank" rel="noopener">datos.gob.ar</a>,
+      Open-Meteo Geocoding y OSRM. Es la única del sitio que consulta afuera, y
+      lo único que sale es el nombre de la localidad escrita.
     </p>
   </div>
   <a class="btn" href="calculadoras/distancia.html">Abrir calculadora</a>
@@ -756,22 +839,30 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
       y el efecto de una certificación de agotamiento de partida.
     </p>
   </div>
-  <h3>Las reglas que aplica</h3>
+  <h3>Primero, qué régimen es</h3>
+  <p>
+    La primera pregunta es <strong>cuándo nació la obligación</strong> —su causa
+    o título—, no cuándo se notificó la sentencia, porque de eso depende el
+    régimen. Una obligación anterior al 1/4/1991 está consolidada por la Ley
+    23.982; una de entre esa fecha y el 31/12/2001, por la segunda consolidación
+    (art. 13 de la Ley 25.344, con la fecha que corrió el art. 58 de la Ley
+    25.725). <strong>En esos dos casos la respuesta no es una fecha</strong>, y
+    la pantalla explica por qué. Sólo lo posterior al 1/1/2002 va por el régimen
+    de pasivo corriente.
+  </p>
+  <h3>En el pasivo corriente</h3>
   <ul>
     <li>Notificación <strong>antes del 31 de julio</strong>: la deuda entra en el presupuesto del año siguiente.</li>
     <li>Notificación <strong>el 31 de julio o después</strong>: pasa al presupuesto del año subsiguiente.</li>
     <li>Con <strong>certificación de agotamiento</strong> de partida: se agrega un ejercicio más.</li>
-    <li>La fecha de ejecutabilidad es siempre el <strong>1.º de enero</strong> del año que resulte.</li>
   </ul>
-  <div class="aviso">
-    <span class="label">Alcance</span>
-    <p>
-      Solo para obligaciones de causa <strong>posterior al 1.º de abril de
-      1991</strong>. No cubre deudas consolidadas de la Ley 23.982 ni regímenes
-      especiales. La propia herramienta explica la diferencia entre los dos
-      regímenes antes de empezar.
-    </p>
-  </div>
+  <p>
+    Y devuelve <strong>dos fechas, porque son dos situaciones</strong>: el 30 de
+    noviembre, cuando el crédito no entró en la ley de presupuesto (art. 22 de la
+    Ley 23.982, que remite a la clausura de las sesiones ordinarias del
+    Congreso), y el 1 de enero siguiente, cuando entró y el ejercicio pasó sin
+    pago. Cada una con su norma al lado.
+  </p>
   <a class="btn" href="calculadoras/ejecucion-estado.html">Abrir calculadora</a>
 </article>
 
@@ -814,10 +905,32 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
     distingue sola a una parte del juicio de un autor de doctrina.
   </p>
   <p>
+    Los nombres propios <strong>vienen sin tildar</strong>, salvo las partes de
+    la carátula: se ofrecen como candidatos, no como certezas. Cada archivo sale
+    con una constancia al pie que dice qué se reemplazó, cuántas veces y
+    <strong>qué quedó sin ocultar</strong>, contado por etiqueta y nunca por
+    nombre.
+  </p>
+  <p>
     Si el PDF es un escaneo sin OCR lo rechaza y lo dice, en vez de devolver un
     archivo vacío. Y si el expediente trae fojas escaneadas intercaladas, avisa
     cuáles salieron en blanco. También une, separa y rota PDF.
   </p>
+  <p>
+    <strong>Certificar.</strong> La pestaña arma el texto de la certificación de
+    una resolución firmada y un código QR que lleva a su enlace público en el
+    PJN; con varios documentos, un QR por cada uno. No genera ni modifica ningún
+    PDF. Muestra además la huella SHA-256 y el peso del archivo soltado, como
+    dato técnico: no van a la certificación.
+  </p>
+  <div class="aviso">
+    <span class="label">Está en pruebas</span>
+    <p>
+      La anonimización es automática y hay que revisarla: un nombre escrito de
+      una forma que las reglas no contemplan puede quedar. Antes de mandar un
+      archivo a un tercero, leelo.
+    </p>
+  </div>
   <p>
     Todo ocurre en el navegador: <strong>el documento no se sube a ningún
     lado</strong>, que es la razón por la que existe. La página además tiene
@@ -846,6 +959,24 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
 <!-- =============================== GENERAL ================================ -->
 <div class="grupo"><h2>General</h2></div>
 
+<article id="tablero">
+  <h2>El tablero</h2>
+  <span class="norma">Las diez calculadoras en una sola página</span>
+  <p>
+    Reúne las diez: arriba las seis de plazos, con las teclas 1 a 6 y las
+    flechas para pasar de una a otra, y abajo las de honorarios y las demás. En
+    la portada están la fecha de hoy, el valor de la UMA y del UHOM, y hasta
+    cuándo llega el calendario judicial.
+  </p>
+  <p>
+    Cada calculadora se abre ahí adentro <strong>tal cual es suelta</strong>, sin
+    una línea cambiada, y el mismo caso da el mismo número en los dos lugares:
+    hay una prueba que lo exige. Las páginas sueltas siguen en su dirección de
+    siempre.
+  </p>
+  <a class="btn" href="calculadoras/tablero.html">Abrir el tablero</a>
+</article>
+
 <article id="dias">
   <h2>Cómo se calculan los días</h2>
   <span class="norma">Calendario judicial compartido</span>
@@ -870,9 +1001,15 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
       <strong>Feria de invierno</strong>, con la Acordada de la CSJN de cada año
       al lado. <strong>No se calcula con una fórmula.</strong>
     </li>
+    <li>El 16 de noviembre, Día de la Justicia Nacional.</li>
     <li>
-      Días inhábiles por ley o acordada: el 16 de noviembre (día del judicial,
-      Ley 26.674), el 24 y el 31 de diciembre, y los que fijen las acordadas.
+      <strong>Jueves santo</strong>, por el mismo art. 2 del Reglamento. No viene
+      en la lista de feriados, porque es día no laborable y no feriado, así que
+      se carga aparte y una prueba exige que no falte ningún año.
+    </li>
+    <li>
+      Los asuetos que disponga la Corte por Acordada o resolución —muchos años
+      el 24 y el 31 de diciembre, pero no todos—, cada uno con su acto citado.
     </li>
   </ul>
   <div class="aviso">
@@ -880,7 +1017,7 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
     <p>
       <strong>Ningún día inhábil se deduce con una fórmula.</strong> La feria de
       invierno la fija la CSJN por acordada cada año, y hasta agosto de 2026 la
-      herramienta la calculaba —doce días desde el tercer lunes de julio—.
+      herramienta la calculaba con una fórmula sobre los lunes de julio.
       Contra las acordadas cargadas esa regla acierta poco más de la mitad de
       las veces, y no puede producir 2020, cuando la feria se
       <strong>suspendió</strong>. Ahora cada año sale de un archivo con su
@@ -894,11 +1031,83 @@ footer a:hover { color: var(--accent); border-color: var(--accent); }
       primeros meses es normal que los plazos que caen en julio todavía no
       devuelvan fecha.
     </p>
+    <p>
+      <strong>El calendario completo empieza en 2021.</strong> Las ferias de años
+      anteriores están cargadas, pero los feriados y los asuetos no: un plazo que
+      alcance un año anterior no devuelve fecha.
+    </p>
   </div>
   <p class="fuente">
-    Acordadas CSJN incorporadas: 30/21, 33/22, 26/22, 27/24, 47/24, 38/25. La
-    lista vive en <code>data/dias-inhabiles.json</code>, dentro del repositorio,
-    y se puede leer.
+    Cada día inhábil que no es feriado ni feria está en
+    <code>data/dias-inhabiles.json</code>, con la Acordada o la resolución que
+    lo dispone al lado; las ferias, en <code>data/feria-judicial.json</code>, con
+    la Acordada de cada año. Los dos archivos están en el repositorio y se
+    pueden leer.
+  </p>
+</article>
+
+<article id="propios">
+  <h2>Días inhábiles propios</h2>
+  <span class="norma">Los que cargás vos, en este navegador</span>
+  <p>
+    Hay días que ningún calendario central va a traer: la suspensión de plazos
+    de un juzgado que se pinta o se muda, un asueto de un fuero, una Acordada
+    que todavía no está cargada acá. Las cinco calculadoras de plazos tienen un
+    botón, <strong>«Agregar días inhábiles propios»</strong>, para cargarlos: la
+    fecha o el rango, el tipo y el motivo, que es obligatorio.
+  </p>
+  <ul>
+    <li>
+      <strong>Día inhábil:</strong> el plazo no corre ese día. No mueve la
+      caducidad de instancia, que corre en días corridos.
+    </li>
+    <li>
+      <strong>Feria:</strong> además, se descuenta de la caducidad, como la feria
+      de la Corte (art. 311 CPCCN). Es la mudanza con feria para ese juzgado.
+    </li>
+  </ul>
+  <p>
+    Se guardan <strong>en este navegador</strong> y valen para las cinco
+    calculadoras y para el tablero. No salen de la computadora. Se apagan con
+    un botón sin borrarlos, y se borran desde el mismo panel o limpiando los
+    datos del navegador.
+  </p>
+  <div class="aviso">
+    <span class="label">Un día de más atrasa el vencimiento</span>
+    <p>
+      Por eso, mientras estén prendidos, cada calculadora lo avisa arriba —y el
+      aviso sale al imprimir—, y al lado de cada resultado se nombran los días
+      propios que lo movieron, con su motivo. Cargá sólo lo que dispone una
+      resolución o una Acordada, y <strong>apagalos cuando calcules un plazo de
+      otro juzgado</strong>.
+    </p>
+    <p>
+      <strong>Sólo agregan días.</strong> No sirven para sacar la feria de la
+      Corte ni para adaptar la herramienta a otra jurisdicción: las reglas del
+      cómputo siguen siendo las del CPCCN.
+    </p>
+    <p>
+      <strong>No viajan en los enlaces.</strong> Quien abra un enlace tuyo
+      calcula con su propia lista, o sin ninguna.
+    </p>
+  </div>
+</article>
+
+<article id="enlace">
+  <h2>El caso en el enlace</h2>
+  <span class="norma">Las cinco de plazos se abren con los datos puestos</span>
+  <p>
+    Una calculadora de plazos se puede abrir con el caso ya cargado, desde un
+    enlace que lleva los datos después del signo <code>#</code>, por ejemplo
+    <code>vencimientos.html#modalidad=cedula&amp;fecha=2026-03-02&amp;plazo=5</code>.
+    El enlace <strong>completa el formulario y no calcula</strong>: el cálculo lo
+    pide quien lo abre. Si algún dato del enlace es inválido, no se completa
+    ninguno, y la pantalla lo avisa.
+  </p>
+  <p>
+    Lo que va después del <code>#</code> no llega a ningún servidor, ni al de
+    este sitio. <strong>Tasa de justicia</strong> y <strong>prorrateo</strong>
+    además arman su propio enlace para compartir el caso entero.
   </p>
 </article>
 

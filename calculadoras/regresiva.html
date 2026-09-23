@@ -35,6 +35,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
     <link rel="stylesheet" href="css/dibujo-plazo.css">
+    <link rel="stylesheet" href="css/dias-propios.css">
     <script src="../assets/tema.js"></script>
     <style>
         /* ==================================================================
@@ -335,6 +336,7 @@
                 empezar para llegar a tiempo a una fecha.</p>
         </div>
         <p class="cobertura solo-suelta" id="infoAnios">Cargando el calendario judicial…</p>
+        <div data-dias-propios></div>
     </header>
 
     <div class="tablero">
@@ -405,6 +407,7 @@
 
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>
+<script src="js/dias-propios.js"></script>
 <script src="js/dibujo-plazo.js"></script>
 <script src="js/enlace.js"></script>
 <script>
@@ -520,6 +523,9 @@
                 avisar(e.message, [diasInput]);
                 return;
             }
+            // Antes de dibujar, y tambien en las negativas (js/dias-propios.js).
+            DiasPropios.anotar(resultadoPanel,
+                r.problema || r.objetivoInhabil ? [] : DiasPropios.usadosEnElCalculo());
 
             // El orden de estos tres avisos es el mismo de siempre y lo fija el
             // motor: dato faltante, objetivo inhabil, plazo mal escrito.

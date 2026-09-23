@@ -27,6 +27,7 @@
     <script data-goatcounter="https://javiercuneo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/comun.css">
+    <link rel="stylesheet" href="css/dias-propios.css">
     <script src="../assets/tema.js"></script>
     <style>
         /* ==================================================================
@@ -413,6 +414,7 @@
                 <p class="subtitle">Art. 310 del Código Procesal Civil y Comercial de la Nación</p>
             </div>
             <p class="solo-suelta" id="apiStatus">Cargando el calendario judicial…</p>
+            <div data-dias-propios></div>
         </header>
 
         <div class="tablero">
@@ -485,6 +487,7 @@
     </div>
     <script src="js/calendario-judicial.js"></script>
     <script src="js/plazos.js"></script>
+    <script src="js/dias-propios.js"></script>
     <script src="js/enlace.js"></script>
 <script>
     const apiStatus = document.getElementById('apiStatus');
@@ -591,6 +594,9 @@
         }
 
         const r = Plazos.caducidad({ anio: y, mes: m, dia: d, meses: plazo });
+        // Los dias de feria propia que se descontaron (js/dias-propios.js). Se
+        // anota tambien en la negativa, para barrer la linea del calculo anterior.
+        DiasPropios.anotar(result, r.problema ? [] : DiasPropios.usadosEnElCalculo());
 
         if (r.problema) {
             escribirNegativa(r.problema);
@@ -665,6 +671,20 @@
                      ': el plazo no corre y el vencimiento se corre otro tanto (art. 311 CPCCN)'
             });
         });
+
+        // La feria PROPIA, que cargo quien usa la calculadora
+        // (js/dias-propios.js). Un solo renglon con la cuenta: el detalle dia
+        // por dia, con el motivo de cada uno, va en la linea de dias propios
+        // del resultado.
+        const propia = r.feriaPropiaAtravesada || [];
+        if (propia.length) {
+            hitos.push({
+                clase: 'suspension',
+                cuando: '+ ' + propia.length + (propia.length === 1 ? ' día' : ' días'),
+                que: 'Feria propia, cargada en este navegador y no en el calendario oficial: ' +
+                     'el plazo no corre y el vencimiento se corre otro tanto'
+            });
+        }
 
         // El corrimiento de enero ocurre DESPUES de sumar la feria de invierno,
         // y es el que mueve la fecha un mes entero. Sin este renglon el usuario

@@ -808,5 +808,114 @@ console.log('\nEl ledger: lo que carga desde el sitio publicado');
     ok(!!sinDatos.problema, 'un plazo que toca un año sin datos cargados trae problema', 'problema vacío');
 }
 
+// ---------------------------------------------------------------------------
+// LOS DIAS INHABILES PROPIOS (22/9/2026).
+//
+// Los carga quien usa la calculadora (js/dias-propios.js) y el motor los
+// recibe con usarDiasPropios(). Lo que no se puede romper: sin lista el motor
+// da lo de siempre; un dia propio solo agrega; 'inhabil' no toca la
+// caducidad y 'feria' si; y nada se cuenta dos veces. Las fechas y motivos
+// son inventados.
+// ---------------------------------------------------------------------------
+{
+    const f = (s) => { const [a, m, dd] = s.split('-').map(Number); return new Date(a, m - 1, dd); };
+
+    // Una cedula con cinco dias habiles, sin nada propio: la referencia.
+    CJ.usarDiasPropios([]);
+    const caso = { modalidad: 'cedula', anio: 2026, mes: 3, dia: 2, plazo: 5 };
+    const base = P.vencimiento(caso);
+    const contado = base.diasContados[2];
+
+    // Un dia propio adentro del plazo corre el vencimiento un dia habil.
+    CJ.usarDiasPropios([{ desde: d(contado), motivo: 'Suspension por pintura', tipo: 'inhabil' }]);
+    const con = P.vencimiento(caso);
+    const tocados = CJ.diasPropiosTocados();
+    igual(d(con.vencimientoSinGracia), d(CJ.siguienteDiaHabil(base.vencimientoSinGracia)),
+        'dias propios: un dia inhabil propio adentro del plazo corre el vencimiento un dia habil');
+    ok(tocados.length === 1 && tocados[0].fecha === d(contado).slice(0, 10),
+        'dias propios: el motor anota el dia que movio el calculo', JSON.stringify(tocados));
+    ok(/Suspension por pintura \(día inhábil propio\)/.test(CJ.obtenerMotivoInhabil(contado) || ''),
+        'dias propios: el motivo del dia dice que es propio', CJ.obtenerMotivoInhabil(contado));
+    ok(!con.diasContados.some((x) => d(x) === d(contado)),
+        'dias propios: el dia propio no esta entre los contados');
+
+    // Un dia propio que ya era inhabil no cambia nada y no se anota.
+    CJ.usarDiasPropios([{ desde: '2026-03-07', motivo: 'Cae en sabado', tipo: 'inhabil' }]);
+    const sabado = P.vencimiento(caso);
+    igual(d(sabado.vencimiento), d(base.vencimiento), 'dias propios: un sabado propio no mueve nada');
+    igual(CJ.diasPropiosTocados().length, 0, 'dias propios: y no se anota como que movio el calculo');
+
+    // La caducidad: 'inhabil' no la toca (corre en dias corridos), 'feria' si.
+    CJ.usarDiasPropios([]);
+    const cadCaso = { anio: 2026, mes: 3, dia: 2, meses: 1 };
+    const cadBase = P.caducidad(cadCaso);
+    CJ.usarDiasPropios([{ desde: '2026-03-10', hasta: '2026-03-14', motivo: 'Mudanza', tipo: 'inhabil' }]);
+    igual(d(P.caducidad(cadCaso).vencimiento), d(cadBase.vencimiento),
+        'dias propios: un inhabil propio no mueve la caducidad (art. 311 CPCCN)');
+    CJ.usarDiasPropios([{ desde: '2026-03-10', hasta: '2026-03-14', motivo: 'Mudanza con feria', tipo: 'feria' }]);
+    const cadFeria = P.caducidad(cadCaso);
+    const esperado = new Date(cadBase.vencimiento); esperado.setDate(esperado.getDate() + 5);
+    igual(d(cadFeria.vencimiento), d(esperado), 'dias propios: cinco dias de feria propia corren la caducidad cinco dias');
+    igual(cadFeria.feriaPropiaAtravesada.length, 5, 'dias propios: y la caducidad devuelve los cinco dias');
+
+    // Una feria propia encima de la feria de la Corte no se cuenta dos veces.
+    const julio = CJ.obtenerFeriasDelAnio(2026)[0];
+    CJ.usarDiasPropios([]);
+    const cadJulio = { anio: 2026, mes: 7, dia: 1, meses: 1 };
+    const cadJulioBase = P.caducidad(cadJulio);
+    CJ.usarDiasPropios([{ desde: d(julio.inicio), hasta: d(julio.fin), motivo: 'Encima de la feria', tipo: 'feria' }]);
+    igual(d(P.caducidad(cadJulio).vencimiento), d(cadJulioBase.vencimiento),
+        'dias propios: una feria propia encima de la de la Corte no se descuenta dos veces');
+
+    // Lo que no se puede usar se devuelve con el motivo, y no entra.
+    const r = CJ.usarDiasPropios([
+        { desde: '2026-02-30', motivo: 'x', tipo: 'inhabil' },
+        { desde: '2026-03-10', motivo: '  ', tipo: 'inhabil' },
+        { desde: '2026-03-10', hasta: '2026-03-01', motivo: 'x', tipo: 'inhabil' },
+        { desde: '2026-01-01', hasta: '2027-06-01', motivo: 'x', tipo: 'feria' },
+        { desde: '2026-03-10', motivo: 'x', tipo: 'asueto' },
+        { desde: '2026-03-11', motivo: 'Valido', tipo: 'inhabil' },
+    ]);
+    igual(r.rechazados.length, 5, 'dias propios: se rechazan fecha invalida, motivo vacio, rango al reves, rango enorme y tipo desconocido');
+    igual(r.dias, 1, 'dias propios: y entra solo el valido');
+
+    // El regresivo decide por obtenerMotivoInhabil() y no por esDiaHabil(): el
+    // dia propio tiene que saltearse Y anotarse. Sin lo segundo la pantalla
+    // calculaba bien y no lo nombraba (pasó el 22/9, probandola).
+    CJ.usarDiasPropios([]);
+    const regCaso = { anio: 2026, mes: 3, dia: 10, dias: 5 };
+    const regBase = P.regresiva(regCaso);
+    CJ.usarDiasPropios([{ desde: '2026-03-04', motivo: 'Asueto inventado', tipo: 'inhabil' }]);
+    const regCon = P.regresiva(regCaso);
+    ok(!regCon.problema && regCon.evaluados.some((e) => d(e.fecha) === d(new Date(2026, 2, 4)) && !e.contado),
+        'dias propios: el regresivo no cuenta el dia propio');
+    ok(regCon.fechaLimite < regBase.fechaLimite, 'dias propios: un dia propio adentro del regresivo adelanta la fecha limite',
+        `${d(regBase.fechaLimite)} -> ${d(regCon.fechaLimite)}`);
+    ok(CJ.diasPropiosTocados().some((p) => p.fecha === '2026-03-04'),
+        'dias propios: y el regresivo lo anota como usado', JSON.stringify(CJ.diasPropiosTocados()));
+
+    // Vaciar la lista devuelve el motor a lo de siempre.
+    CJ.usarDiasPropios([]);
+    igual(d(P.vencimiento(caso).vencimiento), d(base.vencimiento), 'dias propios: vaciar la lista devuelve el calculo de siempre');
+    igual(CJ.diasPropios().length, 0, 'dias propios: y no queda ninguno');
+
+    // El invariante de siempre, con dias propios: el vencimiento no cae en
+    // ninguno. Se barre un trimestre con un dia propio por semana.
+    const semanales = [];
+    for (let x = f('2026-03-02'); x < f('2026-06-01'); x.setDate(x.getDate() + 7)) {
+        semanales.push({ desde: d(new Date(x.getFullYear(), x.getMonth(), x.getDate() + 2)).slice(0, 10), motivo: 'Miercoles', tipo: 'inhabil' });
+    }
+    CJ.usarDiasPropios(semanales);
+    let caeEnPropio = 0;
+    for (let x = f('2026-03-02'); x < f('2026-05-01'); x.setDate(x.getDate() + 1)) {
+        for (const plazo of [1, 3, 5, 10]) {
+            const v = P.vencimiento({ modalidad: 'cedula', anio: x.getFullYear(), mes: x.getMonth() + 1, dia: x.getDate(), plazo });
+            if (!v.problema && CJ.diasPropios().some((p) => p.fecha === d(v.vencimiento).slice(0, 10))) caeEnPropio++;
+        }
+    }
+    igual(caeEnPropio, 0, 'dias propios: ningun vencimiento cae en un dia propio');
+    CJ.usarDiasPropios([]);
+}
+
 console.log(`\n${pruebas} comprobaciones, ${fallos} fallas.`);
 process.exit(fallos ? 1 : 0);
