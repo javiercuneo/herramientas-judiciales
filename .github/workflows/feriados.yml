@@ -35,8 +35,12 @@
 # distinga "el anio que viene todavia no existe" de "la API no
 # contesta", y no este archivo.
 #
-# El push a main dispara Deploy Pages, asi que el sitio queda con los
-# feriados nuevos sin que nadie toque nada.
+# **El deploy se pide a mano, y tiene que ser asi.** Aca decia que el
+# push a main disparaba Deploy Pages, y era falso: un push hecho con el
+# GITHUB_TOKEN del runner no dispara otros workflows (el freno de GitHub
+# contra la recursion). El commit llegaba a main y el sitio seguia con
+# los feriados viejos hasta el proximo push humano. Lo descubrio Honorio,
+# que tenia el mismo error; aca se vio el 24/9/2026, al armar uma.yml.
 #
 # El disparo manual queda y es el camino cuando hay apuro: Actions ->
 # "Feriados nacionales" -> "Run workflow".
@@ -62,8 +66,10 @@ concurrency:
 jobs:
   actualizar:
     runs-on: ubuntu-latest
+    # actions: write es lo que habilita el gh workflow run del final.
     permissions:
       contents: write
+      actions: write
     steps:
       # Las versiones van alineadas con pages.yml, y no son cosmetica:
       # de la v5 en adelante las acciones declaran node24, que es lo que
@@ -93,9 +99,11 @@ jobs:
           npm run verificar-plazos
 
       - name: Commitear si cambio
+        id: commitear
         run: |
           if git diff --quiet -- data/feriados.json; then
             echo "Sin cambios."
+            echo "cambio=no" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name  "github-actions[bot]"
@@ -103,3 +111,10 @@ jobs:
           git add data/feriados.json
           git commit -m "chore(datos): actualizar los feriados nacionales"
           git push
+          echo "cambio=si" >> "$GITHUB_OUTPUT"
+
+      - name: Publicar el sitio con los feriados nuevos
+        if: steps.commitear.outputs.cambio == 'si'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

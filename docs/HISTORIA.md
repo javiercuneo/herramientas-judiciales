@@ -19,6 +19,34 @@ de 2026.
 
 ---
 
+## La UMA deja de cargarse a mano — 24/9
+
+Javier corrió el workflow de la UMA en Honorio por la Res. SGA 2372/2026
+($105.991 desde el 1/8). honorio.ar la tuvo enseguida, y también el ledger, que
+lee `honorio.ar/uma.json`. Este sitio no: el tablero, `uma-uhom` y `prorrateo`
+leen `data/serie-uma.json`, que se cargaba a mano, y el workflow de Honorio
+sólo toca su repositorio. Javier: «esa actualización manual es un perno».
+
+**Lo que no se podía perder al automatizar era la promesa de la serie**: cada
+valor se lee del acto y no de una tabla ajena. Por eso la planilla que captura
+Honorio quedó como aviso y enlace, y lo que va a la serie —importe, vigencia,
+número y fecha del acto— sale del PDF de la CSJN con `pdftotext`, del punto
+resolutivo. Las dos fuentes tienen que coincidir o no se carga nada.
+
+**Cómo se probó.** Se volvió la serie a como estaba antes de cargar la 2372 a
+mano, se corrió `scripts/actualizar-uma.mjs` y el archivo quedó idéntico byte a
+byte al de la carga manual; una segunda pasada dijo «nada nuevo». El lector
+también leyó bien las tres resoluciones con enlace de la serie (1785, 1930 y
+2372 de 2026). Las anteriores no tienen URL cargada y no se probaron.
+
+**De paso, `feriados.yml` tenía el error que Honorio ya había encontrado**: su
+comentario decía que el push del bot disparaba Deploy Pages, y no es así (un
+push con el `GITHUB_TOKEN` no dispara workflows). Ahora pide el deploy igual que
+`uma.yml`. La cita de `uma-uhom.html` pasó a la 2372, presentada como ejemplo
+para que no parezca vieja cuando salga la próxima.
+
+---
+
 ## Los días inhábiles propios — 22/9
 
 Pedido de Javier: que quien usa las calculadoras de plazos pueda agregar sus

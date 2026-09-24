@@ -1,0 +1,81 @@
+# ------------------------------------------------------------------
+# Carga la UMA nueva en data/serie-uma.json, leida del PDF de la
+# resolucion de la CSJN, regenera la imagen de uma-uhom y publica.
+#
+# Existe porque la serie se cargaba a mano: el 24/9/2026 honorio.ar
+# ya tenia la Res. SGA 2372/2026 y este sitio seguia con la de julio.
+# El workflow de Honorio solo toca su repositorio. Como se lee cada
+# dato, y por que la planilla de Honorio es aviso y no fuente, esta en
+# scripts/actualizar-uma.mjs.
+#
+# Corre todos los dias a las 09:00 de Buenos Aires, una hora despues
+# del de Honorio, para que honorio.ar/uma.json ya este publicado. Si
+# se corrio aquel a mano, este tambien se puede: Actions -> "UMA" ->
+# "Run workflow".
+#
+# Si el PDF no se puede leer, o no coincide con la planilla, el
+# script falla sin tocar nada y la corrida queda en rojo: ese es el
+# aviso de que hay que cargarla a mano.
+#
+# **El deploy se pide a mano, y tiene que ser asi**: un push hecho con
+# el GITHUB_TOKEN del runner no dispara otros workflows. Es un freno
+# de GitHub contra la recursion y no se desactiva. Sin el ultimo paso,
+# el commit aparece en main y el sitio sigue con el valor viejo.
+# ------------------------------------------------------------------
+name: UMA
+
+on:
+  schedule:
+    - cron: '0 12 * * *' # 09:00 en Buenos Aires
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: uma
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Instalar pdftotext
+        run: sudo apt-get install -y --no-install-recommends poppler-utils
+
+      - name: Leer la resolucion nueva, si la hay
+        run: node scripts/actualizar-uma.mjs
+
+      - name: Controlar la serie y regenerar la imagen
+        id: cambio
+        run: |
+          if git diff --quiet -- data/serie-uma.json; then
+            echo "Sin cambios."
+            echo "hay=no" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          npm run verificar-series
+          npm run og-uma
+          echo "hay=si" >> "$GITHUB_OUTPUT"
+
+      - name: Commitear
+        if: steps.cambio.outputs.hay == 'si'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/serie-uma.json assets/og-uma.png
+          git commit -m "chore(datos): cargar la UMA nueva, leida de la resolucion"
+          git push
+
+      - name: Publicar el sitio
+        if: steps.cambio.outputs.hay == 'si'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

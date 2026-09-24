@@ -154,9 +154,16 @@ Ninguno urgente y ninguno bloqueante.
   archivo— pero **la alarma es indistinguible de una auténtica**. Si molesta, lo
   que hay que cambiar es el script, para que distinga «el año que viene todavía
   no existe» de «la API no contesta».
-- **Las tres series se cargan a mano** —`data/serie-uma.json`,
-  `data/serie-uhom.json` y `data/tasa-monto-fijo.json`—: los actos de la CSJN y
-  las tablas del Ministerio son PDFs sin API. **`npm run verificar-series` no
+- **La UMA se carga sola desde el 24/9**: `.github/workflows/uma.yml`, todos
+  los días, y a mano desde Actions o con `npm run uma`. La planilla de Honorio
+  (`honorio.ar/uma.json`) es **sólo el aviso**: valor, vigencia y fecha del acto
+  se leen del PDF de la CSJN, y si no coinciden con la planilla no carga nada y
+  la corrida queda en rojo. **Un rojo ahí es «cargala a mano»**: PDF sin texto,
+  una acordada en vez de una resolución SGA, o un resolutivo distinto. Pide el
+  deploy con `gh workflow run`, igual que `feriados.yml` desde ese día: antes
+  el push del bot no publicaba nada.
+- **El UHOM y el monto fijo siguen a mano** —`data/serie-uhom.json` y
+  `data/tasa-monto-fijo.json`—: las tablas del Ministerio son PDFs sin API. **`npm run verificar-series` no
   puede detectar que falte el último**: detecta que lo cargado esté mal. El que
   avisa es la propia página, si pasaron más de 45 días sin revisarlas.
   **La del monto fijo del art. 6 es la más lenta y por eso la más fácil de

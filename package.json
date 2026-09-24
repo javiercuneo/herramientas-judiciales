@@ -23,6 +23,7 @@
     "feriados": "node scripts/actualizar-feriados.mjs",
     "barrer-plazos": "node scripts/barrer-plazos-cpccn.mjs",
     "barrer-plazos-json": "node scripts/barrer-plazos-cpccn.mjs --json",
+    "uma": "node scripts/actualizar-uma.mjs",
     "og-uma": "node scripts/armar-og-uma.mjs",
     "imagenes": "node scripts/armar-imagenes.mjs",
     "contorno": "node --max-old-space-size=6144 scripts/armar-contorno-argentina.mjs",
