@@ -73,6 +73,13 @@ jobs:
       - name: Verificar la exencion de .datos-ejemplo
         run: npm run verificar-datos-ejemplos
 
+      # El hook de datos y el anonimizador sobre el mismo banco: que coincidan
+      # o digan por que no, y que ninguna regla de ninguno de los dos quede sin
+      # su caso. Corre tambien el hook mismo una vez, para confirmar que la
+      # lectura de sus patrones no se desvio.
+      - name: Verificar el banco cruzado del hook y el anonimizador
+        run: npm run verificar-cruce
+
       # Las dos series de valores que muestra uma-uhom.html. Se editan a mano
       # cada vez que sale un acto nuevo, y las tres formas en que un archivo
       # asi se rompe --vigencia repetida, serie que baja, acto anterior a la

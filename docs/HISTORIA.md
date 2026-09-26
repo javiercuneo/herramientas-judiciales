@@ -19,6 +19,65 @@ de 2026.
 
 ---
 
+## El hook de datos y el anonimizador, sobre el mismo banco — 26/9
+
+La pregunta la hizo Javier desde una sesión de `puente`: *«si las reglas de hooks
+pre commit y de control de fugas, las podemos comparar con el motor anonimizador
+… porque de cierta forma hacen lo mismo. luego quisiera que se puedan ir
+alimentando o retroalimentando unas a otras»*. Hacen lo mismo con un fin
+distinto: `scripts/verificar-datos.sh` frena un commit y no toca el texto;
+`escribiente/js/motor/anonimizar.js` tapa un escrito para dárselo a un modelo.
+Las dos buscan datos personales por su forma, y cada una aprendió de sus fugas
+sin que la otra se enterara.
+
+**Lo que dio el cruce**, corriendo las dos sobre el banco de
+`comparar-motores/` más quince formas que sólo conocía el hook:
+
+- **El hook no veía un celular sin el 54.** Pedía `+54` adelante, y un escrito
+  casi nunca lo pone: un 11 o un 15 seguido de ocho dígitos pasaba. El motor los tapa
+  desde siempre. Arreglado: regla nueva, sólo 11 y 15 sin prefijo y con la misma
+  guarda de UUID que el fijo. Se midió antes el ruido sobre todo lo versionado en
+  los nueve repos: aparece sólo en los bancos de prueba, que ya son ejemplo.
+- **El hook marcaba como DNI un monto con espacio después del signo.** El lookbehind miraba sólo el
+  carácter pegado al número, y con un espacio en el medio no veía el signo.
+  Arreglado con las mismas marcas de monto que ya usaba el motor: `$` con o sin
+  espacio, `u$s`, `USD`, «suma de», «importe de», y «pesos»/«dólares» detrás.
+- **Del otro lado, el motor deja en claro formas que el hook frena**: `C.I.`,
+  CUIT con espacios alrededor de los guiones, la matrícula sin dos puntos,
+  tomo en números romanos y el enlace al visor del PJN. **No se tocaron**: Javier
+  pidió corregir el hook. Quedaron como `pendiente` en el banco.
+- **Y apareció una corrupción del motor**: la regla `domicilio` se come la
+  palabra de adelante —«Se notificó en Montevideo 1740 PB departamento 2» sale
+  «Se [DOMICILIO]»—. Anotada en «Bugs abiertos».
+
+**La retroalimentación es `npm run verificar-cruce`**
+(`scripts/verificar-cruce.mjs` sobre `scripts/banco-cruzado/casos.json`, 52
+casos inventados). Tres cosas la hacen retroalimentación y no un banco más:
+
+1. Cada caso dice qué tiene que hacer cada uno. Si no coinciden, el caso dice
+   `porque` (diferencia decidida: el hook no puede preguntar por una carátula y
+   el motor sí) o `pendiente` (hueco que falta decidir). Un desacuerdo sin
+   motivo falla.
+2. **Toda regla de los dos lados tiene que tener su caso.** Una regla nueva en
+   el hook, o en el motor, hace fallar el banco hasta que alguien le pone un
+   ejemplo y dice qué hace el otro con él. Lo que aprende uno le llega al otro
+   como pregunta. Corre en el `pre-commit` de este repo —sólo cuando el commit
+   toca una de las dos piezas o el banco— y en CI.
+3. Las reglas del hook **se leen del `.sh`, no se copian**. Como JavaScript y el
+   `grep -P` del hook no son el mismo motor de expresiones, al final se corre el
+   hook mismo una vez sobre el banco entero y tiene que disparar las mismas
+   reglas. Una sola vez porque en Windows cada corrida tarda seis segundos.
+
+Se lo vio fallar a propósito de cinco maneras: una regla nueva en el hook sin
+caso, una regla nueva en el motor sin caso, el hook sin la regla del celular,
+un desacuerdo sin motivo, y una regla que JavaScript lee distinto que `grep -P`
+(`\p{Ll}`), que sólo la calibración detecta.
+
+Dos cosas que ya estaban y siguen igual: el teléfono del interior
+(«+54 9 351 456-7890») no lo ve ninguno de los dos —queda `pendiente`—, y la regla
+`CVU` del motor casi nunca corre, porque una CVU de 22 dígitos la agarra antes la
+de CBU y sale etiquetada `[CBU]`.
+
 ## La UMA deja de cargarse a mano — 24/9
 
 Javier corrió el workflow de la UMA en Honorio por la Res. SGA 2372/2026

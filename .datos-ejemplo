@@ -16,3 +16,4 @@ scripts/comparar-motores/corpus.json   # 40 casos inventados para comparar los d
 scripts/comparar-motores/sonda.json    # 13 sondas dirigidas del mismo banco: OCR ensuciado, tolerancia a digitos y anclas
 scripts/verificar-datos-ejemplos.sh    # el banco de este mismo mecanismo: construye adentro el material que tiene que bloquear
 scripts/verificar-conectores.mjs        # el banco del conector: para probar que lee una caratula hace falta una, y es inventada
+scripts/banco-cruzado/casos.json       # banco cruzado del hook y el anonimizador: casos inventados, uno por forma; el porque, en scripts/verificar-cruce.mjs

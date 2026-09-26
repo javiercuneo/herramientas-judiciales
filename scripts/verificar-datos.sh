@@ -200,7 +200,15 @@ buscar '\b(?:L\.?C\.?|L\.?E\.?|C\.?I\.?)\b[^0-9]{0,8}[0-9]{6,8}' 'documento de i
 # tener--- sino sacarle una que nunca fue suya. Aparecio con los importes que
 # fija scripts/pruebas-no-plazos.html, que son salidas de pantalla copiadas tal
 # cual y por eso no se les puede poner el signo de peso adelante.
-buscar '(?<![$])\b[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}\b(?![0-9])(?!,[0-9])' 'numero con forma de DNI (7-8 digitos con puntos)'
+#
+# Y desde el 26/9/2026, las mismas marcas de monto que usa el anonimizador de
+# Escribiente (regla 'DNI' de escribiente/js/motor/anonimizar.js): el signo con
+# un espacio en el medio ("$ 1.500.000" pasaba por DNI, porque el lookbehind
+# miraba solo el caracter pegado), "u$s", "USD", "suma de", "importe de" y
+# "pesos" o "dolares" detras. Lo encontro scripts/verificar-cruce.mjs, que corre
+# este verificador y el motor sobre el mismo banco: los dos tienen que estar de
+# acuerdo en que es un monto y que es un documento.
+buscar '(?<![$])(?<!\$ )(?<![uU][sS]\$ )(?<![uU]\$[sSdD] )(?<![uU]\$[sSdD])(?<![uU][sS][dD] )(?<!suma de )(?<!importe de )(?<!valor de )(?<!monto de )(?<!pesos )\b[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}\b(?![0-9])(?!,[0-9])(?!\s*(?:pesos|d(?:o|ó)lares|\$))' 'numero con forma de DNI (7-8 digitos con puntos)'
 buscar '\b(?:20|23|24|27|30|33|34)\s*-\s*[0-9]{8}\s*-\s*[0-9]\b' 'CUIT/CUIL con guiones (ojo: puede llevar espacios)'
 buscar '\b(?:20|23|24|27|30|33|34)[0-9]{9}\b' 'CUIT/CUIL de 11 digitos sin guiones -- contiene el DNI'
 buscar '\b[0-9]{22}\b' 'CBU'
@@ -224,6 +232,13 @@ fi
 buscar_todo 'scw\.pjn\.gov\.ar/scw/viewer' 'enlace directo al visor de expedientes del PJN'
 buscar '\blex100\b|\bmesa virtual\b|\bSNE\b' 'vocabulario de sistemas internos del PJN'
 buscar '\+?54\s*9?\s*(?:11|351|341|261|221)\s*[-. ]?[0-9]{4}[-. ]?[0-9]{4}' 'telefono argentino'
+# El de arriba exige el 54, y un escrito casi nunca lo pone: "11 4567 8901" y
+# "15-4567-8901" pasaban. El anonimizador los tapa desde siempre (regla
+# 'telefono'); lo encontro el banco cruzado el 26/9/2026. Sin el 54 se aceptan
+# solo 11 y 15 --el resto de las caracteristicas sueltas se confunde con
+# cualquier numero de diez digitos-- y con la misma guarda de UUID que el fijo
+# de abajo: ni pegado a un guion ni a un caracter de palabra.
+buscar '(?<![-\w])(?:11|15)[-. ]?[0-9]{4}[-. ]?[0-9]{4}(?![-\w])' 'celular o telefono de AMBA sin el 54'
 # El \b no alcanza: dentro de un UUID (...19e5-4608-9946-6f22...) el tramo
 # '4608-9946' tiene borde de palabra a los dos lados y pasaba por telefono.
 # Los links del CIJ son todos UUID, asi que era un bloqueo garantizado sobre

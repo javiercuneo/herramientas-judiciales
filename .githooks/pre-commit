@@ -58,4 +58,20 @@ if git diff --cached --name-only | grep -q '^docs/'; then
   fi
 fi
 
+# --- El banco cruzado: el hook de datos y el anonimizador -----------------
+# BLOQUEA, y solo si el commit toca una de las dos piezas o el banco. Es el
+# momento en que una aprende algo nuevo: una regla nueva de cualquiera de los
+# dos lados sin su caso en el banco --y sin decir que hace el otro con el-- no
+# entra. El porque, en la cabecera de scripts/verificar-cruce.mjs.
+if git diff --cached --name-only | grep -qE '^(scripts/verificar-datos\.sh|escribiente/js/motor/anonimizar\.js|scripts/banco-cruzado/|scripts/verificar-cruce\.mjs)'; then
+  if [ -f "$raiz/scripts/verificar-cruce.mjs" ]; then
+    if ! salida=$(node "$raiz/scripts/verificar-cruce.mjs" 2>&1); then
+      printf '\033[31m  BLOQUEA  el hook de datos y el anonimizador no estan de acuerdo\033[0m\n'
+      printf '%s\n' "$salida" | grep -E 'FALLA' | sed 's/^/         /'
+      printf '           Detalle: npm run verificar-cruce\n'
+      exit 1
+    fi
+  fi
+fi
+
 exit 0

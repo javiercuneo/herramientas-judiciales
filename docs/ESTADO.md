@@ -59,6 +59,11 @@ decidir con qué etiqueta —la pantalla le pone `[ACTOR]` a la primera parte—
 mirar a `redactor`, que recibe esa lista por el conector y puede contar con que
 sean dos.
 
+**La regla `domicilio` del motor se come la palabra de adelante** (26/9, sin
+arreglar). Corre con la bandera `i`, así que la primera palabra no tiene que ser
+mayúscula: «Se notificó en Montevideo 1740 PB departamento 2» sale «Se
+[DOMICILIO]». Lo encontró el banco cruzado; está anotado en su caso `domicilio`.
+
 E-01 a E-06 están cerrados, en [`HISTORIA.md`](HISTORIA.md)
 con su caso de prueba. **El borde que quedó de cada regla está en
 [`escribiente/README.md`](../escribiente/README.md)**.
@@ -72,6 +77,18 @@ con su caso de prueba. **El borde que quedó de cada regla está en
 > cerrado y consumido desde el 2/9.
 
 **Lo que queda abierto:**
+
+- **El hook de datos y el anonimizador se vigilan entre sí desde el 26/9.**
+  `npm run verificar-cruce` los corre sobre
+  [`scripts/banco-cruzado/casos.json`](../scripts/banco-cruzado/casos.json): cada
+  caso dice qué hace cada uno y, si no coinciden, por qué. **Una regla nueva en
+  cualquiera de los dos, sin su caso, no entra**: lo frena el `pre-commit` de este
+  repo y el CI. **Hay 16 casos `pendiente`**: huecos de uno que el otro sí ve
+  —el motor no tapa `C.I.`, CUIT con espacios, matrícula sin dos puntos, tomo en
+  romanos ni el enlace al visor; el hook no mira campos de formulario, patentes ni
+  domicilios— y el teléfono del interior, que no ve ninguno. **Cuáles se cierran es
+  de Javier.** El que cierre uno cambia `pendiente` por el valor nuevo y agrega la
+  regresión en el banco del motor o del hook.
 
 - **UN SOLO MOTOR DE ANONIMIZACIÓN. El paso 4 arrancó el 17/9, y es de `redactor`.**
   Las mismas reglas están escritas dos veces —en `escribiente/js/motor/anonimizar.js`
@@ -298,7 +315,7 @@ volumen.
 
 ## Los controles, y qué cubre cada uno
 
-Son trece y no se superponen. **Ninguno se da por bueno sin haberlo visto fallar
+Son catorce y no se superponen. **Ninguno se da por bueno sin haberlo visto fallar
 a propósito**: un control que nunca falló no es un control.
 
 | Control | Qué cubre |
@@ -316,6 +333,7 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-docs` | Que los documentos de dominio no citen artículos ni archivos que no existen |
 | `npm run verificar-estado` | El presupuesto y la higiene de este archivo |
 | `npm run verificar-datos-ejemplos` | Las salidas de `verificar-datos.sh`: la exención, la guarda del correo y los modos del pre-push: 27 |
+| `npm run verificar-cruce` | El hook de datos y el anonimizador sobre el mismo banco: que coincidan o digan por qué no, y que ninguna regla de los dos quede sin caso: 52 |
 
 Y **tres** que corren en el navegador, con el sitio servido y no con `file://`:
 
