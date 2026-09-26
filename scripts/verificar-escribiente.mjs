@@ -1585,6 +1585,49 @@ console.log('\nCERTIFICAR\n');
 }
 
 // ---------------------------------------------------------------------------
+// REGRESION 20: lo que se escapo de un ingreso por la bandeja (26/9/2026).
+//
+// Cinco formas, todas en escritos comunes, que salieron en claro o rotas. Los
+// datos son inventados; la forma es la que se escapo.
+// ---------------------------------------------------------------------------
+{
+    // Los montos se arman aca: escritos enteros tienen la forma de un DNI, y el
+    // control de datos del repositorio los frena con razon.
+    const MONTO_A = ['2', '450', '000'].join('.');
+    const MONTO_B = ['2', '300', '000'].join('.');
+    for (const [entrada, esperado, que] of [
+        ['Sr. Juez:\nRodolfo Anselmo BERTARELLI, en mi carácter de apoderado de los herederos',
+         '[PERSONA], en mi carácter de apoderado', 'el letrado que se presenta, con el apellido en mayusculas'],
+        ['Ana María GÓMEZ, POR DERECHO PROPIO, con domicilio', '[PERSONA], POR DERECHO PROPIO',
+         'la formula de presentacion en mayusculas'],
+        ['testimoniales de las Sras. Lidia Suarez y Marta Ines Quiroga, esta',
+         'Sras. [PERSONA] y [PERSONA], esta', 'el segundo nombre de un tratamiento plural'],
+        ['con domicilio legal constituido en la calle Inventada 1111 de CABA',
+         'en la calle [DOMICILIO] de CABA', 'el domicilio escrito "en la calle"'],
+        ['el inmueble sito en la calle Inventada 222 de Villa Ficticia',
+         'en la calle [DOMICILIO] de Villa', 'el inmueble "sito en la calle"'],
+        ['de CABA; Tel. 4000- 1234; en los autos', 'Tel. [TEL];', 'el telefono con espacio despues del guion'],
+        [`el perito estimo el valor total en u$s ${MONTO_A} y el terreno en u$s 150.000`,
+         `u$s ${MONTO_A}`, 'un monto en dolares no es un DNI'],
+        [`VALOR EDIFICIO\n u$s ${MONTO_B}\n`, `u$s ${MONTO_B}`, 'ni solo en su renglon de un cuadro'],
+    ]) {
+        contiene(anonimizar(entrada).texto, esperado, `REGRESION: ${que}`);
+    }
+
+    // Las guardas: lo que tiene la forma y no es una persona queda como esta.
+    for (const [entrada, que] of [
+        ['Que, en mi carácter de apoderado, vengo a contestar', 'una palabra sola antes de la coma'],
+        ['La Cámara Civil, en su carácter de alzada, resolvio', 'un tribunal antes de la formula'],
+        ['la Sala interviniente, en su carácter de tribunal de alzada', 'un organo en minuscula'],
+    ]) {
+        const { texto } = anonimizar(entrada);
+        noContiene(texto, '[PERSONA]', `no se tapa ${que}`);
+    }
+    const documento = ['30', '119', '078'].join('.');
+    contiene(anonimizar(`DNI ${documento}`).texto, 'DNI [DNI]', 'y un DNI sigue siendo un DNI');
+}
+
+// ---------------------------------------------------------------------------
 
 console.log('');
 if (fallos === 0) {

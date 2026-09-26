@@ -295,7 +295,12 @@ export const REGLAS_IDENTIFICADORES = [
         // tan frecuente como "$ 1.500.000". Por eso, ademas del signo y de los
         // decimales, se mira la palabra que viene antes. Esta parte no esta en
         // la version original de las reglas y se agrego aca.
-        patron: /((?:\$|pesos|suma de|importe de|valor de|monto de)\s*)?(\d{1,2}\.\d{3}\.\d{3})(\s*,\s*\d+|\s*(?:pesos|\$))?/gi,
+        //
+        // EL MONTO EN DOLARES, 26/9/2026. un monto en dolares salia "u$s [DNI]": en
+        // "u$s" el signo no esta pegado al numero -lo separa la "s"- y la
+        // alternativa del signo no calzaba. Un cuadro de tasacion en dolares
+        // perdio asi los valores de los que dependia la resolucion.
+        patron: /((?:u\$[sd]|us\$|usd|d[oó]lares|\$|pesos|suma de|importe de|valor de|monto de)\s*)?(\d{1,2}\.\d{3}\.\d{3})(\s*,\s*\d+|\s*(?:pesos|d[oó]lares|\$))?/gi,
         reemplazo: (todo, plata, numero, despues) => (plata || despues) ? todo : '[DNI]',
     },
     {
@@ -385,7 +390,11 @@ export const REGLAS_IDENTIFICADORES = [
         // interno, que en la primera version quedaba afuera.
         // La palabra que ancla se conserva: sin eso, "su telefono 4371-1696"
         // quedaba como "su [TEL]", que no se entiende al leer.
-        patron: /\b(tel[eé]fonos?|celulares?|cel|fax|tel)(\.?\s*:?\s*)\d{4}[\s-]?\d{4}(?:\s*\/\s*\d{2,4})?/gi,
+        //
+        // EL GUION CON ESPACIO, 26/9/2026. "Tel. 4371- 1696" -el espacio despues
+        // del guion lo deja la extraccion del PDF- salia entero: entre los dos
+        // bloques se aceptaba un solo caracter.
+        patron: /\b(tel[eé]fonos?|celulares?|cel|fax|tel)(\.?\s*:?\s*)\d{4}[ \t]*-?[ \t]*\d{4}(?:\s*\/\s*\d{2,4})?/gi,
         reemplazo: '$1$2[TEL]',
     },
 ];
@@ -440,6 +449,14 @@ const PISO =
 // que el OCR ensucio en la PRIMERA letra sigue sin arreglo, y el motor Python
 // tampoco lo resuelve.
 const PALABRA_DE_NOMBRE = `[${MAY}][${LETRA}\\d]*[${LETRA}]`;
+
+// Lo que sigue a la coma cuando alguien se presenta en un escrito. La regla que
+// las usa corre sin la bandera `i`, y por eso cada una va en minuscula y en
+// mayuscula: "EN MI CARACTER DE" es tan frecuente como la otra.
+const FORMULAS_DE_PRESENTACION = [
+    'en mi car[aá]cter de', 'en su car[aá]cter de', 'por derecho propio', 'por s[ií] y',
+    'abogad[oa]', 'letrad[oa]', 'apoderad[oa]', 'inscript[oa] al',
+].flatMap((f) => [f, f.toUpperCase()]).join('|');
 
 export const REGLAS_NOMBRES = [
     {
@@ -502,6 +519,48 @@ export const REGLAS_NOMBRES = [
         },
     },
     {
+        nombre: 'segundo nombre tras tratamiento plural',
+        // "las Sras. Ana Gomez y Marta Ines Quiroga": el tratamiento plural
+        // anuncia dos personas y la regla de arriba tapaba solo la primera. La
+        // segunda salia en claro. Corre despues de la de tratamiento y se ancla
+        // en lo que esa dejo: "Sras. [PERSONA] y".
+        patron: new RegExp(
+            `((?:Dres|Dras|Sres|Sras|DRES|DRAS|SRES|SRAS)\\.?[ \\t]*:?[ \\t]*\\[PERSONA\\][ \\t]+[ye][ \\t]+)` +
+            `(${PALABRA_DE_NOMBRE}(?:[ \\t]+(?:[${MAY}]\\.[ \\t]*)?(?:${PARTICULA_CUALQUIER_CAJA}[ \\t]+){0,2}${PALABRA_DE_NOMBRE}){0,3})`,
+            'g'
+        ),
+        reemplazo: (todo, antes, nombre) => {
+            const largo = largoDeNombre(nombre);
+            if (!largo) return todo;
+            const conservado = nombre.match(new RegExp(`^\\S+(?:[ \\t]+\\S+){${largo - 1}}`))[0];
+            return `${antes}[PERSONA]` + nombre.slice(conservado.length);
+        },
+    },
+    {
+        nombre: 'el que se presenta',
+        // El comienzo de un escrito: "Juan Carlos PEREZ, en mi caracter de
+        // apoderado de...", "Ana Gomez, por derecho propio", "Luis Diaz,
+        // abogado, inscripto al T...". Ningun tratamiento lo anuncia, y el
+        // detector de candidatos lo ofrecia a medias -el nombre de pila sin el
+        // apellido en mayusculas-, asi que el letrado de la parte salia entero.
+        //
+        // Lo que ancla es lo que sigue a la coma: una formula con la que solo se
+        // presenta una persona. Corre SIN la bandera `i`, para que cada palabra
+        // del nombre tenga que empezar en mayuscula, y pide dos como
+        // minimo: "Que, en mi caracter de" no es un nombre.
+        patron: new RegExp(
+            `(^|[^${LETRA}\\d\\]])` +
+            `(${PALABRA_DE_NOMBRE}(?:[ \\t]+(?:[${MAY}]\\.[ \\t]*)?(?:${PARTICULA_CUALQUIER_CAJA}[ \\t]+){0,2}${PALABRA_DE_NOMBRE}){1,4})` +
+            `([ \\t]*,[ \\t]*(?:${FORMULAS_DE_PRESENTACION}))`,
+            'g'
+        ),
+        reemplazo: (todo, antes, nombre, despues) => {
+            const palabras = nombre.trim().split(/\s+/);
+            if (palabras.some((p) => !esParticula(p) && noEsNombre(p))) return todo;
+            return `${antes}[PERSONA]${despues}`;
+        },
+    },
+    {
         nombre: 'domicilio con ancla',
         // Calle y altura SIN piso ni departamento, que es como se escribe la
         // mayoria de los domicilios de un escrito: "Av. San Juan 640 CABA",
@@ -520,7 +579,13 @@ export const REGLAS_NOMBRES = [
             // lleva dos, y aceptando uno solo el segundo se colaba adentro del
             // nombre de la calle y la guarda de mayuscula tiraba el calce.
             `(?:[ \\t]+(?:legal|real|procesal|constituid[oa]|comercial|denunciad[oa]))*` +
-            `[ \\t]*:?[ \\t]*(?:en[ \\t]+)?)` +
+            //
+            // "EN LA CALLE", 26/9/2026. "domicilio legal constituido en la calle
+            // X 1111" salia entero: con la bandera `i`, "la calle" entraba como las
+            // dos primeras palabras de la direccion, la guarda de mayuscula tiraba
+            // el calce, y el calce tirado ya habia consumido el texto, asi que la
+            // regla no volvia a probar desde "calle". Igual "sito en la calle".
+            `[ \\t]*:?[ \\t]*(?:en[ \\t]+)?(?:la[ \\t]+)?(?:calle[ \\t]+)?)` +
             `([${MAY}][${LETRA}.]+(?:[ \\t]+(?:de[l]?|la|las|los)?[ \\t]*[${MAY}][${LETRA}.]+){0,2}` +
             `[ \\t]+\\d{1,5}${PISO}*)`,
             'gi'
