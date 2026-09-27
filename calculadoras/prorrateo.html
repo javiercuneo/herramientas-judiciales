@@ -247,6 +247,7 @@
         }
         .veredicto.neutro .rotulo { color: var(--faint); opacity: 1; }
         .veredicto.neutro .equivale { color: var(--muted-fg); opacity: 1; }
+        .veredicto .cifra-uma { font-family: var(--font-meter); font-size: 15px; font-weight: 600; margin-top: 2px; }
 
         /* Cuatro datos y auto-fit no se llevan bien: en los anchos donde entran
            TRES, el cuarto queda solo con un hueco al lado del tamanio de dos.
@@ -387,6 +388,11 @@
         .cifra-celda { font-family: var(--font-meter); font-weight: 600; white-space: nowrap; }
         .cifra-celda.apagada { color: var(--faint); font-weight: 400; }
         .cifra-celda.recortada { color: var(--accent); }
+        /* El prorrateado de una fila en UMA va debajo, como segunda lectura
+           de la misma cifra, y fuera de .fila-prorrateado: el banco de pruebas
+           lee esa celda y tiene que seguir leyendo pesos. */
+        .en-uma { display: block; font-size: 11.5px; color: var(--muted-fg); font-weight: 400; white-space: nowrap; }
+        .en-uma:empty { display: none; }
 
         .sec { font-size: 11.5px; color: var(--faint); font-family: var(--font-sans); font-weight: 400; }
 
@@ -596,6 +602,7 @@
             }
             #imprimible th { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.04em; }
             #imprimible .num { text-align: right; }
+            #imprimible .en-uma-papel { font-size: 7.5pt; color: #333; }
             #imprimible tfoot td { font-weight: 700; border-bottom: none; border-top: 1px solid #000; }
             #imprimible .total { font-size: 12pt; margin-top: 10pt; }
             #imprimible .criterio {
@@ -660,6 +667,7 @@
                         <input type="text" id="montoProceso" inputmode="decimal" autocomplete="off"
                                placeholder="0" aria-label="Monto del proceso en pesos">
                     </div>
+                    <span class="en-uma" id="montoEnUma"></span>
                     <div class="pie-campo">La sentencia, el laudo o la transacción que puso fin
                         al pleito. Es la base del 25 %.</div>
                 </div>
@@ -743,7 +751,7 @@
                             <td></td>
                             <td class="num"><span class="cifra-celda" id="totalRegulado">$ 0,00</span></td>
                             <td class="num"><span class="cifra-celda" id="totalParticipacion">—</span></td>
-                            <td class="num"><span class="cifra-celda" id="totalProrrateado">—</span></td>
+                            <td class="num"><span class="cifra-celda" id="totalProrrateado">—</span><span class="en-uma" id="totalProrrateadoUma"></span></td>
                             <td></td>
                         </tr>
                     </tfoot>
@@ -989,7 +997,8 @@
             '</div></td>' +
             '<td class="num"><span class="cifra-celda apagada fila-regulado">—</span></td>' +
             '<td class="num"><span class="cifra-celda apagada fila-participacion">—</span></td>' +
-            '<td class="num"><span class="cifra-celda apagada fila-prorrateado">—</span></td>' +
+            '<td class="num"><span class="cifra-celda apagada fila-prorrateado">—</span>' +
+                '<span class="en-uma fila-prorrateado-uma"></span></td>' +
             '<td><button type="button" class="quitar" aria-label="Quitar esta regulación">×</button></td>';
 
         cuerpo.appendChild(tr);
@@ -1034,6 +1043,24 @@
         if (tr.querySelector('.fila-uma').checked) monto = monto * uma;
         if (tr.querySelector('.fila-iva').checked) monto = monto * (1 + IVA);
         return monto;
+    }
+
+    // El prorrateado de una fila regulada en UMA, de vuelta en UMA. Se divide
+    // por la UMA y se le saca el IVA, asi que da la cantidad de UMA regulada
+    // por la misma proporcion que el art. 730 aplica a los pesos: 10 UMA con
+    // un recorte del 25 % dan 7,50 UMA. No es otro calculo, es la cifra de la
+    // columna leida en la unidad en que se reguló.
+    function prorrateadoEnUma(tr, prorrateado, uma) {
+        if (!tr.querySelector('.fila-uma').checked || !(uma > 0) || !(prorrateado > 0)) return '';
+        var iva = tr.querySelector('.fila-iva').checked;
+        return nf.format(prorrateado / uma / (iva ? 1 + IVA : 1)) + ' UMA' + (iva ? ' + IVA' : '');
+    }
+
+    // Una cifra en pesos leida en UMA. Es solo una lectura: ninguna cuenta la
+    // usa. Con una regulacion con IVA el total en UMA lo lleva adentro, y se
+    // dice, porque cada fila lo muestra sin IVA.
+    function enUmas(n, uma, conIva) {
+        return nf.format(n / uma) + ' UMA' + (conIva ? ', IVA incluido' : '');
     }
 
     // ----------------------------------------------------------------------
@@ -1084,10 +1111,19 @@
 
         var r = prorratear({ monto: monto, tasa: tasa, tasaEnBase: enBase, regulados: regulados });
 
-        pintarFilas(filas, regulados, r);
-        pintarResultado(r, monto);
+        // Si el caso trae regulaciones en UMA, las cifras del caso tambien se
+        // leen en UMA. Si no, no: la UMA no tiene nada que ver con el caso.
+        var umaCaso = hayUma && uma > 0 ? uma : 0;
+        var hayIva = filas.some(function (tr) { return tr.querySelector('.fila-iva').checked; });
+        document.getElementById('montoEnUma').textContent =
+            umaCaso && monto > 0 ? 'Equivale a ' + enUmas(monto, umaCaso) + '.' : '';
+        document.getElementById('totalProrrateadoUma').textContent =
+            umaCaso && r.cobrado > 0 ? enUmas(r.cobrado, umaCaso, hayIva) : '';
+
+        pintarFilas(filas, regulados, r, uma);
+        pintarResultado(r, monto, umaCaso, hayIva);
         document.getElementById('dibujo').innerHTML = monto > 0 ? dibujar(r) : '';
-        pintarImprimible(r, monto, filas, regulados);
+        pintarImprimible(r, monto, filas, regulados, uma, umaCaso, hayIva);
 
         // El enlace se mantiene al dia en la barra de direcciones, y por eso el
         // boton de copiar puede decir "copialo de ahi" si el portapapeles no
@@ -1097,12 +1133,14 @@
         }
     }
 
-    function pintarFilas(filas, regulados, r) {
+    function pintarFilas(filas, regulados, r, uma) {
         filas.forEach(function (tr, i) {
             var reg = regulados[i];
             var celdaReg = tr.querySelector('.fila-regulado');
             var celdaPart = tr.querySelector('.fila-participacion');
             var celdaPro = tr.querySelector('.fila-prorrateado');
+            var celdaUma = tr.querySelector('.fila-prorrateado-uma');
+            celdaUma.textContent = '';
 
             celdaReg.textContent = reg > 0 ? pesos(reg) : '—';
             celdaReg.classList.toggle('apagada', !(reg > 0));
@@ -1126,6 +1164,7 @@
             celdaPro.textContent = pesos(r.reparto[i]);
             celdaPro.classList.remove('apagada');
             celdaPro.classList.toggle('recortada', r.prorratea);
+            celdaUma.textContent = prorrateadoEnUma(tr, r.reparto[i], uma);
         });
 
         document.getElementById('totalRegulado').textContent = pesos(r.totalRegulado);
@@ -1144,7 +1183,7 @@
             (nota ? '<div class="n">' + nota + '</div>' : '') + '</div>';
     }
 
-    function pintarResultado(r, monto) {
+    function pintarResultado(r, monto, umaCaso, hayIva) {
         var caja = document.getElementById('resultado');
 
         if (!(monto > 0)) {
@@ -1160,6 +1199,7 @@
         html += '<div class="veredicto' + (r.prorratea ? '' : ' neutro') + '">';
         html += '<div class="rotulo">Los honorarios, después del art. 730</div>';
         html += '<div class="cifra" id="cifraCobrado">' + pesos(r.cobrado) + '</div>';
+        if (umaCaso) html += '<div class="cifra-uma" id="cifraCobradoUma">' + enUmas(r.cobrado, umaCaso, hayIva) + '</div>';
         html += '<div class="equivale" id="notaCobrado">' + (r.prorratea
             ? 'Se prorratean. Se recortan ' + pesos(r.recorte) + ', que es el ' +
               nf.format(r.recortePorcentaje) + ' % de lo regulado.'
@@ -1168,11 +1208,12 @@
         html += '</div>';
 
         html += '<div class="tira">';
-        html += dato('Techo del art. 730', pesos(r.techo), '25 % del monto del proceso', 'dTecho');
+        var yUma = function (n) { return umaCaso ? ' · ' + enUmas(n, umaCaso) : ''; };
+        html += dato('Techo del art. 730', pesos(r.techo), '25 % del monto del proceso' + yUma(r.techo), 'dTecho');
         html += dato('Tasa de justicia', pesos(r.tasa),
             r.tasaEnBase ? 'ocupa parte del techo' : 'fuera de la base, por decisión de la casilla', 'dTasa');
         html += dato('Tope de los honorarios', pesos(r.topeHonorarios),
-            r.tasaEnBase ? 'el techo menos la tasa' : 'el techo entero', 'dTope');
+            (r.tasaEnBase ? 'el techo menos la tasa' : 'el techo entero') + yUma(r.topeHonorarios), 'dTope');
         html += dato('Costas sobre el proceso', nf.format(r.porcentajeProceso) + ' %',
             r.tasaEnBase ? 'honorarios regulados más la tasa' : 'sólo honorarios regulados', 'dPorcentaje');
         html += '</div>';
@@ -1407,7 +1448,7 @@
         });
     }
 
-    function pintarImprimible(r, monto, filas, regulados) {
+    function pintarImprimible(r, monto, filas, regulados, uma, umaCaso, hayIva) {
         var caja = document.getElementById('imprimible');
         if (!(monto > 0) || !(r.totalRegulado > 0)) { caja.innerHTML = ''; return; }
 
@@ -1418,12 +1459,15 @@
 
         html += '<h2>La base</h2>';
         html += '<table><tbody>';
-        html += '<tr><td>Monto del proceso</td><td class="num">' + pesos(monto) + '</td></tr>';
-        html += '<tr><td>Techo del art. 730 &mdash; 25 %</td><td class="num">' + pesos(r.techo) + '</td></tr>';
+        var papelUma = function (n, conIva) {
+            return umaCaso ? '<br><span class="en-uma-papel">' + enUmas(n, umaCaso, conIva) + '</span>' : '';
+        };
+        html += '<tr><td>Monto del proceso</td><td class="num">' + pesos(monto) + papelUma(monto) + '</td></tr>';
+        html += '<tr><td>Techo del art. 730 &mdash; 25 %</td><td class="num">' + pesos(r.techo) + papelUma(r.techo) + '</td></tr>';
         html += '<tr><td>Tasa de justicia' +
                 (r.tasaEnBase ? ' (integra las costas)' : ' (fuera de la base)') +
                 '</td><td class="num">' + pesos(r.tasa) + '</td></tr>';
-        html += '<tr><td>Tope de los honorarios</td><td class="num">' + pesos(r.topeHonorarios) + '</td></tr>';
+        html += '<tr><td>Tope de los honorarios</td><td class="num">' + pesos(r.topeHonorarios) + papelUma(r.topeHonorarios) + '</td></tr>';
         html += '</tbody></table>';
 
         html += '<h2>Las regulaciones</h2>';
@@ -1433,15 +1477,18 @@
         filas.forEach(function (tr, i) {
             if (!(regulados[i] > 0)) return;
             var nombre = tr.querySelector('.fila-concepto').value.trim() || ('Regulacion ' + (i + 1));
+            var enUma = prorrateadoEnUma(tr, r.reparto[i], uma);
             html += '<tr><td>' + escapar(nombre) + '</td>' +
                     '<td class="num">' + pesos(regulados[i]) + '</td>' +
                     '<td class="num">' + nf.format((regulados[i] * 100) / r.totalRegulado) + ' %</td>' +
-                    '<td class="num">' + pesos(r.reparto[i]) + '</td></tr>';
+                    '<td class="num">' + pesos(r.reparto[i]) +
+                    (enUma ? '<br><span class="en-uma-papel">' + enUma + '</span>' : '') +
+                    '</td></tr>';
         });
         html += '</tbody><tfoot><tr><td>Total</td>' +
                 '<td class="num">' + pesos(r.totalRegulado) + '</td>' +
                 '<td class="num">100,00 %</td>' +
-                '<td class="num">' + pesos(r.cobrado) + '</td></tr></tfoot></table>';
+                '<td class="num">' + pesos(r.cobrado) + papelUma(r.cobrado, hayIva) + '</td></tr></tfoot></table>';
 
         html += '<p class="total">' + (r.prorratea
             ? 'Se prorratean: se recortan ' + pesos(r.recorte) + ', el ' +
