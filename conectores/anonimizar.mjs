@@ -61,11 +61,18 @@ async function cargar() {
 // conectores: cuando falta un dato no se devuelve un resultado, se devuelve el
 // motivo. Un texto vacio anonimizado da un texto vacio, que se lee como "no
 // habia nada que tapar" cuando lo que paso es que no llego nada.
+//
+// LOS ESPACIOS QUE NO SE VEN, 27/9/2026. El texto sale con el espacio duro y el
+// fino cambiados por el comun: con ellos entre las palabras de un nombre, el
+// nombre no se ofrecia como candidato y quedaba en claro. Escribiente lo hace
+// al convertir el PDF; aca llega texto ya extraido y nadie lo hacia. Es un
+// caracter por otro, asi que nada cambia de lugar. Todas las herramientas
+// cargan el motor antes de llamar a esta funcion, y por eso `motor` ya esta.
 function exigirTexto(valor, campo = 'el texto') {
     if (typeof valor !== 'string' || !valor.trim()) {
         throw new ErrorDeEntrada(`Falta ${campo}, o vino vacío.`);
     }
-    return valor;
+    return motor.unificarEspacios(valor);
 }
 
 /** Valida los reemplazos que eligio quien llama.

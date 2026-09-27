@@ -16,7 +16,8 @@ import { extraerPaginas, diagnosticar } from './motor/extraer.js';
 import { convertir } from './motor/markdown.js';
 import {
     anonimizar, candidatosANombre, partesDeCaratula, normalizarEspacios,
-    restosPegadosAEtiqueta, ETIQUETAS_DE_NOMBRE as ETIQUETAS, crearNumerador,
+    restosPegadosAEtiqueta, palabrasSueltasDeElegidos, ETIQUETAS_DE_NOMBRE as ETIQUETAS,
+    crearNumerador,
 } from './motor/anonimizar.js';
 import { armarDocumento, nombreDeDescarga, losQueSiguenEnElTexto } from './motor/documento.js';
 import { analizarRango, describirProblemas, explicarError, unir, separar, rotar, contarPaginas } from './motor/pdf.js';
@@ -429,7 +430,7 @@ function recomputarYa() {
         // prepararCandidatos. Si aparecio alguno, la lista cambio y la cuenta
         // de pendientes hay que rehacerla: el resto entra sin tildar, y eso es
         // lo que lo mete en la constancia.
-        if (sumarRestos(cuerpo)) {
+        if (sumarRestos(cuerpo, elegidos.map((e) => e.texto))) {
             pendientes = estado.candidatos.filter((c) => !c.marcado).map((c) => c.texto);
             dibujarCandidatos();
         }
@@ -474,11 +475,18 @@ function recomputarYa() {
  * Las apariciones se cuentan sobre el texto ORIGINAL y no sobre las veces que
  * quedo pegada, que son menos: tildarla la reemplaza en todo el documento, y el
  * numero que se muestra tiene que ser el que va a moverse.
+ *
+ * Y desde el 26/9 tambien las palabras de un nombre tildado que siguen sueltas
+ * en el texto —"VACA, JUAN" tildado y "la demandada VACA" en el cuerpo—, con el
+ * mismo criterio: entran sin tildar. Ver `palabrasSueltasDeElegidos`.
  */
-function sumarRestos(textoAnonimo) {
+function sumarRestos(textoAnonimo, elegidos) {
     let agregados = 0;
 
-    for (const r of restosPegadosAEtiqueta(textoAnonimo)) {
+    for (const r of [
+        ...restosPegadosAEtiqueta(textoAnonimo),
+        ...palabrasSueltasDeElegidos(textoAnonimo, elegidos),
+    ]) {
         const clave = r.texto.toLowerCase();
         if (estado.candidatos.some((c) => c.texto.toLowerCase() === clave)) continue;
         estado.candidatos.push({

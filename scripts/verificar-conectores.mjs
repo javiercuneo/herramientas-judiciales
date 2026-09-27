@@ -279,6 +279,18 @@ async function probarAnonimizadorHttp() {
     `/candidatos-a-nombre no propone el nombre que no tapo: ${textos.join(' | ')}`,
   )
 
+  // --- el espacio duro entre las palabras de un nombre no lo esconde (27/9) ---
+  const duro = await pedir('/candidatos-a-nombre', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto: 'locacion con Camilo\u00a0Inventado\u00a0Ficticio, respecto del inmueble' }),
+  })
+  const conDuro = (duro.cuerpo?.candidatos || []).map((c) => c.texto)
+  comprobar(
+    conDuro.includes('Camilo Inventado Ficticio'),
+    `/candidatos-a-nombre no ve un nombre con espacio duro: ${conDuro.join(' | ')}`,
+  )
+
   // --- confirmado, se tapa; y los restos vienen en la misma respuesta ---
   const capa2 = await pedir('/anonimizar-texto', {
     method: 'POST',

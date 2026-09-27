@@ -28,8 +28,14 @@
 // los dos ve una tilde. Un patron con `\bAlvarez` no engancha "Álvarez" porque
 // "Á" no es caracter de palabra y el limite de palabra no existe ahi. De ahi
 // que las clases esten escritas a mano en todo el archivo.
-const MAY = 'A-ZÁÉÍÓÚÜÑ';
-const MIN = 'a-záéíóúüñ';
+//
+// LAS LETRAS DE OTROS IDIOMAS, 27/9/2026. Eran solo las del castellano, y un
+// apellido con "ö", "ç" o "ã" se cortaba ahi: se ofrecia "Camilo Amarant", y
+// tildado dejaba "[PERSONA]ö Rivera", con el resto del nombre a la vista. Ahora
+// son las de Latin-1 enteras (À-Ö, Ø-Þ y sus minusculas), que ya incluyen las
+// de antes. Quedan afuera el × y el ÷, que estan en el medio del rango.
+const MAY = 'A-ZÀ-ÖØ-Þ';
+const MIN = 'a-zß-öø-ÿ';
 const LETRA = MAY + MIN;
 
 // Limite de palabra que si ve las tildes: o borde del texto, o algo que no es
@@ -377,7 +383,16 @@ export const REGLAS_IDENTIFICADORES = [
     },
     {
         nombre: 'telefono',
-        patron: /(^|[^\d-])((?:\+?54\s*)?(?:11|15)[\s-]?\d{4}[\s-]?\d{4}(?:\s*\/\s*\d{4})?)(?![\d-])/g,
+        // LOS SEPARADORES, 26/9/2026. un celular de AMBA con guiones salia
+        // entero, y la causa es esta: entre los bloques se
+        // aceptaba un solo caracter, y solo el guion comun o un espacio. El PDF
+        // deja el guion tipografico (‐ – —), el espacio de mas al lado del
+        // guion, el punto como separador y el 0 de larga distancia adelante, y
+        // cualquiera de esos dejaba el numero a la vista. Tambien el 9 del
+        // celular en formato internacional ("+54 9 11..."), que quedaba afuera.
+        // Sigue exigiendo la caracteristica 11 o 15 y dos bloques de cuatro: eso
+        // es lo que hace inequivoca la forma, no el separador.
+        patron: /(^|[^\d\-‐‑–—])((?:\+?54[ \t]*(?:9[ \t]*)?)?0?(?:11|15)\s*[-‐‑–—.]?\s*\d{4}\s*[-‐‑–—.]?\s*\d{4}(?:\s*\/\s*\d{4})?)(?![\d\-‐‑–—])/g,
         reemplazo: '$1[TEL]',
     },
     {
@@ -406,6 +421,28 @@ export const REGLAS_IDENTIFICADORES = [
 // sustantivos propios, y ahi el criterio de quien conoce el expediente tiene
 // que ganarle al patron.
 // ---------------------------------------------------------------------------
+
+/** Las etiquetas con que se tapa a alguien.
+ *
+ * Las usa el selector de la pantalla Y el detector de restos de abajo. Van
+ * juntas a proposito: si las dos listas se separan, el detector deja de
+ * reconocer la etiqueta que el usuario eligio y la fuga vuelve en silencio.
+ */
+const NOMBRES_DE_ETIQUETA = [
+    'PERSONA', 'ACTOR', 'DEMANDADO', 'LETRADO', 'PERITO', 'TESTIGO', 'EMPRESA',
+];
+export const ETIQUETAS_DE_NOMBRE = NOMBRES_DE_ETIQUETA.map((n) => `[${n}]`);
+
+// Solo las de persona, y es la guarda que sostiene toda la regla. "[DOMICILIO],
+// Lomas de Zamora" y "en [EXPTE] Juzgado Civil" tambien tienen una palabra
+// capitalizada al lado, y ahi no quedo ningun nombre partido: quedo el texto que
+// rodea a un dato.
+//
+// EL `_N` ES LA FORMA NUMERADA (E-03) y tiene que estar aca: si el detector
+// reconociera "[PERSONA]" y no "[PERSONA_2]", prender la numeracion apagaria en
+// silencio la deteccion de restos, que es la fuga grave. Es la misma razon por
+// la que la lista vive en el motor y no en la pantalla.
+const ETIQUETA_DE_NOMBRE = `\\[(?:${NOMBRES_DE_ETIQUETA.join('|')})(?:_\\d+)?\\]`;
 
 // Siglas que tienen la forma de una patente vieja. Ocultar el numero de un
 // articulo deja la cita rota y sin arreglo posible del otro lado.
@@ -586,12 +623,21 @@ export const REGLAS_NOMBRES = [
             // el calce, y el calce tirado ya habia consumido el texto, asi que la
             // regla no volvia a probar desde "calle". Igual "sito en la calle".
             `[ \\t]*:?[ \\t]*(?:en[ \\t]+)?(?:la[ \\t]+)?(?:calle[ \\t]+)?)` +
-            `([${MAY}][${LETRA}.]+(?:[ \\t]+(?:de[l]?|la|las|los)?[ \\t]*[${MAY}][${LETRA}.]+){0,2}` +
-            `[ \\t]+\\d{1,5}${PISO}*)`,
+            //
+            // LA CALLE QUE ES UN NOMBRE, 26/9/2026. "Avenida Hipolito Yrigoyen"
+            // tiene forma de nombre de persona, se ofrece como candidato, y si
+            // se tilda la calle llega aca como "Avenida [PERSONA]": la guarda de
+            // mayuscula tiraba el calce y la altura quedaba en claro. La etiqueta
+            // cuenta como una palabra de la calle. Y entre la calle y la altura
+            // puede ir "N°" —"en [PERSONA] N° 1234"—, y detras de la altura una
+            // segunda altura: "Mitre 1234/36".
+            `((?:[${MAY}][${LETRA}.]+|${ETIQUETA_DE_NOMBRE})` +
+            `(?:[ \\t]+(?:de[l]?|la|las|los)?[ \\t]*(?:[${MAY}][${LETRA}.]+|${ETIQUETA_DE_NOMBRE})){0,2}` +
+            `[ \\t]+(?:(?:n[°ºo]?\\.?|nro\\.?|n[uú]mero)[ \\t]*)?\\d{1,5}(?:[ \\t]*\\/[ \\t]*\\d{1,4})?${PISO}*)`,
             'gi'
         ),
         reemplazo: (todo, ancla, direccion) =>
-            empiezaEnMayuscula(direccion) ? ancla + '[DOMICILIO]' : todo,
+            empiezaEnMayuscula(direccion) || direccion.startsWith('[') ? ancla + '[DOMICILIO]' : todo,
     },
     {
         nombre: 'domicilio',
@@ -631,26 +677,36 @@ const S = '[ \\t]+';
 // —"del" no empieza en mayuscula— y el nombre no se ofrecia.
 const J = `${S}(?:${PARTICULA_CUALQUIER_CAJA}${S}){0,2}`;
 
+// Una palabra de nombre, capitalizada y en mayusculas.
+//
+// LAS CUATRO FORMAS QUE NO SE OFRECIAN, 26/9/2026. Con `[MAY][MIN]{2,15}` no
+// calzaban "D'Inventa", "O'Neill", "McInventa" ni el apellido compuesto con
+// guion, y una palabra de mas de dieciseis letras calzaba POR LA MITAD: se
+// ofrecia "Inventadisimaex", que tildado no reemplaza nada —el borde de palabra
+// no lo deja— y la constancia lo da por hecho. El largo ya no tiene tope.
+const CAP = `(?:[${MAY}]['’]|Ma?c)?[${MAY}][${MIN}]{2,}(?:-[${MAY}][${MIN}]{2,})?`;
+const CAPS = `(?:[${MAY}]['’])?[${MAY}]{3,}(?:-[${MAY}]{3,})?`;
+
 const CANDIDATOS = [
     // "Perez, Juan Carlos" — forma de caratula y de cita de doctrina.
-    new RegExp(`[${MAY}][${MIN}]{2,15},${S}[${MAY}][${MIN}]{2,15}(?:${S}[${MAY}][${MIN}]{2,15})?`, 'g'),
+    new RegExp(`${CAP},${S}${CAP}(?:${S}${CAP})?`, 'g'),
     // "ANALIA GABRIELA ARIAS" — tres o mas palabras seguidas en mayusculas.
-    new RegExp(`[${MAY}]{3,}(?:${J}[${MAY}]{3,}){2,}`, 'g'),
+    new RegExp(`${CAPS}(?:${J}${CAPS}){2,}`, 'g'),
     // "Juan Carlos Perez" — de tres a cinco palabras capitalizadas seguidas.
     //
     // ERAN TRES EXACTAS HASTA EL 15/9/2026, y un nombre de cuatro —"Juan Carlos
     // Perez Garcia"— salia partido: este patron ofrecia "Juan Carlos Perez" y el
     // de dos palabras, "Perez Garcia". Tildar el primero dejaba el segundo
     // apellido en claro, y nada avisaba que el nombre seguia.
-    new RegExp(`[${MAY}][${MIN}]{2,14}(?:${J}[${MAY}][${MIN}]{2,14}){2,4}`, 'g'),
+    new RegExp(`${CAP}(?:${J}${CAP}){2,4}`, 'g'),
     // "PEREZ, Juan" — apellido en mayusculas y nombre capitalizado, que es como
     // el PJN escribe las partes en la caratula.
-    new RegExp(`[${MAY}]{3,}(?:${S}[${MAY}]{2,})*,${S}[${MAY}][${MIN}]{2,15}`, 'g'),
+    new RegExp(`${CAPS}(?:${S}[${MAY}]{2,})*,${S}${CAP}`, 'g'),
     // "PEREZ, JUAN CARLOS" — la caratula entera en mayusculas. Ninguno de los
     // otros la toma: el de mayusculas se corta en la coma, y el de arriba pide
     // el nombre en minusculas. Salia "JUAN CARLOS" solo, y tildarlo dejaba el
     // apellido —lo que mas identifica— a la vista.
-    new RegExp(`[${MAY}]{3,}(?:${S}[${MAY}]{3,})*,${S}[${MAY}]{3,}(?:${J}[${MAY}]{3,}){0,3}`, 'g'),
+    new RegExp(`${CAPS}(?:${S}${CAPS})*,${S}${CAPS}(?:${J}${CAPS}){0,3}`, 'g'),
 
     // "Ernesto Quiroga" y "ERNESTO QUIROGA" — DOS palabras, que es como se
     // llama la gente en un escrito una vez que ya fue presentada.
@@ -668,9 +724,36 @@ const CANDIDATOS = [
     // los candidatos ya no vengan tildados de fabrica (ver app.js). Un candidato
     // de mas cuesta una mirada; uno de menos es un nombre que sale del
     // expediente sin que nadie se entere.
-    new RegExp(`[${MAY}][${MIN}]{2,15}${J}[${MAY}][${MIN}]{2,15}`, 'g'),
-    new RegExp(`[${MAY}]{3,}${J}[${MAY}]{3,}`, 'g'),
+    new RegExp(`${CAP}${J}${CAP}`, 'g'),
+    new RegExp(`${CAPS}${J}${CAPS}`, 'g'),
+
+    // "Eugenia INVENTADA", "Maria Eugenia INVENTADA FICTICIA" — el nombre de
+    // pila capitalizado y el apellido en mayusculas, que es como se escribe a
+    // una parte en el cuerpo de un escrito. CASO DE PRUEBA, 26/9/2026: "Eugenia
+    // INVENTADA" no calzaba en ninguno —unos piden todo capitalizado, otros todo
+    // en mayusculas— y el nombre no se ofrecia. Con tres palabras salia partido
+    // en dos candidatos.
+    new RegExp(`${CAP}(?:${J}${CAP}){0,3}${J}${CAPS}(?:${J}${CAPS}){0,2}`, 'g'),
+
 ];
+
+// "STALSTAR S.A.", "Inventada Hnos. S.R.L." — una sociedad. CASO DE PRUEBA,
+// 26/9/2026: "presidente de STALSTAR S.A." salia entero y nunca se ofrecio,
+// porque el nombre es UNA palabra y todos los patrones de arriba piden dos.
+// Lo que la ancla es el tipo societario, que va entero en el candidato: asi
+// el reemplazo se lleva "S.A." y no deja una sigla colgando.
+//
+// VA APARTE DE LOS OTROS SEIS, y no pasa por
+// `recortarPalabrasQueNoSonNombre`: el nombre de una sociedad se arma con
+// palabras comunes —"Seguros del Sur S.A."—, y recortarlas ofrecia "Sur
+// S.A.", que tildado deja "Seguros del [PERSONA]". Solo se sacan las
+// particulas de adelante ("La Inventada S.A."), y el patron no cruza una
+// palabra en minuscula, asi que "presidente de" no entra.
+const CANDIDATO_SOCIEDAD = new RegExp(
+    `[${MAY}][${LETRA}\\d&.'-]*(?:${S}(?:[${MAY}][${LETRA}\\d&.'-]*|${PARTICULA_CUALQUIER_CAJA}|y|&)){0,4}` +
+    `${S}(?:S\\.[ \\t]?A\\.(?:[ \\t]?(?:U|S|I\\.[ \\t]?C\\.))?\\.?|S\\.[ \\t]?R\\.[ \\t]?L\\.?|S\\.[ \\t]?C\\.[ \\t]?A\\.?|SRL|SAS|SAU|SA)` +
+    `(?![${LETRA}\\d])`,
+    'g');
 
 // Palabras que delatan un falso positivo. Un nombre propio no lleva verbos,
 // preposiciones ni sustantivos del oficio; los titulos de los escritos, que van
@@ -679,7 +762,7 @@ const NO_SON_PERSONAS = new Set(`
 aires astrea sala administrativo civil comercial abogados procuradores nacion
 nacional buenos capital federal provincia hammurabi depalma abeledo perrot
 rubinzal culzoni juzgado camara corte suprema tribunal secretaria fuero
-instancia laboral penal paz contencioso ciudad autonoma justicia poder judicial
+instancia laboral penal contencioso ciudad autonoma justicia poder judicial
 ley leyes derecho codigo articulo art inciso expediente autos caratulados
 demanda demandado demandada actor actora parte partes tercero citada garantia
 recurso reposicion apelacion nulidad queja excepcion excepciones incidente
@@ -850,10 +933,28 @@ const CARATULA_ACTOR_DEMANDADO =
  * se ve bien y no se reemplaza nada.
  */
 export function normalizarEspacios(texto) {
-    return texto
-        .replace(/­/g, '')          // guion suave de corte de linea
+    return unificarEspacios(texto)
+        .replace(/\u00AD/g, '')          // guion suave de corte de linea
+        // Los de ancho cero se sacan: adentro de una palabra la parten en dos.
+        .replace(/[\u200B-\u200D\u2060\uFEFF]/g, '')
         .replace(/[ \t]+/g, ' ')
         .replace(/\n{3,}/g, '\n\n');
+}
+
+/** Los espacios que no se ven, convertidos en el espacio comun, uno por uno.
+ *
+ * LOS ESPACIOS QUE NO SE VEN, 27/9/2026. Un PDF trae a veces el espacio duro
+ * (U+00A0) o el fino (U+2009) entre las palabras de un nombre. En pantalla es
+ * un espacio; para los patrones, que separan con `[ \t]`, no lo es, y "Camilo
+ * Amaranto Rivera" escrito asi NO SE OFRECIA NUNCA para tildar: quedaba en
+ * claro y la constancia no lo nombraba.
+ *
+ * Va aparte de `normalizarEspacios` para el conector: cambia cada caracter por
+ * otro y no mueve nada de lugar, asi que quien llama recibe el texto con el
+ * mismo largo que mando.
+ */
+export function unificarEspacios(texto) {
+    return texto.replace(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g, ' ');
 }
 
 function sinTildes(texto) {
@@ -1026,6 +1127,16 @@ export function candidatosANombre(texto) {
             encontrados.set(nombre, (encontrados.get(nombre) || 0) + 1);
         }
     }
+    for (const match of texto.matchAll(CANDIDATO_SOCIEDAD)) {
+        const palabras = match[0].replace(/\s+/g, ' ').trim().split(' ');
+        while (palabras.length > 1 && esParticula(palabras[0])) palabras.shift();
+        if (palabras.length < 2) continue;
+        const nombre = palabras.join(' ');
+        const lugar = match.index + match[0].indexOf(palabras[0]);
+        if (vistos.has(`${lugar}|${nombre}`)) continue;
+        vistos.add(`${lugar}|${nombre}`);
+        encontrados.set(nombre, (encontrados.get(nombre) || 0) + 1);
+    }
     return [...encontrados.entries()]
         .map(([texto, apariciones]) => ({ texto, apariciones }))
         .filter(esFragmentoDeOtro(encontrados))
@@ -1051,28 +1162,6 @@ export function candidatosANombre(texto) {
 // despues de reemplazar, y mirarlo ahi no depende de adivinar que tildo el
 // usuario.
 // ---------------------------------------------------------------------------
-
-/** Las etiquetas con que se tapa a alguien.
- *
- * Las usa el selector de la pantalla Y el detector de restos de abajo. Van
- * juntas a proposito: si las dos listas se separan, el detector deja de
- * reconocer la etiqueta que el usuario eligio y la fuga vuelve en silencio.
- */
-const NOMBRES_DE_ETIQUETA = [
-    'PERSONA', 'ACTOR', 'DEMANDADO', 'LETRADO', 'PERITO', 'TESTIGO', 'EMPRESA',
-];
-export const ETIQUETAS_DE_NOMBRE = NOMBRES_DE_ETIQUETA.map((n) => `[${n}]`);
-
-// Solo las de persona, y es la guarda que sostiene toda la regla. "[DOMICILIO],
-// Lomas de Zamora" y "en [EXPTE] Juzgado Civil" tambien tienen una palabra
-// capitalizada al lado, y ahi no quedo ningun nombre partido: quedo el texto que
-// rodea a un dato.
-//
-// EL `_N` ES LA FORMA NUMERADA (E-03) y tiene que estar aca: si el detector
-// reconociera "[PERSONA]" y no "[PERSONA_2]", prender la numeracion apagaria en
-// silencio la deteccion de restos, que es la fuga grave. Es la misma razon por
-// la que la lista vive en el motor y no en la pantalla.
-const ETIQUETA_DE_NOMBRE = `\\[(?:${NOMBRES_DE_ETIQUETA.join('|')})(?:_\\d+)?\\]`;
 
 /** Reconoce una etiqueta de nombre, con numero o sin el.
  *
@@ -1181,6 +1270,44 @@ export function restosPegadosAEtiqueta(textoAnonimo) {
     }
     return [...encontrados.entries()]
         .map(([texto, apariciones]) => ({ texto, apariciones }))
+        .sort((a, b) => b.apariciones - a.apariciones || a.texto.localeCompare(b.texto));
+}
+
+/** Las palabras de un nombre tildado que siguen sueltas en el texto.
+ *
+ * CASO DE PRUEBA, 26/9/2026. La caratula trae "VACA, JUAN" y se tilda entera;
+ * el cuerpo del escrito dice "la demandada VACA" y "la controversia con Vaca",
+ * y ahi el apellido no esta pegado a ninguna etiqueta —el detector de arriba no
+ * lo ve— ni tiene dos palabras —los candidatos no lo ven—. Salia en claro, y
+ * la constancia no lo nombraba. Igual "vinculado a Gomez" y "con Eugenia": el
+ * nombre completo aparece una vez, y despues cada foja lo llama por una parte.
+ *
+ * Es la misma familia que E-01: un nombre que la constancia da por tapado y
+ * sigue a la vista. Y se resuelve igual: SE OFRECE, NO SE APLICA. "Juan" o
+ * "Vaca" sueltos pueden ser otra persona o una palabra comun; eso lo decide
+ * quien conoce el expediente.
+ *
+ * Recibe el texto YA ANONIMIZADO y los textos tildados. Salen las palabras de
+ * tres letras o mas, sin las particulas ni las que no son nombre ("S.A.", "de",
+ * "Presidente"), que todavia aparecen enteras en el texto.
+ */
+export function palabrasSueltasDeElegidos(textoAnonimo, elegidos) {
+    const encontradas = new Map();
+    for (const elegido of elegidos) {
+        const palabras = String(elegido || '').trim().split(/\s+/);
+        if (palabras.length < 2) continue;
+        for (const cruda of palabras) {
+            const palabra = cruda.replace(/^[,.;:"“”'()]+|[,.;:"“”'()]+$/g, '');
+            if ((palabra.match(new RegExp(`[${LETRA}]`, 'g')) || []).length < 3) continue;
+            if (esParticula(palabra) || noEsNombre(palabra)) continue;
+            const clave = palabra.toLowerCase();
+            if (encontradas.has(clave)) continue;
+            const patron = new RegExp(`${ANTES}${escapar(palabra)}${DESPUES}`, 'gi');
+            const veces = [...textoAnonimo.matchAll(patron)].length;
+            if (veces) encontradas.set(clave, { texto: palabra, apariciones: veces });
+        }
+    }
+    return [...encontradas.values()]
         .sort((a, b) => b.apariciones - a.apariciones || a.texto.localeCompare(b.texto));
 }
 

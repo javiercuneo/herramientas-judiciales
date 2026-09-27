@@ -239,9 +239,14 @@ carpeta. Allá queda un puntero y lo que un agente necesita saber sin entrar ac�
   tildado. Es la salida para el cargo que identifica a una persona («la Directora
   General de…»), que **no se tapa solo a propósito**: si es dato personal lo
   decide quien firma, documento por documento.
-- **La detección de nombres propios no cubre razones sociales.** «Seguros del Sur
-  S.A.» no dispara ningún patrón de los tres, así que no se ofrece como candidato
-  y hay que agregarla a mano.
+- **Una razón social se ofrece desde el 26/9 sólo si lleva el tipo societario**
+  —«STALSTAR S.A.», «Seguros del Sur S.A.»—, y entera, con la sigla. «La
+  demandada STALSTAR», sin el «S.A.», no se ofrece: hay que agregarla a mano.
+- **Un apellido suelto se ofrece sólo si antes se tildó el nombre entero.** Con
+  «VACA, JUAN» tildado, cada «Vaca» suelto del cuerpo aparece en la lista, sin
+  tildar (`palabrasSueltasDeElegidos`). Si el nombre completo no está en ningún
+  lado del documento, **un apellido de una sola palabra no se detecta**: ninguna
+  regla separa «Gómez» o «Vaca» de una palabra cualquiera con mayúscula.
 - **Las fugas que aparecen al usarlo se anotan en otro repositorio.** Desde el
   12/9, `redactor` ingresa casos con el anonimizador del pipeline, y cada nombre
   que el operador tiene que tapar a mano queda en

@@ -83,10 +83,10 @@ con su caso de prueba. **El borde que quedó de cada regla está en
   [`scripts/banco-cruzado/casos.json`](../scripts/banco-cruzado/casos.json): cada
   caso dice qué hace cada uno y, si no coinciden, por qué. **Una regla nueva en
   cualquiera de los dos, sin su caso, no entra**: lo frena el `pre-commit` de este
-  repo y el CI. **Hay 16 casos `pendiente`**: huecos de uno que el otro sí ve
+  repo y el CI. **Hay 18 casos `pendiente`**: huecos de uno que el otro sí ve
   —el motor no tapa `C.I.`, CUIT con espacios, matrícula sin dos puntos, tomo en
-  romanos ni el enlace al visor; el hook no mira campos de formulario, patentes ni
-  domicilios— y el teléfono del interior, que no ve ninguno. **Cuáles se cierran es
+  romanos ni el enlace al visor; el hook no mira campos de formulario, patentes,
+  domicilios ni el celular con guion tipográfico— y el teléfono del interior, que no ve ninguno. **Cuáles se cierran es
   de Javier.** El que cierre uno cambia `pendiente` por el valor nuevo y agrega la
   regresión en el banco del motor o del hook.
 
@@ -324,16 +324,16 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-plazos` | El cómputo de las cinco de plazos, la API que carga el ledger y los días propios: 153 |
 | `npm run verificar-series` | Las series de UMA, UHOM y monto fijo |
 | `npm run verificar-contraste` | Los tokens de color, AA sobre las tres superficies y en los dos temas |
-| `npm run verificar-conectores` | Los dos transportes de `conectores/`, plazos y anonimización: 81 |
+| `npm run verificar-conectores` | Los dos transportes de `conectores/`, plazos y anonimización: 82 |
 | `npm run verificar-acordada` | Que la tabla de la Acordada 5/2010 diga lo que dice el anexo: 90 |
 | `npm run verificar-distancia` | El cómputo del art. 158 y la búsqueda en esa tabla: 64 |
 | `npm run verificar-red` | Qué terceros nombran las quince páginas que se publican, contra una lista con el motivo al lado de cada uno |
-| `npm run verificar-escribiente` | El motor de Escribiente, con la pestaña «Certificar»: 394 |
+| `npm run verificar-escribiente` | El motor de Escribiente, con la pestaña «Certificar»: 450 |
 | `npm run verificar-honorio` | Las cinco cifras que este repositorio sigue del motor |
 | `npm run verificar-docs` | Que los documentos de dominio no citen artículos ni archivos que no existen |
 | `npm run verificar-estado` | El presupuesto y la higiene de este archivo |
 | `npm run verificar-datos-ejemplos` | Las salidas de `verificar-datos.sh`: la exención, la guarda del correo y los modos del pre-push: 27 |
-| `npm run verificar-cruce` | El hook de datos y el anonimizador sobre el mismo banco: que coincidan o digan por qué no, y que ninguna regla de los dos quede sin caso: 52 |
+| `npm run verificar-cruce` | El hook de datos y el anonimizador sobre el mismo banco: que coincidan o digan por qué no, y que ninguna regla de los dos quede sin caso: 54 |
 
 Y **tres** que corren en el navegador, con el sitio servido y no con `file://`:
 
@@ -493,7 +493,7 @@ stdio—, así que **tocar la forma de una respuesta rompe a alguien**:
 - **Las fechas viajan como `AAAA-MM-DD`.** Ni ISO completo ni epoch: los dos
   arrastran hora y huso, y un plazo judicial no tiene hora.
 
-**Los cubre `npm run verificar-conectores`**, 81 comprobaciones, en CI. No cubre
+**Los cubre `npm run verificar-conectores`**, 82 comprobaciones, en CI. No cubre
 aritmética ni anonimización —eso es `verificar-plazos` y `verificar-escribiente`—
 sino lo que se rompe de un transporte, y sobre todo que un dato faltante no
 devuelva un resultado y que la capa 2 no se aplique sola.
@@ -593,7 +593,7 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
 **Lo que hay que saber para tocarla:**
 
 - **El motor está en `escribiente/js/motor/`, es código puro y no toca el DOM.**
-  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 394
+  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 450
   comprobaciones, en CI. Los seis bugs de la versión anterior y las fugas del
   21/8, el 15/9 y el 17/9 están ahí como regresión. `js/app.js` es sólo la
   pantalla, y desde el 17/9 `conectores/anonimizar.mjs` expone el motor afuera.

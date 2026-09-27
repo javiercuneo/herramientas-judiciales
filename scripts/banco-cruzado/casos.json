@@ -15,6 +15,10 @@
     { "id": "telefono-con-54", "texto": "Contacto +54 11 4567-8901 en horario de oficina.", "motor": true, "hook": true },
     { "id": "celular-sin-54", "texto": "Se denuncia telefono 11 4567 8901 a los fines de las notificaciones.", "motor": true, "hook": true },
     { "id": "celular-15", "texto": "Celular 15-4567-8901, de lunes a viernes.", "motor": true, "hook": true },
+    { "id": "celular-guion-tipografico", "texto": "Se comunico desde el numero 11‐4567‐8901.", "motor": true, "hook": false,
+      "pendiente": "El celular del hook acepta solo el guion comun entre bloques; el del motor, desde el 26/9, tambien el tipografico (‐ – —) y el punto, que deja la extraccion del PDF." },
+    { "id": "celular-guion-con-espacios", "texto": "Se comunico desde el numero 011- 4567 -8901.", "motor": true, "hook": false,
+      "pendiente": "El hook no acepta el 0 de larga distancia ni espacios al lado del guion; el motor si, desde el 26/9." },
     { "id": "telefono-local-con-ancla", "texto": "Tel: 4371-1696/2348, Mesa de Entradas.", "motor": true, "hook": true },
 
     { "id": "monto-con-pesos", "texto": "Se reclama la suma de $ 1.500.000 con mas sus intereses.", "motor": false, "hook": false },

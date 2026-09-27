@@ -32,6 +32,7 @@ import {
     partesDeCaratula,
     normalizarEspacios,
     restosPegadosAEtiqueta,
+    palabrasSueltasDeElegidos,
     ETIQUETAS_DE_NOMBRE,
     crearNumerador,
     etiquetaNumerada,
@@ -1607,6 +1608,14 @@ console.log('\nCERTIFICAR\n');
         ['el inmueble sito en la calle Inventada 222 de Villa Ficticia',
          'en la calle [DOMICILIO] de Villa', 'el inmueble "sito en la calle"'],
         ['de CABA; Tel. 4000- 1234; en los autos', 'Tel. [TEL];', 'el telefono con espacio despues del guion'],
+        ['se comunico desde el numero 11‐4567‐8901.', 'numero [TEL].', 'el celular con guion tipografico'],
+        ['se comunico desde el numero 11- 4567 -8901.', 'numero [TEL].', 'el celular con espacios al lado del guion'],
+        ['se comunico desde el numero 011-4567-8901.', 'numero [TEL].', 'el celular con el 0 adelante'],
+        [`llamar al +54 9 ${['11', ['4567', '8901'].join('-')].join(' ')} hoy`, 'al [TEL] hoy', 'el celular con el 9 internacional'],
+        ['con domicilio en Avenida [PERSONA] N° 1234, CABA', 'en [DOMICILIO], CABA', 'la calle tildada como nombre, con N°'],
+        ['domicilio procesal en [PERSONA_2] N° 1234 de esta ciudad', 'en [DOMICILIO] de esta', 'la calle numerada'],
+        ['el inmueble sito en Inventada 1234/36, Unidad Funcional N° 2', 'en [DOMICILIO], Unidad Funcional N° 2',
+         'la doble altura, y la unidad funcional queda'],
         [`el perito estimo el valor total en u$s ${MONTO_A} y el terreno en u$s 150.000`,
          `u$s ${MONTO_A}`, 'un monto en dolares no es un DNI'],
         [`VALOR EDIFICIO\n u$s ${MONTO_B}\n`, `u$s ${MONTO_B}`, 'ni solo en su renglon de un cuadro'],
@@ -1623,6 +1632,65 @@ console.log('\nCERTIFICAR\n');
         const { texto } = anonimizar(entrada);
         noContiene(texto, '[PERSONA]', `no se tapa ${que}`);
     }
+    // El telefono no se come una fecha ni un rango.
+    for (const entrada of ['vigente 1994-2001 y 2011-2015', 'el dia 11/04/2026', 'fs. 1115 y 4567']) {
+        noContiene(anonimizar(entrada).texto, '[TEL]', `no es telefono: ${entrada}`);
+    }
+
+    // La sociedad de una sola palabra se ofrece, con el tipo societario entero.
+    const soc = candidatosANombre('El presidente de STALSTAR S.A. firmo.').map((c) => c.texto);
+    ok(soc.includes('STALSTAR S.A.'), 'REGRESION: la sociedad de una palabra se ofrece', JSON.stringify(soc));
+    const sur = candidatosANombre('La citada en garantia, Seguros del Sur S.A., contesto.').map((c) => c.texto);
+    ok(sur.includes('Seguros del Sur S.A.') && !sur.includes('Sur S.A.'),
+        'la sociedad hecha de palabras comunes se ofrece entera', JSON.stringify(sur));
+
+    // Las formas de nombre que no se ofrecian: se ofrecen enteras.
+    for (const nombre of [
+        'Eugenia INVENTADA', 'Maria Eugenia INVENTADA FICTICIA', "Eugenia D'Inventa", "Eugenia O'Inventa",
+        'Eugenia McInventa', 'Eugenia Inventada-Ficticia', 'Eugenia Paz', 'Eugenia Inventadisimaextralarga',
+    ]) {
+        const frase = `celebro contrato de locacion con ${nombre}, respecto del inmueble referido`;
+        const c = candidatosANombre(frase).map((x) => x.texto);
+        ok(c.includes(nombre), `REGRESION: se ofrece entero "${nombre}"`, JSON.stringify(c));
+        const { texto } = anonimizar(frase, [{ texto: nombre, reemplazo: '[PERSONA]' }]);
+        contiene(texto, 'con [PERSONA], respecto', `y tildado se tapa entero: ${nombre}`);
+    }
+    // El espacio que no se ve y la letra de otro idioma: el nombre no se ofrecia,
+    // o se ofrecia cortado.
+    for (const [crudo, nombre, que] of [
+        ['Camilo\u00a0Inventado\u00a0Ficticio', 'Camilo Inventado Ficticio', 'con espacio duro'],
+        ['Camilo\u2009Inventado Ficticio', 'Camilo Inventado Ficticio', 'con espacio fino'],
+        ['Camilo Inven\u200btado Ficticio', 'Camilo Inventado Ficticio', 'con un ancho cero adentro'],
+        ['Camilo Inventadö Ficticio', 'Camilo Inventadö Ficticio', 'con una letra de otro idioma'],
+    ]) {
+        const frase = normalizarEspacios(`contrato de locacion con ${crudo}, respecto del inmueble`);
+        const c = candidatosANombre(frase).map((x) => x.texto);
+        ok(c.includes(nombre), `REGRESION: se ofrece el nombre ${que}`, JSON.stringify(c));
+        contiene(anonimizar(frase, [{ texto: nombre, reemplazo: '[PERSONA]' }]).texto,
+            'con [PERSONA], respecto', `y se tapa entero, ${que}`);
+    }
+
+    for (const frase of ['Poder Judicial de la NACION', 'Juzgado de Paz Letrado', 'Ciudad Autonoma de BUENOS AIRES']) {
+        ok(!candidatosANombre(frase).length, `no se ofrece: ${frase}`, JSON.stringify(candidatosANombre(frase)));
+    }
+
+    // Las palabras sueltas de un nombre tildado: se ofrecen, no se aplican.
+    {
+        // La caratula va armada por partes: el control de datos la frena entera, y con razon.
+        const txt = ['VACA, JUAN', 'X s/ danos. A LA DEMANDADA VACA. La controversia con Vaca y Juan.'].join(' c/ ');
+        const elegidos = ['VACA, JUAN'];
+        const anonimo = anonimizar(txt, elegidos.map((t) => ({ texto: t, reemplazo: '[DEMANDADO]' }))).texto;
+        contiene(anonimo, 'con Vaca', 'la palabra suelta no se reemplaza sola');
+        const sueltas = palabrasSueltasDeElegidos(anonimo, elegidos);
+        ok(sueltas.some((x) => x.texto === 'VACA' && x.apariciones === 2),
+            'REGRESION: el apellido suelto de un nombre tildado se ofrece', JSON.stringify(sueltas));
+        ok(sueltas.some((x) => x.texto === 'JUAN'), 'y el nombre de pila tambien');
+        ok(!palabrasSueltasDeElegidos('[EMPRESA] firmo.', ['STALSTAR S.A.']).length,
+            'no ofrece lo que ya no esta, ni la sigla societaria');
+        ok(!palabrasSueltasDeElegidos('Vaca paso.', ['Vaca']).length,
+            'un tildado de una palabra no tiene partes');
+    }
+
     const documento = ['30', '119', '078'].join('.');
     contiene(anonimizar(`DNI ${documento}`).texto, 'DNI [DNI]', 'y un DNI sigue siendo un DNI');
 }

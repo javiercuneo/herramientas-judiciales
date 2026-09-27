@@ -19,6 +19,48 @@ de 2026.
 
 ---
 
+## Nueve fugas de Escribiente, vistas usándolo — 26 y 27/9
+
+Javier usó Escribiente en el trabajo y mandó, en versión de prueba, lo que
+había quedado en claro. Ninguna era del reemplazo: todas eran de **lo que
+no se reconocía o no se ofrecía para tildar**.
+
+- **El celular**: entre bloques se aceptaba un solo carácter, y el PDF deja el
+  guion tipográfico, espacios al lado del guion, el 0 de larga distancia o el
+  «+54 9». El hook tampoco ve las dos primeras formas: quedaron `pendiente` en
+  el banco cruzado.
+- **El domicilio con calle de nombre de persona**: «Avenida Hipólito Yrigoyen» se
+  ofrece como candidato, y tildada llegaba a la regla como «Avenida [PERSONA]»;
+  la guarda de mayúscula tiraba el calce. Tampoco se aceptaba el «N°» antes de
+  la altura ni la doble altura («1234/36»). «Unidad Funcional N° 2» queda a la
+  vista a propósito, por E-07.
+- **La sociedad de una palabra**: «STALSTAR S.A.» no se ofrecía. Ahora el tipo
+  societario ancla un candidato propio, que no pasa por el recorte de palabras
+  comunes: recortado, «Seguros del Sur S.A.» se ofrecía como «Sur S.A.». Lo cazó
+  el banco de comparación, que es para eso.
+- **El apellido suelto** («la demandada VACA», «vinculado a Gómez»): con el
+  nombre entero tildado, cada palabra suya que siga suelta en el texto entra a
+  la lista sin tildar (`palabrasSueltasDeElegidos`). **Si el nombre entero no
+  aparece nunca, un apellido de una palabra sigue sin detectarse**, y eso está
+  en el README.
+- **Las formas de nombre que no se ofrecían**: «Eugenia INVENTADA» (pila
+  capitalizado, apellido en mayúsculas, la forma más común en un escrito), el
+  apóstrofo, el «Mc», el guion, y cualquier palabra de más de dieciséis letras,
+  que se ofrecía cortada. «Paz» salió de `NO_SON_PERSONAS`: es apellido.
+- **La que explica el caso que motivó todo** («locación con Camilo Amaranto
+  Rivera», en la forma que Javier describió): **el espacio duro o el fino entre
+  las palabras**, que en pantalla no se distingue. El nombre no se ofrecía nunca.
+  `normalizarEspacios` los convierte, y el conector también, con
+  `unificarEspacios`, que no cambia el largo del texto. Y las letras de otros
+  idiomas («ö», «ç») cortaban el nombre: `MAY` y `MIN` pasaron a Latin-1 entero.
+
+**La trampa de la sesión:** escribir `\u00A0` en un archivo con las
+herramientas del agente guardó el carácter invisible y no el código. Funcionaba
+igual y no se podía leer. Se corrigió armando la barra aparte; **mirar con
+`cat -v` cualquier línea que lleve un `\u`.**
+
+---
+
 ## El hook de datos y el anonimizador, sobre el mismo banco — 26/9
 
 La pregunta la hizo Javier desde una sesión de `puente`: *«si las reglas de hooks
