@@ -7,7 +7,8 @@
   const checklist = M.checklist || require("./checklist.js");
   const cotejo = M.cotejo || require("./cotejo.js");
   const cuentas = M.cuentas || require("./cuentas.js");
-  const TIPOS = { testimonio: "el testimonio", oficio: "el oficio", mandamiento: "el mandamiento" };
+  const transferencia = M.transferencia || require("./transferencia.js");
+  const TIPOS = { testimonio: "el testimonio", oficio: "el oficio", mandamiento: "el mandamiento", transferencia: "el formulario" };
   const SIN_ZONAS = ["oficio", "mandamiento"];
   function tieneDigito(f) {
     return Array.from(f).some((c) => py.isdigit(c));
@@ -17,6 +18,7 @@
       throw new py.ValueError(`no sé controlar un documento de tipo «${tipo}»`);
     }
     if (SIN_ZONAS.includes(tipo)) return cotejarSinZonas(texto, resolucion, tipo);
+    if (tipo === "transferencia") return transferencia.cotejar(texto, resolucion);
     let sinCorte = "", transcripcion, propia;
     try {
       [transcripcion, propia] = zonas.partir(texto);
@@ -70,7 +72,7 @@
     return d.que.startsWith("omitido") || d.que.startsWith("cierre");
   }
   function paraMirar(r) {
-    return r.diferencias.filter((d) => !esPlegado(d)).length + r.anclas.filter((a) => a[0] !== "EN LETRAS").length + r.digitos.length + r.marcas.length + r.montos.length + r.montos_auto.length + r.cuits.length + r.cbus.length + r.rubros.filter((x) => !x[2]).length + (r.sin_corte ? 1 : 0);
+    return r.diferencias.filter((d) => !esPlegado(d)).length + r.anclas.filter((a) => a[0] !== "EN LETRAS").length + r.digitos.length + r.marcas.length + r.montos.length + r.montos_auto.length + r.cuits.length + r.cbus.length + r.rubros.filter((x) => !x[2]).length + (r.campos || []).filter((c) => c[0] !== "COINCIDE").length + (r.sin_corte ? 1 : 0);
   }
   function hallazgos(r) {
     const h = [];
@@ -101,6 +103,9 @@
     }
     for (const [estado, tipo, valor, nota] of r.anclas) {
       h.push({ clase: "ancla", estado, titulo: `${tipo}: ${valor}`, detalle: nota, buscar: [valor].concat(estado === "EN LETRAS" ? [nota] : []) });
+    }
+    for (const [estado, campo, valor, nota] of r.campos || []) {
+      h.push({ clase: "campo", estado, titulo: valor ? `${campo}: ${valor}` : campo, detalle: nota, buscar: valor ? [valor] : [] });
     }
     for (const [que, texto] of r.digitos) {
       h.push({ clase: "digito", estado: "EN DIGITOS", titulo: texto, detalle: `${que} en dígitos dentro de la transcripción, donde la regla es escribirlo en letras`, buscar: [texto] });
@@ -213,7 +218,7 @@
     const avisos = [];
     for (const h of pantalla.hallazgos) {
       if (h.clase === "diferencia" || h.estado === "EN LETRAS") continue;
-      const lugar = buscarEn(texto, (h.buscar || [])[0]);
+      const lugar = h.estado === "COINCIDE" ? null : buscarEn(texto, (h.buscar || [])[0]);
       avisos.push({ estado: h.estado, titulo: h.titulo, detalle: h.detalle, lados: h.lados || null, a: lugar ? lugar[0] : -1, b: lugar ? lugar[1] : -1 });
     }
     const bien = pantalla.hallazgos.filter((h) => h.estado === "EN LETRAS").map((h) => ({ titulo: h.titulo, detalle: h.detalle }));

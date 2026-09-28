@@ -8,7 +8,7 @@
 // de a uno, se borran las versiones viejas, y se sirve del cache revalidando
 // por atras para que una correccion publicada llegue en la visita siguiente.
 
-const CACHE = 'confronte-ba529bf8413e';
+const CACHE = 'confronte-931398aa38c9';
 
 const ARCHIVOS = [
     "./",
@@ -21,6 +21,7 @@ const ARCHIVOS = [
     "motor/difflib.js",
     "motor/formas.js",
     "motor/py.js",
+    "motor/transferencia.js",
     "motor/unicode.js",
     "motor/zonas.js",
     "ui/app.css",

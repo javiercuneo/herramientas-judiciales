@@ -4,7 +4,7 @@ const $texto = $("texto"), $resolucion = $("resolucion"), $tipo = $("tipo");
 const $carga = $("carga"), $vista = $("vista");
 const $palmo = $("palmo"), $ficha = $("ficha"), $avisos = $("avisos"), $resumen = $("resumen");
 const $estadoEdicion = $("estado-edicion"), $error = $("error");
-const PIEZA = { testimonio: { nombre: "el testimonio", rubros: "rubros del RPI y del protocolo", placeholder: "Pegá acá el testimonio, tal como te llegó.\n\nSin los autos se controla contra sí mismo: la transcripción contra lo que el juzgado dice por sí, la regla de las letras y los rubros del RPI.", nota: "Lo que coincide con los autos no se marca, aunque esté escrito distinto. Lo que el testimonio dice por sí -la fórmula, los autorizados- no se compara contra los autos: va en gris. Un error repetido igual en el testimonio y en los autos pasa sin ruido." }, oficio: { nombre: "el oficio", rubros: "rubros del oficio y del protocolo", placeholder: "Pegá acá el oficio, tal como te llegó.\n\nSin los autos controla que cada monto diga lo mismo en números y en letras, el dígito verificador de los CUIT y los CBU, y los rubros.", nota: "Lo que coincide con los autos no se marca, aunque esté escrito distinto. El cuerpo del oficio no se compara contra los autos: va en gris. Un CUIT o un CBU que cierra puede ser de otra persona o de otra cuenta." }, mandamiento: { nombre: "el mandamiento", rubros: "rubros del mandamiento y del protocolo", placeholder: "Pegá acá el mandamiento, tal como te llegó.\n\nSin los autos controla que el monto que pide el cuerpo esté en el auto transcripto, que en números y en letras diga lo mismo, y los rubros.", nota: "Lo que coincide con los autos no se marca, aunque esté escrito distinto. El cuerpo del mandamiento no se compara contra los autos: va en gris. La lista de rubros es un borrador sacado de dos modelos." } };
+const PIEZA = { testimonio: { nombre: "el testimonio", rubros: "rubros del RPI y del protocolo", placeholder: "Pegá acá el testimonio, tal como te llegó.\n\nSin los autos se controla contra sí mismo: la transcripción contra lo que el juzgado dice por sí, la regla de las letras y los rubros del RPI.", nota: "Lo que coincide con los autos no se marca, aunque esté escrito distinto. Lo que el testimonio dice por sí -la fórmula, los autorizados- no se compara contra los autos: va en gris. Un error repetido igual en el testimonio y en los autos pasa sin ruido." }, oficio: { nombre: "el oficio", rubros: "rubros del oficio y del protocolo", placeholder: "Pegá acá el oficio, tal como te llegó.\n\nSin los autos controla que cada monto diga lo mismo en números y en letras, el dígito verificador de los CUIT y los CBU, y los rubros.", nota: "Lo que coincide con los autos no se marca, aunque esté escrito distinto. El cuerpo del oficio no se compara contra los autos: va en gris. Un CUIT o un CBU que cierra puede ser de otra persona o de otra cuenta." }, mandamiento: { nombre: "el mandamiento", rubros: "rubros del mandamiento y del protocolo", placeholder: "Pegá acá el mandamiento, tal como te llegó.\n\nSin los autos controla que el monto que pide el cuerpo esté en el auto transcripto, que en números y en letras diga lo mismo, y los rubros.", nota: "Lo que coincide con los autos no se marca, aunque esté escrito distinto. El cuerpo del mandamiento no se compara contra los autos: va en gris. La lista de rubros es un borrador sacado de dos modelos." }, transferencia: { nombre: "el formulario de transferencia", rubros: "", placeholder: "Pegá acá el PDF del formulario de transferencia del DEOX, con el auto que viene abajo.\n\nCada campo -cuentas, suma, concepto, banco, titular, CUIT, CBU, régimen- se busca en el auto. Si el CBU lo dice otro auto, pegalo en el panel de los autos.", nota: "Cada campo del formulario se buscó en el auto que viene abajo y en el panel de los autos. No se comparan la carátula, el expediente, el juzgado ni la sucursal de origen, que los pone el sistema. Que un dato esté en el auto quiere decir que el auto lo nombra en alguna parte, no que sea el que ordena." } };
 function pieza() {
   return PIEZA[$tipo.value] || PIEZA.testimonio;
 }
@@ -228,7 +228,10 @@ function dibujarResumen() {
   const aCorregir = v.cambios.filter((c) => CLASE[c.clase].corrige).length;
   const aceptados = v.cambios.filter((c) => CLASE[c.clase].corrige && c.aceptado).length;
   let t;
-  if (!v.conAutos) {
+  if (v.tipo === "transferencia") {
+    const coinciden = v.avisos.filter((a) => a.estado === "COINCIDE").length;
+    t = `${v.paraMirar} ${v.paraMirar === 1 ? "cosa para mirar" : "cosas para mirar"}; ${coinciden} ${coinciden === 1 ? "dato coincide" : "datos coinciden"} con el auto.`;
+  } else if (!v.conAutos) {
     t = `Sin los autos: nada que corregir contra el expediente. ${v.paraMirar} ` + (v.paraMirar === 1 ? "cosa para mirar." : "cosas para mirar.");
   } else {
     t = aCorregir === 0 ? "Contra los autos no encontré nada que corregir. Eso no quiere decir que esté bien: quiere decir que lo que yo controlo, cierra." : `${aCorregir} ${aCorregir === 1 ? "corrección propuesta" : "correcciones propuestas"}, ${aceptados} ${aceptados === 1 ? "aceptada" : "aceptadas"}.`;
@@ -256,7 +259,7 @@ function dibujarAvisos() {
   $avisos.hidden = false;
   const lista = el("div", "avisos-lista");
   for (const a of items) {
-    const leve = ["NO LO ENCONTRE", "SIN ZONAS", "FECHA", "EN DIGITOS", "SIN COTEJAR"].includes(a.estado);
+    const leve = ["NO LO ENCONTRE", "SIN ZONAS", "FECHA", "EN DIGITOS", "SIN COTEJAR", "COINCIDE"].includes(a.estado);
     const b = el("button", "aviso-chip" + (leve ? " leve" : ""));
     b.append(el("b", "", a.estado), document.createTextNode(" " + a.titulo));
     b.title = a.detalle;

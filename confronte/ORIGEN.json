@@ -1,7 +1,7 @@
 {
   "que": "Copia sin comentarios de la pantalla de confronteitor. No se edita aca: se trae con npm run traer-confronte.",
-  "commit": "ba529bf8413e5be5e5d102c7ca15d53682aa5662",
-  "fecha": "2026-09-27T19:50:25-03:00",
+  "commit": "931398aa38c9ef5c9f3d1ff14f1452843d5ec072",
+  "fecha": "2026-09-28T17:00:54-03:00",
   "archivos": [
     "ejemplos/ejemplos.js",
     "index.html",
@@ -12,6 +12,7 @@
     "motor/difflib.js",
     "motor/formas.js",
     "motor/py.js",
+    "motor/transferencia.js",
     "motor/unicode.js",
     "motor/zonas.js",
     "ui/app.css",
