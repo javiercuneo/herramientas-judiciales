@@ -173,6 +173,14 @@ jobs:
           # cargar el codigo que lo lee desde un CDN de un tercero.
           cp -r escribiente site/escribiente
 
+          # Confronte: el codigo fuente vive en otro repositorio, privado, y
+          # confronte/ es una copia sin comentarios que trae
+          # npm run traer-confronte. Se publica tal cual esta commiteada; aca
+          # no se trae nada, porque este workflow no tiene acceso a aquel
+          # repositorio y no tiene por que tenerlo. ORIGEN.json dice de que
+          # commit salio.
+          cp -r confronte site/confronte
+
           # PDF-studio se rehizo entero y paso a llamarse Escribiente el
           # 17/8. La URL vieja estuvo publicada meses y sigue viva con un
           # aviso, que es la regla de la casa: retirar algo no puede ser

@@ -17,3 +17,4 @@ scripts/comparar-motores/sonda.json    # 13 sondas dirigidas del mismo banco: OC
 scripts/verificar-datos-ejemplos.sh    # el banco de este mismo mecanismo: construye adentro el material que tiene que bloquear
 scripts/verificar-conectores.mjs        # el banco del conector: para probar que lee una caratula hace falta una, y es inventada
 scripts/banco-cruzado/casos.json       # banco cruzado del hook y el anonimizador: casos inventados, uno por forma; el porque, en scripts/verificar-cruce.mjs
+confronte/ejemplos/ejemplos.js         # los ejemplos inventados de Confronte ("Ver un ejemplo"): Fulano de Tal, calle Falsa; alla estan declarados igual

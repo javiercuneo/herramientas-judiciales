@@ -19,7 +19,33 @@ de 2026.
 
 ---
 
-## Nueve fugas de Escribiente, vistas usándolo — 26 y 27/9
+## Confronte, publicada sin comentarios — 27/9
+
+El pedido E-06 de `confronteitor` —publicar su pantalla en el sitio— no estaba
+anotado de este lado. Se hizo el mismo día. El barrido previo de lo que se iba
+a copiar encontró que **los comentarios del motor no podían ser públicos**:
+una matrícula de inmueble que parecía auténtica, el juzgado donde se usó la
+herramienta y sus costumbres, y el rastro del primer uso con material del
+mostrador. El control de datos no veía nada de eso: sólo marcó el CUIT y el
+CBU inventados de los ejemplos.
+
+Se discutieron dos salidas: reescribir las notas allá, o no traerlas. Javier
+eligió no traerlas: al sitio va sólo lo que el navegador ejecuta, y la
+protección vale también para lo que se escriba después. Se sacan con esbuild,
+en dos pasadas: en una sola dejaba los comentarios que están adentro de una
+lista, y el primero que apareció era justo el de la matrícula.
+
+Cómo se sabe que no se rompió nada: `traer-confronte` corre las cuatro pruebas
+de allá sobre la copia ya sin comentarios, y compara los ejemplos por
+contenido —una de esas pruebas los compara letra por letra y no puede ver la
+copia—. Además se corrieron los tres ejemplos en la página original y en la
+publicada, y la pantalla salió idéntica. Contraste medido en los dos temas: lo
+más justo da 4,65.
+
+El formulario de transferencia (D40), que `confronteitor` ponía antes de
+publicar, queda para después, por decisión de Javier: es una modalidad más y
+se trabaja con la herramienta ya en la web.
+
 
 Javier usó Escribiente en el trabajo y mandó, en versión de prueba, lo que
 había quedado en claro. Ninguna era del reemplazo: todas eran de **lo que

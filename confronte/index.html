@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confronte</title>
+<!-- Lo que sigue lo agrega scripts/traer-confronte.mjs: la capa del sitio. -->
+<meta name="description" content="Controla un testimonio, un oficio o un mandamiento contra los autos del expediente y propone las correcciones. Todo en el navegador: el texto no sale de la computadora.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Confronte">
+<meta property="og:description" content="Controla un testimonio, un oficio o un mandamiento contra los autos del expediente y propone las correcciones. Todo en el navegador: el texto no sale de la computadora.">
+<meta property="og:locale" content="es_AR">
+<meta property="og:image" content="https://javiercuneo.com.ar/assets/og/confronte.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icono-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icono-192.png">
+<meta name="theme-color" content="#1e45ce">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="../calculadoras/css/comun.css">
+<link rel="stylesheet" href="ui/app.css">
+<link rel="stylesheet" href="sitio.css">
+<script src="../assets/tema.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>Confronte</h1>
+  <p class="donde">Todo esto corre en tu navegador. El texto no sale de acá.</p>
+</header>
+
+<main id="carga">
+  <div class="barra">
+    <label class="tipo" title="Qué pieza es. Cada una se controla con sus reglas: no se adivina.">
+      <select id="tipo">
+        <option value="testimonio">Testimonio</option>
+        <option value="oficio">Oficio</option>
+        <option value="mandamiento">Mandamiento</option>
+      </select>
+    </label>
+    <label class="boton-archivo">
+      Abrir un archivo
+      <input type="file" id="archivo" accept=".md,.txt,.text">
+    </label>
+    <button id="ejemplo" title="Un documento y unos autos inventados, del tipo elegido, para ver cómo funciona">Ver un ejemplo</button>
+    <button id="borrar" title="Vacía el documento y los autos, para empezar otro confronte">Borrar</button>
+    <span id="estado-edicion" class="sutil"></span>
+    <button id="controlar" class="primario grande" title="Ctrl+Enter">Controlar</button>
+  </div>
+  <div class="paneles">
+    <section class="panel">
+      <label for="texto" class="rotulo"><b id="rotulo-documento">El testimonio</b>, como te llegó.</label>
+      <textarea id="texto" spellcheck="false"></textarea>
+    </section>
+    <section class="panel">
+      <label for="resolucion" class="rotulo">
+        <b>Los autos</b>, como están en el expediente, con los números en dígitos.
+        Si son varios, van todos: cada uno empieza en un renglón con «Buenos Aires,»,
+        y el que no, se separa con un renglón <code>---</code>.
+      </label>
+      <textarea id="resolucion" spellcheck="false"
+        placeholder="Buenos Aires, 12/03/2026. Ordeno la inscripción…
+
+Sin los autos se controla el documento contra sí mismo y contra las listas de requisitos, pero no hay nada que corregir contra el expediente."></textarea>
+    </section>
+  </div>
+  <p id="error" class="error" hidden></p>
+</main>
+
+<main id="vista" hidden>
+  <div class="barra">
+    <button id="volver">‹ Volver a los textos</button>
+    <span id="resumen" class="resumen"></span>
+    <button id="editar" title="Lleva el documento corregido al panel de la primera pantalla, para retocarlo a mano y volver a controlar">Editar el corregido</button>
+    <button id="descargar" class="primario">Guardar el corregido</button>
+  </div>
+  <div id="avisos" class="avisos"></div>
+  <div class="columnas">
+    <div class="cabeza">Lo que trajo el abogado</div>
+    <div class="cabeza">Corregido contra los autos <span class="sutil">· propuesta: aceptá o descartá cada cambio</span></div>
+  </div>
+  <div id="palmo" class="palmo"></div>
+  <div id="ficha" class="ficha" hidden></div>
+</main>
+
+
+<script src="motor/unicode.js"></script>
+<script src="motor/py.js"></script>
+<script src="motor/difflib.js"></script>
+<script src="motor/formas.js"></script>
+<script src="motor/zonas.js"></script>
+<script src="motor/checklist.js"></script>
+<script src="motor/cuentas.js"></script>
+<script src="motor/cotejo.js"></script>
+<script src="motor/confrontar.js"></script>
+<script src="ejemplos/ejemplos.js"></script>
+<script src="ui/app.js"></script>
+<script src="sitio.js"></script>
+</body>
+</html>

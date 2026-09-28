@@ -1,0 +1,77 @@
+/* ---------------------------------------------------------------------------
+   La cara del sitio para Confronte.
+
+   ui/app.css viene de confronteitor tal cual y no se edita aca: se pisaria en
+   la proxima copia. Este archivo se carga DESPUES y hace dos cosas:
+
+   1. Le da a los colores de confronte los valores del sitio. app.css ya habla
+      en variables propias (--tinta, --panel, --mirar...), asi que alcanza con
+      redefinirlas en terminos de los tokens de comun.css, y con eso el tema
+      oscuro sale solo. No es un ciclo: son variables de confronte que apuntan
+      a las del sistema, nunca una del sistema que se apunta a si misma.
+   2. Pisa los pocos colores que app.css escribe a mano (#fff, #b9b4a8...), que
+      en el tema oscuro quedarian como manchas blancas.
+
+   Se mide en los dos temas: contraste y 390 px, como las calculadoras.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --tinta: var(--fg);
+  --tinta-suave: var(--muted-fg);
+  --papel: var(--bg);
+  --panel: var(--card);
+  --borde: var(--border);
+  --mirar: var(--error);
+  --mirar-fondo: var(--error-tint);
+  --bien: var(--ok);
+  --bien-fondo: var(--ok-tint);
+  --aviso: var(--warn);
+  --aviso-fondo: var(--warn-tint);
+  --gris: var(--faint);
+  --gris-fondo: var(--sunk);
+  --resalte: var(--accent-tint);
+}
+
+body { background: var(--bg); color: var(--fg); }
+h1 { font-family: var(--font-meter); }
+
+button, .boton-archivo, .tipo select {
+  background: var(--card);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+.tipo select { font-weight: 600; border-color: var(--border); }
+button:hover, .boton-archivo:hover { border-color: var(--accent); filter: none; }
+.primario, .primario:hover {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+.primario:hover { filter: brightness(1.08); }
+
+.panel + .panel { background: var(--sunk); }
+textarea { background: transparent; color: var(--fg); border: 0; border-radius: 0; }
+
+.aviso-chip, .aviso-chip.leve { border-color: var(--border); }
+.celda:first-child .c-cambio, .celda:first-child .c-sobra { text-decoration-color: currentColor; }
+.celda + .celda .c-cambio, .celda + .celda .c-falta { text-decoration-color: currentColor; }
+.cambio.descartado { outline-color: var(--border); }
+.ficha { border-color: var(--border); box-shadow: 0 8px 30px rgb(0 0 0 / .3); }
+
+/* El enlace de vuelta al sitio, que agrega sitio.js en la cabecera. Deja
+   lugar a la derecha para el boton de tema, que es fijo. */
+.volver-sitio {
+  margin-left: auto;
+  margin-right: 88px;
+  font-size: 13px;
+  color: var(--muted-fg);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.volver-sitio:hover { color: var(--accent); border-color: var(--accent); }
+@media (max-width: 600px) {
+  header { flex-wrap: wrap; padding-right: 80px; }
+  .volver-sitio { margin-right: 0; }
+}

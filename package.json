@@ -21,6 +21,7 @@
     "verificar-acordada": "node scripts/verificar-acordada.mjs",
     "verificar-datos-ejemplos": "bash scripts/verificar-datos-ejemplos.sh",
     "verificar-cruce": "node scripts/verificar-cruce.mjs",
+    "traer-confronte": "node scripts/traer-confronte.mjs",
     "feriados": "node scripts/actualizar-feriados.mjs",
     "barrer-plazos": "node scripts/barrer-plazos-cpccn.mjs",
     "barrer-plazos-json": "node scripts/barrer-plazos-cpccn.mjs --json",
@@ -32,6 +33,7 @@
     "conector-mcp": "node conectores/mcp.mjs"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "marked": "^15.0.7"
   }
 }

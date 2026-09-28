@@ -647,6 +647,24 @@ Honorio hace, más rápido todavía—.
 
 ---
 
+## Confronte
+
+Publicada en `/confronte/` desde el 27/9 (pedido E-06 de `confronteitor`). **El
+código se escribe allá, que es privado; `confronte/` es una copia sin
+comentarios** y se refresca con `npm run traer-confronte`, que lee sólo lo
+commiteado, corre las pruebas de allá sobre la copia y no escribe nada si
+fallan. **No se edita a mano**: lo propio del sitio está en `sitio.css`,
+`sitio.js` y `manifest.json`, y el porqué en
+[`confronte/README.md`](../confronte/README.md). Sin comentarios porque las
+notas de allá nombran el caso —juzgado, documento, fecha—, y así lo que se
+escriba mañana tampoco sale.
+
+- **esbuild conserva los comentarios que están adentro de una lista** si no se
+  compacta: el script hace dos pasadas por eso. No lo «simplifiques».
+- **Con el panel del navegador oculto, las transiciones no avanzan** y el
+  contraste medido tras cambiar de tema da cualquier cosa. Se mide con
+  `transition: none`.
+
 ## Decisiones vigentes
 
 No se derivan del código. Las que ya no se discuten están en

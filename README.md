@@ -104,6 +104,7 @@ falla y deja el archivo como estaba.
 | Herramienta | Qué hace |
 |---|---|
 | [Escribiente](https://javiercuneo.com.ar/escribiente/) | Pasa PDF judiciales a Markdown y anonimiza los datos personales para poder trabajar el texto sin exponer a nadie. También une, separa y rota. Todo en el navegador, sin subir nada. |
+| [Confronte](https://javiercuneo.com.ar/confronte/) | Controla un testimonio, un oficio o un mandamiento contra los autos del expediente y propone el documento corregido, palmo a palmo con el original. Todo en el navegador, sin subir nada. |
 | [Asistente de honorarios clásico](https://javiercuneo.com.ar/asistente-honorarios-clasico/) | La versión original de la que salió Honorio. Se conserva funcionando como referencia. |
 
 ---

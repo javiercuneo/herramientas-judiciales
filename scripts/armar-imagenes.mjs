@@ -60,6 +60,7 @@ const PAGINAS = [
   { id: 'prorrateo', titulo: 'Prorrateo del art. 730', linea: 'Código Civil y Comercial' },
   { id: 'tasa', titulo: 'Tasa de justicia', linea: 'Ley 23.898 · Tribunales nacionales' },
   { id: 'escribiente', titulo: 'Escribiente', linea: 'PDF a Markdown y anonimización' },
+  { id: 'confronte', titulo: 'Confronte', linea: 'Testimonio, oficio o mandamiento' },
   { id: 'asistente-clasico', titulo: 'Asistente de honorarios', linea: 'Ley 27.423 · La versión original' },
   { id: 'documentacion', titulo: 'Guía de uso', linea: 'Qué hace cada herramienta, y qué no' }
 ];
@@ -210,6 +211,20 @@ fs.writeFileSync('assets/icono-180.png', (() => {
   return l.png();
 })());
 console.log('favicon.ico, assets/favicon.svg, assets/icono-180.png');
+
+// Confronte se instala como aplicacion y el manifiesto pide 192 y 512. Lleva
+// el icono del sitio y no uno propio: no hay un motivo para que se distinga.
+// El mismo tipografiado que el de 180, lleno y con las letras centradas.
+for (const lado of [192, 512]) {
+  const celda = lado === 192 ? 11 : 29;
+  const l = crearLienzo(lado, lado, 4);
+  l.rect(0, 0, lado, lado, [...ACENTO_CLARO, 255]);
+  const x = Math.round((lado - 11 * celda) / 2);
+  const y = Math.round((lado - 7 * celda) / 2);
+  l.escribir('JC', x, y, celda, [...BLANCO, 255], celda);
+  fs.writeFileSync('confronte/icono-' + lado + '.png', l.png());
+}
+console.log('confronte/icono-192.png, confronte/icono-512.png');
 
 for (const p of PAGINAS) {
   const faltan = sinGlifo(p.titulo + p.linea);
