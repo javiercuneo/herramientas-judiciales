@@ -1,0 +1,150 @@
+/* ------------------------------------------------------------------
+   El selector (js/selector.js). Lo usan dos pantallas con sistemas de
+   color distintos —Escribiente toma los tokens de comun.css, redactor
+   tiene los suyos—, asi que cada color es una variable propia que cae
+   en el token de la pantalla que lo monta y, si no hay ninguno, en un
+   valor fijo. No se redefine ningun token de afuera: la trampa del
+   ciclo `--x: var(--x)` esta anotada en docs/ESTADO.md.
+   ------------------------------------------------------------------ */
+
+.selector {
+  --sel-texto: var(--fg, var(--texto, #1d2129));
+  --sel-tenue: var(--muted-fg, var(--tenue, #5b6270));
+  --sel-fondo: var(--card, var(--panel, #ffffff));
+  --sel-hundido: var(--sunk, var(--fondo, #f2f4f6));
+  --sel-borde: var(--border, var(--borde, #d5d9df));
+  --sel-acento: var(--accent, var(--acento, #1e45ce));
+  --sel-tapado: rgb(30 69 206 / 0.14);
+  --sel-tapado-regla: rgb(110 110 120 / 0.18);
+  --sel-cita: rgb(120 120 120 / 0.10);
+  --sel-candidato: #b26b00;
+  position: relative;
+  outline: none;
+  color: var(--sel-texto);
+}
+
+@media (prefers-color-scheme: dark) {
+  .selector {
+    --sel-tapado: rgb(122 153 255 / 0.24);
+    --sel-tapado-regla: rgb(200 200 210 / 0.16);
+    --sel-cita: rgb(200 200 200 / 0.09);
+    --sel-candidato: #f0b44c;
+  }
+}
+:root[data-theme="light"] .selector {
+  --sel-tapado: rgb(30 69 206 / 0.14);
+  --sel-tapado-regla: rgb(110 110 120 / 0.18);
+  --sel-cita: rgb(120 120 120 / 0.10);
+  --sel-candidato: #b26b00;
+}
+:root[data-theme="dark"] .selector {
+  --sel-tapado: rgb(122 153 255 / 0.24);
+  --sel-tapado-regla: rgb(200 200 210 / 0.16);
+  --sel-cita: rgb(200 200 200 / 0.09);
+  --sel-candidato: #f0b44c;
+}
+
+.selector:focus-visible { box-shadow: 0 0 0 2px var(--sel-acento); border-radius: 6px; }
+
+.sel-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  color: var(--sel-tenue);
+}
+.sel-resumen { flex: 1 1 auto; }
+.sel-fichas { display: flex; flex-wrap: wrap; gap: 6px; flex-basis: 100%; }
+.sel-ficha {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 4px 1px 8px;
+  border: 1px solid var(--sel-borde);
+  border-radius: 999px;
+  background: var(--sel-hundido);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.sel-quitar { border: 0; background: none; color: inherit; cursor: pointer; padding: 0 4px; font: inherit; }
+
+.sel-texto {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Consolas, monospace);
+  font-size: 0.86rem;
+  line-height: 1.7;
+  background: var(--sel-fondo);
+  border: 1px solid var(--sel-borde);
+  border-radius: 8px;
+  padding: 14px 16px;
+  max-height: 70vh;
+  overflow: auto;
+}
+
+/* Lo tapado: el original a la vista y la etiqueta al costado. La etiqueta
+   va en ::after para que no sea texto —si fuera texto, una seleccion la
+   contaria y las posiciones dejarian de coincidir con el original—. */
+.sel-tapado {
+  background: var(--sel-tapado);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+  cursor: pointer;
+}
+.sel-tapado.sel-regla { background: var(--sel-tapado-regla); }
+.sel-tapado::after {
+  content: attr(data-etiqueta);
+  font-size: 0.72em;
+  margin-left: 3px;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: var(--sel-acento);
+  color: var(--on-accent, #fff);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.sel-candidato {
+  text-decoration: underline dotted var(--sel-candidato) 2px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.sel-candidato.sel-actual { outline: 2px solid var(--sel-candidato); border-radius: 3px; }
+.sel-destapado {
+  outline: 1px dashed var(--sel-tenue);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.sel-cita { background: var(--sel-cita); }
+
+.sel-menu {
+  position: absolute;
+  z-index: 10;
+  width: min(300px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: var(--sel-fondo);
+  border: 1px solid var(--sel-borde);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
+  font-size: 0.9rem;
+}
+.sel-menu-titulo { font-weight: 600; overflow-wrap: anywhere; }
+.sel-menu-nota { color: var(--sel-tenue); font-size: 0.85em; }
+.sel-menu-fila { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.sel-menu button, .sel-ver {
+  font: inherit;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sel-borde);
+  background: var(--sel-hundido);
+  color: var(--sel-texto);
+  cursor: pointer;
+  text-align: left;
+}
+.sel-menu .sel-primario { background: var(--sel-acento); border-color: var(--sel-acento); color: var(--on-accent, #fff); }
+.sel-menu select { font: inherit; padding: 3px 6px; }

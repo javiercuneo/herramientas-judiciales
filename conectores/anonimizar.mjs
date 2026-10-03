@@ -115,13 +115,48 @@ async function revisarElegidos(elegidos) {
     });
 }
 
+/** Lo que una persona dijo que NO se tape. Ver PLAN_SELECTOR.md, fase 3.
+ *
+ * `excepciones` son textos —"no es persona: es un autor"— y `noTapar` son
+ * rangos del texto que se manda —"destapar aca"—. Un rango fuera del texto o
+ * al reves se rechaza en vez de ignorarse: quien lo mando cree que algo quedo
+ * a la vista y no quedo, o al reves, y las dos cosas se tienen que saber.
+ */
+function revisarExcepciones(excepciones) {
+    if (excepciones === undefined || excepciones === null) return [];
+    if (!Array.isArray(excepciones) || excepciones.some((e) => typeof e !== 'string')) {
+        throw new ErrorDeEntrada('«excepciones» tiene que ser una lista de textos.');
+    }
+    return excepciones;
+}
+
+function revisarNoTapar(noTapar, largo) {
+    if (noTapar === undefined || noTapar === null) return [];
+    if (!Array.isArray(noTapar)) {
+        throw new ErrorDeEntrada('«noTapar» tiene que ser una lista de { desde, hasta }.');
+    }
+    return noTapar.map((r, i) => {
+        const bien = r && Number.isInteger(r.desde) && Number.isInteger(r.hasta) &&
+            r.desde >= 0 && r.desde < r.hasta && r.hasta <= largo;
+        if (!bien) {
+            throw new ErrorDeEntrada(
+                `El rango n° ${i + 1} de «noTapar» no cae adentro del texto: tiene que ser ` +
+                `{ desde, hasta } con 0 ≤ desde < hasta ≤ ${largo}. Si el texto cambió desde que ` +
+                `se eligió el rango, hay que volver a elegirlo.`);
+        }
+        return { desde: r.desde, hasta: r.hasta };
+    });
+}
+
 /** Anonimiza un texto: la capa 1 siempre, la capa 2 solo con `elegidos`. */
 export async function anonimizarTexto(entrada) {
     const { anonimizar, restosPegadosAEtiqueta } = await cargar();
     const texto = exigirTexto(entrada.texto);
     const elegidos = await revisarElegidos(entrada.elegidos);
+    const excepciones = revisarExcepciones(entrada.excepciones);
+    const noTapar = revisarNoTapar(entrada.noTapar, texto.length);
 
-    const r = anonimizar(texto, elegidos);
+    const r = anonimizar(texto, elegidos, { excepciones, noTapar });
 
     // LOS RESTOS VAN SIEMPRE EN LA RESPUESTA, no en una herramienta aparte que
     // haya que acordarse de llamar. Un nombre reemplazado a medias -"Perez,
@@ -214,7 +249,11 @@ export const HERRAMIENTAS_ANONIMIZAR = {
             texto: 'el texto a anonimizar',
             elegidos: 'lista de { texto, reemplazo } con los nombres confirmados y su etiqueta ' +
                 '([PERSONA], [ACTOR], [DEMANDADO], [LETRADO], [PERITO], [TESTIGO], [EMPRESA], ' +
-                'o las mismas con número: [PERSONA_2]). Opcional: sin esto sólo corre la capa 1.'
+                'o las mismas con número: [PERSONA_2]). Opcional: sin esto sólo corre la capa 1.',
+            excepciones: 'lista de textos que NO son personas y ninguna regla de nombres tapa ' +
+                '(un autor, un tribunal). Sólo valen los de dos palabras o más. Opcional.',
+            noTapar: 'lista de { desde, hasta }: rangos del texto que no se tapan con nada. ' +
+                'Opcional.'
         }
     },
     candidatos_a_nombre: {

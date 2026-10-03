@@ -1503,6 +1503,23 @@ export function apareceEnElTexto(texto, frase) {
     return new RegExp(`${ANTES}(?:${fuente})${DESPUES}`, 'i').test(texto);
 }
 
+/** Donde aparece la frase, con la misma regla: `[{ desde, hasta }]`.
+ *
+ * Para la pantalla que elige sobre el texto (PLAN_SELECTOR.md): subrayar un
+ * candidato y decir "tapar en las 14 apariciones" tiene que contar lo mismo que
+ * despues va a tapar el motor, y por eso vive aca y no alla.
+ */
+export function ubicarEnElTexto(texto, frase) {
+    const fuente = String(frase).trim().split(/\s+/).map(escapar).join('\\s+');
+    if (!fuente) return [];
+    const salida = [];
+    for (const m of texto.matchAll(new RegExp(`${ANTES}(${fuente})${DESPUES}`, 'gi'))) {
+        const desde = m.index + m[0].length - m[2].length;
+        salida.push({ desde, hasta: desde + m[2].length });
+    }
+    return salida;
+}
+
 /** Le saca al candidato las palabras de los extremos que no son nombre.
  *
  * Devuelve `''` si lo que queda no llega a dos palabras, o si la palabra que

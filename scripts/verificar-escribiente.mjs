@@ -30,6 +30,7 @@ import {
     anonimizar as anonimizarDelMotor,
     anonimizarConTramos,
     caratulasCitadas,
+    ubicarEnElTexto,
     candidatosANombre,
     partesDeCaratula,
     normalizarEspacios,
@@ -1880,6 +1881,15 @@ console.log('\nCERTIFICAR\n');
     ok(!caratulasCitadas('“Ficticia, Ana c/\n\nSupuesto S.A.” del 12/3/2020').length, 'pero no cruza un parrafo');
     ok(!caratulasCitadas('El perito dijo “esto es asi” en su informe del 3/4/2021.').length, 'comillas sin "c/" no son cita');
     ok(!caratulasCitadas('“Ficticia c/ Supuesto” fue lo que escribio.').length, 'sin tribunal, fecha ni "autos" cerca tampoco');
+
+    // "Tapar en las N apariciones" cuenta lo mismo que despues tapa el motor.
+    const varias = 'Ana  Inventada firmo. ANA\nINVENTADA volvio. Anabel Inventada no es ella. Ana Inventadas tampoco.';
+    const lugares = ubicarEnElTexto(varias, 'Ana Inventada');
+    const { conteo } = anonimizar(varias, [{ texto: 'Ana Inventada', reemplazo: '[PERSONA]' }]);
+    ok(lugares.length === 2 && lugares.length === conteo['nombre propio → [PERSONA]'],
+        'ubicar en el texto encuentra lo mismo que tapa el motor: con espacios, saltos y mayusculas, sin pedazos',
+        JSON.stringify({ lugares, conteo }));
+    ok(varias.slice(lugares[1].desde, lugares[1].hasta) === 'ANA\nINVENTADA', 'y cada lugar apunta a lo que dice');
 }
 
 // ---------------------------------------------------------------------------

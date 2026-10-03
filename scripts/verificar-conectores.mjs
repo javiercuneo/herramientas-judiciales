@@ -314,6 +314,34 @@ async function probarAnonimizadorHttp() {
     'quedaron restos y la respuesta no lo dice en palabras',
   )
 
+  // --- lo que una persona dijo que no se tape (PLAN_SELECTOR.md, fase 3) ---
+  const conDr = 'Lo dijo el Dr. Jorge Joaquin Inventado, y el Dr. Pedro Ficticio contesto.'
+  const exc = await pedir('/anonimizar-texto', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto: conDr, excepciones: ['Jorge Joaquin Inventado'] }),
+  })
+  comprobar(
+    exc.cuerpo?.texto?.includes('Dr. Jorge Joaquin Inventado') && exc.cuerpo?.texto?.includes('Dr. [PERSONA] contesto'),
+    `las excepciones no llegan al motor: ${exc.cuerpo?.texto}`,
+  )
+  const ahi = conDr.indexOf('Pedro')
+  const aca = await pedir('/anonimizar-texto', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto: conDr, noTapar: [{ desde: ahi, hasta: ahi + 14 }] }),
+  })
+  comprobar(
+    aca.cuerpo?.texto?.includes('Dr. Pedro Ficticio') && aca.cuerpo?.texto?.includes('Dr. [PERSONA],'),
+    `noTapar no llega al motor: ${aca.cuerpo?.texto}`,
+  )
+  const fuera = await pedir('/anonimizar-texto', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto: conDr, noTapar: [{ desde: 5, hasta: 5000 }] }),
+  })
+  igual(fuera.cuerpo?.ok, false, 'un rango de noTapar fuera del texto no se rechaza')
+
   // --- una etiqueta inventada se rechaza ANTES de tapar nada ---
   const inventada = await pedir('/anonimizar-texto', {
     method: 'POST',

@@ -55,11 +55,25 @@ const LISTA_DE_ELEGIDOS = {
     }
 };
 
+// Las otras dos listas del anonimizador, por la misma razon (PLAN_SELECTOR.md).
+const LISTAS = {
+    elegidos: LISTA_DE_ELEGIDOS,
+    excepciones: { type: 'array', items: { type: 'string' } },
+    noTapar: {
+        type: 'array',
+        items: {
+            type: 'object',
+            properties: { desde: { type: 'integer' }, hasta: { type: 'integer' } },
+            required: ['desde', 'hasta']
+        }
+    }
+};
+
 function esquema(entrada) {
     const propiedades = {};
     for (const [nombre, descripcion] of Object.entries(entrada)) {
-        propiedades[nombre] = nombre === 'elegidos'
-            ? { ...LISTA_DE_ELEGIDOS, description: descripcion }
+        propiedades[nombre] = LISTAS[nombre]
+            ? { ...LISTAS[nombre], description: descripcion }
             : { type: 'string', description: descripcion };
     }
     return {

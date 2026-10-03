@@ -19,6 +19,31 @@ de 2026.
 
 ---
 
+## El selector, fases 2 y 3: los fallos citados y la pantalla — 3/10
+
+**Fase 2, decidida por Javier:** las partes de un fallo citado no se ofrecen
+como candidatos. Se siguen ofreciendo si la cita comparte apellido con la
+carátula de la causa o si el nombre aparece también fuera de una cita. Medido
+contra los casos de la bandeja, en el más cargado los candidatos bajaron de 110
+a 73. La medición destapó que 31 de 34 citas tenían un salto de renglón adentro
+—el PDF corta la carátula donde cae— y el patrón no las cruzaba: ahora cruza
+uno simple, no un párrafo.
+
+**Una corrección de lo escrito a la mañana:** se dijo que casi todos los
+nombres tildados eran partes de fallos citados. Medido con la detección, son
+36 de 95: la categoría más grande, no la mayoría.
+
+**Fase 3:** el selector es `escribiente/js/selector.js`, un módulo que corre el
+mismo motor y no tiene lógica propia de qué se tapa. Muestra el original con lo
+tapado marcado y la etiqueta al costado —en `::after`, para que no sea texto y
+una selección no corra las posiciones—, los candidatos subrayados y las citas
+sombreadas. Se tapa seleccionando (a palabras enteras, uniendo con un nombre
+tapado al lado), se destapa con un clic, y `n`/`p`/`t`/`d` recorren y deciden
+los candidatos. También ofrece el apellido suelto de un nombre ya tapado, que no
+tiene forma de nombre y ningún patrón levantaba. Decidido por Javier: vive acá,
+y `redactor` lo sirve desde esta carpeta. El conector acepta `excepciones` y
+`noTapar` en `anonimizar_texto`, y rechaza un rango que no cae en el texto.
+
 ## El selector, fase 1: lo que el motor le da a la pantalla — 3/10
 
 La primera fase de [`PLAN_SELECTOR.md`](PLAN_SELECTOR.md), sin pantalla.

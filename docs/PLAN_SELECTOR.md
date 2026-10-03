@@ -1,6 +1,6 @@
 # Plan: elegir sobre el texto, y que lo elegido enseñe
 
-**Abierto. Propuesto el 3/10/2026; la fase 1 está hecha, el resto sin decidir.** Cubre las dos pantallas que
+**Abierto. Propuesto el 3/10/2026; las fases 1, 2 y 3 están hechas el mismo día.** Cubre las dos pantallas que
 usan el motor de anonimización: la de Escribiente (acá, pública, corre en el
 navegador) y la del ingreso de `redactor` (local). Lo que es de criterio o de
 arquitectura está marcado **[Javier]** y no se empieza sin su respuesta.
@@ -143,7 +143,11 @@ Cada fase deja todo andando y se puede parar en cualquiera.
    apellido con la causa o el nombre aparezca también fuera de una cita. En el
    caso medido, los candidatos bajaron de 110 a 73.
 3. **Selector en la pantalla de `redactor`**, que es donde está la fricción
-   medida y donde se trabaja con causas.
+   medida y donde se trabaja con causas. **Hecha el 3/10:** el componente es
+   `escribiente/js/selector.js` (con `css/selector.css`); `redactor` lo monta
+   en el paso 1 del ingreso sobre el texto que recibe la segunda pasada, y el
+   conector acepta `excepciones` y `noTapar`. Probado de punta a punta con un
+   caso inventado: lo que muestra el selector es lo que tapa el servidor.
 4. **Selector en Escribiente.**
 5. **Anotar decisiones y lo que nunca es persona.** Medir.
 6. **Reglas propuestas** desde el buzón.

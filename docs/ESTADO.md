@@ -85,7 +85,9 @@ con su caso de prueba. **El borde que quedó de cada regla está en
   de Javier.** El que cierre uno cambia `pendiente` por el valor nuevo y agrega la
   regresión en el banco del motor o del hook.
 
-- **EL SELECTOR SOBRE EL TEXTO, propuesto el 3/10; la fase 1 (motor) está hecha.** Elegir qué
+- **EL SELECTOR SOBRE EL TEXTO, propuesto el 3/10; fases 1 a 3 hechas** —motor,
+  fallos citados que no se ofrecen, y el selector en la pantalla de `redactor`—.
+  Sigue la fase 4, el selector en Escribiente. Elegir qué
   tapar marcando el texto en vez de tildar una lista, y que lo decidido enseñe
   entre casos. Plan, decisiones pendientes de Javier y orden en
   [`PLAN_SELECTOR.md`](PLAN_SELECTOR.md). La primera decisión es de criterio:
