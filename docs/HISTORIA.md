@@ -19,6 +19,60 @@ de 2026.
 
 ---
 
+## El primer vaciado de los avisos de `redactor` — 3/10
+
+`redactor` anota, cada vez que se libera un caso que entró por su bandeja, los
+nombres que ninguna regla tapó y lo que el operador marcó a mano: sólo la
+forma y las palabras de alrededor, con las mayúsculas y los números tapados.
+Esos avisos se juntaban y nadie los consumía. Éste es el primer vaciado, y
+todo lo que entró está en la regresión 21 de `verificar-escribiente`, con
+datos inventados y vista fallar contra el motor anterior.
+
+**Identificadores**, por el mismo motivo que los del 26/9 —el espacio que deja
+la extracción del PDF al lado del guion—:
+
+- el **CUIT** con espacios alrededor de los guiones, que es como aparece como
+  domicilio electrónico de un letrado. Cierra el caso `cuit-con-espacios` del
+  banco cruzado, que estaba `pendiente`;
+- el **DNI** tipeado con un solo punto, detrás de la etiqueta;
+- el **expediente** con «Nro.» y con guion en vez de barra, sólo con el ancla
+  delante: suelto, `1994-2001` es un rango de años;
+- el **piso con grado y unidad** sin la palabra «piso» («1° A»), sólo en la
+  regla con ancla, porque sin ancla tiene la forma de «artículo 730 1° párrafo».
+
+**El domicilio sin ancla se comía la palabra de adelante** («Se notificó en X
+1740 PB» salía «Se [DOMICILIO]»), anotado el 26/9 por el banco cruzado. Ahora
+la calle es la tira de palabras en mayúscula pegada a la altura. En el banco de
+comparación de motores es el único caso que se movió: «El Juzgado funciona en
+[DOMICILIO]».
+
+**Dos reglas de nombres nuevas**, las dos ancladas, que es lo que el diseño
+permite tapar sin preguntar:
+
+- **la firma con «Fdo.»**: el pie de una sentencia de Cámara con tres vocales
+  separados por guiones salía entero, porque la regla de firma ancla en
+  «Firmado por:». Se tapa por tramos y se conserva el cargo;
+- **el nombre detrás de un rol**: «el ingeniero civil, X», «al mediador, X»,
+  «el demandado X», «su madre X». Era la mitad de los avisos. Tiene la misma
+  guarda que el tratamiento —el nombre empieza en mayúscula y corta en la
+  primera palabra que no es de nombre— y el mismo borde: en un texto todo en
+  mayúsculas se lleva puesto el verbo que sigue.
+
+**Y un bug de la regla de tratamiento que explicaba varios avisos.** Corría con
+la bandera `i`, así que en «el perito médico Dr. Juan X» calzaba «perito médico
+Dr» como tratamiento y nombre, la guarda lo tiraba, y el «Dr.» —ya consumido—
+no volvía a probarse: el nombre salía en claro. Ahora cada tratamiento va en
+sus tres cajas y el nombre tiene que empezar en mayúscula en el patrón mismo.
+Las 450 comprobaciones de antes siguen pasando sin tocar ninguna, salvo dos
+que dejaron de cumplir su premisa —un nombre «que ninguna regla tocó» iba
+detrás de «el testigo» y de «la demandada», que ahora sí se tapan— y a las que
+se les cambió la frase.
+
+**Lo que no entró, y por qué:** el número de juzgado («Juzgado Civil n° 42»),
+que no es dato personal y tapar o no es de criterio; y las carátulas de fallos
+citados tapadas a medias, que no se arreglan con una regla sino eligiendo
+mejor en la pantalla.
+
 ## Confronte, publicada sin comentarios — 27/9
 
 El pedido E-06 de `confronteitor` —publicar su pantalla en el sitio— no estaba

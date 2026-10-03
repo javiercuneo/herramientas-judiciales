@@ -255,7 +255,13 @@ export const REGLAS_IDENTIFICADORES = [
     },
     {
         nombre: 'CUIT',
-        patron: new RegExp(`${ANTES}\\d{2}-?\\d{8}-?\\d${DESPUES}`, 'g'),
+        // LOS ESPACIOS AL LADO DEL GUION, 3/10/2026. "CUIT NN- NNNNNNNN-N" —el
+        // espacio lo deja la extraccion del PDF, como en el telefono— salia
+        // entero, y en el domicilio electronico de un letrado, que ES el CUIT,
+        // tambien. Con espacios el guion pasa a ser obligatorio: once digitos
+        // separados solo por espacios ya no tienen forma de CUIT.
+        patron: new RegExp(
+            `${ANTES}\\d{2}(?:-?\\d{8}-?|[ \\t]*[-‐‑–—][ \\t]*\\d{8}[ \\t]*[-‐‑–—][ \\t]*)\\d${DESPUES}`, 'g'),
         reemplazo: '$1[CUIT]',
     },
     {
@@ -284,7 +290,11 @@ export const REGLAS_IDENTIFICADORES = [
         //
         // La palabra que ancla SE CONSERVA, como en la de telefono: sin eso el
         // renglon queda como "[DNI]" pelado y no se entiende que se oculto.
-        patron: /(\b(?:D\.?N\.?I\.?|L\.?[CE]\.?|documento(?:\s+nacional\s+de\s+identidad)?)\s*(?:n[°ºo]?\.?)?\s*:?\s*)(\d{1,2}\.\d{3}\.\d{3}|\d{7,8})(?![\d.,-])/gi,
+        //
+        // EL PUNTO QUE FALTA, 3/10/2026. "DNI N° NN.NNNNNN" —tipeado con un solo
+        // punto— salia entero: no tiene la forma con puntos ni la sin puntos.
+        // Detras de la etiqueta no hay ambiguedad, asi que entra.
+        patron: /(\b(?:D\.?N\.?I\.?|L\.?[CE]\.?|documento(?:\s+nacional\s+de\s+identidad)?)\s*(?:n[°ºo]?\.?)?\s*:?\s*)(\d{1,2}\.\d{3}\.\d{3}|\d{1,2}\.\d{6}|\d{4,5}\.\d{3}|\d{7,8})(?![\d.-]|,\d)/gi,
         reemplazo: '$1[DNI]',
     },
     {
@@ -352,7 +362,13 @@ export const REGLAS_IDENTIFICADORES = [
         // NO DATO. "Expte. N" no identifica a nadie, y sacarlo le quita
         // estructura al texto justo antes de darselo a un modelo, que es el
         // consumidor principal del motor.
-        patron: /\b((?:expte|expediente|causa|autos)\.?\s*(?:n[°ºo]?\.?)?\s*)\d{1,7}(?:\.\d{3})*\s*\/\s*(?:19|20)\d{2}/gi,
+        //
+        // "NRO." Y EL GUION, 3/10/2026. "Expte. Nro. 1234-2021" salia entero por
+        // las dos cosas: el ancla no reconocia "Nro." y el separador tenia que
+        // ser la barra. El guion se acepta SOLO aca, con el ancla delante; la
+        // regla general de abajo sigue pidiendo la barra, porque "1994-2001"
+        // suelto es un rango de anios.
+        patron: /\b((?:expte|expediente|causa|autos)\.?\s*(?:nro\.?|n[uú]mero|n[°ºo]?\.?)?\s*)\d{1,7}(?:\.\d{3})*\s*[/\-‐‑–—]\s*(?:19|20)\d{2}(?!\d)/gi,
         reemplazo: '$1[EXPTE]',
     },
     {
@@ -463,6 +479,14 @@ const PISO =
     `|entre[ \\t]*piso|departamento|depto\\.?|dpto\\.?|piso|P\\.?B\\.?|of\\.?|oficina|U\\.?F\\.?` +
     `)${UNIDAD})`;
 
+// "1° A": el piso con su grado y la unidad, sin la palabra "piso". CASO DE
+// PRUEBA, 3/10/2026: "domicilio en la calle X 1234 1° A, de esta" salia
+// "[DOMICILIO] 1° A". SOLO en la regla con ancla, y la letra es obligatoria:
+// sin ancla, "articulo 730 1° parrafo" tiene la misma forma, y comerse una
+// cita es peor que dejar un piso.
+const PISO_CON_ANCLA =
+    `(?:${PISO}|[ \\t]*[.,]?[ \\t]*\\d{1,3}[º°][ \\t]*(?:["“][${LETRA}]["”]|[${LETRA}])(?![${LETRA}\\d]))`;
+
 // Una palabra de nombre tal como sale de un PDF escaneado: los digitos van
 // ADENTRO, nunca al principio ni al final.
 //
@@ -495,6 +519,65 @@ const FORMULAS_DE_PRESENTACION = [
     'abogad[oa]', 'letrad[oa]', 'apoderad[oa]', 'inscript[oa] al',
 ].flatMap((f) => [f, f.toUpperCase()]).join('|');
 
+// Minuscula, Capitalizada y MAYUSCULA de un pedazo de patron, para las reglas
+// que corren sin la bandera `i`. No toca los escapes: "[ \t]" en mayusculas
+// seria "[ \T]", que ya no es un tab.
+function enLasTresCajas(fragmentos) {
+    const mayus = (f) => f.replace(/\\[a-z]|[a-záéíóúñü]/g, (m) => (m[0] === '\\' ? m : m.toUpperCase()));
+    return fragmentos
+        .flatMap((f) => [f, f[0].toUpperCase() + f.slice(1), mayus(f)])
+        .join('|');
+}
+
+// Los tratamientos de la regla de tratamiento, en minuscula, Capitalizados y en
+// MAYUSCULA: "dr.", "Dr." y "DR.". Ver por que esa regla ya no corre con `i`.
+const TRATAMIENTOS = [...new Set([
+    'Dr', 'Dra', 'Dres', 'Dras', 'Sr', 'Sra', 'Sres', 'Sras', 'Srta', 'Ing', 'Lic', 'Cdor', 'Cra', 'Arq',
+    'Juez', 'Jueza', 'Perito', 'Martiller[oa]',
+].flatMap((t) => [t, t.toLowerCase(), t.toUpperCase()]))].join('|');
+
+// El papel de alguien en el proceso, cuando va delante de su nombre: "el
+// perito", "la demandada", "su madre". Entra solo lo que anuncia una PERSONA:
+// "la citada en garantia" no, porque casi siempre es una aseguradora.
+const ROLES_QUE_ANUNCIAN = enLasTresCajas([
+    'perit[oa]s?', 'ingenier[oa]s?', 'arquitect[oa]s?', 'contador(?:a|es)?', 'mediador(?:a|es)?',
+    'martiller[oa]s?', 'tasador(?:a|es)?', 'cal[ií]graf[oa]s?',
+    'traductor(?:a|es)?(?:[ \\t]+p[uú]blic[oa]s?)?', 'consultor(?:a|es)?(?:[ \\t]+t[eé]cnic[oa]s?)?',
+    'letrad[oa]s?', 'abogad[oa]s?', 'apoderad[oa]s?', 'demandad[oa]s?', 'codemandad[oa]s?',
+    'actor(?:a|es)?', 'coactor(?:a|es)?', 'causante', 'testigos?', 'damnificad[oa]', 'reclamante',
+    'c[oó]nyuge(?:[ \\t]+sup[eé]rstite)?(?:[ \\t]+de)?', 'hereder[oa]s?(?:[ \\t]+de)?',
+    'su[ \\t]+(?:madre|padre|hij[oa]|espos[oa]|herman[oa]|concubin[oa])',
+]);
+
+// Lo que puede ir entre el rol y el nombre: "el perito MEDICO Dr.", "la
+// ingeniera MECANICA Ana". Hasta dos.
+const ESPECIALIDADES = enLasTresCajas([
+    'm[eé]dic[oa]', 'contador(?:a)?', 'ingenier[oa]', 'mec[aá]nic[oa]', 'civil', 'cal[ií]graf[oa]',
+    'psic[oó]log[oa]', 'psiquiatra', 'tasador(?:a)?', 'inform[aá]tic[oa]', 'traductor(?:a)?',
+    'arquitect[oa]', 'odont[oó]log[oa]', 'designad[oa]', 'interviniente', 't[eé]cnic[oa]',
+    'de[ \\t]+oficio', 'industrial', 'electricista', 'qu[ií]mic[oa]', 'en[ \\t]+sistemas',
+]);
+
+// Un tramo de un renglon de firma: tapa el nombre del principio y conserva lo
+// demas, que es el cargo. Ver la regla "firma con Fdo.".
+function taparNombreDelTramo(tramo) {
+    const m = tramo.match(/^([ \t]*(?:(?:Dr|Dra|Dres|Sr|Sra|Ing|Lic|Cdor|Cra|Arq)\.?[ \t]+)?)([\s\S]*)$/i);
+    const [, tratamiento, resto] = m;
+    const palabras = [...resto.matchAll(/\S+/g)];
+    const etiqueta = new RegExp(`^${ETIQUETA_DE_NOMBRE}$`);
+    let fin = 0;
+    let nombres = 0;
+    for (const { 0: p } of palabras) {
+        if (etiqueta.test(p) || (new RegExp(`^${PALABRA_DE_NOMBRE}$`).test(p) && !noEsNombre(p))) nombres++;
+        else if (!(fin > 0 && (esParticula(p) || new RegExp(`^[${MAY}]\\.$`).test(p)))) break;
+        fin++;
+    }
+    while (fin > 0 && esParticula(palabras[fin - 1][0])) fin--;
+    if (nombres < 2) return tramo;
+    const corte = palabras[fin - 1].index + palabras[fin - 1][0].length;
+    return `${tratamiento}[PERSONA]${resto.slice(corte)}`;
+}
+
 export const REGLAS_NOMBRES = [
     {
         nombre: 'dominio de automotor',
@@ -526,8 +609,17 @@ export const REGLAS_NOMBRES = [
         // que la guarda pasa a una funcion —el nombre tiene que empezar en
         // mayuscula y no puede llevar ninguna palabra de NO_SON_PERSONAS—.
         // Sin esa guarda, "Sres. los abogados" quedaba como "Sres. [PERSONA]".
+        //
+        // YA NO CORRE CON `i`, 3/10/2026. Con la bandera, el nombre tambien
+        // podia empezar en minuscula, y la guarda de `largoDeNombre` lo rechazaba
+        // DESPUES de que el patron hubiera consumido el texto: en "el perito
+        // medico Dr. Juan Inventado" el calce era "perito medico Dr", se tiraba,
+        // y el "Dr." —ya consumido— no volvia a probarse. El nombre salia en
+        // claro; varias entradas del buzon de fugas eran esto. Ahora cada
+        // tratamiento va en sus tres cajas y el nombre tiene que empezar en
+        // mayuscula en el patron mismo, asi que "perito medico" ni calza.
         patron: new RegExp(
-            `\\b((?:Dr|Dra|Dres|Dras|Sr|Sra|Sres|Sras|Srta|Ing|Lic|Cdor|Cra|Arq|Juez|Jueza|Perito|Martiller[oa])\\.?)` +
+            `\\b((?:${TRATAMIENTOS})\\.?)` +
             // El tratamiento tiene que terminar ahi. Sin este control, con la
             // bandera `i` el "Ing" de "INGENIERO JUAN" calza como tratamiento y
             // el resto de la palabra se va adentro del reemplazo:
@@ -545,8 +637,8 @@ export const REGLAS_NOMBRES = [
             // cierra un nombre. Con la bandera `i` calzaria tambien una minuscula
             // ("Perez p. ej."), y la frena `largoDeNombre`, que mira la mayuscula
             // sin la bandera.
-            `[ \\t]*:?[ \\t]*(${PALABRA_DE_NOMBRE}(?:[ \\t]+(?:[${MAY}]\\.[ \\t]*)?(?:${PARTICULA}[ \\t]+){0,2}${PALABRA_DE_NOMBRE}){0,3})`,
-            'gi'
+            `[ \\t]*:?[ \\t]*(${PALABRA_DE_NOMBRE}(?:[ \\t]+(?:[${MAY}]\\.[ \\t]*)?(?:${PARTICULA_CUALQUIER_CAJA}[ \\t]+){0,2}${PALABRA_DE_NOMBRE}){0,3})`,
+            'g'
         ),
         reemplazo: (todo, tratamiento, nombre) => {
             const largo = largoDeNombre(nombre);
@@ -571,6 +663,57 @@ export const REGLAS_NOMBRES = [
             if (!largo) return todo;
             const conservado = nombre.match(new RegExp(`^\\S+(?:[ \\t]+\\S+){${largo - 1}}`))[0];
             return `${antes}[PERSONA]` + nombre.slice(conservado.length);
+        },
+    },
+    {
+        nombre: 'firma con Fdo.',
+        // "FDO.: JUAN INVENTADO - MARIA FICTICIA - PEDRO SUPUESTO", el pie de una
+        // sentencia de Camara, y "Fdo. Ana Inventada, Juez. Pedro Ficticio,
+        // Secretario". CASO DE PRUEBA, 27/9/2026, del buzon: la regla de firma
+        // ancla en "Firmado por:" y la abreviatura no la dispara, asi que los
+        // tres vocales salian en claro.
+        //
+        // Se trabaja por tramos del renglon —separados por guion, coma, punto y
+        // coma, "y", o un punto seguido de mayuscula— y en cada uno se tapa el
+        // nombre del principio y se conserva el cargo, como en la de firma: quien
+        // firmo es dato del expediente. Un tramo tiene que tener DOS palabras de
+        // nombre como minimo (o una etiqueta ya puesta y otra palabra): "Juez de
+        // Camara" no tiene ninguna, y un apellido suelto no se distingue de un
+        // cargo que falte en NO_SON_PERSONAS.
+        patron: /(\bfdo\.?[ \t]*:?[ \t]*)([^\n]+)/gi,
+        reemplazo: (todo, ancla, resto) => ancla + resto
+            .split(/([ \t]*(?:[-–—;,]|\.(?=[ \t]+[A-ZÀ-ÖØ-Þ]))[ \t]*|[ \t]+[yY][ \t]+)/)
+            .map((tramo, i) => (i % 2 ? tramo : taparNombreDelTramo(tramo)))
+            .join(''),
+    },
+    {
+        nombre: 'nombre detras de un rol',
+        // "por el arquitecto JUAN INVENTADO", "el ingeniero civil, Juan
+        // Inventado", "Al mediador, JUAN INVENTADO", "el demandado Juan
+        // Inventado contesto". CASO DE PRUEBA, 27/9/2026: la mitad de las
+        // entradas del buzon eran esto, un nombre anunciado por el papel que
+        // cumple en el proceso, y ninguna regla lo tapaba porque no hay
+        // tratamiento delante.
+        //
+        // Es el mismo argumento que la regla de tratamiento: el rol ancla el
+        // comienzo y hace inequivoco que lo que sigue es una persona. Y la misma
+        // guarda: el nombre corre SIN la bandera `i` —cada palabra empieza en
+        // mayuscula— y `largoDeNombre` corta en la primera que no es de nombre,
+        // asi que "la actora Ciudad Autonoma" y "el perito Dr." no se tocan.
+        //
+        // EL BORDE: en un texto todo en mayusculas, "EL DEMANDADO JUAN INVENTADO
+        // CONTESTO" se lleva el verbo adentro del reemplazo —en mayusculas no hay
+        // como distinguirlo de un apellido—. Tapa de mas, que es el lado seguro.
+        patron: new RegExp(
+            `(^|[^${LETRA}])((?:${ROLES_QUE_ANUNCIAN})(?:[ \\t]+(?:${ESPECIALIDADES})){0,2}[ \\t]*[,:]?[ \\t]*)` +
+            `(${PALABRA_DE_NOMBRE}(?:[ \\t]+(?:[${MAY}]\\.[ \\t]*)?(?:${PARTICULA_CUALQUIER_CAJA}[ \\t]+){0,2}${PALABRA_DE_NOMBRE}){0,4})`,
+            'g'
+        ),
+        reemplazo: (todo, antes, rol, nombre) => {
+            const largo = largoDeNombre(nombre);
+            if (!largo) return todo;
+            const conservado = nombre.match(new RegExp(`^\\S+(?:[ \\t]+\\S+){${largo - 1}}`))[0];
+            return `${antes}${rol}[PERSONA]` + nombre.slice(conservado.length);
         },
     },
     {
@@ -633,7 +776,7 @@ export const REGLAS_NOMBRES = [
             // segunda altura: "Mitre 1234/36".
             `((?:[${MAY}][${LETRA}.]+|${ETIQUETA_DE_NOMBRE})` +
             `(?:[ \\t]+(?:de[l]?|la|las|los)?[ \\t]*(?:[${MAY}][${LETRA}.]+|${ETIQUETA_DE_NOMBRE})){0,2}` +
-            `[ \\t]+(?:(?:n[°ºo]?\\.?|nro\\.?|n[uú]mero)[ \\t]*)?\\d{1,5}(?:[ \\t]*\\/[ \\t]*\\d{1,4})?${PISO}*)`,
+            `[ \\t]+(?:(?:n[°ºo]?\\.?|nro\\.?|n[uú]mero)[ \\t]*)?\\d{1,5}(?:[ \\t]*\\/[ \\t]*\\d{1,4})?${PISO_CON_ANCLA}*)`,
             'gi'
         ),
         reemplazo: (todo, ancla, direccion) =>
@@ -650,11 +793,30 @@ export const REGLAS_NOMBRES = [
         // el cuantificador se quedaba con seis letras de "departamento" y
         // devolvía el resto al texto. Un reemplazo partido al medio es peor que
         // ninguno, porque parece hecho.
+        //
+        // LA PALABRA DE ADELANTE, 3/10/2026 (lo encontro el banco cruzado el
+        // 26/9). La regla corre con la bandera `i` —por "PB" y "Depto"— y eso
+        // deja entrar como calle cualquier palabra: "Se notifico en Montevideo
+        // 1740 PB" salia "Se [DOMICILIO]", con el verbo adentro. Ahora la calle
+        // es solo la tira de palabras en mayuscula pegada a la altura —con las
+        // particulas del medio— y lo de antes vuelve al texto. Si no hay ninguna
+        // en mayuscula se tapa todo el calce, como antes: ante la duda, tapar.
         patron: new RegExp(
             `[${MAY}][${LETRA}]+(?:[ \\t]+[${MAY}]?[${LETRA}]+){0,2}[ \\t]+\\d{1,5}${PISO}+`,
             'gi'
         ),
-        reemplazo: '[DOMICILIO]',
+        reemplazo: (todo) => {
+            const calle = todo.slice(0, todo.search(/[ \t]+\d/));
+            const palabras = [...calle.matchAll(/\S+/g)];
+            let desde = palabras.length;
+            for (let i = palabras.length - 1; i >= 0; i--) {
+                const p = palabras[i][0];
+                if (new RegExp(`^[${MAY}]`).test(p)) desde = i;
+                else if (!esParticula(p)) break;
+            }
+            if (desde === 0 || desde === palabras.length) return '[DOMICILIO]';
+            return todo.slice(0, palabras[desde].index) + '[DOMICILIO]';
+        },
     },
 ];
 
@@ -902,6 +1064,17 @@ mail email nacionalidad estado edad profesion ocupacion nro numero
 # el plural y el adjetivo. "Real" NO entra: es apellido, y el par se cae igual
 # por "folio".
 unidades complementaria complementarias
+
+# Las de abajo entraron el 3/10/2026, del buzon de fugas: un rol antepuesto al
+# nombre entraba adentro del candidato ("Mediador Juan Inventado"), y tildado
+# despues bloqueaba la liberacion como resto. Son los auxiliares que faltaban y
+# los organos que siguen a "el demandado". Ninguna es apellido de nadie.
+mediador mediadora tasador tasadora traductor traductora caligrafo caligrafa
+consultor consultora psicologo psicologa psiquiatra licenciado licenciada
+kinesiologo kinesiologa odontologo odontologa bioquimico bioquimica actuario
+partidor veedor veedora depositario depositaria damnificado damnificada
+reclamante causante conyuge superstite testigo testigos
+gobierno municipalidad fisco
 `.replace(/^\s*#.*$/gm, '').trim().split(/\s+/));
 
 // La caratula tiene forma fija: "X c/ Y s/ OBJETO". De ahi salen las partes.

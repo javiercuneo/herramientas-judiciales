@@ -59,11 +59,6 @@ decidir con qué etiqueta —la pantalla le pone `[ACTOR]` a la primera parte—
 mirar a `redactor`, que recibe esa lista por el conector y puede contar con que
 sean dos.
 
-**La regla `domicilio` del motor se come la palabra de adelante** (26/9, sin
-arreglar). Corre con la bandera `i`, así que la primera palabra no tiene que ser
-mayúscula: «Se notificó en Montevideo 1740 PB departamento 2» sale «Se
-[DOMICILIO]». Lo encontró el banco cruzado; está anotado en su caso `domicilio`.
-
 E-01 a E-06 están cerrados, en [`HISTORIA.md`](HISTORIA.md)
 con su caso de prueba. **El borde que quedó de cada regla está en
 [`escribiente/README.md`](../escribiente/README.md)**.
@@ -83,8 +78,8 @@ con su caso de prueba. **El borde que quedó de cada regla está en
   [`scripts/banco-cruzado/casos.json`](../scripts/banco-cruzado/casos.json): cada
   caso dice qué hace cada uno y, si no coinciden, por qué. **Una regla nueva en
   cualquiera de los dos, sin su caso, no entra**: lo frena el `pre-commit` de este
-  repo y el CI. **Hay 18 casos `pendiente`**: huecos de uno que el otro sí ve
-  —el motor no tapa `C.I.`, CUIT con espacios, matrícula sin dos puntos, tomo en
+  repo y el CI. **Hay 17 casos `pendiente`**: huecos de uno que el otro sí ve
+  —el motor no tapa `C.I.`, matrícula sin dos puntos, tomo en
   romanos ni el enlace al visor; el hook no mira campos de formulario, patentes,
   domicilios ni el celular con guion tipográfico— y el teléfono del interior, que no ve ninguno. **Cuáles se cierran es
   de Javier.** El que cierre uno cambia `pendiente` por el valor nuevo y agrega la

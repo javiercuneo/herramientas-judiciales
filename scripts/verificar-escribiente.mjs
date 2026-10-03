@@ -307,7 +307,7 @@ Comparece el Sr. Juan Carlos Perez, DNI 30.119.078, con domicilio real en
 Rivadavia 1234, piso 3 depto B, y correo juan.perez@estudio-perez.com.ar.
 Se regulan los honorarios en la suma de $ 3.255.622,50 conforme el art. 730
 del Codigo Civil y Comercial y el art. 21 de la ley 27.423.
-El testigo ARIAS ANALIA GABRIELA percibio la suma de 1.500.000 pesos.
+Luego ARIAS ANALIA GABRIELA percibio la suma de 1.500.000 pesos.
 Telefono: 4371-1696. CUIT 20-30119078-9. CBU 0170099220000067797370.
 Expte. 56.868/2017, iniciado el 06/08/2017. To 45 Fo 122.
 El rodado dominio AB 123 CD colisiono. Ver art. 730 y ART 512.
@@ -1677,7 +1677,7 @@ console.log('\nCERTIFICAR\n');
     // Las palabras sueltas de un nombre tildado: se ofrecen, no se aplican.
     {
         // La caratula va armada por partes: el control de datos la frena entera, y con razon.
-        const txt = ['VACA, JUAN', 'X s/ danos. A LA DEMANDADA VACA. La controversia con Vaca y Juan.'].join(' c/ ');
+        const txt = ['VACA, JUAN', 'X s/ danos. SE INTIMA A VACA. La controversia con Vaca y Juan.'].join(' c/ ');
         const elegidos = ['VACA, JUAN'];
         const anonimo = anonimizar(txt, elegidos.map((t) => ({ texto: t, reemplazo: '[DEMANDADO]' }))).texto;
         contiene(anonimo, 'con Vaca', 'la palabra suelta no se reemplaza sola');
@@ -1693,6 +1693,79 @@ console.log('\nCERTIFICAR\n');
 
     const documento = ['30', '119', '078'].join('.');
     contiene(anonimizar(`DNI ${documento}`).texto, 'DNI [DNI]', 'y un DNI sigue siendo un DNI');
+}
+
+// ---------------------------------------------------------------------------
+// REGRESION 21: el primer vaciado del buzon de fugas (3/10/2026).
+//
+// Las formas que el operador anoto al liberar casos por la bandeja. Los datos
+// son inventados y los numeros se arman por partes, por la misma razon que en
+// la regresion 20: el control de datos los frena enteros, y con razon.
+// ---------------------------------------------------------------------------
+{
+    const cuit = (a, b, c) => [a, b, c];
+    const [c1, c2, c3] = cuit('27', '12345678', '9');
+    const unPunto = ['12', '345678'].join('.');
+    for (const [entrada, esperado, que] of [
+        [`CUIT ${c1}- ${c2}-${c3}, IVA RESPONSABLE INSCRIPTO`, 'CUIT [CUIT], IVA', 'el CUIT con espacio despues del guion'],
+        [`domicilio electrónico ${c1} - ${c2} - ${c3} y`, 'electrónico [CUIT] y', 'el CUIT con espacios a los dos lados'],
+        [`CUIT ${c1}–${c2}–${c3}.`, 'CUIT [CUIT].', 'el CUIT con guion tipografico'],
+        [`DNI N° ${unPunto}, con domicilio`, 'DNI N° [DNI], con', 'el DNI con un solo punto'],
+        [`Expte. Nro. ${['1234', '2021'].join('-')}, que`, 'Expte. Nro. [EXPTE], que', 'el expediente con "Nro." y guion'],
+        [`Expte. Nro. ${['1234', '2021'].join('/')}, que`, 'Expte. Nro. [EXPTE], que', 'el expediente con "Nro." y barra'],
+        ['constituyendo domicilio en la calle Inventada 1234 1° A, de esta', 'calle [DOMICILIO], de esta',
+         'el piso con grado y unidad, sin la palabra piso'],
+        ['Se notificó en Inventada 1740 PB departamento 2', 'Se notificó en [DOMICILIO]',
+         'el domicilio sin ancla no se come la palabra de adelante'],
+        ['FDO.: JUAN CARLOS INVENTADO - MARIA FICTICIA - PEDRO SUPUESTO', 'FDO.: [PERSONA] - [PERSONA] - [PERSONA]',
+         'la firma de tres vocales con FDO.'],
+        ['Fdo. Ana Inventada, Juez de Cámara. Pedro Ficticio, Secretario', 'Fdo. [PERSONA], Juez de Cámara. [PERSONA], Secretario',
+         'la firma con Fdo. conserva los cargos'],
+        ['Fdo.: Dra. Ana Inventada y Dr. Pedro Ficticio', 'Fdo.: Dra. [PERSONA] y Dr. [PERSONA]', 'la firma con tratamientos'],
+        ['FDO. [ACTOR] INVENTADO - JUEZ', 'FDO. [PERSONA] - JUEZ',
+         'el homonimo de una parte en la firma se tapa entero, no a medias'],
+        ['efectuada por el ingeniero civil, Juan Carlos Inventado que fuera', 'ingeniero civil, [PERSONA] que',
+         'el nombre detras del ingeniero civil'],
+        ['Al mediador, JUAN INVENTADO le corresponderá', 'mediador, [PERSONA] le', 'el nombre detras del mediador'],
+        ['por el arquitecto JUAN INVENTADO FICTICIO a merito', 'arquitecto [PERSONA] a merito', 'el arquitecto'],
+        ['el demandado Juan Inventado contestó con fecha', 'demandado [PERSONA] contestó', 'el demandado'],
+        ['la ingeniera mecánica Ana Ficticia y contadora Eva Supuesta,', 'mecánica [PERSONA] y contadora [PERSONA],',
+         'dos auxiliares seguidos'],
+        ['como cónyuge supérstite de Ana Inventada. Los recurrentes', 'supérstite de [PERSONA]. Los', 'el conyuge superstite'],
+        ['constituida por su madre Ana Inventada y el demandado', 'su madre [PERSONA] y', 'el parentesco'],
+        // En mayusculas el verbo de despues no se distingue de un apellido y se
+        // va adentro: tapa de mas, que es el lado seguro. Se prueba el nombre.
+        ['EL DEMANDADO JUAN INVENTADO CONTESTO', 'DEMANDADO [PERSONA]', 'el rol en mayusculas'],
+        ['El testigo ARIAS ANALIA GABRIELA declaró', 'testigo [PERSONA] declaró', 'el testigo'],
+    ]) {
+        contiene(anonimizar(entrada).texto, esperado, `REGRESION: ${que}`);
+    }
+
+    // Las guardas: lo que tiene la forma de alguna de esas y no es una persona ni un dato.
+    for (const [entrada, que] of [
+        ['el actor reclama los daños', 'un rol seguido de un verbo'],
+        ['la actora Ciudad Autónoma de Buenos Aires', 'un rol seguido de un organo'],
+        ['el demandado Gobierno de la Ciudad', 'el gobierno como demandado'],
+        ['el perito designado en autos', 'un rol seguido de minusculas'],
+        ['Fdo. digitalmente', 'la firma sin nombre'],
+        ['Fdo.: Juez de Cámara', 'la firma con el cargo solo'],
+        ['conforme el artículo 730 1° párrafo del Código', 'un articulo con su parrafo'],
+        ['vigente 1994-2001 y 2011-2015', 'un rango de anios sin ancla'],
+        ['Vease Llambias, Jorge Joaquin, Tratado', 'la cita de doctrina'],
+    ]) {
+        const { texto } = anonimizar(entrada);
+        ok(texto === entrada, `no se toca ${que}`, `quedo: ${texto}`);
+    }
+    contiene(anonimizar('el perito médico Dr. Juan Inventado presentó').texto, 'médico Dr. [PERSONA] presentó',
+        'el rol con tratamiento lo resuelve el tratamiento, una sola vez');
+    contiene(anonimizar('contra el demandado [DEMANDADO] y otros').texto, 'demandado [DEMANDADO] y',
+        'una etiqueta ya puesta no se vuelve a tapar');
+
+    // El rol ya no entra al candidato: se ofrece el nombre solo.
+    const c = candidatosANombre('las regulaciones al Mediador Juan Inventado y al Tasador Pedro Ficticio')
+        .map((x) => x.texto);
+    ok(c.includes('Juan Inventado') && c.includes('Pedro Ficticio') && !c.some((x) => /Mediador|Tasador/.test(x)),
+        'REGRESION: la palabra del rol no entra al nombre candidato', JSON.stringify(c));
 }
 
 // ---------------------------------------------------------------------------
