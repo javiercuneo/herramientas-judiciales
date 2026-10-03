@@ -117,9 +117,11 @@ vista. Se ofrece, no se tapa: es una empresa.
 
 **Lo que dijo la corrida contra los casos, y es lo más importante de este
 vaciado:** las reglas cierran pocas entradas. En un caso con mucha
-jurisprudencia citada se tildaron cerca de cien nombres, y casi todos eran
-partes de **carátulas de fallos citados**, que ninguna regla toca. La fricción
-de la pantalla no se arregla con reglas: está en qué se ofrece y cómo se elige.
+jurisprudencia citada se tildaron cerca de cien nombres, y la categoría más
+grande —36— eran partes de **carátulas de fallos citados**, que ninguna regla
+toca. (Se escribió primero «casi todos»; medido después con la detección de
+citas, es un tercio largo.) La fricción de la pantalla no se arregla con
+reglas: está en qué se ofrece y cómo se elige.
 
 **Lo que no entró, y por qué:** el número de juzgado («Juzgado Civil n° 42»),
 que no es dato personal y tapar o no es de criterio; y las carátulas de fallos

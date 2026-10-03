@@ -1556,10 +1556,18 @@ function esFragmentoDeOtro(encontrados) {
 
 /** Nombres propios probables que las reglas NO reemplazaron.
  *
- * Se reportan, no se reemplazan. Devuelve `[{ texto, apariciones }]` ordenado
- * por frecuencia.
+ * Se reportan, no se reemplazan. Devuelve `[{ texto, apariciones, enCitas }]`
+ * ordenado por frecuencia.
+ *
+ * LAS PARTES DE LOS FALLOS CITADOS NO SE OFRECEN, decidido por Javier el
+ * 3/10/2026. Un nombre que aparece SOLO adentro de caratulas de fallos citados
+ * que no son de la causa -ver `caratulasCitadas`- queda afuera: es
+ * jurisprudencia publicada, y era la mayor parte de lo que se tildaba a mano
+ * (en un caso, 83 de 95 casillas). Si aparece tambien fuera de una cita, o la
+ * cita comparte apellido con la causa, se sigue ofreciendo: ese es el caso de
+ * riesgo. Con `{ conCitas: true }` vuelven todos, para quien quiera verlos.
  */
-export function candidatosANombre(texto) {
+export function candidatosANombre(texto, { conCitas = false } = {}) {
     const encontrados = new Map();
     // Cuantas de las apariciones estan adentro de la caratula de un fallo citado
     // que no es de la causa. Ver `caratulasCitadas`: la pantalla las agrupa.
@@ -1609,6 +1617,7 @@ export function candidatosANombre(texto) {
     }
     return [...encontrados.entries()]
         .map(([texto, apariciones]) => ({ texto, apariciones, enCitas: enCitas.get(texto) || 0 }))
+        .filter((c) => conCitas || c.enCitas < c.apariciones)
         .filter(esFragmentoDeOtro(encontrados))
         .sort((a, b) => b.apariciones - a.apariciones || a.texto.localeCompare(b.texto));
 }
@@ -1902,13 +1911,18 @@ export function caratulasCitadas(texto) {
         .map(limpiarPalabra)
         .filter((p) => p.length >= 4 && !noEsNombre(p)));
     const salida = [];
-    for (const m of texto.matchAll(/[“"«]([^”"»\n]{5,200}?)[”"»]/g)) {
-        const adentro = m[1];
+    // LA CARATULA CORTADA EN DOS RENGLONES, 3/10/2026. Corrido contra los casos
+    // de la bandeja, 31 de 34 citas tenian un salto de linea adentro -el PDF
+    // corta donde cae-, y el patron no los cruzaba. Cruza uno simple, no un
+    // parrafo, y hasta 300 caracteres.
+    for (const m of texto.matchAll(/[“"«]((?:(?!\n[ \t]*\n)[^”"»]){5,300}?)[”"»]/g)) {
+        const adentro = m[1].replace(/\s+/g, ' ');
         const corte = adentro.match(/\s+[cCvV][/.]\s*|\s+contra\s+/);
         if (!corte || corte.index < 2) continue;
         const desde = m.index + 1;
+        const largo = m[1].length;
         const antes = texto.slice(Math.max(0, m.index - 80), m.index);
-        const despues = texto.slice(desde + adentro.length + 1, desde + adentro.length + 101);
+        const despues = texto.slice(desde + largo + 1, desde + largo + 101);
         if (!MARCA_DE_CITA.test(antes) && !MARCA_DE_CITA.test(despues)) continue;
         const partes = [adentro.slice(0, corte.index), adentro.slice(corte.index + corte[0].length)]
             .map((p) => p.split(/\s+[sS]\s*\/|\s+[sS]\.\s/)[0])
@@ -1918,7 +1932,7 @@ export function caratulasCitadas(texto) {
         // la transcripcion de una pericia, tiene comillas, "c." y una fecha cerca.
         if (partes.length < 2 || !partes.every((p) => new RegExp(`^[${MAY}]`).test(p))) continue;
         const propia = partes.some((p) => p.split(/[\s,]+/).some((w) => propias.has(limpiarPalabra(w))));
-        salida.push({ texto: adentro, desde, hasta: desde + adentro.length, partes, propia });
+        salida.push({ texto: adentro, desde, hasta: desde + largo, partes, propia });
     }
     return salida;
 }

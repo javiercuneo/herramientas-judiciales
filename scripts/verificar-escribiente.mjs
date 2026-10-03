@@ -1861,9 +1861,23 @@ console.log('\nCERTIFICAR\n');
     ok(citas[0].partes.join('|') === 'Ficticia, Ana|Aseguradora Inventada S.A.' && !citas[0].propia,
         'la cita ajena, con sus dos partes', JSON.stringify(citas[0]));
     ok(citas[1].propia, 'la que comparte apellido con la causa se marca como propia', JSON.stringify(citas[1]));
-    const cand = Object.fromEntries(candidatosANombre(escrito).map((x) => [x.texto, x.enCitas]));
+    const cand = Object.fromEntries(candidatosANombre(escrito, { conCitas: true }).map((x) => [x.texto, x.enCitas]));
     ok(cand['Ficticia, Ana'] === 1 && cand['Inventado, Juan'] === 0,
         'el candidato dice cuantas veces aparece en una cita ajena, y la propia no cuenta', JSON.stringify(cand));
+
+    // Decidido por Javier el 3/10: las partes de un fallo citado no se ofrecen.
+    const ofrecidos = candidatosANombre(escrito).map((x) => x.texto);
+    ok(!ofrecidos.includes('Ficticia, Ana') && !ofrecidos.includes('Aseguradora Inventada S.A.'),
+        'REGRESION: las partes de un fallo citado ajeno no se ofrecen', JSON.stringify(ofrecidos));
+    ok(ofrecidos.includes('Inventado, Juan') && ofrecidos.includes('Banco Supuesto'),
+        'las de una cita que comparte apellido con la causa si', JSON.stringify(ofrecidos));
+    const tambienAfuera = escrito + ' La Sra. Ficticia, Ana declaro despues como testigo.';
+    ok(candidatosANombre(tambienAfuera).some((x) => x.texto === 'Ficticia, Ana'),
+        'y un nombre citado que aparece tambien fuera de la cita se sigue ofreciendo');
+    const cortada = caratulasCitadas('conforme esta Sala, “Ficticia, Ana c/ Supuesto\nS.A. s/ daños” del 12/3/2020');
+    ok(cortada.length === 1 && cortada[0].partes[1] === 'Supuesto S.A.',
+        'REGRESION: la caratula citada cortada en dos renglones se encuentra', JSON.stringify(cortada));
+    ok(!caratulasCitadas('“Ficticia, Ana c/\n\nSupuesto S.A.” del 12/3/2020').length, 'pero no cruza un parrafo');
     ok(!caratulasCitadas('El perito dijo “esto es asi” en su informe del 3/4/2021.').length, 'comillas sin "c/" no son cita');
     ok(!caratulasCitadas('“Ficticia c/ Supuesto” fue lo que escribio.').length, 'sin tribunal, fecha ni "autos" cerca tampoco');
 }

@@ -12,8 +12,10 @@ casilla, la cantidad de apariciones y una etiqueta. Corrido el 3/10 contra los
 casos que entraron por la bandeja de `redactor`, con el motor del día:
 
 - En un caso con mucha jurisprudencia citada se tildaron **95 nombres**, y las
-  reglas no tocan **83**. Casi todos son **partes de carátulas de fallos
-  citados** («esta Sala, “X c/ Y s/ daños”»).
+  reglas no tocan **83**. **36 son partes de carátulas de fallos citados**
+  («esta Sala, “X c/ Y s/ daños”»), la categoría más grande; el resto, personas
+  de la causa sin ancla y cosas que no eran personas. (El 3/10 se escribió
+  primero «casi todos»: medido bien, es un tercio largo.)
 - Otros quedaron **a medias**: el nombre completo tapado y el apellido suelto a
   la vista, o al revés. En una lista no se ve: el nombre aparece como «hecho».
 
@@ -137,6 +139,9 @@ Cada fase deja todo andando y se puede parar en cualquiera.
    `enCitas` de cada candidato. Falta exponerlo en el conector, que es parte
    de la fase 3.
 2. **La decisión de las carátulas citadas [Javier]**, aplicada en el motor.
+   **Decidido y hecho el 3/10: no se ofrecen**, salvo que la cita comparta
+   apellido con la causa o el nombre aparezca también fuera de una cita. En el
+   caso medido, los candidatos bajaron de 110 a 73.
 3. **Selector en la pantalla de `redactor`**, que es donde está la fricción
    medida y donde se trabaja con causas.
 4. **Selector en Escribiente.**
@@ -144,8 +149,9 @@ Cada fase deja todo andando y se puede parar en cualquiera.
 6. **Reglas propuestas** desde el buzón.
 7. **Tildado de fábrica**, si la medición de la fase 5 lo justifica.
 
-**[Javier, arquitectura]:** el selector es el mismo componente en las dos
-pantallas. Copiarlo contradice la regla 3 de los hermanos (dos copias se
+**[Javier, arquitectura] — decidido el 3/10: vive acá**, junto al motor, y
+`redactor` lo sirve desde esta ruta, como ya hace con el conector. El selector
+es el mismo componente en las dos pantallas. Copiarlo contradice la regla 3 de los hermanos (dos copias se
 desincronizan); servirlo desde este repositorio hace que `redactor` dependa
 de una ruta de acá, como ya pasa con el conector. Hay que elegir antes de la
 fase 3.

@@ -34,7 +34,10 @@ muestran para que decidas uno por uno**, con la cantidad de apariciones y una
 etiqueta a elegir (`[ACTOR]`, `[DEMANDADO]`, `[PERITO]`...). **Vienen sin
 tildar**, salvo las dos partes de la carátula: una casilla tildada de fábrica no
 es una pregunta, y lo que se ofrece son candidatos, no certezas. Los que dejes
-sin tildar quedan en el texto y la constancia los nombra.
+sin tildar quedan en el texto y la constancia los nombra. **Las partes de un
+fallo citado no se ofrecen** —«esta Sala, “X c/ Y s/ daños” del 12/3/2020»—:
+son jurisprudencia publicada. Sí se ofrecen si la cita comparte un apellido con
+la carátula de la causa, o si el nombre aparece también fuera de una cita.
 
 Ese segundo nivel no es una comodidad, es el diseño. Ninguna regla puede
 distinguir sola `Pérez, Juan Carlos` —la parte, hay que ocultarla— de
