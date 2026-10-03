@@ -19,6 +19,34 @@ de 2026.
 
 ---
 
+## El selector, fase 4: Escribiente elige sobre el texto — 3/10
+
+El selector quedó arriba de la lista, y la lista debajo como «la misma
+elección, en lista»: la página mide 820 px y un panel al costado no entraba.
+Las dos vistas se avisan entre sí —lo tapado en el texto entra a la lista
+tildado y marcado «a mano», lo tildado en la lista aparece tapado—; lo que la
+lista no puede decir —no es persona, destapar acá, descartado— vive en el
+estado de la pantalla, se vacía con cada archivo y no se guarda. El selector
+recibe las etiquetas sin número: la numeración por tanda la sigue poniendo la
+pantalla al armar el resultado.
+
+**La constancia del `.md` dice lo que se destapó a mano.** Antes no hacía
+falta, porque no había forma de anular una regla. Ahora la hay, y sin la línea
+el archivo se leería como si las reglas hubieran corrido enteras.
+
+**Decidido por Javier:** Escribiente no aprende entre documentos —sigue sin
+guardar nada, que es su promesa—, y lo aprendido en `redactor` sólo deja de
+ofrecer: nunca destapa lo que una regla tapó.
+
+**Tres cosas que salieron al probarlo:** el menú cerrado del selector se
+dibujaba como un recuadro vacío —el `display: flex` le ganaba al `hidden`, y
+pasaba también en `redactor`—; el selector leía el tema por `data-theme` y el
+sitio usa `data-tema`, así que en oscuro con el sistema en claro pintaba los
+resaltados claros; y **un bug anterior del motor**: con «VISTOS: "X c/ Y s/"» la
+parte salía con la comilla de apertura pegada, y al taparla la comilla se iba
+del texto. El recorte juzgaba cada palabra limpia y la guardaba cruda. El banco
+de comparación no movió ninguno de sus 40 casos con el arreglo.
+
 ## El selector, fases 2 y 3: los fallos citados y la pantalla — 3/10
 
 **Fase 2, decidida por Javier:** las partes de un fallo citado no se ofrecen

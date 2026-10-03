@@ -26,7 +26,7 @@
 //      instante, y la correccion entra en la visita siguiente.
 // ---------------------------------------------------------------------------
 
-const CACHE = 'escribiente-v4';
+const CACHE = 'escribiente-v5';
 
 const ARCHIVOS = [
     './',
@@ -34,7 +34,9 @@ const ARCHIVOS = [
     'manifest.json',
     'icono-192.png',
     'css/escribiente.css',
+    'css/selector.css',
     'js/app.js',
+    'js/selector.js',
     'js/motor/extraer.js',
     'js/motor/markdown.js',
     'js/motor/anonimizar.js',

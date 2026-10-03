@@ -65,6 +65,7 @@
 -->
 <link rel="stylesheet" href="../calculadoras/css/comun.css">
 <link rel="stylesheet" href="css/escribiente.css">
+<link rel="stylesheet" href="css/selector.css">
 <script src="../assets/tema.js"></script>
 </head>
 <body>
@@ -180,17 +181,34 @@
 
     <!-- Revisión de nombres propios -->
     <section id="revision" class="bloque oculto" aria-labelledby="revision-titulo">
-      <h2 id="revision-titulo">Nombres propios encontrados</h2>
+      <h2 id="revision-titulo">Qué se oculta</h2>
       <p class="ayuda">
-        <strong>Tildá los que haya que ocultar.</strong> Vienen sin tildar
-        porque la herramienta no sabe cuál es una parte y cuál un autor de
-        doctrina, un tribunal o una editorial: eso lo sabés vos. Las dos partes
-        de la carátula sí vienen tildadas. Lo que quede tildado se reemplaza por
-        la etiqueta que elijas, y la vista previa se actualiza sola.
+        <strong>Se decide sobre el texto.</strong> Lo que ya se va a ocultar
+        aparece resaltado, con la etiqueta al costado; lo subrayado con puntos
+        es un nombre que la herramienta encontró y no sabe si ocultar —puede ser
+        una parte, o un autor de doctrina, un tribunal o una editorial—: eso lo
+        sabés vos. Las citas de fallos van sombreadas y quedan a la vista.
       </p>
+      <ul class="ayuda ayuda-lista">
+        <li><strong>Clic en un subrayado</strong>: ocultarlo en todo el texto, o
+          decir que no es persona.</li>
+        <li><strong>Clic en algo resaltado</strong>: destaparlo ahí, o decir que
+          no es persona.</li>
+        <li><strong>Seleccionar con el mouse</strong> lo que ninguna regla vio
+          —un cargo, una razón social—: se oculta en todas las veces que
+          aparece, y te dice cuántas son.</li>
+        <li><strong>Teclado</strong>, con el texto enfocado: <kbd>n</kbd> y
+          <kbd>p</kbd> van al subrayado siguiente y al anterior, <kbd>t</kbd> lo
+          oculta, <kbd>d</kbd> lo descarta.</li>
+      </ul>
+      <div id="selector" class="selector-caja"></div>
+
+      <h3 class="subtitulo-lista">La misma elección, en lista</h3>
       <p class="ayuda">
-        Los que dejes sin tildar <em>quedan en el texto</em>, y la constancia
-        del final los nombra.
+        Lo que tildes acá se oculta en el texto de arriba, y al revés. Sirve
+        para ver el total y decidir en bloque. Las dos partes de la carátula
+        vienen tildadas; lo demás no. Lo que quede sin tildar <em>queda en el
+        texto</em>, y la constancia del final lo nombra.
       </p>
       <p class="ayuda">
         Los marcados <strong>QUEDÓ PEGADO</strong> aparecieron recién después de

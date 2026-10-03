@@ -1,6 +1,6 @@
 # Plan: elegir sobre el texto, y que lo elegido enseñe
 
-**Abierto. Propuesto el 3/10/2026; las fases 1, 2 y 3 están hechas el mismo día.** Cubre las dos pantallas que
+**Abierto. Propuesto el 3/10/2026; las fases 1 a 4 están hechas el mismo día.** Cubre las dos pantallas que
 usan el motor de anonimización: la de Escribiente (acá, pública, corre en el
 navegador) y la del ingreso de `redactor` (local). Lo que es de criterio o de
 arquitectura está marcado **[Javier]** y no se empieza sin su respuesta.
@@ -127,7 +127,14 @@ que el sistema propuso hubo que corregir. Hoy la línea de base es la de arriba:
 **Lo aprendido no entra al motor público.** El motor sigue genérico; las listas
 aprendidas se le pasan al llamarlo (excepciones, candidatos a no ofrecer). En
 la versión web de Escribiente, que no tiene servidor, aprender sería por
-navegador y nada más **[Javier: si se hace]**.
+navegador y nada más. **Decidido por Javier el 3/10: no se hace.** Escribiente
+sigue sin guardar nada, que es lo que promete en pantalla; se aprende en
+`redactor`.
+
+**Y lo aprendido sólo deja de ofrecer, decidido el mismo día.** Lo marcado «no
+es persona» en otro caso no vuelve como candidato; si una regla lo tapa, lo
+sigue tapando. Aprender nunca destapa nada solo: un error en un caso dejaría un
+nombre a la vista en el siguiente.
 
 ## El orden
 
@@ -148,7 +155,12 @@ Cada fase deja todo andando y se puede parar en cualquiera.
    en el paso 1 del ingreso sobre el texto que recibe la segunda pasada, y el
    conector acepta `excepciones` y `noTapar`. Probado de punta a punta con un
    caso inventado: lo que muestra el selector es lo que tapa el servidor.
-4. **Selector en Escribiente.**
+4. **Selector en Escribiente.** **Hecha el 3/10:** arriba de la lista, que
+   queda debajo como «la misma elección, en lista» —el ancho de la página no da
+   para un panel al costado—. Las dos vistas se avisan entre sí; «no es
+   persona», «destapar acá» y los descartados son del documento y se pierden con
+   el siguiente. **La constancia del `.md` dice lo que se destapó a mano**:
+   cuenta los lugares y nombra lo marcado «no es persona».
 5. **Anotar decisiones y lo que nunca es persona.** Medir.
 6. **Reglas propuestas** desde el buzón.
 7. **Tildado de fábrica**, si la medición de la fase 5 lo justifica.

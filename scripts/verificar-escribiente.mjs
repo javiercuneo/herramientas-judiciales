@@ -1922,6 +1922,50 @@ console.log('\nCERTIFICAR\n');
     ok(malos === 0, `la traza cierra en los ${todos.length} textos del banco`, `no cierra en ${malos}`);
 }
 
+// --- La caratula sin la comilla de apertura ---------------------------------
+{
+    // 3/10/2026. Con "VISTOS: \"X c/ Y s/\"" el recorte juzgaba cada palabra sin
+    // comillas pero la guardaba cruda: la parte salia como '"INVENTADO, JUAN', y
+    // al taparla la comilla se iba del texto con el nombre.
+    for (const t of [
+        ['VISTOS: los autos caratulados "INVENTADO, JUAN', 'FICTICIA S.A. s/ DANOS".'].join(' c/ '),
+        ['AUTOS: «INVENTADO, JUAN', 'FICTICIA S.A. s/ DANOS».'].join(' c/ '),
+    ]) {
+        const [actor] = partesDeCaratula(t);
+        ok(actor === 'INVENTADO, JUAN', `la parte sale sin comilla: ${t.slice(0, 20)}`, actor);
+    }
+    contiene(anonimizar(['VISTOS: "INVENTADO, JUAN', 'FICTICIA S.A. s/ DANOS".'].join(' c/ '),
+        [{ texto: 'INVENTADO, JUAN', reemplazo: '[ACTOR]' }]).texto, '"[ACTOR] c/',
+        'y tapada, la comilla queda en el texto');
+}
+
+// --- El selector en Escribiente: lo destapado a mano se declara ------------
+{
+    // 3/10/2026, fase 4 de PLAN_SELECTOR.md. Desde el selector se puede anular
+    // una regla —destapar aca, "no es persona"—, y el .md tiene que decirlo:
+    // sin la linea, el archivo se lee como si las reglas hubieran corrido
+    // enteras. Los lugares se cuentan y no se transcriben; lo que "no es
+    // persona" se nombra.
+    const md = armarDocumento({
+        nombreArchivo: 'resolucion.pdf',
+        cuerpo: 'Cita a Ficticio Autor, Tratado de las obligaciones, y una cifra destapada.',
+        anonimizado: true,
+        conteo: {},
+        destapados: { lugares: 2, noEsPersona: ['Ficticio Autor'] },
+    });
+    contiene(md, 'Se destaparon a mano 2 lugares', 'la constancia cuenta los lugares destapados a mano');
+    contiene(md, '`Ficticio Autor`', 'y nombra lo que se marco como «no es persona»');
+    contiene(armarDocumento({ nombreArchivo: 'a.pdf', cuerpo: 'x', anonimizado: true, conteo: {},
+        destapados: { lugares: 1, noEsPersona: [] } }), 'Se destapó a mano 1 lugar', 'en singular');
+    const nada = armarDocumento({ nombreArchivo: 'a.pdf', cuerpo: 'x', anonimizado: true, conteo: {},
+        destapados: { lugares: 0, noEsPersona: [] } });
+    noContiene(nada, 'destap', 'sin nada destapado no hay linea');
+    noContiene(nada, 'no es persona', 'ni la de «no es persona»');
+    noContiene(armarDocumento({ nombreArchivo: 'a.pdf', cuerpo: 'x', anonimizado: false,
+        destapados: { lugares: 3, noEsPersona: ['Ficticio Autor'] } }), 'destap',
+        'sin anonimizar no hay constancia de anonimizacion');
+}
+
 // ---------------------------------------------------------------------------
 
 console.log('');

@@ -1963,12 +1963,12 @@ export function caratulasCitadas(texto) {
  */
 function recortarAlNombre(fragmento) {
     const tokens = fragmento.trim()
-        .replace(/^[\s,.;:"“”']+|[\s,.;:"“”']+$/g, '')
+        .replace(/^[\s,.;:"“”'«»]+|[\s,.;:"“”'«»]+$/g, '')
         .replace(Y_OTROS, '')
         .split(/\s+/);
     const nombre = [];
     for (let i = tokens.length - 1; i >= 0; i--) {
-        const limpio = tokens[i].replace(/^[,.;:"“”']+|[,.;:"“”']+$/g, '');
+        const limpio = tokens[i].replace(/^[,.;:"“”'«»]+|[,.;:"“”'«»]+$/g, '');
         if (!limpio) continue;
         // La particula pasa: "JUAN DEL MONTE" se cortaba en el "DEL" y la parte
         // salia como "MONTE". Si queda en el borde izquierdo, se saca abajo.
@@ -1979,5 +1979,9 @@ function recortarAlNombre(fragmento) {
         if (nombre.length >= 6) break;
     }
     while (nombre.length && esParticula(nombre[0])) nombre.shift();
-    return nombre.join(' ').replace(/\s+/g, ' ').replace(/^[\s,.;:]+|[\s,.;:]+$/g, '');
+    // Las comillas tambien se sacan de los bordes: cada palabra se juzga
+    // limpia pero se guarda cruda, y con "VISTOS: «X c/ Y»" la parte salia
+    // con la comilla de apertura pegada. Tapada, la comilla desaparecia del
+    // texto con el nombre (visto el 3/10/2026 probando el selector).
+    return nombre.join(' ').replace(/\s+/g, ' ').replace(/^[\s,.;:"“”'«»]+|[\s,.;:"“”'«»]+$/g, '');
 }

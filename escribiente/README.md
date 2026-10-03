@@ -39,6 +39,13 @@ fallo citado no se ofrecen** —«esta Sala, “X c/ Y s/ daños” del 12/3/202
 son jurisprudencia publicada. Sí se ofrecen si la cita comparte un apellido con
 la carátula de la causa, o si el nombre aparece también fuera de una cita.
 
+**Se elige sobre el texto** desde el 3/10: el documento se muestra con lo
+tapado resaltado y la etiqueta al costado, y los candidatos subrayados. Un clic
+destapa o decide, y seleccionar con el mouse tapa lo que ninguna regla vio, en
+todas las veces que aparece. La lista sigue debajo, sincronizada. Si se destapa
+algo que una regla tapaba, **la constancia lo dice**. Lo decidido es del
+documento: no se guarda ni pasa al siguiente.
+
 Ese segundo nivel no es una comodidad, es el diseño. Ninguna regla puede
 distinguir sola `Pérez, Juan Carlos` —la parte, hay que ocultarla— de
 `Llambías, Jorge Joaquín` —doctrina, hay que conservarla— ni de

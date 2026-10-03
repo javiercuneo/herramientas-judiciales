@@ -203,6 +203,25 @@ button.chico:hover { color: var(--accent); border-color: var(--accent); filter: 
 .acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 .acciones-lista { display: flex; gap: 8px; margin: 10px 0 14px; }
 
+/* El selector sobre el texto (js/selector.js, con su propia hoja en
+   css/selector.css). Aca solo va como se acomoda en esta pantalla. */
+.ayuda-lista { padding-left: 1.2em; }
+.ayuda-lista li { margin: 2px 0; }
+.ayuda kbd {
+  font-family: var(--font-mono, ui-monospace, Consolas, monospace);
+  font-size: .8rem;
+  padding: 0 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--sunk);
+  color: var(--fg);
+}
+.selector-caja { margin-top: 12px; }
+.subtitulo-lista {
+  margin: 22px 0 0;
+  font-size: .95rem;
+}
+
 /* ---------- Estado y avisos ---------- */
 
 .progreso {

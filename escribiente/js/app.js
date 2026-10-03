@@ -21,6 +21,7 @@ import {
 } from './motor/anonimizar.js';
 import { armarDocumento, nombreDeDescarga, losQueSiguenEnElTexto } from './motor/documento.js';
 import { analizarRango, describirProblemas, explicarError, unir, separar, rotar, contarPaginas } from './motor/pdf.js';
+import { crearSelector } from './selector.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -106,6 +107,13 @@ const estado = {
     // Recargar la pagina la borra, que es la unica forma de empezar de nuevo
     // y tambien la garantia de que no queda guardada.
     numerador: crearNumerador(),
+    // Lo que se decide en el selector y la lista no puede decir: "no es
+    // persona" (le gana a una regla), "destapar aca" (un rango del crudo) y
+    // "descartado" (no se vuelve a ofrecer en el texto). Es de ESTE documento:
+    // se vacia con cada archivo, y no se guarda en ningun lado —decidido el
+    // 3/10/2026: Escribiente no aprende entre documentos—.
+    decisiones: { excepciones: [], noTapar: [], descartados: [] },
+    selector: null,
 };
 
 function leerOpciones() {
@@ -180,6 +188,7 @@ $('convertir').addEventListener('click', async () => {
         estado.crudo = normalizarEspacios(markdown);
         estado.informe = informe;
         estado.paginasVacias = diagnostico.vacias;
+        estado.decisiones = { excepciones: [], noTapar: [], descartados: [] };
 
         if (diagnostico.vacias.length > 0) {
             const cuantas = diagnostico.vacias.length;
@@ -194,6 +203,7 @@ $('convertir').addEventListener('click', async () => {
         }
 
         prepararCandidatos();
+        montarSelector();
         recomputar();
 
         $('progreso').classList.add('oculto');
@@ -331,7 +341,7 @@ function dibujarCandidatos() {
         casilla.type = 'checkbox';
         casilla.checked = c.marcado;
         casilla.id = `cand-${indice}`;
-        casilla.addEventListener('change', () => { c.marcado = casilla.checked; recomputar(); });
+        casilla.addEventListener('change', () => { c.marcado = casilla.checked; refrescarSelector(); recomputar(); });
 
         const etiqueta = document.createElement('label');
         etiqueta.className = 'nombre';
@@ -349,7 +359,7 @@ function dibujarCandidatos() {
             if (opcion === c.etiqueta) o.selected = true;
             selector.appendChild(o);
         }
-        selector.addEventListener('change', () => { c.etiqueta = selector.value; recomputar(); });
+        selector.addEventListener('change', () => { c.etiqueta = selector.value; refrescarSelector(); recomputar(); });
 
         // El numero que le toco, cuando la numeracion esta prendida. Se muestra
         // porque es lo que hace util a la tanda: al pasar el segundo archivo se
@@ -397,6 +407,88 @@ function refrescarNumeracion() {
     });
 }
 
+// ---------------------------------------------------------------------------
+// El selector sobre el texto (fase 4 de docs/PLAN_SELECTOR.md)
+//
+// Es el mismo componente que usa el ingreso de `redactor` —js/selector.js—, y
+// no tiene logica propia: corre el motor con lo decidido y pinta lo que vuelve.
+//
+// LA LISTA Y EL SELECTOR SON DOS VISTAS DE LO MISMO. Los nombres a tapar siguen
+// siendo las casillas de `estado.candidatos`: lo que se tapa en el texto entra
+// a la lista tildado, y lo que se tilda en la lista aparece tapado en el
+// texto. Lo demas —no es persona, destapar aca, descartado— la lista no lo
+// puede decir y vive en `estado.decisiones`.
+//
+// El selector recibe la etiqueta SIN numero: la numeracion de E-03 la pone
+// `recomputarYa` al armar el resultado, y mostrar un nombre en el texto no
+// puede gastarle un numero a nadie, igual que en la lista.
+// ---------------------------------------------------------------------------
+
+function elegidosSinNumero() {
+    return estado.candidatos
+        .filter((c) => c.marcado)
+        .map((c) => ({ texto: c.texto, reemplazo: c.etiqueta }));
+}
+
+/** Lo que el motor recibe ademas de los elegidos. Un rango cuyo texto ya no es
+ *  el que se destapo no se aplica: destaparia otra cosa. */
+function opcionesDeDecisiones() {
+    const d = estado.decisiones;
+    return {
+        excepciones: d.excepciones,
+        noTapar: d.noTapar
+            .filter((r) => r.texto === undefined || estado.crudo.slice(r.desde, r.hasta) === r.texto)
+            .map(({ desde, hasta }) => ({ desde, hasta })),
+    };
+}
+
+function montarSelector() {
+    if (estado.selector) {
+        estado.selector.destruir();
+        estado.selector = null;
+    }
+    if (!estado.crudo || !$('opt-anonimizar').checked) return;
+    estado.selector = crearSelector($('selector'), {
+        texto: estado.crudo,
+        decisiones: { elegidos: elegidosSinNumero(), ...estado.decisiones },
+        alCambiar: alCambiarSelector,
+    });
+}
+
+/** La lista cambio: el selector se repinta con los nombres nuevos. */
+function refrescarSelector() {
+    if (estado.selector) estado.selector.actualizar({ elegidos: elegidosSinNumero() });
+}
+
+/** El selector cambio: los nombres van a la lista, lo demas a `estado.decisiones`. */
+function alCambiarSelector(d) {
+    const igual = (a, b) => a.toLowerCase() === b.toLowerCase();
+    for (const e of d.elegidos) {
+        const c = estado.candidatos.find((x) => igual(x.texto, e.texto));
+        if (c) {
+            c.marcado = true;
+            c.etiqueta = e.reemplazo;
+        } else {
+            // Entra como "a mano": lo eligio el usuario sobre el texto, igual
+            // que si lo hubiera escrito en el campo de abajo.
+            estado.candidatos.push({
+                texto: e.texto,
+                apariciones: contarApariciones(estado.crudo, e.texto),
+                marcado: true,
+                etiqueta: e.reemplazo,
+                esParte: false,
+                aMano: true,
+            });
+        }
+    }
+    for (const c of estado.candidatos) {
+        if (c.marcado && !d.elegidos.some((e) => igual(e.texto, c.texto))) c.marcado = false;
+    }
+    estado.decisiones = { excepciones: d.excepciones, noTapar: d.noTapar, descartados: d.descartados };
+    dibujarCandidatos();
+    recomputar();
+}
+
 let pendienteDeRecalculo = null;
 
 /** Rehace la anonimizacion con la seleccion actual y repinta.
@@ -421,7 +513,7 @@ function recomputarYa() {
         const elegidos = estado.candidatos
             .filter((c) => c.marcado)
             .map((c) => ({ texto: c.texto, reemplazo: etiquetaDe(c, true) }));
-        const resultado = anonimizar(estado.crudo, elegidos);
+        const resultado = anonimizar(estado.crudo, elegidos, opcionesDeDecisiones());
         cuerpo = resultado.texto;
         conteo = resultado.conteo;
         pendientes = estado.candidatos.filter((c) => !c.marcado).map((c) => c.texto);
@@ -450,6 +542,10 @@ function recomputarYa() {
         conteo,
         pendientes,
         paginasVacias: estado.paginasVacias,
+        destapados: anonimizado ? {
+            lugares: opcionesDeDecisiones().noTapar.length,
+            noEsPersona: estado.decisiones.excepciones,
+        } : null,
     });
 
     $('salida').value = estado.final;
@@ -546,6 +642,7 @@ for (const id of ['opt-anonimizar', 'opt-numerar']) {
     $(id).addEventListener('change', () => {
         if (!estado.crudo) return;
         dibujarCandidatos();
+        montarSelector();
         recomputar();
     });
 }
@@ -604,6 +701,7 @@ function agregarAMano() {
     $('agregar-texto').value = '';
     avisarAgregado('');
     dibujarCandidatos();
+    refrescarSelector();
     recomputar();
 }
 
@@ -618,6 +716,7 @@ $('desmarcar-todos').addEventListener('click', () => cambiarTodos(false));
 function cambiarTodos(valor) {
     estado.candidatos.forEach((c) => { c.marcado = valor; });
     dibujarCandidatos();
+    refrescarSelector();
     recomputar();
 }
 

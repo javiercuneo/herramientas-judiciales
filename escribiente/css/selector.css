@@ -5,6 +5,10 @@
    en el token de la pantalla que lo monta y, si no hay ninguno, en un
    valor fijo. No se redefine ningun token de afuera: la trampa del
    ciclo `--x: var(--x)` esta anotada en docs/ESTADO.md.
+   El tema elegido se lee de los dos atributos: `data-tema` (claro /
+   oscuro) es el del sitio, y `data-theme` el de la otra pantalla. Sin
+   el primero, Escribiente en oscuro con el sistema en claro pintaba
+   los resaltados claros sobre fondo oscuro.
    ------------------------------------------------------------------ */
 
 .selector {
@@ -31,13 +35,15 @@
     --sel-candidato: #f0b44c;
   }
 }
-:root[data-theme="light"] .selector {
+:root[data-theme="light"] .selector,
+:root[data-tema="claro"] .selector {
   --sel-tapado: rgb(30 69 206 / 0.14);
   --sel-tapado-regla: rgb(110 110 120 / 0.18);
   --sel-cita: rgb(120 120 120 / 0.10);
   --sel-candidato: #b26b00;
 }
-:root[data-theme="dark"] .selector {
+:root[data-theme="dark"] .selector,
+:root[data-tema="oscuro"] .selector {
   --sel-tapado: rgb(122 153 255 / 0.24);
   --sel-tapado-regla: rgb(200 200 210 / 0.16);
   --sel-cita: rgb(200 200 200 / 0.09);
@@ -133,6 +139,9 @@
   box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
   font-size: 0.9rem;
 }
+/* Sin esto el menu cerrado se dibuja como un recuadro vacio: el `display:
+   flex` de arriba le gana al `hidden` del navegador. */
+.sel-menu[hidden] { display: none; }
 .sel-menu-titulo { font-weight: 600; overflow-wrap: anywhere; }
 .sel-menu-nota { color: var(--sel-tenue); font-size: 0.85em; }
 .sel-menu-fila { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }

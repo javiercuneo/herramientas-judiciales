@@ -85,14 +85,13 @@ con su caso de prueba. **El borde que quedó de cada regla está en
   de Javier.** El que cierre uno cambia `pendiente` por el valor nuevo y agrega la
   regresión en el banco del motor o del hook.
 
-- **EL SELECTOR SOBRE EL TEXTO, propuesto el 3/10; fases 1 a 3 hechas** —motor,
-  fallos citados que no se ofrecen, y el selector en la pantalla de `redactor`—.
-  Sigue la fase 4, el selector en Escribiente. Elegir qué
-  tapar marcando el texto en vez de tildar una lista, y que lo decidido enseñe
-  entre casos. Plan, decisiones pendientes de Javier y orden en
-  [`PLAN_SELECTOR.md`](PLAN_SELECTOR.md). La primera decisión es de criterio:
-  si se tapan las partes de los fallos citados, que son la mayor parte de la
-  fricción medida.
+- **EL SELECTOR SOBRE EL TEXTO, propuesto el 3/10; fases 1 a 4 hechas** —motor,
+  fallos citados que no se ofrecen, y el selector en `redactor` y en
+  Escribiente—. Sigue la fase 5, que vive en `redactor`: anotar decisiones y lo
+  que nunca es persona. **Escribiente no aprende entre documentos** (Javier,
+  3/10), y **lo aprendido sólo deja de ofrecer, nunca destapa**. Plan y orden en
+  [`PLAN_SELECTOR.md`](PLAN_SELECTOR.md). **`js/selector.js` lo cargan dos
+  pantallas**: un cambio ahí se prueba en las dos.
 
 - **UN SOLO MOTOR DE ANONIMIZACIÓN. El paso 4 arrancó el 17/9, y es de `redactor`.**
   Las mismas reglas están escritas dos veces —en `escribiente/js/motor/anonimizar.js`
@@ -332,7 +331,7 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-acordada` | Que la tabla de la Acordada 5/2010 diga lo que dice el anexo: 90 |
 | `npm run verificar-distancia` | El cómputo del art. 158 y la búsqueda en esa tabla: 64 |
 | `npm run verificar-red` | Qué terceros nombran las quince páginas que se publican, contra una lista con el motivo al lado de cada uno |
-| `npm run verificar-escribiente` | El motor de Escribiente, con la pestaña «Certificar»: 450 |
+| `npm run verificar-escribiente` | El motor de Escribiente, con la pestaña «Certificar»: 528 |
 | `npm run verificar-honorio` | Las cinco cifras que este repositorio sigue del motor |
 | `npm run verificar-docs` | Que los documentos de dominio no citen artículos ni archivos que no existen |
 | `npm run verificar-estado` | El presupuesto y la higiene de este archivo |
@@ -597,7 +596,7 @@ se puede levantar un servidor local. **Sacar el aviso es decisión de Javier.**
 **Lo que hay que saber para tocarla:**
 
 - **El motor está en `escribiente/js/motor/`, es código puro y no toca el DOM.**
-  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 450
+  Por eso corre en Node y tiene pruebas: `npm run verificar-escribiente`, 528
   comprobaciones, en CI. Los seis bugs de la versión anterior y las fugas del
   21/8, el 15/9 y el 17/9 están ahí como regresión. `js/app.js` es sólo la
   pantalla, y desde el 17/9 `conectores/anonimizar.mjs` expone el motor afuera.

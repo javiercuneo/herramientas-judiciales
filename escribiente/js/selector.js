@@ -43,6 +43,10 @@ function normal(t) {
     return String(t).replace(/\s+/g, ' ').trim();
 }
 
+function veces(n) {
+    return n === 1 ? '1 vez' : `${n} veces`;
+}
+
 function igualSinCaja(a, b) {
     return normal(a).toLocaleLowerCase('es') === normal(b).toLocaleLowerCase('es');
 }
@@ -332,7 +336,7 @@ export function crearSelector(contenedor, { texto, decisiones = {}, alCambiar = 
     function menuCandidato(c, x, y) {
         const n = ubicarEnElTexto(texto, c.texto).length;
         abrirMenu(x, y, (m) => {
-            m.append(nodo('div', 'sel-menu-titulo', `«${normal(c.texto)}» · ${n} vez/veces`));
+            m.append(nodo('div', 'sel-menu-titulo', `«${normal(c.texto)}» · ${veces(n)}`));
             const etiqueta = elegirEtiqueta();
             const fila = nodo('div', 'sel-menu-fila');
             fila.append(boton(`Tapar en todo (${n})`, () => tapar(c.texto, etiqueta.value), 'sel-primario'), etiqueta);
@@ -362,7 +366,7 @@ export function crearSelector(contenedor, { texto, decisiones = {}, alCambiar = 
         abrirMenu(x, y, (m) => {
             const frase = unido || elegido;
             const n = ubicarEnElTexto(texto, frase).length;
-            m.append(nodo('div', 'sel-menu-titulo', `«${normal(frase)}» · ${n} vez/veces`));
+            m.append(nodo('div', 'sel-menu-titulo', `«${normal(frase)}» · ${veces(n)}`));
             if (unido) m.append(nodo('div', 'sel-menu-nota', 'Se une con lo que ya estaba tapado al lado.'));
             if (!tocaTapado || unido) {
                 const etiqueta = elegirEtiqueta();

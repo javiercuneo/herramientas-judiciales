@@ -75,6 +75,7 @@ export function armarDocumento({
     conteo = null,
     pendientes = [],
     paginasVacias = [],
+    destapados = null,
 }) {
     const partes = [`# ${titulo(nombreArchivo, anonimizado)}`, '', cuerpo.trim(), ''];
 
@@ -133,6 +134,31 @@ export function armarDocumento({
                 `solas, sin que nadie dijera de quién eran, así que dos de ellas pueden ser ` +
                 `dos personas distintas. No se comparan entre archivos.`
             );
+        }
+
+        // LO QUE SE DESTAPO A MANO TAMBIEN SE DICE. Desde el selector sobre el
+        // texto (3/10/2026) se puede anular una regla: "destapar aca" un
+        // pedazo que una regla tapaba, o decir que algo "no es persona". Sin
+        // esta linea el archivo se leeria como si las reglas hubieran corrido
+        // enteras, y quien lo recibe no tendria como saber que alguien decidio
+        // dejar algo a la vista. Los lugares van contados y no transcriptos:
+        // lo destapado esta en el cuerpo, y repetirlo aca no agrega nada. Lo que
+        // "no es persona" si se nombra, porque es una decision sobre un texto y
+        // vale para todo el documento.
+        if (destapados) {
+            const { lugares = 0, noEsPersona = [] } = destapados;
+            if (lugares > 0) {
+                constancia.push(
+                    `- **Se destap${lugares === 1 ? 'ó a mano 1 lugar' : `aron a mano ${lugares} lugares`}** ` +
+                    'que las reglas tapaban.'
+                );
+            }
+            if (noEsPersona.length > 0) {
+                constancia.push(
+                    '- **Se marcó como «no es persona»**, y ninguna regla de nombres lo tapó: ' +
+                    noEsPersona.map((p) => `\`${p}\``).join(', ') + '.'
+                );
+            }
         }
 
         if (pendientes.length > 0) {
