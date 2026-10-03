@@ -1,6 +1,6 @@
 # Plan: elegir sobre el texto, y que lo elegido enseñe
 
-**Abierto. Propuesto el 3/10/2026, sin decidir.** Cubre las dos pantallas que
+**Abierto. Propuesto el 3/10/2026; la fase 1 está hecha, el resto sin decidir.** Cubre las dos pantallas que
 usan el motor de anonimización: la de Escribiente (acá, pública, corre en el
 navegador) y la del ingreso de `redactor` (local). Lo que es de criterio o de
 arquitectura está marcado **[Javier]** y no se empieza sin su respuesta.
@@ -132,7 +132,10 @@ navegador y nada más **[Javier: si se hace]**.
 Cada fase deja todo andando y se puede parar en cualquiera.
 
 1. **Motor**: tramos, excepciones y carátula citada, con regresiones. Sin
-   pantalla todavía.
+   pantalla todavía. **Hecha el 3/10**: `anonimizarConTramos`, las opciones
+   `excepciones` y `noTapar` de `anonimizar`, `caratulasCitadas` y el campo
+   `enCitas` de cada candidato. Falta exponerlo en el conector, que es parte
+   de la fase 3.
 2. **La decisión de las carátulas citadas [Javier]**, aplicada en el motor.
 3. **Selector en la pantalla de `redactor`**, que es donde está la fricción
    medida y donde se trabaja con causas.

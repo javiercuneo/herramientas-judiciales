@@ -27,7 +27,9 @@
 import { diagnosticar, MINIMO_POR_PAGINA } from '../escribiente/js/motor/extraer.js';
 import { convertir, detectarRepetidos } from '../escribiente/js/motor/markdown.js';
 import {
-    anonimizar,
+    anonimizar as anonimizarDelMotor,
+    anonimizarConTramos,
+    caratulasCitadas,
     candidatosANombre,
     partesDeCaratula,
     normalizarEspacios,
@@ -49,6 +51,14 @@ import vm from 'node:vm';
 
 let fallos = 0;
 let pruebas = 0;
+
+// Cada texto que una prueba pasa por el motor queda anotado, y al final se
+// vuelve a pasar con la traza: ver "LA TRAZA SOBRE TODO EL BANCO", abajo.
+const pasados = [];
+function anonimizar(texto, elegidos = [], opciones = {}) {
+    pasados.push([texto, elegidos, opciones]);
+    return anonimizarDelMotor(texto, elegidos, opciones);
+}
 
 function ok(condicion, descripcion, detalle) {
     pruebas++;
@@ -1796,6 +1806,96 @@ console.log('\nCERTIFICAR\n');
         .map((x) => x.texto);
     ok(c.includes('Juan Inventado') && c.includes('Pedro Ficticio') && !c.some((x) => /Mediador|Tasador/.test(x)),
         'REGRESION: la palabra del rol no entra al nombre candidato', JSON.stringify(c));
+}
+
+// ---------------------------------------------------------------------------
+// 22: EL SELECTOR, FASE 1 (3/10/2026, docs/PLAN_SELECTOR.md). Lo que la pantalla
+// que elige sobre el texto le pide al motor: tramos, excepciones, "destapar
+// aca" y las caratulas de fallos citados.
+// ---------------------------------------------------------------------------
+{
+    console.log('SELECTOR: TRAMOS, EXCEPCIONES Y CITAS\n');
+
+    // Un tramo por etiqueta, aunque un mismo reemplazo ponga varias.
+    const firma = 'FDO.: JUAN CARLOS INVENTADO - MARIA FICTICIA - PEDRO SUPUESTO';
+    const { tramos } = anonimizarConTramos(firma);
+    ok(tramos.length === 3 && tramos.every((t) => t.etiqueta === '[PERSONA]' && t.regla === 'firma con Fdo.'),
+        'tres vocales en una firma son tres tramos, cada uno con su regla', JSON.stringify(tramos));
+    ok(firma.slice(tramos[1].desde, tramos[1].hasta) === 'MARIA FICTICIA', 'y cada uno apunta a su nombre en el original');
+
+    const prop = anonimizarConTramos('Juan Inventado reclama. El demandado Juan Inventado contestó.');
+    ok(prop.tramos.map((t) => t.origen).join() === 'descubierto,regla',
+        'el origen distingue lo que tapo la regla de lo que se propago', JSON.stringify(prop.tramos));
+    const eleg = anonimizarConTramos('Contra Ana Supuesta s/ daños', [{ texto: 'Ana Supuesta', reemplazo: '[DEMANDADO]' }]);
+    ok(eleg.tramos.length === 1 && eleg.tramos[0].origen === 'elegido' && eleg.tramos[0].regla === '[DEMANDADO]',
+        'y lo elegido, con su etiqueta', JSON.stringify(eleg.tramos));
+    const dentro = anonimizarConTramos('con domicilio en Avenida [PERSONA] N° 1234, CABA');
+    ok(dentro.tramos.length === 1 && dentro.tramos[0].etiqueta === '[DOMICILIO]',
+        'una etiqueta que se traga a otra deja un solo tramo', JSON.stringify(dentro.tramos));
+
+    // "No es persona": una excepcion de dos palabras le gana a toda regla de nombres.
+    const doctrina = 'Vease el Dr. Jorge Joaquin Inventado, y al demandado Jorge Joaquin Inventado.';
+    contiene(anonimizar(doctrina).texto, 'Dr. [PERSONA]', 'sin excepcion, el tratamiento lo tapa');
+    ok(anonimizar(doctrina, [], { excepciones: ['Jorge Joaquin Inventado'] }).texto === doctrina,
+        'con la excepcion no lo tapa ninguna regla, ni la del rol');
+    contiene(anonimizar(doctrina, [], { excepciones: ['Inventado'] }).texto, '[PERSONA]',
+        'un apellido suelto no vale como excepcion: dejaria medio nombre a la vista');
+    contiene(anonimizar(doctrina, [{ texto: 'Jorge Joaquin Inventado', reemplazo: '[PERITO]' }],
+        { excepciones: ['Jorge Joaquin Inventado'] }).texto, 'Dr. [PERITO]', 'un nombre elegido le gana a la excepcion');
+    contiene(anonimizar(`la Dra. Ana Ficticia, CUIT ${['27', '12345678', '9'].join('-')}`, [], { excepciones: ['Ana Ficticia'] }).texto,
+        'CUIT [CUIT]', 'la excepcion es de nombres: un identificador se tapa igual');
+
+    // "Destapar aca": un rango del original, y solo ese.
+    const dos = 'el Dr. Juan Inventado contestó y el Dr. Pedro Ficticio también';
+    const ahi = dos.indexOf('Pedro');
+    const destapado = anonimizar(dos, [], { noTapar: [{ desde: ahi, hasta: ahi + 'Pedro Ficticio'.length }] }).texto;
+    ok(destapado === 'el Dr. [PERSONA] contestó y el Dr. Pedro Ficticio también', 'destapar aca destapa ese lugar solo', destapado);
+
+    // Las caratulas citadas, y la propia que no hay que soltar.
+    const escrito = ['INVENTADO, JUAN', 'SUPUESTO, PEDRO s/ DAÑOS Y PERJUICIOS\n'].join(' c/ ') +
+        'Asi lo resolvio esta Sala, “Ficticia, Ana c/ Aseguradora Inventada S.A. s/ daños” del 12/3/2020. ' +
+        'Remito a lo resuelto en autos “Inventado, Juan c/ Banco Supuesto s/ cobro” del 1/2/2021. ' +
+        'Dijo el perito: “el actor c. la pared” y no mas.';
+    const citas = caratulasCitadas(escrito);
+    ok(citas.length === 2, 'dos citas: la de la pericia no es una caratula', JSON.stringify(citas.map((x) => x.partes)));
+    ok(citas[0].partes.join('|') === 'Ficticia, Ana|Aseguradora Inventada S.A.' && !citas[0].propia,
+        'la cita ajena, con sus dos partes', JSON.stringify(citas[0]));
+    ok(citas[1].propia, 'la que comparte apellido con la causa se marca como propia', JSON.stringify(citas[1]));
+    const cand = Object.fromEntries(candidatosANombre(escrito).map((x) => [x.texto, x.enCitas]));
+    ok(cand['Ficticia, Ana'] === 1 && cand['Inventado, Juan'] === 0,
+        'el candidato dice cuantas veces aparece en una cita ajena, y la propia no cuenta', JSON.stringify(cand));
+    ok(!caratulasCitadas('El perito dijo “esto es asi” en su informe del 3/4/2021.').length, 'comillas sin "c/" no son cita');
+    ok(!caratulasCitadas('“Ficticia c/ Supuesto” fue lo que escribio.').length, 'sin tribunal, fecha ni "autos" cerca tampoco');
+}
+
+// ---------------------------------------------------------------------------
+// LA TRAZA SOBRE TODO EL BANCO. Cada texto que alguna prueba de arriba paso por
+// el motor —y el corpus del banco de comparacion— se vuelve a pasar con la
+// traza, y tiene que cumplir tres cosas: el texto es identico al de
+// `anonimizar`, poner cada etiqueta en su tramo del original da exactamente ese
+// texto, y cada tramo cae donde dice en el resultado. Una regla nueva queda
+// probada asi sin escribir nada mas.
+// ---------------------------------------------------------------------------
+{
+    const corpus = JSON.parse(readFileSync(new URL('./comparar-motores/corpus.json', import.meta.url), 'utf8'));
+    const todos = [...pasados, ...corpus.map((c) => [c.texto, [], {}])];
+    let malos = 0;
+    for (const [texto, elegidos, opciones] of todos) {
+        let r;
+        try { r = anonimizarConTramos(texto, elegidos, opciones); } catch (e) { r = { error: String(e) }; }
+        const solo = anonimizarDelMotor(texto, elegidos, opciones).texto;
+        let rearmado = '';
+        let pos = 0;
+        for (const t of [...(r.tramos || [])].sort((a, b) => a.desde - b.desde)) {
+            rearmado += texto.slice(pos, t.desde) + t.etiqueta;
+            pos = t.hasta;
+        }
+        rearmado += texto.slice(pos);
+        const bien = !r.error && r.texto === solo && rearmado === solo &&
+            r.tramos.every((t) => solo.slice(t.inicio, t.fin) === t.etiqueta && t.desde <= t.hasta);
+        if (!bien && malos++ < 3) console.log(`  FALLA  la traza no cierra: ${JSON.stringify(texto).slice(0, 120)}`);
+    }
+    ok(malos === 0, `la traza cierra en los ${todos.length} textos del banco`, `no cierra en ${malos}`);
 }
 
 // ---------------------------------------------------------------------------

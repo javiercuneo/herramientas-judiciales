@@ -1165,16 +1165,155 @@ function escapar(s) {
     return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function aplicarReglas(texto, reglas, conteo) {
+// ---------------------------------------------------------------------------
+// La traza: que pedazo del ORIGINAL quedo debajo de cada etiqueta.
+//
+// POR QUE, 3/10/2026 (PLAN_SELECTOR.md, fase 1). La pantalla que elige sobre el
+// texto necesita saber, de cada etiqueta, que tapo, con que regla y donde estaba
+// en el original: para pintarla, para "destapar aca" y para unir una seleccion
+// con una etiqueta vecina. `anonimizar()` devuelve solo el texto final, y
+// reconstruir eso despues -comparando el original con el resultado- es adivinar:
+// un " " o un "de" calzan en cualquier lado.
+//
+// Asi que se anota mientras se reemplaza. `mapa[i]` dice de donde salio el
+// caracter i del texto actual: un numero (su posicion en el original) o el tramo
+// al que pertenece si es parte de una etiqueta. Cada pasada de reemplazo rehace
+// el mapa con lo que cambio. Solo corre si se la pide: `anonimizar()` no la usa y
+// no paga nada.
+// ---------------------------------------------------------------------------
+
+const UNA_ETIQUETA = /(\[[^[\]\n]{1,40}\])/;
+
+function crearTraza(texto) {
+    let mapa = Array.from({ length: texto.length }, (_, i) => i);
+
+    const extension = (entradas) => {
+        let desde = Infinity;
+        let hasta = -Infinity;
+        for (const c of entradas) {
+            const [d, h] = typeof c === 'number' ? [c, c + 1] : [c.desde, c.hasta];
+            desde = Math.min(desde, d);
+            hasta = Math.max(hasta, h);
+        }
+        return [desde, hasta];
+    };
+
+    // El medio de un reemplazo puede traer mas de una etiqueta con texto
+    // conservado entre ellas: "FDO.: [PERSONA] - [PERSONA]". Cada etiqueta es
+    // un tramo; lo de entre medio se busca en lo que habia y conserva su origen.
+    // Si algo no se encuentra, todo el medio queda como un solo tramo: es menos
+    // fino, y nunca es falso.
+    function partirMedio(medio, viejoTexto, viejo, origen, regla) {
+        const partes = medio.split(UNA_ETIQUETA);       // texto, etiqueta, texto...
+        if (partes.length < 5) return null;             // una sola etiqueta
+        const salida = [];
+        let pos = 0;
+        let abierta = null;                             // espera saber hasta donde llega
+        const cerrar = (fin) => {
+            const [desde, hasta] = extension(viejo.slice(pos, fin));
+            if (desde === Infinity) return false;
+            Object.assign(abierta, { desde, hasta });
+            pos = fin;
+            abierta = null;
+            return true;
+        };
+        for (let i = 0; i < partes.length; i++) {
+            const parte = partes[i];
+            if (i % 2 === 1) {
+                if (abierta) return null;               // dos etiquetas pegadas
+                abierta = { etiqueta: parte, origen, regla };
+                for (let k = 0; k < parte.length; k++) salida.push(abierta);
+            } else if (parte) {
+                const donde = viejoTexto.indexOf(parte, pos);
+                if (donde < 0 || (!abierta && donde !== pos)) return null;
+                if (abierta && !cerrar(donde)) return null;
+                for (let k = 0; k < parte.length; k++) salida.push(viejo[donde + k]);
+                pos = donde + parte.length;
+            }
+        }
+        if (abierta) return cerrar(viejoTexto.length) ? salida : null;
+        return pos === viejoTexto.length ? salida : null;
+    }
+
+    return {
+        aplicar(eventos, origen, regla) {
+            const nuevo = [];
+            let cursor = 0;
+            for (const { offset, match, salida } of eventos) {
+                for (let i = cursor; i < offset; i++) nuevo.push(mapa[i]);
+                const viejo = mapa.slice(offset, offset + match.length);
+                let p = 0;
+                while (p < match.length && p < salida.length && match[p] === salida[p]) p++;
+                let q = 0;
+                while (q < match.length - p && q < salida.length - p &&
+                    match[match.length - 1 - q] === salida[salida.length - 1 - q]) q++;
+                for (let i = 0; i < p; i++) nuevo.push(viejo[i]);
+                const medio = salida.slice(p, salida.length - q);
+                if (medio) {
+                    const viejoMedio = viejo.slice(p, match.length - q);
+                    const partido = partirMedio(medio, match.slice(p, match.length - q), viejoMedio, origen, regla);
+                    if (partido) nuevo.push(...partido);
+                    else {
+                        let [desde, hasta] = extension(viejoMedio);
+                        if (desde === Infinity) {
+                            const antes = [...nuevo].reverse().find((c) => typeof c === 'number');
+                            desde = hasta = antes === undefined ? 0 : antes + 1;
+                        }
+                        const tramo = { etiqueta: medio, origen, regla, desde, hasta };
+                        for (let i = 0; i < medio.length; i++) nuevo.push(tramo);
+                    }
+                }
+                for (let i = match.length - q; i < match.length; i++) nuevo.push(viejo[i]);
+                cursor = offset + match.length;
+            }
+            for (let i = cursor; i < mapa.length; i++) nuevo.push(mapa[i]);
+            mapa = nuevo;
+        },
+
+        /** Los tramos sobre el texto final y sobre el original, en orden. */
+        tramos(final) {
+            const salida = [];
+            for (let i = 0; i < mapa.length; i++) {
+                const t = mapa[i];
+                if (typeof t === 'number') continue;
+                let j = i;
+                while (j + 1 < mapa.length && mapa[j + 1] === t) j++;
+                salida.push({
+                    desde: t.desde, hasta: t.hasta, inicio: i, fin: j + 1,
+                    etiqueta: final.slice(i, j + 1), origen: t.origen, regla: t.regla,
+                });
+                i = j;
+            }
+            return salida;
+        },
+    };
+}
+
+/** `texto.replace(patron, fn)` que, con traza, anota que cambio y donde. */
+function reemplazar(texto, patron, fn, traza, origen, regla) {
+    if (!traza) return texto.replace(patron, fn);
+    const eventos = [];
+    const nuevo = texto.replace(patron, (...args) => {
+        const salida = fn(...args);
+        const conGrupos = typeof args[args.length - 1] === 'object';
+        const offset = args[args.length - (conGrupos ? 3 : 2)];
+        if (salida !== args[0]) eventos.push({ offset, match: args[0], salida });
+        return salida;
+    });
+    if (eventos.length) traza.aplicar(eventos, origen, regla);
+    return nuevo;
+}
+
+function aplicarReglas(texto, reglas, conteo, traza = null) {
     for (const { nombre, patron, reemplazo } of reglas) {
         let n = 0;
-        texto = texto.replace(patron, (...args) => {
+        texto = reemplazar(texto, patron, (...args) => {
             const salida = typeof reemplazo === 'function'
                 ? reemplazo(...args)
                 : expandir(reemplazo, args);
             if (salida !== args[0]) n++;
             return salida;
-        });
+        }, traza, 'regla', nombre);
         if (n) conteo[nombre] = (conteo[nombre] || 0) + n;
     }
     return texto;
@@ -1209,10 +1348,73 @@ function expandir(plantilla, args) {
  * Por eso la clave lleva la etiqueta ([PERSONA], [ACTOR]) y no el nombre: el
  * detalle por nombre esta en la pantalla, que es donde no sale de la maquina.
  */
-export function anonimizar(texto, elegidos = []) {
-    const conteo = {};
+export function anonimizar(texto, elegidos = [], opciones = {}) {
+    const { texto: salida, conteo } = correr(texto, elegidos, opciones, null);
+    return { texto: salida, conteo };
+}
 
-    texto = aplicarReglas(texto, REGLAS_IDENTIFICADORES, conteo);
+/** Lo mismo que `anonimizar`, y ademas que quedo debajo de cada etiqueta.
+ *
+ * Devuelve `{ texto, conteo, tramos }`. Cada tramo es
+ * `{ desde, hasta, inicio, fin, etiqueta, origen, regla }`: `desde`/`hasta` en
+ * el texto ORIGINAL (lo que se tapo), `inicio`/`fin` en el texto final (donde
+ * esta la etiqueta), `origen` es 'regla', 'elegido' o 'descubierto', y `regla`
+ * el nombre de la regla o la etiqueta elegida. El texto y el conteo son
+ * identicos a los de `anonimizar` con los mismos argumentos: lo prueba
+ * `verificar-escribiente` sobre todo su banco.
+ *
+ * `opciones` acepta las mismas dos cosas que `anonimizar`:
+ *   - `excepciones`: textos que NINGUNA regla de nombres tapa —"no es persona:
+ *     es un autor"—. Corren despues de los elegidos, asi que un nombre elegido
+ *     gana. Solo cuentan los de DOS palabras o mas: un apellido suelto como
+ *     excepcion dejaria medio nombre a la vista en cada homonimo.
+ *   - `noTapar`: rangos `{desde, hasta}` del original que no se tocan con
+ *     nada —"destapar aca"—. Se protegen antes de todo.
+ */
+export function anonimizarConTramos(texto, elegidos = [], opciones = {}) {
+    const traza = crearTraza(texto);
+    const r = correr(texto, elegidos, opciones, traza);
+    return { ...r, tramos: traza.tramos(r.texto) };
+}
+
+// Lo protegido se cambia por caracteres de uso privado DEL MISMO LARGO —uno
+// distinto por cada aparicion— y se devuelve al final. Del mismo largo, para que
+// la traza no tenga nada que anotar; de uso privado, porque ninguna regla los ve
+// como letra ni como digito. Los espacios quedan: un nombre partido en dos
+// renglones sigue partido igual.
+const PRIMER_PRIVADO = 0xE000;
+
+function proteger(texto, desde, hasta, guardados) {
+    const original = texto.slice(desde, hasta);
+    const marca = String.fromCharCode(PRIMER_PRIVADO + (guardados.length % 6000));
+    guardados.push({ original, marca: original.replace(/\S/g, marca) });
+    return texto.slice(0, desde) + guardados.at(-1).marca + texto.slice(hasta);
+}
+
+function devolverProtegidos(texto, guardados) {
+    for (const { original, marca } of guardados) {
+        const donde = texto.indexOf(marca);
+        // Una regla se comio un pedazo protegido. No paso nunca en el banco, y si
+        // pasa es mejor que se note: devolver otra cosa seria corromper el texto
+        // en silencio.
+        if (donde < 0) throw new Error('Una regla tapó texto protegido como excepción: no se puede devolver.');
+        texto = texto.slice(0, donde) + original + texto.slice(donde + marca.length);
+    }
+    return texto;
+}
+
+function correr(texto, elegidos, { excepciones = [], noTapar = [] } = {}, traza) {
+    const conteo = {};
+    const guardados = [];
+
+    // "Destapar aca": antes de todo, sobre el original, que todavia coincide
+    // posicion por posicion con el texto.
+    for (const { desde, hasta } of [...noTapar].sort((a, b) => a.desde - b.desde)) {
+        if (Number.isInteger(desde) && Number.isInteger(hasta) && desde >= 0 && hasta <= texto.length && desde < hasta)
+            texto = proteger(texto, desde, hasta, guardados);
+    }
+
+    texto = aplicarReglas(texto, REGLAS_IDENTIFICADORES, conteo, traza);
 
     // De mas largo a mas corto, sin depender del orden en que llegaron. Con
     // "Estudio Juridico Ficticio" y "Ficticio" al reves, el corto pega primero y
@@ -1227,22 +1429,36 @@ export function anonimizar(texto, elegidos = []) {
         const fuente = original.trim().split(/\s+/).map(escapar).join('\\s+');
         const patron = new RegExp(`${ANTES}(?:${fuente})${DESPUES}`, 'gi');
         let n = 0;
-        texto = texto.replace(patron, (todo, antes) => { n++; return antes + reemplazo; });
+        texto = reemplazar(texto, patron, (todo, antes) => { n++; return antes + reemplazo; },
+            traza, 'elegido', reemplazo);
         // La clave lleva la ETIQUETA, no el nombre. Ver el comentario de arriba
         // de `anonimizar`: el conteo termina impreso en el archivo.
         if (n) conteo[`nombre propio → ${reemplazo}`] =
             (conteo[`nombre propio → ${reemplazo}`] || 0) + n;
     }
 
+    // "No es persona": despues de los elegidos —un nombre elegido gana— y
+    // antes de las reglas que miran nombres.
+    const deDosPalabras = [...new Set(excepciones.map((e) => String(e || '').trim()))]
+        .filter((e) => e.split(/\s+/).filter((p) => !esParticula(p)).length >= 2)
+        .sort((a, b) => b.length - a.length);
+    for (const excepcion of deDosPalabras) {
+        const fuente = excepcion.split(/\s+/).map(escapar).join('\\s+');
+        const patron = new RegExp(`${ANTES}(${fuente})${DESPUES}`, 'gi');
+        const lugares = [];
+        for (const m of texto.matchAll(patron)) lugares.push([m.index + m[1].length, m.index + m[0].length]);
+        for (const [desde, hasta] of lugares.reverse()) texto = proteger(texto, desde, hasta, guardados);
+    }
+
     descubiertos = [];
     try {
-        texto = aplicarReglas(texto, REGLAS_NOMBRES, conteo);
-        texto = taparDescubiertos(texto, descubiertos, conteo);
+        texto = aplicarReglas(texto, REGLAS_NOMBRES, conteo, traza);
+        texto = taparDescubiertos(texto, descubiertos, conteo, traza);
     } finally {
         descubiertos = null;
     }
 
-    return { texto, conteo };
+    return { texto: devolverProtegidos(texto, guardados), conteo };
 }
 
 /** Lo que una regla anclada descubrio, tapado en el resto del texto.
@@ -1259,7 +1475,7 @@ export function anonimizar(texto, elegidos = []) {
  * una palabra comun—, con el mismo patron que un nombre tildado: tolerante al
  * espaciado y sin distinguir mayusculas.
  */
-function taparDescubiertos(texto, nombres, conteo) {
+function taparDescubiertos(texto, nombres, conteo, traza = null) {
     const propagables = [...new Set(nombres)]
         .filter((n) => !n.includes('[') &&
             n.split(/\s+/).filter((p) => !esParticula(p) && !/^[^.]\.$/.test(p)).length >= 2)
@@ -1267,8 +1483,8 @@ function taparDescubiertos(texto, nombres, conteo) {
     let n = 0;
     for (const nombre of propagables) {
         const fuente = nombre.split(/\s+/).map(escapar).join('\\s+');
-        texto = texto.replace(new RegExp(`${ANTES}(?:${fuente})${DESPUES}`, 'gi'),
-            (todo, antes) => { n++; return antes + '[PERSONA]'; });
+        texto = reemplazar(texto, new RegExp(`${ANTES}(?:${fuente})${DESPUES}`, 'gi'),
+            (todo, antes) => { n++; return antes + '[PERSONA]'; }, traza, 'descubierto', 'nombre descubierto');
     }
     if (n) conteo['nombre descubierto, en el resto del texto'] = n;
     return texto;
@@ -1345,6 +1561,14 @@ function esFragmentoDeOtro(encontrados) {
  */
 export function candidatosANombre(texto) {
     const encontrados = new Map();
+    // Cuantas de las apariciones estan adentro de la caratula de un fallo citado
+    // que no es de la causa. Ver `caratulasCitadas`: la pantalla las agrupa.
+    const citas = caratulasCitadas(texto).filter((c) => !c.propia);
+    const enCitas = new Map();
+    const contarCita = (nombre, lugar) => {
+        if (citas.some((c) => lugar >= c.desde && lugar < c.hasta))
+            enCitas.set(nombre, (enCitas.get(nombre) || 0) + 1);
+    };
     // Dos patrones pueden calzar el mismo nombre en el mismo lugar —"Lucia Del
     // Monte" es de tres palabras y tambien de dos con particula—, y contarlo dos
     // veces hace que la pantalla diga "2 veces" de algo que esta una.
@@ -1360,6 +1584,7 @@ export function candidatosANombre(texto) {
             if (vistos.has(`${lugar}|${nombre}`)) continue;
             vistos.add(`${lugar}|${nombre}`);
             encontrados.set(nombre, (encontrados.get(nombre) || 0) + 1);
+            contarCita(nombre, lugar);
         }
     }
     for (const match of texto.matchAll(CANDIDATO_CITADA)) {
@@ -1369,6 +1594,7 @@ export function candidatosANombre(texto) {
         if (vistos.has(`${lugar}|${nombre}`)) continue;
         vistos.add(`${lugar}|${nombre}`);
         encontrados.set(nombre, (encontrados.get(nombre) || 0) + 1);
+        contarCita(nombre, lugar);
     }
     for (const match of texto.matchAll(CANDIDATO_SOCIEDAD)) {
         const palabras = match[0].replace(/\s+/g, ' ').trim().split(' ');
@@ -1379,9 +1605,10 @@ export function candidatosANombre(texto) {
         if (vistos.has(`${lugar}|${nombre}`)) continue;
         vistos.add(`${lugar}|${nombre}`);
         encontrados.set(nombre, (encontrados.get(nombre) || 0) + 1);
+        contarCita(nombre, lugar);
     }
     return [...encontrados.entries()]
-        .map(([texto, apariciones]) => ({ texto, apariciones }))
+        .map(([texto, apariciones]) => ({ texto, apariciones, enCitas: enCitas.get(texto) || 0 }))
         .filter(esFragmentoDeOtro(encontrados))
         .sort((a, b) => b.apariciones - a.apariciones || a.texto.localeCompare(b.texto));
 }
@@ -1643,6 +1870,57 @@ export function partesDeCaratula(texto) {
     const match = CARATULA.exec(plano) || CARATULA_ACTOR_DEMANDADO.exec(plano);
     if (!match) return [];
     return [match[1], match[2]].map(recortarAlNombre).filter((p) => p.length > 3);
+}
+
+// Lo que rodea a la cita de un fallo: el tribunal, la sala, la fecha, "Fallos",
+// "in re", "cfr.". Mirado antes y despues de las comillas.
+const MARCA_DE_CITA = new RegExp(
+    '\\b(?:sala|c[aá]mara|c[aá]m\\.|corte|csjn|c\\.s\\.j\\.n|scba|tsj|cnciv|cntrab|cncom|cnfed|cnacaf|' +
+    'fallos|in re|precedentes?|fallo|autos|causa|expte|[ií]d\\.|cfr|conf|v\\.)' +
+    '|\\d{1,2}[/.]\\d{1,2}[/.]\\d{2,4}',
+    'i');
+
+/** Las caratulas de fallos CITADOS, con sus partes.
+ *
+ * PARA QUE, 3/10/2026 (PLAN_SELECTOR.md). Corrido contra un caso con mucha
+ * jurisprudencia citada, casi todo lo que se tildo a mano eran las partes de los
+ * fallos que el escrito cita —"esta Sala, “X c/ Y s/ danos” del 12/3/2020"—: la
+ * mayor parte de la friccion de la pantalla. Esto no decide nada: las encuentra,
+ * para que la pantalla las agrupe y para que, si Javier lo decide, no se ofrezcan.
+ *
+ * Una cita es un texto entre comillas con "c/" (o "c." o "v.") adentro y una
+ * marca de cita cerca. `propia` dice si comparte un apellido con las partes de
+ * la caratula de la causa: "lo resuelto en autos “X c/ Y”" cuando X es el actor
+ * es justo la que no hay que soltar, y por eso se marca.
+ *
+ * Devuelve `[{ texto, desde, hasta, partes, propia }]`, con `desde`/`hasta` del
+ * texto de adentro de las comillas.
+ */
+export function caratulasCitadas(texto) {
+    const propias = new Set(partesDeCaratula(texto)
+        .flatMap((p) => p.split(/[\s,]+/))
+        .map(limpiarPalabra)
+        .filter((p) => p.length >= 4 && !noEsNombre(p)));
+    const salida = [];
+    for (const m of texto.matchAll(/[“"«]([^”"»\n]{5,200}?)[”"»]/g)) {
+        const adentro = m[1];
+        const corte = adentro.match(/\s+[cCvV][/.]\s*|\s+contra\s+/);
+        if (!corte || corte.index < 2) continue;
+        const desde = m.index + 1;
+        const antes = texto.slice(Math.max(0, m.index - 80), m.index);
+        const despues = texto.slice(desde + adentro.length + 1, desde + adentro.length + 101);
+        if (!MARCA_DE_CITA.test(antes) && !MARCA_DE_CITA.test(despues)) continue;
+        const partes = [adentro.slice(0, corte.index), adentro.slice(corte.index + corte[0].length)]
+            .map((p) => p.split(/\s+[sS]\s*\/|\s+[sS]\.\s/)[0])
+            .map((p) => p.replace(Y_OTROS, '').replace(/^[\s,.;:]+|[\s,;:]+$/g, ''))
+            .filter(Boolean);
+        // Las dos partes empiezan en mayuscula: "el actor c. la pared", dentro de
+        // la transcripcion de una pericia, tiene comillas, "c." y una fecha cerca.
+        if (partes.length < 2 || !partes.every((p) => new RegExp(`^[${MAY}]`).test(p))) continue;
+        const propia = partes.some((p) => p.split(/[\s,]+/).some((w) => propias.has(limpiarPalabra(w))));
+        salida.push({ texto: adentro, desde, hasta: desde + adentro.length, partes, propia });
+    }
+    return salida;
 }
 
 /** Se queda con los tokens capitalizados del final del fragmento.

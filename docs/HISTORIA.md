@@ -19,6 +19,40 @@ de 2026.
 
 ---
 
+## El selector, fase 1: lo que el motor le da a la pantalla — 3/10
+
+La primera fase de [`PLAN_SELECTOR.md`](PLAN_SELECTOR.md), sin pantalla.
+
+**`anonimizarConTramos`** devuelve, además del texto y el conteo, qué pedazo
+del original quedó debajo de cada etiqueta, en qué lugar del resultado está, y
+con qué regla o elección. No se reconstruye después comparando original y
+resultado —un espacio o un «de» calzan en cualquier lado—: se anota mientras se
+reemplaza, con un mapa de cada carácter a su origen que cada pasada rehace.
+Cuando un reemplazo pone varias etiquetas —la firma con tres vocales—, cada una
+es su tramo. `anonimizar()` no usa nada de esto y no cambió: lo prueba el
+banco de comparación, que no movió un caso.
+
+**La prueba que la sostiene es de todo el banco:** cada texto que alguna prueba
+de `verificar-escribiente` pasa por el motor, más el corpus del banco de
+comparación —203 textos—, se vuelve a pasar con la traza, y poner cada etiqueta
+en su tramo del original tiene que dar exactamente el resultado. Vista fallar
+corriendo un tramo un carácter. Una regla nueva queda probada así sin escribir
+nada más.
+
+**`excepciones`** —«no es persona»— protege un texto de toda regla de nombres;
+corre después de los elegidos, así que un nombre elegido gana, y sólo acepta
+textos de dos palabras o más: un apellido suelto como excepción dejaría medio
+nombre a la vista en cada homónimo. **`noTapar`** —«destapar acá»— protege un
+rango del original de todo. Lo protegido se cambia por caracteres de uso
+privado del mismo largo y se devuelve al final; si una regla se comiera uno, el
+motor levanta en vez de devolver otro texto.
+
+**`caratulasCitadas`** encuentra las carátulas de fallos citados —entre
+comillas, con «c/» y una marca de cita cerca: sala, tribunal, fecha, «Fallos»,
+«autos»— y marca como `propia` la que comparte un apellido con la carátula de
+la causa. Cada candidato trae `enCitas`: cuántas de sus apariciones están en
+una cita ajena. No decide nada; la decisión de qué hacer con ellas es de Javier.
+
 ## El primer vaciado de los avisos de `redactor` — 3/10
 
 `redactor` anota, cada vez que se libera un caso que entró por su bandeja, los
