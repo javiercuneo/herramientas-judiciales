@@ -85,6 +85,13 @@ con su caso de prueba. **El borde que quedó de cada regla está en
   de Javier.** El que cierre uno cambia `pendiente` por el valor nuevo y agrega la
   regresión en el banco del motor o del hook.
 
+- **EL SELECTOR SOBRE EL TEXTO, propuesto el 3/10 y sin decidir.** Elegir qué
+  tapar marcando el texto en vez de tildar una lista, y que lo decidido enseñe
+  entre casos. Plan, decisiones pendientes de Javier y orden en
+  [`PLAN_SELECTOR.md`](PLAN_SELECTOR.md). La primera decisión es de criterio:
+  si se tapan las partes de los fallos citados, que son la mayor parte de la
+  fricción medida.
+
 - **UN SOLO MOTOR DE ANONIMIZACIÓN. El paso 4 arrancó el 17/9, y es de `redactor`.**
   Las mismas reglas están escritas dos veces —en `escribiente/js/motor/anonimizar.js`
   y en el anonimizador del pipeline— y un arreglo de nombres hay que llevarlo a
