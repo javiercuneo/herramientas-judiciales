@@ -1761,6 +1761,36 @@ console.log('\nCERTIFICAR\n');
     contiene(anonimizar('contra el demandado [DEMANDADO] y otros').texto, 'demandado [DEMANDADO] y',
         'una etiqueta ya puesta no se vuelve a tapar');
 
+    // Lo que el ancla descubrio se tapa en todo el texto, no solo al lado del ancla.
+    {
+        const { texto, conteo } = anonimizar(
+            'Juan Inventado reclama. El demandado Juan Inventado contestó. Luego JUAN INVENTADO apeló.');
+        noContiene(texto, 'Inventado', 'REGRESION: el nombre que un rol descubrio se tapa antes y despues del ancla');
+        noContiene(texto, 'INVENTADO', 'y en otra caja');
+        ok(conteo['nombre descubierto, en el resto del texto'] === 2, 'y el conteo lo dice aparte', JSON.stringify(conteo));
+    }
+    contiene(anonimizar('El testigo Inventado declaró. Inventado es una palabra.').texto, 'Inventado es',
+        'un apellido suelto no se propaga: puede ser una palabra comun');
+    noContiene(anonimizar('Fdo.: Ana Inventada - Juez. Notifiquese a Ana Inventada.').texto, 'Inventada',
+        'lo que descubrio la firma tambien se propaga');
+    contiene(anonimizar('Vease Llambias, Jorge Joaquin. Dr. Pedro Ficticio.').texto, 'Llambias, Jorge Joaquin',
+        'la propagacion no toca lo que nadie descubrio');
+
+    // La aseguradora citada en garantia se ofrece entera, no por pedazos.
+    for (const [frase, nombre] of [
+        ['por la citada en garantía Inventada Seguros del Plata Transporte Por Tierra S.A., que contestó',
+         'Inventada Seguros del Plata Transporte Por Tierra S.A.'],
+        ['citada en garantía Seguros y Reaseguros Inventada de la Plata (fs. 3)',
+         'Seguros y Reaseguros Inventada de la Plata'],
+    ]) {
+        const ofrecidos = candidatosANombre(frase).map((x) => x.texto);
+        ok(ofrecidos.length === 1 && ofrecidos[0] === nombre,
+            `REGRESION: la aseguradora se ofrece entera: ${nombre}`, JSON.stringify(ofrecidos));
+        contiene(anonimizar(frase).texto, nombre, 'y no se tapa sola: es una empresa');
+    }
+    ok(!candidatosANombre('la citada en garantía contestó la demanda').length,
+        'la citada en garantia sin nombre no ofrece nada');
+
     // El rol ya no entra al candidato: se ofrece el nombre solo.
     const c = candidatosANombre('las regulaciones al Mediador Juan Inventado y al Tasador Pedro Ficticio')
         .map((x) => x.texto);

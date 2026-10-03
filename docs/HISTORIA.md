@@ -68,6 +68,25 @@ que dejaron de cumplir su premisa —un nombre «que ninguna regla tocó» iba
 detrás de «el testigo» y de «la demandada», que ahora sí se tapan— y a las que
 se les cambió la frase.
 
+**Lo que el ancla descubre se tapa en todo el texto.** Corridas las reglas
+nuevas contra los casos que habían entrado por la bandeja —en la máquina, sin
+que el texto saliera de ella, con `herramientas/buzon.py revisar` de
+`redactor`—, una parte de los nombres quedaba tapada donde estaba el ancla y en
+claro tres páginas después, donde no había ninguna. El ancla prueba que ese
+texto es una persona; el mismo nombre completo es la misma persona en todo el
+documento. Se propaga sólo el de dos palabras o más: un apellido suelto es
+también una palabra común.
+
+**La aseguradora citada en garantía se ofrece entera.** Hecha de palabras
+comunes, se ofrecía por pedazos, y tildado un pedazo quedaba el resto a la
+vista. Se ofrece, no se tapa: es una empresa.
+
+**Lo que dijo la corrida contra los casos, y es lo más importante de este
+vaciado:** las reglas cierran pocas entradas. En un caso con mucha
+jurisprudencia citada se tildaron cerca de cien nombres, y casi todos eran
+partes de **carátulas de fallos citados**, que ninguna regla toca. La fricción
+de la pantalla no se arregla con reglas: está en qué se ofrece y cómo se elige.
+
 **Lo que no entró, y por qué:** el número de juzgado («Juzgado Civil n° 42»),
 que no es dato personal y tapar o no es de criterio; y las carátulas de fallos
 citados tapadas a medias, que no se arreglan con una regla sino eligiendo

@@ -519,6 +519,14 @@ const FORMULAS_DE_PRESENTACION = [
     'abogad[oa]', 'letrad[oa]', 'apoderad[oa]', 'inscript[oa] al',
 ].flatMap((f) => [f, f.toUpperCase()]).join('|');
 
+// Los nombres que taparon las reglas ancladas en la pasada que esta corriendo.
+// Solo vive adentro de `anonimizar`, que despues los tapa en el resto del texto:
+// ver `taparDescubiertos`.
+let descubiertos = null;
+function descubierto(nombre) {
+    if (descubiertos) descubiertos.push(String(nombre).trim());
+}
+
 // Minuscula, Capitalizada y MAYUSCULA de un pedazo de patron, para las reglas
 // que corren sin la bandera `i`. No toca los escapes: "[ \t]" en mayusculas
 // seria "[ \T]", que ya no es un tab.
@@ -575,6 +583,7 @@ function taparNombreDelTramo(tramo) {
     while (fin > 0 && esParticula(palabras[fin - 1][0])) fin--;
     if (nombres < 2) return tramo;
     const corte = palabras[fin - 1].index + palabras[fin - 1][0].length;
+    descubierto(resto.slice(0, corte));
     return `${tratamiento}[PERSONA]${resto.slice(corte)}`;
 }
 
@@ -644,6 +653,7 @@ export const REGLAS_NOMBRES = [
             const largo = largoDeNombre(nombre);
             if (!largo) return todo;
             const conservado = nombre.match(new RegExp(`^\\S+(?:[ \\t]+\\S+){${largo - 1}}`))[0];
+            descubierto(conservado);
             return `${tratamiento} [PERSONA]` + nombre.slice(conservado.length);
         },
     },
@@ -662,6 +672,7 @@ export const REGLAS_NOMBRES = [
             const largo = largoDeNombre(nombre);
             if (!largo) return todo;
             const conservado = nombre.match(new RegExp(`^\\S+(?:[ \\t]+\\S+){${largo - 1}}`))[0];
+            descubierto(conservado);
             return `${antes}[PERSONA]` + nombre.slice(conservado.length);
         },
     },
@@ -713,6 +724,7 @@ export const REGLAS_NOMBRES = [
             const largo = largoDeNombre(nombre);
             if (!largo) return todo;
             const conservado = nombre.match(new RegExp(`^\\S+(?:[ \\t]+\\S+){${largo - 1}}`))[0];
+            descubierto(conservado);
             return `${antes}${rol}[PERSONA]` + nombre.slice(conservado.length);
         },
     },
@@ -737,6 +749,7 @@ export const REGLAS_NOMBRES = [
         reemplazo: (todo, antes, nombre, despues) => {
             const palabras = nombre.trim().split(/\s+/);
             if (palabras.some((p) => !esParticula(p) && noEsNombre(p))) return todo;
+            descubierto(nombre);
             return `${antes}[PERSONA]${despues}`;
         },
     },
@@ -915,6 +928,20 @@ const CANDIDATO_SOCIEDAD = new RegExp(
     `[${MAY}][${LETRA}\\d&.'-]*(?:${S}(?:[${MAY}][${LETRA}\\d&.'-]*|${PARTICULA_CUALQUIER_CAJA}|y|&)){0,4}` +
     `${S}(?:S\\.[ \\t]?A\\.(?:[ \\t]?(?:U|S|I\\.[ \\t]?C\\.))?\\.?|S\\.[ \\t]?R\\.[ \\t]?L\\.?|S\\.[ \\t]?C\\.[ \\t]?A\\.?|SRL|SAS|SAU|SA)` +
     `(?![${LETRA}\\d])`,
+    'g');
+
+// La aseguradora detras de "la citada en garantia". CASO DE PRUEBA, 27/9/2026,
+// del buzon: un nombre de aseguradora hecho de palabras comunes —"X Seguros del
+// Plata Transporte Por Tierra"— se ofrecia por pedazos ("Plata Transporte"), y
+// tildado dejaba el resto a la vista. Detras del ancla, el nombre es la tira de
+// palabras en mayuscula hasta la puntuacion, con "del", "de", "y" y "&" en el
+// medio, y el tipo societario si lo hay. SE OFRECE, NO SE TAPA: es una empresa, y
+// tapar o no una empresa es decision de quien conoce el expediente.
+const CANDIDATO_CITADA = new RegExp(
+    `(?:${enLasTresCajas(['citad[oa]s?[ \\t]+en[ \\t]+garant[ií]a', 'aseguradora'])})[ \\t]*,?[ \\t]*(?:la[ \\t]+|La[ \\t]+|LA[ \\t]+)?` +
+    // La particula entera y seguida de otra palabra en mayuscula: sin el borde,
+    // "de" calzaba adentro de "del" y el nombre se cortaba ahi.
+    `([${MAY}][${LETRA}\\d&.'-]*(?:${S}(?:[${MAY}][${LETRA}\\d&.'-]*|(?:${PARTICULA_CUALQUIER_CAJA}|y|&)(?![${LETRA}])(?=${S}(?:${PARTICULA_CUALQUIER_CAJA}${S})?[${MAY}]))){1,7})`,
     'g');
 
 // Palabras que delatan un falso positivo. Un nombre propio no lleva verbos,
@@ -1207,9 +1234,44 @@ export function anonimizar(texto, elegidos = []) {
             (conteo[`nombre propio → ${reemplazo}`] || 0) + n;
     }
 
-    texto = aplicarReglas(texto, REGLAS_NOMBRES, conteo);
+    descubiertos = [];
+    try {
+        texto = aplicarReglas(texto, REGLAS_NOMBRES, conteo);
+        texto = taparDescubiertos(texto, descubiertos, conteo);
+    } finally {
+        descubiertos = null;
+    }
 
     return { texto, conteo };
+}
+
+/** Lo que una regla anclada descubrio, tapado en el resto del texto.
+ *
+ * POR QUE, 3/10/2026. Una regla anclada tapa el nombre DONDE esta el ancla:
+ * "el demandado Juan Inventado" queda tapado, y tres paginas despues "Juan
+ * Inventado contesto" sigue en claro, porque ahi no hay ancla. Corrido contra los
+ * casos que entraron por la bandeja de `redactor`, era la forma de una de cada
+ * diez entradas del buzon: la regla tapaba algunas apariciones y no todas.
+ *
+ * El ancla es lo que prueba que ESE texto es una persona; la misma persona,
+ * con el mismo nombre completo, es la misma en todo el documento. Por eso se
+ * propaga solo el nombre de DOS palabras o mas —un apellido suelto es tambien
+ * una palabra comun—, con el mismo patron que un nombre tildado: tolerante al
+ * espaciado y sin distinguir mayusculas.
+ */
+function taparDescubiertos(texto, nombres, conteo) {
+    const propagables = [...new Set(nombres)]
+        .filter((n) => !n.includes('[') &&
+            n.split(/\s+/).filter((p) => !esParticula(p) && !/^[^.]\.$/.test(p)).length >= 2)
+        .sort((a, b) => b.length - a.length);
+    let n = 0;
+    for (const nombre of propagables) {
+        const fuente = nombre.split(/\s+/).map(escapar).join('\\s+');
+        texto = texto.replace(new RegExp(`${ANTES}(?:${fuente})${DESPUES}`, 'gi'),
+            (todo, antes) => { n++; return antes + '[PERSONA]'; });
+    }
+    if (n) conteo['nombre descubierto, en el resto del texto'] = n;
+    return texto;
 }
 
 /** La frase, aparece en el texto como apareceria para reemplazarla?
@@ -1299,6 +1361,14 @@ export function candidatosANombre(texto) {
             vistos.add(`${lugar}|${nombre}`);
             encontrados.set(nombre, (encontrados.get(nombre) || 0) + 1);
         }
+    }
+    for (const match of texto.matchAll(CANDIDATO_CITADA)) {
+        const nombre = match[1].replace(/\s+/g, ' ').trim();
+        if (nombre.split(' ').filter((p) => !esParticula(p)).length < 2) continue;
+        const lugar = match.index + match[0].indexOf(match[1]);
+        if (vistos.has(`${lugar}|${nombre}`)) continue;
+        vistos.add(`${lugar}|${nombre}`);
+        encontrados.set(nombre, (encontrados.get(nombre) || 0) + 1);
     }
     for (const match of texto.matchAll(CANDIDATO_SOCIEDAD)) {
         const palabras = match[0].replace(/\s+/g, ' ').trim().split(' ');
