@@ -19,6 +19,15 @@ de 2026.
 
 ---
 
+## El selector, fase 5: lo que se decide en un caso enseña al siguiente — 3/10
+
+Vive en `redactor` —`ui/aprendido.py`, con su prueba—, porque es ahí donde hay casos
+y donde lo decidido puede guardarse fuera de todo repositorio. De este lado cambió
+sólo el selector: acepta `noOfrecer`, una lista de textos que no se ofrecen como
+candidatos, que **no es una decisión del caso** —no sale por `alCambiar`— y que se
+muestra plegada en la barra, con un «ofrecer acá» por si en este caso sí son alguien.
+Las reglas y la crónica, en el `HISTORIA.md` de `redactor`.
+
 ## El selector, fase 4: Escribiente elige sobre el texto — 3/10
 
 El selector quedó arriba de la lista, y la lista debajo como «la misma

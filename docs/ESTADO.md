@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-09-22 · rama `main`
+Última actualización: 2026-10-03 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -85,11 +85,12 @@ con su caso de prueba. **El borde que quedó de cada regla está en
   de Javier.** El que cierre uno cambia `pendiente` por el valor nuevo y agrega la
   regresión en el banco del motor o del hook.
 
-- **EL SELECTOR SOBRE EL TEXTO, propuesto el 3/10; fases 1 a 4 hechas** —motor,
-  fallos citados que no se ofrecen, y el selector en `redactor` y en
-  Escribiente—. Sigue la fase 5, que vive en `redactor`: anotar decisiones y lo
-  que nunca es persona. **Escribiente no aprende entre documentos** (Javier,
-  3/10), y **lo aprendido sólo deja de ofrecer, nunca destapa**. Plan y orden en
+- **EL SELECTOR SOBRE EL TEXTO, propuesto el 3/10; fases 1 a 5 hechas** —motor,
+  fallos citados que no se ofrecen, el selector en `redactor` y en Escribiente,
+  y el aprendizaje entre casos, que vive en `redactor`—. **Lo que sigue es
+  medir** con casos reales, allá, y según eso las fases 6 y 7. **Escribiente no
+  aprende entre documentos** (Javier, 3/10), y **lo aprendido sólo deja de
+  ofrecer, nunca destapa**. Plan y orden en
   [`PLAN_SELECTOR.md`](PLAN_SELECTOR.md). **`js/selector.js` lo cargan dos
   pantallas**: un cambio ahí se prueba en las dos.
 

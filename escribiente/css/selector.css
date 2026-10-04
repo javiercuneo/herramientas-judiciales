@@ -74,6 +74,9 @@
   max-width: 100%;
   overflow-wrap: anywhere;
 }
+.sel-aprendidos { flex-basis: 100%; }
+.sel-aprendidos summary { cursor: pointer; }
+.sel-aprendidos .sel-fichas { margin-top: 6px; }
 .sel-quitar { border: 0; background: none; color: inherit; cursor: pointer; padding: 0 4px; font: inherit; }
 
 .sel-texto {

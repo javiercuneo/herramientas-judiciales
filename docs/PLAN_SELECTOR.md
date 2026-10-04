@@ -1,6 +1,6 @@
 # Plan: elegir sobre el texto, y que lo elegido enseñe
 
-**Abierto. Propuesto el 3/10/2026; las fases 1 a 4 están hechas el mismo día.** Cubre las dos pantallas que
+**Abierto. Propuesto el 3/10/2026; las fases 1 a 5 están hechas el mismo día. Sigue medir.** Cubre las dos pantallas que
 usan el motor de anonimización: la de Escribiente (acá, pública, corre en el
 navegador) y la del ingreso de `redactor` (local). Lo que es de criterio o de
 arquitectura está marcado **[Javier]** y no se empieza sin su respuesta.
@@ -161,7 +161,15 @@ Cada fase deja todo andando y se puede parar en cualquiera.
    persona», «destapar acá» y los descartados son del documento y se pierden con
    el siguiente. **La constancia del `.md` dice lo que se destapó a mano**:
    cuenta los lugares y nombra lo marcado «no es persona».
-5. **Anotar decisiones y lo que nunca es persona.** Medir.
+5. **Anotar decisiones y lo que nunca es persona.** Medir. **Hecha el 3/10, en
+   `redactor`:** `ui/aprendido.py` anota lo decidido al liberar, en
+   `bandeja/_aprendido/`, y lo marcado «no es persona» no se vuelve a ofrecer
+   —ni en la tabla ni en el selector, que recibe la lista como `noOfrecer` y la
+   muestra plegada con un «ofrecer acá»—. Además de la decisión de Javier
+   (sólo deja de ofrecer), dos reglas del mismo criterio: lo que fue persona en
+   algún caso no se aprende, y sólo se aprende lo de dos palabras o más.
+   **Falta la medida**, que necesita casos reales: `python ui/aprendido.py
+   medir`, en `redactor`.
 6. **Reglas propuestas** desde el buzón.
 7. **Tildado de fábrica**, si la medición de la fase 5 lo justifica.
 

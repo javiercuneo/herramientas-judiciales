@@ -24,6 +24,12 @@
 //
 // NO GUARDA NADA. Las decisiones salen por `alCambiar`, y quien lo monta decide
 // donde viven. En `redactor`, en el confirmado.json del caso, fuera del repo.
+//
+// LO APRENDIDO ENTRA APARTE (fase 5). `noOfrecer` son textos que en otros casos
+// se marcaron "no es persona": no se ofrecen como candidatos, y nada mas. No
+// son decisiones de este caso —no salen por `alCambiar`—, no destapan nada que
+// una regla tape (decidido por Javier el 3/10/2026: aprender nunca destapa), y
+// se pueden volver a ofrecer desde la barra si en este caso si son alguien.
 // ---------------------------------------------------------------------------
 
 import {
@@ -87,9 +93,11 @@ function elegirEtiqueta(valor = ETIQUETA_POR_DEFECTO) {
  *   texto        el texto original, CON los nombres
  *   decisiones   { elegidos: [{texto, reemplazo}], excepciones: [texto],
  *                  noTapar: [{desde, hasta, texto}], descartados: [texto] }
+ *   noOfrecer    textos que no se ofrecen como candidatos: lo aprendido en
+ *                otros casos. No es una decision de este y no sale por alCambiar
  *   alCambiar    se llama con las decisiones nuevas despues de cada cambio
  */
-export function crearSelector(contenedor, { texto, decisiones = {}, alCambiar = () => {} }) {
+export function crearSelector(contenedor, { texto, decisiones = {}, noOfrecer = [], alCambiar = () => {} }) {
     let estado = {
         elegidos: [...(decisiones.elegidos || [])],
         excepciones: [...(decisiones.excepciones || [])],
@@ -100,6 +108,14 @@ export function crearSelector(contenedor, { texto, decisiones = {}, alCambiar = 
     let actual = -1;            // el candidato parado, para el teclado
     let candidatosPintados = [];
     let ultimo = null;          // la ultima corrida del motor
+    // Lo aprendido que de verdad aparece en este texto: es lo unico que vale
+    // la pena mostrar, y se calcula una vez y no en cada pintada.
+    let aprendidos = [];
+    function fijarNoOfrecer(lista) {
+        aprendidos = [...new Set((lista || []).map(normal))]
+            .filter((t) => t && ubicarEnElTexto(texto, t).length);
+    }
+    fijarNoOfrecer(noOfrecer);
 
     contenedor.classList.add('selector');
     contenedor.tabIndex = 0;
@@ -138,7 +154,7 @@ export function crearSelector(contenedor, { texto, decisiones = {}, alCambiar = 
             const plano = normal(c.texto).toLocaleLowerCase('es');
             if (elegidosPlanos.includes(plano)) continue;
             // Lo descartado y lo que se dijo que no es persona ya esta decidido.
-            if ([...estado.descartados, ...estado.excepciones].some((d) => igualSinCaja(d, c.texto))) continue;
+            if ([...estado.descartados, ...estado.excepciones, ...aprendidos].some((d) => igualSinCaja(d, c.texto))) continue;
             for (const lugar of ubicarEnElTexto(texto, c.texto)) {
                 if (!tapadosEn(lugar.desde, lugar.hasta)) candidatos.push({ ...lugar, texto: c.texto });
             }
@@ -150,7 +166,7 @@ export function crearSelector(contenedor, { texto, decisiones = {}, alCambiar = 
             .filter((t) => esEtiquetaDeNombre(t.etiqueta))
             .map((t) => normal(texto.slice(t.desde, t.hasta)));
         for (const s of palabrasSueltasDeElegidos(r.texto, [...estado.elegidos.map((e) => e.texto), ...tapadosComoNombre])) {
-            if (estado.descartados.some((d) => igualSinCaja(d, s.texto))) continue;
+            if ([...estado.descartados, ...aprendidos].some((d) => igualSinCaja(d, s.texto))) continue;
             for (const lugar of ubicarEnElTexto(texto, s.texto)) {
                 if (!tapadosEn(lugar.desde, lugar.hasta)) candidatos.push({ ...lugar, texto: s.texto, suelta: true });
             }
@@ -219,6 +235,25 @@ export function crearSelector(contenedor, { texto, decisiones = {}, alCambiar = 
             ...estado.descartados.map((e) => ({ texto: `descartado: ${e}`,
                 quitar: () => cambiar({ descartados: estado.descartados.filter((x) => x !== e) }) })),
         ];
+        if (aprendidos.length) {
+            const caja = nodo('details', 'sel-aprendidos');
+            caja.append(nodo('summary', '', aprendidos.length === 1
+                ? '1 no se ofrece: en otro caso no era persona'
+                : `${aprendidos.length} no se ofrecen: en otros casos no eran persona`));
+            const lista = nodo('div', 'sel-fichas');
+            for (const t of aprendidos) {
+                const f = nodo('span', 'sel-ficha', t);
+                const b = boton('ofrecer acá', () => {
+                    aprendidos = aprendidos.filter((x) => x !== t);
+                    pintar();
+                }, 'sel-quitar');
+                b.title = 'Volver a ofrecerlo en este caso';
+                f.append(b);
+                lista.append(f);
+            }
+            caja.append(lista);
+            barra.append(caja);
+        }
         if (deshacibles.length) {
             const lista = nodo('div', 'sel-fichas');
             for (const d of deshacibles) {
@@ -465,7 +500,9 @@ export function crearSelector(contenedor, { texto, decisiones = {}, alCambiar = 
     return {
         /** Decisiones que cambiaron afuera —la lista de nombres de la pantalla—. No llama a `alCambiar`. */
         actualizar(nuevas) {
-            estado = { ...estado, ...JSON.parse(JSON.stringify(nuevas)) };
+            const { noOfrecer: otros, ...resto } = JSON.parse(JSON.stringify(nuevas));
+            if (otros) fijarNoOfrecer(otros);
+            estado = { ...estado, ...resto };
             pintar();
         },
         decisiones: copiar,
