@@ -493,6 +493,35 @@ ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
     contiene(texto, 'Insurgentes', 'y no pega dentro de otra palabra');
 }
 
+// --- Un apellido corto que es tambien una terminacion ----------------------
+//
+// 7/10/2026. En redactor, el patron de un alias no tenia borde de palabra, y un
+// apellido corto tapo la terminacion de palabras como "propietarios" o
+// "honorarios": 24 en un caso. Aca el motor ya tenia el borde; esto deja
+// escrito que lo tiene que seguir teniendo, al final de la palabra y con
+// tildes, porque redactor copia este patron y dice que es el mismo. Los
+// nombres son inventados.
+{
+    const elegidos = [{ texto: 'Toria', reemplazo: '[PERSONA]' }];
+    const entrada = 'Toria pide la moratoria y la convocatoria. La ejecutoria de TORIA es notoria.';
+    const { texto } = anonimizar(entrada, elegidos);
+    for (const palabra of ['moratoria', 'convocatoria', 'ejecutoria', 'notoria'])
+        contiene(texto, palabra, `un elegido corto no tapa la terminacion de «${palabra}»`);
+    ok((texto.match(/\[PERSONA\]/g) || []).length === 2,
+        'y tapa las dos apariciones enteras, sin distinguir mayusculas', texto);
+    ok(ubicarEnElTexto(entrada, 'Toria').length === 2,
+        'ubicarEnElTexto cuenta lo mismo que despues tapa el motor');
+
+    const conTildes = anonimizar('Bíficto y Ficto; Inventaño e Inventa; Inventáz e Inventá.', [
+        { texto: 'Ficto', reemplazo: '[PERSONA]' },
+        { texto: 'Inventa', reemplazo: '[TESTIGO]' },
+        { texto: 'Inventá', reemplazo: '[PERITO]' },
+    ]).texto;
+    contiene(conTildes, 'Bíficto y [PERSONA]', 'una letra con tilde antes del nombre no es borde');
+    contiene(conTildes, 'Inventaño e [TESTIGO]', 'la ñ es letra: no corta adentro de otra palabra');
+    contiene(conTildes, 'Inventáz e [PERITO]', 'ni una letra despues de un nombre con tilde');
+}
+
 // ---------------------------------------------------------------------------
 // REGRESION 7, 8 y 9: las tres fugas dun documento largo.
 //
