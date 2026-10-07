@@ -444,8 +444,16 @@ export const REGLAS_IDENTIFICADORES = [
  * juntas a proposito: si las dos listas se separan, el detector deja de
  * reconocer la etiqueta que el usuario eligio y la fuga vuelve en silencio.
  */
+//
+// CARATULA, ASEGURADORA, MEDIADOR y CALLE, 7/10/2026, a pedido de Javier: el
+// menu se quedaba corto. CALLE va aca y no como dato porque la elige una
+// persona sobre el texto, igual que un nombre; lo que eso cuesta es que una
+// palabra con mayuscula pegada a "[CALLE]" se ofrece como candidato, y se
+// descarta con un clic. [DOMICILIO] sigue afuera: lo pone una regla en cada
+// escrito y ahi el mismo costo seria ruido en todas las paginas.
 const NOMBRES_DE_ETIQUETA = [
     'PERSONA', 'ACTOR', 'DEMANDADO', 'LETRADO', 'PERITO', 'TESTIGO', 'EMPRESA',
+    'ASEGURADORA', 'CARATULA', 'MEDIADOR', 'CALLE',
 ];
 export const ETIQUETAS_DE_NOMBRE = NOMBRES_DE_ETIQUETA.map((n) => `[${n}]`);
 
