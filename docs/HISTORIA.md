@@ -19,6 +19,16 @@ de 2026.
 
 ---
 
+## El revisor deja de revisar la carátula — 7/10
+
+La primera prueba con un proveído del sistema funcionó, y la única falsa
+alarma salió de la carátula: un apellido en mayúsculas a una letra de una
+palabra común. Ahora la carátula se tapa antes de revisar —con «c/» y «s/»,
+como se arma en el fuero; la sucesión, sin «c/»; la que va entre comillas—, y
+el cuerpo se sigue revisando entero. «CONTRA» y «SOBRE» cuentan sólo en
+mayúsculas, porque en minúscula son prosa. Los casos están en
+`verificar-revisor`, con un apellido inventado.
+
 ## El revisor de ortografía de proveídos — 7/10
 
 El pedido: que un error de tipeo en un proveído salte a la vista apenas se abre

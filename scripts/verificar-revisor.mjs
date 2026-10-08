@@ -63,6 +63,15 @@ const casos = [
     ['inter-\nponerlo', [], 'el verbo con pronombre cortado se une'],
     ['a fs. 3, art. 12 del CPCCN, in fine, 2do párr.', [], 'abreviaturas, siglas, latinismos y ordinales'],
     ['ver www.ejemplo-inventado.com.ar hoy', [], 'una dirección web no se revisa'],
+    // La caratula no se revisa. CANTERAL es inventado y, suelto, se marca.
+    ['Lo pidió CANTERAL.', ['CANTERAL'], 'un apellido a una letra de una palabra común, suelto, se marca'],
+    ['CANTERAL, FULANO c/ MENGANEZ S.A. s/ COBRO DE PESOS\nResuevlo: ha lugar.', ['Resuevlo'], 'en la carátula no, y el cuerpo se sigue revisando'],
+    ['CANTERAL, FULANO c/ MENGANEZ S.A. y otros\ns/ DAÑOS Y PERJUICIOS\nResuevlo.', ['Resuevlo'], 'la carátula cortada en dos renglones'],
+    ['CANTERAL, FULANO s/ SUCESION AB-INTESTATO\nResuevlo.', ['Resuevlo'], 'la sucesión, sin «c/»'],
+    ['CANTERAL c/ MENGANEZ s/ DAÑOS Y PERJUICIOS (ACC. TRAN. C/ LES. O\nMUERTE)\nResuevlo.', ['Resuevlo'], 'el objeto largo que sigue en el renglón de abajo'],
+    ['en los autos «CANTERAL c/ MENGANEZ s/ ORDINARIO» resuevlo', ['resuevlo'], 'la carátula entre comillas, en medio del texto'],
+    ['acompaña c/ copia del CANTERAL', ['CANTERAL'], 'un «c/» suelto en el cuerpo no tapa el renglón'],
+    ['el recurso contra la resolucion sobre honorarios', ['resolucion'], '«contra» y «sobre» en minúscula son prosa'],
 ];
 for (const [texto, esperado, que] of casos) {
     const r = revisor.revisar(texto).map((h) => h.palabra);

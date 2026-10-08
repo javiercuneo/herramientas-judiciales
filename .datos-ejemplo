@@ -21,3 +21,5 @@ confronte/ejemplos/ejemplos.js         # los ejemplos inventados de Confronte ("
 extension-revisor/vendor/LICENCIA-nspell.txt  # licencia MIT de un tercero: el correo es parte del aviso de copyright, que la licencia obliga a conservar
 extension-revisor/vendor/pdf.worker.min.js  # pdf.js 3.11.174 de Mozilla, minificado y sin tocar (la misma copia de escribiente/vendor/): constantes numericas del codigo calzan con la forma de un telefono
 extension-revisor/vendor/pdf.min.js         # idem, la otra mitad de pdf.js
+extension-revisor/pruebas/pdf-sintetico.js  # el proveido inventado de la prueba del revisor: su caratula es inventada y esta para probar que se ignora
+scripts/verificar-revisor.mjs               # los casos del revisor: caratulas inventadas, para probar que se ignoran

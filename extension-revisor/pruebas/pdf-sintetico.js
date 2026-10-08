@@ -4,6 +4,7 @@
 //
 // Cada renglon de RENGLONES es una linea del PDF. Los errores sembrados estan
 // en SEMBRADOS; todo lo demas es texto que el revisor NO tiene que marcar:
+// la caratula (con un apellido inventado que fuera de ella se marcaria),
 // apellidos sin tilde, siglas, abreviaturas, latinismos, verbos con pronombre,
 // palabras cortadas a fin de renglon, una direccion web y ordinales.
 // ---------------------------------------------------------------------------
@@ -11,6 +12,8 @@
     'use strict';
 
     const RENGLONES = [
+        'Expediente 4321/2025',
+        'CANTERAL, FULANO c/ MENGANEZ S.A. s/ COBRO DE SUMAS DE DINERO',
         'Ciudad de Buenos Aires, 3 de marzo de 2026.',
         'AUTOS Y VISTOS: Atento lo peticionado a fs. 12/14 por la Dra. Rodriguez,',
         'y lo dispuesto por el art. 135 del CPCCN, corresponde proveer in fine.',

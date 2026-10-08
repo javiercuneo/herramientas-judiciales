@@ -67,7 +67,7 @@ function subrayar(spans, buscadas) {
         for (const m of t.texto.matchAll(LETRAS)) {
             if (buscadas.has(norma(m[0]))) t.rangos.push([m.index, m.index + m[0].length, norma(m[0])]);
         }
-        const corte = /([\p{L}\p{M}]+)[-‐­]\s*$/u.exec(t.texto);
+        const corte = /([\p{L}\p{M}]+)[-\u2010\u00AD]\s*$/u.exec(t.texto);
         const sig = tramos.slice(i + 1).find((x) => x.texto.trim());
         if (corte && sig) {
             const resto = /^\s*([\p{L}\p{M}]+)/u.exec(sig.texto);

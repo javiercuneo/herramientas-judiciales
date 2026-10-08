@@ -26,7 +26,9 @@ completa con cada palabra subrayada en rojo. **«Volver»** lo cierra.
 tilde se marca. Una con mayúscula se presume nombre propio o sigla y se marca
 sólo si es larga y a una letra de distancia hay una palabra común: «Resuevlo»
 sí (resuelvo), «Rodriguez» o «MENGANEZ» no. Las palabras cortadas con guion a
-fin de renglón se unen antes de revisarlas. Los verbos con pronombre pegado
+fin de renglón se unen antes de revisarlas. **La carátula no se revisa**: el renglón
+con «c/» y «s/» (o la sucesión, «X s/ SUCESIÓN»), y la que va entre comillas
+en medio del texto. Son casi todos apellidos, y daban falsas alarmas. Los verbos con pronombre pegado
 («notifíquese», «hágasele») se aceptan si llevan la tilde en su lugar.
 
 **«Es correcta»** guarda esa palabra para no volver a marcarla. Se guarda la

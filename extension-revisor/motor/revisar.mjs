@@ -16,7 +16,7 @@
 // Une las palabras cortadas a fin de renglon. Se deja una marca (U+2060) en
 // vez de unir sin mas, porque "teorico-practico" tambien puede caer cortado
 // justo en el guion: la decision se toma al revisar, no aca.
-export const UNION = '⁠';
+export const UNION = '\u2060';
 
 // Texto de pdf.js (items con str y hasEOL) -> texto plano con saltos.
 export function textoDeItems(items) {
@@ -31,9 +31,60 @@ export function textoDeItems(items) {
 export function prepararTexto(texto) {
     return texto
         .normalize('NFKC')                       // ligaduras (fi, fl) y º -> o
-        .replace(/­/g, '')                  // guion suave
-        .replace(/(\p{L})[-‐‑]\s*\n\s*(?=\p{L})/gu, '$1' + UNION)
+        .replace(/\u00AD/g, '')                  // guion suave
+        .replace(/(\p{L})[-\u2010\u2011]\s*\n\s*(?=\p{L})/gu, '$1' + UNION)
         .replace(/\s+/g, ' ');
+}
+
+// LA CARATULA NO SE REVISA. Es casi toda apellidos y razones sociales en
+// mayusculas, y un apellido raro a una letra de una palabra comun es una
+// falsa alarma en cada proveido de esa causa. Se reconoce como en el fuero:
+// actor, "c/", demandado, "s/", objeto. Se tapa:
+//   - lo que va entre comillas si adentro hay "c/" o "s/": en los autos
+//     "X c/ Y s/ Z";
+//   - el renglon con "c/" y despues "s/", entero. Si el "s/" cae en el
+//     renglon siguiente, ese tambien: la caratula larga se corta;
+//   - el renglon con "s/" sin "c/", si lo anterior al "s/" va en mayusculas:
+//     "X s/ SUCESION", "X s/ BENEFICIO DE LITIGAR SIN GASTOS";
+//   - y un renglon mas, si sigue en mayusculas: el objeto largo se corta.
+// "CONTRA" y "SOBRE" cuentan solo en mayusculas: en minuscula son prosa
+// ("el recurso contra la resolucion sobre honorarios"). Y un "c/" suelto en
+// el cuerpo ("acompaña c/ copia") no tapa nada.
+const SEP_C = /(?:^|\s)(?:[cC]\/|CONTRA\s)/;
+const SEP_S = /(?:^|\s)(?:[sS]\/|SOBRE\s)/;
+const ENTRE_COMILLAS = /[“"«]([^”"»\n]{4,300})[”"»]/g;
+
+function enMayusculas(s) {
+    const letras = s.match(/\p{L}/gu) || [];
+    const mayus = s.match(/\p{Lu}/gu) || [];
+    return letras.length >= 3 && mayus.length / letras.length >= 0.7;
+}
+
+export function taparCaratulas(texto) {
+    const tapar = (s) => s.replace(/[^\n]/g, ' ');
+    const t = texto.replace(ENTRE_COMILLAS, (m, adentro) =>
+        (/(?:^|\s)[cCsS]\//.test(adentro) ? tapar(m) : m));
+    const renglones = t.split('\n');
+    const esCaratula = (i) => {
+        const r = renglones[i];
+        const c = r.search(SEP_C);
+        if (c >= 0) {
+            if (SEP_S.test(r.slice(c + 1))) return 1;
+            if (i + 1 < renglones.length && SEP_S.test(renglones[i + 1])) return 2;
+            return 0;
+        }
+        const s = r.search(SEP_S);
+        return s > 0 && enMayusculas(r.slice(0, s)) ? 1 : 0;
+    };
+    for (let i = 0; i < renglones.length; i++) {
+        const n = esCaratula(i);
+        if (!n) continue;
+        for (let k = 0; k < n; k++) renglones[i + k] = tapar(renglones[i + k]);
+        i += n - 1;
+        const sig = renglones[i + 1];
+        if (sig !== undefined && enMayusculas(sig) && !/:\s*$/.test(sig)) renglones[++i] = tapar(sig);
+    }
+    return renglones.join('\n');
 }
 
 // Lo que no es prosa: direcciones web y correos. Se reemplaza por espacios
@@ -167,7 +218,7 @@ export function crearRevisor({ corrector, propias = [], personales = [] }) {
     }
 
     function revisar(textoCrudo, { palabrasContexto = 4 } = {}) {
-        const texto = prepararTexto(textoCrudo).replace(NO_PROSA, (s) => ' '.repeat(s.length));
+        const texto = prepararTexto(taparCaratulas(textoCrudo)).replace(NO_PROSA, (s) => ' '.repeat(s.length));
         const hallazgos = new Map();
         for (const m of texto.matchAll(PALABRA)) {
             const tramo = m[0];
