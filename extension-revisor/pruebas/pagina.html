@@ -30,7 +30,10 @@
     sesion.src = 'about:blank';
     document.body.appendChild(sesion);
 
-    const blob = new Blob([PdfSintetico.armarPdf()], { type: 'application/pdf' });
+    // /despacho/9.../view muestra un escrito; cualquier otro, un proveido.
+    const escrito = location.pathname.startsWith('/despacho/9');
+    const pdf = PdfSintetico.armarPdf(escrito ? PdfSintetico.RENGLONES_ESCRITO : PdfSintetico.RENGLONES);
+    const blob = new Blob([pdf], { type: 'application/pdf' });
     const visor = document.createElement('iframe');
     visor.className = 'visor';
     visor.src = URL.createObjectURL(blob);

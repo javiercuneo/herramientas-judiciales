@@ -1,17 +1,21 @@
 // ---------------------------------------------------------------------------
 // Script de contenido: corre en las paginas de sgj-docs.pjn.gov.ar.
 //
-// Hace tres cosas y nada mas:
-//   1. espera a que la pagina de un proveido (/despacho/<n>/view) muestre el
-//      PDF en un iframe con direccion blob:,
+// En la pagina de un proveido (/despacho/<n>/view):
+//   1. espera a que el PDF aparezca en un iframe con direccion blob:,
 //   2. lee los bytes de ese PDF desde esa misma direccion -- es memoria del
 //      navegador, no sale nada a la red --,
-//   3. pone arriba a la derecha el recuadro de la extension (panel.html) y le
-//      pasa los bytes. El recuadro hace el resto.
+//   3. se los pasa al recuadro (panel.html), que arranca OCULTO, revisa y
+//      dice que palabras quedaron. El recuadro se abre con el icono de la
+//      extension o con Alt+Mayus+R;
+//   4. si quedo alguna, pone la vista con subrayado (vista.html) encima del
+//      visor de PDF, del mismo tamano: el mismo documento, con las palabras
+//      subrayadas. Si no quedo ninguna, no pone nada y se ve el visor de
+//      siempre.
 //
-// No hace clics, no completa nada y no toca lo que la pagina guarda. El
-// recuadro es un iframe propio de la extension: la pagina no ve su contenido
-// ni su CSS lo pisa.
+// No hace clics, no completa nada y no toca lo que la pagina guarda. Las dos
+// piezas son iframes propios de la extension: la pagina no ve su contenido ni
+// su CSS las pisa.
 // ---------------------------------------------------------------------------
 (() => {
     'use strict';
@@ -19,102 +23,169 @@
     const RUTA_PROVEIDO = /^\/despacho\/[^/]+\/view\/?$/;
     const ANCHO = 440;
 
-    let panel = null;          // el iframe del recuadro
-    let panelListo = false;    // el recuadro avisa cuando ya escucha
-    let pendiente = null;      // mensaje para el recuadro, si llego antes que el
+    let visorPdf = null;       // el iframe blob: de la pagina
     let ultimoBlob = null;     // la ultima direccion blob: revisada
-    let completa = false;      // el recuadro esta a toda la pantalla
-    let altoCaja = 64;
+    let bytesPdf = null;       // copia para la vista; solo en memoria
+    let hallazgos = [];        // lo ultimo que dijo el recuadro
+    let verSubrayado = true;   // "Ver PDF original" lo apaga
 
-    function crearPanel() {
-        if (panel) return;
-        panel = document.createElement('iframe');
-        panel.src = chrome.runtime.getURL('panel.html');
-        panel.title = 'Revisor de ortografía';
-        panel.setAttribute('data-revisor-pjn', '');
-        Object.assign(panel.style, {
-            position: 'fixed', top: '12px', right: '12px', zIndex: '2147483647',
-            width: ANCHO + 'px', height: '64px', maxHeight: 'calc(100vh - 24px)',
-            border: '0', borderRadius: '10px', background: 'transparent',
-            boxShadow: '0 6px 24px rgba(0,0,0,.28)', colorScheme: 'light',
-        });
-        document.documentElement.appendChild(panel);
+    // Cada pieza: el iframe, si ya escucha, y lo que espera para cuando escuche.
+    const panel = { marco: null, listo: false, cola: [] };
+    const vista = { marco: null, listo: false, cola: [] };
+
+    function crearMarco(pieza, archivo, titulo, estilo) {
+        const f = document.createElement('iframe');
+        f.src = chrome.runtime.getURL(archivo);
+        f.title = titulo;
+        f.setAttribute('data-revisor-pjn', archivo.replace('.html', ''));
+        Object.assign(f.style, { position: 'fixed', border: '0', zIndex: '2147483646', colorScheme: 'light' }, estilo);
+        document.documentElement.appendChild(f);
+        Object.assign(pieza, { marco: f, listo: false, cola: [] });
     }
 
-    // Oculto del todo, no plegado: se vuelve a mostrar con el icono de la
-    // extension o con su atajo de teclado. Un proveido nuevo lo muestra solo.
+    function quitarMarco(pieza) {
+        if (pieza.marco) pieza.marco.remove();
+        Object.assign(pieza, { marco: null, listo: false, cola: [] });
+    }
+
+    function enviar(pieza, msg, transferir) {
+        if (!pieza.marco) return;
+        if (!pieza.listo) { pieza.cola.push([msg, transferir]); return; }
+        pieza.marco.contentWindow.postMessage({ revisorPJN: true, ...msg }, new URL(pieza.marco.src).origin, transferir || []);
+    }
+
+    // --- El recuadro -------------------------------------------------------
+    function crearPanel() {
+        if (panel.marco) return;
+        crearMarco(panel, 'panel.html', 'Revisor de ortografía', {
+            top: '12px', right: '12px', zIndex: '2147483647',
+            width: ANCHO + 'px', height: '64px', maxHeight: 'calc(100vh - 24px)',
+            borderRadius: '10px', background: 'transparent',
+            boxShadow: '0 6px 24px rgba(0,0,0,.28)', display: 'none',
+        });
+    }
+
     function mostrarPanel(si) {
-        if (panel) panel.style.display = si ? '' : 'none';
+        if (panel.marco) panel.marco.style.display = si ? '' : 'none';
     }
 
     chrome.runtime.onMessage.addListener((msg, _de, responder) => {
-        if (msg && msg.revisorPJN === 'alternar' && panel) {
-            mostrarPanel(panel.style.display === 'none');
-            responder({ visible: panel.style.display !== 'none' });
+        if (msg && msg.revisorPJN === 'alternar' && panel.marco) {
+            mostrarPanel(panel.marco.style.display === 'none');
+            responder({ visible: panel.marco.style.display !== 'none' });
         }
     });
 
-    function aPanel(msg, transferir) {
-        if (!panelListo) { pendiente = { msg, transferir }; return; }
-        panel.contentWindow.postMessage({ revisorPJN: true, ...msg }, new URL(panel.src).origin, transferir || []);
+    // --- La vista con subrayado ------------------------------------------
+    // Encima del visor, con su mismo rectangulo. Se reubica cuando la pagina
+    // cambia de tamano o se desplaza.
+    function ubicarVista() {
+        if (!vista.marco || !visorPdf) return;
+        const r = visorPdf.getBoundingClientRect();
+        Object.assign(vista.marco.style, {
+            left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px',
+        });
+    }
+    const observarTamano = new ResizeObserver(ubicarVista);
+    window.addEventListener('resize', ubicarVista);
+    window.addEventListener('scroll', ubicarVista, true);
+
+    function actualizarVista() {
+        const hay = hallazgos.length > 0 && verSubrayado && bytesPdf && visorPdf;
+        if (!hay) {
+            if (vista.marco) vista.marco.style.display = 'none';
+            return;
+        }
+        if (!vista.marco) {
+            crearMarco(vista, 'vista.html', 'Proveído con subrayado', { background: '#525659' });
+            ubicarVista();
+            const copia = bytesPdf.slice(0);
+            enviar(vista, { tipo: 'pdf', bytes: copia, hallazgos }, [copia]);
+        } else {
+            enviar(vista, { tipo: 'palabras', palabras: hallazgos.map((h) => h.palabra) });
+        }
+        vista.marco.style.display = '';
     }
 
-    // Lo unico que se escucha de afuera es al propio recuadro: el alto que
-    // necesita y que ya esta listo. Cualquier otro mensaje se ignora.
+    // --- Los mensajes de las dos piezas -----------------------------------
+    // Se escucha solo a los propios iframes. Cualquier otro mensaje se ignora.
     window.addEventListener('message', (e) => {
-        if (!panel || e.source !== panel.contentWindow) return;
+        const pieza = panel.marco && e.source === panel.marco.contentWindow ? panel
+            : vista.marco && e.source === vista.marco.contentWindow ? vista : null;
+        if (!pieza) return;
         const d = e.data;
         if (!d || d.revisorPJN !== true) return;
-        if (d.tipo === 'listo') {
-            panelListo = true;
-            if (pendiente) { const p = pendiente; pendiente = null; aPanel(p.msg, p.transferir); }
-        } else if (d.tipo === 'alto' && Number.isFinite(d.px)) {
-            altoCaja = Math.max(40, Math.ceil(d.px));
-            if (!completa) panel.style.height = altoCaja + 'px';
-        } else if (d.tipo === 'ocultar') {
+
+        if (d.tipo === 'listo' || d.tipo === 'vista-lista') {
+            pieza.listo = true;
+            const cola = pieza.cola;
+            pieza.cola = [];
+            for (const [m, t] of cola) enviar(pieza, m, t);
+        } else if (pieza === panel && d.tipo === 'alto' && Number.isFinite(d.px)) {
+            panel.marco.style.height = Math.max(40, Math.ceil(d.px)) + 'px';
+        } else if (pieza === panel && d.tipo === 'ocultar') {
             mostrarPanel(false);
-        } else if (d.tipo === 'pantalla') {
-            // La vista con subrayado: el mismo recuadro, a toda la pantalla.
-            completa = d.completa === true;
-            Object.assign(panel.style, completa
-                ? { top: '0', right: '0', width: '100vw', height: '100vh', maxHeight: 'none', borderRadius: '0' }
-                : { top: '12px', right: '12px', width: ANCHO + 'px', height: altoCaja + 'px', maxHeight: 'calc(100vh - 24px)', borderRadius: '10px' });
+        } else if (pieza === panel && d.tipo === 'resultado' && Array.isArray(d.hallazgos)) {
+            hallazgos = d.hallazgos;
+            actualizarVista();
+        } else if (pieza === panel && d.tipo === 'subrayado') {
+            verSubrayado = d.ver === true;
+            actualizarVista();
+        } else if (pieza === panel && d.tipo === 'ir' && typeof d.palabra === 'string') {
+            enviar(vista, { tipo: 'ir', palabra: d.palabra });
+        } else if (pieza === vista && d.tipo === 'vista-falla') {
+            // Si no se pudo dibujar, que se vea el visor de siempre.
+            quitarMarco(vista);
         }
     });
 
-    async function revisar(url) {
-        ultimoBlob = url;
+    // --- El PDF ------------------------------------------------------------
+    function olvidar() {
+        quitarMarco(vista);
+        if (visorPdf) observarTamano.unobserve(visorPdf);
+        visorPdf = null;
+        ultimoBlob = null;
+        bytesPdf = null;
+        hallazgos = [];
+        verSubrayado = true;
+    }
+
+    async function revisar(marcoPdf) {
+        olvidar();
+        visorPdf = marcoPdf;
+        observarTamano.observe(marcoPdf);
+        const url = ultimoBlob = marcoPdf.src;
         crearPanel();
-        mostrarPanel(true);
-        aPanel({ tipo: 'leyendo' });
+        enviar(panel, { tipo: 'leyendo' });
         let bytes;
         try {
             const r = await fetch(url);
             bytes = await r.arrayBuffer();
         } catch (err) {
-            aPanel({ tipo: 'error', mensaje: 'No pude leer el PDF de esta página.' });
+            enviar(panel, { tipo: 'error', mensaje: 'No pude leer el PDF de esta página.' });
             return;
         }
         if (url !== ultimoBlob) return;   // ya cambio de proveido
         const cabeza = new TextDecoder('latin1').decode(new Uint8Array(bytes, 0, Math.min(1024, bytes.byteLength)));
         if (!cabeza.includes('%PDF-')) {
-            aPanel({ tipo: 'error', mensaje: 'Lo que muestra la página no es un PDF.' });
+            enviar(panel, { tipo: 'error', mensaje: 'Lo que muestra la página no es un PDF.' });
             return;
         }
-        aPanel({ tipo: 'pdf', bytes }, [bytes]);
+        bytesPdf = bytes.slice(0);
+        enviar(panel, { tipo: 'pdf', bytes }, [bytes]);
     }
 
     function buscar() {
         if (!RUTA_PROVEIDO.test(location.pathname)) {
-            // Salio del proveido sin recargar: el recuadro se va con el.
-            if (panel) { panel.remove(); panel = null; panelListo = false; pendiente = null; ultimoBlob = null; completa = false; }
+            // Salio del proveido sin recargar: las dos piezas se van con el.
+            olvidar();
+            quitarMarco(panel);
             return;
         }
-        for (const f of document.querySelectorAll('iframe[src^="blob:"]')) {
-            if (f === panel) continue;
-            if (f.src !== ultimoBlob) revisar(f.src);
-            return;
-        }
+        const f = [...document.querySelectorAll('iframe[src^="blob:"]')].find((x) => !x.hasAttribute('data-revisor-pjn'));
+        if (f && f.src !== ultimoBlob) revisar(f);
+        else if (f && f !== visorPdf) { visorPdf = f; observarTamano.observe(f); ubicarVista(); }
+        else ubicarVista();
     }
 
     // La pagina es una aplicacion que arma el visor despues de cargar, y puede

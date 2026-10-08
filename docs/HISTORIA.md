@@ -19,6 +19,25 @@ de 2026.
 
 ---
 
+## El revisor hace menos ruido y sólo mira proveídos — 8/10
+
+Con el uso, Javier pidió tres cosas. **Menos ruido:** que sólo subraye en el
+PDF. Como el visor de Chrome no se puede tocar, la extensión dibuja el mismo
+PDF con pdf.js en un iframe propio puesto encima del visor, con su mismo
+rectángulo; si no hay errores no pone nada. El recuadro arranca oculto y se
+abre con el ícono, que lleva la cuenta. **«Es correcta» sin ventana:** clic en
+la palabra subrayada abre un menú chico al lado. La lista personal es la
+fuente única: la vista escribe en `chrome.storage.local`, el recuadro se
+entera por `storage.onChanged` y le dice a la página qué palabras siguen.
+**Sólo proveídos:** se revisa si el principio del texto dice «Poder Judicial de
+la Nación», «JUZGADO…» y un expediente NNNNN/NNNN; los escritos de letrados
+quedan afuera, con «Revisar igual» por si hace falta. El escudo no se mira: el
+texto alcanza y el escudo puede no venir como imagen.
+
+**El precio:** mientras está el subrayado, la barra del visor de Chrome
+(imprimir, bajar, zoom) queda debajo. «Ver PDF original», en el recuadro, la
+devuelve.
+
 ## El recuadro se oculta del todo — 7/10
 
 La × sólo plegaba el recuadro y no había forma de sacarlo ni de traerlo. Ahora

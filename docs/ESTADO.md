@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-10-07 · rama `main`
+Última actualización: 2026-10-08 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -672,16 +672,16 @@ escriba mañana tampoco sale.
 
 ## El revisor de ortografía de proveídos
 
-Extensión de Chrome en `extension-revisor/` (7/10): lee el PDF del iframe
-`blob:` de la página del proveído, lo revisa con el diccionario de LibreOffice
-y muestra los posibles errores; «Ver con subrayado» los marca sobre el PDF.
-**No se publica**: no está en `pages.yml`, se instala a mano. Su
-[`README.md`](../extension-revisor/README.md) dice cómo y qué no hace.
+Extensión de Chrome en `extension-revisor/` (7/10, anda en la oficina): sólo
+en proveídos —encabezado «Poder Judicial de la Nación», «JUZGADO», expediente—
+dibuja el PDF encima del visor de Chrome con los posibles errores subrayados,
+y nada más; el recuadro sale con el ícono. **No se publica**: no está en
+`pages.yml`. Su [`README.md`](../extension-revisor/README.md) dice cómo.
 
-- **Falta probarla con un proveído del sistema, y es de Javier.** Si dice «No
-  pude leer el PDF», el plan B es un script en `world: "MAIN"`.
-- **Sin `use_dynamic_url`**: con él, el origen del recuadro no coincide con su
-  dirección y los mensajes se pierden sin error.
+- **Falta saber si la PC institucional deja el modo de desarrollador**, y es
+  de Javier.
+- **Sin `use_dynamic_url`**: con él, el origen de los iframes no coincide con
+  su dirección y los mensajes se pierden sin error.
 - **Una regla nueva de `motor/revisar.mjs` entra con su caso** en
   `verificar-revisor`. El criterio se mide por falsas alarmas.
 

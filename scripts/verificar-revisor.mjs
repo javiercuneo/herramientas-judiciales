@@ -78,6 +78,15 @@ for (const [texto, esperado, que] of casos) {
     const r = revisor.revisar(texto).map((h) => h.palabra);
     ok(iguales(r, esperado), `${que}${iguales(r, esperado) ? '' : ` (dio: ${r.join(', ') || 'nada'})`}`);
 }
+// Solo se revisan proveidos.
+const { esProveido } = await import(pathToFileURL(path.join(EXT, 'motor/revisar.mjs')).href);
+ok(esProveido(RENGLONES.join('\n')), 'el proveído inventado se reconoce como proveído');
+ok(!esProveido(globalThis.PdfSintetico.RENGLONES_ESCRITO.join('\n')), 'el escrito inventado, no');
+ok(esProveido('#12345678#987654321#20260303\nPoder Judicial de la Nación\nJUZGADO NACIONAL EN LO CIVIL N° 99\nExpte. N° 4321/2025\nCANTERAL c/ MENGANEZ s/ COBRO'),
+    'con un código de barras delante y el juzgado escrito largo, también');
+ok(!esProveido('Señor Juez:\nen los autos 4321/2025 del Poder Judicial de la Nación, juzgado civil 99'),
+    'nombrar al juzgado en el cuerpo no lo hace proveído');
+
 const conPersonal = crearRevisor({ corrector, propias, personales: ['Resuevlo'] });
 ok(conPersonal.revisar('Resuevlo: ha lugar.').length === 0, 'la lista personal se respeta sin importar mayúsculas');
 
@@ -136,107 +145,139 @@ await contexto.route('**/*', async (route) => {
     return route.abort();
 });
 
+const marcoDe = (pagina, archivo) => pagina.frames().find((f) => f.url().startsWith('chrome-extension://') && f.url().includes(archivo));
+const iframe = (pagina, cual) => pagina.evaluate((c) => {
+    const f = document.querySelector(`iframe[data-revisor-pjn="${c}"]`);
+    if (!f) return null;
+    const r = f.getBoundingClientRect();
+    return { visible: getComputedStyle(f).display !== 'none', x: r.left, y: r.top, w: r.width, h: r.height };
+}, cual);
+
+async function esperarMarco(pagina, archivo) {
+    for (let i = 0; i < 100; i++) {
+        const m = marcoDe(pagina, archivo);
+        if (m) return m;
+        await pagina.waitForTimeout(100);
+    }
+    return null;
+}
+
 async function abrirYEsperarPanel(pagina, ruta) {
     await pagina.goto(`https://sgj-docs.pjn.gov.ar${ruta}`);
-    let marco = null;
-    for (let i = 0; i < 100 && !marco; i++) {
-        marco = pagina.frames().find((f) => f.url().startsWith('chrome-extension://') && f.url().includes('panel.html'));
-        if (!marco) await pagina.waitForTimeout(100);
-    }
+    const marco = await esperarMarco(pagina, 'panel.html');
     if (!marco) return null;
-    await marco.waitForSelector('body[data-estado="con-errores"], body[data-estado="sin-errores"], body[data-estado="falla"]', { state: 'attached', timeout: 20000 })
-        .catch(async () => console.log('    (el recuadro quedó en: ' + await marco.evaluate(() => document.getElementById('titulo').textContent) + ')'));
+    await marco.waitForSelector('body[data-estado="con-errores"], body[data-estado="sin-errores"], body[data-estado="falla"], body[data-estado="no-proveido"]', { state: 'attached', timeout: 20000 })
+        .catch(async () => console.log(`    (el recuadro quedó en: ${await marco.evaluate(() => document.getElementById('titulo').textContent)})`));
     return marco;
+}
+
+async function esperarVista(pagina) {
+    const vista = await esperarMarco(pagina, 'vista.html');
+    if (vista) await vista.waitForSelector('body[data-estado]', { state: 'attached', timeout: 20000 }).catch(() => {});
+    return vista;
 }
 
 const pagina = await contexto.newPage();
 const errores = [];
 pagina.on('console', (m) => { if (m.type() === 'error') errores.push(m.text()); });
+const captura = process.argv.includes('--captura') ? process.argv[process.argv.indexOf('--captura') + 1] : null;
+const capturar = async (sufijo) => { if (captura) await pagina.screenshot({ path: captura.replace(/\.png$/, `${sufijo}.png`) }); };
+const deLaPestana = (marco, msg) => marco.evaluate(async (m) => {
+    const pestana = await chrome.tabs.getCurrent();
+    return chrome.tabs.sendMessage(pestana.id, m);
+}, msg);
+const cuentaDe = (marco) => marco.evaluate(async () => {
+    const pestana = await chrome.tabs.getCurrent();
+    return pestana ? chrome.action.getBadgeText({ tabId: pestana.id }) : '(sin pestaña)';
+});
 
 // El fragmento del inicio de sesion va en la direccion, como en el sistema.
 const marco = await abrirYEsperarPanel(pagina, '/despacho/123/view#state=x&code=y');
-ok(!!marco, 'el recuadro aparece solo, sin hacer nada');
+ok(!!marco, 'el recuadro se arma solo, sin hacer nada');
 if (marco) {
     const estado = await marco.evaluate(() => document.body.dataset.estado);
-    const titulo = await marco.evaluate(() => document.getElementById('titulo').textContent);
     const palabras = await marco.evaluate(() => [...document.querySelectorAll('#lista li')].map((li) => li.dataset.palabra));
-    ok(estado === 'con-errores', `el recuadro está en rojo (estado: ${estado})`);
-    ok(iguales(palabras, SEMBRADOS), `dice exactamente los sembrados: ${palabras.join(', ')}`);
-    ok(titulo.startsWith(`${SEMBRADOS.length} posibles errores:`), `el título los cuenta: «${titulo}»`);
-    const contexto1 = await marco.evaluate(() => document.querySelector('#lista li .contexto')?.textContent || '');
-    ok(contexto1.length > 15, `cada uno trae su contexto: «${contexto1}»`);
+    ok(estado === 'con-errores', `el proveído se revisa (estado: ${estado})`);
+    ok(iguales(palabras, SEMBRADOS), `el recuadro lista exactamente los sembrados: ${palabras.join(', ')}`);
+    ok(!(await iframe(pagina, 'panel')).visible, 'pero arranca oculto: no hace ruido');
+    const c1 = await cuentaDe(marco);
+    ok(c1 === String(SEMBRADOS.length), `el ícono muestra la cuenta: «${c1}»`);
 
-    // Fase B: el mismo recuadro, a toda la pantalla, con cada error
-    // subrayado sobre el documento dibujado.
-    const captura = process.argv.includes('--captura') ? process.argv[process.argv.indexOf('--captura') + 1] : null;
-    if (captura) await pagina.screenshot({ path: captura.replace(/\.png$/, '-recuadro.png') });
-    await marco.click('#ver');
-    await marco.waitForSelector('body[data-vista]', { state: 'attached', timeout: 20000 }).catch(() => {});
-    const estadoVista = await marco.evaluate(() => document.body.dataset.vista);
-    const alto = await pagina.evaluate(() => document.querySelector('iframe[data-revisor-pjn]').getBoundingClientRect().height);
-    const altoVentana = await pagina.evaluate(() => window.innerHeight);
-    ok(estadoVista === 'lista' && Math.abs(alto - altoVentana) < 2, `«Ver con subrayado» dibuja el PDF a toda la pantalla (estado: ${estadoVista}, alto ${alto}/${altoVentana})`);
-    const subrayadas = await marco.evaluate(() => [...new Set([...document.querySelectorAll('mark.error')].map((m) => m.dataset.palabra))]);
-    const pedazos = await marco.evaluate(() => [...document.querySelectorAll('mark.error')].map((m) => m.textContent));
-    ok(iguales(subrayadas, SEMBRADOS.map((p) => p.toLocaleLowerCase('es'))), `subraya exactamente los sembrados: ${subrayadas.join(', ')}`);
-    ok(pedazos.includes('documen-') && pedazos.includes('tasión'), `la palabra cortada se subraya en sus dos renglones: ${pedazos.join(' | ')}`);
-    const marcaVisible = await marco.evaluate(() => {
-        const m = document.querySelector('mark.error');
-        if (!m) return false;
-        const r = m.getBoundingClientRect();
-        const pag = m.closest('.pagina').getBoundingClientRect();
-        return r.width > 5 && r.height > 5 && r.left >= pag.left && r.right <= pag.right;
-    });
-    ok(marcaVisible, 'el subrayado cae sobre la página, con tamaño');
-    if (captura) await pagina.screenshot({ path: captura });
-    await marco.click('#volver');
-    await pagina.waitForTimeout(300);
-    const altoVuelta = await pagina.evaluate(() => document.querySelector('iframe[data-revisor-pjn]').getBoundingClientRect().height);
-    const marcasVuelta = await marco.evaluate(() => document.querySelectorAll('mark.error').length);
-    ok(altoVuelta < altoVentana - 100 && marcasVuelta === 0, `«Volver» achica el recuadro y descarta el dibujo (alto ${altoVuelta})`);
+    // El subrayado, encima del visor y del mismo tamano.
+    const vista = await esperarVista(pagina);
+    ok(!!vista && await vista.evaluate(() => document.body.dataset.estado) === 'lista', 'el PDF aparece dibujado con el subrayado');
+    if (vista) {
+        const rv = await iframe(pagina, 'vista');
+        const rp = await pagina.evaluate(() => { const r = document.querySelector('iframe.visor').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
+        ok(rv.visible && ['x', 'y', 'w', 'h'].every((k) => Math.abs(rv[k] - rp[k]) < 1.5), 'justo encima del visor, del mismo tamaño');
+        const subrayadas = await vista.evaluate(() => [...new Set([...document.querySelectorAll('mark.error')].map((m) => m.dataset.palabra))]);
+        const pedazos = await vista.evaluate(() => [...document.querySelectorAll('mark.error')].map((m) => m.textContent));
+        ok(iguales(subrayadas, SEMBRADOS.map((p) => p.toLocaleLowerCase('es'))), `subraya exactamente los sembrados: ${subrayadas.join(', ')}`);
+        ok(pedazos.includes('documen-') && pedazos.includes('tasión'), 'la palabra cortada se subraya en sus dos renglones');
+        ok(!pedazos.some((t) => /CANTERAL/.test(t)), 'la carátula no se subraya');
+        await capturar('');
 
-    // El icono de la extension lleva la cuenta, para verla con el recuadro oculto.
-    const insignia = await marco.evaluate(async () => {
-        const pestana = await chrome.tabs.getCurrent();
-        return pestana ? chrome.action.getBadgeText({ tabId: pestana.id }) : '(sin pestaña)';
-    });
-    ok(insignia === String(SEMBRADOS.length), `el ícono de la extensión muestra la cuenta: «${insignia}»`);
+        // Clic en la palabra: el menu chico, y "Es correcta".
+        await vista.click('mark.error[data-palabra="presentasion"]');
+        const menu = await vista.evaluate(() => document.getElementById('menu')?.textContent || '');
+        ok(menu.includes('Es correcta') && menu.includes('presentación'), `clic en la palabra: la sugerencia y «Es correcta», al lado: «${menu}»`);
+        await capturar('-menu');
+        await vista.click('#menu button');
+        await pagina.waitForTimeout(400);
+        const guardado = await marco.evaluate(() => chrome.storage.local.get(null));
+        ok(JSON.stringify(guardado) === JSON.stringify({ palabrasPersonales: ['presentasion'] }), `«Es correcta» guarda sólo la palabra: ${JSON.stringify(guardado)}`);
+        const quedanVista = await vista.evaluate(() => [...new Set([...document.querySelectorAll('mark.error')].map((m) => m.dataset.palabra))]);
+        ok(!quedanVista.includes('presentasion') && quedanVista.length === SEMBRADOS.length - 1, 'deja de subrayarla');
+        const quedan = await marco.evaluate(() => document.querySelectorAll('#lista li').length);
+        ok(quedan === SEMBRADOS.length - 1 && await cuentaDe(marco) === String(SEMBRADOS.length - 1), 'y el recuadro y el ícono se enteran');
 
-    // La X lo oculta del todo, y el icono (o el atajo) lo trae de vuelta. El
-    // clic en el icono no se puede simular: se manda el mismo mensaje que el
-    // script de fondo manda al recibirlo.
-    const visible = () => pagina.evaluate(() => getComputedStyle(document.querySelector('iframe[data-revisor-pjn]')).display !== 'none');
-    await marco.click('#cerrar');
-    await pagina.waitForTimeout(200);
-    ok(!(await visible()), 'la X oculta el recuadro del todo');
-    const alternar = () => marco.evaluate(async () => {
-        const pestana = await chrome.tabs.getCurrent();
-        return chrome.tabs.sendMessage(pestana.id, { revisorPJN: 'alternar' });
-    });
-    await alternar();
-    ok(await visible(), 'el ícono lo vuelve a mostrar');
-    await alternar();
-    ok(!(await visible()), 'y lo vuelve a ocultar');
-    await alternar();
+        // La R muestra y oculta el recuadro. El clic en el icono no se puede
+        // simular: se manda el mismo mensaje que el script de fondo manda.
+        await deLaPestana(marco, { revisorPJN: 'alternar' });
+        ok((await iframe(pagina, 'panel')).visible, 'el ícono abre el recuadro');
+        await pagina.waitForTimeout(400);
+        await capturar('-recuadro');
+        await marco.click('li[data-palabra="Resuevlo"] button.palabra');
+        await pagina.waitForTimeout(300);
+        ok(await vista.evaluate(() => document.querySelector('mark.foco')?.dataset.palabra) === 'resuevlo', 'clic en una palabra del recuadro la señala en el documento');
+        await marco.click('#original');
+        await pagina.waitForTimeout(200);
+        ok(!(await iframe(pagina, 'vista')).visible, '«Ver PDF original» saca el subrayado y deja el visor de Chrome');
+        await marco.click('#original');
+        await pagina.waitForTimeout(200);
+        ok((await iframe(pagina, 'vista')).visible, 'y «Ver con subrayado» lo vuelve a poner');
+        await marco.click('#cerrar');
+        await pagina.waitForTimeout(200);
+        ok(!(await iframe(pagina, 'panel')).visible, 'la X lo oculta del todo');
+        await deLaPestana(marco, { revisorPJN: 'alternar' });
+        ok((await iframe(pagina, 'panel')).visible, 'y el ícono lo trae de vuelta');
+    }
 
-    // "Es correcta": se guarda la palabra y nada mas.
-    await marco.click('li[data-palabra="presentasion"] .acciones button');
-    const guardado = await marco.evaluate(() => chrome.storage.local.get(null));
-    ok(JSON.stringify(guardado) === JSON.stringify({ palabrasPersonales: ['presentasion'] }),
-        `«Es correcta» guarda sólo la palabra: ${JSON.stringify(guardado)}`);
-    const quedan = await marco.evaluate(() => document.querySelectorAll('#lista li').length);
-    ok(quedan === SEMBRADOS.length - 1, 'y la saca del recuadro');
-
-    // Al volver a abrir, ya no aparece.
+    // Al volver a abrir, la palabra aceptada ya no aparece.
     const marco2 = await abrirYEsperarPanel(pagina, '/despacho/124/view');
     const palabras2 = marco2 ? await marco2.evaluate(() => [...document.querySelectorAll('#lista li')].map((li) => li.dataset.palabra)) : [];
     ok(iguales(palabras2, SEMBRADOS.filter((p) => p !== 'presentasion')), `al reabrir, la palabra aceptada no vuelve: ${palabras2.join(', ')}`);
+
+    // Un escrito de un letrado: no se revisa, no se subraya, no se cuenta.
+    const marco3 = await abrirYEsperarPanel(pagina, '/despacho/900/view');
+    await pagina.waitForTimeout(500);
+    const estado3 = marco3 && await marco3.evaluate(() => document.body.dataset.estado);
+    const vista3 = await iframe(pagina, 'vista');
+    const cuenta3 = marco3 && await cuentaDe(marco3);
+    ok(estado3 === 'no-proveido' && (!vista3 || !vista3.visible) && cuenta3 === '', `un escrito no se revisa: ni subrayado ni cuenta (estado: ${estado3}, cuenta: «${cuenta3}»)`);
+    if (marco3) {
+        await deLaPestana(marco3, { revisorPJN: 'alternar' });
+        await marco3.click('#igual');
+        await marco3.waitForSelector('body[data-estado="con-errores"]', { state: 'attached', timeout: 10000 }).catch(() => {});
+        const p3 = await marco3.evaluate(() => [...document.querySelectorAll('#lista li')].map((li) => li.dataset.palabra));
+        ok(p3.length > 0, `«Revisar igual» lo revisa si se pide: ${p3.join(', ')}`);
+    }
 }
 
 // Fuera de un proveido, nada.
 await pagina.goto('https://sgj-docs.pjn.gov.ar/despacho/123/otra').catch(() => {});
 await pagina.waitForTimeout(800);
-ok(!pagina.frames().some((f) => f.url().includes('panel.html')), 'fuera de /despacho/<n>/view no aparece');
+ok(!pagina.frames().some((f) => /panel.html|vista.html/.test(f.url())), 'fuera de /despacho/<n>/view no aparece nada');
 
 ok(pedidosAfuera.filter((u) => !u.endsWith('/despacho/123/otra')).length === 0,
     `ningún pedido a la red fuera de la página simulada${pedidosAfuera.length ? `: ${pedidosAfuera.join(', ')}` : ''}`);

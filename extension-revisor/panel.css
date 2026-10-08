@@ -27,7 +27,7 @@ html, body {
 }
 .caja.con-errores { border-color: var(--rojo); }
 .caja.sin-errores { border-color: var(--verde); }
-.caja.falla { border-color: var(--gris); }
+.caja.falla, .caja.no-proveido { border-color: var(--gris); }
 
 header {
     display: flex;
@@ -35,7 +35,7 @@ header {
 }
 .con-errores header { background: var(--rojo); color: #fff; }
 .sin-errores header { background: var(--verde); color: #fff; }
-.leyendo header, .falla header { background: var(--gris); color: #fff; }
+.leyendo header, .falla header, .no-proveido header { background: var(--gris); color: #fff; }
 
 button { font: inherit; cursor: pointer; }
 
@@ -79,6 +79,12 @@ button { font: inherit; cursor: pointer; }
     text-decoration: underline wavy var(--rojo);
     text-underline-offset: 3px;
 }
+button.palabra {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: inherit;
+}
 .sugerencia { color: var(--gris); margin-left: 6px; }
 .contexto {
     margin: 4px 0 6px;
@@ -87,14 +93,14 @@ button { font: inherit; cursor: pointer; }
 }
 .contexto .palabra { font-weight: 700; }
 
-.acciones button, #ver {
+.acciones button, footer button {
     border: 1px solid var(--borde);
     background: #fff;
     border-radius: 6px;
     padding: 3px 10px;
     font-size: 13px;
 }
-.acciones button:hover, #ver:hover { background: #f2f4f7; }
+.acciones button:hover, footer button:hover { background: #f2f4f7; }
 
 footer {
     display: flex;

@@ -1,0 +1,91 @@
+/* La vista con subrayado: el PDF dibujado por la extension, encima del visor
+   de Chrome y del mismo tamano. Sin barra ni botones: el documento y el
+   subrayado, nada mas. */
+:root {
+    --rojo: #b42318;
+    --gris: #475467;
+    --borde: #d0d5dd;
+    color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #525659;   /* el gris del visor de Chrome: no se nota el cambio */
+    font: 14px/1.4 system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+    color: #101828;
+}
+
+#paginas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+}
+
+.pagina {
+    position: relative;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+}
+.pagina canvas { display: block; }
+
+/* Capa de texto de pdf.js: el texto va invisible encima del dibujo, en la
+   misma posicion, para poder seleccionarlo y para subrayar sobre el. */
+.textLayer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    line-height: 1;
+    text-size-adjust: none;
+    forced-color-adjust: none;
+}
+.textLayer span, .textLayer br {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+}
+.textLayer ::selection { background: rgba(46, 144, 250, .3); }
+
+.textLayer mark.error {
+    color: transparent;
+    background: transparent;
+    text-decoration: underline wavy var(--rojo);
+    text-decoration-thickness: 2px;
+    text-decoration-skip-ink: none;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+.textLayer mark.error:hover,
+.textLayer mark.error.foco { background: rgba(180, 35, 24, .18); }
+
+/* El menu chico que aparece al hacer clic en una palabra subrayada. */
+#menu {
+    position: absolute;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: #fff;
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+    white-space: nowrap;
+}
+#menu .sugerencia { color: var(--gris); }
+#menu button {
+    font: inherit;
+    font-size: 13px;
+    border: 1px solid var(--borde);
+    background: #fff;
+    border-radius: 6px;
+    padding: 2px 10px;
+    cursor: pointer;
+}
+#menu button:hover { background: #f2f4f7; }

@@ -36,6 +36,20 @@ export function prepararTexto(texto) {
         .replace(/\s+/g, ' ');
 }
 
+// SOLO SE REVISAN PROVEIDOS. Un escrito de un letrado no se le corrige a
+// nadie. El proveido arranca siempre igual: el escudo (una imagen, sin texto),
+// "Poder Judicial de la Nación" y "JUZGADO ..." en dos renglones, y enseguida
+// el numero de expediente, NNNNN/NNNN. Se mira el texto del principio y no el
+// escudo: el texto alcanza, y el escudo puede no venir como imagen. Se busca
+// en los primeros caracteres y no en el primero, porque algunos documentos
+// traen delante un codigo de barras en texto.
+const ENCABEZADO = /poder judicial de la naci[oó]n\s+juzgado\b[\s\S]{0,200}?\b\d{1,6}\s*\/\s*\d{4}\b/i;
+
+export function esProveido(texto) {
+    const principio = texto.normalize('NFKC').replace(/\s+/g, ' ').trim().slice(0, 500);
+    return ENCABEZADO.test(principio);
+}
+
 // LA CARATULA NO SE REVISA. Es casi toda apellidos y razones sociales en
 // mayusculas, y un apellido raro a una letra de una palabra comun es una
 // falsa alarma en cada proveido de esa causa. Se reconoce como en el fuero:

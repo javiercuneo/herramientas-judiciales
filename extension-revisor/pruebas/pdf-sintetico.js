@@ -2,7 +2,8 @@
 // Un PDF de proveido INVENTADO, armado en el momento: ni un byte de un
 // documento de una causa entra al repositorio, y tampoco un .pdf.
 //
-// Cada renglon de RENGLONES es una linea del PDF. Los errores sembrados estan
+// Cada renglon de RENGLONES es una linea del PDF. Arranca como un proveido:
+// "Poder Judicial de la Nación", el juzgado y el numero de expediente. Los errores sembrados estan
 // en SEMBRADOS; todo lo demas es texto que el revisor NO tiene que marcar:
 // la caratula (con un apellido inventado que fuera de ella se marcaria),
 // apellidos sin tilde, siglas, abreviaturas, latinismos, verbos con pronombre,
@@ -12,7 +13,9 @@
     'use strict';
 
     const RENGLONES = [
-        'Expediente 4321/2025',
+        'Poder Judicial de la Nación',
+        'JUZGADO CIVIL 99',
+        '4321/2025',
         'CANTERAL, FULANO c/ MENGANEZ S.A. s/ COBRO DE SUMAS DE DINERO',
         'Ciudad de Buenos Aires, 3 de marzo de 2026.',
         'AUTOS Y VISTOS: Atento lo peticionado a fs. 12/14 por la Dra. Rodriguez,',
@@ -29,6 +32,16 @@
     ];
 
     const SEMBRADOS = ['Resuevlo', 'documentasión', 'presentasion', 'notifiquse'];
+
+    // Un escrito de un letrado, tambien inventado y con errores: no es un
+    // proveido, y no se revisa. A un escrito ajeno no se le corrige nada.
+    const RENGLONES_ESCRITO = [
+        'SE PRESENTA. ACOMPAÑA DOCUMENTAL.',
+        'Señor Juez:',
+        'FULANO DE TAL, por derecho propio, en los autos del epígrafe, a V.S.',
+        'digo: que vengo a acompañar la documentasion requerida y solicito',
+        'se resuevla de conformidad. Proveer de conformidad, SERÁ JUSTICIA.',
+    ];
 
     // Escapa un renglon para un string literal de PDF, en WinAnsi (latin1).
     function literal(s) {
@@ -65,5 +78,5 @@
         return bytes;
     }
 
-    raiz.PdfSintetico = { RENGLONES, SEMBRADOS, armarPdf };
+    raiz.PdfSintetico = { RENGLONES, SEMBRADOS, RENGLONES_ESCRITO, armarPdf };
 })(globalThis);

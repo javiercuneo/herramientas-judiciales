@@ -2,8 +2,8 @@
 // Vista con subrayado: el PDF dibujado con pdf.js, con su capa de texto, y
 // cada posible error subrayado en rojo sobre el documento.
 //
-// La dibuja el mismo recuadro, agrandado a toda la pantalla: no abre otra
-// pestana ni pasa el PDF a ningun lado. Volver la descarta.
+// La dibuja vista.html, puesta encima del visor de Chrome y del mismo tamano.
+// No abre otra pestana ni pasa el PDF a ningun lado.
 // ---------------------------------------------------------------------------
 const LETRAS = /[\p{L}\p{M}]+/gu;
 const norma = (s) => s.normalize('NFKC').toLocaleLowerCase('es');
@@ -18,7 +18,7 @@ export async function dibujar(destino, bytes, palabras) {
     for (let n = 1; n <= doc.numPages; n++) {
         const pagina = await doc.getPage(n);
         const base = pagina.getViewport({ scale: 1 });
-        const escala = Math.min(1.6, (destino.clientWidth - 32) / base.width);
+        const escala = Math.min(2, (destino.clientWidth - 24) / base.width);
         const viewport = pagina.getViewport({ scale: escala });
         const dpr = window.devicePixelRatio || 1;
 
@@ -101,6 +101,18 @@ function subrayar(spans, buscadas) {
     }
     return marcas;
 }
+
+// Saca el subrayado de una palabra: el texto queda como estaba.
+export function quitar(marcas, palabra) {
+    const clave = norma(palabra);
+    return marcas.filter((m) => {
+        if (m.dataset.palabra !== clave) return true;
+        m.replaceWith(document.createTextNode(m.textContent));
+        return false;
+    });
+}
+
+export { norma };
 
 // Lleva a la proxima aparicion de la palabra, en ronda.
 export function irA(marcas, palabra) {

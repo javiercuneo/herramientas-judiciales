@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Revisor de ortografía de proveídos",
   "short_name": "Revisor PJN",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Marca posibles errores de ortografía en el PDF de un proveído apenas se abre. Todo ocurre en la computadora: no se conecta a ningún servidor.",
   "permissions": ["storage"],
   "action": {
@@ -27,7 +27,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["panel.html"],
+      "resources": ["panel.html", "vista.html"],
       "matches": ["https://sgj-docs.pjn.gov.ar/*"]
     }
   ],
