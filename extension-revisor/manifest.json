@@ -5,6 +5,18 @@
   "version": "0.1.0",
   "description": "Marca posibles errores de ortografía en el PDF de un proveído apenas se abre. Todo ocurre en la computadora: no se conecta a ningún servidor.",
   "permissions": ["storage"],
+  "action": {
+    "default_title": "Revisor de ortografía: mostrar u ocultar el recuadro (Alt+Mayús+R)"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Alt+Shift+R" },
+      "description": "Mostrar u ocultar el recuadro"
+    }
+  },
+  "background": {
+    "service_worker": "fondo.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://sgj-docs.pjn.gov.ar/*"],

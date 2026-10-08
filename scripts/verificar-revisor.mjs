@@ -17,6 +17,7 @@
 // --captura <archivo.png> guarda el recuadro y la vista con subrayado.
 // ---------------------------------------------------------------------------
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -93,22 +94,23 @@ try {
 }
 
 console.log('\nExtensión en Chrome');
-// Se usa el Chrome instalado, en un perfil descartable que Playwright borra al
-// cerrar. Desde la version 137 Chrome no carga extensiones por linea de
+// Se usa el Chrome instalado, en un perfil descartable que se borra al
+// terminar. Normal y no de incognito: en incognito la extension no ve la
+// pestana y no puede poner la cuenta en su icono. Desde la version 137 Chrome no carga extensiones por linea de
 // comandos, y el Chromium de Playwright lo puede bloquear Windows por no estar
 // firmado: la extension se carga por el protocolo de depuracion
 // (Extensions.loadUnpacked), que lo permite con --enable-unsafe-extension-debugging.
-let navegador, contexto;
+const perfil = fs.mkdtempSync(path.join(os.tmpdir(), 'revisor-pjn-'));
+let contexto;
 try {
-    navegador = await chromium.launch({
+    contexto = await chromium.launchPersistentContext(perfil, {
         channel: 'chrome',
         headless: !process.argv.includes('--ver'),
         ignoreDefaultArgs: ['--disable-extensions'],
         args: ['--enable-unsafe-extension-debugging'],
     });
-    const cdp = await navegador.newBrowserCDPSession();
-    await cdp.send('Extensions.loadUnpacked', { path: EXT, enableInIncognito: true });
-    contexto = await navegador.newContext();
+    const cdp = await contexto.browser().newBrowserCDPSession();
+    await cdp.send('Extensions.loadUnpacked', { path: EXT });
 } catch (err) {
     console.log(`\n(No se pudo abrir Chrome con la extensión: ${err.message.split('\n')[0]})`);
     noProbado = true;
@@ -193,6 +195,30 @@ if (marco) {
     const marcasVuelta = await marco.evaluate(() => document.querySelectorAll('mark.error').length);
     ok(altoVuelta < altoVentana - 100 && marcasVuelta === 0, `«Volver» achica el recuadro y descarta el dibujo (alto ${altoVuelta})`);
 
+    // El icono de la extension lleva la cuenta, para verla con el recuadro oculto.
+    const insignia = await marco.evaluate(async () => {
+        const pestana = await chrome.tabs.getCurrent();
+        return pestana ? chrome.action.getBadgeText({ tabId: pestana.id }) : '(sin pestaña)';
+    });
+    ok(insignia === String(SEMBRADOS.length), `el ícono de la extensión muestra la cuenta: «${insignia}»`);
+
+    // La X lo oculta del todo, y el icono (o el atajo) lo trae de vuelta. El
+    // clic en el icono no se puede simular: se manda el mismo mensaje que el
+    // script de fondo manda al recibirlo.
+    const visible = () => pagina.evaluate(() => getComputedStyle(document.querySelector('iframe[data-revisor-pjn]')).display !== 'none');
+    await marco.click('#cerrar');
+    await pagina.waitForTimeout(200);
+    ok(!(await visible()), 'la X oculta el recuadro del todo');
+    const alternar = () => marco.evaluate(async () => {
+        const pestana = await chrome.tabs.getCurrent();
+        return chrome.tabs.sendMessage(pestana.id, { revisorPJN: 'alternar' });
+    });
+    await alternar();
+    ok(await visible(), 'el ícono lo vuelve a mostrar');
+    await alternar();
+    ok(!(await visible()), 'y lo vuelve a ocultar');
+    await alternar();
+
     // "Es correcta": se guarda la palabra y nada mas.
     await marco.click('li[data-palabra="presentasion"] .acciones button');
     const guardado = await marco.evaluate(() => chrome.storage.local.get(null));
@@ -216,7 +242,8 @@ ok(pedidosAfuera.filter((u) => !u.endsWith('/despacho/123/otra')).length === 0,
     `ningún pedido a la red fuera de la página simulada${pedidosAfuera.length ? `: ${pedidosAfuera.join(', ')}` : ''}`);
 ok(errores.length === 0, `sin errores en la consola${errores.length ? `: ${errores.join(' | ')}` : ''}`);
 
-await navegador.close();
+await contexto.close();
+fs.rmSync(perfil, { recursive: true, force: true });
 terminar();
 
 function terminar() {

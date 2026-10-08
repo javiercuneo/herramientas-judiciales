@@ -19,6 +19,14 @@ de 2026.
 
 ---
 
+## El recuadro se oculta del todo — 7/10
+
+La × sólo plegaba el recuadro y no había forma de sacarlo ni de traerlo. Ahora
+lo oculta, y el ícono de la extensión o Alt+Mayús+R lo alternan; el ícono lleva
+la cuenta de errores. Para probar la cuenta, `verificar-revisor` pasó de un
+contexto de incógnito a un perfil normal descartable: en incógnito el script de
+fondo no ve la pestaña («No tab with id») y la cuenta no se pone.
+
 ## El revisor deja de revisar la carátula — 7/10
 
 La primera prueba con un proveído del sistema funcionó, y la única falsa

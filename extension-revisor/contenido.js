@@ -41,6 +41,19 @@
         document.documentElement.appendChild(panel);
     }
 
+    // Oculto del todo, no plegado: se vuelve a mostrar con el icono de la
+    // extension o con su atajo de teclado. Un proveido nuevo lo muestra solo.
+    function mostrarPanel(si) {
+        if (panel) panel.style.display = si ? '' : 'none';
+    }
+
+    chrome.runtime.onMessage.addListener((msg, _de, responder) => {
+        if (msg && msg.revisorPJN === 'alternar' && panel) {
+            mostrarPanel(panel.style.display === 'none');
+            responder({ visible: panel.style.display !== 'none' });
+        }
+    });
+
     function aPanel(msg, transferir) {
         if (!panelListo) { pendiente = { msg, transferir }; return; }
         panel.contentWindow.postMessage({ revisorPJN: true, ...msg }, new URL(panel.src).origin, transferir || []);
@@ -58,6 +71,8 @@
         } else if (d.tipo === 'alto' && Number.isFinite(d.px)) {
             altoCaja = Math.max(40, Math.ceil(d.px));
             if (!completa) panel.style.height = altoCaja + 'px';
+        } else if (d.tipo === 'ocultar') {
+            mostrarPanel(false);
         } else if (d.tipo === 'pantalla') {
             // La vista con subrayado: el mismo recuadro, a toda la pantalla.
             completa = d.completa === true;
@@ -70,6 +85,7 @@
     async function revisar(url) {
         ultimoBlob = url;
         crearPanel();
+        mostrarPanel(true);
         aPanel({ tipo: 'leyendo' });
         let bytes;
         try {

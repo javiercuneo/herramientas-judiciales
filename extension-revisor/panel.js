@@ -25,6 +25,12 @@ function avisarAlto() {
 }
 new ResizeObserver(avisarAlto).observe($('caja'));
 
+// La cuenta va tambien en el icono de la extension, para verla con el
+// recuadro oculto. Lo pone el script de fondo, que es quien puede.
+function insignia(texto) {
+    chrome.runtime.sendMessage({ revisorPJN: 'insignia', texto }).catch(() => {});
+}
+
 function estado(clase, titulo) {
     const caja = $('caja');
     caja.classList.remove('leyendo', 'con-errores', 'sin-errores', 'falla');
@@ -43,6 +49,7 @@ function nodo(tag, clase, texto) {
 function mostrar() {
     const lista = $('lista');
     lista.replaceChildren();
+    insignia(hallazgos.length ? String(hallazgos.length) : '');
     if (hallazgos.length === 0) {
         estado('sin-errores', 'Sin errores detectados');
     } else {
@@ -81,6 +88,7 @@ function mostrar() {
 
 async function revisarPdf(bytes) {
     if (!$('vista').hidden) $('volver').click();   // llego otro proveido
+    insignia('');
     estado('leyendo', 'Revisando ortografía…');
     $('lista').replaceChildren();
     try {
@@ -115,10 +123,7 @@ $('plegar').addEventListener('click', () => {
     const plegada = $('caja').classList.toggle('plegada');
     $('plegar').setAttribute('aria-expanded', String(!plegada));
 });
-$('cerrar').addEventListener('click', () => {
-    $('caja').classList.add('plegada');
-    $('plegar').setAttribute('aria-expanded', 'false');
-});
+$('cerrar').addEventListener('click', () => aPagina({ tipo: 'ocultar' }));
 
 // Vista con subrayado: el recuadro se agranda a toda la pantalla y dibuja el
 // PDF con los errores marcados. Volver lo achica y descarta el dibujo.

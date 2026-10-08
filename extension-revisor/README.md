@@ -11,6 +11,12 @@ eso el aviso va en un recuadro propio, y para ver los errores sobre el
 documento está el botón **«Ver con subrayado»**, que dibuja el PDF a pantalla
 completa con cada palabra subrayada en rojo. **«Volver»** lo cierra.
 
+**Ocultar y volver a mostrar.** La **×** oculta el recuadro del todo. Se trae
+de vuelta con el ícono de la extensión en la barra de Chrome o con
+**Alt+Mayús+R**, que también lo vuelven a ocultar. Con el recuadro oculto, el
+ícono muestra en rojo cuántos posibles errores hay. Al abrir otro proveído el
+recuadro vuelve a aparecer solo. Clic en el título lo pliega sin ocultarlo.
+
 ## Qué hace, paso a paso
 
 1. En las páginas `https://sgj-docs.pjn.gov.ar/despacho/<número>/view` espera a
@@ -43,6 +49,10 @@ que la rodea.
 3. Arriba a la derecha, activar **Modo de desarrollador**.
 4. Botón **Cargar descomprimida** y elegir la carpeta `extension-revisor`.
 5. Abrir un proveído. El recuadro aparece solo.
+6. Para tener el ícono a mano: en la barra de Chrome, la pieza de
+   rompecabezas → el alfiler al lado de «Revisor de ortografía de proveídos».
+   Si Alt+Mayús+R no anda (otro programa usa esa combinación), se cambia en
+   `chrome://extensions/shortcuts`.
 
 Para actualizarla: reemplazar la carpeta y apretar el botón de recargar (la
 flecha circular) en la tarjeta de la extensión, en `chrome://extensions`.
@@ -58,6 +68,9 @@ flecha circular) en la tarjeta de la extensión, en `chrome://extensions`.
 |---|---|
 | Leer y cambiar datos en `sgj-docs.pjn.gov.ar` | Es el único sitio. Hace falta para ver el PDF del proveído y poner el recuadro encima. En ningún otro sitio hace nada |
 | `storage` | Guardar la lista de palabras marcadas como correctas |
+
+El ícono en la barra y el atajo de teclado no piden permisos: sólo muestran u
+ocultan el recuadro de la pestaña donde se aprietan.
 
 No pide acceso a otros sitios, ni a las pestañas, ni al historial, ni a las
 descargas.
@@ -83,6 +96,7 @@ descargas.
 |---|---|
 | `manifest.json` | La declaración de la extensión: sitio, permisos, política de seguridad |
 | `contenido.js` | Corre en la página del sistema: encuentra el PDF, lo lee y pone el recuadro |
+| `fondo.js` | El ícono: muestra u oculta el recuadro y lleva la cuenta de errores |
 | `panel.html`, `panel.js`, `panel.css` | El recuadro: revisa y muestra |
 | `subrayado.mjs`, `subrayado.css` | La vista con subrayado |
 | `cargar.mjs` | Arma el corrector con el diccionario y las listas |
