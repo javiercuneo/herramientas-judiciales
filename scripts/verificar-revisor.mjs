@@ -88,6 +88,8 @@ ok(conHueco === 'incurrido no', `un hueco en el mismo renglón separa: «${conHu
 const partida = textoDeItems([item('notifí', 50, 700, 30), item('quese', 80, 700, 28)]);
 ok(partida === 'notifíquese', `una palabra partida sin hueco se pega: «${partida}»`);
 ok(revisor.revisar('El 29/9 se intimó a que adecue su liquidación.').length === 0, '«adecue» es correcta');
+const abrev = revisor.revisar('(conf. arg. CNCiv, Sala K; sig. hs. ap. ccia. y lo resuevlo.)').map((h) => h.palabra);
+ok(iguales(abrev, ['resuevlo']), `una palabra corta pegada a un punto es abreviatura; una larga, no (dio: ${abrev.join(', ') || 'nada'})`);
 
 // Solo se revisan proveidos.
 const { esProveido } = await import(pathToFileURL(path.join(EXT, 'motor/revisar.mjs')).href);

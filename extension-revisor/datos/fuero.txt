@@ -20,7 +20,7 @@ ultra petita extra solve repetere ius iuris tantum
 
 # Abreviaturas (sin el punto)
 fs fjs art arts inc incs cit cfr conf ss sgtes sigs párr párrs pág págs
-pto ptos ap apdo dto dec expte exptes nro nros cód proc civ com
+pto ptos ap apdo dto dec expte exptes nro nros cód proc civ com arg args
 Dr Dra Dres Dras Sr Sra Sres Sras Srta Sec Secr Prov Pcia Cap Fed
 Ord Juzg Nac Inst Esc Lic Ing Cdor Cdora
 

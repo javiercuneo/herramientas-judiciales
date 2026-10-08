@@ -256,6 +256,11 @@ export function crearRevisor({ corrector, propias = [], personales = [] }) {
             const fin = ini + tramo.length;
             // Pegada a un numero ("2do", "1ra", "N3"): no es una palabra.
             if (/\d/.test(texto[ini - 1] || '') || /\d/.test(texto[fin] || '')) continue;
+            // Corta y pegada a un punto: una abreviatura ("arg.", "sig.",
+            // "hs."). Las del fuero no tienen fin, y listarlas todas no se
+            // puede. Lo que se pierde es un tipeo de cuatro letras o menos
+            // justo antes de un punto; menos ruido vale eso.
+            if (texto[fin] === '.' && tramo.length <= 4 && !tramo.includes(UNION)) continue;
             const r = revisarTramo(tramo);
             if (!r) continue;
             const palabra = tramo.split(UNION).join('');
