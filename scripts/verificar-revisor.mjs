@@ -87,6 +87,16 @@ const conHueco = textoDeItems([item('incurrido', 50, 700, 45), item('no', 100, 7
 ok(conHueco === 'incurrido no', `un hueco en el mismo renglón separa: «${conHueco}»`);
 const partida = textoDeItems([item('notifí', 50, 700, 30), item('quese', 80, 700, 28)]);
 ok(partida === 'notifíquese', `una palabra partida sin hueco se pega: «${partida}»`);
+// El final del renglon guardado antes que su principio (Word, justificado).
+const desordenado = textoDeItems([
+    item('formulada por la presentante', 200, 700, 150),
+    item('ley 27.423 en', 400, 686, 70),
+    item('y de conformidad con lo previsto en la', 50, 686, 340),
+    item('tanto allí se dispone', 50, 672, 120),
+]);
+ok(desordenado === 'formulada por la presentante\ny de conformidad con lo previsto en la ley 27.423 en\ntanto allí se dispone',
+    `el renglón guardado al revés se lee en orden y no pega «en» con «y»: «${desordenado.replace(/\n/g, ' / ')}»`);
+ok(revisor.revisar(desordenado).length === 0, 'y no marca nada');
 ok(revisor.revisar('El 29/9 se intimó a que adecue su liquidación.').length === 0, '«adecue» es correcta');
 const abrev = revisor.revisar('(conf. arg. CNCiv, Sala K; sig. hs. ap. ccia. y lo resuevlo.)').map((h) => h.palabra);
 ok(iguales(abrev, ['resuevlo']), `una palabra corta pegada a un punto es abreviatura; una larga, no (dio: ${abrev.join(', ') || 'nada'})`);

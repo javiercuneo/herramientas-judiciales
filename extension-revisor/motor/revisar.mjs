@@ -19,29 +19,42 @@
 export const UNION = '\u2060';
 
 // Texto de pdf.js (items con str, hasEOL, transform y width) -> texto plano
-// con saltos. No alcanza con hasEOL: hay PDF (los de Word justificados, por
-// ejemplo) donde el fin de renglon no viene marcado, y pegar los items dejaba
-// "traslado" + "liquidación" = "trasladoliquidación". Se mira la posicion: si
-// el item baja, es otro renglon; si en el mismo renglon hay un hueco, es otra
-// palabra. Un item partido sin hueco (el kerning) se pega, como debe.
+// con saltos, en el orden en que se LEE y no en el que el PDF lo guarda.
+//
+// Dos trampas de los PDF de Word justificados, las dos vistas en proveidos:
+//   - el fin de renglon no viene marcado (hasEOL), y pegar los items dejaba
+//     "traslado" + "liquidación" = "trasladoliquidación";
+//   - el final de un renglon viene guardado ANTES que su principio, y "27.423
+//     en" quedaba pegado a "y de conformidad": "eny".
+// Por eso se arma por posicion: renglon por renglon de arriba abajo y, en
+// cada uno, de izquierda a derecha. Un hueco entre dos items es un espacio;
+// un item partido sin hueco (el kerning) se pega, como debe. Si la pagina
+// tiene texto girado no se reordena: se sigue el orden del PDF.
 export function textoDeItems(items) {
-    let t = '';
-    let previo = null;
-    for (const it of items) {
-        if (typeof it.str !== 'string') continue;   // marcas de contenido
-        const s = it.str;
-        if (previo && s && it.transform && previo.transform && !/\n$/.test(t)) {
-            const alto = Math.max(Math.abs(previo.transform[3]), Math.abs(it.transform[3]), 1);
-            const bajo = Math.abs(it.transform[5] - previo.transform[5]) > alto * 0.5;
-            const hueco = it.transform[4] - (previo.transform[4] + (previo.width || 0)) > alto * 0.15;
-            if (bajo) t += '\n';
-            else if (hueco && !/\s$/.test(t) && !/^\s/.test(s)) t += ' ';
-        }
-        t += s;
-        if (it.hasEOL) t += '\n';
-        if (s.trim()) previo = it;
+    const con = items.filter((it) => typeof it.str === 'string' && it.str.trim());
+    const ubicables = con.length && con.every((it) => it.transform && !it.transform[1] && !it.transform[2]);
+    if (!ubicables) return items.map((it) => (it.str || '') + (it.hasEOL ? '\n' : '')).join('');
+
+    const alto = (it) => Math.max(Math.abs(it.transform[3]), 1);
+    const renglones = [];
+    for (const it of [...con].sort((x, y) => y.transform[5] - x.transform[5])) {
+        const r = renglones[renglones.length - 1];
+        if (r && Math.abs(r.y - it.transform[5]) <= Math.max(r.alto, alto(it)) * 0.5) r.items.push(it);
+        else renglones.push({ y: it.transform[5], alto: alto(it), items: [it] });
     }
-    return t;
+    return renglones.map((r) => {
+        let t = '';
+        let previo = null;
+        for (const it of r.items.sort((x, y) => x.transform[4] - y.transform[4])) {
+            if (previo) {
+                const hueco = it.transform[4] - (previo.transform[4] + (previo.width || 0));
+                if (hueco > Math.max(alto(previo), alto(it)) * 0.15 && !/\s$/.test(t) && !/^\s/.test(it.str)) t += ' ';
+            }
+            t += it.str;
+            previo = it;
+        }
+        return t;
+    }).join('\n');
 }
 
 export function prepararTexto(texto) {
