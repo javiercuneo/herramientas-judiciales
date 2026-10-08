@@ -89,3 +89,11 @@ html, body {
     cursor: pointer;
 }
 #menu button:hover { background: #f2f4f7; }
+
+/* Los enlaces del PDF, encima del dibujo: transparentes, con la manito. */
+.pagina a.enlace {
+    position: absolute;
+    z-index: 2;
+    display: block;
+}
+.pagina a.enlace:hover { background: rgba(46, 144, 250, .15); }

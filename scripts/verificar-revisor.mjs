@@ -212,72 +212,85 @@ if (marco) {
     const palabras = await marco.evaluate(() => [...document.querySelectorAll('#lista li')].map((li) => li.dataset.palabra));
     ok(estado === 'con-errores', `el proveído se revisa (estado: ${estado})`);
     ok(iguales(palabras, SEMBRADOS), `el recuadro lista exactamente los sembrados: ${palabras.join(', ')}`);
-    ok(!(await iframe(pagina, 'panel')).visible, 'pero arranca oculto: no hace ruido');
+    await pagina.waitForTimeout(300);
+    ok((await iframe(pagina, 'panel')).visible, 'con errores, el recuadro aparece solo');
+    await pagina.waitForTimeout(400);
+    await capturar('-recuadro');
+    const v0 = await iframe(pagina, 'vista');
+    ok(!v0 || !v0.visible, 'y el visor de Chrome no se toca: nada encima');
     const c1 = await cuentaDe(marco);
     ok(c1 === String(SEMBRADOS.length), `el ícono muestra la cuenta: «${c1}»`);
 
-    // El subrayado, encima del visor y del mismo tamano.
+    // "Es correcta" desde el recuadro: se guarda la palabra y nada mas.
+    await marco.click('li[data-palabra="presentasion"] .acciones button');
+    await pagina.waitForTimeout(300);
+    const guardado = await marco.evaluate(() => chrome.storage.local.get('palabrasPersonales'));
+    ok(JSON.stringify(guardado) === JSON.stringify({ palabrasPersonales: ['presentasion'] }), `«Es correcta» guarda sólo la palabra: ${JSON.stringify(guardado)}`);
+    const quedan = await marco.evaluate(() => document.querySelectorAll('#lista li').length);
+    ok(quedan === SEMBRADOS.length - 1 && await cuentaDe(marco) === String(SEMBRADOS.length - 1), 'la saca del recuadro y de la cuenta');
+
+    // La X lo oculta del todo, y la R (o el atajo) lo trae. El clic en el
+    // icono no se puede simular: se manda el mismo mensaje que el script de
+    // fondo manda al recibirlo.
+    await marco.click('#cerrar');
+    await pagina.waitForTimeout(200);
+    ok(!(await iframe(pagina, 'panel')).visible, 'la X lo oculta del todo');
+    await deLaPestana(marco, { revisorPJN: 'alternar' });
+    ok((await iframe(pagina, 'panel')).visible, 'y el ícono lo trae de vuelta');
+
+    // El subrayado sobre el PDF, a pedido.
+    await marco.click('#subrayar');
     const vista = await esperarVista(pagina);
-    ok(!!vista && await vista.evaluate(() => document.body.dataset.estado) === 'lista', 'el PDF aparece dibujado con el subrayado');
+    ok(!!vista && await vista.evaluate(() => document.body.dataset.estado) === 'lista', '«Subrayar en el PDF» lo dibuja con el subrayado');
     if (vista) {
         const rv = await iframe(pagina, 'vista');
         const rp = await pagina.evaluate(() => { const r = document.querySelector('iframe.visor').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
         ok(rv.visible && ['x', 'y', 'w', 'h'].every((k) => Math.abs(rv[k] - rp[k]) < 1.5), 'justo encima del visor, del mismo tamaño');
         const subrayadas = await vista.evaluate(() => [...new Set([...document.querySelectorAll('mark.error')].map((m) => m.dataset.palabra))]);
         const pedazos = await vista.evaluate(() => [...document.querySelectorAll('mark.error')].map((m) => m.textContent));
-        ok(iguales(subrayadas, SEMBRADOS.map((p) => p.toLocaleLowerCase('es'))), `subraya exactamente los sembrados: ${subrayadas.join(', ')}`);
+        const esperadas = SEMBRADOS.filter((p) => p !== 'presentasion').map((p) => p.toLocaleLowerCase('es'));
+        ok(iguales(subrayadas, esperadas), `subraya lo que queda: ${subrayadas.join(', ')}`);
         ok(pedazos.includes('documen-') && pedazos.includes('tasión'), 'la palabra cortada se subraya en sus dos renglones');
         ok(!pedazos.some((t) => /CANTERAL/.test(t)), 'la carátula no se subraya');
+        const enlace = await vista.evaluate(() => document.querySelector('a.enlace')?.href || '');
+        ok(enlace === 'https://www.ejemplo-inventado.com.ar/', `los enlaces del PDF siguen andando: «${enlace}»`);
         await capturar('');
 
         // Clic en la palabra: el menu chico, y "Es correcta".
-        await vista.click('mark.error[data-palabra="presentasion"]');
+        await vista.click('mark.error[data-palabra="notifiquse"]');
         const menu = await vista.evaluate(() => document.getElementById('menu')?.textContent || '');
-        ok(menu.includes('Es correcta') && menu.includes('presentación'), `clic en la palabra: la sugerencia y «Es correcta», al lado: «${menu}»`);
+        ok(menu.includes('Es correcta') && menu.includes('notifíquese'), `clic en la palabra: la sugerencia y «Es correcta», al lado: «${menu}»`);
         await capturar('-menu');
         await vista.click('#menu button');
         await pagina.waitForTimeout(400);
-        const guardado = await marco.evaluate(() => chrome.storage.local.get(null));
-        ok(JSON.stringify(guardado) === JSON.stringify({ palabrasPersonales: ['presentasion'] }), `«Es correcta» guarda sólo la palabra: ${JSON.stringify(guardado)}`);
         const quedanVista = await vista.evaluate(() => [...new Set([...document.querySelectorAll('mark.error')].map((m) => m.dataset.palabra))]);
-        ok(!quedanVista.includes('presentasion') && quedanVista.length === SEMBRADOS.length - 1, 'deja de subrayarla');
-        const quedan = await marco.evaluate(() => document.querySelectorAll('#lista li').length);
-        ok(quedan === SEMBRADOS.length - 1 && await cuentaDe(marco) === String(SEMBRADOS.length - 1), 'y el recuadro y el ícono se enteran');
+        ok(!quedanVista.includes('notifiquse') && quedanVista.length === SEMBRADOS.length - 2, 'deja de subrayarla');
+        ok(await cuentaDe(marco) === String(SEMBRADOS.length - 2), 'y el recuadro y el ícono se enteran');
 
-        // La R muestra y oculta el recuadro. El clic en el icono no se puede
-        // simular: se manda el mismo mensaje que el script de fondo manda.
-        await deLaPestana(marco, { revisorPJN: 'alternar' });
-        ok((await iframe(pagina, 'panel')).visible, 'el ícono abre el recuadro');
-        await pagina.waitForTimeout(400);
-        await capturar('-recuadro');
         await marco.click('li[data-palabra="Resuevlo"] button.palabra');
         await pagina.waitForTimeout(300);
         ok(await vista.evaluate(() => document.querySelector('mark.foco')?.dataset.palabra) === 'resuevlo', 'clic en una palabra del recuadro la señala en el documento');
-        await marco.click('#original');
-        await pagina.waitForTimeout(200);
-        ok(!(await iframe(pagina, 'vista')).visible, '«Ver PDF original» saca el subrayado y deja el visor de Chrome');
-        await marco.click('#original');
-        await pagina.waitForTimeout(200);
-        ok((await iframe(pagina, 'vista')).visible, 'y «Ver con subrayado» lo vuelve a poner');
-        await marco.click('#cerrar');
-        await pagina.waitForTimeout(200);
-        ok(!(await iframe(pagina, 'panel')).visible, 'la X lo oculta del todo');
-        await deLaPestana(marco, { revisorPJN: 'alternar' });
-        ok((await iframe(pagina, 'panel')).visible, 'y el ícono lo trae de vuelta');
     }
 
-    // Al volver a abrir, la palabra aceptada ya no aparece.
+    // La eleccion se recuerda: el proximo proveido ya viene subrayado.
     const marco2 = await abrirYEsperarPanel(pagina, '/despacho/124/view');
     const palabras2 = marco2 ? await marco2.evaluate(() => [...document.querySelectorAll('#lista li')].map((li) => li.dataset.palabra)) : [];
-    ok(iguales(palabras2, SEMBRADOS.filter((p) => p !== 'presentasion')), `al reabrir, la palabra aceptada no vuelve: ${palabras2.join(', ')}`);
+    ok(iguales(palabras2, SEMBRADOS.filter((p) => !['presentasion', 'notifiquse'].includes(p))), `al reabrir, las palabras aceptadas no vuelven: ${palabras2.join(', ')}`);
+    const vista2 = await esperarVista(pagina);
+    ok(!!vista2 && (await iframe(pagina, 'vista')).visible, '«Subrayar en el PDF» queda recordado');
+    if (marco2) {
+        await marco2.click('#subrayar');
+        await pagina.waitForTimeout(300);
+        ok(!(await iframe(pagina, 'vista')).visible, 'y «Quitar el subrayado» deja el visor de Chrome');
+    }
 
-    // Un escrito de un letrado: no se revisa, no se subraya, no se cuenta.
+    // Un escrito de un letrado: no se revisa, no aparece nada, no se cuenta.
     const marco3 = await abrirYEsperarPanel(pagina, '/despacho/900/view');
     await pagina.waitForTimeout(500);
     const estado3 = marco3 && await marco3.evaluate(() => document.body.dataset.estado);
-    const vista3 = await iframe(pagina, 'vista');
+    const panel3 = await iframe(pagina, 'panel');
     const cuenta3 = marco3 && await cuentaDe(marco3);
-    ok(estado3 === 'no-proveido' && (!vista3 || !vista3.visible) && cuenta3 === '', `un escrito no se revisa: ni subrayado ni cuenta (estado: ${estado3}, cuenta: «${cuenta3}»)`);
+    ok(estado3 === 'no-proveido' && !panel3.visible && cuenta3 === '', `un escrito no se revisa: no aparece nada (estado: ${estado3}, cuenta: «${cuenta3}»)`);
     if (marco3) {
         await deLaPestana(marco3, { revisorPJN: 'alternar' });
         await marco3.click('#igual');

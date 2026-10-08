@@ -674,9 +674,9 @@ escriba mañana tampoco sale.
 
 Extensión de Chrome en `extension-revisor/` (7/10, anda en la oficina): sólo
 en proveídos —encabezado «Poder Judicial de la Nación», «JUZGADO», expediente—
-dibuja el PDF encima del visor de Chrome con los posibles errores subrayados,
-y nada más; el recuadro sale con el ícono. **No se publica**: no está en
-`pages.yml`. Su [`README.md`](../extension-revisor/README.md) dice cómo.
+muestra la lista de posibles errores si los hay. **El visor de Chrome no se
+tapa por defecto** (Javier, 8/10: perder los enlaces molesta); el subrayado es
+opcional. **No se publica**. Su [`README.md`](../extension-revisor/README.md).
 
 - **Falta saber si la PC institucional deja el modo de desarrollador**, y es
   de Javier.

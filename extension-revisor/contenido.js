@@ -5,13 +5,13 @@
 //   1. espera a que el PDF aparezca en un iframe con direccion blob:,
 //   2. lee los bytes de ese PDF desde esa misma direccion -- es memoria del
 //      navegador, no sale nada a la red --,
-//   3. se los pasa al recuadro (panel.html), que arranca OCULTO, revisa y
-//      dice que palabras quedaron. El recuadro se abre con el icono de la
-//      extension o con Alt+Mayus+R;
-//   4. si quedo alguna, pone la vista con subrayado (vista.html) encima del
-//      visor de PDF, del mismo tamano: el mismo documento, con las palabras
-//      subrayadas. Si no quedo ninguna, no pone nada y se ve el visor de
-//      siempre.
+//   3. se los pasa al recuadro (panel.html), que revisa y dice que palabras
+//      quedaron. Si quedo alguna, el recuadro aparece solo; si no, no se ve
+//      nada. El icono de la extension o Alt+Mayus+R lo muestran u ocultan;
+//   4. si se pidio "Subrayar en el PDF" (queda recordado), pone ademas la
+//      vista con subrayado (vista.html) encima del visor de PDF, del mismo
+//      tamano. Por defecto no: el visor de Chrome es la herramienta de
+//      trabajo -enlaces, imprimir, bajar- y no se tapa.
 //
 // No hace clics, no completa nada y no toca lo que la pagina guarda. Las dos
 // piezas son iframes propios de la extension: la pagina no ve su contenido ni
@@ -27,7 +27,12 @@
     let ultimoBlob = null;     // la ultima direccion blob: revisada
     let bytesPdf = null;       // copia para la vista; solo en memoria
     let hallazgos = [];        // lo ultimo que dijo el recuadro
-    let verSubrayado = true;   // "Ver PDF original" lo apaga
+    let verSubrayado = false;  // "Subrayar en el PDF", recordado en storage
+    let primerResultado = true;
+    chrome.storage.local.get('subrayarEnPdf').then((r) => {
+        verSubrayado = r.subrayarEnPdf === true;
+        actualizarVista();
+    }).catch(() => {});
 
     // Cada pieza: el iframe, si ya escucha, y lo que espera para cuando escuche.
     const panel = { marco: null, listo: false, cola: [] };
@@ -127,6 +132,10 @@
             mostrarPanel(false);
         } else if (pieza === panel && d.tipo === 'resultado' && Array.isArray(d.hallazgos)) {
             hallazgos = d.hallazgos;
+            // Con errores, el recuadro aparece solo, una vez por proveido: si
+            // despues se cierra con la X, no vuelve a saltar.
+            if (primerResultado && hallazgos.length) mostrarPanel(true);
+            primerResultado = false;
             actualizarVista();
         } else if (pieza === panel && d.tipo === 'subrayado') {
             verSubrayado = d.ver === true;
@@ -147,7 +156,7 @@
         ultimoBlob = null;
         bytesPdf = null;
         hallazgos = [];
-        verSubrayado = true;
+        primerResultado = true;
     }
 
     async function revisar(marcoPdf) {

@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------
-// El recuadro. Arranca oculto: se abre con el icono de la extension (la R) o
-// con Alt+Mayus+R. Es el que revisa y lleva la cuenta.
+// El recuadro. Aparece solo cuando hay posibles errores; si no, queda oculto.
+// El icono de la extension (la R) o Alt+Mayus+R lo muestran u ocultan. Es el
+// que revisa y lleva la cuenta.
 //
 // Recibe los bytes del PDF del script de contenido, saca el texto con pdf.js,
 // mira si es un proveido y, si lo es, lo revisa. Le avisa a la pagina que
@@ -16,7 +17,12 @@ const $ = (id) => document.getElementById(id);
 
 let hallazgos = [];
 let texto = '';            // el del PDF abierto, para "Revisar igual"
-let viendoOriginal = false;
+let subrayando = false;     // "Subrayar en el PDF", recordado en storage
+chrome.storage.local.get('subrayarEnPdf').then((r) => { subrayando = r.subrayarEnPdf === true; rotular(); }).catch(() => {});
+
+function rotular() {
+    $('subrayar').textContent = subrayando ? 'Quitar el subrayado del PDF' : 'Subrayar en el PDF';
+}
 
 function aPagina(msg) {
     window.parent.postMessage({ revisorPJN: true, ...msg }, ORIGEN_PJN);
@@ -55,7 +61,7 @@ function mostrar() {
     aPagina({ tipo: 'resultado', hallazgos: hallazgos.map((h) => ({ palabra: h.palabra, sugerencias: h.sugerencias })) });
     $('pie').hidden = false;
     $('igual').hidden = true;
-    $('original').hidden = hallazgos.length === 0;
+    $('subrayar').hidden = hallazgos.length === 0;
     if (hallazgos.length === 0) {
         estado('sin-errores', 'Sin errores detectados');
         return;
@@ -100,8 +106,6 @@ async function recibirPdf(bytes) {
     insignia('');
     hallazgos = [];
     texto = '';
-    viendoOriginal = false;
-    $('original').textContent = 'Ver PDF original';
     $('pie').hidden = true;
     $('lista').replaceChildren();
     estado('leyendo', 'Revisando ortografía…');
@@ -119,7 +123,7 @@ async function recibirPdf(bytes) {
             aPagina({ tipo: 'resultado', hallazgos: [] });
             $('pie').hidden = false;
             $('igual').hidden = false;
-            $('original').hidden = true;
+            $('subrayar').hidden = true;
             return;
         }
         await revisarTexto();
@@ -155,10 +159,12 @@ $('plegar').addEventListener('click', () => {
 });
 $('cerrar').addEventListener('click', () => aPagina({ tipo: 'ocultar' }));
 
-$('original').addEventListener('click', () => {
-    viendoOriginal = !viendoOriginal;
-    $('original').textContent = viendoOriginal ? 'Ver con subrayado' : 'Ver PDF original';
-    aPagina({ tipo: 'subrayado', ver: !viendoOriginal });
+// Se recuerda la eleccion (un si o un no, nada del proveido).
+$('subrayar').addEventListener('click', () => {
+    subrayando = !subrayando;
+    rotular();
+    chrome.storage.local.set({ subrayarEnPdf: subrayando }).catch(() => {});
+    aPagina({ tipo: 'subrayado', ver: subrayando });
 });
 
 $('igual').addEventListener('click', () => {

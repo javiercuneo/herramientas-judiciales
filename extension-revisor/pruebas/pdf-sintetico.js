@@ -59,13 +59,21 @@
         let flujo = 'BT /F1 11 Tf 14 TL 56 780 Td\n';
         renglones.forEach((r, i) => { flujo += (i ? 'T* ' : '') + '(' + literal(r) + ') Tj\n'; });
         flujo += 'ET';
+        // El renglon con la direccion web lleva un enlace, como los del sistema.
+        const conEnlace = renglones.findIndex((r) => r.includes('www.'));
+        const y = 780 - 14 * conEnlace;
         const objetos = [
             '<< /Type /Catalog /Pages 2 0 R >>',
             '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R'
+                + (conEnlace >= 0 ? ' /Annots [6 0 R]' : '') + ' >>',
             '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
             '<< /Length ' + flujo.length + ' >>\nstream\n' + flujo + '\nendstream',
         ];
+        if (conEnlace >= 0) {
+            objetos.push('<< /Type /Annot /Subtype /Link /Rect [56 ' + (y - 3) + ' 420 ' + (y + 11) + '] /Border [0 0 0]'
+                + ' /A << /S /URI /URI (https://www.ejemplo-inventado.com.ar/) >> >>');
+        }
         let pdf = '%PDF-1.4\n';
         const offsets = [];
         objetos.forEach((o, i) => { offsets.push(pdf.length); pdf += (i + 1) + ' 0 obj\n' + o + '\nendobj\n'; });

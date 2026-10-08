@@ -19,6 +19,20 @@ de 2026.
 
 ---
 
+## El subrayado pasa a ser opcional — 8/10
+
+Con el uso apareció el costo del subrayado sobre el PDF: tapaba el visor de
+Chrome, y con él los enlaces del documento. Javier pidió volver a la lista en
+una ventana sin cambiar el visor. Ahora, si hay posibles errores, la ventanita
+aparece sola y el visor queda intacto; «Subrayar en el PDF» es una opción
+recordada en `chrome.storage.local` (un sí o un no). La vista con subrayado
+reproduce además los enlaces web del PDF —un `<a>` transparente sobre cada
+anotación de tipo enlace—; los saltos internos del documento, no.
+
+En la misma tanda: los PDF que no marcan el fin de renglón pegaban palabras
+(se arma el texto con la posición de cada tramo), y una palabra de hasta cuatro
+letras pegada a un punto pasa como abreviatura.
+
 ## El revisor hace menos ruido y sólo mira proveídos — 8/10
 
 Con el uso, Javier pidió tres cosas. **Menos ruido:** que sólo subraye en el

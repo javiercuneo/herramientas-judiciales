@@ -1,23 +1,22 @@
 # Revisor de ortografía de proveídos
 
 Una extensión de Chrome que revisa la ortografía de un proveído apenas se
-abre en el sistema de gestión, y **subraya en rojo sobre el mismo documento**
-las palabras sospechosas. No hay que copiar, pegar ni hacer clic.
+abre en el sistema de gestión. No hay que copiar, pegar ni hacer clic.
 
-**Hace el menor ruido posible:**
-
-- **Si no encuentra nada, no se ve.** Queda el visor de PDF de siempre.
-- **Si encuentra algo**, el PDF se ve igual pero con esas palabras subrayadas.
-  El visor de Chrome no deja que ninguna extensión escriba adentro, así que la
-  extensión dibuja el documento ella misma, en el mismo lugar y del mismo
-  tamaño.
-- **Clic en una palabra subrayada**: al lado aparece la sugerencia («¿resuelvo?»)
-  y **«Es correcta»**, que la suma al diccionario y le saca el subrayado.
-- **El ícono de la extensión** (la R de la barra de Chrome) muestra en rojo
-  cuántos posibles errores hay. Clic en el ícono, o **Alt+Mayús+R**, abre el
-  recuadro con la lista, el contexto de cada palabra y **«Ver PDF original»**,
-  que saca el subrayado y deja el visor de Chrome —para imprimir o bajar el
-  archivo—. La × lo vuelve a ocultar.
+- **Si no encuentra nada, no se ve.** El visor de PDF de Chrome queda como
+  siempre, con sus enlaces, imprimir y bajar.
+- **Si encuentra algo, aparece arriba a la derecha una ventanita** con la
+  lista: cada palabra con su sugerencia («¿resuelvo?»), unas palabras de
+  contexto y **«Es correcta»**, que la suma al diccionario.
+- **La × cierra la ventanita.** El ícono de la extensión (la R de la barra de
+  Chrome) o **Alt+Mayús+R** la vuelven a abrir. El ícono muestra en rojo
+  cuántos posibles errores hay.
+- **«Subrayar en el PDF»**, en la ventanita, dibuja además el documento con las
+  palabras subrayadas en rojo, encima del visor y del mismo tamaño (el visor
+  de Chrome no deja que ninguna extensión escriba adentro). Ahí, clic en una
+  palabra subrayada muestra la sugerencia y «Es correcta», y los enlaces del
+  PDF siguen andando. Queda recordado hasta que se apriete **«Quitar el
+  subrayado del PDF»**. Por defecto está apagado: tapa la barra del visor.
 
 **Sólo revisa proveídos.** Un escrito de un letrado no se le corrige a nadie.
 Un proveído arranca siempre igual: el escudo, «Poder Judicial de la Nación» y
@@ -35,7 +34,8 @@ el escudo: el texto alcanza, y el escudo puede no venir como imagen.
 3. Lo revisa con el diccionario español de LibreOffice, más una lista de
    palabras del fuero (`datos/fuero.txt`: latinismos, siglas, abreviaturas) y
    las que cada uno marcó como correctas.
-4. Si es un proveído, lo revisa y subraya; si no, no hace nada.
+4. Si es un proveído, lo revisa y, si encuentra algo, muestra la ventanita;
+   si no, no hace nada.
 
 **Cómo decide.** Una palabra en minúscula se revisa estricto: «resolucion» sin
 tilde se marca. Una con mayúscula se presume nombre propio o sigla y se marca
@@ -57,7 +57,7 @@ que la rodea.
 2. En Chrome, abrir `chrome://extensions`.
 3. Arriba a la derecha, activar **Modo de desarrollador**.
 4. Botón **Cargar descomprimida** y elegir la carpeta `extension-revisor`.
-5. Abrir un proveído. Si tiene algún posible error, aparece subrayado.
+5. Abrir un proveído. Si tiene algún posible error, aparece la ventanita.
 6. Para tener el ícono a mano: en la barra de Chrome, la pieza de
    rompecabezas → el alfiler al lado de «Revisor de ortografía de proveídos».
    Si Alt+Mayús+R no anda (otro programa usa esa combinación), se cambia en
@@ -120,7 +120,7 @@ descargas.
 | `contenido.js` | Corre en la página del sistema: encuentra el PDF, lo lee y pone el recuadro y el subrayado |
 | `fondo.js` | El ícono: muestra u oculta el recuadro y lleva la cuenta de errores |
 | `panel.html`, `panel.js`, `panel.css` | El recuadro: decide si es un proveído, revisa y lleva la cuenta |
-| `vista.html`, `vista.js`, `vista.css`, `subrayado.mjs` | El PDF dibujado con el subrayado, encima del visor de Chrome |
+| `vista.html`, `vista.js`, `vista.css`, `subrayado.mjs` | «Subrayar en el PDF»: el documento dibujado con el subrayado y sus enlaces, encima del visor de Chrome |
 | `cargar.mjs` | Arma el corrector con el diccionario y las listas |
 | `motor/revisar.mjs` | El criterio de qué se marca. Código puro: corre también en Node |
 | `datos/fuero.txt` | Las palabras del fuero. Se edita a mano |
@@ -137,6 +137,6 @@ Corre el criterio sobre un proveído inventado con cuatro errores sembrados y
 exige que marque esos cuatro y ninguno más. Después abre Chrome con la
 extensión, en un perfil descartable, sirve la página de imitación en la
 dirección del sistema, interceptándola —no sale nada a la red— y verifica
-el subrayado sobre el visor, el menú de cada palabra, el recuadro, que un
-escrito no se revise y que no hubo ningún pedido a la red. Necesita Chrome instalado; sin él corre sólo la primera parte y lo
+la ventanita, el subrayado a pedido con sus enlaces, el menú de cada palabra,
+que un escrito no se revise y que no hubo ningún pedido a la red. Necesita Chrome instalado; sin él corre sólo la primera parte y lo
 dice.

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Revisor de ortografía de proveídos",
   "short_name": "Revisor PJN",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Marca posibles errores de ortografía en el PDF de un proveído apenas se abre. Todo ocurre en la computadora: no se conecta a ningún servidor.",
   "permissions": ["storage"],
   "action": {

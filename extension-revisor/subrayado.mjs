@@ -52,9 +52,31 @@ export async function dibujar(destino, bytes, palabras) {
             textDivs,
         }).promise;
         marcas.push(...subrayar(textDivs, buscadas));
+        await enlaces(pagina, viewport, div);
     }
     await doc.destroy();
     return marcas;
+}
+
+// Los enlaces del PDF siguen andando sobre el dibujo: un <a> transparente
+// encima de cada uno, que abre en otra pestana. Solo direcciones web; los
+// saltos internos del documento no se reproducen.
+async function enlaces(pagina, viewport, div) {
+    for (const a of await pagina.getAnnotations({ intent: 'display' })) {
+        if (a.subtype !== 'Link' || !a.url || !/^https?:\/\//i.test(a.url)) continue;
+        const [x1, y1, x2, y2] = viewport.convertToViewportRectangle(a.rect);
+        const enlace = document.createElement('a');
+        enlace.className = 'enlace';
+        enlace.href = a.url;
+        enlace.target = '_blank';
+        enlace.rel = 'noopener noreferrer';
+        enlace.title = a.url;
+        Object.assign(enlace.style, {
+            left: `${Math.min(x1, x2)}px`, top: `${Math.min(y1, y2)}px`,
+            width: `${Math.abs(x2 - x1)}px`, height: `${Math.abs(y2 - y1)}px`,
+        });
+        div.append(enlace);
+    }
 }
 
 // Cada span de la capa de texto es un tramo de renglon. Se marca la palabra
