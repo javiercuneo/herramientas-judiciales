@@ -18,12 +18,28 @@
 // justo en el guion: la decision se toma al revisar, no aca.
 export const UNION = '\u2060';
 
-// Texto de pdf.js (items con str y hasEOL) -> texto plano con saltos.
+// Texto de pdf.js (items con str, hasEOL, transform y width) -> texto plano
+// con saltos. No alcanza con hasEOL: hay PDF (los de Word justificados, por
+// ejemplo) donde el fin de renglon no viene marcado, y pegar los items dejaba
+// "traslado" + "liquidación" = "trasladoliquidación". Se mira la posicion: si
+// el item baja, es otro renglon; si en el mismo renglon hay un hueco, es otra
+// palabra. Un item partido sin hueco (el kerning) se pega, como debe.
 export function textoDeItems(items) {
     let t = '';
+    let previo = null;
     for (const it of items) {
-        t += it.str || '';
+        if (typeof it.str !== 'string') continue;   // marcas de contenido
+        const s = it.str;
+        if (previo && s && it.transform && previo.transform && !/\n$/.test(t)) {
+            const alto = Math.max(Math.abs(previo.transform[3]), Math.abs(it.transform[3]), 1);
+            const bajo = Math.abs(it.transform[5] - previo.transform[5]) > alto * 0.5;
+            const hueco = it.transform[4] - (previo.transform[4] + (previo.width || 0)) > alto * 0.15;
+            if (bajo) t += '\n';
+            else if (hueco && !/\s$/.test(t) && !/^\s/.test(s)) t += ' ';
+        }
+        t += s;
         if (it.hasEOL) t += '\n';
+        if (s.trim()) previo = it;
     }
     return t;
 }

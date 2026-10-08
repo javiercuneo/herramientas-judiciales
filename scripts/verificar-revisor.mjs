@@ -78,6 +78,17 @@ for (const [texto, esperado, que] of casos) {
     const r = revisor.revisar(texto).map((h) => h.palabra);
     ok(iguales(r, esperado), `${que}${iguales(r, esperado) ? '' : ` (dio: ${r.join(', ') || 'nada'})`}`);
 }
+// El texto se arma con la posicion de cada item, no solo con hasEOL.
+const { textoDeItems } = await import(pathToFileURL(path.join(EXT, 'motor/revisar.mjs')).href);
+const item = (str, x, y, width, hasEOL = false) => ({ str, transform: [12, 0, 0, 12, x, y], width, hasEOL });
+const sinFinDeRenglon = textoDeItems([item('córrase traslado', 50, 700, 90), item('liquidación presentada', 50, 686, 120)]);
+ok(sinFinDeRenglon === 'córrase traslado\nliquidación presentada', `un renglón nuevo sin marca de fin no pega palabras: «${sinFinDeRenglon}»`);
+const conHueco = textoDeItems([item('incurrido', 50, 700, 45), item('no', 100, 700, 10)]);
+ok(conHueco === 'incurrido no', `un hueco en el mismo renglón separa: «${conHueco}»`);
+const partida = textoDeItems([item('notifí', 50, 700, 30), item('quese', 80, 700, 28)]);
+ok(partida === 'notifíquese', `una palabra partida sin hueco se pega: «${partida}»`);
+ok(revisor.revisar('El 29/9 se intimó a que adecue su liquidación.').length === 0, '«adecue» es correcta');
+
 // Solo se revisan proveidos.
 const { esProveido } = await import(pathToFileURL(path.join(EXT, 'motor/revisar.mjs')).href);
 ok(esProveido(RENGLONES.join('\n')), 'el proveído inventado se reconoce como proveído');
