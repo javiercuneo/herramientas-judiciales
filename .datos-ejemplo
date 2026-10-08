@@ -18,3 +18,6 @@ scripts/verificar-datos-ejemplos.sh    # el banco de este mismo mecanismo: const
 scripts/verificar-conectores.mjs        # el banco del conector: para probar que lee una caratula hace falta una, y es inventada
 scripts/banco-cruzado/casos.json       # banco cruzado del hook y el anonimizador: casos inventados, uno por forma; el porque, en scripts/verificar-cruce.mjs
 confronte/ejemplos/ejemplos.js         # los ejemplos inventados de Confronte ("Ver un ejemplo"): Fulano de Tal, calle Falsa; alla estan declarados igual
+extension-revisor/vendor/LICENCIA-nspell.txt  # licencia MIT de un tercero: el correo es parte del aviso de copyright, que la licencia obliga a conservar
+extension-revisor/vendor/pdf.worker.min.js  # pdf.js 3.11.174 de Mozilla, minificado y sin tocar (la misma copia de escribiente/vendor/): constantes numericas del codigo calzan con la forma de un telefono
+extension-revisor/vendor/pdf.min.js         # idem, la otra mitad de pdf.js

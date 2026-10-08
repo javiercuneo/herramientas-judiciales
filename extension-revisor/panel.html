@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Revisor de ortografía</title>
+<link rel="stylesheet" href="panel.css">
+<link rel="stylesheet" href="subrayado.css">
+<script src="vendor/pdf.min.js"></script>
+<script type="module" src="panel.js"></script>
+</head>
+<body>
+<section id="caja" class="caja leyendo" aria-live="polite">
+  <header>
+    <button id="plegar" class="titulo" type="button" aria-expanded="true">
+      <span id="titulo">Revisando ortografía…</span>
+    </button>
+    <button id="cerrar" class="x" type="button" title="Ocultar" aria-label="Ocultar">×</button>
+  </header>
+  <div id="cuerpo">
+    <ul id="lista"></ul>
+    <footer id="pie" hidden>
+      <button id="ver" type="button">Ver con subrayado</button>
+      <span class="nota">Revisado en esta computadora. No se envía nada.</span>
+    </footer>
+  </div>
+</section>
+<section id="vista" hidden>
+  <header class="barra">
+    <button id="volver" type="button">Volver</button>
+    <strong id="resumen">Dibujando el PDF…</strong>
+    <nav id="saltos" aria-label="Ir a cada posible error"></nav>
+    <span class="nota">Copia de lectura, armada en esta computadora. Volver la descarta.</span>
+  </header>
+  <main id="paginas"></main>
+</section>
+</body>
+</html>

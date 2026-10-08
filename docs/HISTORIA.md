@@ -19,6 +19,48 @@ de 2026.
 
 ---
 
+## El revisor de ortografía de proveídos — 7/10
+
+El pedido: que un error de tipeo en un proveído salte a la vista apenas se abre
+el PDF en el sistema, sin copiar ni pegar. El visor de PDF de Chrome no muestra
+errores y ninguna extensión puede escribir adentro; los correctores conocidos
+mandan el texto a sus servidores. En la consola de la página se vio que
+`/despacho/<n>/view` es HTML y muestra el PDF en un iframe `blob:`.
+
+**Antes de construir se revisó «DOMS – Corrector Ortográfico para Webs y
+PDFs»**, bajando el paquete sin instalarlo. No manda el texto a ningún lado
+—trabaja con Typo.js y un diccionario propio—, salvo un botón «Buscar en
+Google» que manda una palabra si se aprieta, y el botón de donaciones del menú,
+que carga una tipografía de Google. Pero no servía: con PDF trabaja sólo
+eligiendo un archivo del disco en su propio visor, y en las páginas sólo actúa
+al apretar su ícono. Se descartó.
+
+**Lo que se comprobó al construir la propia:**
+
+- **El script de contenido lee el `blob:` de la página con `fetch`**, sin
+  pasar por el mundo `MAIN`. Se probó en Chrome con la imitación.
+- **La página del sistema no manda CSP** (se miraron las cabeceras de `/` y de
+  `/despacho/0/view`), así que el recuadro como iframe de la extensión entra.
+- **El diccionario de `dictionary-es` no trae los verbos con pronombre**
+  («notifíquese», «intímese»). En vez de listarlos, se acepta la forma si el
+  verbo existe y la tilde cae en la penúltima sílaba de la forma sin pronombre:
+  así «nótifiquese» y «notifiquese» siguen marcándose.
+- **Las mayúsculas eran la fuente de falsas alarmas**: carátulas y apellidos.
+  Una palabra con mayúscula se marca sólo si tiene seis letras o más y a una
+  letra hay una palabra común; un apellido al que le falta la tilde
+  («Rodriguez») pasa.
+- **`use_dynamic_url` rompía los mensajes**: el script de contenido mandaba al
+  origen de la dirección dinámica y el recuadro vive en el origen fijo. No da
+  error: el recuadro se queda en «Revisando».
+- **La vista con subrayado iba a ser una pestaña aparte** y se cambió por el
+  mismo recuadro a pantalla completa: la pestaña dependía de `window.opener`,
+  no abría en el perfil de prueba, y obligaba a pasar el PDF de una ventana a
+  otra.
+- **La prueba no puede usar el Chromium de Playwright en esta máquina** —Windows
+  no lo deja arrancar— ni `--load-extension`, que Chrome ignora desde la 137.
+  Usa el Chrome instalado y carga la extensión por
+  `Extensions.loadUnpacked`, con `--enable-unsafe-extension-debugging`.
+
 ## El selector, fase 5: lo que se decide en un caso enseña al siguiente — 3/10
 
 Vive en `redactor` —`ui/aprendido.py`, con su prueba—, porque es ahí donde hay casos

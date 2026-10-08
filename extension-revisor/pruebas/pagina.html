@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Imitación de la página de un proveído</title>
+<!--
+  Imita la forma de la pagina del sistema donde se abre un proveido: una
+  aplicacion que, despues de cargar, trae el PDF y lo muestra en un iframe con
+  direccion blob:, mas otro iframe del inicio de sesion que hay que ignorar.
+  El PDF es inventado y se arma aca mismo (pdf-sintetico.js).
+
+  La prueba la sirve en https://sgj-docs.pjn.gov.ar/despacho/<n>/view
+  interceptando la direccion: no sale nada a la red.
+-->
+<script src="/pruebas/pdf-sintetico.js"></script>
+<style>
+  body { margin: 0; font-family: sans-serif; }
+  .barra { height: 48px; background: #1d3557; color: #fff; padding: 12px; }
+  iframe.visor { width: 100%; height: calc(100vh - 72px); border: 0; }
+  iframe.sesion { display: none; }
+</style>
+</head>
+<body>
+<div class="barra">Sistema de gestión (imitación)</div>
+<script>
+  // Como la aplicacion del sistema: el visor aparece un rato despues de cargar.
+  setTimeout(() => {
+    const sesion = document.createElement('iframe');
+    sesion.className = 'sesion';
+    sesion.src = 'about:blank';
+    document.body.appendChild(sesion);
+
+    const blob = new Blob([PdfSintetico.armarPdf()], { type: 'application/pdf' });
+    const visor = document.createElement('iframe');
+    visor.className = 'visor';
+    visor.src = URL.createObjectURL(blob);
+    document.body.appendChild(visor);
+  }, 400);
+</script>
+</body>
+</html>

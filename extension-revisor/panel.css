@@ -1,0 +1,109 @@
+:root {
+    --rojo: #b42318;
+    --rojo-fondo: #fef3f2;
+    --verde: #067647;
+    --verde-fondo: #ecfdf3;
+    --gris: #475467;
+    --borde: #d0d5dd;
+    --texto: #101828;
+    --fondo: #ffffff;
+    color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    background: transparent;
+    font: 14px/1.4 system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--texto);
+}
+
+.caja {
+    background: var(--fondo);
+    border: 2px solid var(--gris);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.caja.con-errores { border-color: var(--rojo); }
+.caja.sin-errores { border-color: var(--verde); }
+.caja.falla { border-color: var(--gris); }
+
+header {
+    display: flex;
+    align-items: stretch;
+}
+.con-errores header { background: var(--rojo); color: #fff; }
+.sin-errores header { background: var(--verde); color: #fff; }
+.leyendo header, .falla header { background: var(--gris); color: #fff; }
+
+button { font: inherit; cursor: pointer; }
+
+.titulo {
+    flex: 1;
+    text-align: left;
+    background: none;
+    border: 0;
+    color: inherit;
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 15px;
+}
+.x {
+    background: none;
+    border: 0;
+    color: inherit;
+    font-size: 22px;
+    line-height: 1;
+    padding: 0 12px;
+}
+
+.plegada #cuerpo { display: none; }
+
+#lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 380px;   /* fijo: un vh aca es el alto del propio recuadro */
+    overflow-y: auto;
+}
+#lista li {
+    padding: 8px 12px;
+    border-top: 1px solid var(--borde);
+}
+#lista li:first-child { border-top: 0; }
+
+.palabra {
+    color: var(--rojo);
+    font-weight: 700;
+    text-decoration: underline wavy var(--rojo);
+    text-underline-offset: 3px;
+}
+.sugerencia { color: var(--gris); margin-left: 6px; }
+.contexto {
+    margin: 4px 0 6px;
+    color: var(--gris);
+    font-size: 13px;
+}
+.contexto .palabra { font-weight: 700; }
+
+.acciones button, #ver {
+    border: 1px solid var(--borde);
+    background: #fff;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 13px;
+}
+.acciones button:hover, #ver:hover { background: #f2f4f7; }
+
+footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-top: 1px solid var(--borde);
+    background: #f9fafb;
+}
+footer .nota { color: var(--gris); font-size: 12px; }
+
+button:focus-visible { outline: 2px solid #2e90fa; outline-offset: 2px; }

@@ -1,0 +1,39 @@
+# Palabras validas del fuero que el diccionario general no trae.
+# Una o varias por linea; lo que va despues de # no cuenta. Mayusculas y
+# minusculas dan igual. El punto final de una abreviatura se ignora.
+#
+# Antes de agregar una, probala: muchas ya estan en el diccionario y otras
+# entran solas por la regla del pronombre pegado (notifiquese, intimese).
+
+# Latinismos
+a quo ad quem ad hoc in fine in limine supra infra ut retro
+sine die prima facie ex officio erga omnes sub iudice judice
+iura novit curia curiae inaudita altera pars fumus boni iuris juris
+periculum petitio plus reformatio peius mutatis mutandis obiter dictum dicta
+ratio decidendi amicus habeas corpus exequatur quantum quater quinquies
+sui generis statu res iudicata judicata ipso facto iure jure pro rata
+lato sensu stricto in itinere ab initio a posteriori a priori ad effectum
+videndi probandi et cetera sic bis ter apud passim idem ibidem op cit
+in re ipsa litis lite ad litem pendente vel ergo opus non
+de cujus causae animus domini manu militari in extremis pari passu
+ultra petita extra solve repetere ius iuris tantum
+
+# Abreviaturas (sin el punto)
+fs fjs art arts inc incs cit cfr conf ss sgtes sigs párr párrs pág págs
+pto ptos ap apdo dto dec expte exptes nro nros cód proc civ com
+Dr Dra Dres Dras Sr Sra Sres Sras Srta Sec Secr Prov Pcia Cap Fed
+Ord Juzg Nac Inst Esc Lic Ing Cdor Cdora
+
+# Siglas de normas y organismos
+CPCCN CPCC CCyCN CCCN CN LCT LCQ LNPA DNU CSJN SCBA CNCiv CNCom CNAT CNFed
+CNCAF CNCCyC CNSS CNACAF AFIP ARCA ANSES IGJ BCRA UMA UHOM CUIT CUIL CBU DNI
+IVA LE LC CI CABA PBA RENAPER IOSFA PAMI ANMAT
+
+# Vocabulario del fuero que no esta en el diccionario
+actora actor coactor coactora codemandado codemandada litisconsorcio
+litisconsorte litisconsortes perención diligenciamiento incidentista
+nulidicente accionante defensoría curaduría astreintes peticionante
+peticionado peticionada peticiona precedentemente cautelarmente estése
+mandamiento mandamientos autorizado autorizada sumarísimo sumarísima
+quirografario quirografaria verificante insinuante concursada concursado
+fallida fallido sindicatura alimentante alimentado alimentada

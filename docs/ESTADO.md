@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-10-03 · rama `main`
+Última actualización: 2026-10-07 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -319,7 +319,7 @@ volumen.
 
 ## Los controles, y qué cubre cada uno
 
-Son catorce y no se superponen. **Ninguno se da por bueno sin haberlo visto fallar
+Son quince y no se superponen. **Ninguno se da por bueno sin haberlo visto fallar
 a propósito**: un control que nunca falló no es un control.
 
 | Control | Qué cubre |
@@ -338,6 +338,7 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-estado` | El presupuesto y la higiene de este archivo |
 | `npm run verificar-datos-ejemplos` | Las salidas de `verificar-datos.sh`: la exención, la guarda del correo y los modos del pre-push: 27 |
 | `npm run verificar-cruce` | El hook de datos y el anonimizador sobre el mismo banco: que coincidan o digan por qué no, y que ninguna regla de los dos quede sin caso: 54 |
+| `npm run verificar-revisor` | La extensión de ortografía: el criterio en Node y la extensión en Chrome. **No corre en CI**: necesita Chrome instalado |
 
 Y **tres** que corren en el navegador, con el sitio servido y no con `file://`:
 
@@ -668,6 +669,21 @@ escriba mañana tampoco sale.
 - **Con el panel del navegador oculto, las transiciones no avanzan** y el
   contraste medido tras cambiar de tema da cualquier cosa. Se mide con
   `transition: none`.
+
+## El revisor de ortografía de proveídos
+
+Extensión de Chrome en `extension-revisor/` (7/10): lee el PDF del iframe
+`blob:` de la página del proveído, lo revisa con el diccionario de LibreOffice
+y muestra los posibles errores; «Ver con subrayado» los marca sobre el PDF.
+**No se publica**: no está en `pages.yml`, se instala a mano. Su
+[`README.md`](../extension-revisor/README.md) dice cómo y qué no hace.
+
+- **Falta probarla con un proveído del sistema, y es de Javier.** Si dice «No
+  pude leer el PDF», el plan B es un script en `world: "MAIN"`.
+- **Sin `use_dynamic_url`**: con él, el origen del recuadro no coincide con su
+  dirección y los mensajes se pierden sin error.
+- **Una regla nueva de `motor/revisar.mjs` entra con su caso** en
+  `verificar-revisor`. El criterio se mide por falsas alarmas.
 
 ## Decisiones vigentes
 
