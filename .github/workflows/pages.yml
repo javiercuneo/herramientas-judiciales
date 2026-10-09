@@ -164,6 +164,10 @@ jobs:
           cp -r calculadoras site/
           cp -r data site/
           cp -r asistente-honorarios-clasico site/
+          # Charlas: presentaciones internas. Se publican SIN enlace desde
+          # index.html y con noindex, a proposito: se comparten por link.
+          # Es la unica excepcion a la regla de arriba.
+          cp -r charlas site/
 
           # Escribiente: PWA estatica de vanilla JS, todo del lado del
           # navegador. La carpeta del repositorio ya es la raiz servible, asi

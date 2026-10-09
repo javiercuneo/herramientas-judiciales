@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cómo se lee una liquidación · L. Javier Cúneo Libarona</title>
+<meta name="description" content="Charla interna: las pautas mínimas para saber, antes de dar traslado, si una liquidación está en condiciones de ser aprobada.">
+<!-- Sin enlace desde el sitio y fuera de los buscadores hasta que Javier
+     decida mostrarla. Para publicarla del todo: sacar este meta y
+     enlazarla desde index.html. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0d11">
+<link rel="icon" href="../../favicon.ico" sizes="32x32">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../assets/icono-180.png">
+<!-- Contador de visitas (GoatCounter), sin cookies. El mismo de todo el
+     sitio: manda la ruta y el titulo, nunca el #. -->
+<script>window.goatcounter = { path: function () { return location.pathname; } };</script>
+<script data-goatcounter="https://javiercuneo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..900;1,62..125,300..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+
+<style>
+/* ------------------------------------------------------------------
+   Presentación de una sola página. Mismo sistema visual que el sitio
+   (tokens del tema oscuro de index.html, Archivo y Source Serif 4),
+   llevado a pantalla completa. Es oscura sola a propósito: se proyecta.
+
+   Los cuatro ítems tienen cada uno su color, y es siempre el mismo en
+   toda la charla. Son los tres ejes del sitio más el acento:
+     capital = ámbar · tasa = violeta · desde = azul · hasta = terracota
+   ------------------------------------------------------------------ */
+:root {
+  color-scheme: dark;
+  --bg: #0b0d11;
+  --bg-2: #101318;
+  --fg: #edeff3;
+  --card: #16191f;
+  --muted-fg: #a3abb8;
+  --faint: #8a92a0;
+  --border: rgb(237 239 243 / 0.15);
+  --hair: rgb(237 239 243 / 0.08);
+
+  --capital: #e0b45c;
+  --tasa: #b99bff;
+  --desde: #7a99ff;
+  --hasta: #e09070;
+  --ok: #6fd3a8;
+  --mal: #ff6b6b;
+
+  --tono: #7a99ff;              /* lo cambia cada diapositiva */
+
+  --font-meter: 'Archivo', 'DIN Alternate', 'Segoe UI', sans-serif;
+  --font-law: 'Source Serif 4', ui-serif, Georgia, serif;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --ease-salto: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-meter);
+  font-size: clamp(15px, 1.05vw + 8px, 22px);
+  line-height: 1.45;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+button { font: inherit; color: inherit; }
+::selection { background: color-mix(in srgb, var(--tono) 40%, transparent); }
+
+/* ---------- Fondo: grilla, resplandor del capítulo y grano ---------- */
+.fondo { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.fondo::before {
+  content: ""; position: absolute; inset: -2px;
+  background-image:
+    linear-gradient(var(--hair) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 30%, transparent 80%);
+  opacity: .55;
+}
+.fondo .halo {
+  position: absolute; width: 90vmax; height: 90vmax; left: 50%; top: 40%;
+  translate: -50% -50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--tono) 22%, transparent) 0%, transparent 60%);
+  transition: background 1.2s var(--ease), left 1.6s var(--ease), top 1.6s var(--ease);
+  will-change: left, top;
+}
+.fondo .grano {
+  position: absolute; inset: 0; opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- El mazo ---------- */
+.mazo { position: fixed; inset: 0; z-index: 1; }
+.dia {
+  position: absolute; inset: 0;
+  display: grid; place-items: safe center;
+  padding: clamp(16px, 4vw, 72px) clamp(16px, 6vw, 120px) 104px;
+  opacity: 0; visibility: hidden;
+  transform: translateX(6vw) scale(.985);
+  transition: opacity .7s var(--ease), transform .9s var(--ease), visibility 0s .9s;
+  overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: none;
+}
+.dia::-webkit-scrollbar { display: none; }
+.dia.atras { transform: translateX(-6vw) scale(.985); }
+.dia.activa {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity .7s var(--ease) .12s, transform .9s var(--ease) .05s, visibility 0s;
+}
+.dia > .cuerpo { width: min(1240px, 100%); }
+
+/* Entrada escalonada: cada .e entra cuando su diapositiva se activa. */
+.e { opacity: 0; transform: translateY(22px); }
+.activa .e {
+  opacity: 1; transform: none;
+  transition: opacity .8s var(--ease), transform .9s var(--ease);
+  transition-delay: calc(var(--d, 0) * 110ms + 250ms);
+}
+/* Pasos dentro de una diapositiva: aparecen con → antes de pasar. */
+[data-paso] { transition: opacity .6s var(--ease), transform .7s var(--ease); }
+.dia:not(.p1) [data-paso="1"], .dia:not(.p2) [data-paso="2"],
+.dia:not(.p3) [data-paso="3"], .dia:not(.p4) [data-paso="4"] {
+  opacity: 0; transform: translateY(16px); pointer-events: none;
+}
+
+/* ---------- Tipografía ---------- */
+.ceja {
+  font-size: .78em; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--tono); font-weight: 600; font-stretch: 110%;
+  display: inline-flex; align-items: center; gap: .7em;
+}
+.ceja::before { content: ""; width: 2.2em; height: 2px; background: currentColor; border-radius: 2px; }
+h1, h2 { margin: .25em 0 .3em; font-weight: 800; line-height: .95; letter-spacing: -.02em; text-wrap: balance; }
+h1 { font-size: clamp(2.6rem, 7.4vw, 7.6rem); font-stretch: 80%; }
+h2 { font-size: clamp(2.1rem, 5.2vw, 5.2rem); font-stretch: 85%; }
+h2.compacto { font-size: clamp(1.9rem, 3.8vw, 3.8rem); }
+h1 em, h2 em { font-style: normal; color: var(--tono); }
+.bajada { font-size: clamp(1.05rem, 1.5vw, 1.6rem); color: var(--muted-fg); max-width: 40ch; margin: 0 0 1.2em; text-wrap: pretty; }
+.bajada b { color: var(--fg); font-weight: 600; }
+.ley {
+  font-family: var(--font-law); font-style: italic; font-size: clamp(1.05rem, 1.55vw, 1.55rem);
+  line-height: 1.4; color: var(--fg); max-width: 46ch; margin: 0;
+  padding-left: 1em; border-left: 3px solid var(--tono);
+}
+.ley cite { display: block; margin-top: .5em; font-style: normal; font-family: var(--font-meter); font-size: .62em; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+.chico { font-size: .82em; color: var(--faint); }
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+.c-capital { --tono: var(--capital); }
+.c-tasa    { --tono: var(--tasa); }
+.c-desde   { --tono: var(--desde); }
+.c-hasta   { --tono: var(--hasta); }
+.c-ok      { --tono: var(--ok); }
+.t-capital { color: var(--capital); } .t-tasa { color: var(--tasa); }
+.t-desde { color: var(--desde); } .t-hasta { color: var(--hasta); }
+.t-mal { color: var(--mal); } .t-ok { color: var(--ok); }
+
+.dos { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(24px, 4vw, 72px); align-items: center; }
+@media (max-width: 860px) { .dos { grid-template-columns: 1fr; } }
+
+/* ---------- Barra inferior ---------- */
+.barra {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px clamp(16px, 3vw, 40px) calc(14px + env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, rgb(11 13 17 / .9) 40%);
+}
+.progreso { flex: 1; display: flex; gap: 4px; height: 26px; align-items: center; min-width: 0; }
+.progreso button {
+  flex: 1; height: 4px; border: 0; padding: 0; border-radius: 3px; cursor: pointer;
+  background: var(--hair); position: relative; transition: height .3s var(--ease), background .4s;
+}
+.progreso button::after { content: ""; position: absolute; inset: -11px 0; }
+.progreso button.visto { background: color-mix(in srgb, var(--seg, var(--fg)) 55%, transparent); }
+.progreso button.aca { background: var(--seg, var(--fg)); height: 8px; box-shadow: 0 0 14px var(--seg, var(--fg)); }
+.progreso button:hover { height: 8px; }
+.cuenta { font-size: .8em; color: var(--faint); min-width: 4.2em; text-align: right; letter-spacing: .05em; }
+.boton {
+  border: 1px solid var(--border); background: rgb(22 25 31 / .7); backdrop-filter: blur(8px);
+  border-radius: 999px; height: 42px; min-width: 42px; padding: 0 14px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: border-color .2s, background .2s, transform .2s var(--ease);
+}
+.boton:hover { border-color: var(--tono); }
+.boton:active { transform: scale(.95); }
+.boton:focus-visible, .progreso button:focus-visible { outline: 2px solid var(--tono); outline-offset: 3px; }
+.boton svg { width: 18px; height: 18px; }
+.hondo-btn { display: none; color: var(--tono); border-color: color-mix(in srgb, var(--tono) 45%, transparent); }
+.hondo-btn.hay { display: inline-flex; animation: latido 2.6s var(--ease) infinite; }
+@keyframes latido { 0%, 70%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tono) 0%, transparent); } 35% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--tono) 18%, transparent); } }
+@media (max-width: 600px) { .hondo-btn .txt, .ocultable { display: none; } }
+
+/* ---------- Capa para profundizar ---------- */
+.hondo-velo { position: fixed; inset: 0; z-index: 8; background: rgb(5 6 8 / .55); backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity .4s; }
+.hondo {
+  position: fixed; z-index: 9; left: 50%; bottom: 0; width: min(980px, 100%);
+  max-height: 82dvh; overflow-y: auto; translate: -50% 105%;
+  background: var(--card); border: 1px solid var(--border); border-bottom: 0;
+  border-radius: 22px 22px 0 0; padding: 28px clamp(18px, 4vw, 48px) 48px;
+  box-shadow: 0 -30px 80px rgb(0 0 0 / .5);
+  transition: translate .6s var(--ease);
+}
+.abierto .hondo { translate: -50% 0; }
+.abierto .hondo-velo { opacity: 1; pointer-events: auto; }
+.hondo .tirador { width: 44px; height: 5px; border-radius: 3px; background: var(--border); margin: -10px auto 18px; }
+.hondo h3 { font-size: 1.5em; margin: 0 0 .4em; font-stretch: 90%; line-height: 1.05; }
+.hondo h4 { font-size: .78em; letter-spacing: .16em; text-transform: uppercase; color: var(--tono); margin: 1.6em 0 .6em; }
+.hondo p, .hondo li { color: var(--muted-fg); text-wrap: pretty; }
+.hondo p b, .hondo li b { color: var(--fg); }
+.hondo ul { padding-left: 1.1em; }
+.hondo li { margin: .35em 0; }
+.hondo blockquote { margin: .8em 0; font-family: var(--font-law); font-style: italic; color: var(--fg); border-left: 3px solid var(--tono); padding-left: 1em; }
+.hondo .fallo { font-size: .82em; color: var(--faint); font-style: normal; font-family: var(--font-meter); display: block; margin-top: .3em; }
+.hondo .cerrar { position: sticky; top: -10px; float: right; margin: -8px -8px 0 0; }
+.hondo-cont[hidden] { display: none; }
+
+/* ---------- Ticket: la liquidación de ejemplo ---------- */
+.ticket {
+  background: linear-gradient(180deg, #1a1d24, #13161b);
+  border: 1px solid var(--border); border-radius: 16px; padding: 22px 24px 18px;
+  font-size: clamp(.9rem, 1.1vw, 1.12rem); position: relative;
+  box-shadow: 0 30px 60px -20px rgb(0 0 0 / .6), inset 0 1px 0 rgb(255 255 255 / .04);
+  max-width: 520px; width: 100%; justify-self: center;
+}
+.ticket::before {
+  content: ""; position: absolute; left: 18px; right: 18px; top: -1px; height: 10px;
+  background: radial-gradient(circle at 6px 0, var(--bg) 5px, transparent 5.5px) 0 0 / 16px 10px repeat-x;
+}
+.ticket .tit { display: flex; justify-content: space-between; align-items: baseline; font-size: .72em; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); margin-bottom: 12px; }
+.fila { display: grid; grid-template-columns: 9px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--hair); transition: opacity .4s, background .4s; }
+.fila .pt { width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); }
+.fila .k { color: var(--muted-fg); }
+.fila .v { font-weight: 600; text-align: right; transition: color .4s; }
+.ticket[data-foco] .fila[data-item] { opacity: .38; }
+.ticket[data-foco="capital"] .fila[data-item="capital"],
+.ticket[data-foco="tasa"] .fila[data-item="tasa"],
+.ticket[data-foco="desde"] .fila[data-item="desde"],
+.ticket[data-foco="hasta"] .fila[data-item="hasta"] { opacity: 1; }
+.fila.cambiada .v { color: var(--mal); }
+.fila .v s { color: var(--faint); font-weight: 400; margin-right: .5em; text-decoration-thickness: 2px; }
+.ticket .linea { height: 1px; background: var(--border); margin: 10px 0; }
+.ticket .tot { display: flex; justify-content: space-between; align-items: baseline; padding-top: 4px; }
+.ticket .tot .v { font-size: 2em; font-weight: 800; font-stretch: 85%; letter-spacing: -.01em; }
+.ticket .delta { text-align: right; font-weight: 700; height: 1.5em; font-size: .95em; opacity: 0; transform: translateY(-4px); transition: opacity .4s, transform .4s var(--ease); }
+.ticket.con-error .delta { opacity: 1; transform: none; }
+.ticket .err {
+  margin-top: 14px; width: 100%; justify-content: space-between; border-radius: 12px; height: auto;
+  padding: 12px 14px; text-align: left; line-height: 1.3; font-size: .9em;
+}
+.ticket .err .sw { flex: none; width: 38px; height: 22px; border-radius: 11px; background: var(--hair); position: relative; transition: background .3s; }
+.ticket .err .sw::after { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--fg); transition: translate .35s var(--ease-salto); }
+.ticket.con-error .err { border-color: var(--mal); }
+.ticket.con-error .err .sw { background: var(--mal); }
+.ticket.con-error .err .sw::after { translate: 16px 0; }
+
+/* ================================================================
+   Diapositiva por diapositiva
+   ================================================================ */
+
+/* 0 · Portada con el contador que corre */
+.portada { text-align: center; display: grid; justify-items: center; }
+.portada .bajada { margin-inline: auto; text-align: center; }
+.contador {
+  margin-top: clamp(16px, 3vh, 40px); display: grid; gap: 6px; justify-items: center;
+  padding: 22px 34px; border-radius: 20px; border: 1px solid var(--border);
+  background: rgb(22 25 31 / .55); backdrop-filter: blur(10px);
+}
+.contador .monto { font-size: clamp(2.4rem, 6.4vw, 6rem); font-weight: 800; font-stretch: 78%; letter-spacing: -.02em; line-height: 1; }
+.contador .monto .cent { font-size: .45em; color: var(--muted-fg); font-weight: 600; }
+.contador .lbl { font-size: .74em; letter-spacing: .2em; text-transform: uppercase; color: var(--faint); }
+.contador .dias { color: var(--hasta); font-weight: 700; }
+.pista { margin-top: 26px; font-size: .78em; color: var(--faint); display: inline-flex; gap: .6em; align-items: center; }
+kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); border-bottom-width: 3px; border-radius: 6px; padding: 1px 7px; color: var(--muted-fg); }
+
+/* 1 · La foto */
+.foto-wrap { display: grid; justify-items: center; gap: 22px; }
+.polaroid {
+  background: #f3f1ea; color: #12161c; padding: 18px 18px 64px; border-radius: 4px; width: min(440px, 88vw);
+  box-shadow: 0 40px 80px -20px rgb(0 0 0 / .8); position: relative;
+  transform: rotate(-3deg) translateY(30px) scale(.9); opacity: 0;
+}
+.activa .polaroid { animation: revelar 1.4s var(--ease) .5s forwards; }
+@keyframes revelar { to { transform: rotate(-3deg); opacity: 1; } }
+.polaroid .img {
+  aspect-ratio: 4 / 3; background: #0d0f13; border-radius: 2px; display: grid; place-items: center; text-align: center;
+  color: var(--fg); padding: 18px; position: relative; overflow: hidden;
+}
+.activa .polaroid .img > * { animation: emerger 2.6s ease 1.1s both; }
+@keyframes emerger { from { filter: blur(12px) brightness(2.4); opacity: .1; } to { filter: none; opacity: 1; } }
+.polaroid .img .m { font-size: clamp(2rem, 4.6vw, 3.2rem); font-weight: 800; font-stretch: 80%; line-height: 1; }
+.polaroid .img .f { font-size: .8em; color: var(--muted-fg); margin-top: 6px; letter-spacing: .08em; }
+.polaroid .pie { position: absolute; bottom: 18px; left: 22px; right: 22px; font-family: var(--font-law); font-style: italic; font-size: 1.05em; color: #3b414c; }
+.flash { position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 4; }
+.flash.dispara { animation: flash .9s ease-out; }
+@keyframes flash { 0% { opacity: .9; } 100% { opacity: 0; } }
+.mientras { font-size: .9em; color: var(--muted-fg); }
+.mientras b { color: var(--hasta); font-weight: 700; }
+
+/* 2 · El molde */
+.molde { position: relative; width: min(480px, 100%); aspect-ratio: 1 / 1; justify-self: center; }
+.molde svg { width: 100%; height: 100%; overflow: visible; }
+.molde .marco { fill: none; stroke: var(--border); stroke-width: 2; stroke-dasharray: 8 8; }
+.molde .hueco { fill: rgb(255 255 255 / .02); stroke-width: 2; }
+.molde .pieza { transform-box: fill-box; transform-origin: center; opacity: 0; }
+.activa .molde .pieza { animation: caer .9s var(--ease-salto) forwards; animation-delay: calc(var(--i) * 260ms + 900ms); }
+@keyframes caer { from { opacity: 0; transform: translateY(-120px) rotate(-12deg); } to { opacity: 1; transform: none; } }
+.molde text { font-family: var(--font-meter); font-weight: 700; font-size: 17px; letter-spacing: .1em; text-anchor: middle; dominant-baseline: middle; }
+
+/* 3 · La puerta */
+.candados { display: grid; gap: 14px; margin-top: 10px; }
+.candado {
+  display: grid; grid-template-columns: 56px 1fr; gap: 18px; align-items: center;
+  padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border); background: rgb(22 25 31 / .6);
+  transition: border-color .6s, background .6s;
+}
+.candado .ic { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; background: var(--hair); transition: background .6s; }
+.candado .ic svg { width: 30px; height: 30px; }
+.candado .arco { transition: transform .6s var(--ease-salto); transform-origin: 75% 100%; }
+.candado b { display: block; font-size: 1.15em; }
+.candado span { color: var(--muted-fg); font-size: .9em; }
+.dia.p1 .candado:nth-child(1), .dia.p2 .candado:nth-child(2), .dia.p3 .candado:nth-child(3) { border-color: color-mix(in srgb, var(--ok) 60%, transparent); background: color-mix(in srgb, var(--ok) 7%, transparent); }
+.dia.p1 .candado:nth-child(1) .ic, .dia.p2 .candado:nth-child(2) .ic, .dia.p3 .candado:nth-child(3) .ic { background: color-mix(in srgb, var(--ok) 20%, transparent); color: var(--ok); }
+.dia.p1 .candado:nth-child(1) .arco, .dia.p2 .candado:nth-child(2) .arco, .dia.p3 .candado:nth-child(3) .arco { transform: translateY(-4px) rotate(-28deg); }
+.puerta-ok { margin-top: 22px; font-size: 1.4em; font-weight: 800; font-stretch: 85%; color: var(--ok); }
+
+/* 4 · Tres créditos */
+.carriles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 14px; }
+@media (max-width: 860px) { .carriles { grid-template-columns: 1fr; } }
+.carril { border-radius: 18px; padding: 22px; border: 1px solid var(--border); background: rgb(22 25 31 / .6); position: relative; overflow: hidden; min-height: 280px; display: flex; flex-direction: column; }
+.carril .n { font-size: 3.4em; font-weight: 900; font-stretch: 70%; line-height: .8; color: var(--hair); position: absolute; right: 14px; top: 10px; -webkit-text-stroke: 1px var(--border); }
+.carril h3 { margin: 0 0 .4em; font-size: 1.45em; font-stretch: 88%; line-height: 1.05; }
+.carril p { margin: 0 0 .6em; color: var(--muted-fg); font-size: .92em; }
+.carril p b { color: var(--fg); }
+.carril .viz { margin-top: auto; height: 74px; display: flex; flex-direction: column; justify-content: flex-end; gap: 5px; }
+.carril .viz i { display: block; height: 9px; border-radius: 5px; background: linear-gradient(90deg, var(--desde), var(--hasta)); transform-origin: left; transform: scaleX(0); }
+.activa .carril .viz i { animation: crecer 1.6s var(--ease) forwards; animation-delay: calc(var(--i, 0) * 180ms + 1100ms); }
+@keyframes crecer { to { transform: scaleX(1); } }
+
+/* 5 · Los cuatro ítems */
+.cuatro { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 18px 0 26px; }
+@media (max-width: 860px) { .cuatro { grid-template-columns: repeat(2, 1fr); } }
+.item {
+  border-radius: 20px; padding: 22px 20px 20px; position: relative; overflow: hidden; isolation: isolate;
+  background: color-mix(in srgb, var(--tono) 8%, var(--card)); border: 1px solid color-mix(in srgb, var(--tono) 35%, transparent);
+  min-height: 190px; display: flex; flex-direction: column; justify-content: space-between;
+}
+.item::after {
+  content: ""; position: absolute; inset: auto -30% -60% -30%; height: 120%; z-index: -1;
+  background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--tono) 35%, transparent), transparent 60%);
+}
+.item .q { font-size: .82em; color: var(--muted-fg); }
+.item .w { font-size: clamp(1.6rem, 3vw, 2.8rem); font-weight: 900; font-stretch: 75%; color: var(--tono); letter-spacing: -.01em; line-height: 1; }
+.item .i { font-size: .72em; letter-spacing: .2em; color: var(--tono); font-weight: 700; }
+.activa .item { animation: subir .9s var(--ease-salto) both; animation-delay: calc(var(--i) * 140ms + 400ms); }
+@keyframes subir { from { opacity: 0; transform: translateY(40px) scale(.94); } }
+.regla { font-size: clamp(1.1rem, 1.8vw, 1.7rem); font-weight: 700; font-stretch: 90%; }
+.regla .t-mal { white-space: nowrap; }
+
+/* 6 · Capital: comparar dígitos */
+.comparar { display: grid; gap: 10px; margin: 6px 0 22px; }
+.comparar .r { display: grid; grid-template-columns: 8.5em 1fr; align-items: baseline; gap: 12px; }
+.comparar .r .k { font-size: .75em; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+.comparar .digs { font-size: clamp(1.8rem, 4.2vw, 3.6rem); font-weight: 800; font-stretch: 80%; letter-spacing: .02em; }
+.comparar .digs span { display: inline-block; }
+.comparar .digs .dif { color: var(--mal); text-shadow: 0 0 24px var(--mal); }
+.activa .comparar .digs .dif { animation: temblar .5s ease 1.6s 2; }
+@keyframes temblar { 25% { transform: translateY(-6px); } 75% { transform: translateY(4px); } }
+
+/* 7 · UMA / UHOM */
+.monedas { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 12px; }
+@media (max-width: 860px) { .monedas { grid-template-columns: 1fr; } }
+.moneda { border-radius: 22px; padding: 24px; border: 1px solid var(--border); background: rgb(22 25 31 / .6); display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: start; }
+.disco {
+  width: 118px; height: 118px; border-radius: 50%; display: grid; place-items: center; text-align: center;
+  position: relative; font-weight: 900; font-stretch: 75%; line-height: 1;
+}
+.disco .u { font-size: 1.5em; }
+.disco .p { font-size: .72em; font-weight: 600; margin-top: 4px; color: var(--muted-fg); font-stretch: 100%; }
+.disco.vivo { background: radial-gradient(circle at 35% 30%, #f6d58e, #b7862e 70%); color: #2a1d05; box-shadow: 0 0 40px rgb(224 180 92 / .35); }
+.disco.vivo .p { color: #3e2a07; }
+.activa .disco.vivo { animation: girar 3.2s var(--ease) 1s infinite; }
+@keyframes girar { 0%, 60% { transform: rotateY(0); } 80% { transform: rotateY(180deg); } 100% { transform: rotateY(360deg); } }
+.disco.helado { background: radial-gradient(circle at 35% 30%, #dfe8f5, #8a97ab 70%); color: #18202c; box-shadow: 0 0 40px rgb(160 190 230 / .25); }
+.disco.helado::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px dashed rgb(200 220 255 / .5); }
+.disco.helado .p { color: #2c3646; }
+.moneda h3 { margin: 0 0 .25em; font-size: 1.5em; font-stretch: 85%; }
+.moneda .tag { display: inline-block; font-size: .7em; letter-spacing: .14em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; margin-bottom: .6em; font-weight: 700; }
+.moneda p { margin: .35em 0; color: var(--muted-fg); font-size: .93em; }
+.moneda p b { color: var(--fg); }
+
+/* 8 · Árbol de tasas */
+.arbol { display: grid; gap: 14px; }
+.arbol .preg { font-size: .78em; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
+.opciones { display: flex; flex-wrap: wrap; gap: 10px; }
+.op {
+  border: 1px solid var(--border); background: rgb(22 25 31 / .7); border-radius: 14px; padding: 12px 16px; cursor: pointer;
+  text-align: left; line-height: 1.2; transition: border-color .3s, background .3s, transform .3s var(--ease);
+}
+.op small { display: block; color: var(--faint); font-size: .75em; margin-top: 3px; }
+.op:hover { border-color: var(--tasa); transform: translateY(-2px); }
+.op[aria-pressed="true"] { border-color: var(--tasa); background: color-mix(in srgb, var(--tasa) 16%, transparent); box-shadow: 0 0 0 1px var(--tasa), 0 10px 30px -10px var(--tasa); }
+.rama2 { display: none; }
+.rama2.ver { display: grid; gap: 10px; animation: aparecer .5s var(--ease); }
+@keyframes aparecer { from { opacity: 0; transform: translateY(10px); } }
+.respuesta {
+  min-height: 130px; border-radius: 18px; padding: 20px 22px; border: 1px dashed var(--border);
+  display: grid; align-content: center; gap: 6px; transition: border-color .4s, background .4s;
+}
+.respuesta.llena { border-style: solid; border-color: var(--tasa); background: color-mix(in srgb, var(--tasa) 8%, transparent); animation: aparecer .5s var(--ease); }
+.respuesta .grande { font-size: clamp(1.4rem, 2.6vw, 2.3rem); font-weight: 800; font-stretch: 85%; line-height: 1.05; color: var(--tasa); }
+.respuesta .por { color: var(--muted-fg); font-size: .9em; }
+.respuesta .vacio { color: var(--faint); }
+
+/* 9 · Línea de tiempo del desde */
+.linea-t { position: relative; margin: 34px 0 18px; height: 150px; }
+.linea-t .eje { position: absolute; left: 0; right: 0; top: 70px; height: 2px; background: var(--border); }
+.linea-t .hito { position: absolute; top: 70px; translate: -50% -50%; display: grid; justify-items: center; }
+.linea-t .hito i { width: 16px; height: 16px; border-radius: 50%; background: var(--card); border: 3px solid var(--fg); }
+.linea-t .hito span { position: absolute; top: 22px; white-space: nowrap; font-size: .82em; color: var(--muted-fg); text-align: center; line-height: 1.2; }
+.linea-t .hito span b { display: block; color: var(--fg); }
+.linea-t .hito.mora i { border-color: var(--mal); box-shadow: 0 0 18px var(--mal); }
+.linea-t .hito.mora span b { color: var(--mal); }
+.linea-t .tramo { position: absolute; top: 69px; height: 4px; border-radius: 2px; transform-origin: left; }
+.linea-t .flecha {
+  position: absolute; top: 0; height: 60px; border: 3px solid var(--desde); border-bottom: 0; border-radius: 60px 60px 0 0;
+}
+.linea-t .flecha::before { content: ""; position: absolute; left: -9px; bottom: -6px; border: 7px solid transparent; border-top: 11px solid var(--desde); }
+.linea-t .flecha span { position: absolute; top: -30px; left: 50%; translate: -50% 0; white-space: nowrap; color: var(--desde); font-weight: 700; font-size: .86em; }
+.linea-t .intereses { position: absolute; top: 66px; height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--desde), color-mix(in srgb, var(--desde) 30%, transparent)); box-shadow: 0 0 20px var(--desde); transform-origin: left; }
+.dia.p1 .linea-t .intereses { animation: crecer 1.4s var(--ease) .3s both; }
+@media (max-width: 600px) { .linea-t .hito span { font-size: .7em; } }
+
+/* 10 · El cronómetro */
+.crono-wrap { display: grid; justify-items: center; gap: 16px; }
+.crono { width: min(300px, 70vw); aspect-ratio: 1; position: relative; }
+.crono svg { width: 100%; height: 100%; overflow: visible; }
+.crono .aro { fill: none; stroke: var(--border); stroke-width: 6; }
+.crono .marca { stroke: var(--faint); stroke-width: 2; }
+.crono .aguja { stroke: var(--hasta); stroke-width: 5; stroke-linecap: round; transform-origin: 150px 150px; animation: vuelta 2.4s linear infinite; }
+.crono .centro { fill: var(--hasta); }
+.crono .boton-c { fill: var(--hasta); }
+.crono .estela { fill: none; stroke: var(--hasta); stroke-width: 6; stroke-linecap: round; opacity: .35; transform-origin: 150px 150px; animation: vuelta 2.4s linear infinite; }
+@keyframes vuelta { to { transform: rotate(360deg); } }
+.dia.p2 .crono .aguja, .dia.p2 .crono .estela { animation-duration: 5s; }
+.dia.p3 .crono .aguja, .dia.p3 .crono .estela { animation-play-state: paused; }
+.dia.p3 .crono .aguja { stroke: var(--ok); }
+.dia.p3 .crono .centro, .dia.p3 .crono .boton-c { fill: var(--ok); }
+.dia.p3 .crono svg { filter: drop-shadow(0 0 30px rgb(111 211 168 / .45)); }
+.crono .leyenda { position: absolute; inset: 0; display: grid; place-items: center; padding-top: 34%; font-weight: 800; font-stretch: 85%; letter-spacing: .08em; font-size: .9em; text-transform: uppercase; }
+.crono .leyenda span { grid-area: 1 / 1; transition: opacity .4s; opacity: 0; }
+.dia:not(.p1) .crono .leyenda .l0, .dia.p1:not(.p2) .crono .leyenda .l1, .dia.p2:not(.p3) .crono .leyenda .l2, .dia.p3 .crono .leyenda .l3 { opacity: 1; }
+.crono .leyenda .l3 { color: var(--ok); }
+.pasos-hasta { display: grid; gap: 10px; }
+.ph { display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: center; padding: 9px 14px; border-radius: 14px; border: 1px solid var(--border); background: rgb(22 25 31 / .6); }
+.ph .nro { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: var(--hair); }
+.ph b { display: block; }
+.ph span { color: var(--muted-fg); font-size: .88em; }
+.ph.para { border-color: color-mix(in srgb, var(--ok) 60%, transparent); }
+.ph.para .nro { background: var(--ok); color: #06261a; }
+.cuatro-req { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.cuatro-req span { font-size: .78em; padding: 4px 10px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--hasta) 45%, transparent); color: var(--hasta); }
+
+/* 11 · Pago parcial */
+.deuda { margin: 26px 0 10px; }
+.deuda .bar { display: flex; height: 74px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); position: relative; }
+.deuda .seg { display: grid; place-items: center; font-weight: 700; font-size: .9em; transition: flex-grow 1.2s var(--ease), opacity .8s; white-space: nowrap; overflow: hidden; }
+.deuda .seg.int { background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--tasa) 55%, #000), color-mix(in srgb, var(--tasa) 55%, #000) 10px, color-mix(in srgb, var(--tasa) 45%, #000) 10px, color-mix(in srgb, var(--tasa) 45%, #000) 20px); flex: 40 1 0; }
+.deuda .seg.cap { background: color-mix(in srgb, var(--capital) 60%, #000); flex: 100 1 0; }
+.deuda .seg.cap { position: relative; }
+.deuda .seg .ya, .deuda .seg .antes { grid-area: 1 / 1; transition: opacity .5s .6s; }
+.deuda .seg .ya { opacity: 0; }
+.dia.p1 .deuda .seg .ya { opacity: 1; }
+.dia.p1 .deuda .seg .antes { opacity: 0; }
+.deuda .pago {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0; overflow: hidden; white-space: nowrap;
+  background: var(--ok); color: #06261a; font-weight: 800; display: grid; place-items: center;
+  box-shadow: 8px 0 30px rgb(111 211 168 / .5); transition: width 1.2s var(--ease);
+}
+.dia.p1 .deuda .pago { width: 42.857%; }
+.deuda .ejes { display: flex; justify-content: space-between; font-size: .78em; color: var(--faint); margin-top: 8px; }
+.pago-bloque { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 12px; background: var(--ok); color: #06261a; font-weight: 800; }
+.leyes-pp { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 26px; }
+@media (max-width: 860px) { .leyes-pp { grid-template-columns: 1fr; } }
+.aviso { border-radius: 16px; padding: 18px 20px; border: 1px solid color-mix(in srgb, var(--mal) 45%, transparent); background: color-mix(in srgb, var(--mal) 7%, transparent); }
+.aviso b { color: var(--mal); }
+
+/* 12 · Capitalización: el gráfico */
+.grafico { width: 100%; position: relative; }
+.grafico svg { width: 100%; height: auto; overflow: visible; }
+.grafico .ej { stroke: var(--border); stroke-width: 1; }
+.grafico .ejtxt { fill: var(--faint); font-family: var(--font-meter); font-size: 13px; }
+.grafico path.l { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.grafico .l-simple { stroke: var(--fg); }
+.grafico .l-comp { stroke: var(--mal); stroke-dasharray: 10 8; }
+.grafico .l-una { stroke: var(--capital); }
+.grafico .dibujo { stroke-dasharray: var(--len) var(--len); stroke-dashoffset: var(--len); }
+.dia.activa .grafico .l-simple.dibujo { animation: trazar 1.6s var(--ease) .8s forwards; }
+.dia.p1 .grafico .l-comp.dibujo { animation: trazar 2.2s var(--ease) forwards; }
+.dia.p2 .grafico .l-una.dibujo { animation: trazar 1.8s var(--ease) forwards; }
+@keyframes trazar { to { stroke-dashoffset: 0; } }
+.grafico .rot { font-family: var(--font-meter); font-weight: 700; font-size: 15px; }
+.grafico .cruz { stroke: var(--mal); stroke-width: 5; stroke-linecap: round; }
+.reqs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.reqs .r { padding: 8px 14px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--capital) 50%, transparent); background: color-mix(in srgb, var(--capital) 9%, transparent); font-weight: 600; font-size: .92em; }
+.reqs .flechita { color: var(--faint); }
+.sello-1 { display: inline-flex; align-items: baseline; gap: .3em; font-weight: 900; font-stretch: 75%; color: var(--capital); font-size: clamp(1.6rem, 3vw, 2.6rem); line-height: 1; }
+
+/* 13 · Casos especiales */
+.abanico { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 16px; }
+@media (max-width: 1000px) { .abanico { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .abanico { grid-template-columns: 1fr; } }
+.carta {
+  border-radius: 18px; padding: 20px; border: 1px solid var(--border); background: var(--card);
+  display: flex; flex-direction: column; gap: 10px; min-height: 250px;
+  box-shadow: 0 30px 50px -30px rgb(0 0 0 / .8);
+}
+.activa .carta { animation: repartir .9s var(--ease-salto) both; animation-delay: calc(var(--i) * 160ms + 500ms); }
+@keyframes repartir { from { opacity: 0; transform: translateY(80px) rotate(calc((var(--i) - 1.5) * 6deg)); } }
+.carta .quien { font-size: .72em; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
+.carta h3 { margin: 0; font-size: 1.22em; line-height: 1.1; font-stretch: 90%; }
+.carta .res { margin-top: auto; font-weight: 700; padding-top: 10px; border-top: 1px solid var(--hair); }
+.carta .res.d { color: var(--ok); } .carta .res.a { color: var(--hasta); }
+.carta .fallo { font-size: .74em; color: var(--faint); line-height: 1.3; }
+
+/* 14 · Qué hace el juzgado */
+.bifurca { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 14px; }
+@media (max-width: 860px) { .bifurca { grid-template-columns: 1fr; } }
+.salida { border-radius: 20px; padding: 24px; border: 1px solid var(--border); background: rgb(22 25 31 / .6); }
+.salida .si-no { font-size: .74em; letter-spacing: .2em; text-transform: uppercase; font-weight: 800; }
+.salida h3 { margin: .3em 0 .5em; font-size: 1.6em; font-stretch: 85%; line-height: 1.05; }
+.salida.no { border-color: color-mix(in srgb, var(--mal) 50%, transparent); }
+.salida.no .si-no { color: var(--mal); }
+.salida.si { border-color: color-mix(in srgb, var(--ok) 50%, transparent); }
+.salida.si .si-no { color: var(--ok); }
+.salida p, .salida li { color: var(--muted-fg); }
+.salida p b, .salida li b { color: var(--fg); }
+.salida ol { padding-left: 1.2em; margin: .4em 0; }
+.salida li { margin: .3em 0; }
+.pregunta-grande { font-size: clamp(1.3rem, 2.4vw, 2.1rem); font-weight: 800; font-stretch: 85%; }
+
+/* 15 · El sello */
+.sello-zona { display: grid; justify-items: center; gap: 22px; text-align: center; }
+.sello {
+  font-size: clamp(3rem, 10vw, 8.5rem); font-weight: 900; font-stretch: 70%; letter-spacing: .06em;
+  color: var(--ok); border: .07em solid var(--ok); padding: .02em .25em; border-radius: .1em; position: relative;
+  transform: rotate(-7deg) scale(2.4); opacity: 0; line-height: 1;
+  text-shadow: 0 0 40px rgb(111 211 168 / .35);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 1.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 1.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.activa .sello { animation: estampar .55s cubic-bezier(.5, 0, .75, 0) .6s forwards; }
+@keyframes estampar { 80% { transform: rotate(-7deg) scale(.96); opacity: 1; } 100% { transform: rotate(-7deg) scale(1); opacity: 1; } }
+.sello-caja { position: relative; }
+.ast { color: var(--hasta); position: absolute; right: -.35em; top: -.35em; font-size: clamp(3rem, 8vw, 7rem); font-weight: 900; line-height: 1; opacity: 0; transform: scale(3); text-shadow: 0 0 30px var(--hasta); }
+.dia.p1 .ast { animation: ast .6s var(--ease-salto) forwards; }
+@keyframes ast { to { opacity: 1; transform: none; } }
+.temblor { animation: temblor .35s ease; }
+@keyframes temblor { 20% { transform: translate(6px, -4px); } 40% { transform: translate(-5px, 3px); } 60% { transform: translate(3px, 2px); } 80% { transform: translate(-2px, -1px); } }
+.nota-ast { font-family: var(--font-law); font-style: italic; font-size: clamp(1.3rem, 2.6vw, 2.2rem); color: var(--hasta); }
+
+/* 16 · Checklist final */
+.lista { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 22px; margin-top: 16px; }
+@media (max-width: 860px) { .lista { grid-template-columns: 1fr; } }
+.chk {
+  display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: start; text-align: left; cursor: pointer;
+  border: 1px solid var(--border); background: rgb(22 25 31 / .6); border-radius: 14px; padding: 12px 14px;
+  transition: border-color .3s, background .3s;
+}
+.chk .box { width: 34px; height: 34px; border-radius: 10px; border: 2px solid var(--c, var(--border)); display: grid; place-items: center; transition: background .3s; }
+.chk .box svg { width: 20px; height: 20px; stroke: #06261a; stroke-width: 3.5; fill: none; stroke-dasharray: 30; stroke-dashoffset: 30; transition: stroke-dashoffset .35s var(--ease); }
+.chk b { display: block; line-height: 1.2; }
+.chk span { color: var(--muted-fg); font-size: .85em; line-height: 1.3; display: block; margin-top: 3px; }
+.chk[aria-checked="true"] { border-color: color-mix(in srgb, var(--ok) 50%, transparent); background: color-mix(in srgb, var(--ok) 6%, transparent); }
+.chk[aria-checked="true"] .box { background: var(--ok); border-color: var(--ok); }
+.chk[aria-checked="true"] .box svg { stroke-dashoffset: 0; }
+.veredicto { margin-top: 20px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.anillo { width: 74px; height: 74px; flex: none; }
+.anillo circle { fill: none; stroke-width: 7; }
+.anillo .fondo-a { stroke: var(--hair); }
+.anillo .frente { stroke: var(--ok); stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset .6s var(--ease); }
+.veredicto .txt { font-size: clamp(1.1rem, 2vw, 1.7rem); font-weight: 800; font-stretch: 88%; }
+.calculadoras { margin-top: 26px; }
+
+/* Confeti contenido para el final */
+.chispa { position: fixed; width: 9px; height: 14px; border-radius: 2px; pointer-events: none; z-index: 6; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; animation-delay: 0s !important; }
+}
+@media (max-width: 600px) {
+  .dia { place-items: start center; padding-top: 28px; }
+  h1 { font-size: 2.7rem; }
+  h2 { font-size: 2.2rem; }
+}
+</style>
+</head>
+<body>
+<div class="fondo" aria-hidden="true"><div class="halo"></div><div class="grano"></div></div>
+<div class="flash" aria-hidden="true"></div>
+
+<main class="mazo" id="mazo">
+
+<!-- ============ 0 · Portada ============ -->
+<section class="dia" data-cap="intro" data-tono="#7a99ff" aria-label="Portada">
+  <div class="cuerpo portada">
+    <span class="ceja e" style="--d:0">Charla interna · Liquidaciones</span>
+    <h1 class="e" style="--d:1">Cómo se lee<br>una <em>liquidación</em></h1>
+    <p class="bajada e" style="--d:2">Lo mínimo para saber, <b>antes de dar traslado</b>, si se puede aprobar.</p>
+    <div class="contador e" style="--d:4" aria-live="off">
+      <span class="lbl">Una condena de $ 1.000.000 · cada segundo de esta charla es <span class="dias">un día de mora</span></span>
+      <span class="monto num" id="cont-monto">$ 1.000.000<span class="cent">,00</span></span>
+      <span class="lbl"><span class="dias num" id="cont-dias">0 días</span> · y el número no se detiene</span>
+    </div>
+    <span class="pista e" style="--d:6"><kbd>→</kbd> para avanzar <span class="ocultable">· <kbd>↓</kbd> para profundizar · <kbd>F</kbd> pantalla completa</span></span>
+  </div>
+</section>
+
+<!-- ============ 1 · La foto ============ -->
+<section class="dia" data-cap="intro" data-tono="#edeff3" data-flash aria-label="Una liquidación es una foto">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">Qué es</span>
+      <h2 class="e" style="--d:1">Una liquidación es <em>una foto</em>.</h2>
+      <p class="bajada e" style="--d:2">Es la cuenta de lo que se debe <b>a una fecha determinada</b>. Por eso es <b>provisoria</b>: el día que se paga, la foto ya es vieja.</p>
+      <p class="mientras e" style="--d:4">Mientras tanto, la deuda de la portada sigue en <b class="num" id="mientras">$ 1.000.000</b></p>
+    </div>
+    <div class="foto-wrap">
+      <div class="polaroid" aria-label="La deuda en el momento en que se sacó la foto">
+        <div class="img"><div><div class="m num" id="foto-monto">$ 1.000.000</div><div class="f num" id="foto-dias">al día 0 de mora</div></div></div>
+        <div class="pie">Foto tomada hace un instante.</div>
+      </div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>La liquidación, según la jurisprudencia</h3>
+    <blockquote>La liquidación no es otra cosa que un cálculo de la deuda a una fecha determinada que —como tal— es meramente provisorio y sujeto a los ajustes que competan según el momento en que se haya producido la efectivización del pago.</blockquote>
+  </template>
+</section>
+
+<!-- ============ 2 · El molde ============ -->
+<section class="dia" data-cap="intro" data-tono="#7a99ff" aria-label="La sentencia es el molde">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">Art. 503 CPCCN</span>
+      <h2 class="e" style="--d:1">La sentencia es <em>el molde</em>.</h2>
+      <p class="bajada e" style="--d:2">La liquidación <b>no decide nada</b>: aplica lo que la sentencia ya fijó. Si algo no encaja, el problema está en la cuenta.</p>
+      <p class="ley e" style="--d:3">«…se procederá de conformidad con las bases que en la sentencia se hubiesen fijado.»<cite>Art. 503 CPCCN</cite></p>
+    </div>
+    <div class="molde e" style="--d:2" aria-hidden="true">
+      <svg viewBox="0 0 480 480">
+        <rect class="marco" x="10" y="10" width="460" height="460" rx="28"/>
+        <g>
+          <rect class="hueco" x="40" y="40" width="190" height="190" rx="18" stroke="#e0b45c" stroke-dasharray="6 6"/>
+          <rect class="hueco" x="250" y="40" width="190" height="190" rx="18" stroke="#b99bff" stroke-dasharray="6 6"/>
+          <rect class="hueco" x="40" y="250" width="190" height="190" rx="18" stroke="#7a99ff" stroke-dasharray="6 6"/>
+          <rect class="hueco" x="250" y="250" width="190" height="190" rx="18" stroke="#e09070" stroke-dasharray="6 6"/>
+        </g>
+        <g class="pieza" style="--i:0"><rect x="48" y="48" width="174" height="174" rx="14" fill="#e0b45c" fill-opacity=".18" stroke="#e0b45c" stroke-width="2"/><text x="135" y="135" fill="#e0b45c">CAPITAL</text></g>
+        <g class="pieza" style="--i:1"><rect x="258" y="48" width="174" height="174" rx="14" fill="#b99bff" fill-opacity=".18" stroke="#b99bff" stroke-width="2"/><text x="345" y="135" fill="#b99bff">TASA</text></g>
+        <g class="pieza" style="--i:2"><rect x="48" y="258" width="174" height="174" rx="14" fill="#7a99ff" fill-opacity=".18" stroke="#7a99ff" stroke-width="2"/><text x="135" y="345" fill="#7a99ff">DESDE</text></g>
+        <g class="pieza" style="--i:3"><rect x="258" y="258" width="174" height="174" rx="14" fill="#e09070" fill-opacity=".18" stroke="#e09070" stroke-width="2"/><text x="345" y="345" fill="#e09070">HASTA</text></g>
+      </svg>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>El art. 503, entero</h3>
+    <blockquote>Cuando la sentencia condenare al pago de cantidad ilíquida y el vencedor no hubiese presentado la liquidación, dentro de DIEZ (10) días contados desde que aquélla fuere ejecutable, podrá hacerlo el vencido. En ambos casos se procederá de conformidad con las bases que en la sentencia se hubiesen fijado.<br><br>Presentada la liquidación se dará traslado a la otra parte por CINCO (5) días.<span class="fallo">Art. 503 CPCCN</span></blockquote>
+  </template>
+</section>
+
+<!-- ============ 3 · La puerta ============ -->
+<section class="dia" data-cap="intro" data-tono="#6fd3a8" data-pasos="3" aria-label="Antes de mirar un solo número">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">Antes de empezar</span>
+      <h2 class="e" style="--d:1">Antes de mirar <em>un solo número</em>.</h2>
+      <p class="bajada e" style="--d:2">Tres candados. Si alguno no abre, la cuenta puede estar perfecta y <b>igual no es momento</b>.</p>
+      <p class="puerta-ok" data-paso="3">Recién ahora, los números.</p>
+    </div>
+    <div class="candados">
+      <div class="candado e" style="--d:2"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path class="arco" d="M8 11V7a4 4 0 0 1 8 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg></div><div><b>¿Todos notificados?</b><span>De la sentencia o de la regulación. Todos.</span></div></div>
+      <div class="candado e" style="--d:3"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path class="arco" d="M8 11V7a4 4 0 0 1 8 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg></div><div><b>¿Está firme?</b><span>Firme, consentida o ejecutoriada.</span></div></div>
+      <div class="candado e" style="--d:4"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path class="arco" d="M8 11V7a4 4 0 0 1 8 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg></div><div><b>¿Es la oportunidad?</b><span>Depende del proceso y de lo que se ejecuta.</span></div></div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>La oportunidad, según el proceso</h3>
+    <h4>Ejecución de sentencia</h4>
+    <p><b>Art. 503 CPCCN.</b> El vencedor tiene <b>10 días</b> desde que la sentencia es ejecutable. Si no la presenta, puede hacerlo el vencido. Traslado por 5 días.</p>
+    <h4>Condena a entregar cosas</h4>
+    <p><b>Art. 515 CPCCN.</b> Si la entrega no puede cumplirse, se transforma en el equivalente de su valor más los daños, que se fijan por las reglas de los arts. 503 y 504, o por juicio sumario.</p>
+    <h4>Juicio ejecutivo</h4>
+    <ul>
+      <li><b>Dinero · art. 561 CPCCN.</b> Firme la sentencia (o dada la fianza del 555), el acreedor liquida capital, intereses y costas, y se aplican los arts. 503 y 504.</li>
+      <li><b>Muebles e inmuebles · art. 591 CPCCN.</b> Dentro de los <b>5 días</b> de pagado el precio o de aprobado el remate.</li>
+    </ul>
+    <h4>Cuentas muy complicadas</h4>
+    <p><b>Art. 516 CPCCN.</b> Si son de lenta y difícil justificación o requieren conocimientos especiales, se someten a peritos árbitros o, con conformidad de partes, a amigables componedores.</p>
+  </template>
+</section>
+
+<!-- ============ 4 · Tres créditos ============ -->
+<section class="dia" data-cap="intro" data-tono="#7a99ff" aria-label="Tres créditos distintos">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Qué se liquida</span>
+    <h2 class="e" style="--d:1">No todo crédito <em>se liquida igual</em>.</h2>
+    <div class="carriles">
+      <div class="carril e" style="--d:2">
+        <span class="n">1</span>
+        <h3>Capital de sentencia</h3>
+        <p>La sentencia fija <b>las cuatro bases</b>. Se leen ahí y se copian.</p>
+        <div class="viz"><i style="--i:0"></i></div>
+      </div>
+      <div class="carril e" style="--d:3">
+        <span class="n">2</span>
+        <h3>Honorarios</h3>
+        <p>Primero: <b>¿qué ley aplica la regulación?</b> Lo dice la propia regulación, y cambia el <span class="t-desde">desde</span> y la <span class="t-tasa">tasa</span>.</p>
+        <div class="viz"><i style="--i:1;width:72%;margin-left:28%;transform-origin:right"></i></div>
+      </div>
+      <div class="carril e" style="--d:4">
+        <span class="n">3</span>
+        <h3>Tracto sucesivo <span class="chico">(expensas)</span></h3>
+        <p><b>Cada período tiene su propia mora</b> y se liquida período por período. En general, 36% anual, pero <b>siempre hay que mirar la sentencia</b>.</p>
+        <div class="viz"><i style="--i:2;margin-left:0"></i><i style="--i:3;margin-left:18%;width:82%"></i><i style="--i:4;margin-left:36%;width:64%"></i><i style="--i:5;margin-left:54%;width:46%"></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 · Los cuatro ítems ============ -->
+<section class="dia" data-cap="cuatro" data-tono="#edeff3" aria-label="Los cuatro ítems">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Lo que hay que mirar</span>
+    <h2 class="e" style="--d:1">Cuatro cosas. <em>Siempre las mismas.</em></h2>
+    <div class="cuatro">
+      <div class="item c-capital" style="--i:0"><span class="i">01</span><div><div class="w">CAPITAL</div><div class="q">¿Cuánto se debe?</div></div></div>
+      <div class="item c-tasa" style="--i:1"><span class="i">02</span><div><div class="w">TASA</div><div class="q">¿A qué ritmo crece?</div></div></div>
+      <div class="item c-desde" style="--i:2"><span class="i">03</span><div><div class="w">DESDE</div><div class="q">¿Desde cuándo corre?</div></div></div>
+      <div class="item c-hasta" style="--i:3"><span class="i">04</span><div><div class="w">HASTA</div><div class="q">¿Cuándo se corta?</div></div></div>
+    </div>
+    <p class="regla e" style="--d:6">Si uno solo está mal, <span class="t-mal">el número está mal.</span></p>
+  </div>
+</section>
+
+<!-- ============ 6 · Capital ============ -->
+<section class="dia c-capital" data-cap="capital" data-tono="#e0b45c" aria-label="Capital">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">01 · Capital</span>
+      <h2 class="e" style="--d:1">El de la sentencia. <em>Ni un peso más.</em></h2>
+      <div class="comparar e" style="--d:2" aria-label="El capital de la sentencia comparado con el de la liquidación">
+        <div class="r"><span class="k">Sentencia</span><span class="digs num">$ 1.<span>0</span>00.000</span></div>
+        <div class="r"><span class="k">Liquidación</span><span class="digs num">$ 1.<span class="dif">1</span>00.000</span></div>
+      </div>
+      <p class="bajada e" style="--d:3">Un error en el capital <b>no se queda quieto</b>: se multiplica por la tasa y por el tiempo. Probalo en el ticket.</p>
+      <p class="bajada e chico" style="--d:4">Si es una regulación: <b>mirá qué ley aplica</b>. Lo dice la propia regulación y define el desde y la tasa.</p>
+    </div>
+    <div class="ticket e" style="--d:3" data-ticket data-foco="capital" data-error='{"capital":1100000}' data-error-txt="Cargaron $ 1.100.000 en vez de $ 1.000.000"></div>
+  </div>
+</section>
+
+<!-- ============ 7 · UMA y UHOM ============ -->
+<section class="dia c-capital" data-cap="capital" data-tono="#e0b45c" aria-label="UMA y UHOM">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">01 · Capital · La trampa</span>
+    <h2 class="e" style="--d:1">Se parecen. <em>No se comportan igual.</em></h2>
+    <div class="monedas">
+      <div class="moneda e" style="--d:2">
+        <div class="disco vivo"><div><div class="u">UMA</div><div class="p num" id="uma-val">$ 70.000</div></div></div>
+        <div>
+          <span class="tag" style="background:rgb(224 180 92 / .15);color:var(--capital)">Deuda de valor</span>
+          <h3>Se pasa a pesos <span class="t-capital">al pagar</span>.</h3>
+          <p><b>Si la plata viene de un embargo:</b> al valor del día en que el juzgado dispone la transferencia.</p>
+          <p><b>Si paga voluntariamente:</b> se libera pagando la UMA vigente y publicada ese día. No tiene que adivinar una acordada retroactiva.</p>
+        </div>
+      </div>
+      <div class="moneda e" style="--d:3">
+        <div class="disco helado"><div><div class="u">UHOM</div><div class="p">fijo</div></div></div>
+        <div>
+          <span class="tag" style="background:rgb(160 190 230 / .14);color:#c3d3ec">Sólo para regular</span>
+          <h3>La regulación queda <span style="color:#c3d3ec">fija en pesos</span>.</h3>
+          <p>Que cambie el valor del UHOM <b>no actualiza el capital</b>. No es una deuda de valor.</p>
+        </div>
+      </div>
+    </div>
+    <p class="chico e" style="--d:5">El valor de la moneda que gira es ilustrativo.</p>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Por qué la UMA se mueve</h3>
+    <blockquote>La regulación de honorarios deberá contener, bajo pena de nulidad, el monto expresado en moneda de curso legal y la cantidad de UMA que éste representa a la fecha de la resolución. El pago será definitivo y cancelatorio únicamente si se abona la cantidad de moneda de curso legal que resulte equivalente a la cantidad de UMA contenidas en la resolución regulatoria, según su valor vigente al momento del pago.<span class="fallo">Art. 51, ley 27.423</span></blockquote>
+    <h4>El UHOM</h4>
+    <p>Es la unidad con que se regulan los honorarios del mediador (decreto 2536/15). Sirve para fijar el monto; una vez fijado, la regulación queda en pesos.</p>
+  </template>
+</section>
+
+<!-- ============ 8 · Tasa ============ -->
+<section class="dia c-tasa" data-cap="tasa" data-tono="#b99bff" aria-label="Tasa de interés">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">02 · Tasa</span>
+      <h2 class="e" style="--d:1">La tasa no se elige. <em>Se lee.</em></h2>
+      <div class="arbol e" style="--d:2">
+        <span class="preg">¿Qué se liquida?</span>
+        <div class="opciones" data-grupo="1">
+          <button class="op" data-r="capital" aria-pressed="false">Capital de sentencia</button>
+          <button class="op" data-r="hon" aria-pressed="false">Honorarios</button>
+          <button class="op" data-r="expensas" aria-pressed="false">Expensas</button>
+          <button class="op" data-r="sin" aria-pressed="false">No hay sentencia<small>acuerdo, gastos</small></button>
+        </div>
+        <div class="rama2" id="rama-hon">
+          <span class="preg">¿Qué ley aplica la regulación?</span>
+          <div class="opciones" data-grupo="2">
+            <button class="op" data-r="vieja" aria-pressed="false">Ley 21.839<small>la vieja</small></button>
+            <button class="op" data-r="nueva" aria-pressed="false">Ley 27.423<small>la nueva</small></button>
+          </div>
+        </div>
+        <div class="respuesta" id="resp-tasa" aria-live="polite"><span class="vacio">Elegí un camino.</span></div>
+      </div>
+    </div>
+    <div class="ticket e" style="--d:3" data-ticket data-foco="tasa" data-error='{"tasa":0.55}' data-error-txt="Aplicaron 55% anual y la sentencia dice 40%"></div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Tasa: lo que hay que saber además</h3>
+    <ul>
+      <li><b>Honorarios con ley vieja:</b> pasiva BCRA, <b>salvo</b> que ya se haya aprobado otra liquidación —del mismo profesional o de otro— con otra tasa.</li>
+      <li><b>Honorarios con ley nueva:</b> el art. 54 manda fijar los intereses «siguiendo el mismo criterio que el utilizado para establecer la actualización de los valores económicos de la causa». Por eso, la misma tasa que la sentencia.</li>
+      <li><b>Sin sentencia</b> (un acuerdo, gastos): se admite en general la tasa activa, por el plenario «Samudio».</li>
+      <li><b>Giros parciales:</b> si los hubo, cambian las pautas y la liquidación tiene que tomarlos en cuenta.</li>
+    </ul>
+    <h4>La regla de fondo</h4>
+    <blockquote>A partir de su mora el deudor debe los intereses correspondientes. La tasa se determina: a) por lo que acuerden las partes; b) por lo que dispongan las leyes especiales; c) en subsidio, por tasas que se fijen según las reglamentaciones del Banco Central.<span class="fallo">Art. 768 CCyCN</span></blockquote>
+  </template>
+</section>
+
+<!-- ============ 9 · Desde ============ -->
+<section class="dia c-desde" data-cap="desde" data-tono="#7a99ff" data-pasos="1" aria-label="Fecha de inicio">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">03 · Desde</span>
+      <h2 class="e" style="--d:1">Los intereses arrancan <em>con la mora</em>.</h2>
+      <p class="bajada e" style="--d:2">Capital: la fecha que fija la sentencia. Honorarios: hace falta <b>auto regulatorio firme y plazo de pago vencido</b>. Pero la ley nueva tiene una vuelta:</p>
+      <div class="linea-t e" style="--d:3" aria-label="Línea de tiempo de los honorarios con ley 27.423">
+        <div class="eje"></div>
+        <div class="intereses" style="left:8%;right:0" data-paso="1"></div>
+        <div class="flecha" style="left:8%;width:74%" data-paso="1"><span>los intereses, desde acá</span></div>
+        <div class="hito" style="left:8%"><i></i><span><b>Regulación</b>1ª instancia</span></div>
+        <div class="hito" style="left:46%"><i></i><span><b>Queda firme</b>&nbsp;</span></div>
+        <div class="hito mora" style="left:82%"><i></i><span><b>Mora</b>+10 días</span></div>
+      </div>
+      <p class="bajada e chico" style="--d:4" data-paso="1">La ley <b>castiga al deudor</b> llevando el inicio para atrás (art. 54, ley 27.423). Si son honorarios de alzada, desde la regulación de alzada.</p>
+    </div>
+    <div class="ticket e" style="--d:3" data-ticket data-foco="desde" data-error='{"desde":"2024-03-01"}' data-error-txt="Contaron desde un año antes de la mora"></div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>El art. 54, en las dos partes que importan</h3>
+    <blockquote>Los honorarios regulados judicialmente deberán abonarse dentro de los diez (10) días de quedar firme la resolución regulatoria.<span class="fallo">Art. 54, primer párrafo, ley 27.423</span></blockquote>
+    <blockquote>Las deudas de honorarios, pactados o por regulación judicial firme, cuando hubiere mora del deudor, devengarán intereses desde la fecha de la regulación de primera instancia y hasta el momento de su efectivo pago…<span class="fallo">Art. 54, último párrafo, ley 27.423</span></blockquote>
+    <h4>Para que haya mora</h4>
+    <p>Los intereses se calculan desde que se configura el retardo y hasta el efectivo pago (CSJN, Fallos 310:798; 311:939; 312:756). Para eso hace falta <b>un auto regulatorio firme y un plazo de pago vencido</b>, fijado en la sentencia o por la ley (CSJN, Fallos 318:213).</p>
+    <p>Con la <b>ley vieja</b>, el desde es la mora: regulación firme y plazo vencido, sin el salto hacia atrás.</p>
+  </template>
+</section>
+
+<!-- ============ 10 · Hasta ============ -->
+<section class="dia c-hasta" data-cap="hasta" data-tono="#e09070" data-pasos="3" aria-label="Fecha de fin">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">04 · Hasta</span>
+      <h2 class="e compacto" style="--d:1">El reloj se para cuando <em>el acreedor puede tener la plata</em>.</h2>
+      <p class="bajada e" style="--d:2">Si no hubo pago, el hasta es en general <b>la fecha en que se practica la liquidación</b>. Si hubo, no alcanza con depositar:</p>
+      <div class="pasos-hasta">
+        <div class="ph" data-paso="1"><span class="nro">1</span><div><b>Depósito judicial</b><span>Acto unilateral. Solo, no extingue: el reloj sigue.</span></div></div>
+        <div class="ph" data-paso="2"><span class="nro">2</span><div><b>Íntegro y comunicado al acreedor</b><span>Capital e intereses hasta el pago. Sigue corriendo.</span></div></div>
+        <div class="ph para" data-paso="3"><span class="nro">3</span><div><b>Fondos disponibles para el acreedor</b><span>Recién ahí se corta.</span></div></div>
+      </div>
+    </div>
+    <div class="crono-wrap e" style="--d:2">
+      <div class="crono" aria-hidden="true">
+        <svg viewBox="0 0 300 300">
+          <rect class="boton-c" x="135" y="-6" width="30" height="16" rx="4"/>
+          <circle class="aro" cx="150" cy="150" r="130"/>
+          <g id="marcas"></g>
+          <path class="estela" d="M150 40 A110 110 0 0 1 228 72"/>
+          <line class="aguja" x1="150" y1="150" x2="150" y2="44"/>
+          <circle class="centro" cx="150" cy="150" r="9"/>
+        </svg>
+        <div class="leyenda"><span class="l0 t-hasta">corre</span><span class="l1 t-hasta">sigue</span><span class="l2 t-hasta">más lento… sigue</span><span class="l3">se corta</span></div>
+      </div>
+      <div class="cuatro-req"><span>identidad</span><span>integridad</span><span>puntualidad</span><span>localización</span></div>
+      <span class="chico">Los cuatro requisitos del pago · art. 867 CCyCN</span>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>El depósito no es el pago</h3>
+    <blockquote>El pago de lo debido tiene efecto cancelatorio y detiene el curso de la actualización y los intereses. Para ello, el objeto del pago debe reunir los requisitos de identidad, integridad, puntualidad y localización.<span class="fallo">CNCiv., Sala M, expte. 21017/2002, 05/03/2020</span></blockquote>
+    <ul>
+      <li>Para detener los intereses <b>no basta el depósito judicial</b>: tiene que ser íntegro y comunicado al acreedor (CSJN, Fallos 339:725 y 340:1671).</li>
+      <li>El depósito comprende el capital y los intereses <b>hasta su efectivo pago</b>; no se corta cuando el acreedor se entera de que hay fondos (CSJN, CSJ 663/2016, 30/04/2024).</li>
+      <li>No basta el solo depósito: tienen que existir fondos suficientes <b>y en condiciones de ser extraídos</b>, con una conducta diligente del acreedor (CSJN, 24/05/1988, Fallos 311:857).</li>
+      <li>Los intereses corren desde la mora <b>hasta que los fondos estén disponibles</b> para el acreedor (Colombo-Kiper, <i>Código Procesal Civil y Comercial de la Nación</i>, t. V, p. 562).</li>
+    </ul>
+    <p>¿Y si la demora es del juzgado, del banco o del propio acreedor? Ahí la Cámara no responde siempre igual: está en <b>casos especiales</b>.</p>
+  </template>
+</section>
+
+<!-- ============ 11 · Pago parcial ============ -->
+<section class="dia c-hasta" data-cap="hasta" data-tono="#e09070" data-pasos="1" aria-label="Pago parcial">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">04 · Hasta · Pago parcial</span>
+    <h2 class="e" style="--d:1">Si se pagó una parte: <em>primero intereses</em>, después capital.</h2>
+    <div class="deuda e" style="--d:2" aria-label="Barra de la deuda: un pago se come primero los intereses">
+      <div class="bar">
+        <div class="seg int">intereses $ 400.000</div>
+        <div class="seg cap"><span class="antes">capital $ 1.000.000</span><span class="ya">quedan $ 800.000 de capital</span></div>
+        <div class="pago">pago $ 600.000</div>
+      </div>
+      <div class="ejes"><span data-paso="1">El pago cubre los intereses y $ 200.000 de capital. <b class="t-capital">Sobre los $ 800.000 que quedan, los intereses siguen.</b></span></div>
+    </div>
+    <div class="leyes-pp">
+      <p class="ley e" style="--d:3">«Si adeuda capital e intereses, el pago no puede imputarse a la deuda principal sin consentimiento del acreedor.»<cite>Art. 900 CCyCN</cite></p>
+      <div class="aviso e" style="--d:4"><b>Ojo:</b> si sólo se entregó capital, sin intereses, <b>el reloj no se corta</b>. Los intereses siguen corriendo hasta que la totalidad de la deuda esté a disposición del acreedor.</div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Pago parcial</h3>
+    <blockquote>En lo relativo al pago que se efectúa una vez que el deudor ha incurrido en mora, cabe señalar que los intereses se devengan hasta que la totalidad de la deuda haya estado a disposición del acreedor.<span class="fallo">CNCiv., Sala C, 14/06/1976, ED 71-266</span></blockquote>
+    <p>El acreedor tampoco está obligado a recibir pagos parciales, salvo disposición legal o convencional en contrario (art. 869 CCyCN).</p>
+    <p>Si hubo <b>giros parciales</b>, las pautas cambian: cada giro corta una parte, y la liquidación siguiente tiene que tomarlo.</p>
+  </template>
+</section>
+
+<!-- ============ 12 · Capitalización ============ -->
+<section class="dia c-capital" data-cap="variables" data-tono="#e0b45c" data-pasos="2" aria-label="Capitalización de intereses">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">Variable · Art. 770 CCyCN</span>
+      <h2 class="e" style="--d:1">Intereses sobre intereses: <em>no</em>.</h2>
+      <p class="bajada e" style="--d:2">Es el <b>anatocismo</b>, y está prohibido porque la deuda se dispara. Es de orden público: la excepción se lee <b>restrictiva</b>.</p>
+      <div data-paso="2">
+        <p class="bajada" style="margin-bottom:.4em">La excepción de las liquidaciones (inc. c), con tres requisitos:</p>
+        <div class="reqs"><span class="r">Liquidación aprobada</span><span class="flechita">→</span><span class="r">Intimación de pago</span><span class="flechita">→</span><span class="r">Deudor moroso</span></div>
+        <div class="sello-1">Y por única vez.</div>
+      </div>
+    </div>
+    <div class="grafico e" style="--d:2" aria-label="Interés simple, compuesto y capitalizado una sola vez">
+      <svg viewBox="0 0 560 400" id="graf-cap"></svg>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Art. 770 CCyCN</h3>
+    <blockquote>No se deben intereses de los intereses, excepto que: a) una cláusula expresa autorice la acumulación de los intereses al capital con una periodicidad no inferior a seis meses; b) la obligación se demande judicialmente; en este caso, la acumulación opera desde la fecha de la notificación de la demanda; c) la obligación se liquide judicialmente; en este caso, la capitalización se produce desde que el juez manda pagar la suma resultante y el deudor es moroso en hacerlo; d) otras disposiciones legales prevean la acumulación.<span class="fallo">Art. 770 CCyCN</span></blockquote>
+    <h4>Los tres requisitos del inciso c</h4>
+    <p>Aprobada la cuenta, el deudor tiene que ser <b>intimado al pago</b>. Sólo si no paga cae en mora, y por esa nueva interpelación debe intereses sobre el total de la liquidación impaga. Sin intimación, no hay capitalización (CSJN, Fallos 326:4567 y 329:5467).</p>
+    <h4>Por única vez</h4>
+    <p>Los intereses de una suma que ya resultó de una liquidación judicial con capital e intereses <b>no pueden volver a capitalizarse</b> (Alterini, <i>Código Civil y Comercial. Tratado exegético</i>, t. IV, p. 213; CNCiv., Sala C, LL 1993-A-578; CNCiv., 13/12/2018).</p>
+    <h4>El inciso b, también restrictivo</h4>
+    <p>Sólo es compatible con deudas de dinero líquidas o fácilmente liquidables en las que el acreedor tuvo que demandar (JNDC 2017, Comisión 3, pto. 13; CNCiv., Sala M, expte. 88.010/2014, 29/03/2019). La prohibición es de orden público y sus excepciones no se interpretan extensivamente (CSJN, Fallos 316:3131 y 316:3134; CNCiv., Sala D, expte. 58896/2021, 11/12/2024).</p>
+    <h4>De dónde viene la palabra</h4>
+    <p>Del griego <i>ana</i>, reiteración, y <i>tokismós</i>, dar a interés.</p>
+  </template>
+</section>
+
+<!-- ============ 13 · Casos especiales ============ -->
+<section class="dia" data-cap="variables" data-tono="#e09070" aria-label="Casos especiales: quién carga con la demora">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Casos especiales · Hasta</span>
+    <h2 class="e" style="--d:1">¿Quién paga <em>la demora</em>?</h2>
+    <p class="bajada e" style="--d:2">La Cámara lo define de distintas maneras. <b>Hay que mirar el expediente.</b></p>
+    <div class="abanico">
+      <div class="carta" style="--i:0">
+        <span class="quien">Demora del juzgado o del banco</span>
+        <h3>No es del deudor: es caso fortuito.</h3>
+        <span class="fallo">CNCiv., Sala L, expte. 073536/2015, 11/08/2022 · art. 1730 CCyCN</span>
+        <span class="res d">Corta antes</span>
+      </div>
+      <div class="carta" style="--i:1">
+        <span class="quien">Avatares del trámite</span>
+        <h3>Los afronta el deudor moroso.</h3>
+        <span class="fallo">CNCiv., Sala D, expte. 025176/2019, 06/12/2024</span>
+        <span class="res a">Corre hasta la transferencia</span>
+      </div>
+      <div class="carta" style="--i:2">
+        <span class="quien">Demora del acreedor en retirar</span>
+        <h3>No se le carga al deudor.</h3>
+        <span class="fallo">CNCiv., Sala A, expte. 073693/2019, 09/10/2024</span>
+        <span class="res d">Corta antes</span>
+      </div>
+      <div class="carta" style="--i:3">
+        <span class="quien">Orden de transferencia u oficio</span>
+        <h3>No cancelan: cuenta la acreditación.</h3>
+        <span class="fallo">CNCiv., Sala K, expte. 016523/2016, 05/08/2024</span>
+        <span class="res a">Corre hasta la acreditación</span>
+      </div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Un detalle más: la reserva</h3>
+    <p>Si el acreedor pidió la liberación de los fondos diciendo sólo que era un pago parcial, <b>sin reservarse</b> los intereses por las demoras del banco o del trámite, después no puede reclamarlos: lo impiden la teoría de los actos propios y los arts. 9, 898, 899 y 1067 CCyCN.</p>
+    <span class="fallo">CNCiv., Sala L, expte. 061788/2022, 21/08/2024</span>
+    <h4>En la misma línea que la Sala D</h4>
+    <p>Los intereses corren mientras las sumas depositadas no estén disponibles para el acreedor, es decir, hasta que se ordena su transferencia; las demoras propias del trámite las afronta el deudor moroso.</p>
+    <h4>En la misma línea que la Sala A</h4>
+    <p>No corresponde liquidar intereses hasta la percepción de los fondos si era carga del acreedor activar a tiempo su extracción.</p>
+  </template>
+</section>
+
+<!-- ============ 14 · Qué hace el juzgado ============ -->
+<section class="dia" data-cap="juzgado" data-tono="#6fd3a8" data-pasos="1" aria-label="Qué hace el juzgado">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Y entonces</span>
+    <h2 class="e" style="--d:1">¿Pasa las <em>cuatro</em>?</h2>
+    <div class="bifurca">
+      <div class="salida no e" style="--d:2">
+        <span class="si-no">No</span>
+        <h3>No se corre traslado.</h3>
+        <p>Se manda corregir, <b>indicando cada pauta a cambiar</b>. Una por una.</p>
+      </div>
+      <div class="salida si e" style="--d:3">
+        <span class="si-no">Sí</span>
+        <h3>Traslado, con apercibimiento.</h3>
+        <p><b>Si hay silencio, se aprueba.</b> Si la obligada impugna, tiene que hacer dos cosas:</p>
+        <ol data-paso="1">
+          <li><b>Decir el error concreto</b>: rubro, cifra, operación. Nada ambiguo ni genérico.</li>
+          <li><b>Hacer su propia cuenta</b>, con las fórmulas que estime.</li>
+        </ol>
+        <p data-paso="1">Si falta cualquiera de las dos, <b>se la tiene por conforme</b>.</p>
+      </div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>El proveído modelo</h3>
+    <blockquote>De la liquidación practicada dese traslado haciéndose saber que en caso de silencio será aprobada.<br><br>Hágase saber también a la obligada al pago que para el caso de impugnar las cuentas, deberá: 1) exponer clara y precisamente las observaciones que merece el cálculo, indicando los rubros y conceptos, cifras, mecanismos u operaciones de determinación de la cantidad adeudada explicando en cada caso el error en que se hubiera incurrido, no pudiendo efectuar manifestaciones ambiguas o genéricas; y 2) realizar la cuenta conforme a las fórmulas que estime pertinentes.<br><br>Ello así bajo apercibimiento, de incumplimiento de cualquiera de estas dos pautas, de tenerlo por conforme con las presentadas en la liquidación en despacho.</blockquote>
+  </template>
+</section>
+
+<!-- ============ 15 · En cuanto ha lugar por derecho ============ -->
+<section class="dia" data-cap="juzgado" data-tono="#e09070" data-pasos="1" aria-label="En cuanto ha lugar por derecho">
+  <div class="cuerpo sello-zona">
+    <span class="ceja e" style="--d:0">Aun aprobada</span>
+    <div class="sello-caja"><div class="sello">APROBADA</div><span class="ast" aria-hidden="true">*</span></div>
+    <div data-paso="1">
+      <p class="nota-ast">* en cuanto ha lugar por derecho.</p>
+      <p class="bajada" style="margin-inline:auto">Esa frase <b>deja la puerta abierta</b>: si la cuenta no respeta las pautas del proceso, se puede corregir aunque esté aprobada y consentida.</p>
+      <p class="ley" style="margin-inline:auto;text-align:left">«La falta de impugnación no obligará a aprobar la liquidación en cuanto ésta no se ajustare a derecho.»<cite>Art. 591 CPCCN</cite></p>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>La verdad jurídica objetiva</h3>
+    <blockquote>La mención de que la liquidación se aprueba en cuanto ha lugar por derecho está destinada a prever la eventual corrección de errores. Por ende, se pueden revisar las liquidaciones presentadas aún cuando ya hubieran sido aprobadas en aquéllos términos si se comprueba que no se han respetado las pautas fijadas en el proceso para calcular el monto de la deuda. Ello así, ya que de otra manera el órgano jurisdiccional colaboraría con la tergiversación del contenido de la condena.<span class="fallo">CNCiv., Sala L, 24/02/2016 · Sumario 25309 de la Base de Jurisprudencia de la Cámara Civil</span></blockquote>
+    <p>Que las partes la consientan no obliga al juez: la falta de contestación del traslado no importa consentimiento (art. 150 CPCCN, segundo párrafo). Y excede la razonabilidad mantener una liquidación hecha «sobre la base de operaciones matemáticamente equivocadas» cuando el error se advierte en la ejecución (CSJN, Fallos 317:1845).</p>
+  </template>
+</section>
+
+<!-- ============ 16 · Cierre ============ -->
+<section class="dia" data-cap="juzgado" data-tono="#6fd3a8" aria-label="Antes de dar traslado: la lista">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Para llevarse</span>
+    <h2 class="e" style="--d:1">Antes de dar traslado.</h2>
+    <div class="lista" id="lista">
+      <button class="chk e" style="--d:2" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Todos notificados, y firme</b><span>La sentencia o la regulación.</span></span></button>
+      <button class="chk e" style="--d:2" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Es la oportunidad</b><span>Según el proceso: 503, 561, 591.</span></span></button>
+      <button class="chk e" style="--d:3" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--capital)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-capital">Capital = el de la sentencia</b><span>UMA: al valor del pago. UHOM: fijo en pesos.</span></span></button>
+      <button class="chk e" style="--d:3" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--capital)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Si es regulación: qué ley</b><span>Define el desde y la tasa.</span></span></button>
+      <button class="chk e" style="--d:4" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--tasa)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-tasa">Tasa = la que se lee</b><span>Sentencia · ley vieja: pasiva · sin sentencia: activa.</span></span></button>
+      <button class="chk e" style="--d:4" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--desde)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-desde">Desde = la mora</b><span>Honorarios con ley nueva: desde la regulación.</span></span></button>
+      <button class="chk e" style="--d:5" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--hasta)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-hasta">Hasta = fondos disponibles</b><span>O la fecha de la cuenta. El depósito solo no corta.</span></span></button>
+      <button class="chk e" style="--d:5" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Pagos parciales y capitalización</b><span>Primero intereses. Capitalizar: 770 c, una sola vez.</span></span></button>
+    </div>
+    <div class="veredicto e" style="--d:6">
+      <svg class="anillo" viewBox="0 0 80 80" aria-hidden="true"><circle class="fondo-a" cx="40" cy="40" r="33"/><circle class="frente" id="anillo" cx="40" cy="40" r="33" stroke-dasharray="207.3" stroke-dashoffset="207.3"/></svg>
+      <span class="txt" id="veredicto" aria-live="polite">Si una falla: se manda corregir.</span>
+    </div>
+
+    <!-- Calculadoras del sitio: armado y oculto a propósito, hasta que
+         Javier presente el sitio. Para mostrarlo, sacar el `hidden`. -->
+    <div class="calculadoras" hidden>
+      <p class="chico">Para hacer la cuenta:</p>
+      <p>
+        <a class="boton" href="../../calculadoras/tasa.html">Intereses por tasa</a>
+        <a class="boton" href="../../calculadoras/mora.html">Fecha de mora</a>
+        <a class="boton" href="../../calculadoras/entre-fechas.html">Días entre fechas</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- Barra inferior -->
+<nav class="barra" aria-label="Navegación de la presentación">
+  <button class="boton" id="ant" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="progreso" id="progreso"></div>
+  <span class="cuenta num" id="cuenta">1 / 17</span>
+  <button class="boton hondo-btn" id="hondo-btn" aria-label="Para profundizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg><span class="txt">Para profundizar</span></button>
+  <button class="boton ocultable" id="pantalla" aria-label="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <button class="boton" id="sig" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+</nav>
+
+<div class="hondo-velo" id="velo"></div>
+<aside class="hondo" id="hondo" aria-label="Para profundizar" aria-hidden="true">
+  <div class="tirador"></div>
+  <button class="boton cerrar" id="cerrar" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div id="hondo-cont"></div>
+</aside>
+
+<script>
+(function () {
+  'use strict';
+
+  var dias = Array.prototype.slice.call(document.querySelectorAll('.dia'));
+  var N = dias.length;
+  var actual = 0;
+  var paso = 0;
+  var root = document.documentElement;
+  var reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- Formato ----------
+  var fmt = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var fmt0 = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
+  function pesos(n, cent) {
+    var s = fmt.format(n).split(',');
+    return cent ? '$ ' + s[0] + '<span class="cent">,' + s[1] + '</span>' : '$ ' + fmt0.format(Math.round(n));
+  }
+  function fecha(iso) { var p = iso.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function diasEntre(a, b) { return Math.round((Date.parse(b) - Date.parse(a)) / 86400000); }
+
+  // ---------- Barra de progreso, agrupada por capítulo ----------
+  var colores = { intro: '#edeff3', cuatro: '#edeff3', capital: '#e0b45c', tasa: '#b99bff', desde: '#7a99ff', hasta: '#e09070', variables: '#e0b45c', juzgado: '#6fd3a8' };
+  var prog = document.getElementById('progreso');
+  dias.forEach(function (d, i) {
+    var b = document.createElement('button');
+    b.style.setProperty('--seg', colores[d.dataset.cap] || '#edeff3');
+    b.setAttribute('aria-label', 'Ir a ' + (d.getAttribute('aria-label') || ('diapositiva ' + (i + 1))));
+    b.addEventListener('click', function () { ir(i, 0); });
+    prog.appendChild(b);
+  });
+  var segs = prog.children;
+
+  // ---------- Navegación ----------
+  function pasosDe(i) { return +(dias[i].dataset.pasos || 0); }
+  function pintarPasos() {
+    var d = dias[actual];
+    for (var k = 1; k <= 4; k++) d.classList.toggle('p' + k, paso >= k);
+  }
+  function ir(i, p) {
+    i = Math.max(0, Math.min(N - 1, i));
+    cerrarHondo();
+    var antes = actual;
+    dias.forEach(function (d, k) {
+      d.classList.toggle('activa', k === i);
+      d.classList.toggle('atras', k < i);
+      if (k !== i) { for (var j = 1; j <= 4; j++) d.classList.remove('p' + j); }
+    });
+    actual = i;
+    paso = p === 'fin' ? pasosDe(i) : (p || 0);
+    pintarPasos();
+    var d = dias[i];
+    root.style.setProperty('--tono', d.dataset.tono || '#7a99ff');
+    var halo = document.querySelector('.fondo .halo');
+    halo.style.left = (30 + (i * 37) % 40) + '%';
+    halo.style.top = (30 + (i * 23) % 30) + '%';
+    for (var s = 0; s < segs.length; s++) {
+      segs[s].classList.toggle('aca', s === i);
+      segs[s].classList.toggle('visto', s < i);
+    }
+    document.getElementById('cuenta').textContent = (i + 1) + ' / ' + N;
+    document.getElementById('hondo-btn').classList.toggle('hay', !!d.querySelector('.hondo-tpl'));
+    d.scrollTop = 0;
+    if (history.replaceState) history.replaceState(null, '', '#' + (i + 1));
+    if (i !== antes || p === undefined) alEntrar(d, i, antes);
+  }
+  function siguiente() {
+    if (paso < pasosDe(actual)) { paso++; pintarPasos(); alPaso(dias[actual], paso); }
+    else if (actual < N - 1) ir(actual + 1, 0);
+  }
+  function anterior() {
+    if (paso > 0) { paso--; pintarPasos(); }
+    else if (actual > 0) ir(actual - 1, 'fin');
+  }
+  document.getElementById('sig').addEventListener('click', siguiente);
+  document.getElementById('ant').addEventListener('click', anterior);
+  document.getElementById('pantalla').addEventListener('click', pantallaCompleta);
+  function pantallaCompleta() {
+    if (!document.fullscreenElement) { if (root.requestFullscreen) root.requestFullscreen().catch(function () {}); }
+    else if (document.exitFullscreen) document.exitFullscreen();
+  }
+
+  document.addEventListener('keydown', function (ev) {
+    if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+    var abierto = document.body.classList.contains('abierto');
+    switch (ev.key) {
+      case 'ArrowRight': case 'PageDown': case ' ':
+        if (abierto) return; ev.preventDefault(); siguiente(); break;
+      case 'ArrowLeft': case 'PageUp':
+        if (abierto) return; ev.preventDefault(); anterior(); break;
+      case 'ArrowDown':
+        if (!abierto && dias[actual].querySelector('.hondo-tpl')) { ev.preventDefault(); abrirHondo(); } break;
+      case 'ArrowUp': case 'Escape':
+        if (abierto) { ev.preventDefault(); cerrarHondo(); } break;
+      case 'Home': ev.preventDefault(); ir(0, 0); break;
+      case 'End': ev.preventDefault(); ir(N - 1, 0); break;
+      case 'f': case 'F': pantallaCompleta(); break;
+    }
+  });
+
+  // Deslizar con el dedo: a los lados pasa, hacia arriba abre la capa.
+  var t0 = null;
+  document.getElementById('mazo').addEventListener('touchstart', function (e) { t0 = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }, { passive: true });
+  document.getElementById('mazo').addEventListener('touchend', function (e) {
+    if (!t0) return;
+    var dx = e.changedTouches[0].clientX - t0.x, dy = e.changedTouches[0].clientY - t0.y;
+    t0 = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) { dx < 0 ? siguiente() : anterior(); }
+  });
+
+  // ---------- La capa para profundizar ----------
+  var hondo = document.getElementById('hondo'), hondoCont = document.getElementById('hondo-cont');
+  function abrirHondo() {
+    var tpl = dias[actual].querySelector('.hondo-tpl');
+    if (!tpl) return;
+    hondoCont.innerHTML = '';
+    hondoCont.appendChild(tpl.content.cloneNode(true));
+    hondo.scrollTop = 0;
+    document.body.classList.add('abierto');
+    hondo.setAttribute('aria-hidden', 'false');
+    document.getElementById('cerrar').focus({ preventScroll: true });
+  }
+  function cerrarHondo() {
+    if (!document.body.classList.contains('abierto')) return;
+    document.body.classList.remove('abierto');
+    hondo.setAttribute('aria-hidden', 'true');
+  }
+  document.getElementById('hondo-btn').addEventListener('click', abrirHondo);
+  document.getElementById('cerrar').addEventListener('click', cerrarHondo);
+  document.getElementById('velo').addEventListener('click', cerrarHondo);
+
+  // ---------- El contador de la portada ----------
+  // Cada segundo de la charla es un día de mora. Arranca al abrir la
+  // página y no se detiene: la foto de la diapositiva 2 lo congela.
+  var CAP = 1000000, TASA = 0.40, inicio = performance.now();
+  function diasCorridos() { return (performance.now() - inicio) / 1000; }
+  function deuda(d) { return CAP + CAP * TASA * d / 365; }
+  var elMonto = document.getElementById('cont-monto'), elDias = document.getElementById('cont-dias'), elMientras = document.getElementById('mientras');
+  // Se redibuja sólo mientras se ve (portada o foto), y a unos 20 cuadros
+  // por segundo: no hace falta más para que se vea correr.
+  var ultimoCuadro = 0;
+  (function latir(ahora) {
+    requestAnimationFrame(latir);
+    if (actual > 1 || ahora - ultimoCuadro < 50) return;
+    ultimoCuadro = ahora;
+    var d = diasCorridos();
+    elMonto.innerHTML = pesos(deuda(d), true);
+    var n = Math.floor(d);
+    elDias.textContent = n === 1 ? '1 día' : fmt0.format(n) + ' días';
+    elMientras.textContent = pesos(deuda(d), false);
+  })(0);
+
+  // ---------- Al entrar en cada diapositiva ----------
+  function alEntrar(d, i, antes) {
+    if (d.hasAttribute('data-flash')) {
+      var n = diasCorridos();
+      document.getElementById('foto-monto').textContent = pesos(deuda(n), false);
+      document.getElementById('foto-dias').textContent = 'al día ' + fmt0.format(Math.floor(n)) + ' de mora';
+      if (!reducido) {
+        var f = document.querySelector('.flash');
+        f.classList.remove('dispara'); void f.offsetWidth;
+        setTimeout(function () { f.classList.add('dispara'); }, 420);
+      }
+    }
+    if (d.querySelector('.sello') && !reducido) {
+      setTimeout(function () { var c = d.querySelector('.cuerpo'); c.classList.remove('temblor'); void c.offsetWidth; c.classList.add('temblor'); }, 1100);
+    }
+  }
+  function alPaso(d, p) {
+    if (d.querySelector('.sello') && p === 1) { /* el asterisco entra por CSS */ }
+  }
+
+  // ---------- Tickets: la liquidación de ejemplo ----------
+  var BASE = { capital: 1000000, tasa: 0.40, desde: '2025-03-01', hasta: '2026-03-01' };
+  function calcular(v) {
+    var n = diasEntre(v.desde, v.hasta);
+    var i = v.capital * v.tasa * n / 365;
+    return { dias: n, intereses: i, total: v.capital + i };
+  }
+  function animarNumero(el, de, a, ms) {
+    if (reducido) { el.textContent = pesos(a, false); return; }
+    var t = performance.now();
+    (function cuadro(ahora) {
+      var k = Math.min(1, (ahora - t) / ms), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = pesos(de + (a - de) * e, false);
+      if (k < 1) requestAnimationFrame(cuadro);
+    })(t);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ticket]'), function (tk) {
+    var error = JSON.parse(tk.dataset.error);
+    var foco = tk.dataset.foco;
+    var col = { capital: 'var(--capital)', tasa: 'var(--tasa)', desde: 'var(--desde)', hasta: 'var(--hasta)' };
+    tk.innerHTML =
+      '<div class="tit"><span>Liquidación de ejemplo</span><span>números inventados</span></div>' +
+      fila('capital', 'Capital') + fila('tasa', 'Tasa anual') + fila('desde', 'Desde') + fila('hasta', 'Hasta') +
+      '<div class="fila"><span></span><span class="k">Días</span><span class="v num" data-v="dias"></span></div>' +
+      '<div class="fila"><span></span><span class="k">Intereses</span><span class="v num" data-v="intereses"></span></div>' +
+      '<div class="linea"></div>' +
+      '<div class="tot"><span class="k">Total</span><span class="v num" data-v="total"></span></div>' +
+      '<div class="delta num"></div>' +
+      '<button class="boton err" aria-pressed="false"><span>¿Y si…? ' + tk.dataset.errorTxt + '</span><span class="sw" aria-hidden="true"></span></button>';
+    function fila(k, r) { return '<div class="fila" data-item="' + k + '" style="--c:' + col[k] + '"><span class="pt"></span><span class="k">' + r + '</span><span class="v num" data-v="' + k + '"></span></div>'; }
+    var conError = false, ultimo = calcular(BASE).total, ultI = calcular(BASE).intereses;
+    function pintar() {
+      var v = Object.assign({}, BASE, conError ? error : {});
+      var r = calcular(v), b = calcular(BASE);
+      function txt(k) {
+        if (k === 'capital') return pesos(v.capital, false);
+        if (k === 'tasa') return fmt0.format(v.tasa * 100) + '%';
+        return fecha(v[k]);
+      }
+      ['capital', 'tasa', 'desde', 'hasta'].forEach(function (k) {
+        var el = tk.querySelector('[data-v="' + k + '"]');
+        var cambio = conError && error[k] !== undefined;
+        el.innerHTML = cambio ? '<s>' + (k === 'capital' ? pesos(BASE.capital, false) : k === 'tasa' ? fmt0.format(BASE.tasa * 100) + '%' : fecha(BASE[k])) + '</s>' + txt(k) : txt(k);
+        el.parentNode.classList.toggle('cambiada', cambio);
+      });
+      tk.querySelector('[data-v="dias"]').textContent = fmt0.format(r.dias);
+      tk.querySelector('[data-v="dias"]').parentNode.classList.toggle('cambiada', r.dias !== b.dias);
+      tk.querySelector('[data-v="intereses"]').parentNode.classList.toggle('cambiada', conError);
+      animarNumero(tk.querySelector('[data-v="intereses"]'), ultI, r.intereses, 900);
+      ultI = r.intereses;
+      animarNumero(tk.querySelector('[data-v="total"]'), ultimo, r.total, 900);
+      ultimo = r.total;
+      var dif = r.total - b.total;
+      var dl = tk.querySelector('.delta');
+      dl.textContent = conError ? (dif > 0 ? '+ ' : '− ') + pesos(Math.abs(dif), false).slice(2) + (dif > 0 ? ' de más: perjudica al deudor' : ' de menos: perjudica al acreedor') : '';
+      dl.style.color = 'var(--mal)';
+      tk.classList.toggle('con-error', conError);
+    }
+    tk.querySelector('.err').addEventListener('click', function () {
+      conError = !conError; this.setAttribute('aria-pressed', conError); pintar();
+    });
+    tk.querySelector('[data-v="intereses"]').textContent = pesos(calcular(BASE).intereses, false);
+    pintar();
+  });
+
+  // ---------- Árbol de tasas ----------
+  var respuestas = {
+    capital: ['La que diga la sentencia.', 'Es una de las bases que fija. Se lee y se copia.'],
+    expensas: ['La que diga la sentencia.', 'En general se fija un 36% anual, pero siempre hay que mirarla.'],
+    sin: ['En general, activa.', 'Se admite por el plenario «Samudio». Lo mismo, por ejemplo, para gastos.'],
+    vieja: ['Pasiva BCRA.', 'Salvo que ya se haya aprobado otra liquidación con otra tasa.'],
+    nueva: ['La misma que la sentencia fijó para el capital.', 'Art. 54, ley 27.423: «siguiendo el mismo criterio».']
+  };
+  var resp = document.getElementById('resp-tasa'), rama = document.getElementById('rama-hon');
+  function responder(k) {
+    if (!k) { resp.className = 'respuesta'; resp.innerHTML = '<span class="vacio">' + (rama.classList.contains('ver') ? 'Falta un paso: ¿qué ley?' : 'Elegí un camino.') + '</span>'; return; }
+    resp.className = 'respuesta'; void resp.offsetWidth; resp.className = 'respuesta llena';
+    resp.innerHTML = '<span class="grande">' + respuestas[k][0] + '</span><span class="por">' + respuestas[k][1] + '</span>';
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.arbol .op'), function (b) {
+    b.addEventListener('click', function () {
+      var grupo = b.parentNode;
+      Array.prototype.forEach.call(grupo.children, function (x) { x.setAttribute('aria-pressed', x === b); });
+      if (grupo.dataset.grupo === '1') {
+        Array.prototype.forEach.call(rama.querySelectorAll('.op'), function (x) { x.setAttribute('aria-pressed', 'false'); });
+        rama.classList.toggle('ver', b.dataset.r === 'hon');
+        responder(b.dataset.r === 'hon' ? null : b.dataset.r);
+      } else responder(b.dataset.r);
+    });
+  });
+
+  // ---------- La UMA que gira ----------
+  var umaVals = [70000, 72500, 75800, 79200, 83100];
+  var umaI = 0, umaEl = document.getElementById('uma-val');
+  setInterval(function () {
+    if (!dias[actual].contains(umaEl)) return;
+    umaI = (umaI + 1) % umaVals.length;
+    umaEl.textContent = '$ ' + fmt0.format(umaVals[umaI]);
+  }, 3200);
+
+  // ---------- Marcas del cronómetro ----------
+  var marcas = document.getElementById('marcas'), svgNS = 'http://www.w3.org/2000/svg';
+  for (var m = 0; m < 60; m++) {
+    var ln = document.createElementNS(svgNS, 'line'), a = m * 6 * Math.PI / 180, r1 = m % 5 ? 118 : 108;
+    ln.setAttribute('x1', 150 + Math.sin(a) * r1); ln.setAttribute('y1', 150 - Math.cos(a) * r1);
+    ln.setAttribute('x2', 150 + Math.sin(a) * 124); ln.setAttribute('y2', 150 - Math.cos(a) * 124);
+    ln.setAttribute('class', 'marca'); if (m % 5) ln.setAttribute('opacity', '.4');
+    marcas.appendChild(ln);
+  }
+
+  // ---------- Gráfico de capitalización ----------
+  // Ilustrativo: 40% anual durante seis años. Simple, compuesto mensual
+  // (lo prohibido) y simple con una única capitalización al año 2, que es
+  // cuando se aprueba la liquidación, se intima y el deudor no paga.
+  (function () {
+    var g = document.getElementById('graf-cap');
+    var W = 560, H = 400, L = 46, R = 20, T = 20, B = 44, AÑOS = 6, MAX = 11;
+    function x(t) { return L + (W - L - R) * t / AÑOS; }
+    function y(v) { return H - B - (H - T - B) * (v - 1) / (MAX - 1); }
+    function simple(t) { return 1 + 0.4 * t; }
+    function comp(t) { return Math.pow(1 + 0.4 / 12, 12 * t); }
+    function una(t) { return t <= 2 ? simple(t) : simple(2) * (1 + 0.4 * (t - 2)); }
+    function camino(f) { var s = ''; for (var k = 0; k <= 120; k++) { var t = AÑOS * k / 120; s += (k ? 'L' : 'M') + x(t).toFixed(1) + ' ' + y(f(t)).toFixed(1); } return s; }
+    var h = '';
+    [1, 3, 5, 7, 9, 11].forEach(function (v) { h += '<line class="ej" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" opacity=".5"/><text class="ejtxt" x="' + (L - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end">×' + v + '</text>'; });
+    for (var t = 0; t <= AÑOS; t++) h += '<text class="ejtxt" x="' + x(t) + '" y="' + (H - B + 22) + '" text-anchor="middle">' + (t === 0 ? 'mora' : 'año ' + t) + '</text>';
+    h += '<path class="l l-simple dibujo" d="' + camino(simple) + '"/>';
+    h += '<path class="l l-comp dibujo" data-paso="1" d="' + camino(comp) + '"/>';
+    h += '<path class="l l-una dibujo" data-paso="2" d="' + camino(una) + '"/>';
+    h += '<text class="rot" x="' + x(6) + '" y="' + (y(simple(6)) + 24) + '" text-anchor="end" fill="#edeff3">simple ×' + simple(6).toFixed(1).replace('.', ',') + '</text>';
+    h += '<g data-paso="1"><text class="rot" x="' + (x(4.9) - 8) + '" y="' + (y(comp(4.9)) - 6) + '" text-anchor="end" fill="#ff6b6b">compuesto ×' + comp(6).toFixed(1).replace('.', ',') + ' · prohibido</text>' +
+         '<line class="cruz" x1="' + (x(6) - 12) + '" y1="' + (y(comp(6)) - 12) + '" x2="' + (x(6) + 12) + '" y2="' + (y(comp(6)) + 12) + '"/><line class="cruz" x1="' + (x(6) + 12) + '" y1="' + (y(comp(6)) - 12) + '" x2="' + (x(6) - 12) + '" y2="' + (y(comp(6)) + 12) + '"/></g>';
+    h += '<g data-paso="2"><circle cx="' + x(2) + '" cy="' + y(una(2)) + '" r="7" fill="#e0b45c"/><text class="rot" x="' + (x(2) + 4) + '" y="' + (y(una(2)) + 30) + '" fill="#e0b45c">aprobada + intimada + mora</text>' +
+         '<text class="rot" x="' + (x(6) + 4) + '" y="' + (y(una(6)) - 10) + '" text-anchor="end" fill="#e0b45c">una vez ×' + una(6).toFixed(1).replace('.', ',') + '</text></g>';
+    g.innerHTML = h;
+    Array.prototype.forEach.call(g.querySelectorAll('path.dibujo'), function (p) { p.style.setProperty('--len', Math.ceil(p.getTotalLength())); });
+  })();
+
+  // ---------- La lista final ----------
+  var chks = document.querySelectorAll('#lista .chk'), anillo = document.getElementById('anillo'), ver = document.getElementById('veredicto');
+  Array.prototype.forEach.call(chks, function (c) {
+    c.addEventListener('click', function () {
+      c.setAttribute('aria-checked', c.getAttribute('aria-checked') !== 'true');
+      var n = document.querySelectorAll('#lista .chk[aria-checked="true"]').length;
+      anillo.style.strokeDashoffset = 207.3 * (1 - n / chks.length);
+      if (n === chks.length) { ver.innerHTML = '<span class="t-ok">Lista para el traslado.</span>'; chispas(); }
+      else ver.textContent = 'Si una falla: se manda corregir.';
+    });
+  });
+  function chispas() {
+    if (reducido) return;
+    var cs = ['#e0b45c', '#b99bff', '#7a99ff', '#e09070', '#6fd3a8'];
+    var r = anillo.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    for (var k = 0; k < 60; k++) {
+      (function () {
+        var s = document.createElement('i'); s.className = 'chispa'; s.style.background = cs[k % cs.length];
+        s.style.left = cx + 'px'; s.style.top = cy + 'px'; document.body.appendChild(s);
+        var ang = Math.random() * Math.PI * 2, v = 180 + Math.random() * 320;
+        s.animate([
+          { transform: 'translate(0,0) rotate(0)', opacity: 1 },
+          { transform: 'translate(' + Math.cos(ang) * v + 'px,' + (Math.sin(ang) * v - 120) + 'px) rotate(' + (Math.random() * 720) + 'deg)', opacity: 0 }
+        ], { duration: 1200 + Math.random() * 700, easing: 'cubic-bezier(.2,.8,.2,1)' }).onfinish = function () { s.remove(); };
+      })();
+    }
+  }
+
+  window.addEventListener('hashchange', function () {
+    var n = parseInt((location.hash || '').slice(1), 10);
+    if (!isNaN(n) && n - 1 !== actual) ir(n - 1, 0);
+  });
+
+  // ---------- Arranque ----------
+  var h = parseInt((location.hash || '').slice(1), 10);
+  ir(isNaN(h) ? 0 : h - 1, 0);
+})();
+</script>
+</body>
+</html>

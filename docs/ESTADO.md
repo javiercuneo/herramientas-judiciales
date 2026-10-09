@@ -73,6 +73,8 @@ con su caso de prueba. **El borde que quedó de cada regla está en
 
 **Lo que queda abierto:**
 
+- **`charlas/liquidacion/`**: presentación sin enlace y con noindex; textos en revisión de Javier. Abierto: cita de «Samudio», UHOM = mediador (inferido) y si el depósito íntegro y comunicado corta (Fallos 339:725).
+
 - **El hook de datos y el anonimizador se vigilan entre sí desde el 26/9.**
   `npm run verificar-cruce` los corre sobre
   [`scripts/banco-cruzado/casos.json`](../scripts/banco-cruzado/casos.json): cada
