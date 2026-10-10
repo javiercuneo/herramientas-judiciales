@@ -50,13 +50,9 @@ sólo se enlaza lo que NO está en el tablero. Detalle en
 
 ## Bugs abiertos
 
-**E-08, de confronteitor (allá E-07), 10/10: hecho; falta probarlo con escaneos
-de la oficina.** El perfil «automático» tapa de más y aplica nombres solo; no
-está en el MCP porque devuelve el texto real. Sin cron: cada sesión revisa el
-buzón (`AGENTS.md`). Uso y decisiones en [`PEDIDO_E08_CONFRONTEITOR.md`](PEDIDO_E08_CONFRONTEITOR.md).
-
 **E-07, de Escribiente, pedido por confronteitor** —que lo conoce como E-05—.
-Lo cerrado está en [`HISTORIA.md`](HISTORIA.md). **Queda abierto, y
+Los rubros del inmueble ofrecidos como nombre y cuatro fugas de un testimonio
+se cerraron el 22/9, y están en [`HISTORIA.md`](HISTORIA.md). **Queda abierto, y
 es de Javier: que la carátula de una sucesión venga tildada.**
 `partesDeCaratula` busca «X c/ Y s/», y «X s/ SUCESIÓN» no tiene «c/». Hay que
 decidir con qué etiqueta —la pantalla le pone `[ACTOR]` a la primera parte— y
@@ -120,13 +116,18 @@ con su caso de prueba. **El borde que quedó de cada regla está en
     aparece una fuga, se arregla en el motor JS y se cierra con su regresión en
     `npm run verificar-escribiente`, como los seis de septiembre.
   - **El conector vive acá**, en `conectores/anonimizar.mjs`: cinco herramientas
-    sobre el motor de Escribiente, y la capa 2 nunca se aplica sola —salvo en
-    el perfil automático de E-08—. Detalle en
+    sobre el motor de Escribiente, y la capa 2 nunca se aplica sola. Detalle en
     [`conectores/`](#conectores).
+  - **`HERMANOS.md` ya lo dice** desde el 18/9: un conector, dos motores, y
+    `redactor` pidiendo el anonimizador directo, sin pasar por el pipeline.
   - **El banco de comparación está versionado** en `scripts/comparar-motores/`,
     declarado en `.datos-ejemplo`. Es la red: **antes y después de cada arreglo,
     correrlo y mirar qué se movió.** Cómo se corre, en el plan. Hoy da 30 de 40
     iguales.
+  - **La decisión chica está tomada, el 17/9: la palabra que ancla sobrevive.**
+    El JS se comía `Autos` y `Expte. N`; ahora los conserva, como ya hacían las
+    otras cuatro reglas ancladas. Queda del lado del Python comerse el `Tel:`, y
+    como el motor que se va es ése, no se toca.
 
 - **Falta publicar el ledger, y nada más.** El lado de acá ya salió
   —`js/enlace.js` está en el sitio y `vencimientos.html` lo carga; comprobado el
@@ -182,7 +183,8 @@ Ninguno urgente y ninguno bloqueante.
   se leen del PDF de la CSJN, y si no coinciden con la planilla no carga nada y
   la corrida queda en rojo. **Un rojo ahí es «cargala a mano»**: PDF sin texto,
   una acordada en vez de una resolución SGA, o un resolutivo distinto. Pide el
-  deploy con `gh workflow run`, igual que `feriados.yml`.
+  deploy con `gh workflow run`, igual que `feriados.yml` desde ese día: antes
+  el push del bot no publicaba nada.
 - **El UHOM y el monto fijo siguen a mano** —`data/serie-uhom.json` y
   `data/tasa-monto-fijo.json`—: las tablas del Ministerio son PDFs sin API. **`npm run verificar-series` no
   puede detectar que falte el último**: detecta que lo cargado esté mal. El que
@@ -826,9 +828,7 @@ matrícula, correo— se reemplaza solo, porque no hay falso positivo posible.
 **Los nombres propios se muestran para que el usuario decida uno por uno**,
 porque ninguna regla distingue sola `Pérez, Juan Carlos` —la parte— de
 `Llambías, Jorge Joaquín` —doctrina— ni de `Buenos Aires, Astrea`, que es una
-editorial. Reemplazar por adivinanza corrompe el texto; no reemplazar filtra. **Excepción decidida
-por Javier el 10/10: el perfil automático de E-08** tapa los candidatos sin
-preguntar; el público y la pantalla no cambian.
+editorial. Reemplazar por adivinanza corrompe el texto; no reemplazar filtra.
 
 De ahí también la constancia al pie de cada `.md`: qué se reemplazó, cuántas
 veces, y **qué quedó sin ocultar**. Un anonimizador que no se puede auditar es
