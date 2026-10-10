@@ -73,7 +73,7 @@ con su caso de prueba. **El borde que quedó de cada regla está en
 
 **Lo que queda abierto:**
 
-- **`charlas/liquidacion/`**: presentación sin enlace y con noindex; textos en revisión de Javier. Abierto: citas de «Samudio» y «Barrientos» (CSJN, 8%), UHOM = mediador (inferido) y si el depósito íntegro y comunicado corta (Fallos 339:725).
+- **`charlas/liquidacion/`**: presentación sin enlace y con noindex; textos en revisión de Javier. Abierto: UHOM = mediador (inferido) y si el depósito íntegro y comunicado corta (Fallos 339:725).
 
 - **El hook de datos y el anonimizador se vigilan entre sí desde el 26/9.**
   `npm run verificar-cruce` los corre sobre
