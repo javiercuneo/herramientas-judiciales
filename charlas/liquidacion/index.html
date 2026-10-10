@@ -433,6 +433,7 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
 }
 .linea-t .flecha::before { content: ""; position: absolute; left: -9px; bottom: -6px; border: 7px solid transparent; border-top: 11px solid var(--desde); }
 .linea-t .flecha span { position: absolute; top: -30px; left: 50%; translate: -50% 0; white-space: nowrap; color: var(--desde); font-weight: 700; font-size: .86em; }
+.linea-t .tramo-t { position: absolute; top: 46px; text-align: center; font-size: .72em; color: var(--faint); white-space: nowrap; }
 .linea-t .intereses { position: absolute; top: 66px; height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--desde), color-mix(in srgb, var(--desde) 30%, transparent)); box-shadow: 0 0 20px var(--desde); transform-origin: left; }
 .dia.p1 .linea-t .intereses { animation: crecer 1.4s var(--ease) .3s both; }
 @media (max-width: 600px) { .linea-t .hito span { font-size: .7em; } }
@@ -543,6 +544,9 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
 .salida p b, .salida li b { color: var(--fg); }
 .salida ol { padding-left: 1.2em; margin: .4em 0; }
 .salida li { margin: .3em 0; }
+.regla-no { margin: 18px 0 0; padding: 14px 18px; border-radius: 14px; border: 1px dashed var(--border); color: var(--muted-fg); }
+.regla-no span { font-size: .72em; letter-spacing: .16em; text-transform: uppercase; font-weight: 800; color: var(--capital); margin-right: .6em; }
+.regla-no b { color: var(--fg); }
 .pregunta-grande { font-size: clamp(1.3rem, 2.4vw, 2.1rem); font-weight: 800; font-stretch: 85%; }
 
 /* 15 · El sello */
@@ -650,7 +654,7 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
     <div>
       <span class="ceja e" style="--d:0">Art. 503 CPCCN</span>
       <h2 class="e" style="--d:1">La sentencia es <em>el molde</em>.</h2>
-      <p class="bajada e" style="--d:2">La liquidación <b>no decide nada</b>: aplica lo que la sentencia ya fijó. Si algo no encaja, el problema está en la cuenta.</p>
+      <p class="bajada e" style="--d:2">La liquidación <b>no decide nada</b>: aplica lo que la sentencia ya fijó. Lo único que pone la cuenta es <b>hasta cuándo</b>.</p>
       <p class="ley e" style="--d:3">«…se procederá de conformidad con las bases que en la sentencia se hubiesen fijado.»<cite>Art. 503 CPCCN</cite></p>
     </div>
     <div class="molde e" style="--d:2" aria-hidden="true">
@@ -665,7 +669,8 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
         <g class="pieza" style="--i:0"><rect x="48" y="48" width="174" height="174" rx="14" fill="#e0b45c" fill-opacity=".18" stroke="#e0b45c" stroke-width="2"/><text x="135" y="135" fill="#e0b45c">CAPITAL</text></g>
         <g class="pieza" style="--i:1"><rect x="258" y="48" width="174" height="174" rx="14" fill="#b99bff" fill-opacity=".18" stroke="#b99bff" stroke-width="2"/><text x="345" y="135" fill="#b99bff">TASA</text></g>
         <g class="pieza" style="--i:2"><rect x="48" y="258" width="174" height="174" rx="14" fill="#7a99ff" fill-opacity=".18" stroke="#7a99ff" stroke-width="2"/><text x="135" y="345" fill="#7a99ff">DESDE</text></g>
-        <g class="pieza" style="--i:3"><rect x="258" y="258" width="174" height="174" rx="14" fill="#e09070" fill-opacity=".18" stroke="#e09070" stroke-width="2"/><text x="345" y="345" fill="#e09070">HASTA</text></g>
+        <text x="345" y="333" fill="#e09070" opacity=".8">HASTA</text>
+        <text x="345" y="362" fill="#8a92a0" style="font-size:13px;font-weight:600;letter-spacing:.04em">lo pone la cuenta</text>
       </svg>
     </div>
   </div>
@@ -681,17 +686,19 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
     <div>
       <span class="ceja e" style="--d:0">Antes de empezar</span>
       <h2 class="e" style="--d:1">Antes de mirar <em>un solo número</em>.</h2>
-      <p class="bajada e" style="--d:2">Tres candados. Si alguno no abre, la cuenta puede estar perfecta y <b>igual no es momento</b>.</p>
+      <p class="bajada e" style="--d:2">Tres candados. Si alguno no abre, la cuenta puede estar perfecta <b>e igual no es momento</b>.</p>
       <p class="puerta-ok" data-paso="3">Recién ahora, los números.</p>
     </div>
     <div class="candados">
-      <div class="candado e" style="--d:2"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path class="arco" d="M8 11V7a4 4 0 0 1 8 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg></div><div><b>¿Todos notificados?</b><span>De la sentencia o de la regulación. Todos.</span></div></div>
-      <div class="candado e" style="--d:3"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path class="arco" d="M8 11V7a4 4 0 0 1 8 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg></div><div><b>¿Está firme?</b><span>Firme, consentida o ejecutoriada.</span></div></div>
+      <div class="candado e" style="--d:2"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path class="arco" d="M8 11V7a4 4 0 0 1 8 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg></div><div><b>¿Todos notificados?</b><span>De la sentencia o de la regulación. Al rebelde, en el domicilio real.</span></div></div>
+      <div class="candado e" style="--d:3"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path class="arco" d="M8 11V7a4 4 0 0 1 8 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg></div><div><b>¿Está firme?</b><span>Consentida o ejecutoriada (art. 499 CPCCN). Si falta notificar a alguien, no puede estarlo.</span></div></div>
       <div class="candado e" style="--d:4"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path class="arco" d="M8 11V7a4 4 0 0 1 8 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg></div><div><b>¿Es la oportunidad?</b><span>Depende del proceso y de lo que se ejecuta.</span></div></div>
     </div>
   </div>
   <template class="hondo-tpl">
-    <h3>La oportunidad, según el proceso</h3>
+    <h3>Firmeza y oportunidad</h3>
+    <blockquote>Consentida o ejecutoriada la sentencia de UN (1) tribunal judicial o arbitral y vencido el plazo fijado para su cumplimiento, se procederá a ejecutarla, a instancia de parte, de conformidad con las reglas que se establecen en este capítulo.<span class="fallo">Art. 499 CPCCN, primer párrafo</span></blockquote>
+    <p><b>El rebelde</b> se notifica en el domicilio real. Si falta esa notificación, la sentencia no está firme respecto de él.</p>
     <h4>Ejecución de sentencia</h4>
     <p><b>Art. 503 CPCCN.</b> El vencedor tiene <b>10 días</b> desde que la sentencia es ejecutable. Si no la presenta, puede hacerlo el vencido. Traslado por 5 días.</p>
     <h4>Condena a entregar cosas</h4>
@@ -715,7 +722,8 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
       <div class="carril e" style="--d:2">
         <span class="n">1</span>
         <h3>Capital de sentencia</h3>
-        <p>La sentencia fija <b>las cuatro bases</b>. Se leen ahí y se copian.</p>
+        <p>El caso más común: condena líquida o fácilmente liquidable. La sentencia fija <b>capital, tasa y desde</b>; el hasta, nunca.</p>
+        <p>Ojo: puede haber <b>rubros con intereses distintos</b> —uno a valores actuales, otro histórico— o <b>moras distintas</b>.</p>
         <div class="viz"><i style="--i:0"></i></div>
       </div>
       <div class="carril e" style="--d:3">
@@ -726,7 +734,7 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
       </div>
       <div class="carril e" style="--d:4">
         <span class="n">3</span>
-        <h3>Tracto sucesivo <span class="chico">(expensas)</span></h3>
+        <h3>Tracto sucesivo <span class="chico">(expensas, alquileres)</span></h3>
         <p><b>Cada período tiene su propia mora</b> y se liquida período por período. En general, 36% anual, pero <b>siempre hay que mirar la sentencia</b>.</p>
         <div class="viz"><i style="--i:2;margin-left:0"></i><i style="--i:3;margin-left:18%;width:82%"></i><i style="--i:4;margin-left:36%;width:64%"></i><i style="--i:5;margin-left:54%;width:46%"></i></div>
       </div>
@@ -811,7 +819,7 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
         <div class="opciones" data-grupo="1">
           <button class="op" data-r="capital" aria-pressed="false">Capital de sentencia</button>
           <button class="op" data-r="hon" aria-pressed="false">Honorarios</button>
-          <button class="op" data-r="expensas" aria-pressed="false">Expensas</button>
+          <button class="op" data-r="expensas" aria-pressed="false">Tracto sucesivo<small>expensas, alquileres</small></button>
           <button class="op" data-r="sin" aria-pressed="false">No hay sentencia<small>acuerdo, gastos</small></button>
         </div>
         <div class="rama2" id="rama-hon">
@@ -829,10 +837,10 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
   <template class="hondo-tpl">
     <h3>Tasa: lo que hay que saber además</h3>
     <ul>
-      <li><b>Honorarios con ley vieja:</b> pasiva BCRA, <b>salvo</b> que ya se haya aprobado otra liquidación —del mismo profesional o de otro— con otra tasa.</li>
-      <li><b>Honorarios con ley nueva:</b> el art. 54 manda fijar los intereses «siguiendo el mismo criterio que el utilizado para establecer la actualización de los valores económicos de la causa». Por eso, la misma tasa que la sentencia.</li>
-      <li><b>Sin sentencia</b> (un acuerdo, gastos): se admite en general la tasa activa, por el plenario «Samudio».</li>
-      <li><b>Giros parciales:</b> si los hubo, cambian las pautas y la liquidación tiene que tomarlos en cuenta.</li>
+      <li><b>Capital:</b> lo más común es la tasa activa, por el plenario «Samudio», o un 8% anual, por «Barrientos» (CSJN).</li>
+      <li><b>Honorarios con ley vieja:</b> pasiva BCRA, <b>salvo</b> que se haya planteado su inconstitucionalidad, o que ya se haya aprobado otra liquidación —del mismo profesional o de otro— con otra tasa.</li>
+      <li><b>Honorarios con ley nueva:</b> el art. 54 manda fijar los intereses «siguiendo el mismo criterio que el utilizado para establecer la actualización de los valores económicos de la causa». En principio, la misma tasa que la sentencia. Pero la UMA ya incorpora la inflación: aunque la sentencia diga activa, sobre UMA es mucho, y a veces se fija un 8% anual.</li>
+      <li><b>Sin sentencia</b> (un acuerdo, gastos): se admite en general la tasa activa, por «Samudio».</li>
     </ul>
     <h4>La regla de fondo</h4>
     <blockquote>A partir de su mora el deudor debe los intereses correspondientes. La tasa se determina: a) por lo que acuerden las partes; b) por lo que dispongan las leyes especiales; c) en subsidio, por tasas que se fijen según las reglamentaciones del Banco Central.<span class="fallo">Art. 768 CCyCN</span></blockquote>
@@ -845,16 +853,19 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
     <div>
       <span class="ceja e" style="--d:0">03 · Desde</span>
       <h2 class="e" style="--d:1">Los intereses arrancan <em>con la mora</em>.</h2>
-      <p class="bajada e" style="--d:2">Capital: la fecha que fija la sentencia. Honorarios: hace falta <b>auto regulatorio firme y plazo de pago vencido</b>. Pero la ley nueva tiene una vuelta:</p>
+      <p class="bajada e" style="--d:2">Capital: la que fija la sentencia. Suele ser <b>la fecha del hecho</b>, pero no siempre: puede ser la notificación de la demanda. Honorarios: <b>auto regulatorio firme y plazo de pago vencido</b>. Y la ley nueva tiene una vuelta:</p>
       <div class="linea-t e" style="--d:3" aria-label="Línea de tiempo de los honorarios con ley 27.423">
         <div class="eje"></div>
-        <div class="intereses" style="left:8%;right:0" data-paso="1"></div>
-        <div class="flecha" style="left:8%;width:74%" data-paso="1"><span>los intereses, desde acá</span></div>
-        <div class="hito" style="left:8%"><i></i><span><b>Regulación</b>1ª instancia</span></div>
+        <div class="intereses" style="left:6%;right:0" data-paso="1"></div>
+        <div class="flecha" style="left:6%;width:80%" data-paso="1"><span>los intereses, desde acá</span></div>
+        <span class="tramo-t" style="left:6%;width:40%">10 hábiles · art. 257</span>
+        <span class="tramo-t" style="left:46%;width:40%">10 corridos · art. 54</span>
+        <div class="hito" style="left:6%"><i></i><span><b>Regulación</b>1ª instancia</span></div>
         <div class="hito" style="left:46%"><i></i><span><b>Queda firme</b>&nbsp;</span></div>
-        <div class="hito mora" style="left:82%"><i></i><span><b>Mora</b>+10 días</span></div>
+        <div class="hito mora" style="left:86%"><i></i><span><b>Mora</b>&nbsp;</span></div>
       </div>
-      <p class="bajada e chico" style="--d:4" data-paso="1">La ley <b>castiga al deudor</b> llevando el inicio para atrás (art. 54, ley 27.423). Si son honorarios de alzada, desde la regulación de alzada.</p>
+      <p class="bajada e chico" style="--d:4">Para que quede firme: si cabe el extraordinario, <b>10 días hábiles</b> desde la notificación (art. 257 CPCCN). Después, <b>10 días corridos</b> para pagar (art. 54).</p>
+      <p class="bajada chico" data-paso="1">Y en mora, la ley <b>castiga al deudor</b> llevando el inicio para atrás: a la regulación de primera instancia (art. 54, ley 27.423). Si son honorarios de alzada, desde la regulación de alzada.</p>
     </div>
     <div class="ticket e" style="--d:3" data-ticket data-foco="desde" data-error='{"desde":"2024-03-01"}' data-error-txt="Contaron desde un año antes de la mora"></div>
   </div>
@@ -862,6 +873,9 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
     <h3>El art. 54, en las dos partes que importan</h3>
     <blockquote>Los honorarios regulados judicialmente deberán abonarse dentro de los diez (10) días de quedar firme la resolución regulatoria.<span class="fallo">Art. 54, primer párrafo, ley 27.423</span></blockquote>
     <blockquote>Las deudas de honorarios, pactados o por regulación judicial firme, cuando hubiere mora del deudor, devengarán intereses desde la fecha de la regulación de primera instancia y hasta el momento de su efectivo pago…<span class="fallo">Art. 54, último párrafo, ley 27.423</span></blockquote>
+    <h4>Los diez días del extraordinario</h4>
+    <blockquote>El recurso extraordinario deberá ser interpuesto por escrito […] dentro del plazo de DIEZ (10) días contados a partir de la notificación.<span class="fallo">Art. 257 CPCCN</span></blockquote>
+    <p>Por eso la cuenta es: notificación, <b>10 días hábiles</b> hasta que queda firme, y después <b>10 días corridos</b> para pagar. La mora empieza al vencer ese segundo plazo.</p>
     <h4>Para que haya mora</h4>
     <p>Los intereses se calculan desde que se configura el retardo y hasta el efectivo pago (CSJN, Fallos 310:798; 311:939; 312:756). Para eso hace falta <b>un auto regulatorio firme y un plazo de pago vencido</b>, fijado en la sentencia o por la ley (CSJN, Fallos 318:213).</p>
     <p>Con la <b>ley vieja</b>, el desde es la mora: regulación firme y plazo vencido, sin el salto hacia atrás.</p>
@@ -932,7 +946,7 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
     <h3>Pago parcial</h3>
     <blockquote>En lo relativo al pago que se efectúa una vez que el deudor ha incurrido en mora, cabe señalar que los intereses se devengan hasta que la totalidad de la deuda haya estado a disposición del acreedor.<span class="fallo">CNCiv., Sala C, 14/06/1976, ED 71-266</span></blockquote>
     <p>El acreedor tampoco está obligado a recibir pagos parciales, salvo disposición legal o convencional en contrario (art. 869 CCyCN).</p>
-    <p>Si hubo <b>giros parciales</b>, las pautas cambian: cada giro corta una parte, y la liquidación siguiente tiene que tomarlo.</p>
+    <p><b>Un giro parcial no extingue la obligación.</b> Si no se pagó todo —capital más intereses—, los intereses siguen corriendo. El giro se imputa primero a intereses, y la liquidación siguiente tiene que tomarlo con su fecha.</p>
   </template>
 </section>
 
@@ -962,8 +976,6 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
     <p>Los intereses de una suma que ya resultó de una liquidación judicial con capital e intereses <b>no pueden volver a capitalizarse</b> (Alterini, <i>Código Civil y Comercial. Tratado exegético</i>, t. IV, p. 213; CNCiv., Sala C, LL 1993-A-578; CNCiv., 13/12/2018).</p>
     <h4>El inciso b, también restrictivo</h4>
     <p>Sólo es compatible con deudas de dinero líquidas o fácilmente liquidables en las que el acreedor tuvo que demandar (JNDC 2017, Comisión 3, pto. 13; CNCiv., Sala M, expte. 88.010/2014, 29/03/2019). La prohibición es de orden público y sus excepciones no se interpretan extensivamente (CSJN, Fallos 316:3131 y 316:3134; CNCiv., Sala D, expte. 58896/2021, 11/12/2024).</p>
-    <h4>De dónde viene la palabra</h4>
-    <p>Del griego <i>ana</i>, reiteración, y <i>tokismós</i>, dar a interés.</p>
   </template>
 </section>
 
@@ -1033,6 +1045,7 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
         <p data-paso="1">Si falta cualquiera de las dos, <b>se la tiene por conforme</b>.</p>
       </div>
     </div>
+    <p class="regla-no e" style="--d:5"><span>Regla no escrita</span> Si el error da <b>menos</b> de lo que corresponde, no se frena: el deudor no se va a quejar.</p>
   </div>
   <template class="hondo-tpl">
     <h3>El proveído modelo</h3>
@@ -1064,18 +1077,18 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
     <span class="ceja e" style="--d:0">Para llevarse</span>
     <h2 class="e" style="--d:1">Antes de dar traslado.</h2>
     <div class="lista" id="lista">
-      <button class="chk e" style="--d:2" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Todos notificados, y firme</b><span>La sentencia o la regulación.</span></span></button>
+      <button class="chk e" style="--d:2" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Todos notificados, y firme</b><span>Consentida o ejecutoriada (art. 499). Al rebelde, en el real.</span></span></button>
       <button class="chk e" style="--d:2" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Es la oportunidad</b><span>Según el proceso: 503, 561, 591.</span></span></button>
       <button class="chk e" style="--d:3" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--capital)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-capital">Capital = el de la sentencia</b><span>UMA: al valor del pago. UHOM: fijo en pesos.</span></span></button>
       <button class="chk e" style="--d:3" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--capital)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Si es regulación: qué ley</b><span>Define el desde y la tasa.</span></span></button>
-      <button class="chk e" style="--d:4" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--tasa)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-tasa">Tasa = la que se lee</b><span>Sentencia · ley vieja: pasiva · sin sentencia: activa.</span></span></button>
-      <button class="chk e" style="--d:4" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--desde)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-desde">Desde = la mora</b><span>Honorarios con ley nueva: desde la regulación.</span></span></button>
+      <button class="chk e" style="--d:4" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--tasa)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-tasa">Tasa = la que se lee</b><span>Sentencia · ley vieja: pasiva · UMA: ojo con la activa.</span></span></button>
+      <button class="chk e" style="--d:4" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--desde)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-desde">Desde = la mora</b><span>Suele ser el hecho. Honorarios con ley nueva: la regulación.</span></span></button>
       <button class="chk e" style="--d:5" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--hasta)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-hasta">Hasta = fondos disponibles</b><span>O la fecha de la cuenta. El depósito solo no corta.</span></span></button>
-      <button class="chk e" style="--d:5" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Pagos parciales y capitalización</b><span>Primero intereses. Capitalizar: 770 c, una sola vez.</span></span></button>
+      <button class="chk e" style="--d:5" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Pagos parciales y capitalización</b><span>Si no pagó todo, sigue corriendo. Capitalizar: 770 c, una vez.</span></span></button>
     </div>
     <div class="veredicto e" style="--d:6">
       <svg class="anillo" viewBox="0 0 80 80" aria-hidden="true"><circle class="fondo-a" cx="40" cy="40" r="33"/><circle class="frente" id="anillo" cx="40" cy="40" r="33" stroke-dasharray="207.3" stroke-dashoffset="207.3"/></svg>
-      <span class="txt" id="veredicto" aria-live="polite">Si una falla: se manda corregir.</span>
+      <span class="txt" id="veredicto" aria-live="polite">Si una falla y da de más: se manda corregir.</span>
     </div>
 
     <!-- Calculadoras del sitio: armado y oculto a propósito, hasta que
@@ -1349,11 +1362,11 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
 
   // ---------- Árbol de tasas ----------
   var respuestas = {
-    capital: ['La que diga la sentencia.', 'Es una de las bases que fija. Se lee y se copia.'],
+    capital: ['La que diga la sentencia.', 'Lo más común: activa, por «Samudio», o un 8% anual, por «Barrientos» (CSJN).'],
     expensas: ['La que diga la sentencia.', 'En general se fija un 36% anual, pero siempre hay que mirarla.'],
     sin: ['En general, activa.', 'Se admite por el plenario «Samudio». Lo mismo, por ejemplo, para gastos.'],
-    vieja: ['Pasiva BCRA.', 'Salvo que ya se haya aprobado otra liquidación con otra tasa.'],
-    nueva: ['La misma que la sentencia fijó para el capital.', 'Art. 54, ley 27.423: «siguiendo el mismo criterio».']
+    vieja: ['Pasiva BCRA.', 'Salvo que se haya planteado su inconstitucionalidad, o que ya se haya aprobado otra liquidación con otra tasa.'],
+    nueva: ['En principio, la misma que la sentencia.', 'Art. 54: «siguiendo el mismo criterio». Pero la UMA ya trae la inflación, y una activa encima es mucho: por eso a veces se fija un 8% anual.']
   };
   var resp = document.getElementById('resp-tasa'), rama = document.getElementById('rama-hon');
   function responder(k) {
@@ -1428,7 +1441,7 @@ kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); bo
       var n = document.querySelectorAll('#lista .chk[aria-checked="true"]').length;
       anillo.style.strokeDashoffset = 207.3 * (1 - n / chks.length);
       if (n === chks.length) { ver.innerHTML = '<span class="t-ok">Lista para el traslado.</span>'; chispas(); }
-      else ver.textContent = 'Si una falla: se manda corregir.';
+      else ver.textContent = 'Si una falla y da de más: se manda corregir.';
     });
   });
   function chispas() {
