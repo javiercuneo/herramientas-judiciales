@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El prorrateo del art. 730 · L. Javier Cúneo Libarona</title>
+<meta name="description" content="Qué es el prorrateo del art. 730 del Código Civil y Comercial, qué entra, cómo se calcula y qué revisar antes de dar traslado.">
+<!-- Sin enlace desde el sitio y fuera de los buscadores hasta que Javier
+     decida mostrarla, igual que la de liquidación. Para publicarla del
+     todo: sacar este meta y enlazarla desde index.html. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0d11">
+<link rel="icon" href="../../favicon.ico" sizes="32x32">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../assets/icono-180.png">
+<!-- Contador de visitas (GoatCounter), sin cookies. El mismo de todo el
+     sitio: manda la ruta y el titulo, nunca el #. -->
+<script>window.goatcounter = { path: function () { return location.pathname; } };</script>
+<script data-goatcounter="https://javiercuneo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..900;1,62..125,300..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+
+<style>
+/* ------------------------------------------------------------------
+   Presentación de una sola página, hermana de la de liquidación: el
+   mismo sistema visual (tokens del tema oscuro, Archivo y Source Serif 4)
+   y la misma mecánica de navegación. Es oscura sola a propósito: se
+   proyecta.
+
+   Cada concepto tiene su color, y es siempre el mismo en toda la charla:
+     el techo del 25 % = ámbar · lo que se reduce = azul
+     la tasa de justicia = violeta · lo que queda afuera = terracota
+   ------------------------------------------------------------------ */
+:root {
+  color-scheme: dark;
+  --bg: #0b0d11;
+  --bg-2: #101318;
+  --fg: #edeff3;
+  --card: #16191f;
+  --muted-fg: #a3abb8;
+  --faint: #8a92a0;
+  --border: rgb(237 239 243 / 0.15);
+  --hair: rgb(237 239 243 / 0.08);
+
+  --techo: #e0b45c;
+  --hon: #7a99ff;
+  --tasa: #b99bff;
+  --afuera: #e09070;
+  --ok: #6fd3a8;
+  --mal: #ff6b6b;
+
+  --tono: #e0b45c;              /* lo cambia cada diapositiva */
+
+  --font-meter: 'Archivo', 'DIN Alternate', 'Segoe UI', sans-serif;
+  --font-law: 'Source Serif 4', ui-serif, Georgia, serif;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --ease-salto: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-meter);
+  font-size: clamp(15px, 1.05vw + 8px, 22px);
+  line-height: 1.45;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+button { font: inherit; color: inherit; }
+::selection { background: color-mix(in srgb, var(--tono) 40%, transparent); }
+
+/* ---------- Fondo: grilla, resplandor del capítulo y grano ---------- */
+.fondo { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.fondo::before {
+  content: ""; position: absolute; inset: -2px;
+  background-image:
+    linear-gradient(var(--hair) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 30%, transparent 80%);
+  opacity: .55;
+}
+.fondo .halo {
+  position: absolute; width: 90vmax; height: 90vmax; left: 50%; top: 40%;
+  translate: -50% -50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--tono) 22%, transparent) 0%, transparent 60%);
+  transition: background 1.2s var(--ease), left 1.6s var(--ease), top 1.6s var(--ease);
+  will-change: left, top;
+}
+.fondo .grano {
+  position: absolute; inset: 0; opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- El mazo ---------- */
+.mazo { position: fixed; inset: 0; z-index: 1; }
+.dia {
+  position: absolute; inset: 0;
+  display: grid; place-items: safe center;
+  padding: clamp(16px, 4vw, 72px) clamp(16px, 6vw, 120px) 104px;
+  opacity: 0; visibility: hidden;
+  transform: translateX(6vw) scale(.985);
+  transition: opacity .7s var(--ease), transform .9s var(--ease), visibility 0s .9s;
+  overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: none;
+}
+.dia::-webkit-scrollbar { display: none; }
+.dia.atras { transform: translateX(-6vw) scale(.985); }
+.dia.activa {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity .7s var(--ease) .12s, transform .9s var(--ease) .05s, visibility 0s;
+}
+.dia > .cuerpo { width: min(1240px, 100%); }
+
+/* Entrada escalonada: cada .e entra cuando su diapositiva se activa. */
+.e { opacity: 0; transform: translateY(22px); }
+.activa .e {
+  opacity: 1; transform: none;
+  transition: opacity .8s var(--ease), transform .9s var(--ease);
+  transition-delay: calc(var(--d, 0) * 110ms + 250ms);
+}
+/* Pasos dentro de una diapositiva: aparecen con → antes de pasar. */
+[data-paso] { transition: opacity .6s var(--ease), transform .7s var(--ease); }
+.dia:not(.p1) [data-paso="1"], .dia:not(.p2) [data-paso="2"],
+.dia:not(.p3) [data-paso="3"], .dia:not(.p4) [data-paso="4"] {
+  opacity: 0; transform: translateY(16px); pointer-events: none;
+}
+
+/* ---------- Tipografía ---------- */
+.ceja {
+  font-size: .78em; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--tono); font-weight: 600; font-stretch: 110%;
+  display: inline-flex; align-items: center; gap: .7em;
+}
+.ceja::before { content: ""; width: 2.2em; height: 2px; background: currentColor; border-radius: 2px; }
+h1, h2 { margin: .25em 0 .3em; font-weight: 800; line-height: .95; letter-spacing: -.02em; text-wrap: balance; }
+h1 { font-size: clamp(2.6rem, 7.4vw, 7.6rem); font-stretch: 80%; }
+h2 { font-size: clamp(2.1rem, 5.2vw, 5.2rem); font-stretch: 85%; }
+h2.compacto { font-size: clamp(1.9rem, 3.8vw, 3.8rem); }
+h1 em, h2 em { font-style: normal; color: var(--tono); }
+.bajada { font-size: clamp(1.05rem, 1.5vw, 1.6rem); color: var(--muted-fg); max-width: 40ch; margin: 0 0 1.2em; text-wrap: pretty; }
+.bajada b { color: var(--fg); font-weight: 600; }
+.ley {
+  font-family: var(--font-law); font-style: italic; font-size: clamp(1.05rem, 1.55vw, 1.55rem);
+  line-height: 1.4; color: var(--fg); max-width: 46ch; margin: 0;
+  padding-left: 1em; border-left: 3px solid var(--tono);
+}
+.ley cite { display: block; margin-top: .5em; font-style: normal; font-family: var(--font-meter); font-size: .62em; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+.chico { font-size: .82em; color: var(--faint); }
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+.c-techo  { --tono: var(--techo); }
+.c-hon    { --tono: var(--hon); }
+.c-tasa   { --tono: var(--tasa); }
+.c-afuera { --tono: var(--afuera); }
+.c-ok     { --tono: var(--ok); }
+.t-techo { color: var(--techo); } .t-hon { color: var(--hon); }
+.t-tasa { color: var(--tasa); } .t-afuera { color: var(--afuera); }
+.t-mal { color: var(--mal); } .t-ok { color: var(--ok); }
+
+.dos { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(24px, 4vw, 72px); align-items: center; }
+@media (max-width: 860px) { .dos { grid-template-columns: 1fr; } }
+
+.aviso { border-radius: 16px; padding: 16px 20px; border: 1px solid color-mix(in srgb, var(--mal) 45%, transparent); background: color-mix(in srgb, var(--mal) 7%, transparent); color: var(--muted-fg); }
+.aviso b { color: var(--mal); }
+.nota { border-radius: 16px; padding: 16px 20px; border: 1px dashed var(--border); color: var(--muted-fg); }
+.nota b { color: var(--fg); }
+.marca-txt { font-size: .7em; letter-spacing: .16em; text-transform: uppercase; font-weight: 800; margin-right: .6em; }
+
+/* ---------- Barra inferior ---------- */
+.barra {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px clamp(16px, 3vw, 40px) calc(14px + env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, rgb(11 13 17 / .9) 40%);
+}
+.progreso { flex: 1; display: flex; gap: 4px; height: 26px; align-items: center; min-width: 0; }
+.progreso button {
+  flex: 1; height: 4px; border: 0; padding: 0; border-radius: 3px; cursor: pointer;
+  background: var(--hair); position: relative; transition: height .3s var(--ease), background .4s;
+}
+.progreso button::after { content: ""; position: absolute; inset: -11px 0; }
+.progreso button.visto { background: color-mix(in srgb, var(--seg, var(--fg)) 55%, transparent); }
+.progreso button.aca { background: var(--seg, var(--fg)); height: 8px; box-shadow: 0 0 14px var(--seg, var(--fg)); }
+.progreso button:hover { height: 8px; }
+.cuenta { font-size: .8em; color: var(--faint); min-width: 4.2em; text-align: right; letter-spacing: .05em; }
+.boton {
+  border: 1px solid var(--border); background: rgb(22 25 31 / .7); backdrop-filter: blur(8px);
+  border-radius: 999px; height: 42px; min-width: 42px; padding: 0 14px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: border-color .2s, background .2s, transform .2s var(--ease);
+  text-decoration: none; color: inherit;
+}
+.boton:hover { border-color: var(--tono); }
+.boton:active { transform: scale(.95); }
+.boton:focus-visible, .progreso button:focus-visible, .op:focus-visible, .chk:focus-visible { outline: 2px solid var(--tono); outline-offset: 3px; }
+.boton svg { width: 18px; height: 18px; }
+.hondo-btn { display: none; color: var(--tono); border-color: color-mix(in srgb, var(--tono) 45%, transparent); }
+.hondo-btn.hay { display: inline-flex; animation: latido 2.6s var(--ease) infinite; }
+@keyframes latido { 0%, 70%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tono) 0%, transparent); } 35% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--tono) 18%, transparent); } }
+@media (max-width: 600px) { .hondo-btn .txt, .ocultable { display: none; } }
+
+/* ---------- Capa para profundizar ---------- */
+.hondo-velo { position: fixed; inset: 0; z-index: 8; background: rgb(5 6 8 / .55); backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity .4s; }
+.hondo {
+  position: fixed; z-index: 9; left: 50%; bottom: 0; width: min(980px, 100%);
+  max-height: 82dvh; overflow-y: auto; translate: -50% 105%;
+  background: var(--card); border: 1px solid var(--border); border-bottom: 0;
+  border-radius: 22px 22px 0 0; padding: 28px clamp(18px, 4vw, 48px) 48px;
+  box-shadow: 0 -30px 80px rgb(0 0 0 / .5);
+  transition: translate .6s var(--ease);
+}
+.abierto .hondo { translate: -50% 0; }
+.abierto .hondo-velo { opacity: 1; pointer-events: auto; }
+.hondo .tirador { width: 44px; height: 5px; border-radius: 3px; background: var(--border); margin: -10px auto 18px; }
+.hondo h3 { font-size: 1.5em; margin: 0 0 .4em; font-stretch: 90%; line-height: 1.05; }
+.hondo h4 { font-size: .78em; letter-spacing: .16em; text-transform: uppercase; color: var(--tono); margin: 1.6em 0 .6em; }
+.hondo p, .hondo li { color: var(--muted-fg); text-wrap: pretty; }
+.hondo p b, .hondo li b { color: var(--fg); }
+.hondo ul { padding-left: 1.1em; }
+.hondo li { margin: .35em 0; }
+.hondo blockquote { margin: .8em 0; font-family: var(--font-law); font-style: italic; color: var(--fg); border-left: 3px solid var(--tono); padding-left: 1em; }
+.hondo .fallo { font-size: .82em; color: var(--faint); font-style: normal; font-family: var(--font-meter); display: block; margin-top: .3em; }
+.hondo .cerrar { position: sticky; top: -10px; float: right; margin: -8px -8px 0 0; }
+
+/* ---------- Botones de opción y el interruptor de «¿Y si…?» ---------- */
+.opciones { display: flex; flex-wrap: wrap; gap: 10px; }
+.op {
+  border: 1px solid var(--border); background: rgb(22 25 31 / .7); border-radius: 14px; padding: 12px 16px; cursor: pointer;
+  text-align: left; line-height: 1.2; transition: border-color .3s, background .3s, transform .3s var(--ease);
+}
+.op small { display: block; color: var(--faint); font-size: .75em; margin-top: 3px; }
+.op:hover { border-color: var(--tono); transform: translateY(-2px); }
+.op[aria-pressed="true"] { border-color: var(--tono); background: color-mix(in srgb, var(--tono) 16%, transparent); box-shadow: 0 0 0 1px var(--tono), 0 10px 30px -10px var(--tono); }
+.ysi {
+  margin-top: 14px; width: 100%; justify-content: space-between; border-radius: 12px; height: auto;
+  padding: 12px 14px; text-align: left; line-height: 1.3; font-size: .9em;
+}
+.ysi .sw { flex: none; width: 38px; height: 22px; border-radius: 11px; background: var(--hair); position: relative; transition: background .3s; }
+.ysi .sw::after { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--fg); transition: translate .35s var(--ease-salto); }
+.ysi[aria-pressed="true"] { border-color: var(--mal); }
+.ysi[aria-pressed="true"] .sw { background: var(--mal); }
+.ysi[aria-pressed="true"] .sw::after { translate: 16px 0; }
+
+/* ================================================================
+   Diapositiva por diapositiva
+   ================================================================ */
+
+/* 0 · Portada: los honorarios se pasan del techo y la prensa los baja */
+.portada { text-align: center; display: grid; justify-items: center; }
+.portada .bajada { margin-inline: auto; text-align: center; }
+.prensa { width: min(880px, 100%); margin-top: clamp(18px, 4vh, 44px); text-align: left; }
+.prensa .riel {
+  position: relative; height: 64px; border-radius: 14px; border: 1px solid var(--border);
+  background: rgb(22 25 31 / .55); container-type: inline-size; overflow: visible;
+}
+.prensa .hon {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 13px 0 0 13px; overflow: hidden;
+}
+.prensa .hon::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 100cqw;
+  background: linear-gradient(90deg, var(--hon) 0 25%, var(--mal) 25% 100%);
+}
+.activa .prensa .hon { animation: prensar 4.2s var(--ease) .9s forwards; }
+@keyframes prensar {
+  0% { width: 0; }
+  38% { width: 43%; }
+  62% { width: 43%; }
+  80% { width: 24%; }
+  88% { width: 25.6%; }
+  100% { width: 25%; }
+}
+.prensa .tope {
+  position: absolute; left: 25%; top: -18px; bottom: -18px; width: 3px; margin-left: -1.5px; border-radius: 2px;
+  background: var(--techo); box-shadow: 0 0 22px var(--techo);
+}
+.prensa .tope span { position: absolute; top: -1.6em; left: 50%; translate: -50% 0; white-space: nowrap; color: var(--techo); font-weight: 800; font-size: .9em; letter-spacing: .06em; }
+.prensa .ejes { display: flex; justify-content: space-between; margin-top: 26px; font-size: .78em; color: var(--faint); gap: 12px; }
+.prensa .ejes b { color: var(--fg); font-weight: 600; }
+.prensa .leyenda { position: absolute; left: 1em; top: 50%; translate: 0 -50%; font-weight: 700; font-size: .85em; white-space: nowrap; color: #0b0d11; opacity: 0; }
+.activa .prensa .leyenda { animation: aparecer-l 1s var(--ease) 4.6s forwards; }
+@keyframes aparecer-l { to { opacity: 1; } }
+.pista { margin-top: 26px; font-size: .78em; color: var(--faint); display: inline-flex; gap: .6em; align-items: center; }
+kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--border); border-bottom-width: 3px; border-radius: 6px; padding: 1px 7px; color: var(--muted-fg); }
+
+/* 1 · La norma: el texto se enciende por partes */
+.norma-g { grid-template-columns: 1.3fr .7fr; }
+@media (max-width: 860px) { .norma-g { grid-template-columns: 1fr; } }
+.norma {
+  font-family: var(--font-law); font-size: clamp(1rem, 1.32vw, 1.5rem); line-height: 1.45; max-width: 62ch;
+  color: var(--muted-fg); margin: 0;
+}
+.norma mark { background: none; color: inherit; transition: color .6s, background-size .9s var(--ease), text-shadow .6s; background-image: linear-gradient(var(--c), var(--c)); background-repeat: no-repeat; background-position: 0 92%; background-size: 0% 2px; padding-bottom: .05em; }
+.dia.p1 .norma mark.m1, .dia.p2 .norma mark.m2, .dia.p3 .norma mark.m3, .dia.p4 .norma mark.m4 { color: var(--c); background-size: 100% 2px; }
+.norma cite { display: block; margin-top: .8em; font-style: normal; font-family: var(--font-meter); font-size: .5em; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+.claves { display: grid; gap: 10px; }
+.clave { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: center; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--border); background: rgb(22 25 31 / .6); }
+.clave .n { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-weight: 900; font-stretch: 80%; color: #0b0d11; background: var(--c); }
+.clave b { display: block; }
+.clave span { color: var(--muted-fg); font-size: .88em; }
+
+/* 2 · La idea: el honorario no se toca */
+.idea { display: grid; gap: 18px; justify-items: center; margin-top: 10px; }
+.honorario {
+  width: min(640px, 100%); border-radius: 20px; padding: 18px 22px; border: 1px solid var(--border);
+  background: linear-gradient(180deg, #1a1d24, #13161b); box-shadow: 0 30px 60px -20px rgb(0 0 0 / .6);
+}
+.honorario .tit { display: flex; justify-content: space-between; align-items: baseline; font-size: .74em; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }
+.honorario .monto { font-size: clamp(2rem, 4.4vw, 3.6rem); font-weight: 800; font-stretch: 80%; line-height: 1; margin: 8px 0 14px; }
+.honorario .intacto { color: var(--ok); font-weight: 800; letter-spacing: .14em; }
+.reparto { display: flex; height: 40px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.reparto i { display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: .82em; white-space: nowrap; overflow: hidden; color: #0b0d11; transition: opacity .6s, filter .6s; }
+.reparto .a { flex: 55; background: var(--techo); }
+.reparto .b { flex: 45; background: var(--afuera); }
+.dia:not(.p1) .reparto .a, .dia:not(.p2) .reparto .b { opacity: .18; filter: saturate(.3); }
+.destinos { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; width: min(900px, 100%); }
+@media (max-width: 700px) { .destinos { grid-template-columns: 1fr; } }
+.destino { border-radius: 18px; padding: 18px 20px; border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); background: color-mix(in srgb, var(--c) 7%, var(--card)); position: relative; }
+.destino .quien { font-size: .72em; letter-spacing: .18em; text-transform: uppercase; color: var(--c); font-weight: 800; }
+.destino h3 { margin: .25em 0 .3em; font-size: 1.35em; font-stretch: 88%; line-height: 1.1; }
+.destino p { margin: 0; color: var(--muted-fg); font-size: .9em; }
+.destino p b { color: var(--fg); }
+.destino::before { content: ""; position: absolute; top: -18px; left: 50%; width: 2px; height: 18px; background: var(--c); }
+.lema { font-size: clamp(1.4rem, 2.8vw, 2.5rem); font-weight: 800; font-stretch: 85%; text-align: center; line-height: 1.1; margin: 6px 0 0; }
+.lema em { font-style: normal; color: var(--techo); }
+
+/* 3 · Cuándo: línea de tiempo con la ventana */
+.linea-t { position: relative; margin: 26px 0 46px; height: 104px; }
+.linea-t .eje { position: absolute; left: 0; right: 0; top: 60px; height: 2px; background: var(--border); }
+.linea-t .ventana {
+  position: absolute; top: 50px; height: 22px; border-radius: 11px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ok) 55%, transparent), color-mix(in srgb, var(--ok) 25%, transparent));
+  box-shadow: 0 0 26px color-mix(in srgb, var(--ok) 45%, transparent); transform-origin: left;
+}
+.dia.p1 .linea-t .ventana { animation: crecer 1.4s var(--ease) .1s both; }
+@keyframes crecer { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.linea-t .ventana span { position: absolute; top: -30px; left: 50%; translate: -50% 0; white-space: nowrap; color: var(--ok); font-weight: 800; font-size: .86em; }
+.linea-t .hito { position: absolute; top: 60px; translate: -50% -50%; display: grid; justify-items: center; }
+.linea-t .hito i { width: 16px; height: 16px; border-radius: 50%; background: var(--card); border: 3px solid var(--fg); transition: border-color .5s, box-shadow .5s; }
+.linea-t .hito span { position: absolute; top: 22px; white-space: nowrap; font-size: .8em; color: var(--muted-fg); text-align: center; line-height: 1.2; }
+.linea-t .hito span b { display: block; color: var(--fg); }
+.linea-t .hito.cierra i { border-color: var(--mal); box-shadow: 0 0 18px var(--mal); }
+.linea-t .hito.cierra span b { color: var(--mal); }
+.linea-t .candado-c { position: absolute; top: 18px; translate: -50% 0; color: var(--mal); font-weight: 800; font-size: .8em; white-space: nowrap; }
+@media (max-width: 700px) { .linea-t .hito span { font-size: .62em; } .linea-t .ventana span { font-size: .7em; } }
+.tres-preg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.tres-preg p { font-size: .84em; }
+@media (max-width: 860px) { .tres-preg { grid-template-columns: 1fr; } }
+.preg-c { border-radius: 18px; padding: 14px 18px; border: 1px solid var(--border); background: rgb(22 25 31 / .6); }
+.preg-c .q { font-size: .76em; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); font-weight: 700; }
+.preg-c .r { font-size: clamp(1.3rem, 2.2vw, 2rem); font-weight: 800; font-stretch: 85%; line-height: 1.05; margin: .25em 0 .3em; }
+.preg-c p { margin: 0; color: var(--muted-fg); font-size: .88em; }
+.preg-c p b { color: var(--fg); }
+.preg-c.si { border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+.preg-c.si .r { color: var(--ok); }
+.preg-c.no { border-color: color-mix(in srgb, var(--mal) 45%, transparent); }
+.preg-c.no .r { color: var(--mal); }
+
+/* 4 · Renunciable: uno cobra entero, se cae para todos */
+.cobros { display: grid; gap: 12px; }
+.cobro { display: grid; grid-template-columns: minmax(8.5em, 11em) 1fr; gap: 14px; align-items: center; }
+.cobro .k { font-size: .9em; color: var(--muted-fg); line-height: 1.15; }
+.cobro .k b { color: var(--fg); display: block; }
+.cobro .pista-b { height: 34px; border-radius: 9px; background: var(--hair); position: relative; overflow: hidden; }
+.cobro .lleno {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 55%; border-radius: 9px; background: var(--hon);
+  display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; font-weight: 800; font-size: .8em; color: #0b0d11;
+  transition: width 1.1s var(--ease), background .6s;
+}
+.cobro .lleno::after { content: attr(data-pc); }
+.dia.p1 .cobro.uno .lleno { width: 100%; background: var(--ok); }
+.dia.p2 .cobro .lleno { width: 100%; }
+.dia.p2 .cobro:not(.uno) .lleno { background: color-mix(in srgb, var(--hon) 75%, var(--ok)); transition-delay: .3s; }
+.dia.p1 .cobro.uno .lleno::after, .dia.p2 .cobro .lleno::after { content: "100 %"; }
+.cobro .pista-b::after { content: ""; position: absolute; left: 55%; top: 0; bottom: 0; border-left: 2px dashed rgb(237 239 243 / .35); }
+
+/* 5 · La base: dos barras a la misma fecha */
+.barras-base { display: grid; gap: 22px; margin-top: 8px; }
+.bb .k { display: flex; justify-content: space-between; font-size: .8em; color: var(--faint); margin-bottom: 6px; gap: 10px; }
+.bb .k b { color: var(--fg); }
+.bb .riel { height: 46px; border-radius: 12px; background: var(--hair); position: relative; overflow: hidden; }
+.bb .seg { position: absolute; top: 0; bottom: 0; left: 0; transition: width 1.1s var(--ease); }
+.bb .base { background: color-mix(in srgb, var(--fg) 14%, transparent); border-right: 2px solid rgb(237 239 243 / .4); }
+.bb .techo { background: var(--techo); box-shadow: 0 0 18px var(--techo); }
+.bb .entra { background: var(--hon); }
+.bb .sobra { background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--mal) 55%, #000) 0 8px, color-mix(in srgb, var(--mal) 30%, #000) 8px 16px); }
+.cobran { display: flex; align-items: baseline; gap: .5em; flex-wrap: wrap; margin-top: 6px; }
+.cobran .pc { font-size: clamp(2.4rem, 5vw, 4.4rem); font-weight: 900; font-stretch: 75%; line-height: 1; transition: color .5s; }
+.cobran .t { color: var(--muted-fg); }
+
+/* 6 · El colador */
+.colador { display: grid; grid-template-columns: 1.25fr .8fr 1.1fr; gap: 16px; margin-top: 14px; }
+@media (max-width: 960px) { .colador { grid-template-columns: 1fr; } }
+.cesto { border-radius: 20px; padding: 16px; border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); background: color-mix(in srgb, var(--c) 6%, transparent); display: flex; flex-direction: column; gap: 10px; }
+.cesto > header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.cesto > header b { color: var(--c); font-size: .78em; letter-spacing: .16em; text-transform: uppercase; }
+.cesto > header span { color: var(--faint); font-size: .74em; }
+.ficha { border-radius: 12px; padding: 8px 12px; background: var(--card); border: 1px solid var(--border); line-height: 1.2; box-shadow: 0 14px 30px -18px rgb(0 0 0 / .8); }
+.ficha b { display: block; }
+.ficha small { color: var(--faint); font-size: .76em; display: block; margin-top: 2px; }
+.ficha .ast { color: var(--afuera); font-weight: 800; }
+.activa .ficha { animation: caer .8s var(--ease-salto) both; animation-delay: calc(var(--i) * 120ms + 600ms); }
+@keyframes caer { from { opacity: 0; transform: translateY(-60px) rotate(calc((var(--i) - 4) * 2deg)); } }
+.ficha.discutida { border-style: dashed; background: transparent; }
+
+/* 7 · La tasa de justicia: tres escenarios */
+.vaso-h { margin: 18px 0 10px; }
+.vaso-h .riel { position: relative; height: 66px; border-radius: 14px; border: 2px solid var(--techo); overflow: hidden; background: rgb(224 180 92 / .05); display: flex; }
+.vaso-h .riel > i { display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: .82em; white-space: nowrap; overflow: hidden; color: #0b0d11; transition: flex-grow .9s var(--ease), opacity .5s; position: relative; }
+.vaso-h .tz { background: var(--tasa); flex: 0 1 0; }
+.vaso-h .hz { background: var(--hon); flex: 1 1 0; }
+.vaso-h .tz.mal { background: repeating-linear-gradient(-45deg, var(--tasa) 0 8px, color-mix(in srgb, var(--mal) 70%, var(--tasa)) 8px 16px); }
+.vaso-h .ejes { display: flex; justify-content: space-between; font-size: .76em; color: var(--faint); margin-top: 6px; }
+.veredicto-t { min-height: 118px; border-radius: 18px; padding: 16px 20px; border: 1px dashed var(--border); display: grid; align-content: center; gap: 4px; }
+.veredicto-t.lleno { border-style: solid; animation: aparecer .5s var(--ease); }
+.veredicto-t .grande { font-size: clamp(1.3rem, 2.4vw, 2.1rem); font-weight: 800; font-stretch: 85%; line-height: 1.05; }
+.veredicto-t .por { color: var(--muted-fg); font-size: .9em; }
+@keyframes aparecer { from { opacity: 0; transform: translateY(10px); } }
+
+/* 8 · La cuenta: el vaso */
+.cuenta-g { display: grid; grid-template-columns: 1.15fr .85fr; gap: 0 clamp(20px, 3.5vw, 60px); align-items: center; }
+.cuenta-g .cab-c { grid-column: 1 / -1; }
+.cuenta-g .cab-c h2 { margin-bottom: .4em; }
+.acciones { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 12px; }
+.acciones .factor { margin-top: 0; }
+.acciones .ysi { margin-top: 0; width: auto; flex: 1; min-width: 15em; }
+@media (max-width: 900px) { .cuenta-g { grid-template-columns: minmax(0, 1fr); } }
+
+.planilla { background: linear-gradient(180deg, #1a1d24, #13161b); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; font-size: clamp(.82rem, 1vw, 1.02rem); box-shadow: 0 30px 60px -20px rgb(0 0 0 / .6); }
+.planilla .tit { display: flex; justify-content: space-between; font-size: .72em; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); margin-bottom: 8px; }
+.planilla .fila { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 5px 0; border-bottom: 1px dashed var(--hair); }
+.planilla .fila.cab { color: var(--faint); font-size: .74em; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.planilla .pt { width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+.planilla .v { text-align: right; min-width: 7.2em; font-weight: 600; }
+.planilla .v.pr { color: var(--hon); transition: opacity .5s; }
+.dia:not(.p3) .planilla .v.pr { opacity: 0; }
+.planilla .fila.nueva { animation: aparecer .5s var(--ease); }
+.planilla .fila.nueva .k { color: var(--afuera); }
+.planilla .tot { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; padding-top: 9px; font-weight: 800; }
+.planilla .tot .v { font-size: 1.15em; }
+.factor { display: inline-flex; align-items: baseline; gap: .4em; margin-top: 12px; font-weight: 900; font-stretch: 78%; font-size: clamp(1.5rem, 2.6vw, 2.3rem); color: var(--hon); line-height: 1; }
+.factor small { font-size: .45em; color: var(--muted-fg); font-weight: 600; font-stretch: 100%; }
+.factor.mal { color: var(--mal); }
+.delta-c { color: var(--mal); font-weight: 700; min-height: 1.4em; font-size: .9em; margin-top: 4px; }
+
+.vaso-wrap { display: grid; justify-items: center; }
+.vaso { position: relative; width: min(220px, 52vw); height: clamp(280px, 46vh, 500px); }
+.vaso .cristal {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 54.054%;
+  border: 3px solid var(--techo); border-top: 0; border-radius: 0 0 22px 22px;
+  background: linear-gradient(180deg, rgb(224 180 92 / .02), rgb(224 180 92 / .08));
+  box-shadow: inset 0 0 40px rgb(224 180 92 / .08);
+}
+.vaso .borde { position: absolute; left: -24px; right: -24px; bottom: 54.054%; height: 3px; background: var(--techo); box-shadow: 0 0 20px var(--techo); border-radius: 2px; z-index: 3; }
+.vaso .borde span { position: absolute; left: calc(100% + 8px); top: 50%; translate: 0 -50%; width: 6.5em; color: var(--techo); font-weight: 800; font-size: .8em; line-height: 1.15; }
+.vaso .pila { position: absolute; left: 10px; right: 10px; bottom: 0; top: 0; display: flex; flex-direction: column-reverse; z-index: 2; }
+/* La separación es una sombra adentro del bloque, no un margen: un margen
+   sumaría altura y la pila apretada quedaría por encima del borde. */
+.vaso .bloque { height: 0; flex: none; border-radius: 6px; box-shadow: inset 0 3px 0 var(--bg); background: var(--c); transition: height 1.1s var(--ease); display: flex; align-items: center; padding: 0 10px; overflow: hidden; color: #0b0d11; font-weight: 700; font-size: .72em; white-space: nowrap; }
+.vaso .bloque.tasa { background: repeating-linear-gradient(-45deg, var(--tasa) 0 9px, color-mix(in srgb, var(--tasa) 80%, #000) 9px 18px); }
+.vaso .exceso {
+  position: absolute; left: -6px; right: -6px; bottom: 54.054%; height: 0; z-index: 1; border-radius: 10px 10px 0 0;
+  border: 2px dashed var(--mal); border-bottom: 0; background: rgb(255 107 107 / .08); box-shadow: 0 0 40px rgb(255 107 107 / .25);
+  transition: height 1s var(--ease), opacity .5s; opacity: 0;
+}
+.vaso .exceso span { position: absolute; top: 0; right: calc(100% + 14px); width: 6.5em; text-align: right; color: var(--mal); font-weight: 800; font-size: .8em; line-height: 1.15; }
+.dia.p2:not(.p3) .vaso .exceso { opacity: 1; }
+.vaso .piso { position: absolute; left: 50%; translate: -50% 0; bottom: -1.8em; white-space: nowrap; font-size: .76em; color: var(--faint); }
+.vaso.prensado .pila { animation: golpe .5s var(--ease); }
+@keyframes golpe { 30% { transform: translateY(6px) scaleY(.97); } }
+
+/* 9 · La misma proporción: el control de la UMA */
+.uma-ctl { display: grid; gap: 8px; margin: 10px 0 18px; }
+.uma-ctl label { font-size: .78em; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+.uma-ctl .val { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; font-stretch: 80%; color: var(--techo); line-height: 1; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 30px; background: transparent; cursor: pointer; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--techo), color-mix(in srgb, var(--techo) 30%, transparent)); }
+input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--techo), color-mix(in srgb, var(--techo) 30%, transparent)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--fg); margin-top: -10px; box-shadow: 0 0 0 4px rgb(224 180 92 / .35); }
+input[type=range]::-moz-range-thumb { width: 26px; height: 26px; border: 0; border-radius: 50%; background: var(--fg); box-shadow: 0 0 0 4px rgb(224 180 92 / .35); }
+input[type=range]:focus-visible { outline: 2px solid var(--techo); outline-offset: 4px; border-radius: 8px; }
+.repartos { display: grid; gap: 10px; }
+.rep { display: grid; grid-template-columns: minmax(8em, 11em) 1fr auto; gap: 12px; align-items: center; }
+.rep .k { font-size: .88em; color: var(--muted-fg); line-height: 1.15; }
+.rep .k small { display: block; color: var(--faint); font-size: .8em; }
+.rep .pista-b { height: 26px; border-radius: 7px; background: var(--hair); overflow: hidden; }
+.rep .lleno { height: 100%; width: 0; border-radius: 7px; background: var(--hon); transition: width .5s var(--ease), background .4s; }
+.rep.fija .lleno { background: var(--afuera); }
+.rep .v { font-weight: 700; min-width: 7.5em; text-align: right; transition: color .3s; }
+.rep .v.movio { color: var(--mal); }
+.quieto { margin-top: 14px; font-weight: 800; font-stretch: 88%; font-size: clamp(1.1rem, 1.9vw, 1.6rem); min-height: 2.4em; }
+
+/* 10 · La diferencia: quién la paga */
+.dif-barra { display: flex; height: 58px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); margin: 12px 0 22px; }
+.dif-barra i { display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: .86em; color: #0b0d11; white-space: nowrap; overflow: hidden; padding: 0 8px; }
+.dif-barra .a { flex: 55; background: var(--techo); }
+.dif-barra .b { flex: 45; background: var(--afuera); }
+.activa .dif-barra .b { animation: pulso 2.4s var(--ease) 1.2s infinite; }
+@keyframes pulso { 50% { filter: brightness(1.25); } }
+.tres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.tres.par { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 960px) { .tres, .tres.par { grid-template-columns: 1fr; } }
+.carta {
+  border-radius: 18px; padding: 20px; border: 1px solid var(--border); background: var(--card);
+  display: flex; flex-direction: column; gap: 8px;
+  box-shadow: 0 30px 50px -30px rgb(0 0 0 / .8);
+}
+.activa .carta { animation: repartir .9s var(--ease-salto) both; animation-delay: calc(var(--i) * 160ms + 500ms); }
+@keyframes repartir { from { opacity: 0; transform: translateY(80px) rotate(calc((var(--i) - 1) * 6deg)); } }
+.carta .quien { font-size: .72em; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
+.carta h3 { margin: 0; font-size: 1.22em; line-height: 1.12; font-stretch: 90%; }
+.carta p { margin: 0; color: var(--muted-fg); font-size: .9em; }
+.carta p b { color: var(--fg); }
+.carta .fallo { font-size: .74em; color: var(--faint); line-height: 1.3; margin-top: auto; padding-top: 10px; border-top: 1px solid var(--hair); }
+
+/* 11 · La Corte: cuatro sellos */
+.sellos { display: grid; grid-template-columns: 1fr 1fr 1fr 1.9fr; gap: 16px; margin: 18px 0 22px; }
+@media (max-width: 960px) { .sellos { grid-template-columns: repeat(3, 1fr); } .sellos .latino { grid-column: 1 / -1; } }
+@media (max-width: 600px) { .sellos { grid-template-columns: 1fr; } }
+.fallo-c.latino { border-color: color-mix(in srgb, var(--ok) 55%, transparent); background: color-mix(in srgb, var(--ok) 6%, var(--card)); gap: 8px; }
+.fallo-c.latino .nom { font-size: 1.6em; }
+.fallo-c .ref b { color: var(--ok); }
+.remisiones { display: flex; align-items: stretch; gap: 6px; height: 80px; }
+.remisiones i { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; font-style: normal; }
+.remisiones i::before { content: ""; order: 1; flex: none; width: 100%; height: calc(var(--n) / 16 * 44px); border-radius: 4px 4px 0 0; background: var(--ok); transform-origin: bottom; transform: scaleY(0); }
+.activa .remisiones i::before { animation: subir-b .9s var(--ease) both; animation-delay: calc(var(--n) * 40ms + 900ms); }
+@keyframes subir-b { to { transform: scaleY(1); } }
+.remisiones b { order: 0; font-size: .7em; color: var(--fg); }
+.remisiones span { order: 2; font-size: .6em; color: var(--faint); margin-top: 2px; }
+.fallo-c.latino .estampa { top: 22%; left: 74%; }
+.fallo-c { border-radius: 18px; padding: 18px 16px 16px; border: 1px solid var(--border); background: var(--card); position: relative; overflow: hidden; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; }
+.fallo-c .nom { font-size: 1.3em; font-weight: 800; font-stretch: 85%; line-height: 1; }
+.fallo-c .ref { font-size: .78em; color: var(--faint); }
+.fallo-c .anio { font-size: 2.6em; font-weight: 900; font-stretch: 70%; color: var(--hair); -webkit-text-stroke: 1px var(--border); position: absolute; right: 10px; bottom: 2px; line-height: 1; }
+.estampa {
+  position: absolute; left: 50%; top: 52%; translate: -50% -50%; rotate: -9deg;
+  font-weight: 900; font-stretch: 72%; letter-spacing: .08em; font-size: 1.05em; color: var(--ok);
+  border: 3px solid var(--ok); border-radius: 8px; padding: 2px 10px; opacity: 0; scale: 2.4; white-space: nowrap;
+  text-shadow: 0 0 20px rgb(111 211 168 / .35); background: rgb(11 13 17 / .6);
+}
+.activa .estampa { animation: estampar .45s cubic-bezier(.5, 0, .75, 0) forwards; animation-delay: calc(var(--i) * 380ms + 1100ms); }
+@keyframes estampar { 80% { opacity: 1; scale: .95; } 100% { opacity: 1; scale: 1; } }
+.razones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 860px) { .razones { grid-template-columns: 1fr; } }
+.razon { border-left: 3px solid var(--tono); padding: 4px 0 4px 14px; color: var(--muted-fg); font-size: .92em; }
+.razon b { color: var(--fg); display: block; font-size: 1.05em; }
+
+/* 12 · Lo que dicen algunas Salas: el medidor */
+.salas-g { grid-template-columns: 1.35fr .65fr; }
+@media (max-width: 860px) { .salas-g { grid-template-columns: 1fr; } }
+.medidor { width: min(400px, 100%); justify-self: center; position: relative; }
+.revocado {
+  position: absolute; left: 50%; top: 40%; translate: -50% -50%; rotate: -10deg; white-space: nowrap;
+  font-weight: 900; font-stretch: 72%; letter-spacing: .06em; font-size: clamp(1.6rem, 3.4vw, 2.9rem); line-height: 1;
+  color: var(--ok); border: .09em solid var(--ok); border-radius: .14em; padding: .06em .3em; background: rgb(11 13 17 / .72);
+  text-shadow: 0 0 30px rgb(111 211 168 / .4);
+}
+.dia.p2 .revocado { animation: estampar-r .45s cubic-bezier(.5, 0, .75, 0) both; }
+@keyframes estampar-r { from { opacity: 0; scale: 2.4; } 80% { opacity: 1; scale: .95; } to { opacity: 1; scale: 1; } }
+.garro { display: grid; gap: 6px; margin: 4px 0 8px; }
+.g-fila { display: grid; grid-template-columns: 7.2em 1fr; gap: 12px; align-items: baseline; padding: 5px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgb(22 25 31 / .6); font-size: .88em; color: var(--muted-fg); }
+.g-fila .q { font-size: .78em; letter-spacing: .12em; text-transform: uppercase; font-weight: 800; color: var(--faint); }
+.g-fila b { color: var(--fg); }
+.g-fila.corte { border-color: color-mix(in srgb, var(--ok) 50%, transparent); }
+.g-fila.corte .q, .g-fila.corte b { color: var(--ok); }
+.medidor svg { width: 100%; height: auto; overflow: visible; }
+.medidor .arco-f { fill: none; stroke: var(--hair); stroke-width: 26; }
+.medidor .arco-r { fill: none; stroke: color-mix(in srgb, var(--mal) 55%, transparent); stroke-width: 26; }
+.medidor .aguja { stroke: var(--fg); stroke-width: 5; stroke-linecap: round; transform-origin: 220px 220px; transform: rotate(-90deg); transition: transform 2s var(--ease-salto); }
+/* La aguja apunta al 45 %: -90° es el 0 % y +90° el 100 %. */
+.activa .medidor .aguja { transform: rotate(-9deg); transition-delay: .9s; }
+.medidor text { font-family: var(--font-meter); fill: var(--faint); font-size: 14px; }
+.medidor .lbl-g { fill: var(--fg); font-weight: 800; font-size: 30px; }
+.sello-no {
+  display: inline-block; margin: 14px 0 6px; padding: 10px 16px; border-radius: 12px;
+  border: 2px solid var(--fg); font-weight: 900; font-stretch: 80%; letter-spacing: .04em; font-size: clamp(1.05rem, 1.8vw, 1.5rem);
+}
+
+/* 14 · El ejercicio del actor */
+.ejercicio { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 14px; }
+@media (max-width: 860px) { .ejercicio { grid-template-columns: 1fr; } }
+.lado { border-radius: 20px; padding: 16px 20px; border: 1px solid var(--border); background: rgb(22 25 31 / .6); }
+.lado .si-no { font-size: .74em; letter-spacing: .2em; text-transform: uppercase; font-weight: 800; }
+.lado h3 { margin: .25em 0 .35em; font-size: 1.3em; font-stretch: 86%; line-height: 1.08; }
+.lado p { color: var(--muted-fg); margin: .3em 0; font-size: .92em; }
+.lado p b { color: var(--fg); }
+.lado .fallo { font-size: .74em; color: var(--faint); display: block; margin-top: 10px; }
+.lado.no { border-color: color-mix(in srgb, var(--mal) 45%, transparent); }
+.lado.no .si-no { color: var(--mal); }
+.lado.si { border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+.lado.si .si-no { color: var(--ok); }
+.pensalo { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.pensalo .q { padding: 10px 16px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--afuera) 55%, transparent); color: var(--afuera); font-weight: 700; }
+
+/* 15 · Casos especiales */
+.abanico { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 16px; }
+@media (max-width: 1050px) { .abanico { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .abanico { grid-template-columns: 1fr; } }
+.abanico .carta { min-height: 250px; }
+.abanico .carta .res { margin-top: auto; font-weight: 700; padding-top: 10px; border-top: 1px solid var(--hair); }
+
+/* 16 · Revisar antes, y de una */
+.bifurca { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 14px; }
+@media (max-width: 860px) { .bifurca { grid-template-columns: 1fr; } }
+.salida { border-radius: 20px; padding: 22px 24px; border: 1px solid var(--border); background: rgb(22 25 31 / .6); }
+.salida .si-no { font-size: .74em; letter-spacing: .2em; text-transform: uppercase; font-weight: 800; }
+.salida h3 { margin: .3em 0 .5em; font-size: 1.5em; font-stretch: 85%; line-height: 1.05; }
+.salida.no { border-color: color-mix(in srgb, var(--mal) 50%, transparent); }
+.salida.no .si-no { color: var(--mal); }
+.salida.si { border-color: color-mix(in srgb, var(--ok) 50%, transparent); }
+.salida.si .si-no { color: var(--ok); }
+.salida p, .salida li { color: var(--muted-fg); }
+.salida p b, .salida li b { color: var(--fg); }
+.salida ul { padding-left: 1.1em; margin: .4em 0; }
+.salida li { margin: .3em 0; }
+
+/* 17 · Checklist final */
+.lista { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 22px; margin-top: 16px; }
+@media (max-width: 860px) { .lista { grid-template-columns: 1fr; } }
+.chk {
+  display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: start; text-align: left; cursor: pointer;
+  border: 1px solid var(--border); background: rgb(22 25 31 / .6); border-radius: 14px; padding: 11px 14px;
+  transition: border-color .3s, background .3s;
+}
+.chk .box { width: 34px; height: 34px; border-radius: 10px; border: 2px solid var(--c, var(--border)); display: grid; place-items: center; transition: background .3s; }
+.chk .box svg { width: 20px; height: 20px; stroke: #06261a; stroke-width: 3.5; fill: none; stroke-dasharray: 30; stroke-dashoffset: 30; transition: stroke-dashoffset .35s var(--ease); }
+.chk b { display: block; line-height: 1.2; }
+.chk span { color: var(--muted-fg); font-size: .85em; line-height: 1.3; display: block; margin-top: 3px; }
+.chk[aria-checked="true"] { border-color: color-mix(in srgb, var(--ok) 50%, transparent); background: color-mix(in srgb, var(--ok) 6%, transparent); }
+.chk[aria-checked="true"] .box { background: var(--ok); border-color: var(--ok); }
+.chk[aria-checked="true"] .box svg { stroke-dashoffset: 0; }
+.veredicto { margin-top: 20px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.anillo { width: 74px; height: 74px; flex: none; }
+.anillo circle { fill: none; stroke-width: 7; }
+.anillo .fondo-a { stroke: var(--hair); }
+.anillo .frente { stroke: var(--ok); stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset .6s var(--ease); }
+.veredicto .txt { font-size: clamp(1.1rem, 2vw, 1.7rem); font-weight: 800; font-stretch: 88%; }
+.calculadoras { margin-top: 26px; }
+
+/* 18 · Cierre */
+.cierre { text-align: center; display: grid; justify-items: center; gap: 10px; }
+.cierre h2 { font-size: clamp(2.2rem, 6vw, 6rem); }
+.cierre h2 em { color: var(--techo); }
+
+.chispa { position: fixed; width: 9px; height: 14px; border-radius: 2px; pointer-events: none; z-index: 6; }
+
+/* El vaso y la planilla en un celular. Va al final para ganarles a las
+   reglas de arriba. */
+@media (max-width: 600px) {
+  .planilla { font-size: .74rem; padding: 12px; }
+  .planilla .fila { gap: 8px; }
+  .planilla .v { min-width: 0; }
+  .vaso { width: 40vw; }
+  .vaso .exceso span { font-size: .68em; width: 5.6em; }
+  .vaso .borde span { font-size: .68em; left: auto; right: calc(100% + 6px); width: 5.6em; text-align: right; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; animation-delay: 0s !important; }
+}
+@media (max-width: 600px) {
+  .dia { place-items: start center; padding-top: 28px; }
+  h1 { font-size: 2.7rem; }
+  h2 { font-size: 2.2rem; }
+}
+</style>
+</head>
+<body>
+<div class="fondo" aria-hidden="true"><div class="halo"></div><div class="grano"></div></div>
+
+<main class="mazo" id="mazo">
+
+<!-- ============ 0 · Portada ============ -->
+<section class="dia" data-cap="intro" data-tono="#e0b45c" aria-label="Portada">
+  <div class="cuerpo portada">
+    <span class="ceja e" style="--d:0">Prorrateo - Art. 730 CCyCN</span>
+    <h1 class="e" style="--d:1">El techo del <em>25&nbsp;%</em></h1>
+    <p class="bajada e" style="--d:2">Qué es, qué entra, cómo se calcula y qué revisar <b>antes de dar traslado</b>.</p>
+    <div class="prensa e" style="--d:3" aria-label="Los honorarios regulados pasan el 25 % del monto y el prorrateo los baja hasta el techo">
+      <div class="riel">
+        <div class="hon"><span class="leyenda">el condenado paga</span></div>
+        <div class="tope"><span>25 %</span></div>
+      </div>
+      <div class="ejes"><span>0</span><span>Los honorarios regulados suman <b>el 43 %</b> del monto. El condenado paga <b>hasta el 25 %</b>.</span><span>monto de la sentencia</span></div>
+    </div>
+    <span class="pista e" style="--d:6"><kbd>→</kbd> para avanzar <span class="ocultable">· <kbd>↓</kbd> para profundizar · <kbd>F</kbd> pantalla completa</span></span>
+  </div>
+</section>
+
+<!-- ============ 1 · La norma ============ -->
+<section class="dia" data-cap="intro" data-tono="#e0b45c" data-pasos="4" aria-label="La norma">
+  <div class="cuerpo dos norma-g">
+    <div>
+      <span class="ceja e" style="--d:0">Qué es</span>
+      <p class="norma e" style="--d:1">«Si el incumplimiento de la obligación, cualquiera sea su fuente, deriva en litigio judicial o arbitral, la responsabilidad por el pago de las costas, incluidos los honorarios profesionales, de todo tipo, allí devengados y <mark class="m2" style="--c:var(--hon)">correspondientes a la primera o única instancia</mark>, <mark class="m1" style="--c:var(--techo)">no debe exceder del veinticinco por ciento del monto de la sentencia</mark>, laudo, transacción o instrumento que ponga fin al diferendo. Si las regulaciones de honorarios […] superan dicho porcentaje, <mark class="m3" style="--c:var(--hon)">el juez debe proceder a prorratear los montos entre los beneficiarios</mark>. Para el cómputo del porcentaje indicado, <mark class="m4" style="--c:var(--afuera)">no se debe tener en cuenta el monto de los honorarios de los profesionales que han representado, patrocinado o asistido a la parte condenada en costas</mark>.»<cite>Art. 730 CCyCN, segundo párrafo · antes, art. 505 del Código Civil (ley 24.432)</cite></p>
+    </div>
+    <div class="claves">
+      <div class="clave" data-paso="1" style="--c:var(--techo)"><span class="n">25%</span><div><b>Un techo</b><span>A lo que paga el condenado en costas. Se mide contra el monto de la sentencia.</span></div></div>
+      <div class="clave" data-paso="2" style="--c:var(--hon)"><span class="n">1ª</span><div><b>Sólo primera instancia</b><span>Honorarios de  alzada no entran en la cuenta.</span></div></div>
+      <div class="clave" data-paso="3" style="--c:var(--hon)"><span class="n">÷</span><div><b>Si se pasa, se prorratea</b><span>Todos bajan en la misma proporción.</span></div></div>
+      <div class="clave" data-paso="4" style="--c:var(--afuera)"><span class="n">✕</span><div><b>Los del condenado, afuera</b><span>Sus propios profesionales no se cuentan.</span></div></div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>El art. 730, entero</h3>
+    <blockquote>La obligación da derecho al acreedor a: a) emplear los medios legales para que el deudor le procure aquello a que se ha obligado; b) hacérselo procurar por otro a costa del deudor; c) obtener del deudor las indemnizaciones correspondientes.<br><br>Si el incumplimiento de la obligación, cualquiera sea su fuente, deriva en litigio judicial o arbitral, la responsabilidad por el pago de las costas, incluidos los honorarios profesionales, de todo tipo, allí devengados y correspondientes a la primera o única instancia, no debe exceder del veinticinco por ciento del monto de la sentencia, laudo, transacción o instrumento que ponga fin al diferendo. Si las regulaciones de honorarios practicadas conforme a las leyes arancelarias o usos locales, correspondientes a todas las profesiones y especialidades, superan dicho porcentaje, el juez debe proceder a prorratear los montos entre los beneficiarios. Para el cómputo del porcentaje indicado, no se debe tener en cuenta el monto de los honorarios de los profesionales que han representado, patrocinado o asistido a la parte condenada en costas.<span class="fallo">Art. 730 CCyCN</span></blockquote>
+    <h4>De dónde viene</h4>
+    <p>La limitación la introdujo la <b>ley 24.432</b> en el último párrafo del art. 505 del Código Civil. El Código Civil y Comercial la mantuvo con el mismo límite. Por eso la jurisprudencia anterior a 2015 sigue sirviendo.</p>
+  </template>
+</section>
+
+<!-- ============ 2 · La idea ============ -->
+<section class="dia" data-cap="intro" data-tono="#e0b45c" data-pasos="3" aria-label="El honorario no se toca">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">La idea que ordena todo</span>
+    <h2 class="e compacto" style="--d:1">El prorrateo no achica el honorario. <em>Limita quién lo paga.</em></h2>
+    <div class="idea">
+      <div class="honorario e" style="--d:2">
+        <div class="tit"><span>Honorario regulado · letrada de la actora</span><span class="intacto">intacto</span></div>
+        <div class="monto num">$&nbsp;1.800.000</div>
+        <div class="reparto"><i class="a">$&nbsp;990.000 · 55 %</i><i class="b">$&nbsp;810.000 · 45 %</i></div>
+      </div>
+      <div class="destinos">
+        <div class="destino" data-paso="1" style="--c:var(--techo)"><span class="quien">El condenado en costas</span><h3>Paga su parte del 25 %.</h3><p>Ni un peso más: es <b>un límite a su responsabilidad</b>.</p></div>
+        <div class="destino" data-paso="2" style="--c:var(--afuera)"><span class="quien">Su propio cliente</span><h3>Le puede reclamar la diferencia.</h3><p>El derecho del profesional a cobrar <b>todo lo regulado</b> queda en pie.</p></div>
+      </div>
+      <p class="lema" data-paso="3">El honorario no se toca. <em>Se reparte quién lo paga.</em></p>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Limita la responsabilidad, no la cuantía</h3>
+    <blockquote>…tal disposición únicamente limita la responsabilidad del condenado en costas por los honorarios devengados y no su cuantía (conf. CSJN, Fallos 332:921 y 332:1276), a la vez que no restringe el derecho de los profesionales a la percepción integral de sus emolumentos, quienes se encuentran facultados a perseguir el cobro de lo que exceda dicho margen contra su propio cliente.<span class="fallo">CNCiv., Sala G, expte. CIV 052670/2015/CA002, «S., B. N. c/ L., C. J. C. s/ daños y perjuicios», 17/08/2022</span></blockquote>
+    <h4>Para qué existe, según la Corte</h4>
+    <p>Es uno de los arbitrios posibles para <b>disminuir el costo de los procesos</b>: facilitar el acceso a la justicia de quien tiene menos recursos, no agravar la situación patrimonial de los afectados por el proceso y bajar la litigiosidad. Asegura una razonable satisfacción de las costas por el vencido <b>sin convalidar excesos</b> (CSJN, «Abdurraman», Fallos 332:921; «Villalba», Fallos 332:1276).</p>
+  </template>
+</section>
+
+<!-- ============ 3 · Cuándo ============ -->
+<section class="dia" data-cap="cuando" data-tono="#6fd3a8" data-pasos="3" aria-label="Cuándo se pide">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Cuándo</span>
+    <h2 class="e compacto" style="--d:1">Se puede pedir en la ejecución. <em>Hasta que paga completo.</em></h2>
+    <p class="bajada e" style="--d:2;max-width:60ch">Lo pide <b>el condenado en costas</b>. Este planteo aparece en los escritos:</p>
+    <div class="linea-t e" style="--d:3" aria-label="Línea de tiempo: el prorrateo se puede pedir durante la ejecución, hasta el pago íntegro">
+      <div class="eje"></div>
+      <div class="ventana" data-paso="1" style="left:44%;width:44%"><span>la ventana del prorrateo</span></div>
+      <div class="hito" style="left:4%"><i></i><span><b>Sentencia</b>&nbsp;</span></div>
+      <div class="hito" style="left:24%"><i></i><span><b>Regulaciones</b>firmes</span></div>
+      <div class="hito" style="left:44%"><i></i><span><b>Ejecución</b>liquidación</span></div>
+      <div class="hito cierra" data-paso="3" style="left:88%"><i></i><span><b>Pagó o consintió</b>el 100 % a alguien</span></div>
+      <span class="candado-c" data-paso="3" style="left:88%">se cierra</span>
+    </div>
+    <div class="tres-preg">
+      <div class="preg-c si" data-paso="1"><span class="q">¿Es extemporáneo?</span><div class="r">No: es el momento.</div><p>Se aplica <b>en la etapa de ejecución</b></p></div>
+      <div class="preg-c si" data-paso="2"><span class="q">¿Tiene que depositar antes?</span><div class="r">No.</div><p>La norma <b>no supedita</b> el prorrateo a depositar lo que el condenado entiende a su cargo. Es un requisito que la ley no pone.</p></div>
+      <div class="preg-c no" data-paso="3"><span class="q">¿Hasta cuándo?</span><div class="r">Hasta que paga entero.</div><p>Si pagó o <b>consintió el pago del 100 %</b> a un beneficiario.</p></div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Temporaneidad</h3>
+    <blockquote>…la normativa en cuestión se aplica en la etapa de ejecución o de cumplimiento de la sentencia, sin perjuicio de haberse regulado y quedado firme un honorario superior… para ajustarse al tope legal, una vez determinado el total de las costas, es el Juez quien debe proceder a una prorrata, rebajando proporcionalmente todas las partidas a fin de encuadrarlas dentro del máximo permitido, en la etapa de ejecución de sentencia, que es cuando deben tratarse las cuestiones en torno a la aplicación de la norma contenida en el art. 730 del CCCN.<span class="fallo">CNCiv., Sala C, expte. CIV 063333/2018, «Aguilera, Juan Carlos c/ Messina, Fernando Gabriel s/ daños y perjuicios», 24/04/2023</span></blockquote>
+    <ul>
+      <li>Puede solicitarse en la etapa de ejecución o de cumplimiento de la sentencia (CNCiv., Sala K, expte. 23971/2006, 08/06/2022; expte. 30768/2012, 25/08/2023; expte. 49021/2018, 10/10/2023).</li>
+      <li>No hay impedimento para hacer valer la norma durante el proceso de ejecución (CNCiv., Sala K, expte. 80960/2018, «Gómez, Emanuel Marcos c/ Lisanti, Marcelo Carlos Gabriel y otros», 28/02/2024).</li>
+    </ul>
+    <h4>Falta de depósito</h4>
+    <blockquote>…de la norma transcripta no surge que, como requisito de admisibilidad del prorrateo previamente se deba realizar el depósito y dación en pago de las sumas que las partes condenadas consideren a su cargo en concepto de costas, de acuerdo al límite de responsabilidad allí previsto.<span class="fallo">CNCiv., Sala D, expte. CIV 036599/2019, «Maldonado, Erika Vanesa c/ Rosas Nagarro, Juan Esteban», 06/05/2024</span></blockquote>
+    <p>En el mismo sentido: CNCiv., Sala K, expte. 80960/2018, «Gómez», 28/02/2024.</p>
+    <h4>Hasta cuándo</h4>
+    <p>Si la obligada pagó o consintió el pago íntegro a uno de los beneficiarios, se la tiene por desistida del prorrateo: es la siguiente diapositiva.</p>
+  </template>
+</section>
+
+<!-- ============ 4 · Renunciable ============ -->
+<section class="dia" data-cap="cuando" data-tono="#6fd3a8" data-pasos="2" aria-label="Es renunciable">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">Actos propios</span>
+      <h2 class="e" style="--d:1">Es renunciable. <em>Y se renuncia para todos.</em></h2>
+      <p class="bajada e" style="--d:2">Si la obligada <b>pagó o acordó completo</b> con un profesional, renunció al límite: se la tiene por desistida del prorrateo.</p>
+      <p class="bajada chico" data-paso="2">Admitirlo para unos y no para otros crearía <b>una situación absurda e injusta entre los beneficiarios</b>: la asunción sin límite se extiende a los demás.</p>
+    </div>
+    <div class="cobros e" style="--d:3" aria-label="Cuatro beneficiarios cobran el 55 %; uno cobra entero y entonces cobran todos entero">
+      <div class="cobro uno"><span class="k"><b>Letrada de la actora</b><span data-paso="1" class="t-ok">acordó y cobró entero</span></span><div class="pista-b"><div class="lleno" data-pc="55 %"></div></div></div>
+      <div class="cobro"><span class="k"><b>Perito médico</b></span><div class="pista-b"><div class="lleno" data-pc="55 %"></div></div></div>
+      <div class="cobro"><span class="k"><b>Perito contador</b></span><div class="pista-b"><div class="lleno" data-pc="55 %"></div></div></div>
+      <div class="cobro"><span class="k"><b>Consultor técnico</b></span><div class="pista-b"><div class="lleno" data-pc="55 %"></div></div></div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Renuncia expresa o tácita</h3>
+    <p>El tope del 25 % <b>es renunciable por el deudor</b>, que puede extender su responsabilidad por arriba del límite (Ure – Finkelberg, <i>Honorarios de los profesionales del derecho</i>, Abeledo-Perrot, p. 734, n° 770). La renuncia puede ser expresa o tácita: al pagar lo adeudado o al formalizar un convenio de pago. Es un acto voluntario, ajeno al orden público (CNCiv., Sala C, «N., A. c/ G. V., P.», 22/09/2015).</p>
+    <blockquote>Si la obligada acordó o pagó honorarios completos a algún profesional, se la tiene por desistida del prorrateo.<span class="fallo">CNCiv., Sala G, expte. 89720/2011, «Peralta, Marcelo Sebastián c/ Liderar Compañía General de Seguros SA y otros s/ daños y perjuicios», 30/10/2019</span></blockquote>
+    <h4>Los actos propios</h4>
+    <p>Nadie puede ponerse en contradicción con sus propios actos, ejerciendo una conducta incompatible con una anterior deliberada, jurídicamente relevante y plenamente eficaz (CSJN, Fallos 7:139; 255:216; 310:1623; 311:1695; 317:524, entre otros; «Ojea Quintana», 07/08/1996).</p>
+    <h4>Para todos</h4>
+    <p>Admitir el prorrateo en forma desigual crea una situación absurda e injusta entre los beneficiarios; por eso se extienden a los demás los efectos de haber asumido las costas sin limitación (CNCiv., Sala H, «M., M. c/ Microómnibus», 09/02/2011; Sala M, «B., W. H. c/ V., L. M. y otros», 18/05/2016).</p>
+  </template>
+</section>
+
+<!-- ============ 5 · La base ============ -->
+<section class="dia c-techo" data-cap="entra" data-tono="#e0b45c" aria-label="La base del 25 %">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">La base</span>
+      <h2 class="e compacto" style="--d:1">El 25 % de qué: <em>capital más intereses</em>.</h2>
+      <p class="bajada e" style="--d:2">Sobre la <b>liquidación aprobada</b>. Si no la hay, la tiene que practicar quien pide el prorrateo.</p>
+      <p class="bajada e" style="--d:3">Y las dos cosas <b>a la misma fecha</b>: si la base queda a valor histórico y los honorarios están a valores de hoy, el techo se achica.</p>
+    </div>
+    <div class="e" style="--d:3">
+      <div class="barras-base" id="base-viz">
+        <div class="bb"><div class="k"><span>Liquidación: capital + intereses</span><b class="num" data-v="base">$&nbsp;10.000.000</b></div><div class="riel"><div class="seg base" data-s="base"></div><div class="seg techo" data-s="techo"></div></div></div>
+        <div class="bb"><div class="k"><span>Honorarios regulados · el techo los corta</span><b class="num">$&nbsp;4.000.000</b></div><div class="riel"><div class="seg sobra" data-s="hon"></div><div class="seg entra" data-s="entra"></div></div></div>
+      </div>
+      <div class="cobran"><span class="pc num t-hon" id="base-pc">62,5 %</span><span class="t">de lo regulado es lo que paga el condenado</span></div>
+      <button class="boton ysi" id="base-ysi" aria-pressed="false"><span>¿Y si…? La base quedó a valor histórico: $&nbsp;4.000.000</span><span class="sw" aria-hidden="true"></span></button>
+      <p class="chico">Sin tasa de justicia, para simplificar. Números inventados.</p>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Proporcionalidad: valores contemporáneos</h3>
+    <blockquote>…debe respetarse la proporcionalidad, en la medida que, de determinarse el porcentaje que dispone el art. 730 del Código Civil y Comercial, implicaría la modificación de una de las variables del cálculo (honorarios), mientras la otra (liquidación) permanecería invariable a valor histórico. De manera que corresponde emplear parámetros monetarios contemporáneos para una y otra categoría –liquidación base del prorrateo y monto total de honorarios– porque es la manera más razonable de evitar desajustes derivados de los procesos inflacionarios que desnaturalizan la limitación en materia de responsabilidad por las costas del juicio.<span class="fallo">CNCiv., Sala J, expte. 78217/2015, «O., N. c/ R., E. y otros s/ daños y perjuicios», 26/04/2021; íd. expte. 58563/12, 13/07/2021; expte. 38999/2015, 21/05/2021; expte. 24852/2010, 01/04/2019</span></blockquote>
+    <h4>Antes de entrar a la cuenta</h4>
+    <ul>
+      <li><b>Todos los beneficiarios</b> tienen que estar notificados de su regulación, y la regulación tiene que estar <b>firme</b>.</li>
+      <li>Tiene que haber <b>liquidación aprobada</b>, o la practica el interesado a los fines del prorrateo.</li>
+    </ul>
+  </template>
+</section>
+
+<!-- ============ 6 · El colador ============ -->
+<section class="dia" data-cap="entra" data-tono="#7a99ff" aria-label="Qué entra y qué no">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Qué entra</span>
+    <h2 class="e compacto" style="--d:1">Tres cestos. <em>Cada cosa en el suyo.</em></h2>
+    <div class="colador">
+      <div class="cesto" style="--c:var(--hon)">
+        <header><b>Adentro · se reduce</b><span>se prorratea</span></header>
+        <div class="ficha" style="--i:0"><b>Letrados del vencedor</b><small>por primera instancia</small></div>
+        <div class="ficha" style="--i:1"><b>Consultores técnicos del vencedor</b><small>por primera instancia</small></div>
+        <div class="ficha" style="--i:2"><b>Peritos</b><small>todos los que intervinieron</small></div>
+        <div class="ficha" style="--i:3"><b>Gastos liquidados</b><small>cédulas, oficios, anticipos, escrituras. Son un ítem más, como un honorario.</small></div>
+      </div>
+      <div class="cesto" style="--c:var(--tasa)">
+        <header><b>Ocupa lugar · no se reduce</b></header>
+        <div class="ficha" style="--i:4"><b>Tasa de justicia</b><small>Integra las costas, pero se paga íntegra.</small></div>
+      </div>
+      <div class="cesto" style="--c:var(--afuera)">
+        <header><b>Afuera</b><span>no se cuentan</span></header>
+        <div class="ficha" style="--i:6"><b>Honorarios de alzada</b><small>la norma dice «primera o única instancia»</small></div>
+        <div class="ficha" style="--i:7"><b>Profesionales del condenado</b><small>letrados y consultores del que perdió: lo dice la norma</small></div>
+        <div class="ficha" style="--i:8"><b>Mediador <span class="ast">*</span></b><small>labor prejudicial. <span class="t-afuera">* Hay jurisprudencia que lo incluye.</span></small></div>
+      </div>
+    </div>
+    <p class="chico e" style="--d:6">El <b>IVA</b> no va en ningún cesto: se calcula después, sobre lo que quedó. Los <b>incidentes</b> están discutidos: hay fallos para los dos lados. Van en casos especiales.</p>
+  </div>
+  <template class="hondo-tpl">
+    <h3>El mediador, con el criterio del juzgado</h3>
+    <blockquote>…si bien la retribución de estos profesionales integra las costas del proceso —art. 77 del CPCCN, texto según ley 26.589—, aquella norma hace alusión a que los honorarios profesionales que deben ser objeto de prorrateo son los devengados en el litigio judicial y correspondientes «a la primera o única instancia», mientras que las labores de los mediadores son de evidente naturaleza prejudicial.<span class="fallo">CNCiv., Sala G, expte. 29955/2013, «Vivas, Jorge Eduardo c/ Metrovías SA y otros», 19/05/2023; Sala M, «Barado, Mariano Hernán y otro c/ Cincovial SA y otro», 18/09/2020; Sala C, «Veliz, Gabriela Soledad c/ Schenone, Roberto Carlos y otros», 10/12/2021; Sala L, «L., B. A. y otro c/ N., H. N.», 25/10/2021</span></blockquote>
+    <p>Como los de la segunda instancia, los honorarios del mediador <b>no se incluyen en el cálculo</b> ni se prorratean (CNCiv., Sala L, expte. 90518/2013, «Choque Mamani, Jenny Marisol c/ Barberito Colque, Mirta y otro», 11/02/2020; Sala C, expte. CIV 091968/2015, «Colace, Cristina Patricia c/ Marticorena, José Marcos», 30/10/2019).</p>
+    <h4>El otro criterio</h4>
+    <p>Hay juzgados y fallos que lo incluyen, porque el art. 77 CPCCN mete en la condena en costas los gastos «del procedimiento de mediación prejudicial obligatoria». El juzgado sigue el primero.</p>
+    <h4>Gastos</h4>
+    <p>Los gastos liquidados entran como un ítem más y <b>se reducen</b>. Si el obligado no los liquida y se aprueba el prorrateo, <b>después los tiene que pagar completos</b>: precluyó.</p>
+    <h4>IVA</h4>
+    <blockquote>El IVA se paga completo sobre el monto que finalmente surja del prorrateo.<span class="fallo">CNCiv., Sala F, expte. 58715/2013, «Montes, Carlos Benito c/ Vicente, Marcela Alejandra s/ daños y perjuicios», 08/03/2023</span></blockquote>
+  </template>
+</section>
+
+<!-- ============ 7 · Tasa de justicia ============ -->
+<section class="dia c-tasa" data-cap="entra" data-tono="#b99bff" aria-label="La tasa de justicia">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">La tasa de justicia</span>
+      <h2 class="e compacto" style="--d:1">Puede ocupar lugar. <em>Nunca se reduce.</em></h2>
+      <p class="bajada e" style="--d:2">Es un tributo, ajeno a la ley de aranceles: <b>se paga íntegra</b>. Quien pide el prorrateo la puede presentar de tres maneras.</p>
+      <div class="opciones e" style="--d:3" id="tasa-ops">
+        <button class="op" data-r="reduce" aria-pressed="false">La incluye y la reduce<small>como un honorario más</small></button>
+        <button class="op" data-r="ocupa" aria-pressed="false">La incluye, ocupa lugar<small>y no la toca</small></button>
+        <button class="op" data-r="no" aria-pressed="false">No la incluye<small>sólo honorarios</small></button>
+      </div>
+    </div>
+    <div class="e" style="--d:3">
+      <div class="vaso-h" aria-label="El 25 % del monto, repartido entre la tasa y los honorarios">
+        <div class="riel"><i class="tz" id="tz"></i><i class="hz" id="hz">honorarios · 25 %</i></div>
+        <div class="ejes"><span>0</span><span class="t-techo">el techo: 25 % = $&nbsp;2.500.000</span></div>
+      </div>
+      <div class="veredicto-t" id="tasa-ver" aria-live="polite"><span class="chico">Elegí cómo la presentó.</span></div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Por qué la tasa no se reduce</h3>
+    <blockquote>…si bien es cierto que aquella como pago de un servicio directo requerido libremente por el demandante y prestado por la administración de justicia, integra las costas del juicio y será soportada, en definitiva, por las partes en la misma proporción en que dichas costas debieren ser satisfechas (art. 10, primer párrafo de la ley 23.898; y 68, 77 y concs. del CPCCN) […], no soslayo que la limitación incorporada al art. 505 del Código Civil fue introducida como reforma por la Ley 24.432 de Honorarios Profesionales de Abogados, sin que existiera una mención expresa referida a la tasa de justicia, gravamen establecido por una norma tributaria ajena al marco de aplicación de la ley de arancel de abogados, que no ha de sufrir modificación.</blockquote>
+    <p>Que el 25 % a prorratear no comprenda la tasa: la tasa se paga íntegra. Si se la incluye, los honorarios se prorratean sobre el 22 % (CNCiv., Sala J, expte. 41488/2009, «Cabral, Walter René y otro c/ Cencosud S.A. s/ daños y perjuicios», 13/04/2022).</p>
+    <h4>Por qué 22</h4>
+    <p>La tasa general es el <b>3 %</b> (ley 23.898, art. 2). Si ocupa su lugar dentro del 25 %, a los honorarios les quedan 22 puntos. Con una tasa distinta, el número cambia: la calculadora del sitio lo deriva.</p>
+    <h4>Si no la incluyen</h4>
+    <p>Pasa seguido, porque incluirla genera discusiones. Entonces los honorarios se prorratean sobre el 25 % entero: <b>beneficia a los profesionales</b>, y no se observa.</p>
+  </template>
+</section>
+
+<!-- ============ 8 · La cuenta ============ -->
+<section class="dia" data-cap="cuenta" data-tono="#e0b45c" data-pasos="3" data-js="cuenta" aria-label="Cómo se calcula">
+  <div class="cuerpo cuenta-g">
+    <div class="cab-c">
+      <span class="ceja e" style="--d:0">Cómo se calcula</span>
+      <h2 class="e compacto" style="--d:1">Todo lo que no entra, <em>se aprieta</em>.</h2>
+    </div>
+    <div>
+      <div class="planilla e" style="--d:2" id="planilla">
+        <div class="tit"><span>Prorrateo de ejemplo</span><span>números inventados</span></div>
+        <div class="fila cab"><span></span><span>Beneficiario</span><span class="v">Regulado</span><span class="v">Prorrateado</span></div>
+        <div id="filas"></div>
+        <div class="tot"><span>Total</span><span class="v num" id="tot-reg"></span><span class="v num t-hon" id="tot-pr"></span></div>
+      </div>
+      <div class="acciones" data-paso="3">
+        <div class="factor" id="factor">× 0,55 <small>a todos por igual</small></div>
+        <button class="boton ysi" id="cuenta-ysi" aria-pressed="false"><span>¿Y si…? Cargaron al mediador: $&nbsp;500.000</span><span class="sw" aria-hidden="true"></span></button>
+      </div>
+      <div class="delta-c" id="delta-c"></div>
+    </div>
+    <div class="vaso-wrap e" style="--d:3">
+      <div class="vaso" id="vaso" aria-label="El vaso es el 25 % del monto. La tasa ocupa el fondo; los honorarios se apilan, desbordan y se aprietan hasta entrar.">
+        <div class="cristal"></div>
+        <div class="exceso" id="exceso"><span id="exceso-txt">$&nbsp;1.800.000 que no entran</span></div>
+        <div class="pila" id="pila"></div>
+        <div class="borde"><span>25 % =<br>$&nbsp;2.500.000</span></div>
+        <div class="piso">monto de la liquidación: $&nbsp;10.000.000</div>
+      </div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>La cuenta, paso a paso</h3>
+    <ol>
+      <li><b>El techo:</b> 25 % de la liquidación (capital + intereses). Acá, $&nbsp;10.000.000 → $&nbsp;2.500.000.</li>
+      <li><b>La tasa ocupa su lugar</b> y no se toca: $&nbsp;300.000. Quedan $&nbsp;2.200.000 —el 22 %— para repartir.</li>
+      <li><b>Se suma todo lo que entra:</b> honorarios de primera instancia del vencedor, peritos y gastos. Acá, $&nbsp;4.000.000.</li>
+      <li><b>Si pasa lo disponible, se prorratea:</b> cada uno cobra del condenado lo mismo que su parte en el total. $&nbsp;2.200.000 ÷ $&nbsp;4.000.000 = 0,55.</li>
+      <li><b>El IVA va después,</b> sobre lo prorrateado.</li>
+    </ol>
+    <p>Si en la cuenta entra algo que no va —el mediador, la alzada, un profesional del condenado—, el factor baja <b>para todos</b>. Por eso no se corre traslado: se intima a rehacerla.</p>
+    <p class="calculadoras" hidden><a class="boton" href="../../calculadoras/prorrateo.html">Calculadora de prorrateo</a></p>
+  </template>
+</section>
+
+<!-- ============ 9 · La misma proporción ============ -->
+<section class="dia c-techo" data-cap="cuenta" data-tono="#e0b45c" data-js="uma" aria-label="La misma proporción para todos">
+  <div class="cuerpo dos">
+    <div>
+      <span class="ceja e" style="--d:0">La proporción</span>
+      <h2 class="e compacto" style="--d:1">Si todo está en UMA, <em>la UMA no importa</em>.</h2>
+      <p class="bajada e" style="--d:2">El condenado paga siempre lo mismo: el 22 %. Lo único que decide cuánto cobra cada uno es <b>su parte del total</b>, y esa parte no cambia si todas las regulaciones están en la misma moneda. Mové la UMA.</p>
+      <p class="bajada e chico" style="--d:3">Pero si la regulación <b>mezcla UMA y pesos</b> —ley vieja y ley nueva—, la UMA sí mueve el reparto.</p>
+      <div class="aviso e" style="--d:4;margin-top:6px"><b>Y el IVA, al final:</b> se paga completo sobre lo que quedó después del prorrateo.</div>
+    </div>
+    <div class="e" style="--d:3">
+      <div class="uma-ctl">
+        <label for="uma-r">Valor de la UMA (ilustrativo)</label>
+        <span class="val num" id="uma-v">$&nbsp;70.000</span>
+        <input type="range" id="uma-r" min="50000" max="100000" step="500" value="70000">
+      </div>
+      <div class="repartos" id="repartos"></div>
+      <div class="quieto" id="quieto" aria-live="polite"></div>
+      <button class="boton ysi" id="uma-ysi" aria-pressed="false"><span>¿Y si…? La letrada tiene una regulación en pesos, de la ley vieja</span><span class="sw" aria-hidden="true"></span></button>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Por qué la UMA se cancela</h3>
+    <p>Cada uno cobra del condenado <b>lo disponible × su regulación ÷ el total regulado</b>. Si todas las regulaciones están en UMA, el valor de la UMA multiplica arriba y abajo por igual y se cancela: la proporción aumenta o disminuye para todos igual.</p>
+    <p>Esa proporcionaldiad se respeta si no se incluye al mediador cuya regulación siempre esta en pesos. Y por eso, cuando conviven regulaciones en pesos de la ley 21.839 con regulaciones en UMA de la ley 27.423, <b>el valor de la UMA sí cambia el resultado</b>, y hay que fijar a qué fecha se toma.</p>
+  </template>
+</section>
+
+<!-- ============ 10 · La diferencia ============ -->
+<section class="dia" data-cap="cuenta" data-tono="#e09070" aria-label="Quién paga la diferencia">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">La diferencia</span>
+    <h2 class="e compacto" style="--d:1">El 45 % que falta: <em>¿quién lo paga?</em></h2>
+    <div class="dif-barra e" style="--d:2"><i class="a">lo paga el condenado · 55 %</i><i class="b">¿quién? · 45 %</i></div>
+    <div class="tres">
+      <div class="carta" style="--i:0"><span class="quien">Regla general</span><h3>El profesional, a su propio cliente.</h3><p>Es la contracara del límite: <b>el honorario sigue regulado entero</b>, y la diferencia se le reclama a quien lo contrató o lo propuso.</p><span class="fallo">CSJN, Fallos 332:921 y 332:1276</span></div>
+      <div class="carta" style="--i:1"><span class="quien">Cliente con beneficio de litigar sin gastos</span><h3>Su letrado: hasta un tercio de lo que reciba.</h3><p>El tope es para las costas <b>causadas en su defensa</b>: su propio abogado. No es una regla para cualquier beneficiario.</p><span class="fallo">Art. 84 CPCCN · CSJN, «Latino», Fallos 342:1193</span></div>
+      <div class="carta" style="--i:2"><span class="quien">Y los peritos</span><h3>Hasta el 50 %, de la parte no condenada si no cuenta con BLSG.</h3><p>Es el límite propio que el Código pone a lo que el perito le puede reclamar <b>a quien no fue condenado en costas</b>.</p><span class="fallo">Art. 77 CPCCN, último párrafo</span></div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Los dos artículos</h3>
+    <blockquote>El que obtuviere el beneficio estará exento, total o parcialmente, del pago de las costas o gastos judiciales hasta que mejore de fortuna; si venciere en el pleito, deberá pagar las causadas en su defensa hasta la concurrencia máxima de la tercera parte de los valores que reciba.<br><br>Los profesionales podrán exigir el pago de sus honorarios a la parte condenada en costas, y a su cliente, en el caso y con la limitación señalada en este artículo.<span class="fallo">Art. 84 CPCCN, dos primeros párrafos</span></blockquote>
+    <blockquote>Los peritos intervinientes podrán reclamar de la parte no condenada en costas hasta el cincuenta por ciento (50%) de los honorarios que le fueran regulados, sin perjuicio de lo dispuesto en el artículo 478.<span class="fallo">Art. 77 CPCCN, último párrafo</span></blockquote>
+    <h4>«Latino»</h4>
+    <p>Por remisión al dictamen del Procurador, la Corte agregó que el cobro al cliente <b>no se ve impedido</b> por el beneficio de litigar sin gastos, porque el art. 84 prevé el pago de las costas causadas en defensa de quien lo obtuvo hasta la tercera parte de lo que reciba si vence (CSJN, «Latino, Sandra Marcela c/ Sancor Coop. de Seg. Ltda. y otros s/ daños y perjuicios», CIV 045865/2009, Fallos 342:1193, 11/07/2019).</p>
+  </template>
+</section>
+
+<!-- ============ 11 · La Corte ============ -->
+<section class="dia" data-cap="corte" data-tono="#6fd3a8" aria-label="Es constitucional">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Constitucionalidad</span>
+    <h2 class="e compacto" style="--d:1">La Corte: <em>es constitucional</em>. Y lo repite.</h2>
+    <div class="sellos">
+      <div class="fallo-c e" style="--d:2"><span class="nom">Abdurraman</span><span class="ref">Fallos 332:921<br>≈ 12 citas de la Corte</span><span class="anio">2009</span><span class="estampa" style="--i:0">CONSTITUCIONAL</span></div>
+      <div class="fallo-c e" style="--d:2"><span class="nom">Brambilla</span><span class="ref">Fallos 332:1118<br>1 cita</span><span class="anio">2009</span><span class="estampa" style="--i:1">CONSTITUCIONAL</span></div>
+      <div class="fallo-c e" style="--d:3"><span class="nom">Villalba</span><span class="ref">Fallos 332:1276<br>≈ 11 citas</span><span class="anio">2009</span><span class="estampa" style="--i:2">CONSTITUCIONAL</span></div>
+      <div class="fallo-c latino e" style="--d:3">
+        <div><span class="nom">Latino</span> <span class="ref">Fallos 342:1193 · 2019 · <b>el precedente</b></span></div>
+        <div class="remisiones" aria-label="Veces que la Corte remitió a Latino, por año: 2020, 1; 2021, 5; 2022, 4; 2023, 16; 2024, 9; 2025, 11; 2026, 11">
+          <i style="--n:1"><b>1</b><span>2020</span></i><i style="--n:5"><b>5</b><span>2021</span></i><i style="--n:4"><b>4</b><span>2022</span></i><i style="--n:16"><b>16</b><span>2023</span></i><i style="--n:9"><b>9</b><span>2024</span></i><i style="--n:11"><b>11</b><span>2025</span></i><i style="--n:11"><b>11</b><span>2026</span></i>
+        </div>
+        <span class="ref">57 remisiones de la Corte desde 2020</span>
+        <span class="estampa" style="--i:3">CONSTITUCIONAL</span>
+      </div>
+    </div>
+    <div class="razones">
+      <div class="razon e" style="--d:5"><b>Limita la responsabilidad</b>del condenado en costas, no el monto del honorario.</div>
+      <div class="razon e" style="--d:6"><b>Es materia del Congreso</b>El mérito o la conveniencia del medio elegido excede el control de constitucionalidad.</div>
+      <div class="razon e" style="--d:7"><b>No viola la propiedad</b>Que el profesional ejecute a su cliente por el saldo no afecta el art. 17 CN.</div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Cómo se resuelve el planteo</h3>
+    <p>La declaración de inconstitucionalidad es <b>la última ratio</b> del orden jurídico (CSJN, «La Cantábrica», 10/09/1985); sólo procede cuando la repugnancia con la cláusula constitucional es manifiesta y la incompatibilidad inconciliable (Fallos 316:2624), y no hay otro modo de salvaguardar el derecho (Fallos 312:2315).</p>
+    <p>La Corte decidió en forma invariable que el art. 505 del Código Civil —hoy 730— no es inconstitucional: «Abdurraman» (Fallos 332:921), «Brambilla» (Fallos 332:1118), «Villalba» (Fallos 332:1276, 27/05/2009) y, por remisión al dictamen del Procurador, «Latino» (Fallos 342:1193, 11/07/2019).</p>
+    <p><b>«Latino» es el que se usa.</b> Según el buscador de la Corte, lo remitió 57 veces entre 2020 y 2026; «Abdurraman» figura con unas 12 citas, «Villalba» con 11 y «Brambilla» con una. Pueden ser en parte las mismas causas, pero el precedente vivo es «Latino».</p>
+    <p>Corresponde adecuarse a los precedentes de la Corte (Fallos 307:1094; 315:2386; 332:616; 343:42) cuando no se traen argumentos nuevos que permitan apartarse.</p>
+  </template>
+</section>
+
+<!-- ============ 12 · Algunas Salas ============ -->
+<section class="dia" data-cap="corte" data-tono="#8a92a0" data-pasos="2" aria-label="Lo que dicen algunas Salas">
+  <div class="cuerpo dos salas-g">
+    <div>
+      <span class="ceja e" style="--d:0">Para saber que existe</span>
+      <h2 class="e compacto" style="--d:1">Algunas Salas: <em>confiscatorio</em> si el recorte pasa el 30 %.</h2>
+      <p class="bajada e" style="--d:2">La Corte ya contestó, y <b>en la misma causa, dos veces</b>:</p>
+      <div class="garro e" style="--d:3">
+        <div class="g-fila"><span class="q">Sala L</span><span>Inconstitucional: el recorte pasa el 30 %.</span></div>
+        <div class="g-fila corte" data-paso="1"><span class="q">CSJN · 2022</span><span><b>Revoca</b>, por «Latino».</span></div>
+        <div class="g-fila" data-paso="1"><span class="q">Sala H</span><span>Insiste: «debe primar el criterio propio del fuero».</span></div>
+        <div class="g-fila corte" data-paso="2"><span class="q">CSJN · 2026</span><span><b>Revoca otra vez</b>: «Latino» no condiciona el examen <b>a un determinado tope o porcentaje</b>.</span></div>
+      </div>
+      <div class="sello-no e" style="--d:5">El juzgado no lo resuelve así.</div>
+    </div>
+    <div class="medidor e" style="--d:3" aria-label="Medidor del recorte: en el ejemplo, 45 %; la zona roja empieza en el 33 %">
+      <svg viewBox="0 0 440 300">
+        <path class="arco-f" d="M 40 220 A 180 180 0 0 1 400 220"/>
+        <path class="arco-r" id="arco-rojo" d=""/>
+        <line class="aguja" x1="220" y1="220" x2="220" y2="70"/>
+        <circle cx="220" cy="220" r="10" fill="#edeff3"/>
+        <text x="40" y="250" text-anchor="middle">0 %</text>
+        <text x="400" y="250" text-anchor="middle">100 %</text>
+        <text id="txt-33" text-anchor="middle">33 %</text>
+        <text class="lbl-g" x="220" y="268" text-anchor="middle">45 %</text>
+        <text x="220" y="292" text-anchor="middle">recorte del ejemplo</text>
+      </svg>
+      <div class="revocado" data-paso="2">REVOCADO ×2</div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>El razonamiento de esas Salas</h3>
+    <p>Toman el principio de no confiscatoriedad que la Corte desarrolló <b>para los tributos</b>: hay confiscatoriedad cuando el Estado absorbe una porción sustancial de la renta o el capital (Fallos 314:1293; 322:3255; 332:1571, «Candy»), y la pauta orientativa es un 33 %. Trasladado al prorrateo, comparan el honorario regulado con lo que el prorrateo le quita.</p>
+    <p>Con ese criterio declararon la inconstitucionalidad del prorrateo en cuanto supera aproximadamente un tercio del honorario: CNCiv., Sala F, «Malvagni», 18/10/2023; Sala D, «Jerez», 17/10/2023; Sala H, «Bianco Ross», 12/10/2023, y «Gómez, Silvia Graciela», 11/07/2019; Sala L, «Choque Mamani»; Sala E, «Greco»; Sala J, «Rojas», 14/07/2022, y «Medina López», 10/10/2023; Sala B, «Vieiros». Algunos hablan del 30 %.</p>
+    <h4>La Corte, en «Garro»</h4>
+    <blockquote>…en dicha sentencia este Tribunal se remitió a las consideraciones efectuadas en el precedente «Latino» (Fallos: 342:1193), en el que se había pronunciado a favor de la constitucionalidad del artículo 730 del Código Civil y Comercial de la Nación, sin condicionar ese examen a un determinado tope o porcentaje, en tanto la norma no limita el quantum de los honorarios sino la responsabilidad del condenado en costas (en dicho caso la cámara había considerado que la aplicación de la norma implicaba una disminución mayor al 33%).<span class="fallo">CSJN, CIV 53397/2009/2/RH3, «Garro, Diego Alberto y otro c/ Cardozo, Ricardo Manuel y otros s/ daños y perjuicios», 11/06/2026</span></blockquote>
+    <p>La secuencia: la Sala L declaró la inconstitucionalidad; la Corte la dejó sin efecto el 06/09/2022 por remisión a «Latino». La Sala H, en el nuevo pronunciamiento, insistió con que «debe primar el criterio propio del fuero» —una reducción mayor al 30 % es lesiva del art. 17 CN—. La Corte revocó otra vez: la cámara insistió con un fundamento que ya había sido considerado, y eso es un inequívoco apartamiento de lo decidido.</p>
+    <h4>Por qué no es el criterio del juzgado</h4>
+    <p>La Corte lo descartó expresamente, y en la misma causa dos veces. Además, su doctrina de la confiscatoriedad <b>nace de los impuestos</b>: la relación entre un tributo y la renta o el capital que absorbe. Y para el art. 730 dijo lo contrario: limita la responsabilidad y no la cuantía, y el saldo se le cobra al cliente. Y la Sala G lo rechazó expresamente: no hay confiscatoriedad porque la norma no restringe el derecho a percibir el honorario íntegro (CNCiv., Sala G, «S., B. N. c/ L., C. J. C.», 17/08/2022).</p>
+    <p>Queda como información: <b>que exista no quiere decir que se resuelva así</b>.</p>
+  </template>
+</section>
+
+<!-- ============ 13 · Si se plantea ============ -->
+<section class="dia" data-cap="corte" data-tono="#6fd3a8" aria-label="Si se plantea la inconstitucionalidad">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">El trámite</span>
+    <h2 class="e compacto" style="--d:1">Si alguien plantea la inconstitucionalidad, <em>dos cosas</em>.</h2>
+    <div class="tres par">
+      <div class="carta" style="--i:0"><span class="quien">Antes de resolver</span><h3>Vista a la Fiscalía.</h3><p>Sin la intervención del <b>Ministerio Público Fiscal</b>, no se resuelve un planteo de inconstitucionalidad.</p><span class="fallo">Arts. 30 y ss, ley 27148: Orgánica del Ministerio Público Fiscal.</span></div>
+      <div class="carta" style="--i:1"><span class="quien">Los peritos</span><h3>Con firma de letrado.</h3><p>Para cuestionar <b>las cuentas, la procedencia o la constitucionalidad</b> el perito sustenta o controvierte derechos: necesita patrocinio.</p><span class="fallo">Art. 56 CPCCN</span></div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Art. 56 CPCCN</h3>
+    <blockquote>Los jueces no proveerán ningún escrito de demanda o excepciones y sus contestaciones, alegatos o expresiones de agravios, ni aquéllos en que se promuevan incidentes o se pida nulidad de actuaciones y, en general, los que sustenten o controviertan derechos, ya sea en procesos de jurisdicción voluntaria o contenciosa, si no llevan firma de letrado.<span class="fallo">Art. 56 CPCCN, primer párrafo</span></blockquote>
+  </template>
+</section>
+
+<!-- ============ 14 · El ejercicio del actor ============ -->
+<section class="dia" data-cap="especiales" data-tono="#e09070" data-pasos="3" aria-label="Caso especial: el actor perdidoso">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Caso especial</span>
+    <h2 class="e compacto" style="--d:1">Le rechazaron la demanda. <em>¿Puede pedir el prorrateo?</em></h2>
+    <div class="ejercicio">
+      <div class="lado no" data-paso="1">
+        <span class="si-no">La tendencia: no</span>
+        <h3>No hay obligación incumplida, ni monto.</h3>
+        <p>El 730 parte del <b>«incumplimiento de la obligación»</b>, y el actor perdidoso no incumplió nada. Y el tope se mide contra el <b>monto de la sentencia</b>, que con un rechazo no existe.</p>
+        <span class="fallo">CSJN, «Talleres Metalúrgicos Barari», 07/07/1998 (Fallos 326:722), y «Exolgan», 16/08/2005 · CNCiv., Sala D, «Gruschka», 27/10/2023 · Sala A, «Chepela», 07/08/2023</span>
+      </div>
+      <div class="lado si" data-paso="2">
+        <span class="si-no">La minoría: sí</span>
+        <h3>Leerlo así es quedarse en la letra.</h3>
+        <p>La transacción tampoco supone incumplimiento, y la norma la incluye. Y el que perdió por prescripción quedaría peor que el deudor que incumplió.</p>
+        <span class="fallo">Disidencia de Boggiano en «Barari» · voto de Maqueda y Zaffaroni en «Exolgan»</span>
+      </div>
+    </div>
+    <div class="pensalo" data-paso="3"><span class="marca-txt t-ok">El juzgado</span><span class="q">Corre traslado</span><span class="chico">y ve si los beneficiarios se quejan por eso. Si nadie lo plantea, no se suple: congruencia.</span></div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Los que dicen que no</h3>
+    <blockquote>…ante una acción desestimada, el presupuesto que emerge del texto del art. 730 del Código Civil y Comercial de la Nación, el cual hace referencia al «incumplimiento de una obligación por parte del deudor», en la especie no ocurre.<span class="fallo">CNCiv., Sala D, expte. CIV 017709/2019, «Gruschka, Amalia Gabriela c/ Consorcio de Propietarios Constitución 1717 CABA», 27/10/2023</span></blockquote>
+    <blockquote>…no procede la reducción o reajuste en caso de rechazo total o parcial de la demanda respecto del actor perdidoso. Extenderle esa limitación porcentual importaría beneficiarlo indebidamente, fomentando las aventuras judiciales y el obrar con mala fe […] el tope que establece la norma hace referencia expresa «al monto que surja de la sentencia, laudo, transacción o instrumento que ponga fin al diferendo», el que, evidentemente, no existe en el caso de rechazo de demanda.<span class="fallo">CNCiv., Sala A, expte. CIV 061572/2016, «Chepela, Lidia y otros c/ Insaurralde, Dalma Mireya s/ cobro de sumas de dinero», 07/08/2023</span></blockquote>
+    <blockquote>…la restricción incorporada por la ley 24.432 al art. 505 del Código Civil sólo alcanza a los supuestos en que mediare «incumplimiento de la obligación» por parte del deudor, presupuesto que no concurre en el caso en la medida en que el Tribunal ha dictado sentencia desestimando la demanda por incumplimiento de contrato.<span class="fallo">CSJN, T. 28. XXIV., «Talleres Metalúrgicos Barari S.A. c/ Agua y Energía Sociedad del Estado (Córdoba) s/ cobro de australes», 07/07/1998 (Fallos 326:722)</span></blockquote>
+    <p>La Corte lo reiteró por remisión a «Barari»: no se aplica la restricción en la medida en que se rechazó la demanda (CSJN, E. 277. XXXVII., «Exolgan S.A. c/ Distribuidora Química S.A. s/ daños y perjuicios», 16/08/2005).</p>
+    <p><b>Si hubo demanda y reconvención</b>, el prorrateo se ciñe a los honorarios de la acción que prosperó: antes hay que discriminarlos de los de la que fue rechazada (CNCiv., Sala A, «Chepela», 07/08/2023).</p>
+    <h3>Los que dicen que sí</h3>
+    <blockquote>…no puede predicarse que la restricción que la norma incorpora al art. 505 del Código Civil sólo se refiere a los casos en que media «incumplimiento de la obligación» y que tal presupuesto no concurre cuando se desestima la pretensión, pues ello importaría una exégesis con excesivo apego a la letra de la ley que desnaturaliza la finalidad que ha inspirado su sanción.<span class="fallo">Disidencia del juez Boggiano en «Talleres Metalúrgicos Barari», 07/07/1998</span></blockquote>
+    <ul>
+      <li><b>La transacción:</b> la norma limita la responsabilidad también en ese caso, que es un modo de extinguir obligaciones litigiosas o dudosas, donde no cabe afirmar que hubo incumplimiento.</li>
+      <li><b>El absurdo:</b> el actor vencido por prescripción o por falta de prueba quedaría peor que el que incumplió sin dolo, que sí puede pedir el prorrateo.</li>
+      <li><b>Los peritos:</b> el que ganó y no fue condenado en costas igual paga el 50 % del perito (art. 77) sin reducción, mientras el condenado por incumplir paga con prorrateo.</li>
+    </ul>
+    <p>En «Exolgan», los jueces Maqueda y Zaffaroni votaron según su voto y adhirieron a esa disidencia: la restricción se aplica a los casos de rechazo de la demanda.</p>
+    <h4>Qué hace el juzgado</h4>
+    <p>Corre traslado. Si los beneficiarios no objetan el prorrateo por este motivo, no se suple su planteo: <b>congruencia</b>.</p>
+  </template>
+</section>
+
+<!-- ============ 15 · Casos especiales ============ -->
+<section class="dia" data-cap="especiales" data-tono="#e09070" aria-label="Más casos especiales">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Casos especiales</span>
+    <h2 class="e compacto" style="--d:1">Cuando la cuenta <em>no es la de siempre</em>.</h2>
+    <div class="abanico">
+      <div class="carta" style="--i:0">
+        <span class="quien">Sin plata en la condena</span>
+        <h3>Simulación o nulidad de una escritura.</h3>
+        <p>Anular compraventas <b>no es cobrar una obligación incumplida</b>. La Sala D no lo aplicó en una simulación. Si alguna vez se admite, la base es el valor del acto.</p>
+        <span class="res t-afuera">Sala D, 2026: no se aplica</span>
+      </div>
+      <div class="carta" style="--i:1">
+        <span class="quien">Incidentes</span>
+        <h3>¿Entran sus honorarios?</h3>
+        <p>Para unos, la norma habla de costas «de todo tipo» y entran. Para otros, el incidente no tiene relación directa con el incumplimiento y quedan afuera.</p>
+        <span class="res t-afuera">Hay fallos para los dos lados</span>
+      </div>
+      <div class="carta" style="--i:2">
+        <span class="quien">Mediador</span>
+        <h3>Afuera, para el juzgado.</h3>
+        <p>Su labor es <b>prejudicial</b>, como la alzada es posterior. Pero hay jurisprudencia que lo incluye por el art. 77 CPCCN.</p>
+        <span class="res t-afuera">Criterio del juzgado: no entra</span>
+      </div>
+      <div class="carta" style="--i:3">
+        <span class="quien">Embargo consentido</span>
+        <h3>Uno cobró el 100 % y nadie lo discutió.</h3>
+        <p>La obligada consintió el pago íntegro: <b>renunció al prorrateo</b>. Y no se puede mantener para los demás: sería injusto entre beneficiarios.</p>
+        <span class="res t-ok">Se cayó para todos</span>
+      </div>
+    </div>
+  </div>
+  <template class="hondo-tpl">
+    <h3>Simulación: no hay incumplimiento</h3>
+    <blockquote>…el art. 730 […] «requiere como primera condición que exista un incumplimiento de una obligación, —contractual o extracontractual—. Es decir, la norma no incluye a otros deudores por costas cuya razón de ser no sea la descripta». En el caso tratándose de un proceso de simulación, claramente la exigencia del art. 730 del CCyCN no se cumpliría, en atención a que el objeto de la demanda ha sido obtener la declaración de nulidad de las dos compraventas celebradas…<span class="fallo">CNCiv., Sala D, expte. 80664/2012, «Salinas, Teresa c/ Sabbag, Perla Nallat y otros s/ simulación», 17/03/2026</span></blockquote>
+    <h3>Incidentes: el argumento para dejarlos afuera</h3>
+    <p>No surge del texto del art. 730 que el límite alcance a los honorarios de los incidentes resueltos durante el proceso, porque son instancias procesales específicas y contingentes, cuya relación causal con el incumplimiento que motiva el litigio no es directa (Herrera – Caramelo – Picasso, <i>Código Civil y Comercial de la Nación Comentado</i>, Infojus, 2015, t. III, p. 10; Pesaresi, <i>Honorarios en la Justicia Nacional y Federal</i>, Cathedra Jurídica, 2ª ed., 2021, p. 751).</p>
+    <h4>Y para meterlos</h4>
+    <p>La norma habla de las costas «incluidos los honorarios profesionales, de todo tipo, allí devengados y correspondientes a la primera o única instancia», sin distinguir entre el principal y sus incidentes.</p>
+  </template>
+</section>
+
+<!-- ============ 16 · Revisar antes ============ -->
+<section class="dia" data-cap="juzgado" data-tono="#6fd3a8" aria-label="Qué hace el juzgado">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Y entonces</span>
+    <h2 class="e compacto" style="--d:1">Revisar <em>antes</em> del traslado. Y decir todo <em>de una</em>.</h2>
+    <div class="bifurca">
+      <div class="salida no e" style="--d:2">
+        <span class="si-no">Si algo falla</span>
+        <h3>No se corre traslado.</h3>
+        <p>Se dice <b>de antemano y todo junto</b> qué va y qué no, para que se adecue la cuenta:</p>
+        <ul>
+          <li>¿Metió al mediador o la alzada? <b>Se intima a rehacer.</b></li>
+          <li>¿Redujo la tasa? <b>Se intima a rehacer.</b></li>
+          <li>¿Falta notificar una regulación? <b>Se hace saber, con carácter previo.</b></li>
+          <li>¿No hay liquidación aprobada? <b>Que la practique.</b></li>
+        </ul>
+      </div>
+      <div class="salida si e" style="--d:3">
+        <span class="si-no">Si está bien</span>
+        <h3>Traslado a todos.</h3>
+        <p>A <b>todos los beneficiarios</b> y a <b>las partes no condenadas</b> en costas: son a quienes después les pueden reclamar la diferencia.</p>
+        <p>¿Se planteó la inconstitucionalidad? <b>Vista a la Fiscalía.</b> ¿La planteó un perito? <b>Con firma de letrado.</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 17 · Checklist ============ -->
+<section class="dia" data-cap="juzgado" data-tono="#6fd3a8" aria-label="Antes de dar traslado: la lista">
+  <div class="cuerpo">
+    <span class="ceja e" style="--d:0">Para llevarse</span>
+    <h2 class="e compacto" style="--d:1">Antes de dar traslado.</h2>
+    <div class="lista" id="lista">
+      <button class="chk e" style="--d:2" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Regulaciones firmes y notificadas a todos</b><span>Si falta uno, se hace saber con carácter previo.</span></span></button>
+      <button class="chk e" style="--d:2" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>No pagó ni acordó completo con nadie</b><span>Si lo hizo, renunció: para todos.</span></span></button>
+      <button class="chk e" style="--d:3" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--techo)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-techo">Base: liquidación aprobada</b><span>Capital + intereses, a la misma fecha que los honorarios.</span></span></button>
+      <button class="chk e" style="--d:3" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--hon)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-hon">Adentro: 1ª instancia del vencedor, peritos y gastos</b><span>Los gastos que no liquide, después los paga completos.</span></span></button>
+      <button class="chk e" style="--d:4" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--afuera)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-afuera">Afuera: alzada, mediador y los del condenado</b><span>Si están en la cuenta, se intima a rehacerla.</span></span></button>
+      <button class="chk e" style="--d:4" role="checkbox" aria-checked="false"><span class="box" style="--c:var(--tasa)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b class="t-tasa">Tasa: ocupa lugar o no está</b><span>Nunca reducida. 22 % o 25 %: las dos se aceptan.</span></span></button>
+      <button class="chk e" style="--d:5" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Las cuentas, verificadas</b><span>El mismo factor para todos. IVA después.</span></span></button>
+      <button class="chk e" style="--d:5" role="checkbox" aria-checked="false"><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>Traslado a todos</b><span>Beneficiarios y partes no condenadas. Inconstitucionalidad: Fiscalía.</span></span></button>
+    </div>
+    <div class="veredicto e" style="--d:6">
+      <svg class="anillo" viewBox="0 0 80 80" aria-hidden="true"><circle class="fondo-a" cx="40" cy="40" r="33"/><circle class="frente" id="anillo" cx="40" cy="40" r="33" stroke-dasharray="207.3" stroke-dashoffset="207.3"/></svg>
+      <span class="txt" id="veredicto" aria-live="polite">Si una falla: se dice todo junto y se rehace.</span>
+    </div>
+
+    <!-- Calculadoras del sitio: armado y oculto a propósito, como en la
+         charla de liquidación, hasta que Javier presente el sitio. Para
+         mostrarlo, sacar el `hidden`. -->
+    <div class="calculadoras" hidden>
+      <p class="chico">Para hacer la cuenta:</p>
+      <p><a class="boton" href="../../calculadoras/prorrateo.html">Prorrateo del art. 730</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 18 · Cierre ============ -->
+<section class="dia" data-cap="juzgado" data-tono="#e0b45c" aria-label="Cierre">
+  <div class="cuerpo cierre">
+    <span class="ceja e" style="--d:0">Lo que hay que llevarse</span>
+    <h2 class="e" style="--d:1">El honorario no se toca.<br><em>Se reparte quién lo paga.</em></h2>
+    <div class="dif-barra e" style="--d:3;width:min(820px,100%)" aria-label="El honorario entero: una parte la paga el condenado, la diferencia su cliente"><i class="a">el condenado: hasta su parte del 25 %</i><i class="b">su cliente: la diferencia</i></div>
+  </div>
+</section>
+
+</main>
+
+<!-- Barra inferior -->
+<nav class="barra" aria-label="Navegación de la presentación">
+  <button class="boton" id="ant" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="progreso" id="progreso"></div>
+  <span class="cuenta num" id="cuenta">1 / 19</span>
+  <button class="boton hondo-btn" id="hondo-btn" aria-label="Para profundizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg><span class="txt">Para profundizar</span></button>
+  <button class="boton ocultable" id="pantalla" aria-label="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <button class="boton" id="sig" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+</nav>
+
+<div class="hondo-velo" id="velo"></div>
+<aside class="hondo" id="hondo" aria-label="Para profundizar" aria-hidden="true">
+  <div class="tirador"></div>
+  <button class="boton cerrar" id="cerrar" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div id="hondo-cont"></div>
+</aside>
+
+<script>
+(function () {
+  'use strict';
+
+  var dias = Array.prototype.slice.call(document.querySelectorAll('.dia'));
+  var N = dias.length;
+  var actual = 0;
+  var paso = 0;
+  var root = document.documentElement;
+  var reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- Formato ----------
+  var fmt0 = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
+  var fmt1 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 1 });
+  var fmt2 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var NBSP = String.fromCharCode(160);
+  function pesos(n) { return '$' + NBSP + fmt0.format(Math.round(n)); }
+  function animarNumero(el, de, a, ms) {
+    if (reducido || de === a) { el.textContent = pesos(a); return; }
+    var t = performance.now();
+    (function cuadro(ahora) {
+      var k = Math.min(1, (ahora - t) / ms), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = pesos(de + (a - de) * e);
+      if (k < 1) requestAnimationFrame(cuadro);
+    })(t);
+  }
+
+  // ---------- Barra de progreso, agrupada por capítulo ----------
+  var colores = { intro: '#e0b45c', cuando: '#6fd3a8', entra: '#7a99ff', cuenta: '#e0b45c', corte: '#edeff3', especiales: '#e09070', juzgado: '#6fd3a8' };
+  var prog = document.getElementById('progreso');
+  dias.forEach(function (d, i) {
+    var b = document.createElement('button');
+    b.style.setProperty('--seg', colores[d.dataset.cap] || '#edeff3');
+    b.setAttribute('aria-label', 'Ir a ' + (d.getAttribute('aria-label') || ('diapositiva ' + (i + 1))));
+    b.addEventListener('click', function () { ir(i, 0); });
+    prog.appendChild(b);
+  });
+  var segs = prog.children;
+
+  // ---------- Navegación ----------
+  // Cada diapositiva con algo que redibujar según el paso declara
+  // data-js; acá se le avisa al entrar y en cada paso.
+  var ganchos = {};
+  function pasosDe(i) { return +(dias[i].dataset.pasos || 0); }
+  function pintarPasos() {
+    var d = dias[actual];
+    for (var k = 1; k <= 4; k++) d.classList.toggle('p' + k, paso >= k);
+    var g = ganchos[d.dataset.js];
+    if (g) g(paso);
+  }
+  function ir(i, p) {
+    i = Math.max(0, Math.min(N - 1, i));
+    cerrarHondo();
+    dias.forEach(function (d, k) {
+      d.classList.toggle('activa', k === i);
+      d.classList.toggle('atras', k < i);
+      if (k !== i) { for (var j = 1; j <= 4; j++) d.classList.remove('p' + j); }
+    });
+    actual = i;
+    paso = p === 'fin' ? pasosDe(i) : (p || 0);
+    pintarPasos();
+    var d = dias[i];
+    root.style.setProperty('--tono', d.dataset.tono || '#e0b45c');
+    var halo = document.querySelector('.fondo .halo');
+    halo.style.left = (30 + (i * 37) % 40) + '%';
+    halo.style.top = (30 + (i * 23) % 30) + '%';
+    for (var s = 0; s < segs.length; s++) {
+      segs[s].classList.toggle('aca', s === i);
+      segs[s].classList.toggle('visto', s < i);
+    }
+    document.getElementById('cuenta').textContent = (i + 1) + ' / ' + N;
+    document.getElementById('hondo-btn').classList.toggle('hay', !!d.querySelector('.hondo-tpl'));
+    d.scrollTop = 0;
+    if (history.replaceState) history.replaceState(null, '', '#' + (i + 1));
+  }
+  function siguiente() {
+    if (paso < pasosDe(actual)) { paso++; pintarPasos(); }
+    else if (actual < N - 1) ir(actual + 1, 0);
+  }
+  function anterior() {
+    if (paso > 0) { paso--; pintarPasos(); }
+    else if (actual > 0) ir(actual - 1, 'fin');
+  }
+  document.getElementById('sig').addEventListener('click', siguiente);
+  document.getElementById('ant').addEventListener('click', anterior);
+  document.getElementById('pantalla').addEventListener('click', pantallaCompleta);
+  function pantallaCompleta() {
+    if (!document.fullscreenElement) { if (root.requestFullscreen) root.requestFullscreen().catch(function () {}); }
+    else if (document.exitFullscreen) document.exitFullscreen();
+  }
+
+  document.addEventListener('keydown', function (ev) {
+    if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+    // El control de la UMA usa las flechas: mientras tiene el foco, son suyas.
+    if (ev.target && ev.target.type === 'range' && /Arrow/.test(ev.key)) return;
+    var abierto = document.body.classList.contains('abierto');
+    switch (ev.key) {
+      case 'ArrowRight': case 'PageDown': case ' ':
+        if (abierto) return; ev.preventDefault(); siguiente(); break;
+      case 'ArrowLeft': case 'PageUp':
+        if (abierto) return; ev.preventDefault(); anterior(); break;
+      case 'ArrowDown':
+        if (!abierto && dias[actual].querySelector('.hondo-tpl')) { ev.preventDefault(); abrirHondo(); } break;
+      case 'ArrowUp': case 'Escape':
+        if (abierto) { ev.preventDefault(); cerrarHondo(); } break;
+      case 'Home': ev.preventDefault(); ir(0, 0); break;
+      case 'End': ev.preventDefault(); ir(N - 1, 0); break;
+      case 'f': case 'F': pantallaCompleta(); break;
+    }
+  });
+
+  // Deslizar con el dedo: a los lados pasa. Sobre el control de la UMA, no.
+  var t0 = null;
+  document.getElementById('mazo').addEventListener('touchstart', function (e) {
+    t0 = e.target.type === 'range' ? null : { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, { passive: true });
+  document.getElementById('mazo').addEventListener('touchend', function (e) {
+    if (!t0) return;
+    var dx = e.changedTouches[0].clientX - t0.x, dy = e.changedTouches[0].clientY - t0.y;
+    t0 = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) { dx < 0 ? siguiente() : anterior(); }
+  });
+
+  // ---------- La capa para profundizar ----------
+  var hondo = document.getElementById('hondo'), hondoCont = document.getElementById('hondo-cont');
+  function abrirHondo() {
+    var tpl = dias[actual].querySelector('.hondo-tpl');
+    if (!tpl) return;
+    hondoCont.innerHTML = '';
+    hondoCont.appendChild(tpl.content.cloneNode(true));
+    hondo.scrollTop = 0;
+    document.body.classList.add('abierto');
+    hondo.setAttribute('aria-hidden', 'false');
+    document.getElementById('cerrar').focus({ preventScroll: true });
+  }
+  function cerrarHondo() {
+    if (!document.body.classList.contains('abierto')) return;
+    document.body.classList.remove('abierto');
+    hondo.setAttribute('aria-hidden', 'true');
+  }
+  document.getElementById('hondo-btn').addEventListener('click', abrirHondo);
+  document.getElementById('cerrar').addEventListener('click', cerrarHondo);
+  document.getElementById('velo').addEventListener('click', cerrarHondo);
+
+  // ---------- 5 · La base: el techo se achica si la base queda vieja ----------
+  // Sin tasa, para que se vea una sola cosa: la base. Las barras van en
+  // escala de $ 10.000.000 = 100 %.
+  (function () {
+    var viz = document.getElementById('base-viz'), pc = document.getElementById('base-pc'), btn = document.getElementById('base-ysi');
+    var HON = 4000000, ESC = 10000000, historica = false;
+    function seg(k) { return viz.querySelector('[data-s="' + k + '"]'); }
+    function pintar() {
+      var base = historica ? 4000000 : 10000000, techo = base * 0.25;
+      seg('base').style.width = (base / ESC * 100) + '%';
+      seg('techo').style.width = (techo / ESC * 100) + '%';
+      seg('hon').style.width = (HON / ESC * 100) + '%';
+      seg('entra').style.width = (Math.min(techo, HON) / ESC * 100) + '%';
+      viz.querySelector('[data-v="base"]').textContent = pesos(base);
+      pc.textContent = fmt1.format(Math.min(1, techo / HON) * 100) + ' %';
+      pc.className = 'pc num ' + (historica ? 't-mal' : 't-hon');
+      btn.setAttribute('aria-pressed', historica);
+    }
+    btn.addEventListener('click', function () { historica = !historica; pintar(); });
+    pintar();
+  })();
+
+  // ---------- 7 · La tasa: tres maneras de presentarla ----------
+  // Monto $ 10.000.000, techo $ 2.500.000, tasa $ 300.000 (3 %),
+  // honorarios regulados $ 4.000.000.
+  (function () {
+    var tz = document.getElementById('tz'), hz = document.getElementById('hz'), ver = document.getElementById('tasa-ver');
+    var TECHO = 2500000, TASA = 300000, HON = 4000000;
+    var casos = {
+      reduce: function () {
+        var f = TECHO / (TASA + HON), t = TASA * f;
+        return { t: t, h: TECHO - t, mal: true, txtT: 'tasa',
+          ver: ['<span class="grande t-mal">Se intima a rehacer las cuentas.</span>', '<span class="por">Redujo la tasa a ' + pesos(t) + ' como si fuera un honorario. La tasa se paga íntegra: ' + pesos(TASA) + '.</span>'] };
+      },
+      ocupa: function () {
+        return { t: TASA, h: TECHO - TASA, txtT: 'tasa',
+          ver: ['<span class="grande t-ok">Está bien: traslado.</span>', '<span class="por">La tasa ocupa su lugar sin reducirse. A los honorarios les queda el <b>22 %</b>: ' + pesos(TECHO - TASA) + '.</span>'] };
+      },
+      no: function () {
+        return { t: 0, h: TECHO, txtT: '',
+          ver: ['<span class="grande t-techo">No se observa.</span>', '<span class="por">Los honorarios se reparten el <b>25 %</b> entero: ' + pesos(TECHO) + '. Beneficia a los profesionales, y la tasa se paga igual, completa.</span>'] };
+      }
+    };
+    Array.prototype.forEach.call(document.querySelectorAll('#tasa-ops .op'), function (b) {
+      b.addEventListener('click', function () {
+        Array.prototype.forEach.call(b.parentNode.children, function (x) { x.setAttribute('aria-pressed', x === b); });
+        var c = casos[b.dataset.r]();
+        tz.style.flexGrow = c.t; hz.style.flexGrow = c.h;
+        tz.textContent = c.txtT; tz.classList.toggle('mal', !!c.mal);
+        hz.textContent = 'honorarios · ' + pesos(c.h);
+        ver.className = 'veredicto-t'; void ver.offsetWidth; ver.className = 'veredicto-t lleno';
+        ver.style.borderColor = c.mal ? 'var(--mal)' : (b.dataset.r === 'ocupa' ? 'var(--ok)' : 'var(--techo)');
+        ver.innerHTML = c.ver.join('');
+      });
+    });
+    tz.style.flexGrow = 0; hz.style.flexGrow = 1;
+  })();
+
+  // ---------- 8 · La cuenta: el vaso ----------
+  // El vaso entero mide 1,85 veces el techo, para que se vea el desborde:
+  // el borde queda al 54,054 % de la altura (1 / 1,85).
+  (function () {
+    var TECHO = 2500000, TASA = 300000, DISP = TECHO - TASA, ALTO = TECHO * 1.85;
+    var benef = [
+      { k: 'Letrada de la actora', v: 1800000, c: '#7a99ff' },
+      { k: 'Perito médico', v: 800000, c: '#94adff' },
+      { k: 'Perito contador', v: 600000, c: '#5f80ec' },
+      { k: 'Consultor técnico actor', v: 400000, c: '#aec1ff' },
+      { k: 'Gastos liquidados', v: 400000, c: '#8090b8' }
+    ];
+    var MEDIADOR = { k: 'Mediador', v: 500000, c: '#e09070', nueva: true };
+    var conMediador = false, pasoAct = 0, previos = {};
+    var pila = document.getElementById('pila'), filas = document.getElementById('filas'), vaso = document.getElementById('vaso');
+    var exceso = document.getElementById('exceso'), excesoTxt = document.getElementById('exceso-txt');
+    var factorEl = document.getElementById('factor'), delta = document.getElementById('delta-c'), btn = document.getElementById('cuenta-ysi');
+
+    // Los bloques y las filas se arman una vez; después sólo cambian alturas y cifras.
+    var tasaB = document.createElement('div');
+    tasaB.className = 'bloque tasa'; tasaB.textContent = 'tasa · no se reduce';
+    pila.appendChild(tasaB);
+    function armar(b) {
+      b.bloque = document.createElement('div'); b.bloque.className = 'bloque'; b.bloque.style.setProperty('--c', b.c); b.bloque.textContent = b.k;
+      pila.appendChild(b.bloque);
+      b.fila = document.createElement('div'); b.fila.className = 'fila' + (b.nueva ? ' nueva' : '');
+      b.fila.innerHTML = '<span class="pt" style="--c:' + b.c + '"></span><span class="k">' + b.k + '</span><span class="v num">' + pesos(b.v) + '</span><span class="v pr num">—</span>';
+      b.pr = b.fila.querySelector('.pr');
+      b.pr.textContent = pesos(b.v);
+    }
+    benef.forEach(function (b) { armar(b); filas.appendChild(b.fila); });
+    armar(MEDIADOR);
+
+    function lista() { return conMediador ? benef.concat([MEDIADOR]) : benef; }
+    function alto(monto) { return (monto / ALTO * 100) + '%'; }
+
+    function pintar(p) {
+      var prev = pasoAct;
+      pasoAct = p;
+      var ls = lista(), total = 0;
+      ls.forEach(function (b) { total += b.v; });
+      var f = Math.min(1, DISP / total), prensado = p >= 3;
+      tasaB.style.height = p >= 1 ? alto(TASA) : '0px';
+      benef.concat([MEDIADOR]).forEach(function (b) {
+        var esta = ls.indexOf(b) >= 0;
+        b.bloque.style.height = (p >= 2 && esta) ? alto(b.v * (prensado ? f : 1)) : '0px';
+        if (b === MEDIADOR) {
+          if (esta && !b.fila.parentNode) filas.appendChild(b.fila);
+          if (!esta && b.fila.parentNode) b.fila.parentNode.removeChild(b.fila);
+        }
+        if (esta) {
+          var nuevo = b.v * f;
+          animarNumero(b.pr, previos[b.k] === undefined ? nuevo : previos[b.k], nuevo, 900);
+          previos[b.k] = nuevo;
+        }
+      });
+      var sobre = TASA + total - TECHO;
+      exceso.style.height = p === 2 ? alto(sobre) : '0px';
+      excesoTxt.textContent = pesos(sobre) + ' que no entran';
+      document.getElementById('tot-reg').textContent = pesos(total);
+      document.getElementById('tot-pr').textContent = prensado ? pesos(DISP) : '';
+      factorEl.innerHTML = '× ' + fmt2.format(f) + ' <small>' + (conMediador ? 'a todos: todos cobran menos' : 'a todos por igual') + '</small>';
+      factorEl.classList.toggle('mal', conMediador);
+      if (conMediador && prensado) {
+        var antes = benef[0].v * DISP / (total - MEDIADOR.v), ahora = benef[0].v * f;
+        delta.textContent = 'La letrada pierde ' + pesos(antes - ahora) + ' por un honorario que no va. Se intima a rehacer.';
+      } else delta.textContent = '';
+      btn.setAttribute('aria-pressed', conMediador);
+      if (p === 3 && prev === 2 && !reducido) {
+        vaso.classList.remove('prensado'); void vaso.offsetWidth; vaso.classList.add('prensado');
+      }
+    }
+    btn.addEventListener('click', function () { conMediador = !conMediador; pintar(pasoAct); });
+    ganchos.cuenta = pintar;
+    pintar(0);
+  })();
+
+  // ---------- 9 · La UMA no mueve el reparto ----------
+  // Disponible: $ 2.200.000 (el 22 %, con la tasa adentro). Las
+  // regulaciones en UMA suman siempre más que eso en todo el rango.
+  (function () {
+    var DISP = 2200000;
+    var regs = [
+      { k: 'Letrada de la actora', uma: 30, pesosFijos: 1800000 },
+      { k: 'Perito médico', uma: 12 },
+      { k: 'Perito contador', uma: 9 },
+      { k: 'Consultora técnica', uma: 6 }
+    ];
+    var mixta = false, previos = null;
+    var r = document.getElementById('uma-r'), v = document.getElementById('uma-v'), cont = document.getElementById('repartos');
+    var quieto = document.getElementById('quieto'), btn = document.getElementById('uma-ysi');
+    regs.forEach(function (g) {
+      g.el = document.createElement('div'); g.el.className = 'rep';
+      g.el.innerHTML = '<span class="k">' + g.k + '<small></small></span><div class="pista-b"><div class="lleno"></div></div><span class="v num"></span>';
+      cont.appendChild(g.el);
+    });
+    function pintar() {
+      var u = +r.value, total = 0;
+      v.textContent = pesos(u);
+      regs.forEach(function (g) {
+        g.fija = mixta && g.pesosFijos;
+        g.reg = g.fija ? g.pesosFijos : g.uma * u;
+        total += g.reg;
+      });
+      var movio = false;
+      regs.forEach(function (g, i) {
+        var pr = DISP * g.reg / total;
+        g.el.classList.toggle('fija', !!g.fija);
+        g.el.querySelector('small').textContent = g.fija ? 'regulada en pesos · ley 21.839' : g.uma + ' UMA · regulado ' + pesos(g.reg);
+        g.el.querySelector('.lleno').style.width = (pr / DISP * 100 * 1.6) + '%';
+        var val = g.el.querySelector('.v');
+        val.textContent = pesos(pr);
+        var cambio = previos && Math.abs(previos[i] - pr) > 1;
+        val.classList.toggle('movio', !!cambio);
+        if (cambio) movio = true;
+        g.ult = pr;
+      });
+      previos = regs.map(function (g) { return g.ult; });
+      quieto.innerHTML = mixta
+        ? '<span class="t-mal">Ahora la UMA mueve el reparto:</span> la regulación en pesos no la sigue.'
+        : '<span class="t-ok">Lo que cobra cada uno no se mueve.</span> Cambia lo regulado, no el reparto.';
+      btn.setAttribute('aria-pressed', mixta);
+    }
+    r.addEventListener('input', pintar);
+    btn.addEventListener('click', function () { mixta = !mixta; previos = null; pintar(); });
+    pintar();
+  })();
+
+  // ---------- 12 · El medidor ----------
+  (function () {
+    function punto(pc, rad) {
+      var a = Math.PI * (1 - pc / 100);
+      return [220 + Math.cos(a) * rad, 220 - Math.sin(a) * rad];
+    }
+    var a = punto(33, 180), b = punto(100, 180);
+    document.getElementById('arco-rojo').setAttribute('d', 'M ' + a[0].toFixed(1) + ' ' + a[1].toFixed(1) + ' A 180 180 0 0 1 ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1));
+    var t = punto(33, 214), txt = document.getElementById('txt-33');
+    txt.setAttribute('x', t[0].toFixed(1)); txt.setAttribute('y', t[1].toFixed(1));
+  })();
+
+  // ---------- La lista final ----------
+  var chks = document.querySelectorAll('#lista .chk'), anillo = document.getElementById('anillo'), ver = document.getElementById('veredicto');
+  Array.prototype.forEach.call(chks, function (c) {
+    c.addEventListener('click', function () {
+      c.setAttribute('aria-checked', c.getAttribute('aria-checked') !== 'true');
+      var n = document.querySelectorAll('#lista .chk[aria-checked="true"]').length;
+      anillo.style.strokeDashoffset = 207.3 * (1 - n / chks.length);
+      if (n === chks.length) { ver.innerHTML = '<span class="t-ok">Listo para el traslado.</span>'; chispas(); }
+      else ver.textContent = 'Si una falla: se dice todo junto y se rehace.';
+    });
+  });
+  function chispas() {
+    if (reducido) return;
+    var cs = ['#e0b45c', '#b99bff', '#7a99ff', '#e09070', '#6fd3a8'];
+    var r = anillo.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    for (var k = 0; k < 60; k++) {
+      (function () {
+        var s = document.createElement('i'); s.className = 'chispa'; s.style.background = cs[k % cs.length];
+        s.style.left = cx + 'px'; s.style.top = cy + 'px'; document.body.appendChild(s);
+        var ang = Math.random() * Math.PI * 2, v = 180 + Math.random() * 320;
+        s.animate([
+          { transform: 'translate(0,0) rotate(0)', opacity: 1 },
+          { transform: 'translate(' + Math.cos(ang) * v + 'px,' + (Math.sin(ang) * v - 120) + 'px) rotate(' + (Math.random() * 720) + 'deg)', opacity: 0 }
+        ], { duration: 1200 + Math.random() * 700, easing: 'cubic-bezier(.2,.8,.2,1)' }).onfinish = function () { s.remove(); };
+      })();
+    }
+  }
+
+  window.addEventListener('hashchange', function () {
+    var n = parseInt((location.hash || '').slice(1), 10);
+    if (!isNaN(n) && n - 1 !== actual) ir(n - 1, 0);
+  });
+
+  // ---------- Arranque ----------
+  var h = parseInt((location.hash || '').slice(1), 10);
+  ir(isNaN(h) ? 0 : h - 1, 0);
+})();
+</script>
+</body>
+</html>

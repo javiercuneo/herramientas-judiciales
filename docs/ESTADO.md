@@ -77,7 +77,7 @@ con su caso de prueba. **El borde que quedó de cada regla está en
 
 **Lo que queda abierto:**
 
-- **`charlas/liquidacion/` y `charlas/prorrateo/`**: presentaciones sin enlace y con noindex; textos en revisión de Javier. Abierto en liquidación: UHOM = mediador (inferido) y si el depósito íntegro y comunicado corta (Fallos 339:725). En prorrateo: faltan las citas de los fallos que admiten el prorrateo al actor perdidoso, y la cuenta usa la misma fórmula que `calculadoras/prorrateo.html`.
+- **`charlas/liquidacion/` y `charlas/prorrateo/`**: presentaciones sin enlace y con noindex; textos en revisión de Javier. Abierto en liquidación: UHOM = mediador (inferido) y si el depósito íntegro y comunicado corta (Fallos 339:725). En prorrateo: la cuenta usa la misma fórmula que `calculadoras/prorrateo.html`, y los conteos de citas de la Corte («Latino» 57) salen de una captura del buscador de la CSJN que pasó Javier el 12/10.
 
 - **El hook de datos y el anonimizador se vigilan entre sí desde el 26/9.**
   `npm run verificar-cruce` los corre sobre
