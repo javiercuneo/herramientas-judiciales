@@ -17,6 +17,7 @@
     "verificar-distancia": "node scripts/verificar-distancia.mjs",
     "verificar-red": "node scripts/verificar-red.mjs",
     "verificar-escribiente": "node scripts/verificar-escribiente.mjs",
+    "verificar-automatico": "node scripts/verificar-automatico.mjs",
     "verificar-revisor": "node scripts/verificar-revisor.mjs",
     "verificar-honorio": "node scripts/verificar-honorio.mjs",
     "verificar-acordada": "node scripts/verificar-acordada.mjs",
@@ -31,11 +32,23 @@
     "imagenes": "node scripts/armar-imagenes.mjs",
     "contorno": "node --max-old-space-size=6144 scripts/armar-contorno-argentina.mjs",
     "conector-http": "node conectores/http.mjs",
-    "conector-mcp": "node conectores/mcp.mjs"
+    "conector-mcp": "node conectores/mcp.mjs",
+    "automatico": "node conectores/automatico.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
     "marked": "^15.0.7",
     "playwright": "^1.56.1"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "0.1.80",
+    "@tesseract.js-data/spa": "1.0.0",
+    "pdfjs-dist": "3.11.174",
+    "tesseract.js": "6.0.1"
+  },
+  "overrides": {
+    "pdfjs-dist": {
+      "canvas": "npm:@napi-rs/canvas@0.1.80"
+    }
   }
 }

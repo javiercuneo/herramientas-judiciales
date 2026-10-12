@@ -6922,3 +6922,13 @@ vale la pena?»*.
   documentar. Las cifras de Honorio siguen ahí, atribuidas a Honorio, porque
   `verificar-honorio` las compara contra el motor.
 
+## Lo que salió de ESTADO.md para hacerle lugar a E-08 — 10/10
+
+Dos cosas del motor único que ya estaban cerradas:
+
+- **`HERMANOS.md` lo dice desde el 18/9**: un conector, dos motores, y
+  `redactor` pidiendo el anonimizador directo, sin pasar por el pipeline.
+- **La decisión chica del 17/9: la palabra que ancla sobrevive.** El JS se comía
+  `Autos` y `Expte. N`; ahora los conserva, como ya hacían las otras cuatro
+  reglas ancladas. Queda del lado del Python comerse el `Tel:`, y como el motor
+  que se va es ése, no se toca.

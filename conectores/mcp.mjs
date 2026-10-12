@@ -23,13 +23,14 @@
 
 import { HERRAMIENTAS as PLAZOS, ErrorDeEntrada } from './nucleo.mjs';
 import { HERRAMIENTAS_ANONIMIZAR } from './anonimizar.mjs';
+import { HERRAMIENTAS_AUTOMATICO } from './automatico.mjs';
 
 // Los dos registros en un solo servidor, desde el 17/9/2026. Quien consume
 // levanta UN proceso y tiene lo que este repositorio ofrece; dos procesos son
 // dos cosas que se caen por separado. Se comprobo antes de tocarlo que
 // `pipeline/plazos.py` no lee `serverInfo` ni `tools/list` -manda `tools/call`
 // directo-, asi que agregar herramientas no le cambia nada.
-const HERRAMIENTAS = { ...PLAZOS, ...HERRAMIENTAS_ANONIMIZAR };
+const HERRAMIENTAS = { ...PLAZOS, ...HERRAMIENTAS_ANONIMIZAR, ...HERRAMIENTAS_AUTOMATICO };
 
 const VERSION_PROTOCOLO = '2024-11-05';
 
@@ -79,7 +80,7 @@ function esquema(entrada) {
     return {
         type: 'object',
         properties: propiedades,
-        required: Object.keys(entrada).filter((k) => /^(fecha|desde|hasta|notificacion|plazo|diasHabiles|texto|frase)$/.test(k))
+        required: Object.keys(entrada).filter((k) => /^(fecha|desde|hasta|notificacion|plazo|diasHabiles|texto|frase|archivo|posicion|clase)$/.test(k))
     };
 }
 

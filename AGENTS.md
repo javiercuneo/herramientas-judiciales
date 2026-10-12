@@ -14,6 +14,25 @@ miente. Si cerrás una sesión, actualizalo.
 cuando hace falta saber por qué algo quedó como quedó, si algo ya se probó, o de
 dónde salió una regla.
 
+**Al empezar cada sesión, revisá el buzón de fugas, y lo que haya se arregla en
+esa misma sesión, junto con el pedido que traiga** (Javier, 10/10/2026; reemplaza
+al cron nocturno que pedía E-08). El buzón es `FUGAS-ANONIMIZADOR.md`: está donde
+diga `REDACTOR_BUZON`, o en la carpeta de `git config rutas.puente`, o —mientras
+no se mude— en la de `rutas.pipeline`. `conectores/automatico.mjs` lo busca en
+ese orden. Cómo se arregla una entrada:
+
+- **Las de caso `automatico` van a `escribiente/js/motor/automatico.js`**, el
+  perfil que tapa de más. Ahí una regla nueva se aplica sola, **siempre que tape
+  más y no menos**. Si para cerrar una entrada hay que destapar algo, se para y
+  se le pregunta a Javier.
+- **Las de `redactor` van a `anonimizar.js`**, el perfil público, como siempre:
+  los nombres se proponen y no se aplican solos.
+- **Cada regla entra con su caso inventado de la misma forma** —en
+  `npm run verificar-automatico` o en `verificar-escribiente`—, y la entrada
+  cerrada se saca del buzón.
+- **Nada del buzón se copia a este repositorio**, ni siquiera el contexto tapado:
+  el repositorio es público.
+
 ## Modo de contestar en el chat al usuario:
 Se breve y directo. El usuario es abogado, no dev y entiende de temas legales, no de software. Si tenes que responder sobre código, esforzate por hablar claro.
 

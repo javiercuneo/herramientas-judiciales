@@ -117,8 +117,8 @@ async function probarHttp() {
   igual(indice.estado, 200, 'GET / no contesta 200')
   comprobar(/json/.test(indice.tipo), 'GET / no declara content-type JSON')
   comprobar(
-    Array.isArray(indice.cuerpo?.endpoints) && indice.cuerpo.endpoints.length === 11,
-    `GET / tiene que listar los once endpoints y lista ${indice.cuerpo?.endpoints?.length}`,
+    Array.isArray(indice.cuerpo?.endpoints) && indice.cuerpo.endpoints.length === 12,
+    `GET / tiene que listar los doce endpoints y lista ${indice.cuerpo?.endpoints?.length}`,
   )
   // El aviso de la anonimizacion va en el indice por lo mismo que el de
   // ok:false: es donde el que llama se entera de la regla antes de
@@ -507,11 +507,14 @@ async function probarMcp() {
   comprobar(!!init?.result?.serverInfo?.name, 'initialize no se identifica')
 
   const lista = porId.get(2)?.result?.tools
-  comprobar(Array.isArray(lista) && lista.length === 11, `tools/list tiene que traer once y trae ${lista?.length}`)
+  comprobar(Array.isArray(lista) && lista.length === 12, `tools/list tiene que traer doce y trae ${lista?.length}`)
   const nombres = (lista || []).map((t) => t.name).sort()
   igual(
     nombres.join(','),
-    'anonimizar_texto,aparece_en_el_texto,candidatos_a_nombre,cobertura,dia_habil,' +
+    // anotar_fuga: el perfil automatico, E-08 (10/10/2026). `ingresar` NO esta
+    // aca a proposito: devuelve el texto real, y lo que devuelve el MCP lo lee
+    // el modelo.
+    'anonimizar_texto,anotar_fuga,aparece_en_el_texto,candidatos_a_nombre,cobertura,dia_habil,' +
       'dias_habiles_entre,mora,partes_de_caratula,restos_pegados,siguiente_habil,vencimiento',
     'tools/list cambio los nombres de las herramientas',
   )

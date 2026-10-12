@@ -338,6 +338,7 @@ export function convertir(paginas, opciones = {}) {
     informe.repetidosActivo = repetidos.encabezados.size > 0 || repetidos.pies.size > 0;
 
     const textoDePaginas = [];
+    const numerosDePaginas = [];
 
     for (const pagina of paginas) {
         const grupos = opts.detectarColumnas
@@ -442,6 +443,7 @@ export function convertir(paginas, opciones = {}) {
         let texto = columnas.join('\n\n');
         if (opts.detectarTitulos) texto = marcarEstructura(texto, informe);
         textoDePaginas.push(texto);
+        numerosDePaginas.push(pagina.numero);
     }
 
     // El separador entre paginas se conserva a proposito: en un expediente,
@@ -450,5 +452,31 @@ export function convertir(paginas, opciones = {}) {
     const union = opts.separarPaginas ? '\n\n---\n\n' : '\n\n';
     const markdown = textoDePaginas.join(union).replace(/\n{4,}/g, '\n\n\n').trim();
 
-    return { markdown, informe };
+    return { markdown, informe, paginas: ubicarPaginas(textoDePaginas, numerosDePaginas, union, markdown) };
+}
+
+/** Donde quedo cada pagina en el Markdown: `[{ numero, desde, hasta }]`.
+ *
+ * POR QUE, 10/10/2026 (E-08). El perfil automatico entrega el texto con cada
+ * pagina marcada -texto nativo u OCR-, y para eso hace falta saber donde cae
+ * cada una. Se calcula aparte y el armado no se toca: el Markdown sale
+ * identico al de antes. Si la cuenta no cierra contra el texto, devuelve
+ * `null` en vez de paginas corridas.
+ *
+ * Una pagina sin una sola linea no esta, porque tampoco esta en el Markdown.
+ */
+function ubicarPaginas(textos, numeros, union, markdown) {
+    const plegadas = textos.map((t) => t.replace(/\n{4,}/g, '\n\n\n'));
+    const crudo = plegadas.join(union);
+    const corrido = crudo.length - crudo.trimStart().length;
+    const salida = [];
+    let pos = 0;
+    for (let i = 0; i < plegadas.length; i++) {
+        const desde = Math.max(0, pos - corrido);
+        const hasta = Math.min(markdown.length, pos + plegadas[i].length - corrido);
+        salida.push({ numero: numeros[i], desde, hasta });
+        pos += plegadas[i].length + union.length;
+    }
+    const cierra = salida.every((p, i) => markdown.slice(p.desde, p.hasta).trim() === plegadas[i].trim());
+    return cierra ? salida : null;
 }

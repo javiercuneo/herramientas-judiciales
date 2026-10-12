@@ -18,10 +18,11 @@
 import { createServer } from 'node:http';
 import { HERRAMIENTAS as PLAZOS, ErrorDeEntrada } from './nucleo.mjs';
 import { HERRAMIENTAS_ANONIMIZAR } from './anonimizar.mjs';
+import { HERRAMIENTAS_AUTOMATICO } from './automatico.mjs';
 
 // Los dos registros en un solo servidor, desde el 17/9/2026: mismo motivo que
 // en mcp.mjs, un proceso y no dos.
-const HERRAMIENTAS = { ...PLAZOS, ...HERRAMIENTAS_ANONIMIZAR };
+const HERRAMIENTAS = { ...PLAZOS, ...HERRAMIENTAS_ANONIMIZAR, ...HERRAMIENTAS_AUTOMATICO };
 
 const HOST = '127.0.0.1';
 const PUERTO = Number(process.env.PUERTO || 8787);

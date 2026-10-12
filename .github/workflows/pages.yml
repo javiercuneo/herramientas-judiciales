@@ -65,6 +65,12 @@ jobs:
       - name: Verificar el motor de Escribiente
         run: npm run verificar-escribiente
 
+      # El perfil automatico (E-08): el que tapa de mas para un agente. Lee un
+      # PDF de prueba con una foja escaneada, asi que tambien prueba que el OCR
+      # corre con el español empaquetado y sin red.
+      - name: Verificar el perfil automatico
+        run: npm run verificar-automatico
+
       # La exencion de .datos-ejemplo, que es lo que permite versionar un banco
       # de pruebas con formas inventadas. Corre en CI y no solo en el hook
       # porque verificar-datos.sh es el verificador de TODOS los repositorios de

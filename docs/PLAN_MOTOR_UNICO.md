@@ -56,7 +56,10 @@ Es el diseño de `anonimizar.js` y no una comodidad de interfaz.
 2. **Los nombres propios se proponen y nunca se aplican solos.** Ninguna regla
    distingue `Pérez, Juan Carlos` —la parte— de `Llambías, Jorge Joaquín`
    —doctrina— ni de `Buenos Aires, Astrea`, que es una editorial. Reemplazar por
-   adivinanza corrompe el texto; no reemplazar filtra.
+   adivinanza corrompe el texto; no reemplazar filtra. **Con una excepción,
+   decidida por Javier el 10/10/2026: el perfil automático**
+   (`escribiente/js/motor/automatico.js`, pedido E-08), que lee un agente sin
+   nadie que tilde, tapa los candidatos sin preguntar. Este perfil no cambia.
 
 **La regla que sale de acá y hay que respetar:** un consumidor sin pantalla puede
 usar la capa 1 y **no** puede aplicar la capa 2 sin alguien que tilde. Hoy los
