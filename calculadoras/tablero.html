@@ -733,6 +733,19 @@ function montar(h) {
         aviso.appendChild(t);
         aviso.appendChild(a);
         caja.parentNode.insertBefore(aviso, caja);
+
+        // Honorio pone el foco en su primer campo al cargar, y el navegador
+        // scrollea el tablero para mostrarlo: la franja de arriba y este aviso
+        // quedaban fuera de la vista. Durante la carga, un scroll que pasa con
+        // el foco adentro del marco se deshace. Uno del usuario no: con la
+        // rueda o la barra el foco no esta en el marco.
+        var y0 = window.scrollY;
+        var hasta = Date.now() + 4000;
+        var deshacer = function () {
+            if (Date.now() > hasta) { window.removeEventListener('scroll', deshacer); return; }
+            if (document.activeElement === f && window.scrollY !== y0) window.scrollTo(0, y0);
+        };
+        window.addEventListener('scroll', deshacer);
     } else {
         f.addEventListener('load', function () { preparar(f, h); });
     }
