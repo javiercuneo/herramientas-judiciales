@@ -19,6 +19,48 @@ de 2026.
 
 ---
 
+## El segundo vaciado del buzón de fugas — 12/10
+
+La primera sesión con la regla de `AGENTS.md` (revisar el buzón al empezar).
+Había 136 entradas: 7 del perfil automático, 34 «después de liberar» del 5 y
+7/10, 89 candidatos del 26 y 27/9 y dos avisos del operador. Cada entrada se
+reprodujo con datos inventados de la misma forma antes de tocar nada.
+
+**Las 7 del automático eran todas del inmueble**, de escritos de inscripción
+registral: la matrícula del Registro en dígitos y sin dos puntos («FR
+N-NNNN/N», «matrícula nro. N-NNNNN/N», con espacio después de la barra), el
+domicilio sin la forma de calle y altura (detrás de «a inscribir:», con la
+altura en letras, la calle sin altura) y la nomenclatura catastral, que no
+tenía regla. Van en `automatico.js`. Lo catastral se tapa **por posición** y no
+como reemplazo elegido: «15» o «A» sueltos están en todas partes, y el control
+de inconsistencia los habría salido a buscar en toda la tanda. Para eso el
+registro de la tanda tiene una clase nueva, `posicional`, que ese control salta.
+
+**El número de juzgado se tapa (Javier).** Era un aviso del 27/9 que quedó
+esperando su criterio. No es un dato personal, pero con el juzgado y la fecha se
+encuentra la causa en la consulta pública. Se tapa sólo el número, en el perfil
+público y en el automático —donde los tribunales eran intocables: la zona del
+juzgado ahora termina en el «n°»—; la sala y la secretaría quedan.
+
+**De las «después de liberar», el motor público** (`anonimizar.js`) suma roles
+que anuncian a una persona (administrador, fallecido/a, «falleció», escribano/a,
+escribanía, «un tal», patrocinante, «que me patrocina», «la representación
+de», «ejercida por», «apoderado de»), la fórmula «, con domicilio» para el que
+se presenta, el consorcio de propietarios (su nombre es la dirección del
+edificio), la matrícula del Registro con su forma entera detrás de «FR» o
+«matrícula», el teléfono con «TE:», el expediente con «Exp.» y año de dos
+cifras, la calle de hasta cinco palabras y el nombre de cinco palabras detrás
+de un tratamiento. **Y un error que corrompía el texto**: «Juez» es tratamiento,
+y «Señor Juez: Fulano» salía «Señor Juez [PERSONA]», sin los dos puntos.
+
+**Lo que quedó abierto en el buzón, a propósito:** los nombres de empresa detrás
+de un rol (una aseguradora, una asociación civil: se ofrecen y no se tapan,
+como decidió el 27/9 la regla de la citada en garantía), las carátulas de
+fallos citados, los restos de un nombre partido por un salto de página o por
+un apellido suelto, y los 89 candidatos de septiembre, que quedaron para una
+pasada aparte. Las cerradas se sacaron del buzón y se dejó una línea que dice
+dónde: si `redactor` sigue con `sanitizar.py`, ahí siguen abiertas.
+
 ## El subrayado pasa a ser opcional — 8/10
 
 Con el uso apareció el costo del subrayado sobre el PDF: tapaba el visor de

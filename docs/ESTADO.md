@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-10-10 · rama `main`
+Última actualización: 2026-10-12 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -51,9 +51,10 @@ sólo se enlaza lo que NO está en el tablero. Detalle en
 ## Bugs abiertos
 
 **E-08, de confronteitor (allá E-07), 10/10: hecho; falta probarlo con escaneos
-de la oficina.** El perfil «automático» tapa de más y aplica nombres solo; no
-está en el MCP porque devuelve el texto real. Sin cron: cada sesión revisa el
-buzón (`AGENTS.md`). Uso y decisiones en [`PEDIDO_E08_CONFRONTEITOR.md`](PEDIDO_E08_CONFRONTEITOR.md).
+de la oficina.** El perfil «automático» tapa de más y aplica nombres solo; fuera
+del MCP porque devuelve el texto real. Cada sesión revisa el buzón (`AGENTS.md`):
+**quedan los 89 candidatos de septiembre** ([`HISTORIA.md`](HISTORIA.md), 12/10).
+**El número de juzgado se tapa** (Javier, 12/10); la sala y la secretaría no. Uso y decisiones en [`PEDIDO_E08_CONFRONTEITOR.md`](PEDIDO_E08_CONFRONTEITOR.md).
 
 **E-07, de Escribiente, pedido por confronteitor** —que lo conoce como E-05—.
 Lo cerrado está en [`HISTORIA.md`](HISTORIA.md). **Queda abierto, y
@@ -83,13 +84,12 @@ con su caso de prueba. **El borde que quedó de cada regla está en
   `npm run verificar-cruce` los corre sobre
   [`scripts/banco-cruzado/casos.json`](../scripts/banco-cruzado/casos.json): cada
   caso dice qué hace cada uno y, si no coinciden, por qué. **Una regla nueva en
-  cualquiera de los dos, sin su caso, no entra**: lo frena el `pre-commit` de este
-  repo y el CI. **Hay 17 casos `pendiente`**: huecos de uno que el otro sí ve
-  —el motor no tapa `C.I.`, matrícula sin dos puntos, tomo en
-  romanos ni el enlace al visor; el hook no mira campos de formulario, patentes,
-  domicilios ni el celular con guion tipográfico— y el teléfono del interior, que no ve ninguno. **Cuáles se cierran es
-  de Javier.** El que cierre uno cambia `pendiente` por el valor nuevo y agrega la
-  regresión en el banco del motor o del hook.
+  cualquiera de los dos, sin su caso, no entra**: lo frena el `pre-commit` y el
+  CI. **Hay 19 `pendiente`**: el motor no tapa `C.I.`, matrícula sin dos puntos,
+  tomo en romanos ni el enlace al visor; el hook no mira formularios, patentes,
+  domicilios, consorcios, la matrícula del Registro ni el celular con guion
+  tipográfico; el teléfono del interior no lo ve ninguno. **Cuáles se cierran es
+  de Javier**: se cambia `pendiente` por el valor y se agrega la regresión.
 
 - **EL SELECTOR SOBRE EL TEXTO, propuesto el 3/10; fases 1 a 5 hechas** —motor,
   fallos citados que no se ofrecen, el selector en `redactor` y en Escribiente,

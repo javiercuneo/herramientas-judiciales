@@ -802,7 +802,7 @@ ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
 {
     // Una cedula del PJN encabeza "SR :ERNESTO QUIROGA": el tratamiento en
     // mayusculas y un separador que el patron no contemplaba.
-    contiene(anonimizar('SR :ERNESTO QUIROGA').texto, 'SR [PERSONA]',
+    contiene(anonimizar('SR :ERNESTO QUIROGA').texto, 'SR :[PERSONA]',
         'REGRESION: el tratamiento en mayusculas y con dos puntos actua');
     contiene(anonimizar('El testigo declaro ante el perito Juan Carlos Perez.').texto,
         'perito [PERSONA]', 'y el tratamiento en minuscula, en medio de la prosa, tambien');
@@ -906,7 +906,7 @@ ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
     // y el nombre quedaba en claro.
     contiene(anonimizar('Dr. Juan Perez Juzgado Civil').texto, 'Dr. [PERSONA] Juzgado Civil',
         'un cargo detras del nombre no hace que el nombre se salve');
-    contiene(anonimizar('Dr. Juan Perez Juzgado Nro. 3').texto, 'Dr. [PERSONA] Juzgado Nro. 3',
+    contiene(anonimizar('Dr. Juan Perez Juzgado Nro. 3').texto, 'Dr. [PERSONA] Juzgado Nro. [JUZGADO]',
         'tampoco una palabra del oficio con otra que no lo es detras');
     contiene(anonimizar('el Sr. Procurador General informa').texto, 'Sr. Procurador General',
         'un cargo solo, detras del tratamiento, no se tapa como persona');
@@ -1254,7 +1254,7 @@ ok(Object.keys(conteo).length >= 8, 'el conteo registra cada regla que actuo',
     const intactos = [
         ['Se hace lugar conforme el Dr. Perez expuso en fs. 120 vta.', 'fs. 120 vta.'],
         ['El Sr. Juez de Camara 3 resolvio revocar.', 'Camara 3 resolvio'],
-        ['La Sra. Secretaria del Juzgado 45 certifica lo actuado.', 'Juzgado 45 certifica'],
+        ['La Sra. Secretaria del Juzgado 45 certifica lo actuado.', 'Juzgado [JUZGADO] certifica'],
         ['Dr. Perez, agreguese la constancia de fs. 45/47.', 'fs. 45/47'],
         ['Conforme el Dr. Gomez, el art. 1710 del CCC.', 'art. 1710 del CCC'],
     ];
@@ -1993,6 +1993,64 @@ console.log('\nCERTIFICAR\n');
     noContiene(armarDocumento({ nombreArchivo: 'a.pdf', cuerpo: 'x', anonimizado: false,
         destapados: { lugares: 3, noEsPersona: ['Ficticio Autor'] } }), 'destap',
         'sin anonimizar no hay constancia de anonimizacion');
+}
+
+// --- REGRESION 22: el vaciado del buzon del 12/10/2026 ----------------------
+{
+    // Las formas de las entradas que se vieron despues de liberar un caso
+    // (5/10 y 7/10). Datos inventados; los numeros se arman por partes.
+    for (const [entra, sale, que] of [
+        ['HONORARIOS Señor Juez: Juan Carlos Inventado, abogado', 'Señor Juez: [PERSONA], abogado',
+         'el tratamiento con dos puntos los conserva'],
+        ['con el Sr. Juan Carlos Pedro Inventado Ficticio. Contrato', 'Sr. [PERSONA]. Contrato',
+         'cinco palabras detras del tratamiento'],
+        ['ejercida por JUAN CARLOS INVENTADO FICTICIO y por derecho', 'por [PERSONA] y por', 'ejercida por'],
+        ['apoderado de Ana Inventada y de la demandada', 'apoderado de [PERSONA] y de', 'apoderado de'],
+        ['responde que es un tal Inventado, sin mas datos', 'un tal [PERSONA], sin', 'un tal'],
+        ['la representación de Juan Inventado, por la demandada', 'representación de [PERSONA], por', 'la representacion de'],
+        ['ex Administradora Ana Inventada.- Copia', 'Administradora [PERSONA].- Copia', 'la administradora'],
+        ['a nombre de la fallecida Ana Inventada, lo que', 'fallecida [PERSONA], lo', 'la fallecida'],
+        ['cuando falleció Ana Inventada y estuvo', 'falleció [PERSONA] y', 'fallecio'],
+        ['libre oficio a la escribanía Inventado o al archivo', 'escribanía [PERSONA] o', 'la escribania'],
+        ['el letrado que me patrocina, Juan Inventado (T 45', 'patrocina, [PERSONA] (', 'que me patrocina'],
+        ['etc a: Juan Carlos Inventado, con domicilio real en', 'a: [PERSONA], con domicilio', 'el citado con domicilio'],
+        ['con domicilio en la calle Doctor Juan Bautista Inventado 1234 CABA', 'calle [DOMICILIO] CABA',
+         'la calle de cinco palabras'],
+        ['Que es el CONSORCIO DE PROPIETARIOS INVENTADA 1750. Que', 'CONSORCIO DE PROPIETARIOS [DOMICILIO]. Que',
+         'el consorcio con la direccion'],
+        ['el Consorcio de Propietarios Inventada de la calle Ficticia 123, con', 'Consorcio de Propietarios [DOMICILIO] de la calle [DOMICILIO], con',
+         'el consorcio con nombre'],
+        ['CONSORCIO DE PROPIETARIOS DEL EDIF. INVENTADA 175. Tenga', 'DEL EDIF. [DOMICILIO]. Tenga', 'el consorcio del edificio'],
+        ['"Consorcio de Prop. del Edif. Inventada 175 c/ Ficticio s/ Daños"', 'Edif. [DOMICILIO] c/', 'el consorcio abreviado en la caratula'],
+        [`CABA FR ${['5', '1234'].join('-')}/3.- Al Registro`, 'CABA FR [MATRICULA].- Al', 'la matricula del registro con FR'],
+        [`matrícula nro. ${['1', '23456'].join('-')}/7, en la`, 'matrícula nro. [MATRICULA], en', 'la matricula del registro con nro.'],
+        [`Mesa (TE: ${['4394', '8223'].join('-')}), en autos`, '(TE: [TEL])', 'el telefono con TE'],
+        [`(Exp. ${'27980'}/26), a V.S.`, '(Exp. [EXPTE])', 'el expediente con Exp. y anio de dos cifras'],
+    ]) contiene(anonimizar(entra).texto, sale, `REGRESION 22: ${que}`);
+    for (const [entra, queda, que] of [
+        ['en los autos 12/03/2020 se dicto', 'autos 12/03/2020', 'una fecha detras de autos no es expediente'],
+        ['el Consorcio de Propietarios demandado', 'Consorcio de Propietarios demandado', 'sin nombre detras, el consorcio queda'],
+        ['el apoderado de la parte actora', 'apoderado de la parte', 'apoderado de la parte no es un nombre'],
+        ['cuando falleció el causante', 'falleció el causante', 'fallecio sin nombre'],
+    ]) contiene(anonimizar(entra).texto, queda, `REGRESION 22: ${que}`);
+}
+
+// --- El numero de juzgado se tapa (Javier, 12/10/2026) ---------------------
+{
+    // Del buzon, aviso del 27/9: el numero de juzgado salia entero. Con el
+    // juzgado y la fecha se encuentra la causa en la consulta publica.
+    for (const [entra, sale] of [
+        ['JUZGADO NACIONAL EN LO CIVIL Nro. 42', 'JUZGADO NACIONAL EN LO CIVIL Nro. [JUZGADO]'],
+        ['JUZGADO CIVIL 42 - SECRETARIA', 'JUZGADO CIVIL [JUZGADO] - SECRETARIA'],
+        ['el Juzgado de Primera Instancia en lo Civil y Comercial n° 7 de Inventada', 'Comercial n° [JUZGADO] de Inventada'],
+        ['el Juzgado Civil N.° 19, a cargo', 'Juzgado Civil N.° [JUZGADO], a cargo'],
+    ]) contiene(anonimizar(entra).texto, sale, `se tapa el numero de juzgado: ${entra}`);
+    for (const [entra, queda] of [
+        ['la Sala 2 de la Camara', 'Sala 2'],
+        ['la Secretaria n° 83 informa', 'Secretaria n° 83'],
+        ['el Juzgado ordeno a fs. 42 la medida', 'fs. 42'],
+        ['el Juzgado en 2024 resolvio', 'en 2024'],
+    ]) contiene(anonimizar(entra).texto, queda, `no es numero de juzgado: ${queda}`);
 }
 
 // ---------------------------------------------------------------------------

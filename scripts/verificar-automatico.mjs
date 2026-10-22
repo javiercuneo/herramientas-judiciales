@@ -102,7 +102,7 @@ ok(Object.values(r.tabla).every((t) => t.valores.length > 0), 'la tabla no tiene
 
 console.log('Lo intocable');
 for (const frase of ['12 de marzo de 2024', 'art. 1716', 'Código Civil y Comercial', 'ley 26.994',
-    'Juzgado Nacional de Primera Instancia en lo Civil n° 19', '3/4/2024',
+    'Juzgado Nacional de Primera Instancia en lo Civil n° [JUZGADO_1]', '3/4/2024',
     'Sala A de la Cámara Nacional de Apelaciones en lo Civil']) {
     ok((e.seudo + a.seudo).includes(frase), `«${frase}» sigue a la vista`);
 }
@@ -147,6 +147,51 @@ console.log('Las páginas');
     const c = convertir(paginas);
     ok(c.paginas.length === 2 && c.paginas[1].numero === 3, 'una foja vacía no está en el texto ni en la lista');
     ok(c.paginas.every((p) => c.markdown.slice(p.desde, p.hasta).includes('foja')), 'cada página cae donde está');
+}
+
+console.log('El inmueble (buzón, 12/10/2026)');
+{
+    // Las formas que anotó el buzón, con datos inventados: la matrícula del
+    // Registro en dígitos, el domicilio que no tiene forma de calle y altura, y
+    // la nomenclatura catastral.
+    const OFICIO = [
+        'Corresponde a Ana Ficticia, matrícula nro. 1-23456/7, en la proporción correspondiente.',
+        'El inmueble sito en la calle Inventada mil doscientos cuarenta y cinco, unidad funcional ocho.',
+        'Datos del inmueble a inscribir: SUPUESTA N° 4321/4323 PISO 3 UF 4 Matrícula FR 9-8765/4 nomenclatura catastral:',
+        '## Circ. 15 Secc. 3 MANZANA 45, PARCELA 12B, ## Partida 765432-1.',
+        'Unidad funcional número 5 Matrícula 2-3456/ 7, de esta ciudad.',
+        'El inmueble sito en la calle General Ficticio Supuesto de Inventada/, piso tercero.',
+        'Conforme la Sección 3 del capítulo, y el art. 15 de la ley 17.801.',
+    ].join('\n');
+    const [x] = A.seudonimizarTanda([{ nombre: 'oficio.md', texto: OFICIO }], { enLetras }).archivos;
+    for (const [dato, que] of [
+        ['1-23456/7', 'la matrícula con «nro.»'],
+        ['mil doscientos cuarenta', 'la altura en letras'],
+        ['SUPUESTA N° 4321', 'la calle en mayúsculas detrás de «a inscribir:»'],
+        ['9-8765/4', 'la matrícula con «FR»'],
+        ['2-3456/ 7', 'la matrícula con espacio después de la barra'],
+        ['Ficticio Supuesto', 'la calle sin altura detrás de «calle»'],
+        ['Circ. 15', 'la circunscripción'],
+        ['MANZANA 45', 'la manzana'],
+        ['12B', 'la parcela'],
+        ['765432-1', 'la partida'],
+    ]) ok(!x.seudo.includes(dato), `se tapa ${que}`);
+    ok(/Secc\. \[CATASTRO_\d+\]/.test(x.seudo), 'lo catastral se tapa con su etiqueta y queda la palabra');
+    ok(x.seudo.includes('Matrícula FR [MATRICULA_'), 'el «FR» queda, el número no');
+    ok(x.seudo.includes('Sección 3 del capítulo') && x.seudo.includes('art. 15 de la ley 17.801'),
+        'lejos de «catastral», «Sección 3» y el «15» del artículo quedan a la vista');
+    ok(mapaCierra(x), 'el mapa cierra con lo catastral tapado por posición');
+}
+
+console.log('El número de juzgado (Javier, 12/10/2026)');
+{
+    const [x] = A.seudonimizarTanda([{ nombre: 'a.md', texto:
+        'JUZGADO NACIONAL EN LO CIVIL Nro. 42. Juzgado Civil n° 42, Secretaría n° 83. La Sala 2 resolvió. Pasaron 42 días.' }],
+    { enLetras }).archivos;
+    ok(x.seudo.startsWith('JUZGADO NACIONAL EN LO CIVIL Nro. [JUZGADO_1]. Juzgado Civil n° [JUZGADO_1],'),
+        'se tapa el número y queda el juzgado, con la misma etiqueta las dos veces');
+    ok(x.seudo.includes('Secretaría n° 83') && x.seudo.includes('Sala 2'), 'la secretaría y la sala quedan');
+    ok(x.seudo.includes('Pasaron 42 días'), 'el mismo número suelto no se sale a buscar');
 }
 
 console.log('El buzón');

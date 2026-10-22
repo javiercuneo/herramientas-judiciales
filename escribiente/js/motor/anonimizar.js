@@ -368,7 +368,12 @@ export const REGLAS_IDENTIFICADORES = [
         // ser la barra. El guion se acepta SOLO aca, con el ancla delante; la
         // regla general de abajo sigue pidiendo la barra, porque "1994-2001"
         // suelto es un rango de anios.
-        patron: /\b((?:expte|expediente|causa|autos)\.?\s*(?:nro\.?|n[uú]mero|n[°ºo]?\.?)?\s*)\d{1,7}(?:\.\d{3})*\s*[/\-‐‑–—]\s*(?:19|20)\d{2}(?!\d)/gi,
+        //
+        // "EXP." Y EL ANIO DE DOS CIFRAS, 12/10/2026, del buzon: "(Exp.
+        // NNNNN/26)" salia entero por las dos cosas. Con dos cifras de anio se
+        // piden tres o mas de numero y nada pegado detras: "autos 12/03/2020"
+        // es una fecha, y no se toca.
+        patron: /\b((?:expte|expediente|exp|causa|autos)\.?\s*(?:nro\.?|n[uú]mero|n[°ºo]?\.?)?\s*)(?:\d{1,7}(?:\.\d{3})*\s*[/\-‐‑–—]\s*(?:19|20)\d{2}(?!\d)|\d{3,7}(?:\.\d{3})*\s*\/\s*\d{2}(?![\d/.]))/gi,
         reemplazo: '$1[EXPTE]',
     },
     {
@@ -398,6 +403,39 @@ export const REGLAS_IDENTIFICADORES = [
         reemplazo: '[MATRICULA]',
     },
     {
+        nombre: 'matricula del registro',
+        // La matricula de un inmueble en el Registro de la Propiedad: "FR
+        // 5-1234/3", "matricula nro. 1-23456/7". CASO DE PRUEBA, 12/10/2026, del
+        // buzon: salia entera, y con ella se llega al titular por el Registro.
+        // Distinta de la del letrado, que es tomo y folio. La forma —una a tres
+        // cifras, guion, el numero, barra y el digito— se pide entera, y detras
+        // de su ancla: "FR" o "matricula". El ancla se conserva.
+        patron: /(\b(?:F\.?[ \t]?R\.?|F[°º][ \t]?R[°º]?|matr[ií]cula(?:[ \t]+(?:nro\.?|n[°º]\.?|n[uú]mero))?)[ \t]*:?[ \t]*)\d{1,3}[ \t]*-[ \t]*\d{1,7}[ \t]*\/[ \t]*\d{1,4}(?![\d/])/gi,
+        reemplazo: '$1[MATRICULA]',
+    },
+    {
+        nombre: 'numero de juzgado',
+        // DECISION DE JAVIER, 12/10/2026, de un aviso del buzon del 27/9:
+        // "JUZGADO CIVIL NN" y "Juzgado Civil n° NN" salian enteros. No es un
+        // dato personal, pero el juzgado y la fecha alcanzan para encontrar la
+        // causa en la consulta publica del PJN, y con la causa a las partes. Se
+        // tapa el numero y queda el resto: "Juzgado Civil n° [JUZGADO]" sigue
+        // diciendo que fuero resolvio.
+        //
+        // Solo el numero detras de "juzgado" y de las palabras con que se
+        // escribe un juzgado. La sala y la secretaria quedan como estaban.
+        // Hasta tres digitos y sin barra detras: "Juzgado 12345/2020" no es un
+        // juzgado, es un expediente mal escrito.
+        patron: new RegExp(
+            '(\\bjuzgados?(?:[ \\t]+(?:nacional(?:es)?|federal(?:es)?|de|del|la|las|en|lo|y|e|primera|' +
+            'instancia|civil(?:es)?|comercial(?:es)?|trabajo|penal|contencioso|administrativo|familia|' +
+            'paz|letrado|correccional|criminal|instrucci[oó]n|menores|seguridad|social|electoral|' +
+            'ejecuci[oó]n|fiscal|patrimonial|econ[oó]mico|oral|capital|ciudad))*[ \\t]*' +
+            '(?:(?:n\\.?[°º]\\.?|nro\\.?|n[uú]mero|no\\.)[ \\t]*)?)(\\d{1,3})(?![\\d/]|[.,]\\d)',
+            'gi'),
+        reemplazo: '$1[JUZGADO]',
+    },
+    {
         nombre: 'telefono',
         // LOS SEPARADORES, 26/9/2026. un celular de AMBA con guiones salia
         // entero, y la causa es esta: entre los bloques se
@@ -425,7 +463,10 @@ export const REGLAS_IDENTIFICADORES = [
         // EL GUION CON ESPACIO, 26/9/2026. "Tel. 4371- 1696" -el espacio despues
         // del guion lo deja la extraccion del PDF- salia entero: entre los dos
         // bloques se aceptaba un solo caracter.
-        patron: /\b(tel[eé]fonos?|celulares?|cel|fax|tel)(\.?\s*:?\s*)\d{4}[ \t]*-?[ \t]*\d{4}(?:\s*\/\s*\d{2,4})?/gi,
+        //
+        // "TE:", 12/10/2026, del buzon: "(TE: NNNN-NNNN)" es como se abrevia
+        // en los encabezados, y salia entero.
+        patron: /\b(tel[eé]fonos?|celulares?|cel|fax|tel|t\.?e)(\.?\s*:?\s*)\d{4}[ \t]*-?[ \t]*\d{4}(?:\s*\/\s*\d{2,4})?/gi,
         reemplazo: '$1$2[TEL]',
     },
 ];
@@ -525,6 +566,8 @@ const PALABRA_DE_NOMBRE = `[${MAY}][${LETRA}\\d]*[${LETRA}]`;
 const FORMULAS_DE_PRESENTACION = [
     'en mi car[aá]cter de', 'en su car[aá]cter de', 'por derecho propio', 'por s[ií] y',
     'abogad[oa]', 'letrad[oa]', 'apoderad[oa]', 'inscript[oa] al',
+    // 12/10/2026, del buzon: "etc. a: Juan Inventado, con domicilio real en".
+    'con domicilio',
 ].flatMap((f) => [f, f.toUpperCase()]).join('|');
 
 // Los nombres que taparon las reglas ancladas en la pasada que esta corriendo.
@@ -559,10 +602,15 @@ const ROLES_QUE_ANUNCIAN = enLasTresCajas([
     'perit[oa]s?', 'ingenier[oa]s?', 'arquitect[oa]s?', 'contador(?:a|es)?', 'mediador(?:a|es)?',
     'martiller[oa]s?', 'tasador(?:a|es)?', 'cal[ií]graf[oa]s?',
     'traductor(?:a|es)?(?:[ \\t]+p[uú]blic[oa]s?)?', 'consultor(?:a|es)?(?:[ \\t]+t[eé]cnic[oa]s?)?',
-    'letrad[oa]s?', 'abogad[oa]s?', 'apoderad[oa]s?', 'demandad[oa]s?', 'codemandad[oa]s?',
+    'letrad[oa]s?', 'abogad[oa]s?', 'apoderad[oa]s?(?:[ \\t]+de)?', 'demandad[oa]s?', 'codemandad[oa]s?',
     'actor(?:a|es)?', 'coactor(?:a|es)?', 'causante', 'testigos?', 'damnificad[oa]', 'reclamante',
     'c[oó]nyuge(?:[ \\t]+sup[eé]rstite)?(?:[ \\t]+de)?', 'hereder[oa]s?(?:[ \\t]+de)?',
     'su[ \\t]+(?:madre|padre|hij[oa]|espos[oa]|herman[oa]|concubin[oa])',
+    // 12/10/2026, del buzon: lo que anunciaba a una persona en las entradas que
+    // se vieron despues de liberar el caso.
+    'administrador(?:a|es)?', 'fallecid[oa]', 'falleci[oó]', 'escriban[oa]s?', 'escriban[ií]a',
+    'un[ \\t]+tal', 'patrocinante', 'que[ \\t]+me[ \\t]+patrocina',
+    'representaci[oó]n(?:[ \\t]+letrada)?[ \\t]+de', 'ejercid[oa][ \\t]+por',
 ]);
 
 // Lo que puede ir entre el rol y el nombre: "el perito MEDICO Dr.", "la
@@ -654,15 +702,22 @@ export const REGLAS_NOMBRES = [
             // cierra un nombre. Con la bandera `i` calzaria tambien una minuscula
             // ("Perez p. ej."), y la frena `largoDeNombre`, que mira la mayuscula
             // sin la bandera.
-            `[ \\t]*:?[ \\t]*(${PALABRA_DE_NOMBRE}(?:[ \\t]+(?:[${MAY}]\\.[ \\t]*)?(?:${PARTICULA_CUALQUIER_CAJA}[ \\t]+){0,2}${PALABRA_DE_NOMBRE}){0,3})`,
+            //
+            // CINCO PALABRAS, 12/10/2026, del buzon: "el Sr. [PERSONA] Xx" —un
+            // nombre de cinco palabras, que en Argentina no es raro— dejaba la
+            // ultima a la vista. La regla de rol ya tomaba cinco.
+            `([ \\t]*:?[ \\t]*)(${PALABRA_DE_NOMBRE}(?:[ \\t]+(?:[${MAY}]\\.[ \\t]*)?(?:${PARTICULA_CUALQUIER_CAJA}[ \\t]+){0,2}${PALABRA_DE_NOMBRE}){0,4})`,
             'g'
         ),
-        reemplazo: (todo, tratamiento, nombre) => {
+        // LOS DOS PUNTOS QUEDAN, 12/10/2026. "Juez" es tratamiento, y "Señor
+        // Juez: Juan Inventado, abogado" salia "Señor Juez [PERSONA]": el
+        // separador no se devolvia y los dos puntos del encabezado se perdian.
+        reemplazo: (todo, tratamiento, separador, nombre) => {
             const largo = largoDeNombre(nombre);
             if (!largo) return todo;
             const conservado = nombre.match(new RegExp(`^\\S+(?:[ \\t]+\\S+){${largo - 1}}`))[0];
             descubierto(conservado);
-            return `${tratamiento} [PERSONA]` + nombre.slice(conservado.length);
+            return `${tratamiento}${separador.includes(':') ? separador : ' '}[PERSONA]` + nombre.slice(conservado.length);
         },
     },
     {
@@ -762,6 +817,31 @@ export const REGLAS_NOMBRES = [
         },
     },
     {
+        nombre: 'consorcio',
+        // "CONSORCIO DE PROPIETARIOS INVENTADA 1750", "Consorcio de Propietarios
+        // del Edif. Inventada 175", "Consorcio de Propietarios Torre Inventada de
+        // la calle...". CASO DE PRUEBA, 12/10/2026, del buzon: el nombre de un
+        // consorcio es la direccion del edificio, o su nombre, y salia entero.
+        // Se tapa la tira de palabras en mayuscula que sigue al ancla, con la
+        // altura si la tiene; "Consorcio de Propietarios" queda.
+        patron: new RegExp(
+            `(\\bconsorcio[ \\t]+de[ \\t]+(?:(?:propietarios|prop\\.)[ \\t]*,?[ \\t]*)?` +
+            `(?:(?:del|de|la)[ \\t]+)?(?:(?:edificio|edif\\.|calle|avenida|av\\.)[ \\t]*)?)` +
+            `([^\\n]{1,100})`,
+            'gi'
+        ),
+        reemplazo: (todo, ancla, resto) => {
+            // Cada palabra entera: "INVENTADA C/ FICTICIO" no se lleva la "C".
+            const palabra = `(?:[${MAY}][${LETRA}.'’]*|${ETIQUETA_DE_NOMBRE})(?=[ \\t,;:)"”]|$)`;
+            const nombre = new RegExp(
+                `^${palabra}(?:[ \\t]+(?:(?:de|del|la|las|los|y)[ \\t]+)?${palabra}){0,5}` +
+                `(?:[ \\t]+(?:(?:n[°º]\\.?|nro\\.?)[ \\t]*)?\\d{1,5}(?:[ \\t]*\\/[ \\t]*\\d{1,4})?)?`).exec(resto);
+            if (!nombre || /^\[/.test(nombre[0]) && !/\d/.test(nombre[0])) return todo;
+            const sin = nombre[0].replace(/[ \t.]+$/, '');
+            return ancla + '[DOMICILIO]' + resto.slice(sin.length);
+        },
+    },
+    {
         nombre: 'domicilio con ancla',
         // Calle y altura SIN piso ni departamento, que es como se escribe la
         // mayoria de los domicilios de un escrito: "Av. San Juan 640 CABA",
@@ -796,7 +876,9 @@ export const REGLAS_NOMBRES = [
             // puede ir "N°" —"en [PERSONA] N° 1234"—, y detras de la altura una
             // segunda altura: "Mitre 1234/36".
             `((?:[${MAY}][${LETRA}.]+|${ETIQUETA_DE_NOMBRE})` +
-            `(?:[ \\t]+(?:de[l]?|la|las|los)?[ \\t]*(?:[${MAY}][${LETRA}.]+|${ETIQUETA_DE_NOMBRE})){0,2}` +
+            // Hasta cinco palabras: con tres, "calle Doctor Juan Bautista
+            // Inventado 1234" dejaba la primera a la vista (buzon, 12/10/2026).
+            `(?:[ \\t]+(?:de[l]?|la|las|los)?[ \\t]*(?:[${MAY}][${LETRA}.]+|${ETIQUETA_DE_NOMBRE})){0,4}` +
             `[ \\t]+(?:(?:n[°ºo]?\\.?|nro\\.?|n[uú]mero)[ \\t]*)?\\d{1,5}(?:[ \\t]*\\/[ \\t]*\\d{1,4})?${PISO_CON_ANCLA}*)`,
             'gi'
         ),

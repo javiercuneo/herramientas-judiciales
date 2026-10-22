@@ -126,8 +126,10 @@ export function zonasIntocables(texto) {
             const s = resto.exec(texto.slice(fin));
             if (!s) break;
             const palabra = sinTildes(s[2].toLowerCase());
+            // El numero de un juzgado se tapa (Javier, 12/10/2026; la regla
+            // esta en `anonimizar.js`): la zona termina antes, en el "n°".
             const vale = PALABRAS_DE_TRIBUNAL.has(palabra) ||
-                /^\d{1,3}$/.test(s[2]) ||                       // n° 19
+                (/^\d{1,3}$/.test(s[2]) && !/^juzgados?$/i.test(m[0])) ||   // Sala 2
                 /^[IVXLC]{1,5}$/.test(s[2]) ||                   // Sala IV
                 /^[A-M]$/.test(s[2]);                            // Sala A
             if (!vale) break;
@@ -195,6 +197,123 @@ function identificadoresEnLetras(texto) {
     }
     return salida;
 }
+
+// ---------------------------------------------------------------------------
+// El inmueble: matricula del Registro, domicilio y nomenclatura catastral.
+//
+// CASO DE PRUEBA, 12/10/2026, del buzon. Los escritos de una inscripcion -la
+// declaratoria, el oficio al Registro de la Propiedad- traen el inmueble
+// entero, y el motor publico no lo ve: la matricula del Registro va en digitos
+// y sin dos puntos ("Matricula FR 1-2345/6", "matricula nro. 1-23456/7"), el
+// domicilio no tiene la forma de calle y altura que busca ("CORRIENTES N°
+// 1234/1236" detras de "a inscribir:", la altura en letras, la calle sin
+// altura) y la nomenclatura catastral no tiene regla. Con cualquiera de las
+// tres se llega al titular por el Registro, que es publico.
+//
+// La matricula y el domicilio van al motor como reemplazos elegidos, igual que
+// los identificadores en letras: son largos, y taparlos en todo el texto es lo
+// que corresponde. Lo catastral NO: "15" o "A" sueltos estan en todas partes, y
+// se tapan solo donde estan (`partesCatastrales`).
+// ---------------------------------------------------------------------------
+
+const MATRICULA_REGISTRAL = new RegExp(
+    `${ANTES}(matr[ií]cula(?:[ \\t]+(?:nro\\.?|n[°º]\\.?|n[uú]mero))?[ \\t]*:?[ \\t]*` +
+    `(?:(?:F\\.?[ \\t]?R\\.?|F[°º][ \\t]?R[°º]?)[ \\t]*)?)` +
+    `(\\d[\\d.]*(?:[ \\t]*[-/][ \\t]*\\d[\\d.]*)*)${DESPUES}`, 'gi');
+
+function matriculasRegistrales(texto) {
+    const salida = [];
+    for (const m of texto.matchAll(MATRICULA_REGISTRAL)) {
+        const numero = m[3].replace(/[.\s/-]+$/, '');
+        if (digitos(numero).length >= 3) salida.push({ texto: numero, reemplazo: '[MATRICULA]' });
+    }
+    return salida;
+}
+
+// El ancla, y despues la calle. "inmueble a inscribir:" es como el oficio al
+// Registro presenta el domicilio, sin "calle" ni "sito".
+const ANCLA_DE_DOMICILIO = new RegExp(
+    `${ANTES}((?:domicili[oa][${LETRA}]*|sit[oa]|ubicad[oa]|calle|avenida|av\\.|inmueble[ \\t]+a[ \\t]+inscribir)` +
+    `(?:[ \\t]+(?:legal|real|procesal|constituid[oa]|comercial|denunciad[oa]))*` +
+    `[ \\t]*:?[ \\t]*(?:en[ \\t]+)?(?:la[ \\t]+)?(?:(?:calle|avenida|av\\.)[ \\t]*)?)`, 'gi');
+
+const PALABRA_DE_CALLE = new RegExp(`^(?:[${MAY}][${LETRA}'’.]*|de|del|la|las|los|y)(?=[ \\t,;:/)]|$)`);
+const ALTURA_EN_DIGITOS = /^[ \t]+(?:(?:n[°º]\.?|nro\.?|n[uú]mero)[ \t]*)?\d{1,5}(?:[ \t]*\/[ \t]*\d{1,5})?(?!\d)/i;
+const ALTURA_EN_LETRAS = new RegExp(
+    `^[ \\t]+(?:(?:n[°º]\\.?|nro\\.?|n[uú]mero)[ \\t]+)?${PALABRA_DE_NUMERO}(?:[ \\t]+(?:y[ \\t]+)?${PALABRA_DE_NUMERO})*${DESPUES}`, 'i');
+
+/** La calle detras de su ancla, con la altura si la tiene. Sin altura se tapa
+ *  solo detras de "calle", "avenida" o "a inscribir" -que dicen que lo que
+ *  sigue es una calle- y si tiene dos palabras o mas: una sola puede ser la
+ *  provincia ("Corrientes"), y taparla en todo el texto se lleva la otra. */
+function domiciliosDelInmueble(texto) {
+    const salida = [];
+    for (const m of texto.matchAll(ANCLA_DE_DOMICILIO)) {
+        const desde = m.index + m[0].length;
+        const renglon = texto.slice(desde, desde + 160).split('\n')[0];
+        let largo = 0;
+        const palabras = [];
+        for (;;) {
+            const espacio = palabras.length ? /^[ \t]+/.exec(renglon.slice(largo)) : [''];
+            if (!espacio) break;
+            const p = PALABRA_DE_CALLE.exec(renglon.slice(largo + espacio[0].length));
+            if (!p || palabras.length >= 6) break;
+            palabras.push({ texto: p[0], hasta: largo + espacio[0].length + p[0].length });
+            largo = palabras.at(-1).hasta;
+        }
+        while (palabras.length && !new RegExp(`^[${MAY}]`).test(palabras.at(-1).texto)) palabras.pop();
+        if (!palabras.length) continue;
+        const calle = renglon.slice(0, palabras.at(-1).hasta);
+        const resto = renglon.slice(calle.length);
+        const altura = ALTURA_EN_DIGITOS.exec(resto) || ALTURA_EN_LETRAS.exec(resto);
+        const porCalle = /(?:calle|avenida|av\.|inscribir)[ \t:]*$/i.test(m[2]);
+        if (altura) salida.push({ texto: calle + altura[0], reemplazo: '[DOMICILIO]' });
+        else if (porCalle && palabras.filter((p) => /^[A-ZÀ-ÖØ-Þ]/.test(p.texto)).length >= 2) {
+            salida.push({ texto: calle, reemplazo: '[DOMICILIO]' });
+        }
+    }
+    return salida;
+}
+
+// Lo catastral se busca solo cerca de la palabra que lo anuncia: "Seccion 3" o
+// "Partida" sueltos son tambien un pedazo de una ley o del Registro Civil.
+const ANCLA_CATASTRAL = /catastr(?:al|ales|o)(?![a-zß-ÿ])/gi;
+const PARTE_CATASTRAL = new RegExp(
+    `${ANTES}((?:circunscripci[oó]n|circ|secci[oó]n|secc?|manzana|mzna?|mz|parcela|parc|subparcela|` +
+    `fracci[oó]n|frac|quinta|chacra|partida(?:[ \\t]+inmobiliaria)?|unidad[ \\t]+funcional|u\\.?[ \\t]?f|pol[ií]gono)` +
+    // Detras de la palabra, un punto, dos puntos o un espacio: sin eso "PARCELA"
+    // calzaba como "PARC" con "ELA" de valor.
+    `(?=[.: \\t])\\.?[ \\t]*:?[ \\t]*(?:(?:n[°º]\\.?|nro\\.?)[ \\t]*)?)` +
+    `(\\d(?:[\\d.\\-/]*\\d)?[A-Za-z]?|[A-Za-z]{1,3})${DESPUES}`, 'gi');
+
+// Entre una parte y la siguiente, a lo sumo esto: la nomenclatura es una tira,
+// y lo que viene despues de cortarse ya es otra cosa.
+const HUECO_CATASTRAL = 40;
+
+/** Los valores de la nomenclatura catastral, por posicion: `[{ desde, hasta }]`. */
+export function partesCatastrales(texto) {
+    const salida = [];
+    for (const a of texto.matchAll(ANCLA_CATASTRAL)) {
+        let fin = a.index + a[0].length;
+        const ventana = texto.slice(fin, fin + 400);
+        const base = fin;
+        for (const m of ventana.matchAll(PARTE_CATASTRAL)) {
+            const inicio = base + m.index + m[1].length;
+            if (inicio - fin > HUECO_CATASTRAL) break;
+            const valor = m[3];
+            const hasta = base + m.index + m[0].length;
+            fin = hasta;
+            if (!/^\d/.test(valor) && !/^[A-Z]{1,3}$/.test(valor)) continue;
+            const desde = hasta - valor.length;
+            if (!salida.some((s) => s.desde === desde)) salida.push({ desde, hasta });
+        }
+    }
+    return salida;
+}
+
+// Lo que se tapa donde esta y no se busca en el resto: el valor suelto ("15",
+// "A") calza en cualquier lado.
+const BASES_POSICIONALES = new Set(['CATASTRO', 'JUZGADO']);
 
 function normalizarLetras(t) {
     return sinTildes(String(t).toLowerCase())
@@ -296,6 +415,19 @@ function crearRegistro(enLetras) {
         return e;
     }
 
+    /** Lo que se tapa solo donde esta. El mismo valor lleva la misma
+     *  etiqueta, pero el control de inconsistencia no lo sale a buscar. */
+    function posicional(valor, base) {
+        const clave = `pos:${base}:${String(valor).replace(/\s+/g, '')}`;
+        let e = porClave.get(clave);
+        if (!e) {
+            e = nueva(base, 'posicional');
+            registrarClave(e, clave);
+        }
+        e.valores.add(valor);
+        return e;
+    }
+
     function tabla() {
         const salida = {};
         for (const e of entidades) {
@@ -305,7 +437,7 @@ function crearRegistro(enLetras) {
         return salida;
     }
 
-    return { persona, identificador, etiqueta, tabla, entidades };
+    return { persona, identificador, posicional, etiqueta, tabla, entidades };
 }
 
 // ---------------------------------------------------------------------------
@@ -349,11 +481,16 @@ function armarSeudo(real, segs) {
 /** Tapa `[desde, hasta)` del seudonimizado, si cae entero en un pedazo copiado.
  *  Devuelve si tapo. */
 function taparEnSeudo(archivo, desde, hasta, etiqueta) {
-    const i = archivo.segs.findIndex((s) => s.etiqueta === null && desde >= s.s0 && hasta <= s.s1);
+    const s = archivo.segs.find((x) => x.etiqueta === null && desde >= x.s0 && hasta <= x.s1);
+    if (!s) return false;
+    return taparEnReal(archivo, s.r0 + (desde - s.s0), s.r0 + (hasta - s.s0), etiqueta);
+}
+
+/** Lo mismo, con `[r0, r1)` sobre el texto real. */
+function taparEnReal(archivo, r0, r1, etiqueta) {
+    const i = archivo.segs.findIndex((s) => s.etiqueta === null && r0 >= s.r0 && r1 <= s.r1);
     if (i < 0) return false;
     const s = archivo.segs[i];
-    const r0 = s.r0 + (desde - s.s0);
-    const r1 = s.r0 + (hasta - s.s0);
     if (adentroDeUna(archivo.zonas, r0, r1)) return false;
     const nuevos = [];
     if (r0 > s.r0) nuevos.push({ r0: s.r0, r1: r0, etiqueta: null });
@@ -434,7 +571,8 @@ export function seudonimizarTanda(archivos, opciones = {}) {
 
     // 3. El motor, archivo por archivo, con la misma lista para todos.
     for (const a of trabajo) {
-        const propios = [...elegidos, ...identificadoresEnLetras(a.real)];
+        const propios = [...elegidos, ...identificadoresEnLetras(a.real),
+            ...matriculasRegistrales(a.real), ...domiciliosDelInmueble(a.real)];
         const r = anonimizarConTramos(a.real, propios);
         a.segs = segmentosDesdeTramos(a.real, r.texto, r.tramos);
     }
@@ -452,11 +590,17 @@ export function seudonimizarTanda(archivos, opciones = {}) {
             const valor = a.real.slice(s.r0, s.r1);
             const e = BASES_DE_PERSONA.has(base)
                 ? registro.persona(valor, base) ?? registro.identificador(valor, base)
-                : registro.identificador(valor, base);
+                : BASES_POSICIONALES.has(base)
+                    ? registro.posicional(valor, base)
+                    : registro.identificador(valor, base);
             s.etiqueta = registro.etiqueta(e);
         }
         a.segs = juntarCopiados(a.segs);
         a.seudo = armarSeudo(a.real, a.segs);
+        for (const { desde, hasta } of partesCatastrales(a.real)) {
+            const e = registro.posicional(a.real.slice(desde, hasta), 'CATASTRO');
+            taparEnReal(a, desde, hasta, registro.etiqueta(e));
+        }
     }
 
     // 5. Los tres controles. Tapan y anotan, sin preguntar.
@@ -477,7 +621,7 @@ export function seudonimizarTanda(archivos, opciones = {}) {
 
     //    b. Inconsistencia: lo que esta tapado en un archivo y a la vista en otro.
     for (const e of registro.entidades) {
-        if (e.numero === null) continue;
+        if (e.numero === null || e.clase === 'posicional') continue;
         const etiqueta = registro.etiqueta(e);
         trabajo.forEach((a, i) => {
             let n = 0;
