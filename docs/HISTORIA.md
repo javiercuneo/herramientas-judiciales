@@ -7045,3 +7045,19 @@ Dos cosas del motor único que ya estaban cerradas:
   `Autos` y `Expte. N`; ahora los conserva, como ya hacían las otras cuatro
   reglas ancladas. Queda del lado del Python comerse el `Tel:`, y como el motor
   que se va es ése, no se toca.
+
+## Pasar en limpio — 22/10
+
+Pedido de Javier: en vez de confrontar un auto largo, pegarlo, que salga
+formateado para el testimonio y copiarlo. Se armó `en-limpio/` sobre el motor
+de `confronte/` —el ruido y la regla de las letras son de confronteitor y no se
+copiaron— con lo propio de la página: el bloque único punto y seguido, qué
+número no se pasa (montos con decimales, con «.-» o con $, más de nueve
+cifras, horas, lo pegado a una letra, ordinales mayores a décimo) y la
+concordancia que `enPalabras` no hace («veintiún mil», «primero de marzo»,
+«treinta y una fojas»; lo de género dudoso se avisa). El cuerpo arranca en 12
+porque lo pidió así; el protocolo de la Cámara dice 14 y está en el selector.
+
+Salió de `ESTADO.md` para hacerle lugar, porque es de Honorio y vive allá: «si
+el control de fracción de etapa del dashboard debería ofrecer las dos cosas»,
+anotado y no decidido.

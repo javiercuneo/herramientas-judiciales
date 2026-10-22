@@ -65,6 +65,12 @@ jobs:
       - name: Verificar el motor de Escribiente
         run: npm run verificar-escribiente
 
+      # Pasar en limpio usa el motor de confronte/ tal como se trajo. Si una
+      # copia nueva de confronteitor le cambia la forma a una funcion que usa,
+      # la pagina se rompe sin dar error: esto lo ataja antes de publicar.
+      - name: Verificar Pasar en limpio
+        run: npm run verificar-en-limpio
+
       # El perfil automatico (E-08): el que tapa de mas para un agente. Lee un
       # PDF de prueba con una foja escaneada, asi que tambien prueba que el OCR
       # corre con el español empaquetado y sin red.
@@ -190,6 +196,11 @@ jobs:
           # repositorio y no tiene por que tenerlo. ORIGEN.json dice de que
           # commit salio.
           cp -r confronte site/confronte
+
+          # Pasar en limpio: una pagina sobre el motor de confronte/, que carga
+          # desde ../confronte/motor/. No tiene reglas propias de ruido ni de
+          # numeros: ver la cabecera de en-limpio/motor.js.
+          cp -r en-limpio site/en-limpio
 
           # PDF-studio se rehizo entero y paso a llamarse Escribiente el
           # 17/8. La URL vieja estuvo publicada meses y sigue viva con un

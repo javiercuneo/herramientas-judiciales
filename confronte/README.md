@@ -22,3 +22,10 @@ commit salió. **No se edita a mano**: `index.html`, `ui/`, `motor/`,
 Lo propio del sitio sí vive acá y se edita acá: `sitio.css` (los colores del
 sitio y el tema oscuro), `sitio.js` (el enlace de vuelta y el service worker),
 `manifest.json` y los íconos, que arma `npm run imagenes`.
+
+## Quién más usa este motor
+
+[`../en-limpio/`](../en-limpio/) —Pasar en limpio— carga `motor/` desde acá
+para limpiar un auto y pasarlo a letras con las mismas reglas. Después de
+`npm run traer-confronte`, correr `npm run verificar-en-limpio`: si la copia
+nueva cambió la forma de una función que usa, ahí se ve.

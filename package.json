@@ -17,6 +17,7 @@
     "verificar-distancia": "node scripts/verificar-distancia.mjs",
     "verificar-red": "node scripts/verificar-red.mjs",
     "verificar-escribiente": "node scripts/verificar-escribiente.mjs",
+    "verificar-en-limpio": "node scripts/verificar-en-limpio.mjs",
     "verificar-automatico": "node scripts/verificar-automatico.mjs",
     "verificar-revisor": "node scripts/verificar-revisor.mjs",
     "verificar-honorio": "node scripts/verificar-honorio.mjs",

@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-10-21 · rama `main`
+Última actualización: 2026-10-22 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -220,8 +220,6 @@ Ninguno urgente y ninguno bloqueante.
   que no lo fueron, así que el motor anota cualquier año fuera de la ventana y
   la herramienta no afirma una fecha. **Se decidió que completar 2004-2020 no
   vale la pena**; las ferias viejas quedan como evidencia documental.
-- Anotado y no decidido, de cálculo directo: si el control de fracción de etapa
-  del dashboard debería ofrecer las dos cosas.
 
 ### Lo que está abierto en las pantallas
 
@@ -664,6 +662,12 @@ escriba mañana tampoco sale.
 - **Con el panel del navegador oculto, las transiciones no avanzan** y el
   contraste medido tras cambiar de tema da cualquier cosa. Se mide con
   `transition: none`.
+
+**`en-limpio/` (Pasar en limpio, 22/10) usa ese motor y no tiene reglas propias** de ruido ni de
+números: carga `../confronte/motor/` y llama a `sinMembretes`, `sinCodigos`, `sinEncabezados`,
+`sinIniciales` y `formas.enPalabras`. **Una copia nueva que les cambie la forma la rompe sin
+error**: `npm run verificar-en-limpio` (en CI) lo ataja. Lo que no pasa a letras —montos, CBU,
+horas— queda a la vista y listado; **el cuerpo 12 es pedido de Javier, el protocolo de la Cámara dice 14**.
 
 ## El revisor de ortografía de proveídos
 

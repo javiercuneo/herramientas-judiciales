@@ -1,0 +1,157 @@
+/* ---------------------------------------------------------------------------
+   Pasar en limpio. Habla en los tokens de comun.css, que se carga antes, y no
+   redefine ninguno: --accent: var(--accent) es un ciclo y deja la variable
+   vacia sin avisar (docs/ESTADO.md, trampas).
+
+   La hoja de la derecha va en Times New Roman, el cuerpo elegido e
+   interlineado 1,5: es como va a quedar en el testimonio, y lo que se copia
+   lleva ese mismo formato escrito en el HTML del portapapeles.
+   --------------------------------------------------------------------------- */
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.55 var(--font-sans);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px 8px;
+}
+h1 { font-family: var(--font-meter); font-size: 1.6rem; margin: 0 0 4px; }
+.bajada { margin: 0; color: var(--muted-fg); max-width: 60ch; }
+/* El botón del tema (assets/tema.js) va fijo arriba a la derecha: el enlace
+   le deja lugar. */
+.volver { color: var(--accent); white-space: nowrap; font-size: 0.9rem; margin-right: 80px; }
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 8px 16px;
+}
+@media (max-width: 860px) {
+  main { grid-template-columns: 1fr; }
+  header { flex-direction: column; gap: 8px; padding-right: 96px; }
+  .volver { margin-right: 0; }
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.rotulo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+.controles { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.chico { font-weight: 400; font-size: 0.9rem; color: var(--muted-fg); display: inline-flex; align-items: center; gap: 6px; }
+
+button, select {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--fg);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: 0.5; cursor: default; }
+.primario, .primario:hover {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+textarea {
+  flex: 1;
+  min-height: 420px;
+  width: 100%;
+  resize: vertical;
+  border: 0;
+  padding: 12px;
+  background: transparent;
+  color: var(--fg);
+  font: 13px/1.6 Consolas, "Cascadia Mono", monospace;
+}
+textarea::placeholder { color: var(--faint); }
+
+.hoja {
+  flex: 1;
+  min-height: 420px;
+  padding: 16px 20px;
+  font-family: "Times New Roman", Times, serif;
+  line-height: 1.5;
+  text-align: justify;
+  overflow-wrap: anywhere;
+}
+.hoja.c12 { font-size: 12pt; }
+.hoja.c14 { font-size: 14pt; }
+
+/* Las marcas son de la vista. Lo que se copia sale de r.texto, sin ellas. */
+.hoja.marcado .m-convertido { background: var(--accent-tint); border-radius: 2px; }
+.hoja.marcado .m-revisar { background: var(--warn-tint); border-bottom: 2px solid var(--warn); }
+.hoja.marcado .m-sin-pasar { background: var(--error-tint); border-bottom: 2px solid var(--error); }
+
+.copiado { margin: 0; padding: 0 12px 8px; min-height: 1.5em; color: var(--ok); font-size: 0.9rem; }
+
+.informe, .notas {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 8px 16px;
+}
+.resumen { font-weight: 600; margin: 8px 0; }
+details {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 8px 0;
+}
+summary { cursor: pointer; padding: 8px 12px; font-weight: 600; }
+summary::after { content: " (" attr(data-n) ")"; font-weight: 400; color: var(--muted-fg); }
+.mirar summary { color: var(--error); }
+.revisar summary { color: var(--warn); }
+details ul { margin: 0; padding: 0 12px 12px 32px; }
+details li { margin: 6px 0; }
+details .que { display: block; }
+details .donde { display: block; color: var(--muted-fg); font-size: 0.85rem; overflow-wrap: anywhere; }
+
+.notas h2 { font-family: var(--font-meter); font-size: 1.1rem; margin: 16px 0 8px; }
+.notas ul { padding-left: 20px; color: var(--muted-fg); max-width: 90ch; }
+.notas li { margin: 6px 0; }
+.notas a { color: var(--accent); }
+.notas strong { color: var(--fg); }
+
+.pie { max-width: 1280px; margin: 0 auto; padding: 16px; color: var(--faint); font-size: 0.85rem; }
+
+/* El nodo que se arma para copiar por el camino de repuesto: tiene que estar
+   en la pagina para que se pueda seleccionar, pero no se tiene que ver. */
+.para-copiar { position: fixed; left: -10000px; top: 0; }

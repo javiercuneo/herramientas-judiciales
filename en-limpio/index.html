@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- Por esta pagina pasa el texto de un auto sin anonimizar, igual que por
+     confronte: tiene prohibido abrir conexiones de red. No lleva contador de
+     visitas por eso. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pasar en limpio</title>
+<meta name="description" content="Pegás el auto copiado del sistema y sale listo para el testimonio: sin códigos ni membretes, en un solo bloque, con los números en letras y en Times New Roman. Todo en el navegador.">
+<link rel="icon" href="../confronte/icono-192.png" type="image/png">
+<link rel="stylesheet" href="../calculadoras/css/comun.css">
+<link rel="stylesheet" href="app.css">
+<script src="../assets/tema.js"></script>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Pasar en limpio</h1>
+    <p class="bajada">Pegás el auto tal como sale del sistema y lo devuelve listo para el testimonio.
+      Corre en tu navegador: el texto no sale de acá.</p>
+  </div>
+  <a class="volver" href="../index.html">Todas las herramientas</a>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="rotulo">
+      <label for="entrada">El auto, copiado y pegado</label>
+      <button type="button" id="borrar">Borrar</button>
+    </div>
+    <textarea id="entrada" spellcheck="false" placeholder="Pegá acá el texto del auto, con los códigos, los membretes y los saltos de renglón: los saca solo."></textarea>
+  </section>
+
+  <section class="panel">
+    <div class="rotulo">
+      <span>Listo para pegar</span>
+      <div class="controles">
+        <label class="chico">Cuerpo
+          <select id="cuerpo">
+            <option value="12">12</option>
+            <option value="14">14</option>
+          </select>
+        </label>
+        <label class="chico"><input type="checkbox" id="marcar" checked> Marcar los cambios</label>
+        <button type="button" id="copiar" class="primario" disabled>Copiar</button>
+      </div>
+    </div>
+    <div id="salida" class="hoja c12 marcado" aria-live="polite"></div>
+    <p id="copiado" class="copiado" role="status"></p>
+  </section>
+</main>
+
+<section id="informe" class="informe" hidden>
+  <p id="resumen" class="resumen"></p>
+  <details id="d-mirar" class="mirar">
+    <summary>Quedaron en números</summary>
+    <ul id="l-mirar"></ul>
+  </details>
+  <details id="d-revisar" class="revisar">
+    <summary>Para revisar</summary>
+    <ul id="l-revisar"></ul>
+  </details>
+  <details id="d-pasados">
+    <summary>Pasados a letras</summary>
+    <ul id="l-pasados"></ul>
+  </details>
+  <details id="d-sacado">
+    <summary>Lo que se sacó</summary>
+    <ul id="l-sacado"></ul>
+  </details>
+</section>
+
+<section class="notas">
+  <h2>Qué hace, y qué no</h2>
+  <ul>
+    <li><strong>Saca el ruido del sistema</strong>: el código de barras (<code>#…#…#…</code>), el
+      encabezado con el juzgado, el número y la carátula arriba de cada auto, «USO OFICIAL», los
+      números de página, el pie de firma y las iniciales de quien proyectó. Son las mismas reglas
+      con que <a href="../confronte/">Confronte</a> limpia los autos antes de compararlos.</li>
+    <li><strong>Lo deja en un solo bloque</strong>, punto y seguido: une los renglones y los
+      párrafos, y la palabra cortada con guion al final del renglón.</li>
+    <li><strong>Pasa los números a letras</strong> con la regla de la transcripción del testimonio:
+      la fecha con «de», el número en cardinal, el ordinal si tenía «°», y los separadores de una
+      matrícula o un expediente como símbolo.</li>
+    <li><strong>No pasa</strong> los montos con decimales, con «.-» o con el signo $, los números de
+      más de nueve cifras —un CBU, una cuenta—, las horas, lo pegado a una letra ni los ordinales
+      mayores a décimo. Quedan como estaban y se listan arriba, en rojo, para que se miren.</li>
+    <li><strong>No confronta.</strong> Transforma el texto que pegaste: si el auto que copiaste no es
+      el que corresponde, o le falta un tramo, esto no lo ve. Para eso está Confronte.</li>
+  </ul>
+</section>
+
+<footer class="pie">© 2026 L. Javier Cúneo Libarona · Herramienta de ayuda: no reemplaza la lectura de quien firma.</footer>
+
+<script src="../confronte/motor/unicode.js"></script>
+<script src="../confronte/motor/py.js"></script>
+<script src="../confronte/motor/difflib.js"></script>
+<script src="../confronte/motor/formas.js"></script>
+<script src="../confronte/motor/cotejo.js"></script>
+<script src="motor.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
