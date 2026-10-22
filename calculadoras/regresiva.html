@@ -410,6 +410,7 @@
 <script src="js/dias-propios.js"></script>
 <script src="js/dibujo-plazo.js"></script>
 <script src="js/enlace.js"></script>
+<script src="js/calcula-solo.js"></script>
 <script>
     (function() {
         let datosCargados = false;
@@ -687,6 +688,24 @@
 
             calcularBtn.addEventListener('click', calcular);
             resetBtn.addEventListener('click', resetear);
+
+            // Calcula sola apenas la fecha y los dias estan (js/calcula-solo.js).
+            CalculaSolo.enganchar({
+                contenedor: document.querySelector('.tablero > .panel'),
+                enter: true,
+                completo: function () {
+                    return datosCargados &&
+                        CalculaSolo.fechaValida(diaInput.value, mesInput.value, anioInput.value) &&
+                        parseInt(diasInput.value, 10) > 0;
+                },
+                calcular: calcular,
+                borrar: function () {
+                    limpiarAviso();
+                    resultadoPanel.style.display = 'none';
+                    document.getElementById('espera').style.display = '';
+                    dibujoDiv.innerHTML = '';
+                }
+            });
 
             // Aviso temprano: se marca en rojo cuando los tres campos ya están
             // completos y la fecha no existe o cae fuera de la cobertura. Con

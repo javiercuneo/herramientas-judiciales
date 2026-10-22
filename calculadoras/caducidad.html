@@ -489,6 +489,7 @@
     <script src="js/plazos.js"></script>
     <script src="js/dias-propios.js"></script>
     <script src="js/enlace.js"></script>
+    <script src="js/calcula-solo.js"></script>
 <script>
     const apiStatus = document.getElementById('apiStatus');
     const form = document.getElementById('calculatorForm');
@@ -729,6 +730,29 @@
         document.getElementById('customMonths').classList.remove('show');
         document.getElementById('dateError').classList.remove('show');
         EnlaceCaso.olvidar(form);
+    });
+
+    // Calcula sola apenas la fecha y el plazo estan (js/calcula-solo.js). Es
+    // un <form>: Enter ya calculaba, y calcular es pedirle que se envie.
+    CalculaSolo.enganchar({
+        contenedor: form,
+        completo: function () {
+            if (!datosCargados) return false;
+            var v = function (id) { return document.getElementById(id).value; };
+            if (!CalculaSolo.fechaValida(v('day'), v('month'), v('year'))) return false;
+            var p = v('plazo');
+            if (p === 'custom') {
+                var n = parseInt(v('customValue'), 10);
+                return n >= 1 && n <= 6;
+            }
+            return parseInt(p, 10) > 0;
+        },
+        calcular: function () { form.requestSubmit(); },
+        borrar: function () {
+            result.classList.remove('show');
+            document.getElementById('espera').hidden = false;
+            document.getElementById('hitos').innerHTML = '';
+        }
     });
 
     // El caso que viene en el enlace (js/enlace.js): completa y no calcula.

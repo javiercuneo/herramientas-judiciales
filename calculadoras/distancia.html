@@ -791,6 +791,20 @@
         $(cual === 'origen' ? 'sugOrigen' : 'sugDestino').classList.remove('visible');
         pintarElegido(cual);
         limpiarAviso();
+        // Con las dos localidades elegidas calcula sola (21/10/2026): elegir
+        // de la lista ES el dato completo, y apretar Calcular despues no
+        // agregaba nada. Es la misma funcion que el boton.
+        if (punto.origen && punto.destino) calcular();
+    }
+
+    // Lo contrario: si se vuelve a escribir una localidad, la elegida se
+    // pierde, y el resultado que estaba deja de ser de estos datos.
+    function borrarResultado() {
+        if (!ultimo) return;
+        ultimo = null;
+        $('resultado').style.display = 'none';
+        $('resultado').innerHTML = '';
+        $('espera').style.display = '';
     }
 
     // Se muestra QUE localidad quedó elegida, con su provincia y sus
@@ -1010,10 +1024,13 @@
 
         // 2. LA RUTA. Se muestra el resultado por recta mientras tanto, para no
         //    dejar la pantalla en blanco esperando a un tercero.
-        ultimo = { a: a, b: b, corte: null, recta: recta, ruta: null, esperandoRuta: true };
+        var este = ultimo = { a: a, b: b, corte: null, recta: recta, ruta: null, esperandoRuta: true };
         pintar();
 
         consultarRuta(a, b).then(function (r) {
+            // Si mientras tanto se limpio o se cambio una localidad, esta ruta
+            // ya no es de los datos que hay en pantalla: se descarta.
+            if (ultimo !== este) return;
             ultimo.esperandoRuta = false;
             ultimo.ruta = r;
             pintar();
@@ -1346,6 +1363,7 @@
     ['origen', 'destino'].forEach(function (cual) {
         $(cual).addEventListener('input', function () {
             punto[cual] = null;
+            borrarResultado();
             pintarElegido(cual);
             buscar(cual, this.value);
         });

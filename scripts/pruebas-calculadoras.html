@@ -93,6 +93,18 @@ los JSON de <code>data/</code> con <code>fetch</code>.</p>
 //   corrida lo reporta y hay que pegarlo aca a mano, despues de mirarlo.
 // ---------------------------------------------------------------------------
 
+// Desde el 21/10/2026 vencimientos arranca con la fecha de hoy y no con los
+// campos vacios. «El enlace no completa nada» quiere decir que la pantalla
+// queda como arranca: con hoy.
+const HOY = (() => {
+    const f = new Date();
+    return {
+        dia: String(f.getDate()).padStart(2, '0'),
+        mes: String(f.getMonth() + 1).padStart(2, '0'),
+        anio: String(f.getFullYear())
+    };
+})();
+
 const VERIFICADOS = [
     {
         calc: 'vencimientos',
@@ -762,17 +774,17 @@ const ENLACES_ROTOS = [
     {
         calc: 'vencimientos', rotulo: 'Un plazo que no es un número',
         enlace: 'modalidad=automatica&fecha=2026-09-11&plazo=cinco',
-        campos: { modalidad: 'cedula', dia: '', mes: '', anio: '', plazo: '' }
+        campos: { modalidad: 'cedula', dia: HOY.dia, mes: HOY.mes, anio: HOY.anio, plazo: '' }
     },
     {
         calc: 'vencimientos', rotulo: 'Un dato que la pantalla no lee',
         enlace: 'fecha=2026-09-11&dias=5',
-        campos: { dia: '', plazo: '' }
+        campos: { dia: HOY.dia, plazo: '' }
     },
     {
         calc: 'vencimientos', rotulo: 'El 31 de febrero',
         enlace: 'fecha=2026-02-31&plazo=5',
-        campos: { dia: '', plazo: '' }
+        campos: { dia: HOY.dia, plazo: '' }
     },
     {
         calc: 'caducidad', rotulo: 'Siete meses, que ningún supuesto del art. 310 tiene',
@@ -875,7 +887,7 @@ async function correrEnlaces(cuerpo) {
     try {
         fv = await abrirConEnlace('vencimientos', '&modalidad=automatica&fecha=2026-09-11&plazo=15');
         const d = fv.contentDocument;
-        const mal = diferencias(d, { modalidad: 'cedula', dia: '', plazo: '' });
+        const mal = diferencias(d, { modalidad: 'cedula', dia: HOY.dia, plazo: '' });
         if (d.querySelector('.aviso-enlace')) mal.push('aparece un aviso, y sin datos en el fragmento no hay nada que avisar');
         anotar(!mal.length, viejo, mal.length ? mal.join(' · ') : 'no completa nada');
     } catch (e) {

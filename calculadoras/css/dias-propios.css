@@ -54,6 +54,20 @@
 }
 .dp-vacio .dp-botones { margin-top: 0; }
 
+/* El ajuste, sin dias cargados: chico y apagado, como un engranaje y no
+   como una accion del formulario. */
+.dp-ajuste {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    background: transparent !important;
+    color: var(--muted-fg) !important;
+    border-color: transparent !important;
+    padding: 5px 8px !important;
+}
+.dp-ajuste svg { flex: none; }
+.dp-ajuste:hover { background: var(--sunk) !important; border-color: var(--border) !important; }
+
 .dp-boton {
     padding: 6px 12px !important;
     font-size: .8rem !important;

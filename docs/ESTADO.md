@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-10-12 · rama `main`
+Última actualización: 2026-10-21 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -41,8 +41,8 @@ adentro— y se expone por HTTP local y por MCP en `conectores/`; **las diez
 pantallas siguen el mismo patrón, sin excepción**.
 
 **La puerta es el tablero**, no el listado: `calculadoras/tablero.html` reúne las
-diez y `index.html` lleva ahí primero. Las páginas sueltas siguen publicadas y
-sus direcciones no cambian, pero **`index.html` ya no las enlaza una por una**:
+doce en un menú lateral y `index.html` lleva ahí primero. Las páginas sueltas
+siguen publicadas y sus direcciones no cambian, pero **`index.html` ya no las enlaza una por una**:
 sólo se enlaza lo que NO está en el tablero. Detalle en
 [El tablero de herramientas](#el-tablero-de-herramientas).
 
@@ -364,48 +364,43 @@ varios minutos— porque los iframes no dibujan: no es que estén rotas.
 
 ## El tablero de herramientas
 
-`calculadoras/tablero.html`, **y desde el 31/8 es la puerta**: `index.html` lo
-pone arriba del listado, que quedó abajo como referencia. Decisión de Javier
----«ahí debe vivir todo, y no herramientas sueltas en links sueltos»---.
+`calculadoras/tablero.html` **es la puerta desde el 31/8** (`index.html` lleva
+ahí primero). **Desde el 21/10 es un menú lateral con las doce herramientas a la
+vista y una sola abierta por vez** —Honorio (`honorio.ar/#directo`, el contrato
+del ledger) y la serie de UMA/UHOM incluidas; Escribiente sigue por enlace—.
+**Reemplazó a las dos regiones del 26/8**: Javier, 21/10, «uno trabaja con
+distintos temas que vienen en forma sucesiva [...] todo tiene que estar accesible
+todo el tiempo». Los grupos son rótulos del menú; las flechas recorren el menú
+entero; las teclas 1-6 siguen siendo sólo de plazos. En celular, barra fija con
+el nombre de la abierta y el menú se despliega. Crónica en
+[`HISTORIA.md`](HISTORIA.md).
 
-**Diez herramientas embebidas en dos regiones, más dos enlaces**: arriba las
-seis de plazos, con teclas 1-6 y flechas; abajo, «Honorarios y otros». Cada una
-es un iframe de la calculadora publicada, **sin una línea modificada de
-ninguna**. Arriba de todo, la portada, con la fecha de hoy, la UMA, el UHOM y la
-cobertura del calendario: **los tres datos se dicen una vez acá y no una vez por
-calculadora**, y el cómputo sigue pasando adentro de cada marco.
+Cada herramienta es un iframe de la página publicada, **sin tocar su cálculo**.
+**Existe porque once herramientas separadas pueden discrepar en silencio
+durante años y dos pestañas del mismo marco no.** Honorio es de otro origen: no
+se le inyecta CSS ni se le mide el alto, va con el alto de la ventana.
 
-**Por qué es así y no de otra manera —iframes en vez de fusionar el markup, las
-que no son de plazos en una región aparte, Escribiente y `uma-uhom` por enlace—
-está en [`HISTORIA.md`](HISTORIA.md), y no hay que revisarlo sin leerlo.** El
-motivo de fondo sí vive acá porque gobierna lo que venga: **existe porque once
-herramientas separadas pueden discrepar en silencio durante años y dos pestañas
-del mismo marco no.** No es comodidad; que además sea la puerta es posterior.
+**Las calculadoras calculan solas** apenas el formulario está completo
+(`js/calcula-solo.js`; vencimientos lleva su propia copia). **Si deja de estar
+completo, el resultado se borra**: un número nunca queda al lado de datos que no
+son los suyos. El botón Calcular queda, y es el que muestra los errores.
+**Vencimientos arranca con la fecha de hoy** y tres botones de mes; el buscador
+del Código va cerrado al final.
 
-**Las teclas 1-6 se rompieron dos veces, por causas distintas, y las dos
-estuvieron publicadas.** Lo vivo: **un evento de teclado no cruza de un iframe al
-documento de arriba**, así que el mismo oyente se engancha adentro de cada marco
-al montarlo; y como las dos veces la pestaña siguió dibujando su número,
-`pruebas-tablero.html` exige que **cada tecla abra la que dice su propio badge**
-y no que «alguna haga algo».
+**Las teclas 1-6 se rompieron dos veces y las dos estuvieron publicadas**: un
+evento de teclado no cruza de un iframe al de arriba, así que el oyente se
+engancha adentro de cada marco. `pruebas-tablero.html` exige que **cada tecla
+abra la que dice su propio badge**.
 
-**Lo que sólo tiene sentido con la página abierta sola se oculta adentro del
-tablero**, y el selector es **`.solo-suelta`, una sola regla que ponen las
-pantallas y no una lista que crece en el tablero**: va sobre el pie de autoría y
-sobre la línea de cobertura del calendario. **Una herramienta nueva tiene que
-llevarla en su pie** o el tablero muestra la misma firma diez veces. **Lo que NO
-la lleva, a propósito:** el aviso de que el plazo toca un año sin Acordada, que
-frena un número y tiene que estar donde se pide el número.
+**`.solo-suelta`** es una sola regla que ponen las pantallas sobre lo que sólo
+tiene sentido suelta (el pie de autoría, la cobertura): **una herramienta nueva
+tiene que llevarla en su pie**. **No la lleva, a propósito,** el aviso del plazo
+que toca un año sin Acordada: frena un número y va donde se pide el número.
 
-**Lo que lo hace verificable:** `pruebas-calculadoras.html` corre los 21 casos
-verificados **dos veces**, sueltos y embebidos, y exige que den lo mismo. Toda
-la apuesta del tablero es que embeber no cambie un número.
-
-**La trampa que costó encontrar:** la mitad de las calculadoras tiene
-`body { min-height: 100vh }`, y adentro de un iframe **`100vh` es el alto del
-iframe**: el contenido siempre llena el marco y el alto queda clavado donde
-arrancó. Se anula por CSS inyectado, y el alto se mide sobre el rect del
-`<body>` y no con `scrollHeight`, que nunca baja del alto del marco.
+**Lo que lo hace verificable:** `pruebas-calculadoras.html` corre los casos
+verificados sueltos y embebidos y exige que den lo mismo. **La trampa:** con
+`body { min-height: 100vh }`, adentro de un iframe `100vh` es el alto del
+iframe; se anula por CSS inyectado y el alto se mide sobre el rect del `<body>`.
 
 ## La distancia: tres fuentes, en orden de fidelidad
 

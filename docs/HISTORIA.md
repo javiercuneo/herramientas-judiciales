@@ -19,6 +19,77 @@ de 2026.
 
 ---
 
+## El tablero pasa a ser un menú lateral, y las calculadoras calculan solas — 21/10
+
+Salió de una revisión de uso que pidió Javier: «siento que no es cómodo el uso
+para el usuario». Se recorrió el tablero en escritorio y en un celular de 390 px,
+cargando un plazo de verdad.
+
+**Lo que se encontró.** Las dos regiones del 26/8 —pestañas de plazos arriba,
+tarjetas de honorarios abajo— se abrían por separado: elegir Prorrateo dejaba la
+calculadora de plazos abierta arriba, la barra fija seguía marcando «Plazos
+judiciales», y Prorrateo se abría debajo de las tarjetas sin que la página
+bajara. El resultado de un plazo quedaba debajo de la barra fija, con la fecha
+del vencimiento tapada. Unas calculadoras calculaban solas y otras pedían bajar
+hasta «Calcular», y en cuatro Enter no hacía nada. El botón de tema flotaba
+encima de «¿Algo salió mal?» y, en el celular, de la segunda pestaña. En el
+celular se veían dos de las seis pestañas y nada decía que había más; la
+cabecera ocupaba la primera pantalla entera.
+
+**La decisión que se revisó.** Juntar todo en un solo menú contradecía la del
+26/8 («un rótulo de grupo no alcanza»). Se le preguntó a Javier antes de tocarla,
+y la contestó así: «La idea madre era generar una suerte de dashboard [...] Vos
+estás laburando, viene una contestación de demanda y verificás el vencimiento
+del plazo. Escrito siguiente un perito acepta el cargo, no usás nada. Escrito
+siguiente te pagan la tasa, vas a verificar. [...] uno trabaja con distintos
+temas que vienen en forma sucesiva y no agrupa contestaciones de demanda para
+verificar 10 plazos. Por eso pienso que todo tiene que estar accesible todo el
+tiempo, incluso el valor de la UMA y el cálculo directo de Honorio». El diseño
+lo dejó a criterio del agente.
+
+**Cómo quedó.**
+
+- **Menú lateral fijo** con las doce herramientas, en dos grupos con rótulo, y
+  **una sola abierta por vez**. Los marcos no se destruyen al cambiar: lo
+  cargado sigue ahí al volver. Siguen siendo dos `tablist` —uno por grupo,
+  porque un tablist sólo admite pestañas— con una sola selección, y las flechas
+  recorren el menú entero. En celular, barra fija con el nombre de la abierta y
+  el menú desplegable.
+- **Entraron Honorio y la serie de UMA/UHOM.** Honorio con `#directo`, el mismo
+  fragmento que usa el ledger; como es de otro origen, va con el alto de la
+  ventana y un «abrir en otra pestaña». La serie se embebe sin su «volver».
+  Escribiente sigue por enlace. Ejecución contra el Estado queda con su etiqueta
+  «en desarrollo» (Javier: «Dejarla»).
+- **La franja de arriba** suma el calendario como un dato más, en vez de la
+  oración que iba siempre debajo; en el celular se calla salvo que falte algo
+  que impida calcular. El botón de tema pasó al pie del menú.
+- **Vencimientos** (pedidos de Javier): arranca con la fecha de hoy; «Hoy» y
+  «Ayer» se reemplazaron por tres botones con el nombre de este mes y los dos
+  anteriores, que ponen mes y año y dejan el día; al entrar a un campo se
+  selecciona lo escrito. El buscador del Código quedó al final y cerrado:
+  «nunca va a salir de en desarrollo porque yo no la uso, pero está piola para
+  el que no sabe cuántos días son un traslado». Los días inhábiles propios, sin
+  días cargados, son un engranaje chico; **los avisos cuando hay días prendidos
+  no se tocaron**, porque cambian el número.
+- **Calculan solas** vencimientos, regresiva, entre fechas, caducidad, mora y
+  distancia (ésta al elegir las dos localidades). `js/calcula-solo.js` sólo
+  decide cuándo llamar a la misma función del botón. **Si el formulario deja de
+  estar completo, el resultado se borra.** Mientras se escribe no se muestra
+  ningún error: salen con el botón o con Enter. De paso, en distancia, una ruta
+  que llega tarde después de limpiar ya no escribe sobre `ultimo` nulo.
+
+**Bancos.** `pruebas-tablero.html` cambió las pruebas de las dos regiones por las
+de una sola abierta y sumó Honorio y el botón de tema: 39 de 39.
+`pruebas-calculadoras.html`: los cuatro casos de «el enlace no completa nada»
+esperaban la fecha vacía y ahora esperan la de hoy, que es el arranque: 90 de 90.
+`pruebas-no-plazos.html`: 60 de 60. Corridos con Playwright, sin el panel.
+
+**Una falsa alarma que conviene no repetir.** Con Honorio adentro, la UMA del
+tablero local ($105.991) y la de Honorio ($108.005, Res. SGA 2622/2026) se
+vieron distintas. No era el sitio: Javier había corrido ese día el workflow de
+la UMA en GitHub, y la copia local no tenía ese commit. **Antes de reportar una
+serie atrasada, `git fetch` y comparar con `origin/main`.**
+
 ## El segundo vaciado del buzón de fugas — 12/10
 
 La primera sesión con la regla de `AGENTS.md` (revisar el buzón al empezar).

@@ -482,6 +482,7 @@
 <script src="js/dias-propios.js"></script>
 <script src="js/dibujo-plazo.js"></script>
 <script src="js/enlace.js"></script>
+<script src="js/calcula-solo.js"></script>
 <script>
     var YEARS = [];
     (function() {
@@ -786,6 +787,30 @@
         });
         EnlaceCaso.olvidar(document.querySelector('.tablero > .panel'));
     }
+
+    // Calcula sola apenas las dos fechas estan y van en orden
+    // (js/calcula-solo.js).
+    CalculaSolo.enganchar({
+        contenedor: document.querySelector('.tablero > .panel'),
+        enter: true,
+        completo: function () {
+            var v = function (id) { return document.getElementById(id).value; };
+            if (!CalculaSolo.fechaValida(v('startDay'), v('startMonth'), v('startYear'))) return false;
+            if (!CalculaSolo.fechaValida(v('endDay'), v('endMonth'), v('endYear'))) return false;
+            var a = parseDate(v('startDay'), v('startMonth'), v('startYear'));
+            var b = parseDate(v('endDay'), v('endMonth'), v('endYear'));
+            if (!a || !b || a > b) return false;
+            return !document.getElementById('businessDays').checked || datosCargados;
+        },
+        calcular: calculate,
+        borrar: function () {
+            limpiarAviso();
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('espera').hidden = false;
+            document.getElementById('dibujo').innerHTML = '';
+        }
+    });
 
     // El caso que viene en el enlace (js/enlace.js): completa y no calcula.
     // Las tres casillas mueven el total, asi que la que el enlace no trae se

@@ -360,6 +360,7 @@
 <script src="js/dias-propios.js"></script>
 <script src="js/dibujo-plazo.js"></script>
 <script src="js/enlace.js"></script>
+<script src="js/calcula-solo.js"></script>
 <script>
 'use strict';
 
@@ -640,6 +641,26 @@ document.getElementById('limpiar').addEventListener('click', function () {
     espera.style.display = '';
     dibujoDiv.innerHTML = '';
     EnlaceCaso.olvidar(formulario);
+});
+
+// Calcula sola apenas la fecha y los dos plazos estan (js/calcula-solo.js).
+// Es un <form>: Enter ya calculaba, y calcular es pedirle que se envie.
+CalculaSolo.enganchar({
+    contenedor: formulario,
+    completo: function () {
+        var v = function (id) { return document.getElementById(id).value; };
+        if (!CalculaSolo.fechaValida(v('d_dia'), v('d_mes'), v('d_anio'))) return false;
+        var h = Number(v('diasHabiles')), c = Number(v('plazoDias'));
+        return v('diasHabiles') !== '' && Number.isInteger(h) && h > 0 &&
+               v('plazoDias') !== '' && Number.isInteger(c) && c >= 0;
+    },
+    calcular: function () { formulario.requestSubmit(); },
+    borrar: function () {
+        limpiarError();
+        resultado.classList.remove('visible');
+        espera.style.display = '';
+        dibujoDiv.innerHTML = '';
+    }
 });
 
 // El caso que viene en el enlace (js/enlace.js): completa y no calcula. Lo

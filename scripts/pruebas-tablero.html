@@ -101,7 +101,8 @@ calculadoras que embebe piden los JSON de <code>data/</code> con
 // ---------------------------------------------------------------------------
 
 const PLAZOS = ['vencimientos', 'distancia', 'caducidad', 'entre-fechas', 'regresiva', 'mora'];
-const OTRAS = ['prorrateo', 'tasa', 'mediacion', 'ejecucion-estado'];
+const OTRAS = ['honorio', 'prorrateo', 'tasa', 'mediacion', 'uma-uhom', 'ejecucion-estado'];
+const TODAS = PLAZOS.concat(OTRAS);
 
 const pausa = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -207,8 +208,8 @@ const PRUEBAS = [
 },
 {
     grupo: 'Las pestañas',
-    rotulo: 'La región de abajo arranca SIN nada elegido',
-    porque: 'Es deliberado y hace dos cosas: no carga dos páginas más al abrir el tablero, y se lee como otra materia en vez de como una continuación de la barra de arriba.',
+    rotulo: 'Las de honorarios arrancan sin elegir y sin marco',
+    porque: 'Una sola abierta al arrancar: la de plazos, que es la que más se usa. Montar las otras sin que nadie las pida son páginas y pedidos de datos de más.',
     correr: async () => {
         const dt = (await abrirTablero()).contentDocument;
         const sel = activa(dt, OTRAS);
@@ -220,7 +221,7 @@ const PRUEBAS = [
 {
     grupo: 'Las pestañas',
     rotulo: 'Un click elige una y apaga la anterior',
-    porque: 'Dos pestañas marcadas a la vez en la misma región es lo que hace leer un número de una pantalla como si fuera de la otra.',
+    porque: 'Dos herramientas marcadas a la vez es lo que hace leer un número de una pantalla como si fuera de la otra.',
     correr: async () => {
         const dt = (await abrirTablero()).contentDocument;
         dt.getElementById('tab-caducidad').click();
@@ -273,31 +274,45 @@ const PRUEBAS = [
     }
 },
 
-// ------------------------------------------------------------- las regiones
+// ------------------------------------------------------------ una sola abierta
 {
-    grupo: 'Las dos regiones son independientes',
-    rotulo: 'Elegir una de honorarios no apaga la de plazos',
-    porque: 'Son dos tablist distintos a propósito: en un expediente mirás un plazo y en el siguiente un prorrateo, y volver al plazo no puede costar volver a cargarlo.',
+    grupo: 'Una sola abierta por vez',
+    rotulo: 'Elegir una de honorarios apaga la de plazos',
+    porque: 'Desde el 21/10/2026 el tablero es un solo menú. Con dos regiones independientes quedaban dos calculadoras abiertas y la barra de arriba marcando una que no era la que se miraba. Lo cargado no se pierde: el marco sigue vivo, sólo se oculta.',
     correr: async () => {
         const dt = (await abrirTablero()).contentDocument;
         dt.getElementById('tab-entre-fechas').click();
         dt.getElementById('tab-tasa').click();
-        const arriba = activa(dt, PLAZOS);
-        const abajo = activa(dt, OTRAS);
-        if (arriba.join(',') !== 'entre-fechas') return `arriba quedó ${arriba.join(',') || 'nada'}`;
-        return abajo.join(',') === 'tasa' ? null : `abajo quedó ${abajo.join(',') || 'nada'}`;
+        const sel = activa(dt, TODAS);
+        if (sel.join(',') !== 'tasa') return `elegidas: ${sel.join(',') || 'ninguna'}`;
+        const pan = conPanel(dt, TODAS);
+        return pan.join(',') === 'tasa' ? null : `paneles activos: ${pan.join(',') || 'ninguno'}`;
     }
 },
 {
-    grupo: 'Las dos regiones son independientes',
-    rotulo: 'Y al revés: cambiar de plazo no apaga la de honorarios',
-    porque: 'La independencia tiene que valer en los dos sentidos, y una sola de las dos direcciones es fácil de romper sin que se note.',
+    grupo: 'Una sola abierta por vez',
+    rotulo: 'Y al revés: elegir una de plazos apaga la de honorarios',
+    porque: 'Tiene que valer en los dos sentidos, y una sola de las dos direcciones es fácil de romper sin que se note.',
     correr: async () => {
         const dt = (await abrirTablero()).contentDocument;
         dt.getElementById('tab-prorrateo').click();
         dt.getElementById('tab-mora').click();
-        const abajo = activa(dt, OTRAS);
-        return abajo.join(',') === 'prorrateo' ? null : `abajo quedó ${abajo.join(',') || 'nada'}`;
+        const sel = activa(dt, TODAS);
+        return sel.join(',') === 'mora' ? null : `elegidas: ${sel.join(',') || 'ninguna'}`;
+    }
+},
+{
+    grupo: 'Una sola abierta por vez',
+    rotulo: 'Sólo la elegida es alcanzable con el tabulador, en todo el menú',
+    porque: 'Son dos tablist —uno por grupo— pero una sola selección. Si quedara una con tabIndex 0 en cada grupo, el tabulador frenaría dos veces en el menú.',
+    correr: async () => {
+        const dt = (await abrirTablero()).contentDocument;
+        dt.getElementById('tab-prorrateo').click();
+        const malas = TODAS.filter((id) => {
+            const esperado = id === 'prorrateo' ? 0 : -1;
+            return dt.getElementById('tab-' + id).tabIndex !== esperado;
+        });
+        return malas.length ? `tabIndex equivocado en: ${malas.join(', ')}` : null;
     }
 },
 
@@ -314,12 +329,12 @@ const PRUEBAS = [
 },
 {
     grupo: 'El enlace directo por #pestania',
-    rotulo: '#tasa abre la tasa, que está en la región de abajo',
-    porque: 'El enlace directo manda venga de la región que venga: si sólo funcionara con las seis de arriba, la mitad del tablero no sería enlazable.',
+    rotulo: '#tasa abre la tasa, que es del grupo de honorarios',
+    porque: 'El enlace directo manda venga del grupo que venga: si sólo funcionara con las seis de plazos, la mitad del tablero no sería enlazable.',
     correr: async () => {
         const dt = (await abrirTablero('#tasa')).contentDocument;
-        const sel = activa(dt, OTRAS);
-        return sel.join(',') === 'tasa' ? null : `abajo abrió ${sel.join(',') || 'nada'}`;
+        const sel = activa(dt, TODAS);
+        return sel.join(',') === 'tasa' ? null : `abrió ${sel.join(',') || 'nada'}`;
     }
 },
 {
@@ -337,12 +352,14 @@ const PRUEBAS = [
 },
 {
     grupo: 'El enlace directo por #pestania',
-    rotulo: 'Entrar por #tasa no deja la de plazos sin elegir',
-    porque: 'Las dos regiones son independientes: entrar por una de abajo no puede dejar la barra de arriba en blanco, que es media pantalla vacía sin motivo.',
+    rotulo: 'Entrar por #tasa no monta la de plazos de paso',
+    porque: 'Con una sola abierta por vez, montar primero la de por defecto y después la del hash es cargar una página que nadie va a ver.',
     correr: async () => {
-        const dt = (await abrirTablero('#tasa')).contentDocument;
-        const arriba = activa(dt, PLAZOS);
-        return arriba.join(',') === 'vencimientos' ? null : `arriba quedó ${arriba.join(',') || 'nada'}`;
+        const f = await abrirTablero('#tasa');
+        await pausa(300);
+        const marcos = Array.from(f.contentDocument.querySelectorAll('.panel iframe'))
+            .map((m) => m.closest('.panel').id.replace(/^panel-/, ''));
+        return marcos.join(',') === 'tasa' ? null : `montó: ${marcos.join(',') || 'nada'}`;
     }
 },
 {
@@ -468,7 +485,7 @@ const PRUEBAS = [
 {
     grupo: 'Las teclas',
     rotulo: 'Las de honorarios no tienen atajo, y el 7 no hace nada',
-    porque: 'Los números son de las seis que se usan todos los días. Que la región de abajo no los tenga es la decisión; un 7 que abriera algo la contradiría en silencio.',
+    porque: 'Los números son de las seis que se usan todos los días. Que las de honorarios no los tengan es la decisión; un 7 que abriera algo la contradiría en silencio.',
     correr: async () => {
         const f = await abrirTablero();
         const dt = f.contentDocument;
@@ -476,8 +493,8 @@ const PRUEBAS = [
         if (conBadge.length) return `tienen badge de atajo: ${conBadge.join(', ')}`;
         dt.dispatchEvent(tecla(dt, '7'));
         await pausa(150);
-        const abajo = activa(dt, OTRAS);
-        return abajo.length === 0 ? null : `el 7 abrió ${abajo.join(',')}`;
+        const sel = activa(dt, TODAS);
+        return sel.join(',') === 'vencimientos' ? null : `el 7 dejó ${sel.join(',')}`;
     }
 },
 
@@ -499,18 +516,18 @@ const PRUEBAS = [
 },
 {
     grupo: 'Las flechas',
-    rotulo: 'Da la vuelta en las dos puntas',
-    porque: 'Una barra que se traba en la última pestaña obliga a volver apretando cinco veces la otra flecha.',
+    rotulo: 'Da la vuelta en las dos puntas del menú',
+    porque: 'Un menú que se traba en la última obliga a volver apretando once veces la otra flecha.',
     correr: async () => {
         const dt = (await abrirTablero()).contentDocument;
-        const barra = dt.getElementById('tabs-plazos');
-        dt.getElementById('tab-mora').click();
-        barra.dispatchEvent(tecla(dt, 'ArrowRight'));
-        let sel = activa(dt, PLAZOS).join(',');
-        if (sel !== 'vencimientos') return `derecha desde la última dio ${sel || 'nada'}`;
-        barra.dispatchEvent(tecla(dt, 'ArrowLeft'));
-        sel = activa(dt, PLAZOS).join(',');
-        return sel === 'mora' ? null : `izquierda desde la primera dio ${sel || 'nada'}`;
+        const ultima = TODAS[TODAS.length - 1];
+        dt.getElementById('tab-' + ultima).click();
+        dt.getElementById('tabs-otras').dispatchEvent(tecla(dt, 'ArrowDown'));
+        let sel = activa(dt, TODAS).join(',');
+        if (sel !== 'vencimientos') return `abajo desde la última dio ${sel || 'nada'}`;
+        dt.getElementById('tabs-plazos').dispatchEvent(tecla(dt, 'ArrowUp'));
+        sel = activa(dt, TODAS).join(',');
+        return sel === ultima ? null : `arriba desde la primera dio ${sel || 'nada'}`;
     }
 },
 {
@@ -521,37 +538,23 @@ const PRUEBAS = [
         const dt = (await abrirTablero()).contentDocument;
         const barra = dt.getElementById('tabs-plazos');
         barra.dispatchEvent(tecla(dt, 'End'));
-        let sel = activa(dt, PLAZOS).join(',');
-        if (sel !== 'mora') return `Fin dio ${sel || 'nada'}`;
-        barra.dispatchEvent(tecla(dt, 'Home'));
-        sel = activa(dt, PLAZOS).join(',');
+        let sel = activa(dt, TODAS).join(',');
+        if (sel !== TODAS[TODAS.length - 1]) return `Fin dio ${sel || 'nada'}`;
+        dt.getElementById('tabs-otras').dispatchEvent(tecla(dt, 'Home'));
+        sel = activa(dt, TODAS).join(',');
         return sel === 'vencimientos' ? null : `Inicio dio ${sel || 'nada'}`;
     }
 },
 {
     grupo: 'Las flechas',
-    rotulo: 'Las flechas no se pasan de una región a la otra',
-    porque: 'Son dos tablist distintos. Saltar de uno al otro con una flecha volvería a decir que un prorrateo y un plazo son lo mismo, que es lo que la separación deshace.',
+    rotulo: 'Las flechas pasan de un grupo al otro',
+    porque: 'Es un solo menú (21/10/2026): los grupos son rótulos para ubicarse, no dos barras. Desde la última de plazos, la flecha sigue con la primera de honorarios.',
     correr: async () => {
         const dt = (await abrirTablero()).contentDocument;
-        const barra = dt.getElementById('tabs-plazos');
         dt.getElementById('tab-mora').click();
-        barra.dispatchEvent(tecla(dt, 'ArrowRight'));
-        const abajo = activa(dt, OTRAS);
-        return abajo.length === 0 ? null : `la flecha cruzó abajo y abrió ${abajo.join(',')}`;
-    }
-},
-{
-    grupo: 'Las flechas',
-    rotulo: 'La flecha en la barra de abajo recorre las cuatro de abajo',
-    porque: 'La región de abajo arranca sin nada elegido, y ése es el caso que rompe un recorrido escrito suponiendo que siempre hay una activa.',
-    correr: async () => {
-        const dt = (await abrirTablero()).contentDocument;
-        const barra = dt.getElementById('tabs-otras');
-        barra.dispatchEvent(tecla(dt, 'ArrowRight'));
-        const sel = activa(dt, OTRAS).join(',');
-        if (!sel) return 'con la región vacía la flecha no abrió nada';
-        return OTRAS.indexOf(sel) !== -1 ? null : `abrió ${sel}, que no es de esta región`;
+        dt.getElementById('tabs-plazos').dispatchEvent(tecla(dt, 'ArrowDown'));
+        const sel = activa(dt, TODAS).join(',');
+        return sel === OTRAS[0] ? null : `desde mora la flecha dio ${sel || 'nada'}`;
     }
 },
 
@@ -689,12 +692,12 @@ const PRUEBAS = [
 // ------------------------------------------------------- lo que no se embebe
 {
     grupo: 'Lo que no se embebe',
-    rotulo: 'Escribiente y la serie van como enlace, en pestaña nueva',
-    porque: 'Ninguna de las dos calcula, y la promesa de Escribiente —que el documento no sale de la máquina— se lee peor adentro de un marco ajeno. Y abrirlas en esta misma ventana tiraría todo lo que el tablero tiene cargado.',
+    rotulo: 'Escribiente va como enlace, en pestaña nueva',
+    porque: 'La promesa de Escribiente —que el documento no sale de la máquina— se lee peor adentro de un marco ajeno. Y abrirlo en esta misma ventana tiraría todo lo que el tablero tiene cargado. La serie de la UMA se embebe desde el 21/10.',
     correr: async () => {
         const dt = (await abrirTablero()).contentDocument;
         const enlaces = Array.from(dt.querySelectorAll('#enlaces-otras a'));
-        if (enlaces.length !== 2) return `hay ${enlaces.length} tarjetas de enlace, esperaba 2`;
+        if (enlaces.length !== 1) return `hay ${enlaces.length} enlaces, esperaba 1`;
         const malas = enlaces.filter((a) =>
             a.tagName !== 'A' || !a.getAttribute('href') ||
             a.target !== '_blank' || !/noopener/.test(a.rel));
@@ -720,8 +723,9 @@ const PRUEBAS = [
     porque: 'El tablero es la puerta del sitio: un enlace roto acá se lleva puesto al que llega. Y son direcciones escritas a mano en un archivo sin build, que es donde envejecen.',
     correr: async () => {
         const dt = (await abrirTablero()).contentDocument;
-        const hrefs = Array.from(dt.querySelectorAll('#enlaces-otras a, .salidas a'))
+        const hrefs = Array.from(dt.querySelectorAll('#enlaces-otras a, .pie-lateral a, .marca a'))
             .map((a) => a.getAttribute('href'))
+            .concat(['../uma-uhom.html'])
             // Lo externo y el mailto no se piden: esto comprueba lo del propio
             // sitio, que es lo que se rompe al mover un archivo.
             .filter((h) => h && !/^(https?:|mailto:)/.test(h));
@@ -736,6 +740,33 @@ const PRUEBAS = [
             }
         }
         return rotos.length ? rotos.join(' · ') : null;
+    }
+},
+{
+    grupo: 'Lo que no se embebe',
+    rotulo: 'Honorio abre en #directo, con aviso y salida aparte',
+    porque: '#directo es contrato con el ledger y saltea la portada. Honorio es de otro origen: no se le mide el alto ni se le inyecta CSS, y por eso tiene que decir de dónde viene y ofrecer abrirse aparte.',
+    correr: async () => {
+        const dt = (await abrirTablero('#honorio')).contentDocument;
+        const f = dt.querySelector('#panel-honorio iframe');
+        if (!f) return 'no montó el marco de Honorio';
+        if (f.getAttribute('src') !== 'https://honorio.ar/#directo') return `el marco apunta a ${f.getAttribute('src')}`;
+        const a = dt.querySelector('#panel-honorio .aviso-externo a');
+        if (!a || a.target !== '_blank' || !/noopener/.test(a.rel)) return 'falta el enlace para abrirlo aparte';
+        return null;
+    }
+},
+{
+    grupo: 'Lo que el tablero le hace al marco',
+    rotulo: 'El botón de tema del tablero vive en el menú y no flota',
+    porque: 'Flotando arriba a la derecha tapaba «¿Algo salió mal?» y, al bajar, la barra de pestañas; en el celular, la segunda pestaña.',
+    correr: async () => {
+        const f = await abrirTablero();
+        const dt = f.contentDocument;
+        const ok = await esperar(() => dt.querySelector('#lugarTema .tema-boton'), 3000);
+        if (!ok) return 'el botón de tema no está en el menú';
+        const pos = f.contentWindow.getComputedStyle(dt.querySelector('#lugarTema .tema-boton')).position;
+        return pos === 'static' ? null : `el botón quedó con position: ${pos}`;
     }
 }
 

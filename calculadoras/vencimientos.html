@@ -329,7 +329,27 @@
            art. 34 tiene plazos que corren contra el juez y no contra la parte,
            y leido no se confunde con nada---. Un buscador que dijera "10 dias,
            art. 34" y nada mas estaria contestando otra pregunta. */
-        .buscador { margin-top: 18px; }
+        .buscador {
+            margin-top: 22px;
+            padding-top: 16px;
+            border-top: 1px solid var(--hair);
+        }
+        .buscador summary {
+            cursor: pointer;
+            font-size: 12.5px;
+            color: var(--muted-fg);
+            list-style-position: inside;
+        }
+        .buscador summary:hover { color: var(--fg); }
+        .buscador[open] summary { margin-bottom: 10px; }
+
+        /* El mes elegido se marca: el boton dice en que mes esta la fecha que
+           hay en los campos, no solo que se apreto. */
+        .atajo.elegido {
+            border-color: var(--accent);
+            background: var(--accent-tint);
+            color: var(--accent);
+        }
 
         .chip {
             display: inline-block;
@@ -749,12 +769,13 @@
                             <span class="separador">/</span>
                             <input type="text" id="anio" class="mide-4" placeholder="AAAA" maxlength="4" inputmode="numeric" aria-label="Año">
                         </div>
-                        <!-- Tres campos que se llenan solos. Es la fecha que
-                             mas se carga: la cedula que llego hoy o ayer. -->
-                        <div class="atajos-fecha">
-                            <button type="button" class="atajo" data-atras="0">Hoy</button>
-                            <button type="button" class="atajo" data-atras="1">Ayer</button>
-                        </div>
+                        <!-- La fecha arranca en hoy y casi siempre lo que
+                             cambia es el dia. Estos botones ponen el mes y el
+                             año ---este mes, el anterior, el de antes--- y
+                             dejan el dia como esta. Hasta el 21/10 eran «Hoy» y
+                             «Ayer»; con hoy precargado sobraban los dos
+                             (Javier). Los arma el script con el nombre del mes. -->
+                        <div class="atajos-fecha" id="atajosMes" role="group" aria-label="Mes de la notificación"></div>
                         <div class="error" id="errorFecha">Esa fecha no existe en el calendario.</div>
                     </div>
 
@@ -783,20 +804,6 @@
                     <p class="apunte cual-atajo" id="cualAtajo" hidden></p>
                 </div>
 
-                <!-- El buscador. Para cuando la providencia hace un traslado y
-                     no dice de cuantos dias es. Lee el mismo archivo que los
-                     atajos, asi que no hay una segunda lista de plazos. -->
-                <div class="buscador" id="buscador" hidden>
-                    <span class="rotulo">
-                        Buscar un plazo en el Código
-                        <span class="chip">en desarrollo</span>
-                    </span>
-                    <input type="search" id="q" class="campo-buscar" autocomplete="off"
-                           placeholder="traslado, apelación, perito, art. 150…"
-                           aria-label="Buscar un plazo en el CPCCN">
-                    <div class="hallazgos" id="hallazgos" role="listbox"
-                         aria-label="Plazos encontrados"></div>
-                </div>
             </div>
 
             <!-- Los tres modificadores del computo, juntos. Ninguno se usa casi
@@ -857,6 +864,26 @@
                 <button class="btn-calcular" id="btnCalcular">Calcular</button>
                 <button class="btn-suave" id="btnResetear">Limpiar</button>
             </div>
+
+            <!-- El buscador. Para cuando la providencia hace un traslado y
+                 no dice de cuantos dias es. Lee el mismo archivo que los
+                 atajos, asi que no hay una segunda lista de plazos.
+
+                 Abajo de todo y cerrado desde el 21/10: el que trabaja con esto
+                 todos los dias sabe cuantos dias tiene un traslado y no lo usa,
+                 y abierto en el medio del formulario ocupaba el lugar de lo que
+                 si se usa. Queda para el que no lo sabe (Javier). -->
+            <details class="buscador" id="buscador" hidden>
+                <summary>
+                    ¿No sabés de cuántos días es? Buscalo en el Código
+                    <span class="chip">en desarrollo</span>
+                </summary>
+                <input type="search" id="q" class="campo-buscar" autocomplete="off"
+                       placeholder="traslado, apelación, perito, art. 150…"
+                       aria-label="Buscar un plazo en el CPCCN">
+                <div class="hallazgos" id="hallazgos" role="listbox"
+                     aria-label="Plazos encontrados"></div>
+            </details>
         </div>
 
         <div class="resultado" id="results">
@@ -1360,7 +1387,7 @@
                 '<span id="motivoSinDatos"></span></div>';
             document.getElementById('motivoSinDatos').textContent = datos.problema;
             dibujoDiv.innerHTML = '';
-            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (!calculandoSolo) resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             return;
         }
 
@@ -1422,7 +1449,7 @@
         // El dibujo va afuera de la grilla de dos columnas: es lo unico de la
         // pantalla que quiere todo el ancho que haya.
         dibujoDiv.innerHTML = dibujarPlazo(datos);
-        resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (!calculandoSolo) resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     // ----------------------------------------------------------------------
@@ -1806,9 +1833,9 @@
         document.getElementById('fueraDeHorario').checked = false;
         document.getElementById('checkAmpliacion').checked = false;
         document.getElementById('checkNotaAsistencia').checked = false;
-        document.getElementById('dia').value = '';
-        document.getElementById('mes').value = '';
-        document.getElementById('anio').value = '';
+        // Limpiar vuelve a hoy, no a campos vacios: es el estado de arranque.
+        ponerHoy();
+        marcarMes();
         document.getElementById('plazo').value = '';
         document.getElementById('ampliacion').value = '';
         document.querySelectorAll('.error').forEach(function(e) { e.classList.remove('show'); });
@@ -1958,23 +1985,162 @@
     document.getElementById('btnCalcular').addEventListener('click', calcular);
     document.getElementById('btnResetear').addEventListener('click', resetear);
 
-    // Hoy y ayer llenan los tres campos. No se valida nada: una fecha armada
-    // del reloj de la maquina siempre existe.
-    document.querySelectorAll('.atajos-fecha .atajo').forEach(function (b) {
-        b.addEventListener('click', function () {
-            var f = new Date();
-            f.setHours(0, 0, 0, 0);
-            f.setDate(f.getDate() - parseInt(b.dataset.atras, 10));
-            document.getElementById('dia').value = String(f.getDate()).padStart(2, '0');
-            document.getElementById('mes').value = String(f.getMonth() + 1).padStart(2, '0');
-            document.getElementById('anio').value = f.getFullYear();
-            document.getElementById('errorFecha').classList.remove('show');
-            ['dia', 'mes', 'anio'].forEach(function (id) {
-                document.getElementById(id).classList.remove('invalid');
+    // ----------------------------------------------------------------------
+    // La fecha arranca en HOY (Javier, 21/10/2026).
+    //
+    // La cedula que se carga casi siempre es de este mes o del anterior, y lo
+    // que cambia es el dia. Con la fecha vacia habia que escribir mes y año
+    // cada vez; con «Hoy» y «Ayer» se resolvian dos dias de treinta. Ahora los
+    // campos arrancan con hoy, se selecciona el contenido al entrar ---asi se
+    // escribe encima sin borrar---, y tres botones ponen el mes y el año sin
+    // tocar el dia.
+    //
+    // Hoy precargado NO calcula nada solo: falta el plazo, y sin plazo no hay
+    // computo. Ver calcularSiCompleto().
+    // ----------------------------------------------------------------------
+    var MESES_LARGOS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+                        'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+    function ponerHoy() {
+        var f = new Date();
+        document.getElementById('dia').value = String(f.getDate()).padStart(2, '0');
+        document.getElementById('mes').value = String(f.getMonth() + 1).padStart(2, '0');
+        document.getElementById('anio').value = String(f.getFullYear());
+    }
+
+    // Los tres meses: este, el anterior y el de antes. Se arman al cargar con
+    // el reloj de la maquina, igual que lo hacian «Hoy» y «Ayer».
+    function armarMeses() {
+        var caja = document.getElementById('atajosMes');
+        caja.innerHTML = '';
+        var hoy = new Date();
+        [0, 1, 2].forEach(function (atras) {
+            var f = new Date(hoy.getFullYear(), hoy.getMonth() - atras, 1);
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'atajo atajo-mes';
+            b.dataset.mes = String(f.getMonth() + 1).padStart(2, '0');
+            b.dataset.anio = String(f.getFullYear());
+            b.textContent = MESES_LARGOS[f.getMonth()] +
+                (f.getFullYear() !== hoy.getFullYear() ? ' ' + f.getFullYear() : '');
+            b.title = ['Este mes', 'El mes anterior', 'Hace dos meses'][atras] +
+                ': pone el mes y el año y deja el día';
+            b.addEventListener('click', function () {
+                document.getElementById('mes').value = b.dataset.mes;
+                document.getElementById('anio').value = b.dataset.anio;
+                ['dia', 'mes', 'anio'].forEach(function (id) {
+                    document.getElementById(id).classList.remove('invalid');
+                });
+                // El 31 en un mes de treinta no existe: se dice ya, y no se
+                // espera a que apriete Calcular para enterarse.
+                var dia = document.getElementById('dia').value;
+                var mal = dia && !validarFecha(dia, b.dataset.mes, b.dataset.anio);
+                document.getElementById('errorFecha').classList.toggle('show', !!mal);
+                if (mal) document.getElementById('dia').classList.add('invalid');
+                marcarMes();
+                mostrarDiasDeNota();
+                actualizarSeccionHorario();
+                calcularSiCompleto();
             });
-            mostrarDiasDeNota();
-            actualizarSeccionHorario();
+            caja.appendChild(b);
         });
+        marcarMes();
+    }
+
+    function marcarMes() {
+        var mes = document.getElementById('mes').value.padStart(2, '0');
+        var anio = document.getElementById('anio').value;
+        document.querySelectorAll('.atajo-mes').forEach(function (b) {
+            var es = b.dataset.mes === mes && b.dataset.anio === anio;
+            b.classList.toggle('elegido', es);
+            b.setAttribute('aria-pressed', es ? 'true' : 'false');
+        });
+    }
+
+    ['mes', 'anio'].forEach(function (id) {
+        document.getElementById(id).addEventListener('input', marcarMes);
+    });
+
+    // Al entrar a un campo con algo escrito se selecciona todo: con la fecha
+    // precargada, escribir el dia tiene que reemplazar el 21, no pelear con el
+    // maxlength de dos digitos.
+    ['dia', 'mes', 'anio', 'plazo', 'ampliacion'].forEach(function (id) {
+        document.getElementById(id).addEventListener('focus', function () {
+            var campo = this;
+            setTimeout(function () { campo.select(); }, 0);
+        });
+    });
+
+    // ----------------------------------------------------------------------
+    // Calcula solo apenas el formulario esta completo (21/10/2026).
+    //
+    // Antes habia que bajar hasta «Calcular», y cada calculadora del tablero
+    // se manejaba distinto: unas calculaban solas y otras no. Ahora esta
+    // tambien calcula sola. El boton queda: lleva el resultado a la vista y
+    // es lo que muestra los errores si algo falta.
+    //
+    // LA REGLA QUE NO SE NEGOCIA: un resultado nunca queda al lado de datos
+    // que no son los suyos. Si el formulario deja de estar completo, el
+    // resultado se borra y vuelve el cartel de espera. Un vencimiento viejo
+    // junto a una fecha nueva es peor que no mostrar nada.
+    //
+    // Y no hay otro computo: llama a calcular(), la misma funcion del boton.
+    // ----------------------------------------------------------------------
+    var esperaAuto = null;
+    var calculandoSolo = false;
+
+    function formularioCompleto() {
+        if (!datosCargados) return false;
+        var dia = document.getElementById('dia').value;
+        var mes = document.getElementById('mes').value;
+        var anio = document.getElementById('anio').value;
+        if (anio.length !== 4 || !validarFecha(dia, mes, anio)) return false;
+        var plazo = parseInt(document.getElementById('plazo').value, 10);
+        if (!plazo || plazo <= 0) return false;
+        var usaAmpliacion = modalidadActual() === 'cedula' &&
+            document.getElementById('checkAmpliacion').checked;
+        if (usaAmpliacion) {
+            var a = document.getElementById('ampliacion').value.trim();
+            if (a !== '' && (isNaN(parseInt(a, 10)) || parseInt(a, 10) < 0)) return false;
+        }
+        return true;
+    }
+
+    function calcularSiCompleto() {
+        clearTimeout(esperaAuto);
+        esperaAuto = setTimeout(function () {
+            if (formularioCompleto()) {
+                calculandoSolo = true;
+                try { calcular(); } finally { calculandoSolo = false; }
+            } else if (document.getElementById('results').innerHTML !== HTML_ESPERA) {
+                document.getElementById('results').innerHTML = HTML_ESPERA;
+                document.getElementById('dibujo').innerHTML = '';
+            }
+        }, 250);
+    }
+
+    // Todo lo que el usuario toca en el formulario: campos, casillas, la
+    // modalidad, los dias de nota. El buscador no: escribir en el no cambia
+    // ningun dato del calculo hasta que se elige un plazo.
+    ['input', 'change'].forEach(function (tipo) {
+        document.querySelector('.tablero > .panel').addEventListener(tipo, function (e) {
+            if (e.target && e.target.id === 'q') return;
+            calcularSiCompleto();
+        });
+    });
+    // Los atajos de plazo y los hallazgos del buscador escriben el campo por
+    // codigo, que no dispara `input`.
+    document.querySelector('.tablero > .panel').addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('.atajo-plazo, .hallazgo')) calcularSiCompleto();
+    });
+
+    // Enter en cualquier campo es apretar Calcular.
+    document.querySelector('.tablero > .panel').addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' || !e.target || e.target.tagName !== 'INPUT') return;
+        if (e.target.id === 'q') return;
+        e.preventDefault();
+        clearTimeout(esperaAuto);
+        calcular();
     });
 
     document.getElementById('plazo').addEventListener('input', function () {
@@ -1985,6 +2151,8 @@
     });
 
     // Estado inicial. Se llama todo para no depender de lo que diga el markup.
+    ponerHoy();
+    armarMeses();
     pintarHoy();
     pintarModalidad();
     actualizarLabelFecha();
@@ -2024,6 +2192,7 @@
                 document.getElementById('anio').value = d.fecha.anio;
             }
             if (d.plazo) document.getElementById('plazo').value = String(d.plazo);
+            marcarMes();
             actualizarLabelFecha();
             mostrarDiasDeNota();
             actualizarSeccionHorario();
