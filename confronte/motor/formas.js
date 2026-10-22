@@ -203,12 +203,24 @@
   const EN_DIGITOS = re(r`(?<![\d.,])(?:\d{1,3}(?:\.\d{3})*(?:,\d+|\.-)` + r`|\d{1,2}[/-]\d{1,2}[/-]\d{2,4}` + r`|\d+(?:[-/]\d+)+` + r`|\d{1,2}[°ºª]` + r`|\d{1,3}(?:\.\d{3})+(?!\d|[.,]\d)` + r`|\d+(?!\d|[.,]\d))`);
   const CON_TILDE = { veintidos: "veintidós", veintitres: "veintitrés", veintiseis: "veintiséis", dieciseis: "dieciséis", millon: "millón" };
   const SIN_TILDE = /\b(?:veintidos|veintitres|veintiseis|dieciseis|millon)\b/g;
+  const APOCOPE = /\b(veinti)?uno(?= (?:mil|millones)\b)/g;
+  const DE_MES = new RegExp(String.raw`^\s+de\s+(?:${MESES.join("|")}|setiembre)\b`, "i");
   function enPalabras(texto) {
-    return EN_DIGITOS.sub((m) => {
+    texto = String(texto);
+    let salida = "", ultimo = 0;
+    for (const m of EN_DIGITOS.finditer(texto)) {
       const d = m.group(0);
-      if (/,|\.-$/.test(d)) return d;
-      return enPalabrasUno(d).replace(SIN_TILDE, (w) => CON_TILDE[w]);
-    }, String(texto));
+      salida += texto.slice(ultimo, m.start());
+      ultimo = m.end();
+      if (/,|\.-$/.test(d)) {
+        salida += d;
+        continue;
+      }
+      let w = enPalabrasUno(d).replace(APOCOPE, (_, v) => v ? "veintiún" : "un").replace(SIN_TILDE, (x) => CON_TILDE[x]);
+      if (w === "uno" && DE_MES.test(texto.slice(m.end()))) w = "primero";
+      salida += w;
+    }
+    return salida + texto.slice(ultimo);
   }
   function enPalabrasUno(d) {
     {

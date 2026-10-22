@@ -7056,8 +7056,14 @@ número no se pasa (montos con decimales, con «.-» o con $, más de nueve
 cifras, horas, lo pegado a una letra, ordinales mayores a décimo) y la
 concordancia que `enPalabras` no hace («veintiún mil», «primero de marzo»,
 «treinta y una fojas»; lo de género dudoso se avisa). El cuerpo arranca en 12
-porque lo pidió así; el protocolo de la Cámara dice 14 y está en el selector.
+porque lo pidió así; el protocolo de la Cámara dice 14 y está en el selector (ver abajo).
 
 Salió de `ESTADO.md` para hacerle lugar, porque es de Honorio y vive allá: «si
 el control de fracción de etapa del dashboard debería ofrecer las dos cosas»,
 anotado y no decidido.
+
+El mismo día Javier corrigió el cuerpo —«pasalo a 14 por defecto, me
+confundí»— y pidió llevar a confronteitor la concordancia que faltaba:
+`formas.enPalabras` ahora apocopa delante de mil y de millón y escribe
+«primero» en «1 de marzo» (confronteitor 4fd77d2). En `en-limpio/` esas dos
+reglas se sacaron, porque ya las hace el motor: queda sólo el género.

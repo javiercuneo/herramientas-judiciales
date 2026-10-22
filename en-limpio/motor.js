@@ -24,10 +24,11 @@
 //      decimales (los deja enPalabras) o con el signo $, los numeros largos -un CBU de 22
 //      cifras saldria como "billones"-, las horas, lo pegado a una letra y los
 //      ordinales mayores a diez.
-//   3. La concordancia que enPalabras no hace: "veintiuno mil" es "veintiun
-//      mil", y "1 de marzo" en una resolucion es "primero de marzo". Lo que no
-//      se puede decidir sin saber el genero de lo que sigue ("21 fojas" o "21
-//      dias") se corrige solo con una lista corta, y si no, se avisa.
+//   3. El genero, que enPalabras no puede saber: "21 dias" es "veintiun
+//      dias" y "31 cuotas" es "treinta y una cuotas". Se corrige solo con una
+//      lista corta de sustantivos, y si no esta en la lista, se avisa. La
+//      apocope delante de mil y el "primero de marzo" SI los hace enPalabras
+//      (confronteitor 4fd77d2): por eso se le pasa el numero con lo que sigue.
 //
 // Devuelve el texto y, sobre todo, la cuenta de lo que hizo: que saco, que
 // paso a letras y que dejo sin pasar. Una limpieza que no se puede auditar
@@ -60,7 +61,6 @@
 
   const MASCULINOS = /^(?:d[íi]as?|a[ñn]os?|mes(?:es)?|pesos?|d[óo]lar(?:es)?|metros?|art[íi]culos?|incisos?|puntos?|cuerpos?|anexos?|lotes?)$/i;
   const FEMENINOS = /^(?:fojas?|fs\.?|cuotas?|horas?|semanas?|unidad(?:es)?|hect[áa]reas?|partes?|copias?|veces|personas?)$/i;
-  const MESES = /^(?:enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)$/i;
 
   function limpiar(entrada) {
     const sacado = [];
@@ -113,7 +113,13 @@
 
       let letras = null;
       if (!motivo) {
-        letras = formas.enPalabras(dato);
+        // Con lo que sigue, hasta el proximo digito: enPalabras mira ahi si
+        // el uno es "primero" ("1 de marzo"). La cola no tiene digitos, asi
+        // que sale igual y se recorta.
+        const cola = t.slice(f, f + 24).split(/\d/)[0];
+        const conCola = formas.enPalabras(dato + cola);
+        letras = conCola.endsWith(cola) ? conCola.slice(0, conCola.length - cola.length)
+          : formas.enPalabras(dato);
         if (/\d/.test(letras)) {
           motivo = /,\d|\.-$/.test(dato) ? "monto con decimales o con «.-»: queda en números"
             : /[°ºª]$/.test(dato) ? "ordinal mayor a décimo" : "no sé leerlo";
@@ -175,24 +181,15 @@
     return (a > 0 ? "…" : "") + t.slice(a, b).trim() + (b < t.length ? "…" : "");
   }
 
-  // La concordancia que enPalabras no hace. `resto` es el texto que sigue.
+  // El genero, que enPalabras no puede saber. `resto` es el texto que sigue.
   function concordar(letras, resto) {
-    let texto = letras;
-    // "veintiuno mil", "treinta y uno millones": el uno se apocopa siempre
-    // delante de mil y de millon.
-    texto = texto.replace(/\bveintiuno(?= (?:mil|millones)\b)/g, "veintiún")
-                 .replace(/\buno(?= (?:mil|millones)\b)/g, "un");
-
+    const texto = letras;
     if (!/(?:^|\s|veinti)uno$/.test(texto)) return { texto };
 
     const palabras = resto.trim().split(/\s+/);
     const sig = (palabras[0] || "").replace(/[,.;:)»”]+$/, "");
     const cierra = /^[\s]*[,.;:)»”]/.test(resto) || !sig;
 
-    // "1 de marzo": en una resolucion se escribe "primero".
-    if (texto === "uno" && /^de$/i.test(sig) && MESES.test((palabras[1] || "").replace(/[,.;:]+$/, ""))) {
-      return { texto: "primero" };
-    }
     if (cierra || /^de[l]?$/i.test(sig)) return { texto };
     const base = texto.slice(0, -3);
     if (MASCULINOS.test(sig)) return { texto: base + (base.endsWith("veinti") ? "ún" : "un") };

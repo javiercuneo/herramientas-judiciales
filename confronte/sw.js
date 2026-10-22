@@ -8,7 +8,7 @@
 // de a uno, se borran las versiones viejas, y se sirve del cache revalidando
 // por atras para que una correccion publicada llegue en la visita siguiente.
 
-const CACHE = 'confronte-931398aa38c9';
+const CACHE = 'confronte-4fd77d236e5c';
 
 const ARCHIVOS = [
     "./",

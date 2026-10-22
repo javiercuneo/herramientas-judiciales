@@ -667,7 +667,7 @@ escriba mañana tampoco sale.
 números: carga `../confronte/motor/` y llama a `sinMembretes`, `sinCodigos`, `sinEncabezados`,
 `sinIniciales` y `formas.enPalabras`. **Una copia nueva que les cambie la forma la rompe sin
 error**: `npm run verificar-en-limpio` (en CI) lo ataja. Lo que no pasa a letras —montos, CBU,
-horas— queda a la vista y listado; **el cuerpo 12 es pedido de Javier, el protocolo de la Cámara dice 14**.
+horas— queda a la vista y listado. **Cuerpo 14 por defecto, como el protocolo de la Cámara** (Javier, 22/10); 12 en el selector.
 
 ## El revisor de ortografía de proveídos
 

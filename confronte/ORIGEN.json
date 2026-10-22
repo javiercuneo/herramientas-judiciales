@@ -1,7 +1,7 @@
 {
   "que": "Copia sin comentarios de la pantalla de confronteitor. No se edita aca: se trae con npm run traer-confronte.",
-  "commit": "931398aa38c9ef5c9f3d1ff14f1452843d5ec072",
-  "fecha": "2026-09-28T17:00:54-03:00",
+  "commit": "4fd77d236e5c3be9d7b62932246accdb5e987b45",
+  "fecha": "2026-10-22T14:43:47-03:00",
   "archivos": [
     "ejemplos/ejemplos.js",
     "index.html",
