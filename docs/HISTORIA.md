@@ -7067,3 +7067,26 @@ confundí»— y pidió llevar a confronteitor la concordancia que faltaba:
 `formas.enPalabras` ahora apocopa delante de mil y de millón y escribe
 «primero» en «1 de marzo» (confronteitor 4fd77d2). En `en-limpio/` esas dos
 reglas se sacaron, porque ya las hace el motor: queda sólo el género.
+
+## Conversor UMA ↔ pesos — 23/10
+
+Pedido de Javier: en `uma-uhom.html`, poner UMA y que devuelva pesos, y al
+revés, eligiendo cuál UMA. Se descartó una casilla por fila —69 filas
+ilegibles en el celular— y quedó un conversor arriba de la tabla con un botón
+«Usar» en cada fila. El valor por defecto es el vigente, como la tarjeta.
+
+Tres decisiones de Javier:
+
+- **Redondeo a dos decimales en las dos direcciones**, la mitad para arriba.
+- **La fecha es la del acto, no la vigencia.** «Yo tomo la del acto y no el
+  retroactivo»: al ordenar una transferencia se usa el valor publicado ese día,
+  porque el que después rija para ese día todavía no se conoce. Regla: el acto
+  más reciente con fecha igual o anterior; si fija varios valores, el de
+  vigencia más reciente. Ninguna resolución de la serie fija un valor con
+  vigencia posterior a su fecha, así que hoy no hay caso de «publicado y sin
+  regir» para la UMA.
+- **Los enlaces a cada resolución** salen del `url` que `npm run uma` ya
+  guardaba desde el 24/9 (4 de 69 valores). Los anteriores no se buscan.
+
+El lector de importes es copia de `analizarNumero` de `calculadoras/tasa.html`,
+con un comentario que lo dice: no hay módulo compartido para eso todavía.

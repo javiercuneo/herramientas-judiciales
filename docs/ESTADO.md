@@ -182,7 +182,8 @@ Ninguno urgente y ninguno bloqueante.
   se leen del PDF de la CSJN, y si no coinciden con la planilla no carga nada y
   la corrida queda en rojo. **Un rojo ahí es «cargala a mano»**: PDF sin texto,
   una acordada en vez de una resolución SGA, o un resolutivo distinto. Pide el
-  deploy con `gh workflow run`, igual que `feriados.yml`.
+  deploy con `gh workflow run`, igual que `feriados.yml`. Guarda el `url` del
+  PDF y la tabla lo enlaza; los anteriores no lo tienen y no se buscan (Javier).
 - **El UHOM y el monto fijo siguen a mano** —`data/serie-uhom.json` y
   `data/tasa-monto-fijo.json`—: las tablas del Ministerio son PDFs sin API. **`npm run verificar-series` no
   puede detectar que falte el último**: detecta que lo cargado esté mal. El que
@@ -736,7 +737,7 @@ UHOM de las tablas del Ministerio. Viven en `data/` con la norma al lado. Lo que
 no hay que contradecir:
 
 - **Vigencia y fecha del acto son dos campos.** La vigencia decide qué valor
-  corresponde a una regulación; la del acto, si ese valor existía ese día.
+  corresponde a una regulación; la del acto, si existía ese día: el conversor busca por ésta.
 - **Un valor con vigencia futura es válido.** Lo que se garantiza es que siempre
   haya uno vigente, y las páginas toman el último que ya rige, no el último del
   archivo.
