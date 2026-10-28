@@ -678,8 +678,7 @@ muestra la lista de posibles errores si los hay. **El visor de Chrome no se
 tapa por defecto** (Javier, 8/10: perder los enlaces molesta); el subrayado es
 opcional. **No se publica**. Su [`README.md`](../extension-revisor/README.md).
 
-- **Falta saber si la PC institucional deja el modo de desarrollador**, y es
-  de Javier.
+- **Su hermana `extension-tablero/`** (27/10): panel lateral con `calculadoras/panel.html`, que calcula con `plazos.js` y no tiene cuenta propia, y click derecho sobre una fecha. Igualdad con `vencimientos` vista en 7 casos, **sin control automático**. Ver [`PLAN_EXTENSION_TABLERO.md`](PLAN_EXTENSION_TABLERO.md).
 - **Sin `use_dynamic_url`**: con él, el origen de los iframes no coincide con
   su dirección y los mensajes se pierden sin error.
 - **Una regla nueva de `motor/revisar.mjs` entra con su caso** en

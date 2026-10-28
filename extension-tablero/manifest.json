@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Herramientas judiciales",
+  "short_name": "Herramientas",
+  "version": "0.1.0",
+  "description": "Cuándo vence un plazo, con un click derecho sobre una fecha, en un panel al costado. No es una aplicación del Poder Judicial.",
+  "permissions": ["sidePanel", "contextMenus", "storage"],
+  "action": {
+    "default_title": "Herramientas judiciales (Alt+Mayús+T)"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Alt+Shift+T" },
+      "description": "Abrir el panel"
+    }
+  },
+  "side_panel": {
+    "default_path": "panel.html"
+  },
+  "background": {
+    "service_worker": "fondo.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://lex100https.pjn.gov.ar/*", "https://sgj-docs.pjn.gov.ar/*"],
+      "js": ["contenido.js"],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ]
+}
