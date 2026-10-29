@@ -1,9 +1,10 @@
-// El calendario judicial, el computo de plazos y el anonimizador, por MCP
-// sobre stdio.
+// El calendario judicial, el computo de plazos, la tasa de justicia, el
+// prorrateo del art. 730 y el anonimizador, por MCP sobre stdio.
 //
 // Es la mitad del conector que consume un modelo. La otra --la que consume
 // codigo-- es conectores/http.mjs, y las dos cuelgan de los mismos dos
-// registros: nucleo.mjs (plazos) y anonimizar.mjs (Escribiente).
+// registros: nucleo.mjs (plazos), anonimizar.mjs (Escribiente) y, desde el
+// 29/10/2026, liquidaciones.mjs (tasa y prorrateo).
 // Ninguna de las dos calcula ni anonimiza: traducen a JSON lo que hacen los
 // motores.
 //
@@ -24,13 +25,14 @@
 import { HERRAMIENTAS as PLAZOS, ErrorDeEntrada } from './nucleo.mjs';
 import { HERRAMIENTAS_ANONIMIZAR } from './anonimizar.mjs';
 import { HERRAMIENTAS_AUTOMATICO } from './automatico.mjs';
+import { HERRAMIENTAS_LIQUIDACIONES } from './liquidaciones.mjs';
 
 // Los dos registros en un solo servidor, desde el 17/9/2026. Quien consume
 // levanta UN proceso y tiene lo que este repositorio ofrece; dos procesos son
 // dos cosas que se caen por separado. Se comprobo antes de tocarlo que
 // `pipeline/plazos.py` no lee `serverInfo` ni `tools/list` -manda `tools/call`
 // directo-, asi que agregar herramientas no le cambia nada.
-const HERRAMIENTAS = { ...PLAZOS, ...HERRAMIENTAS_ANONIMIZAR, ...HERRAMIENTAS_AUTOMATICO };
+const HERRAMIENTAS = { ...PLAZOS, ...HERRAMIENTAS_ANONIMIZAR, ...HERRAMIENTAS_AUTOMATICO, ...HERRAMIENTAS_LIQUIDACIONES };
 
 const VERSION_PROTOCOLO = '2024-11-05';
 
@@ -87,7 +89,9 @@ function esquema(entrada) {
 const listaDeHerramientas = Object.entries(HERRAMIENTAS).map(([nombre, h]) => ({
     name: nombre,
     description: h.descripcion + (h.aviso ?? AVISO),
-    inputSchema: esquema(h.entrada)
+    // La tasa y el prorrateo traen su esquema armado: llevan listas de
+    // objetos y montos como numero, que el esquema generico no sabe decir.
+    inputSchema: h.esquema || esquema(h.entrada)
 }));
 
 function responder(id, resultado) {

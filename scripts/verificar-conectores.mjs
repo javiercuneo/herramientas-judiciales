@@ -117,8 +117,8 @@ async function probarHttp() {
   igual(indice.estado, 200, 'GET / no contesta 200')
   comprobar(/json/.test(indice.tipo), 'GET / no declara content-type JSON')
   comprobar(
-    Array.isArray(indice.cuerpo?.endpoints) && indice.cuerpo.endpoints.length === 12,
-    `GET / tiene que listar los doce endpoints y lista ${indice.cuerpo?.endpoints?.length}`,
+    Array.isArray(indice.cuerpo?.endpoints) && indice.cuerpo.endpoints.length === 14,
+    `GET / tiene que listar los catorce endpoints y lista ${indice.cuerpo?.endpoints?.length}`,
   )
   // El aviso de la anonimizacion va en el indice por lo mismo que el de
   // ok:false: es donde el que llama se entera de la regla antes de
@@ -495,6 +495,11 @@ async function probarMcp() {
       elegidos: [{ texto: 'Juan Carlos', reemplazo: '[PARTE]' }],
     }),
     llamar(12, 'partes_de_caratula', { texto: 'Un escrito cualquiera, sin caratula adentro.' }),
+    // La tasa y el prorrateo por el otro transporte: el mismo caso testigo
+    // que por HTTP, y el mismo dato faltante.
+    llamar(13, 'tasa_de_justicia', CASO_TASA),
+    llamar(14, 'tasa_de_justicia', { supuesto: 'demanda', renglones: [{ item: 'sumas' }] }),
+    llamar(15, 'prorrateo_730', CASO_PRORRATEO),
   ])
 
   if (agotado) {
@@ -507,7 +512,7 @@ async function probarMcp() {
   comprobar(!!init?.result?.serverInfo?.name, 'initialize no se identifica')
 
   const lista = porId.get(2)?.result?.tools
-  comprobar(Array.isArray(lista) && lista.length === 12, `tools/list tiene que traer doce y trae ${lista?.length}`)
+  comprobar(Array.isArray(lista) && lista.length === 14, `tools/list tiene que traer catorce y trae ${lista?.length}`)
   const nombres = (lista || []).map((t) => t.name).sort()
   igual(
     nombres.join(','),
@@ -515,7 +520,8 @@ async function probarMcp() {
     // aca a proposito: devuelve el texto real, y lo que devuelve el MCP lo lee
     // el modelo.
     'anonimizar_texto,anotar_fuga,aparece_en_el_texto,candidatos_a_nombre,cobertura,dia_habil,' +
-      'dias_habiles_entre,mora,partes_de_caratula,restos_pegados,siguiente_habil,vencimiento',
+      'dias_habiles_entre,mora,partes_de_caratula,prorrateo_730,restos_pegados,siguiente_habil,' +
+      'tasa_de_justicia,vencimiento',
     'tools/list cambio los nombres de las herramientas',
   )
   // El aviso de cada familia es distinto porque el modo de falla es
@@ -601,6 +607,30 @@ async function probarMcp() {
     'MCP no marca isError con una etiqueta invalida, y el modelo lo lee como que tapo bien',
   )
 
+  // --- la tasa y el prorrateo ---
+  const herramientaTasa = (lista || []).find((t) => t.name === 'tasa_de_justicia')
+  // Los renglones son una lista de objetos y el importe un numero. Si el
+  // esquema dijera texto, el modelo mandaria "1234.567" y el lector de la
+  // pantalla lo leeria como mas de un millon.
+  igual(herramientaTasa?.inputSchema?.properties?.renglones?.type, 'array', 'tasa_de_justicia declara los renglones como texto')
+  igual(
+    herramientaTasa?.inputSchema?.properties?.renglones?.items?.properties?.importe?.type,
+    'number',
+    'tasa_de_justicia no declara el importe como numero',
+  )
+  comprobar(
+    (herramientaTasa?.description || '').includes('sucesion (inmueble|mueble|dinero)'),
+    'la descripcion de tasa_de_justicia no lista los supuestos y sus items, y el modelo no sabe que pedir',
+  )
+  const tasaMcp = cuerpoDe(porId.get(13))
+  igual(tasaMcp?.total?.tasa, TASA_TESTIGO, 'MCP tasa_de_justicia mueve el total del caso testigo')
+  const tasaSinDato = porId.get(14)
+  igual(cuerpoDe(tasaSinDato)?.ok, false, 'MCP tasa_de_justicia sin importe no devuelve ok:false')
+  comprobar(cuerpoDe(tasaSinDato)?.total === undefined, 'MCP tasa_de_justicia devolvio un total junto con ok:false')
+  comprobar(tasaSinDato?.result?.isError === true, 'MCP tasa_de_justicia no marca isError cuando falta el importe')
+  const proMcp = cuerpoDe(porId.get(15))
+  igual(proMcp?.cobrado, 2200000, 'MCP prorrateo_730 mueve lo cobrado del caso testigo')
+
   const sinCaratulaMcp = porId.get(12)
   igual(cuerpoDe(sinCaratulaMcp)?.ok, false, 'MCP devuelve lista vacia cuando no hay caratula')
   comprobar(
@@ -610,10 +640,116 @@ async function probarMcp() {
 }
 
 // ---------------------------------------------------------------
+// La tasa de justicia y el prorrateo del art. 730 (29/10/2026)
+//
+// La aritmetica la cubren verificar-tasa y verificar-prorrateo, contra
+// la pantalla. Aca se cubre lo del transporte: que el caso testigo de
+// lo mismo que el motor, que un monto con decimales mandado como
+// NUMERO no se lea como miles, y que con un dato faltante no venga
+// ningun importe.
+// ---------------------------------------------------------------
+
+// Una sucesion: un inmueble del que el causante tenia la mitad, con la
+// sobretasa de costumbre, y dinero del acervo con centavos.
+const CASO_TASA = {
+  supuesto: 'sucesion',
+  renglones: [
+    { item: 'inmueble', importe: 100000000, titularidad: 50 },
+    { item: 'dinero', importe: 1234.567 },
+  ],
+}
+// Cien millones por la mitad por el 1,5 % son 750 mil, mas el 5 % de
+// sobretasa: 787.500. Y 1234,567 por el 1,5 %.
+const TASA_TESTIGO = 787500 + 1234.567 * 0.015
+
+// Diez millones de proceso, tasa del 3 % adentro: a los honorarios les
+// quedan 2,2 millones, y dos regulaciones que suman 2,5 millones se
+// prorratean en proporcion.
+const CASO_PRORRATEO = {
+  monto: 10000000,
+  regulaciones: [{ monto: 1500000, concepto: 'actora' }, { monto: 1000000 }],
+}
+
+async function probarLiquidacionesHttp() {
+  const post = (ruta, cuerpo) => pedir(ruta, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo),
+  })
+
+  const t = await post('/tasa-de-justicia', CASO_TASA)
+  igual(t.estado, 200, 'POST /tasa-de-justicia no contesta 200')
+  igual(t.cuerpo?.ok, true, 'POST /tasa-de-justicia no devuelve ok:true con un caso completo')
+  igual(t.cuerpo?.total?.tasa, TASA_TESTIGO, 'la tasa del caso testigo se movio')
+  igual(t.cuerpo?.renglones?.[1]?.imponible, 1234.567, 'un importe con decimales mandado como numero se leyo como miles')
+  igual(t.cuerpo?.renglones?.[0]?.sobretasa?.importe, 37500, 'la sobretasa de la sucesion no se aplico por defecto')
+  comprobar(
+    (t.cuerpo?.momentos || []).includes('art. 9 inc. d'),
+    'la tasa de la sucesion no dice que se paga al inscribir la declaratoria (art. 9 inc. d)',
+  )
+
+  // El mismo caso, contra el nucleo: si dan distinto, el bug es del
+  // transporte.
+  const { tasaDeJusticia } = await import('../conectores/liquidaciones.mjs')
+  igual(
+    JSON.stringify((await tasaDeJusticia(CASO_TASA)).total),
+    JSON.stringify(t.cuerpo?.total),
+    'HTTP y el nucleo dan distinto total para el mismo caso',
+  )
+
+  // Los datos que faltan. Ninguno puede devolver un importe.
+  for (const [cuerpo, que] of [
+    [{ supuesto: 'demanda', renglones: [{ item: 'sumas' }] }, 'un renglon sin importe'],
+    [{ supuesto: 'demanda', renglones: [{ item: 'sumas', importe: 'diez mil' }] }, 'un importe que no se puede leer'],
+    [{ supuesto: 'demanda', renglones: [{ item: 'sumas', importe: -5 }] }, 'un importe negativo'],
+    [{ supuesto: 'sucesion', renglones: [{ item: 'inmueble', importe: 1000, titularidad: 150 }] }, 'una titularidad de mas del 100 %'],
+    [{ supuesto: 'inventado', renglones: [{ item: 'sumas', importe: 1000 }] }, 'un supuesto que no existe'],
+    [{ supuesto: 'demanda', renglones: [{ item: 'inventado', importe: 1000 }] }, 'un item que no es del supuesto'],
+    [{ supuesto: 'demanda', renglones: [] }, 'ningun renglon'],
+    [{ supuesto: 'fija', fecha: '2020-01-01', renglones: [{ item: 'fija' }] }, 'una suma fija sin acordada cargada para esa fecha'],
+  ]) {
+    const r = await post('/tasa-de-justicia', cuerpo)
+    igual(r.cuerpo?.ok, false, `tasa con ${que} no devuelve ok:false`)
+    comprobar(r.cuerpo?.total === undefined && r.cuerpo?.renglones === undefined, `tasa con ${que} devuelve importes junto con ok:false`)
+    comprobar(typeof r.cuerpo?.problema === 'string' && r.cuerpo.problema.length > 0, `tasa con ${que} no dice por que`)
+  }
+
+  // La suma fija, sin cargarla: la vigente, y la respuesta dice de que
+  // acordada sale.
+  const fija = await post('/tasa-de-justicia', { supuesto: 'fija', renglones: [{ item: 'fija' }] })
+  igual(fija.cuerpo?.ok, true, 'la suma fija sin cargar no toma la vigente')
+  comprobar(/Acordada/.test(fija.cuerpo?.montoFijo?.norma || ''), 'la suma fija no dice de que acordada sale')
+
+  const p = await post('/prorrateo-730', CASO_PRORRATEO)
+  igual(p.cuerpo?.ok, true, 'POST /prorrateo-730 no devuelve ok:true con un caso completo')
+  igual(p.cuerpo?.techo, 2500000, 'el techo del art. 730 se movio')
+  igual(p.cuerpo?.topeHonorarios, 2200000, 'el tope de los honorarios se movio')
+  igual(p.cuerpo?.prorratea, true, 'el caso testigo dejo de prorratear')
+  igual(p.cuerpo?.regulaciones?.[0]?.prorrateado, 1320000, 'lo prorrateado de la primera regulacion se movio')
+  igual(p.cuerpo?.regulaciones?.[1]?.prorrateado, 880000, 'lo prorrateado de la segunda regulacion se movio')
+
+  // En UMA sin decir cuanto vale: la vigente, con su acto.
+  const enUma = await post('/prorrateo-730', { monto: 10000000, regulaciones: [{ monto: 10, uma: true }] })
+  igual(enUma.cuerpo?.ok, true, 'una regulacion en UMA sin valor no toma la vigente')
+  comprobar(!!enUma.cuerpo?.uma?.norma, 'el prorrateo en UMA no dice de que acto sale la UMA')
+
+  for (const [cuerpo, que] of [
+    [{ regulaciones: [{ monto: 1000 }] }, 'sin monto del proceso'],
+    [{ monto: 10000000, regulaciones: [] }, 'sin regulaciones'],
+    [{ monto: 10000000, regulaciones: [{ monto: -1000 }] }, 'con una regulacion negativa'],
+    [{ monto: 10000000, regulaciones: [{ monto: 'abc' }] }, 'con una regulacion que no se puede leer'],
+    [{ monto: 10000000, uma: 0, regulaciones: [{ monto: 10, uma: true }] }, 'con la UMA en cero'],
+  ]) {
+    const r = await post('/prorrateo-730', cuerpo)
+    igual(r.cuerpo?.ok, false, `prorrateo ${que} no devuelve ok:false`)
+    comprobar(r.cuerpo?.cobrado === undefined, `prorrateo ${que} devuelve importes junto con ok:false`)
+  }
+}
+
+// ---------------------------------------------------------------
 
 await conHttp(async () => {
   await probarHttp()
   await probarAnonimizadorHttp()
+  await probarLiquidacionesHttp()
 })
 await probarMcp()
 
@@ -626,6 +762,11 @@ await probarMcp()
   comprobar(
     Object.keys(HERRAMIENTAS_ANONIMIZAR).length === 5,
     'el nucleo del anonimizador dejo de exponer cinco herramientas',
+  )
+  const { HERRAMIENTAS_LIQUIDACIONES } = await import('../conectores/liquidaciones.mjs')
+  comprobar(
+    Object.keys(HERRAMIENTAS_LIQUIDACIONES).length === 2,
+    'el registro de la tasa y el prorrateo dejo de exponer dos herramientas',
   )
 }
 

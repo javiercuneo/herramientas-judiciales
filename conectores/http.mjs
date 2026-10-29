@@ -1,5 +1,5 @@
-// El calendario judicial, el computo de plazos y el anonimizador, por HTTP
-// local.
+// El calendario judicial, el computo de plazos, la tasa de justicia, el
+// prorrateo del art. 730 y el anonimizador, por HTTP local.
 //
 // Es la mitad del conector que consume codigo: Python, otro Node, un cliente
 // HTTP cualquiera. La otra mitad --la que consume un modelo-- es
@@ -19,10 +19,11 @@ import { createServer } from 'node:http';
 import { HERRAMIENTAS as PLAZOS, ErrorDeEntrada } from './nucleo.mjs';
 import { HERRAMIENTAS_ANONIMIZAR } from './anonimizar.mjs';
 import { HERRAMIENTAS_AUTOMATICO } from './automatico.mjs';
+import { HERRAMIENTAS_LIQUIDACIONES } from './liquidaciones.mjs';
 
 // Los dos registros en un solo servidor, desde el 17/9/2026: mismo motivo que
 // en mcp.mjs, un proceso y no dos.
-const HERRAMIENTAS = { ...PLAZOS, ...HERRAMIENTAS_ANONIMIZAR, ...HERRAMIENTAS_AUTOMATICO };
+const HERRAMIENTAS = { ...PLAZOS, ...HERRAMIENTAS_ANONIMIZAR, ...HERRAMIENTAS_AUTOMATICO, ...HERRAMIENTAS_LIQUIDACIONES };
 
 const HOST = '127.0.0.1';
 const PUERTO = Number(process.env.PUERTO || 8787);
@@ -57,7 +58,7 @@ async function leerCuerpo(req) {
 }
 
 const indice = () => ({
-    servicio: 'Calendario judicial, cómputo de plazos y anonimización',
+    servicio: 'Calendario judicial, cómputo de plazos, tasa de justicia, prorrateo del art. 730 y anonimización',
     fuente: 'https://javiercuneo.com.ar',
     // Se dice de donde salen los datos porque quien consuma esto tiene derecho
     // a saber contra que se computo: la feria sale de las Acordadas de la CSJN
@@ -65,7 +66,9 @@ const indice = () => ({
     datos: {
         feriados: 'data/feriados.json',
         feria: 'data/feria-judicial.json (una Acordada de la CSJN por año)',
-        asuetos: 'data/dias-inhabiles.json'
+        asuetos: 'data/dias-inhabiles.json',
+        montoFijo: 'data/tasa-monto-fijo.json (art. 6 de la Ley 23.898, por acordada de la CSJN)',
+        uma: 'data/serie-uma.json (leída de cada acto de la CSJN)'
     },
     aviso: 'Cuando la respuesta trae "ok": false NO hay resultado, y el campo "problema" dice por qué. No se devuelve un resultado parcial.',
     anonimizacion: 'Los nombres propios NO se reemplazan solos: /candidatos-a-nombre los propone y alguien los confirma antes de que /anonimizar-texto los aplique. La respuesta de /anonimizar-texto trae siempre "restos": lo que quedó a la vista pegado a un reemplazo.',

@@ -128,6 +128,22 @@ jobs:
       - name: Verificar el computo de plazos
         run: npm run verificar-plazos
 
+      # La tasa de justicia y el prorrateo del art. 730 viven en
+      # calculadoras/js/tasa.js y prorrateo.js desde el 29/10/2026, y los
+      # consumen las pantallas y los conectores. Los dos barridos cargan cada
+      # pantalla en Chromium y le comparan 2500 casos al motor, con igualdad
+      # exacta: por eso necesitan el navegador, y por eso se instala. Sin
+      # Chromium los barridos FALLAN en vez de saltearse --un control que no
+      # corre en silencio no es un control--.
+      - name: Instalar Chromium para los barridos de las pantallas
+        run: npx playwright install --with-deps chromium
+
+      - name: Verificar la tasa de justicia contra su pantalla
+        run: npm run verificar-tasa
+
+      - name: Verificar el prorrateo del art. 730 contra su pantalla
+        run: npm run verificar-prorrateo
+
       # Que terceros nombran las paginas que se publican. Existe porque el
       # 26/8/2026 se contesto "que sale del navegador" leyendo las once
       # calculadoras una por una, y la respuesta se dejo afuera a prorrateo,
