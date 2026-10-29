@@ -804,6 +804,7 @@
     </p>
 </div>
 
+<script src="js/prorrateo.js"></script>
 <script>
 (function () {
     'use strict';
@@ -813,138 +814,29 @@
     var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
                  'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-    var TASA_LEY = 0.03;   // Ley 23.898, art. 2: alicuota general.
-    var IVA = 0.21;
-    var TOPE_COSTAS = 0.25; // art. 730 CCyC.
+    // ----------------------------------------------------------------------
+    // LA CUENTA VIVE EN js/prorrateo.js DESDE EL 29/10/2026, y esta pantalla
+    // no tiene aritmetica adentro: lee el formulario, llama al motor y
+    // escribe. Alla estan las tres constantes, el lector de importes y el
+    // tope del art. 730 --con el comentario de por que el 22 % de antes se
+    // deriva--. Se extrajo para que los conectores y el panel de la extension
+    // calculen con la misma cuenta: scripts/verificar-prorrateo.mjs compara
+    // las dos cosas.
+    // ----------------------------------------------------------------------
+    var P = window.Prorrateo;
 
     function pesos(n) { return '$ ' + nf.format(n); }
 
-    function parseFlexibleNumber(raw) {
-        if (raw === null || raw === undefined) return NaN;
-        var s = String(raw).trim();
-        if (!s) return NaN;
-
-        // Si hay coma, el punto es de miles y la coma decimal.
-        if (s.indexOf(',') > -1) {
-            s = s.replace(/\./g, '').replace(',', '.');
-        } else {
-            // Sin coma: un punto con tres digitos atras es de miles (10.800),
-            // y si no es decimal (10.8).
-            var partes = s.split('.');
-            if (partes.length > 1 && partes[partes.length - 1].length === 3) {
-                s = s.replace(/\./g, '');
-            }
-        }
-        return parseFloat(s.replace(/[^0-9.-]/g, ''));
-    }
-
-    function numero(raw) {
-        var n = parseFlexibleNumber(raw);
-        return isNaN(n) ? 0 : n;
-    }
-
     // ----------------------------------------------------------------------
-    // EL TOPE, que es lo unico de esta pantalla que cambio de valor el 27/8.
-    //
-    // El HTML anterior calculaba dos numeros:
-    //
-    //     percent25 = monto * 0.25   // el techo del art. 730
-    //     tope730   = monto * 0.22   // lo que se reparte entre los honorarios
-    //
-    // y el 22 % estaba ESCRITO DURO. De donde sale: el art. 730 topea las
-    // costas ---"incluidos los honorarios profesionales, de todo tipo"--- en el
-    // 25 % de la condena, y la tasa de justicia es costas. Si la tasa es el
-    // 3 % del art. 2 de la 23.898, a los honorarios les quedan 22 puntos. La
-    // cuenta es correcta EN ESE CASO Y SOLO EN ESE.
-    //
-    // Los dos casos en los que daba mal, y los dos los ofrece la propia
-    // pantalla:
-    //
-    //   - Tasa cargada a mano distinta del 3 %. Con una tasa reducida de
-    //     $150.000 sobre un proceso de $10.000.000 ---el 1,5 %, que es la del
-    //     art. 3 inc. c--- el art. 730 le deja a los honorarios $2.350.000 y la
-    //     pantalla los topeaba en $2.200.000: prorrateaba $150.000 de menos.
-    //   - La casilla de la tasa destildada. Si la tasa no integra la base, no
-    //     hay nada que descontarle al 25 %, y el tope seguia siendo el 22 %.
-    //
-    // Ahora el tope SE DERIVA, y con la tasa del 3 % adentro de la base da
-    // exactamente 22 %: el caso de siempre no se movio un centavo.
-    //
-    // El maximo con cero es para la tasa a mano absurda ---mayor al 25 % de la
-    // condena---: ahi no queda nada para honorarios y el resultado es cero, no
-    // un tope negativo repartido al reves.
-    // ----------------------------------------------------------------------
-    function prorratear(entrada) {
-        var monto = entrada.monto;
-        var tasa = entrada.tasa;
-        var tasaEnBase = !!entrada.tasaEnBase;
-        var regulados = entrada.regulados;
-
-        var techo = monto * TOPE_COSTAS;
-        var topeHonorarios = tasaEnBase ? Math.max(0, techo - tasa) : techo;
-
-        var totalRegulado = 0;
-        for (var i = 0; i < regulados.length; i++) totalRegulado += regulados[i];
-
-        var costas = totalRegulado + (tasaEnBase ? tasa : 0);
-        // Sin honorarios regulados no hay nada que prorratear, aunque la tasa
-        // sola pase el techo: el art. 730 reparte honorarios, no reduce la tasa.
-        var prorratea = monto > 0 && totalRegulado > 0 && costas > techo;
-
-        var reparto = regulados.map(function (r) {
-            if (!prorratea) return r;
-            if (totalRegulado <= 0) return 0;
-            return (r / totalRegulado) * topeHonorarios;
-        });
-
-        var cobrado = 0;
-        for (var j = 0; j < reparto.length; j++) cobrado += reparto[j];
-
-        return {
-            techo: techo,
-            tasa: tasa,
-            tasaEnBase: tasaEnBase,
-            topeHonorarios: topeHonorarios,
-            totalRegulado: totalRegulado,
-            costas: costas,
-            porcentajeProceso: monto > 0 ? (costas * 100) / monto : 0,
-            prorratea: prorratea,
-            reparto: reparto,
-            cobrado: cobrado,
-            recorte: Math.max(0, totalRegulado - cobrado),
-            // El recorte como porcentaje de lo regulado. Se calcula acá y no en
-            // la pantalla porque ahora lo leen tres lugares ---la nota, la barra
-            // y el imprimible--- y tres cuentas del mismo numero se
-            // desincronizan. NO cambia ni un peso del reparto.
-            recortePorcentaje: totalRegulado > 0
-                ? (Math.max(0, totalRegulado - cobrado) * 100) / totalRegulado
-                : 0
-        };
-    }
-
-    // ----------------------------------------------------------------------
-    // La UMA sale de data/serie-uma.json, del propio repositorio.
+    // La UMA sale de data/serie-uma.json, del propio repositorio, y cual rige
+    // lo elige el motor (umaVigente, en js/prorrateo.js): el ultimo valor cuya
+    // VIGENCIA ya empezo, y no el ultimo del archivo.
     //
     // Hasta el 26/8/2026 esta pagina le pedia el valor a una planilla de Google
     // en cada carga, y quedo afuera del barrido de "que sale del navegador" del
     // 26/8 porque la llamada estaba a cuatrocientas lineas del calculo, adentro
     // de un cargador de CSV.
-    //
-    // Se elige el ultimo valor cuya VIGENCIA ya empezo, y no el ultimo del
-    // archivo. La diferencia aparece el dia que se carga un valor por
-    // adelantado: el ultimo del archivo seria uno que todavia no rige.
     // ----------------------------------------------------------------------
-    function umaVigente(valores) {
-        var hoy = new Date().toISOString().slice(0, 10);
-        var elegido = null;
-        for (var i = 0; i < valores.length; i++) {
-            var v = valores[i];
-            if (typeof v.valor !== 'number' || !v.vigencia) continue;
-            if (v.vigencia <= hoy) elegido = v;
-        }
-        return elegido;
-    }
-
     function desdeCuando(vigencia) {
         var partes = String(vigencia).split('-');
         var mes = MESES[parseInt(partes[1], 10) - 1];
@@ -954,15 +846,11 @@
     function fetchUma() {
         var input = document.getElementById('uma');
         var status = document.getElementById('statusUma');
-        // Rompe-cache: sin esto un valor nuevo puede tardar en aparecer y el
-        // usuario ve el anterior sin que nada se lo diga.
-        return fetch('../data/serie-uma.json?v=' + Date.now())
-            .then(function (r) {
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                return r.json();
-            })
+        // El motor la pide con rompe-cache: sin eso un valor nuevo puede tardar
+        // en aparecer y el usuario ve el anterior sin que nada se lo diga.
+        return P.cargarUma()
             .then(function (serie) {
-                var vigente = umaVigente(serie.valores || []);
+                var vigente = P.umaVigente(serie.valores || []);
                 if (!vigente) throw new Error('la serie no tiene ningún valor vigente');
                 input.value = vigente.valor.toLocaleString('es-AR');
                 // Se dice DESDE CUANDO rige, y no solo el numero: es el dato que
@@ -1035,32 +923,28 @@
         }
     }
 
-    // El monto efectivo de una fila: primero la UMA, despues el IVA. El orden
-    // importa y es el que tenia el HTML anterior ---el IVA se calcula sobre el
-    // honorario ya expresado en pesos---.
-    function reguladoDeFila(tr, uma) {
-        var monto = numero(tr.querySelector('.fila-monto').value);
-        if (tr.querySelector('.fila-uma').checked) monto = monto * uma;
-        if (tr.querySelector('.fila-iva').checked) monto = monto * (1 + IVA);
-        return monto;
+    // Una fila del formulario, como la recibe el motor.
+    function leerFila(tr) {
+        return {
+            monto: tr.querySelector('.fila-monto').value,
+            uma: tr.querySelector('.fila-uma').checked,
+            iva: tr.querySelector('.fila-iva').checked
+        };
     }
 
-    // El prorrateado de una fila regulada en UMA, de vuelta en UMA. Se divide
-    // por la UMA y se le saca el IVA, asi que da la cantidad de UMA regulada
-    // por la misma proporcion que el art. 730 aplica a los pesos: 10 UMA con
-    // un recorte del 25 % dan 7,50 UMA. No es otro calculo, es la cifra de la
-    // columna leida en la unidad en que se reguló.
+    // El prorrateado de una fila regulada en UMA, de vuelta en UMA: la cifra
+    // la saca el motor (prorrateadoEnUma), y aca se escribe.
     function prorrateadoEnUma(tr, prorrateado, uma) {
-        if (!tr.querySelector('.fila-uma').checked || !(uma > 0) || !(prorrateado > 0)) return '';
-        var iva = tr.querySelector('.fila-iva').checked;
-        return nf.format(prorrateado / uma / (iva ? 1 + IVA : 1)) + ' UMA' + (iva ? ' + IVA' : '');
+        var n = P.prorrateadoEnUma(leerFila(tr), prorrateado, uma);
+        if (n === null) return '';
+        return nf.format(n) + ' UMA' + (tr.querySelector('.fila-iva').checked ? ' + IVA' : '');
     }
 
     // Una cifra en pesos leida en UMA. Es solo una lectura: ninguna cuenta la
     // usa. Con una regulacion con IVA el total en UMA lo lleva adentro, y se
     // dice, porque cada fila lo muestra sin IVA.
     function enUmas(n, uma, conIva) {
-        return nf.format(n / uma) + ' UMA' + (conIva ? ', IVA incluido' : '');
+        return nf.format(P.enUmas(n, uma)) + ' UMA' + (conIva ? ', IVA incluido' : '');
     }
 
     // ----------------------------------------------------------------------
@@ -1071,11 +955,19 @@
         msg.textContent = '';
         msg.classList.remove('show');
 
-        var monto = numero(document.getElementById('montoProceso').value);
-        var uma = numero(document.getElementById('uma').value);
         var manual = document.getElementById('tasaManual').checked;
-        var enBase = document.getElementById('tasaEnBase').checked;
-        var tasa = manual ? numero(document.getElementById('tasaImporte').value) : monto * TASA_LEY;
+        var filas = Array.prototype.slice.call(cuerpo.rows);
+        var k = P.cuenta({
+            monto: document.getElementById('montoProceso').value,
+            uma: document.getElementById('uma').value,
+            tasaManual: manual,
+            tasaImporte: document.getElementById('tasaImporte').value,
+            tasaEnBase: document.getElementById('tasaEnBase').checked,
+            regulaciones: filas.map(leerFila)
+        });
+        var monto = k.monto;
+        var uma = k.uma;
+        var tasa = k.prorrateo.tasa;
 
         document.getElementById('campoTasa').hidden = !manual;
         // Sin monto cargado el importe seria "$ 0,00", que no informa nada: hasta
@@ -1083,7 +975,7 @@
         var pieTasa = document.getElementById('pieTasa');
         if (manual) {
             pieTasa.textContent = monto > 0
-                ? 'Se usa el importe cargado. El 3 % de este proceso sería ' + pesos(monto * TASA_LEY) + '.'
+                ? 'Se usa el importe cargado. El 3 % de este proceso sería ' + pesos(k.tasaLey) + '.'
                 : 'Se usa el importe cargado en vez del 3 % del art. 2 de la Ley 23.898.';
         } else {
             pieTasa.textContent = monto > 0
@@ -1097,33 +989,29 @@
             chips[c].classList.toggle('activo', chips[c].querySelector('input').checked);
         }
 
-        var filas = Array.prototype.slice.call(cuerpo.rows);
-        var hayUma = false;
-        var regulados = filas.map(function (tr) {
-            if (tr.querySelector('.fila-uma').checked) hayUma = true;
-            return reguladoDeFila(tr, uma);
-        });
+        var hayUma = k.hayUma;
+        var regulados = k.regulados;
 
         if (hayUma && !(uma > 0)) {
             msg.textContent = 'Hay regulaciones expresadas en UMA y no hay un valor de UMA cargado.';
             msg.classList.add('show');
         }
 
-        var r = prorratear({ monto: monto, tasa: tasa, tasaEnBase: enBase, regulados: regulados });
+        var r = k.prorrateo;
 
         // Si el caso trae regulaciones en UMA, las cifras del caso tambien se
         // leen en UMA. Si no, no: la UMA no tiene nada que ver con el caso.
-        var umaCaso = hayUma && uma > 0 ? uma : 0;
-        var hayIva = filas.some(function (tr) { return tr.querySelector('.fila-iva').checked; });
+        var umaCaso = k.umaCaso;
+        var hayIva = k.hayIva;
         document.getElementById('montoEnUma').textContent =
             umaCaso && monto > 0 ? 'Equivale a ' + enUmas(monto, umaCaso) + '.' : '';
         document.getElementById('totalProrrateadoUma').textContent =
             umaCaso && r.cobrado > 0 ? enUmas(r.cobrado, umaCaso, hayIva) : '';
 
-        pintarFilas(filas, regulados, r, uma);
+        pintarFilas(filas, regulados, r, uma, k.participacion);
         pintarResultado(r, monto, umaCaso, hayIva);
         document.getElementById('dibujo').innerHTML = monto > 0 ? dibujar(r) : '';
-        pintarImprimible(r, monto, filas, regulados, uma, umaCaso, hayIva);
+        pintarImprimible(r, monto, filas, regulados, uma, umaCaso, hayIva, k.participacion);
 
         // El enlace se mantiene al dia en la barra de direcciones, y por eso el
         // boton de copiar puede decir "copialo de ahi" si el portapapeles no
@@ -1133,7 +1021,7 @@
         }
     }
 
-    function pintarFilas(filas, regulados, r, uma) {
+    function pintarFilas(filas, regulados, r, uma, participacion) {
         filas.forEach(function (tr, i) {
             var reg = regulados[i];
             var celdaReg = tr.querySelector('.fila-regulado');
@@ -1154,7 +1042,7 @@
                 return;
             }
 
-            celdaPart.textContent = nf.format((reg * 100) / r.totalRegulado) + ' %';
+            celdaPart.textContent = nf.format(participacion[i]) + ' %';
             celdaPart.classList.remove('apagada');
 
             // Cuando no hay prorrateo la columna repite el regulado, y eso NO
@@ -1448,7 +1336,7 @@
         });
     }
 
-    function pintarImprimible(r, monto, filas, regulados, uma, umaCaso, hayIva) {
+    function pintarImprimible(r, monto, filas, regulados, uma, umaCaso, hayIva, participacion) {
         var caja = document.getElementById('imprimible');
         if (!(monto > 0) || !(r.totalRegulado > 0)) { caja.innerHTML = ''; return; }
 
@@ -1480,7 +1368,7 @@
             var enUma = prorrateadoEnUma(tr, r.reparto[i], uma);
             html += '<tr><td>' + escapar(nombre) + '</td>' +
                     '<td class="num">' + pesos(regulados[i]) + '</td>' +
-                    '<td class="num">' + nf.format((regulados[i] * 100) / r.totalRegulado) + ' %</td>' +
+                    '<td class="num">' + nf.format(participacion[i]) + ' %</td>' +
                     '<td class="num">' + pesos(r.reparto[i]) +
                     (enUma ? '<br><span class="en-uma-papel">' + enUma + '</span>' : '') +
                     '</td></tr>';
@@ -1570,12 +1458,14 @@
     }
     fetchUma();
 
-    // Para el banco de pruebas: la cuenta, consultable sin tocar el DOM.
+    // Para el banco de pruebas: la cuenta, consultable sin tocar el DOM. Desde
+    // el 29/10/2026 es la de js/prorrateo.js; el nombre se conserva porque lo
+    // usan los bancos.
     window.Prorrateo730 = {
-        TOPE_COSTAS: TOPE_COSTAS,
-        TASA_LEY: TASA_LEY,
-        IVA: IVA,
-        prorratear: prorratear
+        TOPE_COSTAS: P.TOPE_COSTAS,
+        TASA_LEY: P.TASA_LEY,
+        IVA: P.IVA,
+        prorratear: P.prorratear
     };
     // Las usa el driver del banco para armar el caso.
     window.agregarFila = agregarFila;

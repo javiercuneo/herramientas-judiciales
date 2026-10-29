@@ -74,7 +74,9 @@ export function servirRepositorio() {
     return new Promise((resolver) => {
         const servidor = createServer(async (req, res) => {
             try {
-                const ruta = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname)).replace(/^([/\\])+/, '');
+                const pedida = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+                // Una carpeta se sirve por su index.html, como Pages.
+                const ruta = normalize(pedida.endsWith('/') ? pedida + 'index.html' : pedida).replace(/^([/\\])+/, '');
                 if (ruta.startsWith('..')) throw new Error('fuera');
                 const cuerpo = await readFile(join(RAIZ, ruta));
                 res.writeHead(200, { 'Content-Type': TIPOS[extname(ruta)] || 'application/octet-stream' });
@@ -131,11 +133,13 @@ export async function manejarHuellas(huellas) {
 
 // Lo que se le inyecta a la pagina para sacar la huella: el <body> sin
 // scripts, y el origen borrado, porque el puerto cambia en cada corrida y el
-// enlace del caso lo lleva adentro.
+// enlace del caso lo lleva adentro. El espacio ENTRE etiquetas se colapsa:
+// agregar un <script src> deja un salto de linea de mas que no se dibuja, y
+// sin esto la migracion de una pantalla daria todos los casos distintos.
 export const FUNCION_HUELLA = `
     window.__huella = function () {
         var copia = document.body.cloneNode(true);
         copia.querySelectorAll('script').forEach(function (s) { s.remove(); });
-        return copia.innerHTML.split(location.origin).join('') + '|' + location.hash;
+        return copia.innerHTML.split(location.origin).join('').replace(/>\\s+</g, '><') + '|' + location.hash;
     };
 `;
