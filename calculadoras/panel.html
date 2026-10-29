@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Plazo al paso</title>
-<meta name="description" content="Cuándo vence un plazo, en una pantalla angosta: la del panel lateral de la extensión.">
+<meta name="description" content="Vencimiento, caducidad, mora y días entre fechas, en una pantalla angosta: la del panel lateral de la extensión.">
 <meta name="robots" content="noindex">
 <link rel="icon" href="../favicon.ico" sizes="32x32">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/comun.css">
+<link rel="stylesheet" href="css/dias-propios.css">
 <script src="../assets/tema.js"></script>
 <style>
     /* ------------------------------------------------------------------
@@ -22,15 +23,30 @@
        no encontro la fecha. Esta pantalla es la respuesta primero y el
        formulario despues, y nada mas.
 
-       NO CALCULA NADA PROPIO. El computo es Plazos.vencimiento(), el mismo
-       motor que usa vencimientos.html, con el mismo calendario. Lo que vive
-       aca es leer cuatro campos y mostrar. Lo que esta pantalla no pregunta
-       ---la ampliacion por distancia, las notas del Libro de Asistencia---
-       no se supone: se manda a la calculadora completa.
+       Desde el 28/10 contesta las cuatro preguntas que salen de UNA fecha
+       ---vencimiento, caducidad, mora y dias entre fechas---. La fecha se
+       carga una vez y vale para las cuatro: es la idea del «tablero de
+       plazos» de IDEAS.md, en chico.
+
+       NO CALCULA NADA PROPIO. Cada resultado sale de js/plazos.js, el mismo
+       motor de las calculadoras completas, con el mismo calendario y los
+       mismos dias inhabiles propios (js/dias-propios.js: la lista es la del
+       sitio, porque el marco de la extension no esta particionado ---visto
+       el 28/10---). Lo que esta pantalla no pregunta ---la ampliacion por
+       distancia, las notas del Libro de Asistencia--- no se supone: se manda
+       a la calculadora completa.
        ------------------------------------------------------------------ */
     body { margin: 0; padding: 12px 14px 20px; font-size: 15px; }
     .hoy { color: var(--muted-fg); font-size: 13px; margin: 0 0 10px; }
     .hoy b { color: var(--fg); font-weight: 600; }
+
+    .herramientas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 10px; }
+    .herramientas button {
+        font: inherit; font-size: 13px; padding: 6px 2px;
+        border: 1px solid var(--border); border-radius: 8px;
+        background: var(--card); color: var(--fg); cursor: pointer;
+    }
+    .herramientas button[aria-pressed=true] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 
     .respuesta {
         background: var(--card);
@@ -49,16 +65,16 @@
         margin: 2px 0 4px;
         color: var(--accent);
     }
-    .respuesta .hora, .respuesta .alterno, .respuesta .desde { font-size: 13px; color: var(--muted-fg); margin: 2px 0 0; }
-    .respuesta .espera { color: var(--muted-fg); margin: 0; }
-    .respuesta .problema { color: var(--error); margin: 0; }
-    .respuesta.origen-aviso { border-color: var(--accent); }
+    .respuesta p { font-size: 13px; color: var(--muted-fg); margin: 2px 0 0; }
+    .respuesta .espera { font-size: 15px; margin: 0; }
+    .respuesta .problema { font-size: 14px; color: var(--error); margin: 0; }
+    .respuesta .dp-usados { font-size: 13px; }
 
     .tomado { font-size: 13px; color: var(--muted-fg); margin: -6px 0 12px; }
     .tomado:empty { display: none; }
 
     form { display: grid; gap: 12px; }
-    label.campo { display: grid; gap: 4px; font-size: 13px; color: var(--muted-fg); }
+    label.campo, .campo { display: grid; gap: 4px; font-size: 13px; color: var(--muted-fg); }
     input[type=text] {
         font: inherit;
         font-size: 17px;
@@ -87,31 +103,39 @@
     button.chico:hover { border-color: var(--accent); }
 
     .modalidad { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-    .modalidad label { text-align: center; padding: 8px 4px; cursor: pointer; font-size: 14px; background: var(--card); }
+    .modalidad label { text-align: center; padding: 8px 4px; cursor: pointer; font-size: 14px; background: var(--card); color: var(--fg); }
     .modalidad input { position: absolute; opacity: 0; pointer-events: none; }
     .modalidad label:has(input:checked) { background: var(--accent); color: var(--on-accent); }
     .modalidad label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: -3px; }
 
-    .casilla { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
+    .casilla { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--fg); }
     .casilla input { margin-top: 3px; }
     [hidden] { display: none !important; }
 
     .completo { font-size: 14px; margin: 14px 0 0; }
     a { color: var(--accent); }
-    .nota { font-size: 12px; color: var(--faint); margin: 16px 0 0; line-height: 1.5; }
+    .propios { margin-top: 14px; }
+    .nota { font-size: 12px; color: var(--faint); margin: 12px 0 0; line-height: 1.5; }
 </style>
 </head>
 <body>
 
 <p class="hoy" id="hoy">Cargando el calendario…</p>
 
+<nav class="herramientas" aria-label="Qué calcular">
+    <button type="button" data-herramienta="vencimiento" aria-pressed="true">Vence</button>
+    <button type="button" data-herramienta="caducidad" aria-pressed="false">Caducidad</button>
+    <button type="button" data-herramienta="mora" aria-pressed="false">Mora</button>
+    <button type="button" data-herramienta="entre" aria-pressed="false">Entre fechas</button>
+</nav>
+
 <section class="respuesta" id="respuesta" aria-live="polite">
-    <p class="espera">Cargá la fecha y el plazo.</p>
+    <p class="espera">Cargá la fecha.</p>
 </section>
 <p class="tomado" id="tomado"></p>
 
 <form id="form" autocomplete="off" novalidate>
-    <div class="modalidad" role="radiogroup" aria-label="Cómo se notificó">
+    <div class="modalidad" role="radiogroup" aria-label="Cómo se notificó" data-solo="vencimiento">
         <label><input type="radio" name="modalidad" value="cedula" checked> Cédula</label>
         <label><input type="radio" name="modalidad" value="automatica"> Automática</label>
     </div>
@@ -119,46 +143,88 @@
     <label class="campo"><span id="rotulo-fecha">Notificada el</span>
         <span class="fila">
             <input type="text" id="fecha" inputmode="numeric" placeholder="dd/mm/aaaa" aria-describedby="rotulo-fecha">
-            <button type="button" class="chico" id="hoy-boton">Hoy</button>
+            <button type="button" class="chico" data-hoy="fecha">Hoy</button>
         </span>
     </label>
 
-    <label class="campo">Plazo, en días hábiles
+    <label class="campo" data-solo="entre">Hasta el
+        <span class="fila">
+            <input type="text" id="hasta" inputmode="numeric" placeholder="dd/mm/aaaa">
+            <button type="button" class="chico" data-hoy="hasta">Hoy</button>
+        </span>
+    </label>
+
+    <label class="campo" data-solo="vencimiento">Plazo, en días hábiles
         <span class="fila">
             <input type="text" id="plazo" inputmode="numeric" placeholder="5">
-            <button type="button" class="chico" data-plazo="3">3</button>
-            <button type="button" class="chico" data-plazo="5">5</button>
-            <button type="button" class="chico" data-plazo="10">10</button>
-            <button type="button" class="chico" data-plazo="15">15</button>
+            <button type="button" class="chico" data-poner="plazo" data-valor="3">3</button>
+            <button type="button" class="chico" data-poner="plazo" data-valor="5">5</button>
+            <button type="button" class="chico" data-poner="plazo" data-valor="10">10</button>
+            <button type="button" class="chico" data-poner="plazo" data-valor="15">15</button>
         </span>
     </label>
 
-    <label class="casilla" id="caja-horario">
+    <label class="campo" data-solo="caducidad">Plazo del art. 310 CPCCN, en meses
+        <span class="fila">
+            <input type="text" id="meses" inputmode="numeric" placeholder="6">
+            <button type="button" class="chico" data-poner="meses" data-valor="6">6</button>
+            <button type="button" class="chico" data-poner="meses" data-valor="3">3</button>
+            <button type="button" class="chico" data-poner="meses" data-valor="1">1</button>
+        </span>
+    </label>
+
+    <label class="campo" data-solo="mora">Hasta que quede firme, en días hábiles
+        <input type="text" id="firme" inputmode="numeric" value="10">
+    </label>
+    <label class="campo" data-solo="mora">Para pagar, en días corridos
+        <input type="text" id="pago" inputmode="numeric" value="10">
+    </label>
+
+    <label class="casilla" data-solo="vencimiento" id="caja-horario">
         <input type="checkbox" id="fuera-de-horario">
         <span>La cédula se diligenció fuera del horario hábil (antes de las 7 o después de las 20)</span>
     </label>
-    <label class="casilla" id="caja-nota" hidden>
+    <label class="casilla" data-solo="vencimiento" id="caja-nota" hidden>
         <input type="checkbox" id="hubo-nota">
         <span>Se dejó nota en el Libro de Asistencia</span>
     </label>
+
+    <label class="casilla" data-solo="entre"><input type="checkbox" id="solo-habiles"> <span>Sólo días hábiles</span></label>
+    <label class="casilla" data-solo="entre"><input type="checkbox" id="incluir-inicio" checked> <span>Contar el día de inicio</span></label>
+    <label class="casilla" data-solo="entre"><input type="checkbox" id="incluir-fin" checked> <span>Contar el día de fin</span></label>
 </form>
 
 <p class="completo"><a id="completo" href="vencimientos.html" target="_blank" rel="noopener">El cómputo completo, con el calendario</a></p>
 
-<p class="nota">Sin ampliación por distancia ni días inhábiles propios: para eso, el cómputo completo.
-Feriados y asuetos por Acordada del calendario del sitio.</p>
+<div class="propios" data-dias-propios></div>
+
+<p class="nota" id="nota"></p>
 
 <script src="js/calendario-judicial.js"></script>
 <script src="js/plazos.js"></script>
+<script src="js/dias-propios.js"></script>
 <script>
 'use strict';
 
-// Los mismos anios que carga vencimientos.html: de 2021 al que viene.
+// Los mismos anios que cargan las calculadoras: de 2021 al que viene.
 var MIN_YEAR = 2021;
 var MAX_YEAR = new Date().getFullYear() + 1;
 var listo = false;
+var herramienta = 'vencimiento';
 
 var $ = function (id) { return document.getElementById(id); };
+
+// Lo que cambia de una herramienta a otra: el rotulo de la fecha, la
+// calculadora completa a la que se manda, y la nota de lo que no se pregunta.
+var HERRAMIENTAS = {
+    vencimiento: { fecha: 'Notificada el', pagina: 'vencimientos.html',
+        nota: 'Sin ampliación por distancia: para eso, el cómputo completo.' },
+    caducidad: { fecha: 'Último acto impulsor', pagina: 'caducidad.html',
+        nota: 'Los meses se cuentan de fecha a fecha, y la feria se descuenta (art. 311 CPCCN).' },
+    mora: { fecha: 'Notificación de la sentencia', pagina: 'mora.html',
+        nota: 'Primero los días hábiles hasta que queda firme, después los corridos para pagar.' },
+    entre: { fecha: 'Desde el', pagina: 'entre-fechas.html', nota: '' }
+};
 
 // --- Fechas ------------------------------------------------------------------
 // Se acepta lo que se selecciona en el PJN: 14/10/2026, 14/1/2026, 14-10-2026,
@@ -173,10 +239,18 @@ function leerFecha(texto) {
     return { anio: a, mes: me, dia: d };
 }
 
-function dos(n) { return (n < 10 ? '0' : '') + n; }
+function entero(id, min) {
+    var t = $(id).value.trim();
+    var n = /^\d{1,3}$/.test(t) ? parseInt(t, 10) : NaN;
+    $(id).classList.toggle('invalido', t !== '' && !(n >= min));
+    return n >= min ? n : null;
+}
 
-// Mismo formato que vencimientos.html (formatearFecha), con getters locales:
-// el motor devuelve mediodia UTC y asi lo lee esa pantalla.
+function dos(n) { return (n < 10 ? '0' : '') + n; }
+function ymd(f) { return f.anio + '-' + dos(f.mes) + '-' + dos(f.dia); }
+
+// Con getters locales, como las calculadoras: el motor devuelve mediodia UTC
+// en vencimiento y medianoche local en las demas, y las dos se leen bien asi.
 var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
     'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -185,84 +259,173 @@ function larga(f) {
     return d.charAt(0).toUpperCase() + d.slice(1) + ', ' + f.getDate() + ' de ' + MESES[f.getMonth()] + ' de ' + f.getFullYear();
 }
 function corta(f) { return f.getDate() + '/' + (f.getMonth() + 1) + '/' + f.getFullYear(); }
-
-// --- Lo que se ve ------------------------------------------------------------
-function modalidad() { return document.querySelector('input[name=modalidad]:checked').value; }
+function dias(n, que) { return n + (n === 1 ? ' día ' + que : ' días ' + que + 's'); }
 
 function mostrar(html) { $('respuesta').innerHTML = html; }
 function texto(t) { var s = document.createElement('span'); s.textContent = t; return s.innerHTML; }
+function espera(t) { mostrar('<p class="espera">' + t + '</p>'); }
 
-function calcular() {
-    var auto = modalidad() === 'automatica';
+function resultado(rotulo, fecha, renglones) {
+    mostrar('<div class="rotulo">' + rotulo + '</div><div class="fecha">' + fecha + '</div>' +
+        renglones.map(function (r) { return '<p>' + r + '</p>'; }).join(''));
+}
+
+// --- Cada herramienta: leer, pedirle al motor, mostrar -----------------------
+// Cada una devuelve el enlace a la calculadora completa con el caso, con los
+// nombres de contrato de ESTADO.md («El caso en el enlace»).
+
+function vencimiento(fecha) {
+    var auto = document.querySelector('input[name=modalidad]:checked').value === 'automatica';
     $('caja-horario').hidden = auto;
     $('caja-nota').hidden = !auto;
     $('rotulo-fecha').textContent = auto ? 'Resolución firmada el' : 'Notificada el';
-
-    var crudaFecha = $('fecha').value.trim();
-    var crudoPlazo = $('plazo').value.trim();
-    var fecha = leerFecha(crudaFecha);
-    var plazo = /^\d{1,3}$/.test(crudoPlazo) ? parseInt(crudoPlazo, 10) : NaN;
-
-    $('fecha').classList.toggle('invalido', crudaFecha !== '' && !fecha);
-    $('plazo').classList.toggle('invalido', crudoPlazo !== '' && !(plazo >= 1));
-    actualizarEnlace(fecha, plazo);
-
-    if (!listo) return;
-    // Un resultado nunca queda al lado de datos que no son los suyos: con el
-    // formulario incompleto vuelve la espera (la regla de calcula-solo.js).
-    if (!fecha || !(plazo >= 1)) {
-        mostrar('<p class="espera">' + (crudaFecha && !fecha
-            ? 'La fecha tiene que ser dd/mm/aaaa, y existir.'
-            : 'Cargá la fecha y el plazo.') + '</p>');
-        return;
-    }
+    var plazo = entero('plazo', 1);
+    var enlace = { modalidad: auto ? 'automatica' : 'cedula', fecha: fecha && ymd(fecha), plazo: plazo };
+    if (!listo) return enlace;
+    if (!fecha || !plazo) { espera('Cargá la fecha y el plazo.'); return enlace; }
     if (auto && $('hubo-nota').checked) {
-        mostrar('<p class="espera">Con notas en el Libro de Asistencia el día de notificación cambia: ' +
-            'se marcan en el <a href="' + $('completo').href + '" target="_blank" rel="noopener">cómputo completo</a>.</p>');
-        return;
+        espera('Con notas en el Libro de Asistencia el día de notificación cambia: se marcan en el cómputo completo.');
+        return enlace;
     }
-
     var r = Plazos.vencimiento({
-        modalidad: modalidad(),
+        modalidad: enlace.modalidad,
         anio: fecha.anio, mes: fecha.mes, dia: fecha.dia,
         plazo: plazo,
         fueraDeHorario: !auto && $('fuera-de-horario').checked,
         notasDejadas: []
     });
-    if (r.problema) {
-        mostrar('<p class="problema"><strong>No se puede calcular.</strong> ' + texto(r.problema) + '</p>');
-        return;
-    }
-    mostrar(
-        '<div class="rotulo">Vence el</div>' +
-        '<div class="fecha">' + larga(r.vencimiento) + '</div>' +
-        '<p class="hora">a las 9:30 hs., por el plazo de gracia del art. 124 CPCCN</p>' +
-        '<p class="alterno">Sin plazo de gracia: ' + larga(r.vencimientoSinGracia) + '.</p>' +
-        '<p class="desde">' + (auto ? 'Notificada el ' + corta(r.fechaNotificacion) + ' (art. 133 CPCCN). ' : '') +
-        'Corre desde el ' + corta(r.fechaInicioConteo) + '; ' + r.plazo + (r.plazo === 1 ? ' día hábil.' : ' días hábiles.') + '</p>'
-    );
+    // Apenas vuelve el motor y antes de mostrar (js/dias-propios.js).
+    var propios = DiasPropios.usadosEnElCalculo();
+    if (r.problema) return problema(r.problema, enlace);
+    resultado('Vence el', larga(r.vencimiento), [
+        'a las 9:30 hs., por el plazo de gracia del art. 124 CPCCN',
+        'Sin plazo de gracia: ' + larga(r.vencimientoSinGracia) + '.',
+        (auto ? 'Notificada el ' + corta(r.fechaNotificacion) + ' (art. 133 CPCCN). ' : '') +
+            'Corre desde el ' + corta(r.fechaInicioConteo) + '; ' + dias(r.plazo, 'hábil') + '.'
+    ]);
+    DiasPropios.anotar($('respuesta'), propios);
+    return enlace;
 }
 
-// El enlace a la calculadora completa lleva el caso, con los nombres de
-// contrato de vencimientos (ESTADO.md, «El caso en el enlace").
-function actualizarEnlace(fecha, plazo) {
-    var partes = ['modalidad=' + modalidad()];
-    if (fecha) partes.push('fecha=' + fecha.anio + '-' + dos(fecha.mes) + '-' + dos(fecha.dia));
-    if (plazo >= 1) partes.push('plazo=' + plazo);
-    $('completo').href = 'vencimientos.html#' + partes.join('&');
+function caducidad(fecha) {
+    var meses = entero('meses', 1);
+    var enlace = { fecha: fecha && ymd(fecha), meses: meses && meses <= 6 ? meses : null };
+    if (!listo) return enlace;
+    if (!fecha || !meses) { espera('Cargá la fecha y el plazo en meses.'); return enlace; }
+    var r = Plazos.caducidad({ anio: fecha.anio, mes: fecha.mes, dia: fecha.dia, meses: meses });
+    var propios = DiasPropios.usadosEnElCalculo();
+    if (r.problema) return problema(r.problema, enlace);
+    resultado('La caducidad se produce el día', larga(r.vencimiento), [
+        'Desde el último acto impulsor del ' + corta(r.inicio) + ', por un plazo de ' +
+            meses + (meses === 1 ? ' mes.' : ' meses.')
+    ]);
+    DiasPropios.anotar($('respuesta'), propios);
+    return enlace;
+}
+
+function mora(fecha) {
+    var firme = entero('firme', 1);
+    var pago = entero('pago', 0);
+    var enlace = { fecha: fecha && ymd(fecha), firme: firme, pago: pago };
+    if (!listo) return enlace;
+    if (!fecha || firme === null || pago === null) { espera('Cargá la fecha y los dos plazos.'); return enlace; }
+    var r = Plazos.mora({ anio: fecha.anio, mes: fecha.mes, dia: fecha.dia, diasHabiles: firme, diasCorridos: pago });
+    var propios = DiasPropios.usadosEnElCalculo();
+    if (r.problema) return problema(r.problema, enlace);
+    resultado('Vencimiento del pago', larga(r.vencimiento), [
+        'Firme el ' + corta(r.firme) + ', a los ' + dias(firme, 'hábil') + '.',
+        'Después, ' + dias(pago, 'corrido') + ' para pagar.'
+    ]);
+    DiasPropios.anotar($('respuesta'), propios);
+    return enlace;
+}
+
+function entre(fecha) {
+    var hastaCrudo = $('hasta').value.trim();
+    var hasta = leerFecha(hastaCrudo);
+    $('hasta').classList.toggle('invalido', hastaCrudo !== '' && !hasta);
+    var habiles = $('solo-habiles').checked;
+    var enlace = { desde: fecha && ymd(fecha), hasta: hasta && ymd(hasta),
+        inicio: $('incluir-inicio').checked ? 'si' : 'no', fin: $('incluir-fin').checked ? 'si' : 'no',
+        habiles: habiles ? 'si' : 'no' };
+    if (!listo) return enlace;
+    if (!fecha || !hasta) { espera(hastaCrudo && !hasta ? 'La fecha tiene que ser dd/mm/aaaa, y existir.' : 'Cargá las dos fechas.'); return enlace; }
+    var d = new Date(fecha.anio, fecha.mes - 1, fecha.dia), h = new Date(hasta.anio, hasta.mes - 1, hasta.dia);
+    if (d > h) { espera('La primera fecha tiene que ser anterior a la segunda.'); return enlace; }
+    var r = Plazos.entreFechas({ desde: fecha, hasta: hasta,
+        incluirInicio: $('incluir-inicio').checked, incluirFin: $('incluir-fin').checked, soloHabiles: habiles });
+    // Con corridos el motor no reinicia la auditoria: la lista seria de otro
+    // calculo. Lo mismo hace entre-fechas.html.
+    var propios = habiles ? DiasPropios.usadosEnElCalculo() : [];
+    if (r.problema) return problema(r.problema, enlace);
+    resultado(habiles ? 'Días hábiles' : 'Días corridos', String(r.total), [
+        'Del ' + corta(r.desde) + ' al ' + corta(r.hasta) + ', ' +
+            ($('incluir-inicio').checked ? 'contando' : 'sin contar') + ' el de inicio y ' +
+            ($('incluir-fin').checked ? 'contando' : 'sin contar') + ' el de fin.'
+    ]);
+    DiasPropios.anotar($('respuesta'), propios);
+    return enlace;
+}
+
+function problema(t, enlace) {
+    mostrar('<p class="problema"><strong>No se puede calcular.</strong> ' + texto(t) + '</p>');
+    DiasPropios.anotar($('respuesta'), []);
+    return enlace;
+}
+
+var CALCULO = { vencimiento: vencimiento, caducidad: caducidad, mora: mora, entre: entre };
+
+function calcular() {
+    var h = HERRAMIENTAS[herramienta];
+    document.querySelectorAll('[data-solo]').forEach(function (n) {
+        n.hidden = n.dataset.solo !== herramienta;
+    });
+    document.querySelectorAll('[data-herramienta]').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.dataset.herramienta === herramienta));
+    });
+    $('rotulo-fecha').textContent = h.fecha;
+    $('nota').textContent = h.nota;
+
+    var crudaFecha = $('fecha').value.trim();
+    var fecha = leerFecha(crudaFecha);
+    $('fecha').classList.toggle('invalido', crudaFecha !== '' && !fecha);
+
+    // Un resultado nunca queda al lado de datos que no son los suyos: con el
+    // formulario incompleto vuelve la espera (la regla de calcula-solo.js).
+    var enlace = (crudaFecha && !fecha && listo)
+        ? (espera('La fecha tiene que ser dd/mm/aaaa, y existir.'), {})
+        : CALCULO[herramienta](fecha);
+
+    var partes = [];
+    Object.keys(enlace).forEach(function (k) {
+        if (enlace[k] !== null && enlace[k] !== undefined && enlace[k] !== '') partes.push(k + '=' + enlace[k]);
+    });
+    $('completo').href = h.pagina + (partes.length ? '#' + partes.join('&') : '');
+}
+
+function elegir(cual) {
+    if (!HERRAMIENTAS[cual]) return;
+    herramienta = cual;
+    calcular();
 }
 
 // --- El caso que llega en el fragmento ---------------------------------------
-// Lo manda la extension: #fecha=AAAA-MM-DD&plazo=5&modalidad=cedula&tomado=...
-// Va en el # por lo mismo que en las calculadoras: no viaja en ningun request.
-// No recarga la pagina: el panel sigue abierto y recibe un caso tras otro.
+// Lo manda la extension: #herramienta=caducidad&fecha=AAAA-MM-DD&hasta=…
+// &plazo=5&tomado=… Va en el # por lo mismo que en las calculadoras: no
+// viaja en ningun request. No recarga la pagina: el panel sigue abierto y
+// recibe un caso tras otro.
+function aTexto(v) {
+    var f = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || '');
+    return f ? (+f[3]) + '/' + (+f[2]) + '/' + f[1] : '';
+}
 function leerFragmento() {
     if (!location.hash || location.hash.length < 2) return;
     var p = new URLSearchParams(location.hash.slice(1));
-    var f = /^(\d{4})-(\d{2})-(\d{2})$/.exec(p.get('fecha') || '');
+    if (HERRAMIENTAS[p.get('herramienta')]) herramienta = p.get('herramienta');
     // Un caso sin fecha borra la anterior: si no, el resultado viejo queda
     // al lado del aviso de que esta vez no se encontro ninguna.
-    $('fecha').value = f ? (+f[3]) + '/' + (+f[2]) + '/' + f[1] : '';
+    $('fecha').value = aTexto(p.get('fecha'));
+    if (p.has('hasta')) $('hasta').value = aTexto(p.get('hasta'));
     if (/^\d{1,3}$/.test(p.get('plazo') || '')) $('plazo').value = p.get('plazo');
     var mod = p.get('modalidad');
     if (mod === 'cedula' || mod === 'automatica') {
@@ -270,7 +433,6 @@ function leerFragmento() {
     }
     $('tomado').textContent = p.get('tomado') || '';
     calcular();
-    if (!$('plazo').value) $('plazo').focus();
 }
 window.addEventListener('hashchange', leerFragmento);
 
@@ -278,14 +440,24 @@ window.addEventListener('hashchange', leerFragmento);
 $('form').addEventListener('input', calcular);
 $('form').addEventListener('change', calcular);
 $('form').addEventListener('submit', function (e) { e.preventDefault(); calcular(); });
-$('hoy-boton').addEventListener('click', function () {
-    var h = new Date();
-    $('fecha').value = h.getDate() + '/' + (h.getMonth() + 1) + '/' + h.getFullYear();
-    calcular();
+document.querySelectorAll('[data-herramienta]').forEach(function (b) {
+    b.addEventListener('click', function () { elegir(b.dataset.herramienta); });
 });
-document.querySelectorAll('[data-plazo]').forEach(function (b) {
-    b.addEventListener('click', function () { $('plazo').value = b.dataset.plazo; calcular(); });
+document.querySelectorAll('[data-hoy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+        var h = new Date();
+        $(b.dataset.hoy).value = h.getDate() + '/' + (h.getMonth() + 1) + '/' + h.getFullYear();
+        calcular();
+    });
 });
+document.querySelectorAll('[data-poner]').forEach(function (b) {
+    b.addEventListener('click', function () { $(b.dataset.poner).value = b.dataset.valor; calcular(); });
+});
+// Si cambian los dias inhabiles propios ---aca o en otra pestaña del sitio---
+// dias-propios.js repinta su aviso; se recalcula, para que el resultado sea
+// el de la lista nueva y no quede el aviso de «volvé a calcular».
+new MutationObserver(function () { if (listo) calcular(); })
+    .observe(document.querySelector('[data-dias-propios]'), { childList: true });
 
 (async function () {
     var anios = [];

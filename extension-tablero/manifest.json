@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Herramientas judiciales",
   "short_name": "Herramientas",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Cuándo vence un plazo, con un click derecho sobre una fecha, en un panel al costado. No es una aplicación del Poder Judicial.",
   "permissions": ["sidePanel", "contextMenus", "storage"],
   "action": {

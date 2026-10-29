@@ -101,6 +101,8 @@ export function interpretar(texto) {
     const todas = fechas(t);
     return {
         fecha: todas[0] || null,
+        // La segunda, para «días entre fechas»: «del 1/10/2026 al 14/10/2026».
+        hasta: todas[1] || null,
         otrasFechas: todas.length - (todas.length ? 1 : 0),
         plazo: plazo(t)
     };

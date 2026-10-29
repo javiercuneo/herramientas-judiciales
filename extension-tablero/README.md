@@ -1,21 +1,29 @@
 # Herramientas judiciales — extensión de Chrome
 
 Click derecho sobre una fecha, en Lex100 o en un despacho, y al costado se abre
-un panel con el vencimiento del plazo. **Fase 1** del plan
-([`docs/PLAN_EXTENSION_TABLERO.md`](../docs/PLAN_EXTENSION_TABLERO.md)). No es
-una aplicación del Poder Judicial.
+un panel con el vencimiento, la caducidad, la mora o los días entre fechas.
+Plan en [`docs/PLAN_EXTENSION_TABLERO.md`](../docs/PLAN_EXTENSION_TABLERO.md).
+No es una aplicación del Poder Judicial.
 
 ## Cómo está hecha
 
 - **El panel es un marco.** Adentro va `calculadoras/panel.html` del sitio, que
-  calcula con `js/plazos.js` y `js/calendario-judicial.js`, los mismos de
-  `vencimientos.html`. La extensión no tiene una sola cuenta propia, y los
+  calcula con `js/plazos.js` y `js/calendario-judicial.js`, los mismos de las
+  calculadoras completas. La extensión no tiene una sola cuenta propia, y los
   feriados nuevos llegan sin publicar otra versión.
-- **El click derecho** tiene dos ítems:
-  - con texto seleccionado (anda también dentro del visor de PDF);
+- **Los días inhábiles propios son los del sitio.** El marco de una extensión
+  no tiene el almacenamiento separado (visto el 28/10/2026), así que la lista
+  que se carga en una calculadora es la misma del panel, y al revés. Si cambia
+  en otra pestaña, el panel recalcula solo.
+- **El click derecho abre un submenú** con las cuatro de fechas y la distancia,
+  que se abre en una pestaña del sitio. Aparece:
+  - con texto seleccionado, en cualquier página (anda también dentro del visor
+    de PDF);
   - sobre un enlace o un texto de Lex100 o sgj-docs, sin seleccionar: para las
     fechas que son enlaces. Chrome no le da a la extensión el texto de un
     enlace; lo anota `contenido.js` en el momento del click derecho.
+
+  Es fijo porque Chrome no deja mirar lo marcado antes de abrir el menú.
 - **`interpretar.mjs`** saca del texto la fecha y el plazo, y nada más. Acepta
   `14/10/2026`, `14/1/2026`, «14 de octubre de 2026», la fecha entera en letras
   y «cinco (5) días».

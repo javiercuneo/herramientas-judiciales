@@ -20,7 +20,9 @@ if (!ORIGEN.startsWith('https://javiercuneo.com.ar')) {
 function abrir(caso) {
     const p = new URLSearchParams();
     if (caso) {
+        if (caso.herramienta) p.set('herramienta', caso.herramienta);
         if (caso.fecha) p.set('fecha', caso.fecha);
+        if (caso.herramienta === 'entre' && caso.hasta) p.set('hasta', caso.hasta);
         if (caso.plazo) p.set('plazo', String(caso.plazo));
         p.set('tomado', tomado(caso));
         // Para que el mismo caso dos veces seguidas también llegue.
@@ -34,7 +36,10 @@ function tomado(caso) {
     const de = caso.texto ? `«${caso.texto.length > 60 ? caso.texto.slice(0, 60) + '…' : caso.texto}»` : 'lo marcado';
     if (!caso.fecha) return `No encontré una fecha en ${de}.`;
     let t = `Fecha tomada de ${de}.`;
-    if (caso.otrasFechas) t += ` Había ${caso.otrasFechas + 1} fechas: usé la primera.`;
+    if (caso.herramienta === 'entre' && caso.hasta) {
+        t = `Fechas tomadas de ${de}.`;
+        if (caso.otrasFechas > 1) t += ` Había ${caso.otrasFechas + 1}: usé las dos primeras.`;
+    } else if (caso.otrasFechas) t += ` Había ${caso.otrasFechas + 1} fechas: usé la primera.`;
     return t;
 }
 
