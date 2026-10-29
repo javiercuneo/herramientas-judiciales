@@ -7090,3 +7090,102 @@ Tres decisiones de Javier:
 
 El lector de importes es copia de `analizarNumero` de `calculadoras/tasa.html`,
 con un comentario que lo dice: no hay módulo compartido para eso todavía.
+
+
+## La tasa y el prorrateo, extraídos a motores propios — 29/10
+
+Pedido de Javier: sacar la cuenta de `calculadoras/tasa.html` y de
+`calculadoras/prorrateo.html` a `js/tasa.js` y `js/prorrateo.js`, para que la
+usen las pantallas, los conectores (HTTP local y MCP), el panel de la extensión
+y lo que venga. **El precedente era `plazos.js`, y se siguió el mismo método**:
+transcripción y no rediseño, el motor al lado con las pantallas sin tocar, un
+barrido grande contra la pantalla publicada, y recién con el barrido en cero las
+pantallas pasan a consumir el motor. **Lo que no se hizo, a propósito:** mover un
+número, tocar el enlace (`#t2=` / `#p1=`), tocar el panel o la extensión.
+
+**Cómo se transcribió.** Las tablas, los dos lectores de importes, la
+titularidad, la escala concursal, `liquidar()` y `prorratear()` se copiaron de
+las pantallas **con un script, byte por byte** —la regex de espacios de
+`analizarNumero` lleva el espacio fino y el no rompible, que una copia a mano
+pierde sin que se note—. Lo único escrito de nuevo es la composición que hacía
+cada `calcular()` contra el formulario y una capa para los conectores, que con un
+dato faltante devuelve `problema` y ningún importe.
+
+**El barrido.** `verificar-tasa` y `verificar-prorrateo` cargan la pantalla en
+Chromium (Playwright) y por cada caso exigen igualdad exacta de la cuenta, de lo
+que la pantalla muestra y de la capa de los conectores. 2500 casos cada uno con
+semilla fija, más 1550 textos sueltos contra los lectores de tasa: **0
+diferencias desde la primera corrida**, también con otra semilla y 6000 casos, y
+contra `javiercuneo.com.ar`.
+
+**Que diera cero de entrada obligó a romperlo, y rompiéndolo aparecieron
+cuatro agujeros del propio barrido**: no veía los valores por defecto de un
+renglón sin sobretasa ni titularidad —justo lo que manda un conector—, ni la
+elección del monto fijo y la UMA vigentes (con el archivo del repositorio el borde no se
+pone a prueba: tiene un valor solo, de 2022), ni la casilla «tasa en la base»
+ausente, ni una diferencia en la participación que con dos decimales en pantalla
+no se ve y el conector devolvería igual. Los cuatro se cerraron —renglones
+mínimos, series inventadas servidas por la red de Playwright con un valor que
+rige desde hoy y otro desde mañana, participación exigida exacta— y cada rotura
+se vio fallar.
+
+**La huella.** Para probar que la migración no movía nada además de los
+números, cada caso deja el HTML entero del `<body>` sin scripts, con hash. Se
+guardaron las de las pantallas viejas y se compararon con las nuevas: **0 casos
+que dibujan distinto en las dos**. La primera comparación dio los 2500
+distintos, y no era la cuenta: el `<script src>` agregado dejaba un salto de
+línea de más entre etiquetas. La huella colapsa ese espacio desde entonces.
+
+**Lo que se encontró por el camino.**
+
+- **El control de datos frenó el primer commit**, con razón de forma: los montos
+  inventados con puntos de miles —diez millones escritos como se escriben acá— tienen la forma de un DNI. Los
+  dos barridos se declararon en `.datos-ejemplo`, y en los motores se reescribió
+  el comentario para no llevar la forma. No se salteó.
+- **Un monto que llega como número a un conector se leería mal**: el lector es
+  de texto y lee «1234.567» como más de un millón. La capa de los conectores le
+  escribe la coma decimal antes de pasarlo, y `verificar-conectores` lo exige.
+- **Los dos lectores no son el mismo**, y se dejaron así: el de prorrateo deja
+  pasar el signo menos y lee lo ilegible como cero.
+- **El servidor de prueba no servía `index.html` al pedir una carpeta**, y
+  `pruebas-tablero` dio un 404 falso de `../escribiente/`. Arreglado en el
+  servidor; el tablero da 39 de 39.
+
+**Los conectores**: `conectores/liquidaciones.mjs`, con `tasa_de_justicia` y
+`prorrateo_730`. `verificar-conectores` pasó de 82 a 145 comprobaciones, vistas
+fallar rompiendo el motor y el conector. `pages.yml` instala Chromium y corre los
+dos barridos antes de publicar.
+
+## Lo que salió de ESTADO.md para hacerle lugar a la tasa y el prorrateo — 29/10
+
+Cuatro bloques cerrados: uno sin pendiente de este lado, uno ya cubierto por
+`verificar-calculos`, y dos que describían cosas que ya no están abiertas.
+
+### Ninguno de los dos planes de Honorio es trabajo de este repositorio
+
+[`08_DEUDA_TECNICA_FUNCIONAL.md`](domain/08_DEUDA_TECNICA_FUNCIONAL.md) describe
+el motor **clásico**: donde dice `calculations.js` o `core.js` se habla de
+`asistente-honorarios-clasico/`. Y [`PLAN_COBERTURA_LEY.md`](planes-cerrados/PLAN_COBERTURA_LEY.md)
+**está hecho entero**: los cuatro puntos que quedaron anotados sin fecha son
+trabajo de Honorio y viven en el `ESTADO.md` de aquel repositorio. Los dos
+documentos se quedan acá porque acá está la materia prima; el pendiente, no.
+
+**El dibujo no puede contradecir al número**, y desde que existe la tabla tiene
+una vuelta más: **la Corte publica kilómetros, no un recorrido**, así que cuando
+el número sale de ahí el mapa dibuja la recta y la nota aclara que el veredicto
+no sale de ninguna línea de ese dibujo. Cómo está hecho el mapa, y por qué un
+`400` con `code: "NoRoute"` no es una falla del servicio, en
+[`HISTORIA.md`](HISTORIA.md); nada de eso está abierto.
+
+**El jueves santo no viene en la API de feriados, y por eso se olvida.** Es no
+laborable y no feriado, así que la API trae el viernes y el jueves no, aunque el
+mismo art. 2 lo haga inhábil. Están los seis en `data/dias-inhabiles.json` y
+**el olvido ya no depende de que alguien se acuerde**: `verificar-calculos.mjs`
+toma cada viernes santo de `feriados.json` y exige que el anterior sea inhábil.
+
+**Los dos controles no se superponen.** `verificar-acordada` prueba que el
+archivo diga lo que dice la imagen del anexo; `verificar-distancia` prueba el
+motor y, sobre todo, **la búsqueda**: que las 45 filas se encuentren por su
+nombre y por cómo la escribe la gente, y que **no se encuentren de más**. «San
+Juan Bautista» no puede devolver San Juan, y San Juan y San Luis no dan los
+mismos días.

@@ -3,7 +3,7 @@
 Documento de continuidad entre sesiones. **Leer antes de empezar a trabajar.**
 Se actualiza en el mismo commit que el trabajo, para que nunca mienta.
 
-Última actualización: 2026-10-22 · rama `main`
+Última actualización: 2026-10-29 · rama `main`
 
 **Lleva sólo lo que sigue vivo.** Dónde está el trabajo, qué está abierto, qué
 se sabe roto, qué decisiones no hay que contradecir sin saberlo, y qué trampas
@@ -37,8 +37,8 @@ con las que se regulan honorarios y la serie entera de cada una.
 
 **El frente grande está cerrado.** El cómputo de plazos vive en
 `calculadoras/js/plazos.js` —ninguna de las cinco pantallas tiene aritmética
-adentro— y se expone por HTTP local y por MCP en `conectores/`; **las diez
-pantallas siguen el mismo patrón, sin excepción**.
+adentro— y se expone por HTTP local y por MCP en `conectores/`; **desde el 29/10
+la tasa y el prorrateo también**, en `js/tasa.js` y `js/prorrateo.js`.
 
 **La puerta es el tablero**, no el listado: `calculadoras/tablero.html` reúne las
 doce en un menú lateral y `index.html` lleva ahí primero. Las páginas sueltas
@@ -212,6 +212,11 @@ Ninguno urgente y ninguno bloqueante.
   **real** fuera del radio. **Javier decidió dejarlo así por ahora** —«tiene
   sentido en la cédula y por eso lo toleré»—; el razonamiento, en
   [`HISTORIA.md`](HISTORIA.md).
+- **Tres reglas de los conectores de tasa y prorrateo las puso el agente y son
+  de Javier** (29/10): una titularidad de más del 100 % da `problema` —la
+  pantalla la multiplica sin avisar—; una sobretasa ilegible da `problema` —la
+  pantalla la cuenta cero—; y la sobretasa del 5 % va prendida por defecto en la
+  sucesión, como en la pantalla. Ninguna mueve un número de las pantallas.
 - **Los mínimos son de Honorio y el pendiente vive allá.** `minimos-data.ts` es
   suyo; de este lado sólo pasa que el `06` y el `07` citan sus cifras. **Si allá
   se mueve una, se mueven las dos citas.**
@@ -318,7 +323,7 @@ volumen.
 
 ## Los controles, y qué cubre cada uno
 
-Son quince y no se superponen. **Ninguno se da por bueno sin haberlo visto fallar
+Son diecisiete y no se superponen. **Ninguno se da por bueno sin haberlo visto fallar
 a propósito**: un control que nunca falló no es un control.
 
 | Control | Qué cubre |
@@ -327,7 +332,9 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-plazos` | El cómputo de las cinco de plazos, la API que carga el ledger y los días propios: 153 |
 | `npm run verificar-series` | Las series de UMA, UHOM y monto fijo |
 | `npm run verificar-contraste` | Los tokens de color, AA sobre las tres superficies y en los dos temas |
-| `npm run verificar-conectores` | Los dos transportes de `conectores/`, plazos y anonimización: 82 |
+| `npm run verificar-tasa` | La tasa de justicia: 2500 casos contra la pantalla en Chromium, igualdad exacta |
+| `npm run verificar-prorrateo` | El prorrateo del art. 730: 2500 casos contra la pantalla en Chromium, igualdad exacta |
+| `npm run verificar-conectores` | Los dos transportes de `conectores/`: plazos, anonimización, tasa y prorrateo: 145 |
 | `npm run verificar-acordada` | Que la tabla de la Acordada 5/2010 diga lo que dice el anexo: 90 |
 | `npm run verificar-distancia` | El cómputo del art. 158 y la búsqueda en esa tabla: 64 |
 | `npm run verificar-red` | Qué terceros nombran las quince páginas que se publican, contra una lista con el motivo al lado de cada uno |
@@ -346,8 +353,8 @@ Y **tres** que corren en el navegador, con el sitio servido y no con `file://`:
   completa un enlace. **Los iframes llevan
   rompe-caché**: sin él las pruebas corren contra la versión anterior, que
   parece un bug del cambio que se acaba de hacer.
-- **`scripts/pruebas-tablero.html`** cubre **la navegación** del tablero: 37
-  comprobaciones, las 37 pasando, en ocho grupos. Es el único que ve una
+- **`scripts/pruebas-tablero.html`** cubre **la navegación** del tablero: 39
+  comprobaciones, las 39 pasando. Es el único que ve una
   pestaña que no abre —el de al lado calcularía perfecto igual—. **Cada prueba
   abre su propio tablero**, porque varias dependen del estado de arranque y no
   se pueden correr sobre uno que ya se tocó.
@@ -419,20 +426,6 @@ pares donde el tren manda y la ruta da la mitad de los días.
 no se puede deducir restando dos filas; ese caso cae a la ruta. Está dicho en el
 archivo y comprobado en el banco.
 
-**Los dos controles no se superponen.** `verificar-acordada` prueba que el
-archivo diga lo que dice la imagen del anexo; `verificar-distancia` prueba el
-motor y, sobre todo, **la búsqueda**: que las 45 filas se encuentren por su
-nombre y por cómo la escribe la gente, y que **no se encuentren de más**. «San
-Juan Bautista» no puede devolver San Juan, y San Juan y San Luis no dan los
-mismos días.
-
-**El dibujo no puede contradecir al número**, y desde que existe la tabla tiene
-una vuelta más: **la Corte publica kilómetros, no un recorrido**, así que cuando
-el número sale de ahí el mapa dibuja la recta y la nota aclara que el veredicto
-no sale de ninguna línea de ese dibujo. Cómo está hecho el mapa, y por qué un
-`400` con `code: "NoRoute"` no es una falla del servicio, en
-[`HISTORIA.md`](HISTORIA.md); nada de eso está abierto.
-
 ## El cómputo de plazos, extraído y consultable
 
 **La división que hay que tener presente:** `calendario-judicial.js` es el
@@ -463,12 +456,13 @@ va en hábiles, y la notificación automática cae en martes o viernes hábil.
 
 ### `conectores/`
 
-Dos transportes finos sobre dos núcleos, y **ninguno calcula ni anonimiza**:
-`nucleo.mjs` carga los motores de plazos, `anonimizar.mjs` carga el de
-Escribiente, y los dos traducen a JSON y nada más. `http.mjs`
+Dos transportes finos sobre tres registros, y **ninguno calcula ni anonimiza**:
+`nucleo.mjs` carga los motores de plazos, `anonimizar.mjs` el de Escribiente y
+`liquidaciones.mjs` los de tasa y prorrateo, y traducen a JSON y nada más. `http.mjs`
 (`npm run conector-http`) los sirve por HTTP y **escucha sólo en `127.0.0.1`**;
-`mcp.mjs` (`npm run conector-mcp`) por MCP en stdio. **Once herramientas en un
-solo proceso**, sin dependencias: seis de plazos y cinco de anonimización.
+`mcp.mjs` (`npm run conector-mcp`) por MCP en stdio. **Catorce herramientas en un
+solo proceso**, sin dependencias: seis de plazos, cinco de anonimización, la del
+perfil automático, `tasa_de_justicia` y `prorrateo_730`.
 
 Que sean transportes finos es el punto entero: **una segunda implementación de
 una cuenta con consecuencia jurídica es el modo de falla que produjo el bug de la
@@ -496,6 +490,26 @@ stdio—, así que **tocar la forma de una respuesta rompe a alguien**:
 aritmética ni anonimización —eso es `verificar-plazos` y `verificar-escribiente`—
 sino lo que se rompe de un transporte, y sobre todo que un dato faltante no
 devuelva un resultado y que la capa 2 no se aplique sola.
+
+### `js/tasa.js` y `js/prorrateo.js`
+
+**Desde el 29/10, el método de `plazos.js`**: transcripción, pantallas sin
+aritmética y conectores sobre el mismo motor. Datos por URL reescribible
+(`Tasa.CONFIG`, `Prorrateo.CONFIG`); `Tasa23898` y `Prorrateo730` siguen para los bancos.
+
+- **Dos capas en cada motor, y no se mezclan.** `cuentasDelCaso` y `cuenta`
+  hacen lo de la pantalla —un importe ilegible aporta cero y avisa—;
+  `liquidarCaso` y `calcular` son para quien no tiene a nadie leyendo: con un
+  dato faltante, ilegible o fuera de rango, `problema` y ningún importe.
+- **Los dos lectores de importes son distintos y así se quedan**: el de
+  prorrateo deja pasar el signo menos y lee «abc» como cero; unificarlos mueve
+  un número. **Un monto que llega como número se pasa con coma decimal**: el
+  lector es de texto, y «1234.567» es para él más de un millón.
+- **Los barridos** aceptan `--sitio URL` (contra lo publicado) y
+  `--guardar-huellas` / `--comparar-huellas`: prueban que una pantalla tocada
+  dibuja igual, y así se probó la migración. **Van en `.datos-ejemplo`**: sus
+  montos con puntos de miles tienen forma de DNI.
+- **Falta el panel de la extensión**: quedó para después a propósito.
 
 ### El cuarto consumidor, que no pasa por los conectores
 
@@ -764,12 +778,6 @@ adelanta un vencimiento un mes entero, y eso no se ve: sale un número plausible
 Leer el dato sólo puede confirmar el default o mover el mes, nunca apagarlo. El
 control que prueba que el dato se leyó es que el motivo cite la norma.
 
-**El jueves santo no viene en la API de feriados, y por eso se olvida.** Es no
-laborable y no feriado, así que la API trae el viernes y el jueves no, aunque el
-mismo art. 2 lo haga inhábil. Están los seis en `data/dias-inhabiles.json` y
-**el olvido ya no depende de que alguien se acuerde**: `verificar-calculos.mjs`
-toma cada viernes santo de `feriados.json` y exige que el anterior sea inhábil.
-
 La frase «la Semana Santa» del mismo artículo **no** está implementada como una
 semana entera, y eso es deliberado: el lunes, el martes y el miércoles santo se
 trabaja. Está dicho en `data/feria-judicial.json` para que no se lo lea al pie
@@ -840,15 +848,6 @@ corregirse —el porqué, en [`HISTORIA.md`](HISTORIA.md)—. Que una tarjeta de
 landing diga «retirada» no la saca de internet. Si hay que retirar algo: el
 archivo se queda, la URL sigue viva con un redirect en `pages.yml`, y la landing
 dice el motivo.
-
-### Ninguno de los dos planes de Honorio es trabajo de este repositorio
-
-[`08_DEUDA_TECNICA_FUNCIONAL.md`](domain/08_DEUDA_TECNICA_FUNCIONAL.md) describe
-el motor **clásico**: donde dice `calculations.js` o `core.js` se habla de
-`asistente-honorarios-clasico/`. Y [`PLAN_COBERTURA_LEY.md`](planes-cerrados/PLAN_COBERTURA_LEY.md)
-**está hecho entero**: los cuatro puntos que quedaron anotados sin fecha son
-trabajo de Honorio y viven en el `ESTADO.md` de aquel repositorio. Los dos
-documentos se quedan acá porque acá está la materia prima; el pendiente, no.
 
 ---
 
