@@ -26,3 +26,4 @@ scripts/verificar-revisor.mjs               # los casos del revisor: caratulas i
 scripts/verificar-automatico.mjs            # el banco del perfil automatico (E-08): caratula, DNI, CUIT y nombres inventados, para probar que se tapan
 scripts/verificar-tasa.mjs                  # el barrido de la tasa de justicia: importes inventados con puntos de miles, que tienen la forma de un DNI
 scripts/verificar-prorrateo.mjs             # el barrido del prorrateo: montos inventados con puntos de miles, con la forma de un DNI
+scripts/verificar-importes.mjs              # la tabla del lector de importes: montos inventados con puntos de miles, con la forma de un DNI

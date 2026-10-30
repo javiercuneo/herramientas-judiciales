@@ -804,6 +804,7 @@
     </p>
 </div>
 
+<script src="js/importes.js"></script>
 <script src="js/prorrateo.js"></script>
 <script>
 (function () {
@@ -992,8 +993,16 @@
         var hayUma = k.hayUma;
         var regulados = k.regulados;
 
-        if (hayUma && !(uma > 0)) {
-            msg.textContent = 'Hay regulaciones expresadas en UMA y no hay un valor de UMA cargado.';
+        // Lo que no se pudo leer lo dice el motor, campo por campo: desde el
+        // 29/10/2026 un importe ilegible o negativo vale cero PERO AVISA. Si la
+        // UMA no se pudo leer, eso ya dice lo que diria la frase de la UMA.
+        var lineas = k.avisos.map(function (a) { return a.texto; });
+        var umaIlegible = k.avisos.some(function (a) { return a.campo === 'uma'; });
+        if (hayUma && !(uma > 0) && !umaIlegible) {
+            lineas.push('Hay regulaciones expresadas en UMA y no hay un valor de UMA cargado.');
+        }
+        if (lineas.length) {
+            msg.innerHTML = lineas.map(escapar).join('<br>');
             msg.classList.add('show');
         }
 

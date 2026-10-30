@@ -144,6 +144,13 @@ jobs:
       - name: Verificar el prorrateo del art. 730 contra su pantalla
         run: npm run verificar-prorrateo
 
+      # Un solo lector de importes para todo el sitio (calculadoras/js/
+      # importes.js, desde el 29/10/2026): que lea lo que tiene que leer, que
+      # ninguna pantalla tenga uno propio, y que mediacion y uma-uhom avisen lo
+      # ilegible. Usa el mismo Chromium.
+      - name: Verificar el lector unico de importes
+        run: npm run verificar-importes
+
       # Que terceros nombran las paginas que se publican. Existe porque el
       # 26/8/2026 se contesto "que sale del navegador" leyendo las once
       # calculadoras una por una, y la respuesta se dejo afuera a prorrateo,

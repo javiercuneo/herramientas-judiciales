@@ -32,8 +32,12 @@ export async function cargarMotor(archivo, nombre) {
         const texto = await readFile(join(RAIZ, limpia), 'utf8');
         return { ok: true, status: 200, json: async () => JSON.parse(texto) };
     };
-    const fuente = await readFile(join(RAIZ, 'calculadoras', 'js', archivo), 'utf8');
-    new Function('window', 'fetch', fuente)(ventana, fetchLocal);
+    // El lector de importes va siempre antes: tasa.js y prorrateo.js lo piden
+    // colgado de `window`, como plazos.js pide el calendario.
+    for (const a of ['importes.js', archivo]) {
+        const fuente = await readFile(join(RAIZ, 'calculadoras', 'js', a), 'utf8');
+        new Function('window', 'fetch', fuente)(ventana, fetchLocal);
+    }
     if (!ventana[nombre]) throw new Error(`${archivo} no publico window.${nombre}`);
     return ventana[nombre];
 }

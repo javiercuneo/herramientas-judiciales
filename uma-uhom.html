@@ -475,6 +475,7 @@ tr.elegida .btn-usar { background: var(--accent); color: var(--bg); border-color
   </div>
 </div>
 
+<script src="calculadoras/js/importes.js"></script>
 <script>
 (function () {
   'use strict';
@@ -692,51 +693,16 @@ tr.elegida .btn-usar { background: var(--accent); color: var(--bg); border-color
     return mejor;
   }
 
-  // Copia de `analizarNumero` de calculadoras/tasa.html, que es la que verifica
-  // los grupos de miles: lo que no se puede leer avisa y no vale cero. Si se
-  // corrige allá, se corrige acá.
+  // El lector de importes es el de todo el sitio, calculadoras/js/importes.js,
+  // desde el 29/10/2026. Antes habia aca una copia del de tasa, con la nota
+  // "si se corrige alla, se corrige aca": una copia es justo lo que se olvida.
+  // Esta pantalla admite ademas "uma" al final, y dice el aviso a su manera.
   var AVISO_IMPORTE = 'No se entiende ese número. Se escribe 1.234.567,89 o 1234567.89.';
   function analizarNumero(raw) {
-    var s = String(raw === null || raw === undefined ? '' : raw);
-    s = s.replace(/[\s\u00a0\u2009\u202f']/g, '')
-         .replace(/^(ars|\$)+/i, '')
-         .replace(/(ars|\$|pesos|uma)+$/i, '');
-    if (!s) return { valor: NaN, vacio: true, aviso: '' };
-    if (s.charAt(0) === '-') return { valor: NaN, aviso: 'No puede ser negativo.' };
-    if (!/^[0-9.,]+$/.test(s)) return { valor: NaN, aviso: AVISO_IMPORTE };
-
-    var comas = (s.match(/,/g) || []).length;
-    var puntos = (s.match(/\./g) || []).length;
-    var decimal = '';
-    if (comas === 1 && puntos === 1) {
-      decimal = s.lastIndexOf(',') > s.lastIndexOf('.') ? ',' : '.';
-    } else if (comas === 1 && puntos !== 1) {
-      decimal = ',';
-    } else if (comas > 1 && puntos === 1) {
-      decimal = '.';
-    } else if (comas > 1 && puntos > 1) {
-      return { valor: NaN, aviso: AVISO_IMPORTE };
-    } else if (comas === 0 && puntos === 1) {
-      decimal = (s.length - s.lastIndexOf('.') - 1) === 3 ? '' : '.';
-    }
-    var corte = decimal ? s.lastIndexOf(decimal) : -1;
-    var entero = decimal ? s.slice(0, corte) : s;
-    var decimales = decimal ? s.slice(corte + 1) : '';
-    var miles = decimal === ',' ? '.' : (decimal === '.' ? ',' : (puntos ? '.' : ','));
-    if (entero.indexOf(miles) > -1) {
-      var grupos = entero.split(miles);
-      if (!/^\d{1,3}$/.test(grupos[0])) return { valor: NaN, aviso: AVISO_IMPORTE };
-      for (var g = 1; g < grupos.length; g++) {
-        if (!/^\d{3}$/.test(grupos[g])) return { valor: NaN, aviso: AVISO_IMPORTE };
-      }
-      entero = grupos.join('');
-    }
-    if (entero === '' && decimales !== '') entero = '0';
-    if (!/^\d+$/.test(entero)) return { valor: NaN, aviso: AVISO_IMPORTE };
-    if (decimal && !/^\d+$/.test(decimales)) return { valor: NaN, aviso: AVISO_IMPORTE };
-    var valor = parseFloat(entero + (decimal ? '.' + decimales : ''));
-    if (!isFinite(valor)) return { valor: NaN, aviso: AVISO_IMPORTE };
-    return { valor: valor, aviso: '' };
+    var a = window.Importes.analizar(raw, { sufijos: ['uma'] });
+    if (a.motivo === 'negativo') return { valor: NaN, aviso: 'No puede ser negativo.' };
+    if (a.motivo === 'ilegible') return { valor: NaN, aviso: AVISO_IMPORTE };
+    return a;
   }
 
   // Redondeo a dos decimales, la mitad para arriba. Por notación exponencial y

@@ -40,12 +40,12 @@ function conMiles(entero, sep) {
     return String(entero).replace(/\B(?=(\d{3})+(?!\d))/g, sep);
 }
 
-// El lector de esta pantalla no es el de tasa: deja pasar el signo menos y lee
-// lo ilegible como cero. Se le dan las mismas clases de texto igual.
+// El lector es el de todo el sitio (js/importes.js) desde el 29/10/2026. Se le
+// dan textos ilegibles, negativos y en ingles a proposito: tienen que avisar.
 function importeTexto(r, magnitudMax) {
     if (r.si(0.08)) {
         return r.uno(['', ' ', '0', 'abc', '-150.000', '1,5', '10.8', '10.800', '1.234,56', '1,234.56',
-            '$ 1.000.000', '1.000.000,5', '0,01', '12a34', '1.2345', '..', ',']);
+            '$ 1.000.000', '1.000.000,5', '0,01', '12a34', '1.2345', '..', ',', '1,234,567.89', '2,200,000', '$ -5', '1.234.56']);
     }
     const entero = Math.floor(r.siguiente() * Math.pow(10, r.entero(0, magnitudMax)));
     const cent = r.si(0.4) ? String(r.entero(0, 99)).padStart(2, '0') : null;
@@ -154,7 +154,16 @@ function enLaPagina(lote) {
         });
         quiere('#totalRegulado', pesos(r.totalRegulado), 'total regulado');
         quiere('#totalProrrateado', r.totalRegulado > 0 ? pesos(r.cobrado) : '—', 'total prorrateado');
-        quiere('#msg', m.hayUma && !(m.uma > 0) ? 'Hay regulaciones expresadas en UMA y no hay un valor de UMA cargado.' : '', 'aviso de la UMA');
+        // Los avisos: uno por cada campo cargado que no se pudo leer (desde el
+        // 29/10/2026 lo ilegible y lo negativo valen cero PERO AVISAN), y la
+        // frase de la UMA si falta y nadie dijo ya que no se entiende.
+        const umaIlegible = m.avisos.some((a) => a.campo === 'uma');
+        const lineas = m.avisos.map((a) => a.texto);
+        if (m.hayUma && !(m.uma > 0) && !umaIlegible) lineas.push('Hay regulaciones expresadas en UMA y no hay un valor de UMA cargado.');
+        quiere('#msg', lineas.join(''), 'avisos');
+        const vistas = document.getElementById('msg').innerHTML ? document.getElementById('msg').innerHTML.split('<br>').length : 0;
+        if (m.avisos.length !== m.ilegibles) fallas.push(`hay ${m.ilegibles} campos cargados que no se pueden leer y el motor avisa ${m.avisos.length}`);
+        if (vistas !== lineas.length) fallas.push(`la pantalla muestra ${vistas} avisos y tendria que mostrar ${lineas.length}`);
         quiere('#montoEnUma', m.umaCaso && m.monto > 0 ? 'Equivale a ' + nf.format(m.monto / m.umaCaso) + ' UMA.' : '', 'monto en UMA');
         quiere('#totalProrrateadoUma', m.umaCaso && r.cobrado > 0 ? nf.format(r.cobrado / m.umaCaso) + ' UMA' + (m.hayIva ? ', IVA incluido' : '') : '', 'cobrado en UMA');
         const pie = texto('#pieTasa');
@@ -173,7 +182,7 @@ function enLaPagina(lote) {
             fallas.push('sin monto del proceso la pantalla muestra una cifra');
         }
 
-        const avisoUma = document.getElementById('msg').classList.contains('show');
+        const avisoUma = /UMA/.test(texto('#msg'));
         if (m.capa.problema === null) {
             if (texto('#cifraCobrado') !== pesos(m.capa.cobrado)) fallas.push('calcular() da un cobrado distinto del de la pantalla');
             // Un renglon sin monto con la casilla UMA tildada hace avisar a la
@@ -249,6 +258,11 @@ for (let i = 0; i < casos.length; i += LOTE) {
         const esperabaResultado = legible(conDatos.monto) && conDatos.regulaciones.every((f) => legible(f.monto)) &&
             (!conDatos.tasaManual || legible(conDatos.tasaImporte));
         regulaciones += c.r.length;
+        // Contados aca, del texto crudo del caso y no del motor: cada campo
+        // cargado que el lector no puede leer tiene que dar un aviso.
+        const ilegible = (t) => String(t || '').trim() !== '' && isNaN(P.parseFlexibleNumber(t));
+        const ilegibles = [datos.monto].concat(datos.tasaManual ? [datos.tasaImporte] : [],
+            datos.regulaciones.map((f) => f.monto), k.hayUma ? [datos.uma] : []).filter(ilegible).length;
         return {
             pantalla: { p: c.p, r: c.r, b: c.b, t: c.t, i: c.i },
             uma: c.uma,
@@ -256,6 +270,7 @@ for (let i = 0; i < casos.length; i += LOTE) {
                 monto: k.monto, uma: k.uma, tasa: k.prorrateo.tasa, tasaEnBase: k.prorrateo.tasaEnBase,
                 tasaLey: k.tasaLey, hayUma: k.hayUma, hayIva: k.hayIva, umaCaso: k.umaCaso,
                 regulados: k.regulados, participacion: k.participacion, prorrateadoEnUma: k.prorrateadoEnUma,
+                avisos: k.avisos, ilegibles,
                 ivas: datos.regulaciones.map((f) => f.iva),
                 prorrateo: k.prorrateo,
                 prorrateoJSON: JSON.stringify(k.prorrateo),

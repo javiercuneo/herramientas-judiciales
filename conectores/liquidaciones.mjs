@@ -40,7 +40,9 @@ async function cargar() {
         const texto = await readFile(join(RAIZ, limpia), 'utf8');
         return { ok: true, status: 200, json: async () => JSON.parse(texto) };
     };
-    for (const archivo of ['tasa.js', 'prorrateo.js']) {
+    // El orden importa: los dos motores buscan el lector de importes ya
+    // colgado de `window`.
+    for (const archivo of ['importes.js', 'tasa.js', 'prorrateo.js']) {
         const fuente = await readFile(join(RAIZ, 'calculadoras', 'js', archivo), 'utf8');
         new Function('window', 'fetch', fuente)(ventana, fetchLocal);
     }

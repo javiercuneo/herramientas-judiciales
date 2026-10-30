@@ -13,6 +13,7 @@
     "verificar-plazos": "node scripts/verificar-plazos.mjs",
     "verificar-tasa": "node scripts/verificar-tasa.mjs",
     "verificar-prorrateo": "node scripts/verificar-prorrateo.mjs",
+    "verificar-importes": "node scripts/verificar-importes.mjs",
     "verificar-series": "node scripts/verificar-series.mjs",
     "verificar-contraste": "node scripts/verificar-contraste.mjs",
     "verificar-conectores": "node scripts/verificar-conectores.mjs",

@@ -20,6 +20,10 @@
     // Si este motor y la pantalla publicada discrepan en un numero, el que esta
     // mal es este archivo. Esa comparacion es scripts/verificar-tasa.mjs.
     //
+    // NECESITA js/importes.js CARGADO ANTES, desde el 29/10/2026: el lector de
+    // importes se mudo ahi para que todo el sitio lea con el mismo. Desde ese
+    // dia, ademas, una sobretasa ilegible avisa en vez de valer cero.
+    //
     // DOS CAPAS, Y LA DIFERENCIA IMPORTA:
     //
     //   - `cuentasDelCaso(caso)` hace lo que hace la pantalla: un importe que
@@ -394,90 +398,18 @@
     // -----------------------------------------------------------------------
     // LECTURA DE NUMEROS.
     //
-    // EL PEDIDO: "asegurate que parsee todas las posibilidades ---la gente
-    // copia y pega montos, a veces vienen con comas, a veces con puntos--- y
-    // los decimales admitidos. Además una frase de error si está mal".
-    //
-    // El monto se pega de una planilla, de un PDF, de un escrito o de un
-    // sistema en inglés, así que llega de todas estas formas y todas tienen que
-    // dar lo mismo:
-    //
-    //     10800        10.800       10.800,00      $ 10.800
-    //     10 800       10'800       10800,00       10,800.00   ARS 10.800
-    //
-    // La regla que las ordena a todas: EL SEPARADOR DECIMAL ES EL ULTIMO QUE
-    // APARECE, y sólo si aparece UNA vez. Un separador repetido ---$1.234.567,
-    // $1,234,567--- es de miles por definición: ningún número tiene dos comas
-    // decimales.
-    //
-    // Y LO QUE NO SE PUEDE LEER NO VALE CERO: avisa. Antes "10.800.5" valía
-    // 10,8 y "diez mil" valía cero, las dos cosas en silencio, y una línea
-    // cargada que aporta cero es peor que un error porque parece una cuenta.
-    //
-    // Los grupos de miles se VERIFICAN ---el primero de uno a tres dígitos, los
-    // demás de tres exactos--- y por eso "1.234.56" es un error y no 123.456:
-    // ese texto no es un número en ningún formato, y adivinarle uno es
-    // exactamente lo que no hay que hacer con un importe que va a una boleta.
+    // El lector vivia aca y desde el 29/10/2026 vive en js/importes.js, que
+    // es el de todo el sitio: se mudo byte por byte, con la regla y sus
+    // porques. Aca queda el nombre de siempre, que usan la titularidad, la
+    // capa de los conectores y el banco de pruebas de la pantalla.
     // -----------------------------------------------------------------------
-    var AVISO_IMPORTE = 'No se entiende ese importe. Se escribe 1.234.567,89 o 1234567.89.';
-    var AVISO_NEGATIVO = 'El importe no puede ser negativo.';
-
-    function analizarNumero(raw) {
-        var s = String(raw === null || raw === undefined ? '' : raw);
-
-        // Lo que viene pegado alrededor del número: espacios de todo tipo
-        // ---incluido el fino y el no rompible, que es el que mete Excel---,
-        // el símbolo, la sigla y el apóstrofo de miles.
-        s = s.replace(/[\s   ']/g, '')
-             .replace(/^(ars|\$)+/i, '')
-             .replace(/(ars|\$|pesos)+$/i, '');
-
-        if (!s) return { valor: NaN, vacio: true, aviso: '' };
-        if (s.charAt(0) === '-') return { valor: NaN, aviso: AVISO_NEGATIVO };
-        if (!/^[0-9.,]+$/.test(s)) return { valor: NaN, aviso: AVISO_IMPORTE };
-
-        var comas = (s.match(/,/g) || []).length;
-        var puntos = (s.match(/\./g) || []).length;
-        var decimal = '';
-
-        if (comas === 1 && puntos === 1) {
-            decimal = s.lastIndexOf(',') > s.lastIndexOf('.') ? ',' : '.';
-        } else if (comas === 1 && puntos !== 1) {
-            // Una coma sola es SIEMPRE decimal: es como se escribe acá.
-            decimal = ',';
-        } else if (comas > 1 && puntos === 1) {
-            decimal = '.';                       // formato inglés: 1,234,567.89
-        } else if (comas > 1 && puntos > 1) {
-            return { valor: NaN, aviso: AVISO_IMPORTE };
-        } else if (comas === 0 && puntos === 1) {
-            // Un punto solo: de miles si atrás quedan exactamente tres dígitos
-            // ---10.800---, decimal si no ---10.8---. Es la única lectura
-            // ambigua que queda, y se resuelve como se escribe acá.
-            decimal = (s.length - s.lastIndexOf('.') - 1) === 3 ? '' : '.';
-        }
-        // comas > 1 && puntos === 0, o comas === 0 && puntos > 1: todos de miles.
-
-        var corte = decimal ? s.lastIndexOf(decimal) : -1;
-        var entero = decimal ? s.slice(0, corte) : s;
-        var decimales = decimal ? s.slice(corte + 1) : '';
-        var miles = decimal === ',' ? '.' : (decimal === '.' ? ',' : (puntos ? '.' : ','));
-
-        if (entero.indexOf(miles) > -1) {
-            var grupos = entero.split(miles);
-            if (!/^\d{1,3}$/.test(grupos[0])) return { valor: NaN, aviso: AVISO_IMPORTE };
-            for (var i = 1; i < grupos.length; i++) {
-                if (!/^\d{3}$/.test(grupos[i])) return { valor: NaN, aviso: AVISO_IMPORTE };
-            }
-            entero = grupos.join('');
-        }
-        if (entero === '' && decimales !== '') entero = '0';
-        if (!/^\d+$/.test(entero)) return { valor: NaN, aviso: AVISO_IMPORTE };
-        if (decimal && !/^\d+$/.test(decimales)) return { valor: NaN, aviso: AVISO_IMPORTE };
-
-        var valor = parseFloat(entero + (decimal ? '.' + decimales : ''));
-        if (!isFinite(valor)) return { valor: NaN, aviso: AVISO_IMPORTE };
-        return { valor: valor, aviso: '' };
+    function importes() {
+        var I = (typeof window !== 'undefined' && window.Importes) || null;
+        if (!I) throw new Error('tasa.js necesita importes.js cargado antes.');
+        return I;
     }
+
+    function analizarNumero(raw) { return importes().analizar(raw); }
 
     // El contrato de siempre, encima del analizador: NaN si no se puede leer.
     function parseFlexibleNumber(raw) { return analizarNumero(raw).valor; }
@@ -503,6 +435,12 @@
     // Texto que no se puede leer SIGUE DANDO CERO ---eso sí es haber tocado el
     // campo, y no se adivina--- pero lo dice.
     var AVISO_TITULARIDAD = 'No se entiende esa titularidad. Se escribe 50, 50 % o 1/2.';
+
+    // La sobretasa, lo mismo, y desde el 29/10/2026 por pedido de Javier:
+    // hasta entonces una sobretasa que no se podia leer ---"cinco", una
+    // letra, un signo menos--- valia cero en silencio y la tasa salia mas
+    // baja sin que nada lo dijera. Vacia sigue valiendo cero: no es ilegible.
+    var AVISO_SOBRETASA = 'No se entiende esa sobretasa. Se escribe 5 o 2,5.';
 
     function analizarTitularidad(value) {
         if (value === null || value === undefined || !String(value).trim()) {
@@ -585,8 +523,9 @@
         var imponible = importe * factor * tit.valor;
         var tasaPelada = ali.tramos ? porEscala(imponible, ali.tramos) : imponible * ali.tasa;
 
-        var puntosSobretasa = (llevaSobretasa && entrada.conSobretasa)
-            ? numero(entrada.sobretasa) : 0;
+        var st = (llevaSobretasa && entrada.conSobretasa)
+            ? analizarNumero(entrada.sobretasa) : { valor: 0, aviso: '' };
+        var puntosSobretasa = isNaN(st.valor) ? 0 : st.valor;
         var sobretasa = tasaPelada * (puntosSobretasa / 100);
 
         return {
@@ -615,7 +554,7 @@
             efectiva: imponible > 0 ? (tasaPelada + sobretasa) / imponible : 0,
             // El importe manda: si no se pudo leer, no hay nada que decir de
             // la titularidad todavía.
-            aviso: leido.aviso || tit.aviso,
+            aviso: leido.aviso || tit.aviso || (st.aviso ? AVISO_SOBRETASA : ''),
             aporta: importe > 0
         };
     }
@@ -842,7 +781,7 @@
                 if (vacio(r.importe)) return sinResultado(n + 'falta el importe.');
                 copia.importe = textoDeNumero(r.importe);
                 if (copia.importe === null) return sinResultado(n + 'el importe no es un número que se pueda leer.');
-                if (typeof r.importe === 'number' && r.importe < 0) return sinResultado(n + AVISO_NEGATIVO);
+                if (typeof r.importe === 'number' && r.importe < 0) return sinResultado(n + importes().AVISO_NEGATIVO);
             }
             if (!vacio(r.titularidad)) {
                 copia.titularidad = textoDeNumero(r.titularidad);
@@ -853,7 +792,7 @@
                 copia.sobretasa = textoDeNumero(r.sobretasa);
                 if (copia.sobretasa === null) return sinResultado(n + 'la sobretasa no es un número que se pueda leer.');
                 var puntos = analizarNumero(copia.sobretasa);
-                if (isNaN(puntos.valor)) return sinResultado(n + 'sobretasa: ' + puntos.aviso);
+                if (isNaN(puntos.valor)) return sinResultado(n + AVISO_SOBRETASA);
             }
             renglones.push(copia);
         }

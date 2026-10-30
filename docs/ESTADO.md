@@ -212,11 +212,11 @@ Ninguno urgente y ninguno bloqueante.
   **real** fuera del radio. **Javier decidió dejarlo así por ahora** —«tiene
   sentido en la cédula y por eso lo toleré»—; el razonamiento, en
   [`HISTORIA.md`](HISTORIA.md).
-- **Tres reglas de los conectores de tasa y prorrateo las puso el agente y son
-  de Javier** (29/10): una titularidad de más del 100 % da `problema` —la
-  pantalla la multiplica sin avisar—; una sobretasa ilegible da `problema` —la
-  pantalla la cuenta cero—; y la sobretasa del 5 % va prendida por defecto en la
-  sucesión, como en la pantalla. Ninguna mueve un número de las pantallas.
+- **Las reglas de los conectores de tasa y prorrateo, aprobadas por Javier**
+  (29/10): una titularidad de más del 100 % da `problema` —cada transmisión
+  sucesiva es su propio renglón, de hasta 100 %; así quedó, a propósito—; una
+  sobretasa ilegible da `problema`, y desde ese día **la pantalla también
+  avisa**; la sobretasa del 5 % va prendida por defecto en la sucesión.
 - **Los mínimos son de Honorio y el pendiente vive allá.** `minimos-data.ts` es
   suyo; de este lado sólo pasa que el `06` y el `07` citan sus cifras. **Si allá
   se mueve una, se mueven las dos citas.**
@@ -323,7 +323,7 @@ volumen.
 
 ## Los controles, y qué cubre cada uno
 
-Son diecisiete y no se superponen. **Ninguno se da por bueno sin haberlo visto fallar
+Son dieciocho y no se superponen. **Ninguno se da por bueno sin haberlo visto fallar
 a propósito**: un control que nunca falló no es un control.
 
 | Control | Qué cubre |
@@ -334,6 +334,7 @@ a propósito**: un control que nunca falló no es un control.
 | `npm run verificar-contraste` | Los tokens de color, AA sobre las tres superficies y en los dos temas |
 | `npm run verificar-tasa` | La tasa de justicia: 2500 casos contra la pantalla en Chromium, igualdad exacta |
 | `npm run verificar-prorrateo` | El prorrateo del art. 730: 2500 casos contra la pantalla en Chromium, igualdad exacta |
+| `npm run verificar-importes` | El lector único de importes: 44 lecturas fijas, ningún lector propio en el sitio, mediación y uma-uhom en Chromium |
 | `npm run verificar-conectores` | Los dos transportes de `conectores/`: plazos, anonimización, tasa y prorrateo: 145 |
 | `npm run verificar-acordada` | Que la tabla de la Acordada 5/2010 diga lo que dice el anexo: 90 |
 | `npm run verificar-distancia` | El cómputo del art. 158 y la búsqueda en esa tabla: 64 |
@@ -501,10 +502,11 @@ aritmética y conectores sobre el mismo motor. Datos por URL reescribible
   hacen lo de la pantalla —un importe ilegible aporta cero y avisa—;
   `liquidarCaso` y `calcular` son para quien no tiene a nadie leyendo: con un
   dato faltante, ilegible o fuera de rango, `problema` y ningún importe.
-- **Los dos lectores de importes son distintos y así se quedan**: el de
-  prorrateo deja pasar el signo menos y lee «abc» como cero; unificarlos mueve
-  un número. **Un monto que llega como número se pasa con coma decimal**: el
-  lector es de texto, y «1234.567» es para él más de un millón.
+- **Un solo lector de importes, `js/importes.js`** (29/10, Javier), que usan
+  las pantallas y los conectores; `verificar-importes` exige que no haya otro.
+  **Movió números a sabiendas** en prorrateo y mediación: «1,234,567.89» ya no
+  es 1,23, y lo ilegible vale cero pero avisa. **Un monto que llega como número
+  se pasa con coma decimal**: «1234.567» es para el lector más de un millón.
 - **Los barridos** aceptan `--sitio URL` (contra lo publicado) y
   `--guardar-huellas` / `--comparar-huellas`: prueban que una pantalla tocada
   dibuja igual, y así se probó la migración. **Van en `.datos-ejemplo`**: sus

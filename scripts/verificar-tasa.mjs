@@ -276,9 +276,30 @@ const huellas = [];
 let renglones = 0;
 const LOTE = 100;
 
+// La sobretasa ilegible avisa desde el 29/10/2026. Se mira del texto crudo del
+// caso y no del motor: si la casilla esta tildada en un inmueble de la sucesion
+// y lo escrito no se puede leer, el renglon TIENE que avisar --salvo que ya
+// avise por el importe o la titularidad, que mandan--; y el aviso de la
+// sobretasa no puede salir en ningun otro caso.
+const AVISO_SOBRETASA = 'No se entiende esa sobretasa. Se escribe 5 o 2,5.';
+const sobretasaMal = [];
+function mirarSobretasa(caso, cuentas, n) {
+    caso.renglones.forEach((r, i) => {
+        const c = cuentas[i];
+        const marcada = r.conSobretasa === undefined ? true : !!r.conSobretasa;
+        const texto = r.sobretasa === undefined ? '5' : r.sobretasa;
+        const ilegible = String(texto).trim() !== '' && isNaN(T.parseFlexibleNumber(texto));
+        const debe = c.llevaSobretasa && marcada && ilegible;
+        const otro = T.analizarNumero(r.importe).aviso || (c.llevaTitularidad && T.analizarTitularidad(r.titularidad).aviso);
+        if (debe && !otro && c.aviso !== AVISO_SOBRETASA) sobretasaMal.push(`caso ${n}, renglon ${i + 1}: la sobretasa «${texto}» no se puede leer y no avisa («${c.aviso}»)`);
+        if (!debe && c.aviso === AVISO_SOBRETASA) sobretasaMal.push(`caso ${n}, renglon ${i + 1}: avisa por la sobretasa «${texto}», que no hacia falta`);
+    });
+}
+
 for (let i = 0; i < casos.length; i += LOTE) {
     const lote = casos.slice(i, i + LOTE).map((c) => {
         const delMotor = T.cuentasDelCaso(paraMotor(c));
+        mirarSobretasa(paraMotor(c), delMotor.cuentas, casos.indexOf(c));
         const t = T.totales(delMotor.cuentas);
         const capa = T.liquidarCaso(paraMotor(c));
         renglones += c.renglones.length;
@@ -331,6 +352,7 @@ for (const p of primeras) {
 }
 for (const e of erroresDePagina.slice(0, 5)) console.log(`  ERROR EN LA PAGINA  ${e}`);
 for (const v of vigencias) console.log(`  FALLA  ${v}`);
+for (const v of sobretasaMal.slice(0, 5)) console.log(`  FALLA  ${v}`);
 
 const distintos = await manejarHuellas(huellas);
 if (distintos && distintos.length) {
@@ -338,8 +360,8 @@ if (distintos && distintos.length) {
 }
 
 console.log(`\n${casos.length} casos (${renglones} renglones) y ${TEXTOS.length} textos sueltos.`);
-console.log(`Casos con diferencias: ${fallas}. Textos que se leen distinto: ${lectoresMal}.` +
+console.log(`Casos con diferencias: ${fallas}. Textos que se leen distinto: ${lectoresMal}. Sobretasas mal avisadas: ${sobretasaMal.length}.` +
     (distintos ? ` Casos que dibujan distinto: ${distintos.length}.` : ''));
 
-if (fallas || lectoresMal || vigencias.length || erroresDePagina.length || (distintos && distintos.length)) process.exit(1);
+if (fallas || lectoresMal || sobretasaMal.length || vigencias.length || erroresDePagina.length || (distintos && distintos.length)) process.exit(1);
 console.log('La pantalla y el motor dan exactamente lo mismo.');

@@ -10,13 +10,16 @@
     // extension podian consultarla sin una SEGUNDA implementacion.
     //
     // ESTE ARCHIVO NO DECIDE NADA NUEVO. Es transcripcion. Las tres
-    // constantes, el lector de importes y `prorratear()` estan copiados de
-    // prorrateo.html tal cual, con sus comentarios. Ojo con una rareza que se
-    // conserva A PROPOSITO: el lector de importes de aca NO es el de tasa.js.
-    // Son dos lectores distintos --este deja pasar un signo menos y lee
-    // "abc" como cero en silencio--, y unificarlos moveria un numero en alguna
-    // de las dos pantallas. Si hay que unificarlos, es una decision, no una
-    // limpieza.
+    // constantes y `prorratear()` estan copiados de prorrateo.html tal cual,
+    // con sus comentarios.
+    //
+    // EL LECTOR DE IMPORTES NO ES PROPIO DESDE EL 29/10/2026: es el de
+    // js/importes.js, que tiene que estar cargado antes. Hasta ese dia este
+    // tenia otro, que dejaba pasar el signo menos, leia "abc" como cero y
+    // "1,234,567.89" como 1,23, todo en silencio. Javier decidio unificarlo,
+    // y eso SI movio numeros, a sabiendas: el formato ingles con comas de
+    // miles pasa a leerse bien, y lo negativo o ilegible vale cero pero
+    // AVISA. Cada aviso sale en `cuenta().avisos`.
     //
     // Lo unico escrito aca es la COMPOSICION que calcular() hacia contra el
     // formulario --`cuenta()`-- y la capa de `calcular()`, que es para quien
@@ -37,28 +40,22 @@
     var IVA = 0.21;
     var TOPE_COSTAS = 0.25; // art. 730 CCyC.
 
-    function parseFlexibleNumber(raw) {
-        if (raw === null || raw === undefined) return NaN;
-        var s = String(raw).trim();
-        if (!s) return NaN;
-
-        // Si hay coma, el punto es de miles y la coma decimal.
-        if (s.indexOf(',') > -1) {
-            s = s.replace(/\./g, '').replace(',', '.');
-        } else {
-            // Sin coma: un punto con tres digitos atras es de miles (10.800),
-            // y si no es decimal (10.8).
-            var partes = s.split('.');
-            if (partes.length > 1 && partes[partes.length - 1].length === 3) {
-                s = s.replace(/\./g, '');
-            }
-        }
-        return parseFloat(s.replace(/[^0-9.-]/g, ''));
+    function importes() {
+        var I = (typeof window !== 'undefined' && window.Importes) || null;
+        if (!I) throw new Error('prorrateo.js necesita importes.js cargado antes.');
+        return I;
     }
 
-    function numero(raw) {
-        var n = parseFlexibleNumber(raw);
-        return isNaN(n) ? 0 : n;
+    // Los nombres de siempre, sobre el lector unico.
+    function parseFlexibleNumber(raw) { return importes().leer(raw); }
+
+    function numero(raw) { return importes().numero(raw); }
+
+    // Lo que no se pudo leer, para que la pantalla lo diga: un texto que vale
+    // cero sin que nadie lo sepa parece una cuenta, y no lo es.
+    function avisoDe(raw, donde, avisos) {
+        var a = importes().analizar(raw);
+        if (a.aviso) avisos.push({ campo: donde.campo, indice: donde.indice, texto: donde.nombre + ': ' + a.aviso });
     }
 
     // ----------------------------------------------------------------------
@@ -225,6 +222,14 @@
 
         var r = prorratear({ monto: monto, tasa: tasa, tasaEnBase: enBase, regulados: regulados });
 
+        var avisos = [];
+        avisoDe(datos.monto, { campo: 'monto', nombre: 'Monto del proceso' }, avisos);
+        if (manual) avisoDe(datos.tasaImporte, { campo: 'tasaImporte', nombre: 'Tasa de justicia' }, avisos);
+        filas.forEach(function (f, i) {
+            avisoDe(f.monto, { campo: 'regulacion', indice: i, nombre: 'Regulación ' + (i + 1) }, avisos);
+        });
+        if (hayUma) avisoDe(datos.uma, { campo: 'uma', nombre: 'Valor de la UMA' }, avisos);
+
         return {
             monto: monto,
             uma: uma,
@@ -246,6 +251,7 @@
             prorrateadoEnUma: filas.map(function (f, i) {
                 return !(regulados[i] > 0) || r.totalRegulado <= 0 ? null : prorrateadoEnUma(f, r.reparto[i], uma);
             }),
+            avisos: avisos,
             prorrateo: r
         };
     }
@@ -276,9 +282,10 @@
         if (vacio(v)) return { problema: 'Falta ' + que + '.' };
         var t = textoDeNumero(v);
         if (t === null) return { problema: que.charAt(0).toUpperCase() + que.slice(1) + ' no es un número que se pueda leer.' };
-        var n = parseFlexibleNumber(t);
-        if (isNaN(n)) return { problema: 'No se entiende ' + que + ': «' + v + '».' };
-        if (n < 0) return { problema: que.charAt(0).toUpperCase() + que.slice(1) + ' no puede ser negativo.' };
+        var a = importes().analizar(t);
+        if (a.motivo === 'negativo') return { problema: que.charAt(0).toUpperCase() + que.slice(1) + ' no puede ser negativo.' };
+        if (isNaN(a.valor)) return { problema: 'No se entiende ' + que + ': «' + v + '». ' + importes().AVISO_IMPORTE.replace(/^No se entiende ese importe\. /, '') };
+        var n = a.valor;
         return { texto: t, valor: n };
     }
 

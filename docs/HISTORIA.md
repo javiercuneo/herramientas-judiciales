@@ -7189,3 +7189,42 @@ motor y, sobre todo, **la búsqueda**: que las 45 filas se encuentren por su
 nombre y por cómo la escribe la gente, y que **no se encuentren de más**. «San
 Juan Bautista» no puede devolver San Juan, y San Juan y San Luis no dan los
 mismos días.
+
+## Un solo lector de importes — 29/10
+
+Al extraer la tasa y el prorrateo quedó a la vista que el sitio leía los
+importes de **cuatro maneras**: el lector de `tasa.html`, una copia suya en
+`uma-uhom.html` («si se corrige allá, se corrige acá»), y uno más viejo en
+`prorrateo.html` y `honorarios-mediacion.html`. El viejo dejaba pasar el signo
+menos, leía «abc» como cero, «12a34» como 1234 y **«1,234,567.89» como 1,23**,
+todo sin avisar. Javier lo dijo así: los repos tienen que pedirle a un motor
+único que sea la fuente de verdad, y lo ilegible tiene que avisar qué formatos
+se admiten, no valer cero.
+
+**Qué se hizo.** El lector de tasa —el único que verifica los grupos de miles—
+se mudó byte por byte a `calculadoras/js/importes.js`, con dos agregados: el
+`motivo` de cada falla y `opciones.sufijos`, para que uma-uhom siga aceptando
+«10 uma». Lo usan los dos motores, las cuatro pantallas y, por los motores, los
+conectores. Prorrateo dice cada aviso campo por campo («Regulación 2: …»),
+mediación avisa el monto ilegible, y la sobretasa ilegible de tasa dejó de
+valer cero en silencio: avisa, como el importe.
+
+**Antes de aplicarlo se midió**, con los lectores del commit anterior contra
+el nuevo, sobre unos 40.000 textos —formatos reales y basura al azar—: en tasa
+y en uma-uhom **no cambia ninguno**. En prorrateo y mediación, de los formatos
+bien escritos **sólo cambia el inglés con comas de miles** («9,463.01» pasa de
+9,46 a 9.463,01); todo lo demás que cambia son negativos y textos ilegibles,
+que siguen valiendo cero pero ahora avisan.
+
+**Lo que se dejó como estaba**, por decisión de Javier: varias transmisiones
+sucesivas de un mismo bien en una sucesión se cargan como renglones separados,
+cada uno de hasta 100 %, y el tope del 100 % sigue siendo por renglón.
+
+**Los controles.** `verificar-importes` es nuevo: 44 lecturas escritas a mano,
+ningún archivo del sitio con un lector propio, cada consumidor cargando el
+único, y mediación y uma-uhom probadas en Chromium. Los dos barridos sumaron lo
+suyo: el de prorrateo cuenta del texto crudo cuántos campos no se pueden leer y
+exige un aviso por cada uno; el de tasa exige el aviso de la sobretasa
+exactamente cuando corresponde. Cada uno se vio fallar rompiéndolo, y el
+chequeo de «carga el lector» al principio no fallaba: la ruta aparecía también
+en un comentario. Ahora busca la etiqueta `<script>` entera.

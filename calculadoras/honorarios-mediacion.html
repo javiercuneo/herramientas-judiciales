@@ -471,6 +471,7 @@
     </p>
 </div>
 
+<script src="js/importes.js"></script>
 <script>
 (function () {
     'use strict';
@@ -480,22 +481,11 @@
     var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
                  'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-    function parseFlexibleNumber(raw) {
-        if (!raw) return NaN;
-        var s = String(raw).trim();
-
-        // Si hay coma, el punto es de miles y la coma decimal
-        if (s.includes(',')) {
-            s = s.replace(/\./g, '').replace(',', '.');
-        } else {
-            // Si no hay coma, verificamos si hay puntos de miles (ej: 10.800)
-            var parts = s.split('.');
-            if (parts.length > 1 && parts[parts.length - 1].length === 3) {
-                s = s.replace(/\./g, '');
-            }
-        }
-        return parseFloat(s.replace(/[^0-9.-]/g, ''));
-    }
+    // El lector de importes es el de todo el sitio, js/importes.js, desde el
+    // 29/10/2026. El de antes era propio, el mismo viejo de prorrateo: dejaba
+    // pasar el signo menos, leia "12a34" como 1234 y "1,234,567.89" como 1,23,
+    // todo sin avisar. Ahora lo que no se puede leer lo dice.
+    var Importes = window.Importes;
 
     // ----------------------------------------------------------------------
     // LA ESCALA. Art. 2 del Anexo III del Decreto 1467/2011, sustituido por el
@@ -643,8 +633,9 @@
         msg.textContent = '';
         msg.classList.remove('show');
 
-        var uhom = parseFlexibleNumber(document.getElementById('uhom').value);
-        var monto = parseFlexibleNumber(document.getElementById('monto').value);
+        var uhom = Importes.leer(document.getElementById('uhom').value);
+        var leido = Importes.analizar(document.getElementById('monto').value);
+        var monto = leido.valor;
 
         if (isNaN(uhom) || uhom <= 0) {
             // Decia "Ingrese un UHOM valido." y era lo unico que quedaba en
@@ -664,7 +655,12 @@
             escala.innerHTML = '';
             return;
         }
-        if (isNaN(monto) || monto < 0) {
+        if (isNaN(monto)) {
+            // Vacio, se espera; escrito y sin poder leerse, se dice.
+            if (leido.aviso) {
+                msg.textContent = 'Monto del asunto: ' + leido.aviso;
+                msg.classList.add('show');
+            }
             resultado.innerHTML = HTML_ESPERA;
             escala.innerHTML = '';
             return;
