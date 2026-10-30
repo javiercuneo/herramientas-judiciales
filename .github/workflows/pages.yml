@@ -16,7 +16,11 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Fijo en 24.04 y no ubuntu-latest: el 30/10/2026 latest paso a 26.04 y
+    # Playwright 1.56 no instala Chromium ahi, asi que los barridos de las
+    # pantallas no podian correr y no se publicaba nada. Se suelta cuando
+    # Playwright soporte la version nueva.
+    runs-on: ubuntu-24.04
     steps:
       # Las versiones de las acciones no son cosmetica: cada action declara
       # con que Node corre su propio codigo (`runs.using`), y eso es
