@@ -1,7 +1,7 @@
 {
   "_comentario": "Generado por scripts/actualizar-feriados.mjs. No editar a mano: se pisa. Los asuetos por Acordada van en dias-inhabiles.json, que si se edita a mano.",
   "fuente": "https://api.argentinadatos.com/v1/feriados",
-  "actualizado": "2026-08-14",
+  "actualizado": "2026-11-01",
   "desde": 2021,
   "hasta": 2027,
   "feriados": {
@@ -467,6 +467,10 @@
       {
         "fecha": "2026-10-12",
         "motivo": "Día del Respeto a la Diversidad Cultural"
+      },
+      {
+        "fecha": "2026-11-09",
+        "motivo": "Visita del papa León XIV"
       },
       {
         "fecha": "2026-11-23",
